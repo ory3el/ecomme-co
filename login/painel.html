@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sellerium | Painel do Cliente</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <div style="padding: 40px; font-family: sans-serif;">
+    <h1>Olá, <span id="nomeDoUsuario">Carregando...</span>! 👋</h1>
+    <p>Bem-vindo à sua conta pessoal na Sellerium.</p>
+    <p>Seu e-mail cadastrado é: <strong id="emailDoUsuario">...</strong></p>
+    
+    <br><br>
+    <button onclick="deslogar()" style="padding: 10px 20px; cursor: pointer;">Sair da Conta</button>
+  </div>
+
+  <script>
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co"; // Use a sua URL real
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR"; // Use a sua chave real
+
+// Mudamos o nome da constante para não colidir com o construtor 'supabase' da CDN
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const usuario = session.user;
+  document.getElementById('nomeDoUsuario').textContent = usuario.user_metadata.full_name || "Usuário";
+  document.getElementById('emailDoUsuario').textContent = usuario.email;
+});
+
+async function deslogar() {
+  await supabaseClient.auth.signOut();
+  window.location.href = 'index.html';
+}
+  </script>
+
+</body>
+</html>

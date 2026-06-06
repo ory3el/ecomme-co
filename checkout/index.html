@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sellerium | Finalizar Pedido</title>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" href="../images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="toast-wrap">
+  <div class="toast" id="toast"><div class="t-ico ok" id="tIco">✓</div><span id="tMsg">OK</span></div>
+</div>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="../" class="back-link">
+      <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+      Voltar à loja
+    </a>
+    <div class="logo">
+      <img src="../images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Sellerium"/>
+    </div>
+    <div class="secure-badge">
+      <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Compra 100% Segura
+    </div>
+  </div>
+</header>
+
+<!-- ── STEP BAR ─────────────────────────────────────────── -->
+<div class="steps-bar">
+  <div class="steps-in">
+    <div class="step-item active" id="s1"><div class="step-dot">1</div><div class="step-lbl">Carrinho</div></div>
+    <div class="step-item" id="s2"><div class="step-dot">2</div><div class="step-lbl">Entrega</div></div>
+    <div class="step-item" id="s3"><div class="step-dot">3</div><div class="step-lbl">Pagamento</div></div>
+    <div class="step-item" id="s4"><div class="step-dot">4</div><div class="step-lbl">Confirmação</div></div>
+  </div>
+</div>
+
+<!-- ── MAIN LAYOUT ──────────────────────────────────────── -->
+<div class="checkout-wrap">
+
+  <!-- ── FORM COLUMN ─────────────────────────────────────── -->
+  <div class="form-col" id="formCol">
+
+    <!-- ════ STEP 1: CART ════ -->
+    <div id="step1" class="panel-card">
+      <div class="panel-hd"><h3><div class="ico">🛒</div>Revisão do Carrinho</h3></div>
+      <div class="panel-body">
+        <div class="cart-list" id="cartList"></div>
+        <div class="coupon-row">
+          <input class="ci-inp" id="couponInp" type="text" placeholder="Código de cupom (ex: HAPPY10)">
+          <button class="btn-apply" onclick="applyCoupon()">Aplicar</button>
+        </div>
+        <div class="coupon-feedback" id="couponFb"></div>
+        <div class="form-actions" style="margin-top:18px">
+          <a href="../produtos" class="btn-back"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Continuar comprando</a>
+          <button class="btn-next" onclick="goStep(2)">Ir para entrega <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 2: DELIVERY ════ -->
+    <div id="step2" class="panel-card" style="display:none">
+      <div class="panel-hd"><h3><div class="ico">📍</div>Endereço de Entrega</h3></div>
+      <div class="panel-body">
+        <div class="addr-cards">
+          <div class="addr-opt on" onclick="selAddr(this)">
+            <div class="addr-label">🏠 Casa — Principal</div>
+            <div class="addr-name">Ana Carolina</div>
+            <div class="addr-street">Rua das Flores, 142, Apto 51<br>Vila Madalena · SP · CEP 05433-000</div>
+          </div>
+          <div class="addr-opt" onclick="selAddr(this)">
+            <div class="addr-label">💼 Trabalho</div>
+            <div class="addr-name">Ana Carolina</div>
+            <div class="addr-street">Av. Paulista, 1000, 5º andar<br>Bela Vista · SP · CEP 01310-100</div>
+          </div>
+        </div>
+        <div class="add-new-toggle" onclick="toggleNewAddr()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Usar um novo endereço
+        </div>
+        <div class="new-addr-form" id="newAddrForm">
+          <div class="fgrid">
+            <div class="fgrp span2"><label>CEP</label>
+              <div style="display:flex;gap:8px">
+                <input class="finput" id="cepInp" type="text" placeholder="00000-000" oninput="maskCEP(this)" maxlength="9">
+                <button style="background:var(--blue);color:#fff;padding:10px 16px;border-radius:var(--r);font-size:12px;font-weight:700;white-space:nowrap" onclick="searchCEP()">Buscar CEP</button>
+              </div>
+            </div>
+            <div class="fgrp span2"><label>Rua / Logradouro</label><input class="finput" id="streetInp" placeholder="Ex: Rua das Flores"></div>
+            <div class="fgrp"><label>Número</label><input class="finput" id="numInp" placeholder="Ex: 142"></div>
+            <div class="fgrp"><label>Complemento</label><input class="finput" placeholder="Apto, sala..."></div>
+            <div class="fgrp"><label>Bairro</label><input class="finput" id="neighInp" placeholder="Seu bairro"></div>
+            <div class="fgrp"><label>Cidade</label><input class="finput" id="cityInp" placeholder="Sua cidade"></div>
+            <div class="fgrp"><label>Estado</label>
+              <select class="fselect" id="stateInp">
+                <option>Selecione...</option>
+                <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
+                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                <option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option>
+                <option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                <option>RS</option><option>RO</option><option>RR</option><option>SC</option><option selected>SP</option>
+                <option>SE</option><option>TO</option>
+              </select>
+            </div>
+            <div class="fgrp"><label>Destinatário</label><input class="finput" placeholder="Nome completo" value=""></div>
+          </div>
+        </div>
+        <!-- shipping -->
+        <div style="margin-top:20px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Opção de Envio</div>
+          <div class="ship-opts">
+            <div class="ship-opt on" onclick="selShip(this,0)">
+              <div class="ship-radio"></div>
+              <div class="ship-ico">🎁</div>
+              <div class="ship-info"><div class="ship-name">Frete Grátis</div><div class="ship-detail">Entrega em 10–15 dias úteis · PAC</div></div>
+              <div class="ship-price ship-free">Grátis</div>
+            </div>
+            <div class="ship-opt" onclick="selShip(this,15.9)">
+              <div class="ship-radio"></div>
+              <div class="ship-ico">📦</div>
+              <div class="ship-info"><div class="ship-name">PAC Econômico</div><div class="ship-detail">Entrega em 7–10 dias úteis</div></div>
+              <div class="ship-price">R$ 15,90</div>
+            </div>
+            <div class="ship-opt" onclick="selShip(this,29.9)">
+              <div class="ship-radio"></div>
+              <div class="ship-ico">⚡</div>
+              <div class="ship-info"><div class="ship-name">SEDEX Express</div><div class="ship-detail">Entrega em 2–4 dias úteis</div></div>
+              <div class="ship-price">R$ 29,90</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-back" onclick="goStep(1)"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Voltar</button>
+          <button class="btn-next" onclick="goStep(3)">Ir para pagamento <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 3: PAYMENT ════ -->
+    <div id="step3" class="panel-card" style="display:none">
+      <div class="panel-hd"><h3><div class="ico">💳</div>Forma de Pagamento</h3></div>
+      <div class="panel-body">
+        <div class="pay-tabs">
+          <div class="pay-tab on" onclick="selPayTab(this,'pix')"><span class="pay-tab-ico">📱</span><div class="pay-tab-lbl">PIX</div></div>
+          <div class="pay-tab" onclick="selPayTab(this,'card')"><span class="pay-tab-ico">💳</span><div class="pay-tab-lbl">Cartão</div></div>
+          <div class="pay-tab" onclick="selPayTab(this,'boleto')"><span class="pay-tab-ico">📄</span><div class="pay-tab-lbl">Boleto</div></div>
+        </div>
+
+        <!-- PIX -->
+        <div class="pay-panel on" id="pp-pix">
+          <div class="pix-wrap">
+            <div style="background:#dcfce7;border:1px solid #86efac;border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green)">✓ 5% de desconto no PIX!</div>
+            <div class="pix-qr" id="pixQR">
+              <div class="qr-inner" id="qrGrid"></div>
+            </div>
+            <div class="pix-timer">⏱ Válido por <span class="timer-countdown" id="pixTimer">29:59</span></div>
+            <div class="pix-key-box">
+              <div>
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:3px">Chave PIX aleatória</div>
+                <div class="pix-key-val">00020126580014br.gov.bcb.pix...</div>
+              </div>
+              <button class="btn-copy" id="copyPixBtn" onclick="copyPIX()">📋 Copiar</button>
+            </div>
+            <div class="pix-steps">
+              <div class="pix-step"><div class="pix-step-n">1</div><span>Abra o app do seu banco e escolha pagar com <strong>PIX</strong></span></div>
+              <div class="pix-step"><div class="pix-step-n">2</div><span>Escaneie o <strong>QR Code</strong> ao lado ou copie e cole a chave</span></div>
+              <div class="pix-step"><div class="pix-step-n">3</div><span>Confirme o pagamento — a aprovação é <strong>instantânea!</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD -->
+        <div class="pay-panel" id="pp-card">
+          <!-- 3D card preview -->
+          <div class="card-scene" id="cardScene" onclick="toggleCardFlip()" title="Clique para virar">
+            <div class="card-3d" id="card3d">
+              <!-- front -->
+              <div class="card-face card-front">
+                <div class="chip-row"><div class="card-chip"></div><div class="card-wifi">))))</div></div>
+                <div class="card-number" id="cardNumDisp">•••• •••• •••• ••••</div>
+                <div class="card-row">
+                  <div><div class="card-label">Titular</div><div class="card-value" id="cardNameDisp">SEU NOME</div></div>
+                  <div><div class="card-label">Validade</div><div class="card-value" id="cardExpDisp">MM/AA</div></div>
+                  <div class="card-brand" id="cardBrandDisp">VISA</div>
+                </div>
+              </div>
+              <!-- back -->
+              <div class="card-face card-back">
+                <div class="card-back-stripe"></div>
+                <div class="card-cvv-row">
+                  <div class="card-sig"><div class="card-sig-lines"><div class="card-sig-line"></div><div class="card-sig-line"></div><div class="card-sig-line"></div></div></div>
+                  <div>
+                    <div class="cvv-label">CVV</div>
+                    <div class="cvv-field" id="cvvDisp">•••</div>
+                  </div>
+                </div>
+                <div style="margin-top:auto;text-align:right"><div class="card-label">Número do cartão</div><div class="card-value" id="cardNumBack">•••• •••• •••• ••••</div></div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--light);text-align:center;margin-bottom:16px">Clique no cartão para visualizar o verso</p>
+
+          <div class="card-brand-icons">
+            <div class="brand-ico on" id="bi-visa">
+            <img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
+            <div class="brand-ico" id="bi-master">
+            <img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard"/></div>
+            <div class="brand-ico" id="bi-amex">AMEX</div>
+            <div class="brand-ico" id="bi-elo">
+            <img src="../images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo"/></div>
+          </div>
+
+          <div class="card-form-fields">
+            <div class="fgrp">
+              <label>Número do Cartão</label>
+              <input class="finput" id="cardNum" type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="onCardNum(this)">
+            </div>
+            <div class="fgrp">
+              <label>Nome do Titular</label>
+              <input class="finput" id="cardName" type="text" placeholder="Como está no cartão" oninput="onCardName(this)" style="text-transform:uppercase">
+            </div>
+            <div class="card-row-fields">
+              <div class="fgrp">
+                <label>Validade</label>
+                <input class="finput" id="cardExp" type="text" placeholder="MM/AA" maxlength="5" oninput="onCardExp(this)">
+              </div>
+              <div class="fgrp">
+                <label>CVV</label>
+                <input class="finput" id="cardCvv" type="text" placeholder="•••" maxlength="4" onfocus="flipCard(true)" onblur="flipCard(false)" oninput="onCvv(this)">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px">Parcelamento</div>
+            <div class="install-opts" id="installOpts"></div>
+          </div>
+        </div>
+
+        <!-- BOLETO -->
+        <div class="pay-panel" id="pp-boleto">
+          <div class="boleto-wrap">
+            <div class="boleto-barcode">
+              <div class="barcode-stripes" id="barcodeStripes"></div>
+              <div class="boleto-code" id="boletoCode">1234.56789 01234.567890 12345.678901 1 00000001</div>
+              <button class="btn-copy" onclick="copyBoleto()" style="margin:0 auto">📋 Copiar código</button>
+            </div>
+            <div class="boleto-info">
+              ⚠️ <strong>Atenção:</strong> O boleto será gerado após a confirmação e vence em <strong>3 dias úteis</strong>. O pedido só será processado após o pagamento ser compensado (1-2 dias úteis).
+            </div>
+            <div class="boleto-due">
+              <div><div style="font-size:10px;color:var(--muted)">Vencimento</div><strong>15 de Janeiro, 2025</strong></div>
+              <div><div style="font-size:10px;color:var(--muted)">Valor</div><strong style="color:var(--blue)" id="boletoVal">R$ 0,00</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pay-note">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pagamento processado com segurança SSL 256-bit
+        </div>
+        <div class="form-actions">
+          <button class="btn-back" onclick="goStep(2)"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Voltar</button>
+          <button class="btn-next" id="payBtn" onclick="placeOrder()">Confirmar pedido <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 4: CONFIRM ════ -->
+    <div id="step4" class="panel-card" style="display:none">
+      <div class="confirm-wrap">
+        <div class="confirm-anim">
+          <div class="confetti" id="confetti"></div>
+          <div class="confirm-circle">🎉</div>
+        </div>
+        <div class="confirm-title">Pedido Confirmado!</div>
+        <div class="confirm-sub">Seu pedido foi recebido e está sendo processado. Você receberá atualizações por e-mail e SMS.</div>
+        <div class="order-code-box">
+          <div class="order-code-lbl">Número do Pedido</div>
+          <div class="order-code" id="orderCode">DS-2025-0000</div>
+        </div>
+        <div class="order-timeline">
+          <div class="otl-title">Previsão de Entrega</div>
+          <div class="otl-steps">
+            <div class="otl-step done"><div class="otl-dot">✓</div><div class="otl-lbl">Pagamento</div><div class="otl-date">Hoje</div></div>
+            <div class="otl-step curr"><div class="otl-dot">📦</div><div class="otl-lbl">Preparando</div><div class="otl-date">Amanhã</div></div>
+            <div class="otl-step"><div class="otl-dot">🚚</div><div class="otl-lbl">Em trânsito</div><div class="otl-date" id="otlTransit">—</div></div>
+            <div class="otl-step"><div class="otl-dot">🏠</div><div class="otl-lbl">Entregue</div><div class="otl-date" id="otlDelivery">—</div></div>
+          </div>
+        </div>
+        <div class="confirm-btns">
+          <a href="dropshop-profile.html" class="btn-track">📦 Acompanhar Pedido</a>
+          <a href="dropshop-store.html" class="btn-store">🛍️ Continuar Comprando</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /form-col -->
+
+  <!-- ── SUMMARY COLUMN ──────────────────────────────────── -->
+  <aside class="summary-col">
+    <div class="sum-card">
+      <div class="sum-hd"><h3>Resumo do Pedido <span id="sumCount"></span></h3></div>
+      <div class="sum-items" id="sumItems"></div>
+      <hr class="sum-divider">
+      <div class="sum-totals">
+        <div class="tot-row"><span class="lbl">Subtotal</span><span id="sumSub">R$ 0,00</span></div>
+        <div class="tot-row" id="discRow" style="display:none"><span class="lbl">Desconto <span class="disc-tag" id="discTag"></span></span><span id="sumDisc" style="color:var(--green)"></span></div>
+        <div class="tot-row"><span class="lbl">Frete</span><span id="sumShip" style="color:var(--green)">Grátis</span></div>
+        <div class="tot-row" id="pixDiscRow" style="display:none"><span class="lbl">Desc. PIX (5%)</span><span id="sumPixDisc" style="color:var(--green)"></span></div>
+        <div class="tot-main"><span class="lbl">Total</span><span class="val" id="sumTotal">R$ 0,00</span></div>
+        <div class="install-note" id="installNote"></div>
+      </div>
+      <div class="sum-footer">
+        <div class="trust-row"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Pagamento seguro com criptografia SSL</div>
+        <div class="trust-row"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>30 dias para devolução gratuita</div>
+        <div class="trust-row"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Rastreamento incluído no envio</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;">
+          <img src="../images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix"/></div>
+          <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
+          <img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
+          <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
+          <img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="MasterCard"/></div>
+          <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
+          <img src="../images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto"/></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /checkout-wrap -->
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sellerium | Entrar na Conta</title>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" href="../images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap">
+  <div class="toast" id="toast1">
+    <div class="toast-ico ok" id="toastIco">✓</div>
+    <span id="toastMsg"></span>
+  </div>
+</div>
+
+<div class="auth-shell">
+
+  <!-- ─── LEFT PANEL ─────────────────────────────────────── -->
+  <div class="panel-left">
+    <div class="grid-bg"></div>
+
+    <!-- floating badges -->
+    <div class="float-badge b1">
+      <span class="fbico">🛍️</span>
+      <div class="fbtxt">
+        Novo pedido!
+        <small>Smartwatch Pro X7</small>
+      </div>
+    </div>
+    <div class="float-badge b2">
+      <span class="fbico">✅</span>
+      <div class="fbtxt">
+        Entregue
+        <small>Kit LED Smart RGB</small>
+      </div>
+    </div>
+
+    <!-- brand -->
+    <div class="brand">
+      <div class="brand-logo" style="position: relative; right: 10px; top: 20px;">
+        <button onclick="buttonLink('../')" style="background: rgba(0, 0, 0, 0.5); border: none; border-radius: 100px; cursor: pointer;">
+          <img src="../images/back-0.png" style="width: 25px; height: auto; display: block; opacity: 100%; filter: invert(100%) brightness(100%) contrast(50%)" alt="Back"/>
+        </button>
+        
+        <button onclick="buttonLink('../')" style="background: none; border: none; cursor: pointer;">
+          <img src="../images/mainlogo-white2.png" style="width: 200px; height: auto; display: block;" alt="Logo Sellerium"/>
+        </button>
+      </div>
+    </div>
+
+    <!-- headline -->
+    <div class="panel-headline">
+      Compras que<br>chegam até você,<br>
+      <em>sempre no preço.</em>
+    </div>
+    <p class="panel-sub">Acesse sua conta e aproveite milhares de produtos com entrega rápida e segura em todo o Brasil.</p>
+
+        <!-- stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-val">Produtos <br>Confiáveis</span>
+        <div class="stat-lbl"></div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-val">Compra <br>Segura</span>
+        <div class="stat-lbl"></div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-val">Entrega<br>Rápida</span>
+        <div class="stat-lbl"></div>
+      </div>
+    </div>
+
+    <!-- testimonial -->
+    <div class="tcard">
+      <div class="tcard-stars">★★★★★</div>
+      <div class="tcard-text">"Melhor experiência de compra que já tive. Chegou em 9 dias, embalagem impecável e o produto exatamente como na foto!"</div>
+      <div class="tcard-user">
+        <div class="tcard-av">AC</div>
+        <div>
+          <div class="tcard-name">Ana Carolina</div>
+          <div class="tcard-role">Cliente desde 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RIGHT PANEL ────────────────────────────────────── -->
+  <div class="panel-right">
+
+    <!-- TABS -->
+    <div class="auth-tabs" role="tablist" style="position: relative;">
+      <button class="atab on" id="tabLogin" onclick="showTab('login')" role="tab">Entrar</button>
+      <button class="atab" id="tabReg" onclick="showTab('register')" role="tab">Criar Conta</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div id="formLogin" class="form-panel">
+
+      <!-- forgot password overlay -->
+      <div class="forgot-panel" id="forgotPanel">
+        <button class="back-btn" onclick="toggleForgot(false)">
+          <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+          Voltar ao login
+        </button>
+        <div class="form-heading">
+          <h2>Recuperar senha</h2>
+          <p>Digite seu e-mail e enviaremos um link de redefinição.</p>
+        </div>
+        <div class="fgrp">
+          <label>E-mail cadastrado</label>
+          <input class="finput" id="forgotEmail" type="email" placeholder="seu@email.com">
+        </div>
+        <button class="btn-submit" onclick="sendForgot()">
+          <span class="btn-txt">Enviar link de recuperação</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+      <!-- main login form -->
+      <div id="loginMain">
+        <div class="form-heading">
+          <h2>Bem-vindo de volta! 👋</h2>
+          <p>Não tem conta? <a href="#" onclick="showTab('register');return false">Cadastre-se grátis</a></p>
+        </div>
+        
+<div class="social-row">
+  <div id="google-btn-login" style="flex: 1; min-height: 40px;"></div>
+  
+  <button type="button" class="fb-btn-google-style" onclick="socialLogin('Facebook')">
+    <span class="fb-icon-wrap">
+      <img src="../images/facebook_t.png" alt="Facebook" style="width: 30px; height: auto; display: block;"/>
+    </span>
+    <span class="fb-btn-text">Entrar com o Facebook</span>
+  </button>
+</div>
+
+        <div class="divider">ou entre com e-mail</div>
+
+        <div class="fgrp">
+          <label for="loginEmail">E-mail</label>
+          <input class="finput" id="loginEmail" type="email" placeholder="seu@email.com" oninput="clearFieldErr(this)">
+          <div class="field-err" id="loginEmailErr">Digite um e-mail válido</div>
+        </div>
+
+        <div class="fgrp">
+          <label for="loginPwd">Senha</label>
+          <div class="finput-wrap">
+            <input class="finput" id="loginPwd" type="password" placeholder="Sua senha" style="padding-right:42px" oninput="clearFieldErr(this)">
+            <button class="finput-ico" onclick="togglePwd('loginPwd',this)" type="button" title="Mostrar senha">👁</button>
+          </div>
+          <div class="field-err" id="loginPwdErr">Senha obrigatória</div>
+        </div>
+
+        <div class="meta-row">
+          <label><input type="checkbox" id="rememberMe"> Lembrar-me</label>
+          <button class="forgot" onclick="toggleForgot(true)">Esqueceu a senha?</button>
+        </div>
+
+        <button class="btn-submit" id="btnLogin" onclick="doLogin()">
+          <span class="btn-txt">Entrar na conta</span>
+          <div class="spinner"></div>
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        </button>
+
+        <div class="back-link" style="margin-top:14px">
+          <a href="../"><- Voltar à loja</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── REGISTER FORM ── -->
+    <div id="formReg" class="form-panel hidden">
+      <div class="form-heading">
+        <h2>Crie sua conta grátis 🚀</h2>
+        <p>Já tem conta? <a href="#" onclick="showTab('login');return false">Entrar agora</a></p>
+      </div>
+
+<div class="social-row">
+  <div id="google-btn-reg" style="flex: 1; min-height: 40px;"></div>
+  
+  <button type="button" class="fb-btn-google-style" onclick="socialLogin('Facebook')">
+    <span class="fb-icon-wrap">
+      <img src="../images/facebook_t.png" alt="Facebook" style="width: 30px; height: auto; display: block;"/>
+    </span>
+    <span class="fb-btn-text">Entrar com o Facebook</span>
+  </button>
+</div>
+
+      <div class="divider">ou cadastre com e-mail</div>
+
+      <div class="frow">
+        <div class="fgrp full" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label for="regName">Nome *</label>
+            <input class="finput" id="regName" type="text" placeholder="Seu nome" oninput="clearFieldErr(this)">
+            <div class="field-err" id="regNameErr">Campo obrigatório</div>
+          </div>
+          <div>
+            <label for="regSob">Sobrenome</label>
+            <input class="finput" id="regSob" type="text" placeholder="Sobrenome" oninput="clearFieldErr(this)">
+          </div>
+        </div>
+      </div>
+
+      <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fgrp">
+        <label for="regEmail">E-mail *</label>
+        <input class="finput" id="regEmail" type="email" placeholder="seu@email.com" oninput="clearFieldErr(this)">
+        <div class="field-err" id="regEmailErr">E-mail inválido</div>
+      </div>
+        <div class="fgrp">
+          <label for="regPhone">Celular *</label>
+          <input class="finput" id="regPhone" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15">
+          <div class="field-err" id="regPhoneErr">Número inválido</div>
+        </div>
+      </div>
+
+      <div class="fgrp">
+        <label for="regPwd">Senha *</label>
+        <div class="finput-wrap">
+          <input class="finput" id="regPwd" type="password" placeholder="Crie uma senha forte" style="padding-right:42px" oninput="checkPwd(this.value)">
+          <button class="finput-ico" onclick="togglePwd('regPwd',this)" type="button" title="Mostrar senha">👁</button>
+        </div>
+        <div class="pwd-strength" id="pwdStrength" style="display:none">
+          <div class="pwd-bars">
+            <div class="pwd-bar" id="pb1"></div>
+            <div class="pwd-bar" id="pb2"></div>
+            <div class="pwd-bar" id="pb3"></div>
+            <div class="pwd-bar" id="pb4"></div>
+          </div>
+          <span class="pwd-label" id="pwdLbl">Muito fraca</span>
+          <div class="req-list" id="reqList">
+            <div class="req" id="r1">8+ caracteres</div>
+            <div class="req" id="r2">Letra maiúscula</div>
+            <div class="req" id="r3">Número</div>
+            <div class="req" id="r4">Caractere especial</div>
+          </div>
+        </div>
+        <div class="field-err" id="regPwdErr">Senha deve ter no mínimo 8 caracteres</div>
+      </div>
+
+      <div class="terms-row">
+        <input type="checkbox" id="acceptAge" style="cursor: pointer;">
+        <label for="acceptAge" style="cursor: default;">
+          Declaro ter 18 anos ou mais.
+        </label>
+      </div>
+
+      <div class="terms-row">
+        <input type="checkbox" id="acceptTerms" style="cursor: pointer;">
+        <label for="acceptTerms" style="cursor: default;">
+          Concordo com os <a href="../doc/termos-e-condições" style="cursor: pointer;">Termos de Uso</a> e a <a href="../doc/política-de-privacidade" style="cursor: pointer;">Política de Privacidade</a> da Sellerium.
+        </label>
+      </div>
+
+
+      <button class="btn-submit" id="btnReg" onclick="doRegister()">
+        <span class="btn-txt">Criar conta</span>
+        <div class="spinner"></div>
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+      </button>
+
+      <div class="back-link">
+        <a href="../"><- Voltar à loja</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+  
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    quicklink.listen();
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js" defer></script>
+  
+</body>
+</html>
