@@ -36,11 +36,11 @@
        </button>
     </div>
     <nav class="nav-main">
-      <a href="#" class="active" onclick="setActive(this)">Início</a>
-      <a href="#produtos" onclick="setActive(this)">Produtos</a>
-      <a href="#categorias" onclick="setActive(this)">Categorias</a>
-      <a href="#" onclick="setActive(this)">Ofertas</a>
-      <a href="#" onclick="setActive(this)">Sobre</a>
+      <a href="../" onclick="setActive(this)">Início</a>
+      <a href="../#produtos" onclick="setActive(this)">Produtos</a>
+      <a href="../categories" class="active" onclick="setActive(this)">Categorias</a>
+      <a href="../" onclick="setActive(this)">Ofertas</a>
+      <a href="../" onclick="setActive(this)">Sobre</a>
     </nav>
     <div class="search-bar">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -62,80 +62,6 @@
     </div>
   </div>
 </header>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-pattern"></div>
-  <div class="hero-accent"></div>
-  <div class="hero-accent2"></div>
-  <div class="hero-inner">
-    <div class="hero-content">
-      <div class="hero-tag">Nova Coleção 2026</div>
-      <h1>Produtos de<br><em>Tendência</em><br>na Sua Porta</h1>
-      <p>Descubra mais de 2.000 produtos exclusivos com entrega rápida e os melhores preços do mercado. Sem estoque, sem complicação.</p>
-      <div class="hero-btns">
-        <a href="#produtos" class="btn-primary">
-          Explorar Produtos
-          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
-        </a>
-        <a href="#" class="btn-outline">Ver Ofertas do Dia</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><strong>2.4K+</strong><small>Produtos</small></div>
-        <div class="hero-stat"><strong>18K+</strong><small>Clientes</small></div>
-        <div class="hero-stat"><strong>4.9★</strong><small>Avaliação</small></div>
-        <div class="hero-stat"><strong>99%</strong><small>Satisfação</small></div>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-cards">
-        <div class="hero-card featured" onclick="openProduct(0)">
-          <div class="hero-card-img">⌚</div>
-          <div>
-            <div class="hero-card-tag">🔥 Mais Vendido</div>
-            <div class="hero-card-name">Smartwatch Pro X7</div>
-            <div><span class="hero-card-price">R$ 189,90</span><span class="hero-card-old">R$ 299</span></div>
-          </div>
-        </div>
-        <div class="hero-card" onclick="openProduct(1)">
-          <div class="hero-card-img" style="font-size:40px">🎧</div>
-          <div class="hero-card-tag">Novo</div>
-          <div class="hero-card-name">Fone Sem Fio BT Pro</div>
-          <div><span class="hero-card-price">R$ 119,90</span></div>
-        </div>
-        <div class="hero-card" onclick="openProduct(3)">
-          <div class="hero-card-img" style="font-size:40px">💡</div>
-          <div class="hero-card-tag">-40%</div>
-          <div class="hero-card-name">Kit Luz LED Smart</div>
-          <div><span class="hero-card-price">R$ 79,90</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TRUST BADGES -->
-<div class="trust">
-  <div class="trust-inner">
-    <div class="trust-item">
-      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      <div class="trust-text"><strong>Entrega Garantida</strong><small>Rastreamento em tempo real</small></div>
-    </div>
-    <div class="trust-item">
-      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <div class="trust-text"><strong>Compra Segura</strong><small>SSL 256-bit criptografado</small></div>
-    </div>
-    <div class="trust-item">
-      <div class="trust-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
-      <div class="trust-text"><strong>30 Dias de Devolução</strong><small>Sem perguntas feitas</small></div>
-    </div>
-    <div class="trust-item">
-      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
-      <div class="trust-text"><strong>Suporte 24/7</strong><small>Atendimento via chat e WhatsApp</small></div>
-    </div>
-  </div>
-</div>
 
 <!-- CATEGORIES -->
 <section class="section" id="categorias" style="padding-top: 60px;">
