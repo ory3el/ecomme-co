@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
-<body onload="showPanel('settings',this)">
+<body>
   
 <div class="toast-stack" id="toasts">
   <div class="t" id="t1"><div class="t-ico ok" id="tIco">✓</div><span id="tMsg">OK</span></div>
@@ -79,7 +79,7 @@
       </div>
       <div class="sb-section">
         <div class="sb-sec-label">Configurações</div>
-        <button class="nav-item active" data-panel="addresses" onclick="showPanel('addresses',this)">
+        <button class="nav-item" data-panel="addresses" onclick="showPanel('addresses',this)">
           <span class="nav-ico">📍</span><span class="nav-lbl">Endereços</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="payments" onclick="showPanel('payments',this)">
@@ -91,7 +91,7 @@
         <button class="nav-item" data-panel="security" onclick="showPanel('security',this)">
           <span class="nav-ico">🔒</span><span class="nav-lbl">Segurança</span><span class="nav-arrow">›</span>
         </button>
-        <button class="nav-item" data-panel="settings" onclick="showPanel('settings',this)">
+        <button class="nav-item active" data-panel="settings" onclick="showPanel('settings',this)">
           <span class="nav-ico">⚙️</span><span class="nav-lbl">Configurações</span><span class="nav-arrow">›</span>
         </button>
       </div>
