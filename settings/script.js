@@ -59,12 +59,6 @@ function toast(msg, type='ok'){
     // Busca a sessão ativa guardada no navegador
     const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    // 4. Barreira de Segurança: Se não tiver logado, manda de volta pra tela de login
-    if (!session || error) {
-      window.location.href = '../settings'; // Ajuste o caminho se necessário
-      return;
-    }
-
     // 5. Extrai os dados do utilizador
     const usuario = session.user;
     const nomeCompleto = usuario.user_metadata.full_name || "Utilizador";
