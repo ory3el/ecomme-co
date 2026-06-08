@@ -27,7 +27,7 @@
     <div class="hdr-bc">
       <a href="../">Início</a>
       <span>›</span>
-      <span id="bcSection">Minha Conta</span>
+      <span style="cursor: default" id="bcSection">Configurações</span>
     </div>
     <div class="hdr-right">
       <div class="hdr-ico" onclick="showPanel('notifications')" title="Notificações">
@@ -72,7 +72,7 @@
     <nav class="sb-nav">
       <div class="sb-section">
         <div class="sb-sec-label">Conta</div>
-        <button class="nav-item active" data-panel="profile" onclick="showPanel('profile',this)">
+        <button class="nav-item" data-panel="profile" onclick="showPanel('profile',this)">
           <span class="nav-ico">
             <img src="../images/icons/full/user.png" style="width: 20px; height: auto; display: block;" alt="User"/>
           </span><span class="nav-lbl">Meu Perfil</span><span class="nav-arrow">›</span>
@@ -119,7 +119,7 @@
             <img src="../images/icons/full/padlock.png" style="width: 20px; height: auto; display: block;" alt="Padlock"/>
           </span><span class="nav-lbl">Segurança</span><span class="nav-arrow">›</span>
         </button>
-        <button class="nav-item" data-panel="settings" onclick="showPanel('settings',this)">
+        <button class="nav-item active" data-panel="settings" onclick="showPanel('settings',this)">
           <span class="nav-ico">
             <img src="../images/icons/full/setting.png" style="width: 20px; height: auto; display: block;" alt="Setting"/>
           </span><span class="nav-lbl">Configurações</span><span class="nav-arrow">›</span>
@@ -137,7 +137,7 @@
   <main class="main">
 
     <!-- ════ PERFIL ════ -->
-    <div class="panel active" id="panel-profile">
+    <div class="panel" id="panel-profile">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meu Perfil</h2><p>Gerencie suas informações pessoais</p></div>
         <div style="display:flex;gap:8px">
@@ -578,7 +578,7 @@
     </div>
 
     <!-- ════ CONFIGURAÇÕES ════ -->
-    <div class="panel" id="panel-settings">
+    <div class="panel active" id="panel-settings">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Configurações</h2><p>Personalize sua experiência no DropShop</p></div>
         <button class="btn-primary" onclick="toast('Configurações salvas! ✓')">💾 Salvar</button>
