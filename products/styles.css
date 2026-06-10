@@ -68,7 +68,7 @@
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
       letter-spacing: .5px;
     }
-  .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: #eaeff5; border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+  .search-bar { flex: 1; max-width: 620px; display: flex; align-items: center; background: #eaeff5; border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
   .search-bar:focus-within { border-color: var(--blue); }
   .search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; flex: 1; padding: 9px 0; }
   .search-bar input::placeholder { color: var(--muted); }
