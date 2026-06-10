@@ -68,9 +68,11 @@
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
       letter-spacing: .5px;
     }
-    .logo-dot {
-      width: 7px; height: 7px; background: var(--blue);
-      border-radius: 50%; margin-top: 2px;
+  .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: #eaeff5; border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+  .search-bar:focus-within { border-color: var(--blue); }
+  .search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; flex: 1; padding: 9px 0; }
+  .search-bar input::placeholder { color: var(--muted); }
+  .search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; 
     }
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
