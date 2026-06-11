@@ -126,10 +126,23 @@ body.loading {
   100% { transform: rotate(360deg); }
 }
 
-  /* TOPBAR */
-  .topbar { background: #10141a; color: #e8eef5; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; position: relative; }
-  .topbar span { opacity: 0.5; margin: 0 8px; }
-  .topbar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: #e8edf5; opacity: 0.6; }
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar {
+      background: var(--blue);
+      color: #fff;
+      text-align: center;
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      position: relative;
+    }
+    .topbar span { opacity: 0.55; margin: 0 10px; }
+    .topbar-close {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,.65); font-size: 18px; line-height: 1;
+    }
+    .topbar-close:hover { color: #fff; }
 
   /* HEADER */
   header { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 1000; }
