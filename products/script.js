@@ -272,6 +272,7 @@ function alertWish() {
 
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProduct(id) {
+  document.body.classList.add("noscroll");
   const p = products.find(x => x.id === id);
   curId   = id;
   mQtyVal = 1;
@@ -290,7 +291,7 @@ function openProduct(id) {
 }
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal()        { $('modalOverlay').classList.remove('on'); }
+function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
 function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
 
