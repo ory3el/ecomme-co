@@ -245,8 +245,8 @@ function updateCart() {
   renderProducts();
 }
 
-function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
 function checkout() {
   if (!cart.length) { showToast('Adicione produtos primeiro! 😊'); return; }
