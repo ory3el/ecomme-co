@@ -488,6 +488,7 @@
 
     /* ── MODAL ───────────────────────────────────────────────── */
     .modal-ov {
+      overflow: hidden; scrollbar-gutter: stable;
       position: fixed; inset: 0;
       background: rgba(0,0,0,.75); z-index: 2500;
       display: flex; align-items: center; justify-content: center;
