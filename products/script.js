@@ -16,7 +16,7 @@ const products = [
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
-let wishlist    = [];
+let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
 let view        = 'grid';
@@ -98,7 +98,7 @@ function renderProducts() {
 
   /* render cards */
   grid.innerHTML = list.map(p => {
-    const inW     = wishlist.includes(p.id);
+    const inW     = fav.includes(p.id);
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
                   :                     `<span class="bpill bsale">-${p.discount}%</span>`;
@@ -148,7 +148,7 @@ function renderProducts() {
           <div class="pimg">${p.emoji}</div>
           <div class="pbadges">${badgeH}</div>
           <button class="pwish-btn ${inW ? 'on' : ''}"
-                  onclick="event.stopPropagation();toggleWishlist(${p.id})"
+                  onclick="event.stopPropagation();toggleFav(${p.id})"
                   title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
@@ -336,7 +336,7 @@ function openProduct(id) {
   $('mDisc').textContent   = `-${p.discount}% OFF`;
   $('mFeats').innerHTML    = p.features.map(f =>
     `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
-  $('mWish').classList.toggle('on', wishlist.includes(id));
+  $('mWish').classList.toggle('on', fav.includes(id));
   $('modalOverlay').classList.add('on');
 }
 
