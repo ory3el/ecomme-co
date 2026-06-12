@@ -178,61 +178,6 @@
 
 <!-- MAIN PRODUCT AREA -->
 <div class="main-layout" id="produtos">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title">Categorias</div>
-      <div class="category-list">
-        <button class="category-btn active" onclick="filterByCategory('Todos')">
-          <span class="cat-icon">🏷️</span> Todos os Produtos <span class="cat-count">48</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Eletrônicos')">
-          <span class="cat-icon">📱</span> Eletrônicos <span class="cat-count">12</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Moda')">
-          <span class="cat-icon">👗</span> Moda <span class="cat-count">10</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Casa')">
-          <span class="cat-icon">🏠</span> Casa & Deco <span class="cat-count">8</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Fitness')">
-          <span class="cat-icon">💪</span> Fitness <span class="cat-count">7</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Beleza')">
-          <span class="cat-icon">💄</span> Beleza <span class="cat-count">6</span>
-        </button>
-        <button class="category-btn" onclick="filterByCategory('Pets')">
-          <span class="cat-icon">🐾</span> Pets <span class="cat-count">5</span>
-        </button>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">Preço</div>
-      <div class="price-inputs">
-        <input class="price-input" type="number" placeholder="Mín" id="minPrice" oninput="filterProducts()">
-        <span class="price-sep">—</span>
-        <input class="price-input" type="number" placeholder="Máx" id="maxPrice" oninput="filterProducts()">
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">Tags</div>
-      <div class="filter-tags">
-        <button class="filter-tag active" onclick="toggleTag(this,'Todos')">Todos</button>
-        <button class="filter-tag" onclick="toggleTag(this,'Sale')">Promoção</button>
-        <button class="filter-tag" onclick="toggleTag(this,'Novo')">Novidade</button>
-        <button class="filter-tag" onclick="toggleTag(this,'Hot')">Mais Vendido</button>
-        <button class="filter-tag" onclick="toggleTag(this,'Frete Grátis')">Frete Grátis</button>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">Avaliação</div>
-      <div class="stars-filter">
-        <label class="star-row"><input type="checkbox" onchange="filterProducts()"> <span class="stars">★★★★★</span> <span class="stars-count">(5 estrelas)</span></label>
-        <label class="star-row"><input type="checkbox" onchange="filterProducts()"> <span class="stars">★★★★☆</span> <span class="stars-count">(4+ estrelas)</span></label>
-        <label class="star-row"><input type="checkbox" onchange="filterProducts()"> <span class="stars">★★★☆☆</span> <span class="stars-count">(3+ estrelas)</span></label>
-      </div>
-    </div>
-  </aside>
 
   <!-- PRODUCTS -->
   <div class="products-area">
