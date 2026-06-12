@@ -532,7 +532,7 @@
     .fav-empty-st span { font-size: 48px; }
 
 
-    .fav-ft { padding: 20px; border-top: none; }
+    .fav-ft { padding: 20px; border-top: 1px transparent; }
     .fav-tots { margin-bottom: 16px; }
     .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
     .ct-row .lbl { color: var(--muted); }
