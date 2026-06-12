@@ -39,8 +39,12 @@ function renderProducts() {
   const grid = document.getElementById('productsGrid');
   const search = document.getElementById('searchInput').value.toLowerCase();
   const sort = document.getElementById('sortSelect').value;
-  const minP = parseFloat(document.getElementById('minPrice').value) || 0;
-  const maxP = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+  
+  const minPriceInput = document.getElementById('minPrice');
+  const maxPriceInput = document.getElementById('maxPrice');
+
+  const minP = minPriceInput ? parseFloat(minPriceInput.value) || 0 : 0;
+  const maxP = maxPriceInput ? parseFloat(maxPriceInput.value) || Infinity : Infinity;
 
   let filtered = products.filter(p => {
     const matchCat = currentCategory === 'Todos' || p.cat === currentCategory;
