@@ -377,6 +377,10 @@ function showToast(msg) {
   setTimeout(() => $('toast').classList.remove('on'), 2800);
 }
 
+function showToast(message) {
+    alert(message);
+}
+
 /* ─── BACK TO TOP ────────────────────────────────────────────────────── */
 window.addEventListener('scroll', () =>
   $('btt').classList.toggle('on', window.scrollY > 300)
