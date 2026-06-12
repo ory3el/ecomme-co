@@ -98,7 +98,7 @@ function renderProducts() {
 
   /* render cards */
   grid.innerHTML = list.map(p => {
-    const inW     = fav.includes(p.id);
+    const inW = fav.some(x => x.id === p.id);
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
                   :                     `<span class="bpill bsale">-${p.discount}%</span>`;
@@ -255,6 +255,20 @@ function checkout() {
 }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
+function toggleFav(id) {
+  const ex = fav.find(x => x.id === id);
+  if (ex) {
+    removeFromFav(id);
+    showToast('Removido da Lista de Desejos! 💔');
+  } else {
+    addToFav(id, 1);
+  }
+  
+  if ($('mWish')) {
+    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  }
+}
+
 function addToFav(id, qty = 1) {
   const p  = products.find(x => x.id === id);
   const ex = fav.find(x => x.id === id);
@@ -279,7 +293,8 @@ function changeFavQty(id, d) {
 function updateFav() {
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
-  $('favBadge').textContent = count;
+  $('wishBadge').textContent = count;
+  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
   $('favCount').textContent = `(${count})`;
   $('favSub').textContent   = fmt(total);
   $('favTotal').textContent = fmt(total);
@@ -336,7 +351,7 @@ function openProduct(id) {
   $('mDisc').textContent   = `-${p.discount}% OFF`;
   $('mFeats').innerHTML    = p.features.map(f =>
     `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
-  $('mWish').classList.toggle('on', fav.includes(id));
+  $('mWish').classList.toggle('on', fav.some(x => x.id === id));
   $('modalOverlay').classList.add('on');
 }
 
