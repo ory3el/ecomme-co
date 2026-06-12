@@ -40,7 +40,7 @@
     
     <div class="header-spacer"></div>
     <div class="header-actions">
-      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+      <button class="icon-btn" title="Favoritos" onclick="openCart()">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span class="hd-badge" id="wishBadge" style="display:none">0</span>
       </button>
@@ -280,6 +280,32 @@
   </div>
 </div>
 
+<!-- FAV SIDEBAR -->
+<div class="overlay" id="favOverlay" onclick="closeFav()"></div>
+<div class="fav-sb" id="favSidebar">
+  <div class="fav-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="favCount">(0)</span></h3>
+    <button class="fav-cls" onclick="closeFav()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="fav-body" id="favItems"></div>
+  <div class="fav-ft">
+    <div class="fav-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="favSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="favTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeFav()">← Continuar Comprando</button>
+  </div>
+</div>
+	
 <!-- PRODUCT MODAL -->
 <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
   <div class="modal">
