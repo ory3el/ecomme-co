@@ -132,13 +132,22 @@ function renderProducts() {
   }).join('');
 }
 
-function filterByCategory(cat) {
+function filterByCategory(event, cat) {
   currentCategory = cat;
-  document.getElementById('productsTitle').textContent = cat === 'Todos' ? 'Todos os Produtos' : cat;
-  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-  event && event.target && event.target.classList.add('active');
-  document.querySelectorAll('.cat-card').forEach(c => c.style.borderColor = '');
-  document.getElementById('produtos').scrollIntoView({behavior:'smooth', block:'start'});
+
+  document.getElementById('productsTitle').textContent =
+    cat === 'Todos' ? 'Todos os Produtos' : cat;
+
+  if (event?.currentTarget) {
+    document.querySelectorAll('.cat-card')
+      .forEach(card => card.classList.remove('active'));
+
+    event.currentTarget.classList.add('active');
+  }
+
+  document.getElementById('produtos')
+    .scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   renderProducts();
 }
 
