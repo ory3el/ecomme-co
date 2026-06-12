@@ -519,7 +519,7 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     .fav-hd h3 { font-family: 'Noto Sans', serif; font-size: 22px; font-weight: 700; }
-    .cart-cls {
+    .fav-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: center; color: var(--muted);
