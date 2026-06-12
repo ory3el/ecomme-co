@@ -441,7 +441,7 @@
       padding: 24px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .cart-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .cart-hd h3 { font-family: 'Poppins', serif; font-size: 22px; font-weight: 600; }
     .cart-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
@@ -518,7 +518,7 @@
       padding: 24px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .fav-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .fav-hd h3 { font-family: 'Poppins', serif; font-size: 22px; font-weight: 600; }
     .cart-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
