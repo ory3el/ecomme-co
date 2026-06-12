@@ -441,7 +441,7 @@
       padding: 24px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .cart-hd h3 { font-family: 'Poppins', serif; font-size: 22px; font-weight: 600; }
+    .cart-hd h3 { font-family: 'Noto Sans', serif; font-size: 22px; font-weight: 500; }
     .cart-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
@@ -465,7 +465,7 @@
     }
     .ci-info { flex: 1; min-width: 0; }
     .ci-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ci-price { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: var(--blue); }
+    .ci-price { font-family: 'Poppins', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
     .ci-qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .qb {
       width: 26px; height: 26px; border-radius: 6px;
@@ -518,7 +518,7 @@
       padding: 24px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .fav-hd h3 { font-family: 'Poppins', serif; font-size: 22px; font-weight: 600; }
+    .fav-hd h3 { font-family: 'Noto Sans', serif; font-size: 22px; font-weight: 500; }
     .cart-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
