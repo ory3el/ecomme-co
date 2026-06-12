@@ -209,7 +209,13 @@ body.loading {
   .trust-text small { font-size: 11px; color: var(--muted); }
 
   /* MAIN LAYOUT */
-  .main-layout { max-width: 1400px; margin: 0 auto; padding: 48px 24px; display: grid; grid-template-columns: 260px 1fr; gap: 40px; }
+  .main-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 
   /* SIDEBAR */
   .sidebar { position: sticky; top: 88px; height: fit-content; }
