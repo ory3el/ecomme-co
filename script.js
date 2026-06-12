@@ -23,12 +23,10 @@ let modalQty = 1;
 function formatPrice(p) { return 'R$ ' + p.toFixed(2).replace('.',','); }
 
 function renderStars(r) {
-  const full = Math.floor(r), half = r % 1 >= 0.5;
-  let s = '';
-  for(let i = 0; i < full; i++) s += '★';
-  if(half) s += '½';
-  while(s.replace('½','').length + (half?1:0) < 5) s += '☆';
-  return s.replace('½','★');
+  const full = Math.floor(r);
+  const empty = 5 - full;
+
+  return '★'.repeat(full) + '☆'.repeat(empty);
 }
 
 function login(url) {
