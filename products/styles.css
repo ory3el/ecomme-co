@@ -623,8 +623,6 @@
   .pay-icon { background: #fff; border: 1px solid var(--border2); border-radius: 10px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
 
     /* ── RESPONSIVE ──────────────────────────────────────────── */
-    @media (max-width: 1280px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 900px)  { .products-grid { grid-template-columns: repeat(2, 1fr); } }
 
     @media (max-width: 768px) {
       .nav-main { display: none; }
