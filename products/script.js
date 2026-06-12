@@ -359,6 +359,7 @@ function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal();
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
 function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
+function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 /* ─── TOAST ──────────────────────────────────────────────────────────── */
 function showToast(msg) {
