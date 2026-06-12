@@ -1,3 +1,7 @@
+function buttonLink(url) {
+  window.location.href = url;
+}
+
 /* ─── DATA ─────────────────────────────────────────────────────────── */
 const products = [
   { id:0,  name:'Smartwatch Pro X7',          cat:'Eletrônicos', price:189.90, old:299, discount:36, emoji:'⌚', badge:'hot',  rating:4.9, reviews:2847, shipping:true,  desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água. Bateria de 14 dias. Compatível com Android e iOS.',              features:['Monitor cardíaco e SpO2','GPS integrado','Resistência 5ATM','Bateria 14 dias','Compatível Android/iOS'] },
@@ -61,7 +65,12 @@ function shuffleAndRender() {
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function renderProducts() {
   const grid  = $('productsGrid');
-  const q     = $('searchInput').value.toLowerCase().trim();
+  const q =
+(
+  $('heroSearch')?.value ||
+  $('headerSearch')?.value ||
+ '').toLowerCase().trim();
+  
   const sort  = $('sortSelect').value;
 
   let list = [...shuffled];
