@@ -254,20 +254,70 @@ function checkout() {
   setTimeout(closeCart, 1200);
 }
 
-/* ─── WISHLIST ───────────────────────────────────────────────────────── */
-function toggleWishlist(id) {
-  const idx = wishlist.indexOf(id);
-  if (idx === -1) { wishlist.push(id); showToast('Adicionado aos favoritos ❤️'); }
-  else            { wishlist.splice(idx, 1); showToast('Removido dos favoritos'); }
-  const badge = $('wishBadge');
-  badge.textContent  = wishlist.length;
-  badge.style.display = wishlist.length ? 'flex' : 'none';
-  if (curId !== null) $('mWish').classList.toggle('on', wishlist.includes(curId));
+/* ─── FAV ───────────────────────────────────────────────────────── */
+function addToFav(id, qty = 1) {
+  const p  = products.find(x => x.id === id);
+  const ex = fav.find(x => x.id === id);
+  if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  updateFav();
+  showToast(`${p.name} salvo nos favoritos! 🛒`);
+}
+
+function removeFromFav(id) {
+  fav = fav.filter(x => x.id !== id);
+  updateFav();
+}
+
+function changeFavQty(id, d) {
+  const item = fav.find(x => x.id === id);
+  if (item) {
+    item.qty += d;
+    if (item.qty <= 0) removeFromFav(id); else updateFav();
+  }
+}
+
+function updateFav() {
+  const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = fav.reduce((s, i) => s + i.qty, 0);
+  $('favBadge').textContent = count;
+  $('favCount').textContent = `(${count})`;
+  $('favSub').textContent   = fmt(total);
+  $('favTotal').textContent = fmt(total);
+
+  const el = $('favItems');
+  if (!fav.length) {
+    el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    return;
+  }
+  el.innerHTML = fav.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeFavQty(${item.id},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb" onclick="changeFavQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="del" onclick="removeFromFav(${item.id})">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>`).join('');
   renderProducts();
 }
 
-function alertWish() {
-  alert(`Lista de favoritos: ${wishlist.length} produto(s)`);
+function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
+function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+
+function checkout() {
+  if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+  showToast('Redirecionando para o pagamento… 🔒');
+  setTimeout(closeFav, 1200);
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
