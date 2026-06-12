@@ -504,6 +504,55 @@
     }
     .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
 
+    /* ── FAV SIDEBAR ────────────────────────────────────────── */
+    .fav-sb {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
+      background: #fff; border-left: 1px solid var(--border2);
+      z-index: 2000; transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .fav-sb.on { transform: translateX(0); }
+
+    .fav-hd {
+      padding: 24px; border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .fav-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .cart-cls {
+      width: 34px; height: 34px; border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .fav-cls:hover { border-color: var(--red); color: var(--red); }
+    .fav-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .fav-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .fav-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .fav-empty-st span { font-size: 48px; }
+
+
+    .fav-ft { padding: 20px; border-top: 1px solid var(--border2); }
+    .fav-tots { margin-bottom: 16px; }
+    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .ct-row .lbl { color: var(--muted); }
+    .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
+    .ct-row.ttl .amt { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--blue); }
+
+    .btn-ckout {
+      width: 100%; background: var(--blue); color: #fff;
+      padding: 14px; border-radius: 100px;
+      font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s; margin-bottom: 10px;
+    }
+    .btn-ckout:hover { background: var(--blue2); }
+    .btn-cont {
+      width: 100%; background: none; border: 1px solid var(--border2);
+      color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px;
+    }
+    .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
+
     /* ── MODAL ───────────────────────────────────────────────── */
     .modal-ov {
       position: fixed; inset: 0;
