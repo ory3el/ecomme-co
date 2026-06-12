@@ -909,13 +909,13 @@ body.loading {
 }
 
 .products-footer-primary{
-    background:var(--blue-dim);
-    color:var(--blue);
-    border-color:var(--border);
+    background:var(--blue);
+    color:white;
 }
 
 .products-footer-primary:hover{
-    background:var(--blue);
-    color:white;
+    background:var(--blue-dim);
+    color:var(--blue);
+    border-color:var(--border);
 }
 }
