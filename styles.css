@@ -870,36 +870,31 @@ body.loading {
     -webkit-tap-highlight-color: transparent !important;
   }
 
-  .products-footer-actions{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:12px;
-
-    margin-top:40px;
-    padding-top:20px;
-
-    border-top:1px solid var(--border2);
+  .products-footer-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border2);
 }
 
-.products-footer-btn{
-    padding:10px 18px;
-
-    border-radius:999px;
-
-    background:transparent;
-
-    border:1px solid var(--border2);
-
+  .products-footer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;     /* Garante que os botões fiquem perfeitamente redondos */
+    height: 40px;
+    padding: 10 18px;
+    border-radius: 20px; /* Bordas arredondadas modernas */
+    background: transparent;
+    border: 1px solid var(--border2);
     color:var(--muted);
-
     font-size:12px;
-
-    font-weight:500;
-
-    transition:all .2s ease;
-
-    text-decoration:none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .products-footer-btn:hover{
