@@ -455,7 +455,7 @@
     .cart-empty-st span { font-size: 48px; }
 
     .ci {
-      background: var(--bg); border: 1px solid var(--border2);
+      background: #fff; border: 1px solid var(--border2);
       border-radius: 12px; padding: 14px; display: flex; gap: 12px;
     }
     .ci-img {
