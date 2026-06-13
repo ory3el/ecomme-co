@@ -49,8 +49,8 @@ function fishYates(arr) {
 
 /* ─── SEARCH ─────────────────────────────────────────────────────────── */
 function searchFor(term) {
-  $('searchInput').value = term;
-  $('searchInput').focus();
+  if ($('heroSearch')) $('heroSearch').value = term;
+  if ($('headerSearch')) $('headerSearch').value = term;
   renderProducts();
 }
 
@@ -305,7 +305,6 @@ function updateFav() {
   $('wishBadge').textContent = count;
   $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
   $('favCount').textContent = `(${count})`;
-  $('favSub').textContent   = fmt(total);
   $('favTotal').textContent = fmt(total);
 
   const el = $('favItems');
