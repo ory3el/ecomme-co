@@ -228,7 +228,7 @@
     /* ── PRODUCTS SECTION ────────────────────────────────────── */
     .products-section {
       max-width: 1440px; margin: 0 auto;
-      padding: 44px 28px 45px;
+      padding: 44px 28px 28px;
     }
 
     /* toolbar */
