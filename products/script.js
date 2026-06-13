@@ -318,11 +318,13 @@ function updateFav() {
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
-        <div class="ci-qty">
-          <button class="qb" onclick="changeFavQty(${item.id},-1)">−</button>
-          <span class="qn">${item.qty}</span>
-          <button class="qb" onclick="changeFavQty(${item.id},1)">+</button>
-        </div>
+        <button class="btn-madd" onclick="addFromModal()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
       </div>
       <button class="del" onclick="removeFromFav(${item.id})">
         <svg viewBox="0 0 24 24">
