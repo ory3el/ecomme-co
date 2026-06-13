@@ -359,6 +359,14 @@ function addAllFavToCart() {
   showToast('Todos os itens foram para o carrinho! 🛒');
 }
 
+function moveFromCartToFav(id) {
+  addToFav(id, 1);
+  removeFromCart(id);
+  closeCart();
+  openFav();
+  showToast('Produto movido para a Lista de Desejos! ❤️');
+}
+
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
