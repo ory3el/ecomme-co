@@ -312,14 +312,13 @@ function updateFav() {
     el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
     return;
   }
-  el.innerHTML = fav.map(item => `
-    <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-price">${fmt(item.price)}</div>
-        </div>
-        
+    $('favItems').innerHTML = fav.map(p => `
+    <div class="fav-item">
+      <div class="fav-emoji">${p.emoji}</div>
+      <div class="fav-info">
+        <div class="fav-title">${p.name}</div>
+        <div class="fav-price">${fmt(p.price)}</div>
+      </div>
       <div class="fav-actions">
         <button class="fav-add-cart" onclick="addToCart(${p.id}, 1); removeFromFav(${p.id})" title="Mover para o carrinho">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
@@ -328,16 +327,10 @@ function updateFav() {
             <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
         </button>
-      <button class="fav-del" onclick="removeFromFav(${p.id})">
-        <svg viewBox="0 0 24 24">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
+        <button class="fav-del" onclick="removeFromFav(${p.id})" title="Remover">×</button>
+      </div>
     </div>
-    </div>
-    `).join('');
-  renderProducts();
+  `).join('');
 }
 
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
