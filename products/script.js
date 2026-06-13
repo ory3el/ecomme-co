@@ -318,21 +318,25 @@ function updateFav() {
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
-        <button class="btn-madd" onclick="addFromModal()">
-          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+        </div>
+        
+      <div class="fav-actions">
+        <button class="fav-add-cart" onclick="addToCart(${p.id}, 1); removeFromFav(${p.id})" title="Mover para o carrinho">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
-          Adicionar ao Carrinho
         </button>
-      </div>
-      <button class="del" onclick="removeFromFav(${item.id})">
+      <button class="fav-del" onclick="removeFromFav(${p.id})">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </button>
-    </div>`).join('');
+    </div>
+    </div>
+    `).join('');
   renderProducts();
 }
 
