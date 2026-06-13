@@ -1,32 +1,3 @@
-/* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart        = [];
-let fav         = [];
-let curId       = null;
-let mQtyVal     = 1;
-let view        = 'grid';
-let shuffled    = [...products];
-
-/* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
-
-function starsHtml(r) {
-  let s = '';
-  const f = Math.floor(r);
-  for (let i = 0; i < f; i++)    s += '★';
-  for (let i = f; i < 5; i++)    s += '☆';
-  return s;
-}
-
-function fishYates(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 // ── PANEL NAV ──────────────────────────────────────────────
 const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
 
@@ -64,9 +35,6 @@ function doLogout(){ toast('Saindo da conta... 👋','info'); setTimeout(() => w
 // ── MASKS ──────────────────────────────────────────────────
 function maskCPF(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.length>9) v=v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6,9)+'-'+v.slice(9); else if(v.length>6) v=v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6); else if(v.length>3) v=v.slice(0,3)+'.'+v.slice(3); inp.value=v; }
 function maskPhone(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.length>6) v='('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7); else if(v.length>2) v='('+v.slice(0,2)+') '+v.slice(2); inp.value=v; }
-
-function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
 // ── TOAST ──────────────────────────────────────────────────
 function toast(msg, type='ok'){
