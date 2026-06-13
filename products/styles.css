@@ -655,7 +655,7 @@
     .btt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
     /* ── FOOTER ──────────────────────────────────────────────── */
-  footer { background: #fff; border-top: 1px solid var(--border2); padding: 60px 24px 0; }
+  .footer { background: #fff; border-top: 1px solid var(--border2); padding: 60px 24px 0; }
   .footer-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 48px; border-bottom: 1px solid var(--border2); }
   .footer-brand .logo { font-size: 24px; margin-bottom: 14px; }
   .footer-brand p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 240px; margin-bottom: 20px; }
