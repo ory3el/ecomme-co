@@ -331,7 +331,7 @@ function updateFav() {
         </button>
         
       </div>
-      <button class="del" onclick="removeFromFav(${item.id})">
+      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
