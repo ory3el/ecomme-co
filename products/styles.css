@@ -504,6 +504,25 @@
     }
     .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
 
+.cart-item-towish {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s ease;
+    margin-top: 4px;
+}
+
+.cart-item-towish:hover {
+    color: var(--red);
+}
+
     /* ── FAV SIDEBAR ────────────────────────────────────────── */
     .fav-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
