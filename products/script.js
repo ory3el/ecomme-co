@@ -338,7 +338,7 @@ function updateFav() {
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
 function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
-function checkout() {
+function addC() {
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento… 🔒');
   setTimeout(closeFav, 1200);
