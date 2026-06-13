@@ -877,9 +877,10 @@ body.loading {
     justify-content: center;
     align-items: center;
     gap: 12px;
+
     margin-top: 40px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border2);
+    padding-top: 20px;
+    border-top:1px solid var(--border2);
 }
 
   .products-footer-btn {
