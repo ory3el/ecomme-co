@@ -65,63 +65,6 @@ function doLogout(){ toast('Saindo da conta... 👋','info'); setTimeout(() => w
 function maskCPF(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.length>9) v=v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6,9)+'-'+v.slice(9); else if(v.length>6) v=v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6); else if(v.length>3) v=v.slice(0,3)+'.'+v.slice(3); inp.value=v; }
 function maskPhone(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.length>6) v='('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7); else if(v.length>2) v='('+v.slice(0,2)+') '+v.slice(2); inp.value=v; }
 
-// ── CART ───────────────────────────────────────────────────
-function addToCart(id, qty = 1) {
-  const p  = products.find(x => x.id === id);
-  const ex = cart.find(x => x.id === id);
-  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
-  updateCart();
-  showToast(`${p.name} adicionado ao carrinho! 🛒`);
-}
-
-function removeFromCart(id) {
-  cart = cart.filter(x => x.id !== id);
-  updateCart();
-}
-
-function changeCartQty(id, d) {
-  const item = cart.find(x => x.id === id);
-  if (item) {
-    item.qty += d;
-    if (item.qty <= 0) removeFromCart(id); else updateCart();
-  }
-}
-
-function updateCart() {
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const count = cart.reduce((s, i) => s + i.qty, 0);
-  $('cartBadge').textContent = count;
-  $('cartCount').textContent = `(${count})`;
-  $('cartSub').textContent   = fmt(total);
-  $('cartTotal').textContent = fmt(total);
-
-  const el = $('cartItems');
-  if (!cart.length) {
-    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
-    return;
-  }
-  el.innerHTML = cart.map(item => `
-    <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-price">${fmt(item.price)}</div>
-        <div class="ci-qty">
-          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
-          <span class="qn">${item.qty}</span>
-          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
-        </div>
-      </div>
-      <button class="del" onclick="removeFromCart(${item.id})">
-        <svg viewBox="0 0 24 24">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
-    </div>`).join('');
-  renderProducts();
-}
-
 function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
@@ -167,29 +110,3 @@ function toast(msg, type='ok'){
     await supabaseClient.auth.signOut();
     window.location.href = '../login'; // Volta pra página de login
   }
-
-/* ─── MODAL ──────────────────────────────────────────────────────────── */
-function openProduct(id) {
-  document.body.classList.add("noscroll");
-  const p = products.find(x => x.id === id);
-  curId   = id;
-  mQtyVal = 1;
-  $('mQty').textContent    = 1;
-  $('mEmoji').textContent  = p.emoji;
-  $('mCat').textContent    = p.cat;
-  $('mName').textContent   = p.name;
-  $('mDesc').textContent   = p.desc;
-  $('mPrice').textContent  = fmt(p.price);
-  $('mOld').textContent    = fmt(p.old);
-  $('mDisc').textContent   = `-${p.discount}% OFF`;
-  $('mFeats').innerHTML    = p.features.map(f =>
-    `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
-  $('mWish').classList.toggle('on', fav.some(x => x.id === id));
-  $('modalOverlay').classList.add('on');
-}
-
-function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
-function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
-function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
