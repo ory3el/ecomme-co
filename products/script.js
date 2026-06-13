@@ -90,7 +90,7 @@ function renderProducts() {
   else if (sort === 'rating')     list.sort((a, b) => b.rating   - a.rating);
   else if (sort === 'discount')   list.sort((a, b) => b.discount - a.discount);
 
-  $('productsCount').textContent = list.length;
+  //$('productsCount').textContent = list.length;
 
   /* empty state */
   if (!list.length) {
