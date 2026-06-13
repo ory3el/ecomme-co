@@ -310,12 +310,42 @@
       </div>
       <div class="card">
         <div class="wish-grid">
-          <div class="wcard"><div class="wcard-img">⌚<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Smartwatch')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Eletrônicos</div><div class="wcard-name">Smartwatch Pro X7</div><div><span class="wcard-price">R$ 189,90</span><span class="wcard-old">R$ 299</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
-          <div class="wcard"><div class="wcard-img">🎧<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Fone')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Eletrônicos</div><div class="wcard-name">Fone Bluetooth ANC Pro</div><div><span class="wcard-price">R$ 119,90</span><span class="wcard-old">R$ 199</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
-          <div class="wcard"><div class="wcard-img">👟<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Tênis')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Moda</div><div class="wcard-name">Tênis Running UltraLight</div><div><span class="wcard-price">R$ 199,90</span><span class="wcard-old">R$ 320</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
-          <div class="wcard"><div class="wcard-img">💡<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Kit LED')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Casa</div><div class="wcard-name">Kit LED Smart RGB 10m</div><div><span class="wcard-price">R$ 79,90</span><span class="wcard-old">R$ 130</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
-          <div class="wcard"><div class="wcard-img">✨<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Skincare')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Beleza</div><div class="wcard-name">Kit Skincare Vitamina C</div><div><span class="wcard-price">R$ 99,90</span><span class="wcard-old">R$ 160</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
-          <div class="wcard"><div class="wcard-img">💆<button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Massageador')">✕</button></div><div class="wcard-info"><div class="wcard-cat">Fitness</div><div class="wcard-name">Pistola de Massagem Pro</div><div><span class="wcard-price">R$ 129,90</span><span class="wcard-old">R$ 210</span></div><button class="wcard-add" onclick="toast('Adicionado ao carrinho! 🛒')">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              ⌚
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Smartwatch')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Eletrônicos</div><div class="wcard-name">Smartwatch Pro X7</div><div><span class="wcard-price">R$ 189,90</span><span class="wcard-old">R$ 299</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              🎧
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Fone')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Eletrônicos</div><div class="wcard-name">Fone Bluetooth ANC Pro</div><div><span class="wcard-price">R$ 119,90</span><span class="wcard-old">R$ 199</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              👟
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Tênis')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Moda</div><div class="wcard-name">Tênis Running UltraLight</div><div><span class="wcard-price">R$ 199,90</span><span class="wcard-old">R$ 320</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              💡
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Kit LED')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Casa</div><div class="wcard-name">Kit LED Smart RGB 10m</div><div><span class="wcard-price">R$ 79,90</span><span class="wcard-old">R$ 130</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              ✨
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Skincare')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Beleza</div><div class="wcard-name">Kit Skincare Vitamina C</div><div><span class="wcard-price">R$ 99,90</span><span class="wcard-old">R$ 160</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+          <div class="wcard">
+            <div class="wcard-img">
+              💆
+              <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Massageador')">✕</button>
+            </div><div class="wcard-info"><div class="wcard-cat">Fitness</div><div class="wcard-name">Pistola de Massagem Pro</div><div><span class="wcard-price">R$ 129,90</span><span class="wcard-old">R$ 210</span></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
         </div>
       </div>
     </div>
