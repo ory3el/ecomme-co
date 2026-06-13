@@ -869,7 +869,9 @@ body.loading {
     justify-content: space-between !important;
     -webkit-tap-highlight-color: transparent !important;
   }
+}
 
+  /* ── PRODUCTS FOOTER ACTIONS ── */
   .products-footer-actions {
     display: flex;
     justify-content: center;
