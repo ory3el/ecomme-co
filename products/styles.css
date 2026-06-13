@@ -510,7 +510,8 @@
       color: var(--muted); align-self: flex-start;
     }
     .cart-item-towish:hover { color: var(--red); }
-    .cart-item-towish svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .cart-item-towish svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; transition: all 0.2s; }
+    .cart-item-towish.on svg { fill: var(--red); stroke: var(--red); }
 
 
     /* ── FAV SIDEBAR ────────────────────────────────────────── */
