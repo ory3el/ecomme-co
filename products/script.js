@@ -313,12 +313,13 @@ function updateFav() {
     return;
   }
     $('favItems').innerHTML = fav.map(p => `
-    <div class="fav-item">
-      <div class="fav-emoji">${p.emoji}</div>
-      <div class="fav-info">
-        <div class="fav-title">${p.name}</div>
-        <div class="fav-price">${fmt(p.price)}</div>
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
       </div>
+      
       <div class="fav-actions">
         <button class="fav-add-cart" onclick="addToCart(${p.id}, 1); removeFromFav(${p.id})" title="Mover para o carrinho">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
@@ -331,6 +332,7 @@ function updateFav() {
       </div>
     </div>
   `).join('');
+  renderProducts();
 }
 
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
