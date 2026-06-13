@@ -319,7 +319,7 @@ function updateFav() {
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         
-        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart();">
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -341,10 +341,19 @@ function updateFav() {
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
 function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
-function addC() {
+function addAllFavToCart() {
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
-  showToast('Redirecionando para o pagamento… 🔒');
-  setTimeout(closeFav, 1200);
+  
+  fav.forEach(produto => {
+    addToCart(produto.id, 1);
+  });
+  fav = []; 
+  updateFav(); 
+  renderProducts();
+  // saveFav(); 
+  closeFav();
+  openCart();
+  showToast('Todos os itens foram para o carrinho! 🛒');
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
