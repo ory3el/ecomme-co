@@ -22,6 +22,27 @@ let mQtyVal     = 1;
 let view        = 'grid';
 let shuffled    = [...products];
 
+/* ─── UTILS ─────────────────────────────────────────────────────────── */
+const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const $    = id  => document.getElementById(id);
+
+function starsHtml(r) {
+  let s = '';
+  const f = Math.floor(r);
+  for (let i = 0; i < f; i++)    s += '★';
+  for (let i = f; i < 5; i++)    s += '☆';
+  return s;
+}
+
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // ── PANEL NAV ──────────────────────────────────────────────
 const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
 
