@@ -56,7 +56,7 @@ function renderProducts() {
   else if(sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
   else if(sort === 'new') filtered.sort((a,b) => b.id - a.id);
 
-  document.getElementById('productsCount').textContent = `Mostrando ${filtered.length} de ${products.length}`;
+  //document.getElementById('productsCount').textContent = `Mostrando ${filtered.length} de ${products.length}`;
 
   if(!filtered.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px;margin-bottom:16px">🔍</div><p>Nenhum produto encontrado</p></div>`;
