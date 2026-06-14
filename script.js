@@ -29,6 +29,27 @@ function renderStars(r) {
   return '★'.repeat(full) + '☆'.repeat(empty);
 }
 
+const favicon = document.getElementById('favicon');
+    
+    function verificarTema(e) {
+      if (e.matches) {
+        // Se o tema do sistema for escuro, usa o favicon branco/claro
+        favicon.href = 'favicon-light.png';
+      } else {
+        // Se o tema for claro, usa o favicon preto/escuro
+        favicon.href = 'favicon-dark.png';
+      }
+    }
+
+    // Cria o "ouvinte" para detectar a mudança de tema do sistema
+    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Executa a função ao carregar a página
+    verificarTema(mqEscuro);
+    
+    // Escuta mudanças caso o usuário altere o tema enquanto navega
+    mqEscuro.addEventListener('change', verificarTema);
+
 function login(url) {
   window.location.href = url;
 }
