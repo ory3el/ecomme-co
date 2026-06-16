@@ -29,19 +29,6 @@ function renderStars(r) {
   return '★'.repeat(full) + '☆'.repeat(empty);
 }
 
-const favicon = document.getElementById('favicon');
-    
-    function verificarTema(e) {
-      if (e.matches) {
-        favicon.href = '../images/favicon-light.png';
-      } else {
-        favicon.href = '../images/favicon-black.png';
-      }
-    }
-    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
-    verificarTema(mqEscuro);
-    mqEscuro.addEventListener('change', verificarTema);
-
 function login(url) {
   window.location.href = url;
 }
@@ -363,3 +350,17 @@ window.addEventListener('load', () => {
     
   }, 600);
 });
+
+// FAVICON
+const favicon = document.getElementById('favicon');
+    
+    function verificarTema(e) {
+      if (e.matches) {
+        favicon.href = '../images/favicon-light.png';
+      } else {
+        favicon.href = '../images/favicon-black.png';
+      }
+    }
+    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+    verificarTema(mqEscuro);
+    mqEscuro.addEventListener('change', verificarTema);
