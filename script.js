@@ -358,7 +358,7 @@ const favicon = document.getElementById('favicon');
       if (e.matches) {
         favicon.href = '../images/favicon-light.png';
       } else {
-        favicon.href = '../images/favicon-black.png';
+        favicon.href = '../images/favicon-blue.png';
       }
     }
     const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
