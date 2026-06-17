@@ -1,3 +1,17 @@
+// FAVICON
+const favicon = document.getElementById('favicon');
+    
+function checkTheme(e) {
+  if (e.matches) {
+    favicon.href = '../images/favicon-blue.png';
+  } else {
+    favicon.href = '../images/favicon-blue.png';
+  }
+}
+const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+checkTheme(mqDark);
+mqDark.addEventListener('change', checkTheme);
+
 // ── STATE ──────────────────────────────────────────────
 let cartItems = [
   {id:0,name:'Smartwatch Pro X7',cat:'Eletrônicos',price:189.90,em:'⌚',qty:1},
