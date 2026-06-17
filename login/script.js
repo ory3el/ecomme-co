@@ -2,6 +2,20 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+// FAVICON
+const favicon = document.getElementById('favicon');
+    
+function checkTheme(e) {
+  if (e.matches) {
+    favicon.href = '../images/favicon-light.png';
+  } else {
+    favicon.href = '../images/favicon-blue.png';
+  }
+}
+const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+checkTheme(mqDark);
+mqDark.addEventListener('change', checkTheme);
+
 // ── 1. INICIALIZAR O SUPABASE ──────────────────
 const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
