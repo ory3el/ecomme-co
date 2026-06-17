@@ -3,7 +3,7 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '../images/favicon-light.png';
   } else {
     favicon.href = '../images/favicon-blue.png';
   }
