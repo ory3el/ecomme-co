@@ -1,3 +1,17 @@
+// FAVICON
+const favicon = document.getElementById('favicon');
+    
+function checkTheme(e) {
+  if (e.matches) {
+    favicon.href = '../images/favicon-light.png';
+  } else {
+    favicon.href = '../images/favicon-blue.png';
+  }
+}
+const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+checkTheme(mqDark);
+mqDark.addEventListener('change', checkTheme);
+
 // ── PANEL NAV ──────────────────────────────────────────────
 const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
 
