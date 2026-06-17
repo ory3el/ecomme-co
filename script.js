@@ -240,6 +240,7 @@ function closeCart() {
 function checkout() {
   if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento... 🔒');
+  window.location.href = /checkout
   setTimeout(closeCart, 1200);
 }
 
