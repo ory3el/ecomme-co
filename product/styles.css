@@ -355,13 +355,21 @@
     .btt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
     /* ── FOOTER ──────────────────────────────────────────────── */
-    footer { background: #fff; border-top: 1px solid var(--border2); padding: 36px 28px; }
-    .ft-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
-    .ft-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
-    .ft-links { display: flex; gap: 22px; flex-wrap: wrap; }
-    .ft-links a { font-size: 12px; color: var(--muted); transition: color .2s; }
-    .ft-links a:hover { color: var(--blue); }
-    .ft-copy { font-size: 12px; color: var(--muted); }
+  footer { background: #fff; border-top: 1px solid var(--border2); padding: 60px 24px 0; }
+  .footer-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 48px; border-bottom: 1px solid var(--border2); }
+  .footer-brand .logo { font-size: 24px; margin-bottom: 14px; }
+  .footer-brand p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 240px; margin-bottom: 20px; }
+  .social-links { display: flex; gap: 8px; }
+  .social-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; transition: all 0.2s; }
+  .social-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text); margin-bottom: 18px; }
+  .footer-links { display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a { font-size: 13px; color: var(--muted); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--blue); }
+  .footer-bottom { max-width: 1400px; margin: 0 auto; padding: 20px 0; display: flex; align-items: center; justify-content: space-between; }
+  .footer-bottom p { font-size: 12px; color: var(--muted); }
+  .payment-icons { display: flex; gap: 8px; }
+  .pay-icon { background: #fff; border: 1px solid var(--border2); border-radius: 10px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
 
     /* ── STICKY MOBILE BUY BAR ───────────────────────────────── */
     .sticky-buy {
