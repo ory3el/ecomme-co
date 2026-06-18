@@ -1,3 +1,7 @@
+function buttonLink(url) {
+  window.location.href = url;
+}
+
 // FAVICON
 const favicon = document.getElementById('favicon');
     
