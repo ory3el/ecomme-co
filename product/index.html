@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartwatch Pro X7 | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:      #2563EB;
+      --blue2:     #3B82F6;
+      --blue3:     #60A5FA;
+      --blue-dim:  rgba(37,99,235,0.07);
+      --blue-mid:  rgba(37,99,235,0.14);
+      --white:     #FFFFFF;
+      --bg:        #F3F7FF;
+      --bg2:       #FFFFFF;
+      --bg3:       #EBF2FF;
+      --text:      #0F172A;
+      --muted:     #64748B;
+      --border:    rgba(37,99,235,0.18);
+      --border2:   rgba(0,0,0,0.07);
+      --red:       #EF4444;
+      --green:     #10B981;
+      --amber:     #F59E0B;
+      --radius:    8px;
+      --rad-lg:    16px;
+      --shadow:    0 4px 24px rgba(37,99,235,0.07);
+      --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+    input, select { font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar { background: var(--blue); color: #fff; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 500; letter-spacing: .3px; position: relative; }
+    .topbar span { opacity: .55; margin: 0 10px; }
+    .topbar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.65); font-size: 18px; line-height: 1; }
+    .topbar-close:hover { color: #fff; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 24px; height: 68px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--blue); flex-shrink: 0; display: flex; align-items: center; gap: 5px; letter-spacing: .5px; }
+    .logo-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; margin-top: 2px; }
+    .nav-main { display: flex; gap: 2px; }
+    .nav-main a { padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius); transition: all .2s; }
+    .nav-main a:hover { color: var(--text); background: var(--bg3); }
+    .nav-main a.active { color: var(--blue); background: var(--blue-dim); font-weight: 600; }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border2); color: var(--muted); transition: all .2s; position: relative; }
+    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .hd-badge { position: absolute; top: 1px; right: 1px; min-width: 17px; height: 17px; background: var(--blue); color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; }
+    .btn-account { background: var(--blue); color: #fff; padding: 8px 20px; border-radius: 100px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all .2s; }
+    .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
+
+    /* ── BREADCRUMB ──────────────────────────────────────────── */
+    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
+    .breadcrumb { max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .breadcrumb a { transition: color .2s; }
+    .breadcrumb a:hover { color: var(--blue); }
+    .breadcrumb .sep { opacity: .5; }
+    .breadcrumb .cur { color: var(--text); font-weight: 500; }
+
+    /* ── MAIN PRODUCT SECTION ────────────────────────────────── */
+    .product-main { max-width: 1440px; margin: 0 auto; padding: 40px 28px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+
+    /* gallery */
+    .gallery { display: flex; flex-direction: column; gap: 14px; }
+    .gallery-main {
+      position: relative; aspect-ratio: 1; border-radius: var(--rad-lg);
+      background: var(--bg3); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; cursor: zoom-in;
+    }
+    .gallery-main .gmain-emoji { font-size: 200px; transition: transform .4s cubic-bezier(.4,0,.2,1); }
+    .gallery-main:hover .gmain-emoji { transform: scale(1.08); }
+    .gallery-badges { position: absolute; top: 18px; left: 18px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+    .gbadge { padding: 5px 13px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+    .gbadge.hot { background: var(--blue); color: #fff; }
+    .gbadge.disc { background: var(--red); color: #fff; }
+    .gallery-fav {
+      position: absolute; top: 18px; right: 18px; z-index: 2;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(255,255,255,.92); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; backdrop-filter: blur(4px);
+    }
+    .gallery-fav:hover, .gallery-fav.on { background: #FEE2E2; border-color: var(--red); }
+    .gallery-fav svg { width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
+    .gallery-fav.on svg { stroke: var(--red); fill: var(--red); }
+    .gallery-zoom-hint {
+      position: absolute; bottom: 16px; right: 16px; z-index: 2;
+      background: rgba(15,23,42,.75); color: #fff; font-size: 10px;
+      padding: 5px 11px; border-radius: 100px; display: flex; align-items: center; gap: 5px;
+      opacity: 0; transition: opacity .2s; pointer-events: none;
+    }
+    .gallery-main:hover .gallery-zoom-hint { opacity: 1; }
+
+    .gallery-thumbs { display: flex; gap: 12px; }
+    .gthumb {
+      width: 84px; height: 84px; border-radius: var(--radius);
+      background: var(--bg3); border: 2px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px; cursor: pointer; transition: all .2s; flex-shrink: 0;
+    }
+    .gthumb:hover { border-color: var(--blue3); }
+    .gthumb.on { border-color: var(--blue); background: var(--blue-dim); }
+
+    /* info side */
+    .pinfo-side { display: flex; flex-direction: column; }
+    .info-cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .info-cat { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--blue); }
+    .info-sku { font-size: 11px; color: var(--muted); }
+    .info-name { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; line-height: 1.12; margin-bottom: 14px; }
+
+    .info-rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+    .stars-lg { color: var(--amber); font-size: 16px; letter-spacing: 2px; }
+    .rating-val { font-weight: 700; font-size: 14px; }
+    .rating-link { font-size: 12px; color: var(--blue); text-decoration: underline; cursor: pointer; }
+    .rating-sep { width: 1px; height: 14px; background: var(--border2); }
+    .sold-count { font-size: 12px; color: var(--muted); }
+
+    .info-price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+    .info-price { font-family: 'Cormorant Garamond', serif; font-size: 46px; font-weight: 700; color: var(--blue); }
+    .info-old { font-size: 17px; color: var(--muted); text-decoration: line-through; }
+    .info-disc-pill { font-size: 12px; font-weight: 700; color: #fff; background: var(--red); padding: 4px 10px; border-radius: 5px; }
+    .info-installment { font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+    .info-installment strong { color: var(--text); }
+
+    .info-desc-short { color: var(--muted); font-size: 13.5px; line-height: 1.75; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border2); }
+
+    /* color swatches */
+    .swatch-row { margin-bottom: 22px; }
+    .swatch-label { font-size: 12px; font-weight: 600; margin-bottom: 10px; display: flex; gap: 6px; align-items: baseline; }
+    .swatch-label span { color: var(--muted); font-weight: 400; }
+    .swatches { display: flex; gap: 10px; }
+    .swatch {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 2px solid var(--border2); cursor: pointer; position: relative;
+      transition: all .2s; display: flex; align-items: center; justify-content: center;
+    }
+    .swatch::after { content: ''; width: 28px; height: 28px; border-radius: 50%; background: var(--sc); }
+    .swatch.on { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
+    .swatch.on::before {
+      content: '✓'; position: absolute; color: #fff; font-size: 12px; font-weight: 800;
+      text-shadow: 0 0 3px rgba(0,0,0,.5); z-index: 1;
+    }
+
+    /* qty + actions */
+    .qty-action-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+    .qty-ctrl { display: flex; align-items: center; gap: 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); padding: 8px 16px; }
+    .qty-num { font-size: 16px; font-weight: 700; min-width: 26px; text-align: center; }
+    .qb { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text); transition: all .15s; }
+    .qb:hover { background: var(--blue); color: #fff; }
+    .stock-note { font-size: 12px; color: var(--red); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .stock-note svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .stock-bar-wrap { margin-bottom: 22px; }
+    .stock-bar-track { height: 6px; background: var(--bg3); border-radius: 100px; overflow: hidden; margin-bottom: 6px; }
+    .stock-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue3)); border-radius: 100px; }
+    .stock-bar-txt { font-size: 11.5px; color: var(--muted); }
+    .stock-bar-txt strong { color: var(--red); }
+
+    .main-btns { display: flex; gap: 10px; margin-bottom: 22px; }
+    .btn-addcart {
+      flex: 1; background: var(--blue); color: #fff; padding: 16px;
+      border-radius: 100px; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: all .2s;
+    }
+    .btn-addcart:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(37,99,235,.28); }
+    .btn-addcart svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .btn-buynow {
+      flex: 1; background: var(--text); color: #fff; padding: 16px;
+      border-radius: 100px; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: all .2s;
+    }
+    .btn-buynow:hover { background: #1E293B; transform: translateY(-1px); }
+    .btn-fav-lg {
+      width: 54px; height: 54px; border-radius: 50%; flex-shrink: 0;
+      border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center;
+      color: var(--muted); transition: all .2s;
+    }
+    .btn-fav-lg:hover, .btn-fav-lg.on { border-color: var(--red); color: var(--red); }
+    .btn-fav-lg svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .btn-fav-lg.on svg { fill: var(--red); }
+
+    .trust-mini { display: flex; flex-direction: column; gap: 12px; background: var(--bg); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 20px; }
+    .tm-item { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); }
+    .tm-item svg { width: 16px; height: 16px; fill: none; stroke: var(--blue); stroke-width: 2; flex-shrink: 0; }
+    .tm-item strong { color: var(--text); }
+
+    .share-row { display: flex; align-items: center; gap: 10px; margin-top: auto; }
+    .share-lbl { font-size: 12px; color: var(--muted); }
+    .share-btn {
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .2s;
+    }
+    .share-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .share-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ── TABS SECTION ────────────────────────────────────────── */
+    .tabs-section { max-width: 1440px; margin: 0 auto; padding: 56px 28px 0; }
+    .tabs-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--border2); margin-bottom: 32px; }
+    .tab-btn {
+      padding: 14px 22px; font-size: 13.5px; font-weight: 600; color: var(--muted);
+      border-bottom: 2px solid transparent; transition: all .2s; position: relative; top: 1px;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.on { color: var(--blue); border-bottom-color: var(--blue); }
+
+    .tab-panel { display: none; }
+    .tab-panel.on { display: block; animation: fadein .3s ease; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* description tab */
+    .desc-panel { max-width: 760px; }
+    .desc-panel p { color: var(--muted); font-size: 14px; line-height: 1.85; margin-bottom: 16px; }
+    .desc-feats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+    .desc-feat { display: flex; align-items: flex-start; gap: 11px; background: var(--bg); padding: 14px 16px; border-radius: var(--radius); }
+    .df-ico { width: 30px; height: 30px; border-radius: 50%; background: var(--blue-dim); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .df-text { font-size: 13px; font-weight: 500; line-height: 1.5; }
+
+    /* specs tab */
+    .specs-table { max-width: 700px; border-collapse: collapse; width: 100%; }
+    .specs-table tr { border-bottom: 1px solid var(--border2); }
+    .specs-table tr:last-child { border-bottom: none; }
+    .specs-table td { padding: 14px 4px; font-size: 13.5px; }
+    .specs-table td:first-child { color: var(--muted); width: 220px; font-weight: 500; }
+    .specs-table td:last-child { font-weight: 600; }
+
+    /* reviews tab */
+    .reviews-layout { display: grid; grid-template-columns: 300px 1fr; gap: 48px; }
+    .rev-summary { background: var(--bg); border-radius: var(--rad-lg); padding: 28px; height: fit-content; }
+    .rev-avg { text-align: center; margin-bottom: 22px; }
+    .rev-avg-num { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 700; color: var(--blue); line-height: 1; }
+    .rev-avg-stars { color: var(--amber); font-size: 16px; letter-spacing: 2px; margin: 8px 0 6px; }
+    .rev-avg-total { font-size: 12px; color: var(--muted); }
+    .rev-bars { display: flex; flex-direction: column; gap: 9px; }
+    .rev-bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .rev-bar-row .rb-lbl { width: 34px; color: var(--muted); flex-shrink: 0; }
+    .rev-bar-track { flex: 1; height: 7px; background: #fff; border: 1px solid var(--border2); border-radius: 100px; overflow: hidden; }
+    .rev-bar-fill { height: 100%; background: var(--amber); border-radius: 100px; }
+    .rev-bar-row .rb-pct { width: 32px; text-align: right; color: var(--muted); flex-shrink: 0; }
+    .btn-write-rev {
+      width: 100%; margin-top: 20px; background: var(--blue); color: #fff;
+      padding: 12px; border-radius: 100px; font-weight: 600; font-size: 12.5px;
+      transition: all .2s;
+    }
+    .btn-write-rev:hover { background: var(--blue2); }
+
+    .rev-list { display: flex; flex-direction: column; gap: 24px; }
+    .rev-item { padding-bottom: 24px; border-bottom: 1px solid var(--border2); }
+    .rev-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .rev-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .rev-avatar {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--blue-dim);
+      color: var(--blue); display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .rev-name-row { display: flex; flex-direction: column; }
+    .rev-name { font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 6px; }
+    .rev-verified { font-size: 10px; font-weight: 600; color: var(--green); background: rgba(16,185,129,.1); padding: 1px 7px; border-radius: 100px; }
+    .rev-date { font-size: 11px; color: var(--muted); }
+    .rev-stars-sm { color: var(--amber); font-size: 12px; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .rev-text { font-size: 13.5px; color: var(--muted); line-height: 1.75; margin-bottom: 10px; }
+    .rev-helpful { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+    .rev-helpful button { color: var(--blue); font-weight: 600; }
+    .rev-helpful button:hover { text-decoration: underline; }
+
+    /* ── RELATED PRODUCTS ────────────────────────────────────── */
+    .related-section { max-width: 1440px; margin: 0 auto; padding: 64px 28px 90px; }
+    .related-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
+    .related-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 700; }
+    .related-head a { font-size: 12px; color: var(--blue); font-weight: 600; }
+    .related-head a:hover { text-decoration: underline; }
+
+    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+    .pcard { background: #fff; border: 1px solid var(--border2); border-radius: var(--rad-lg); overflow: hidden; transition: all .3s cubic-bezier(.4,0,.2,1); cursor: pointer; position: relative; display: flex; flex-direction: column; }
+    .pcard:hover { border-color: var(--border); transform: translateY(-5px); box-shadow: var(--shadow-hv); }
+    .pcard:hover .pimg { transform: scale(1.1); }
+    .pcard:hover .pactions { opacity: 1; transform: translateY(0); }
+    .pimg-wrap { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--bg3); flex-shrink: 0; }
+    .pimg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 64px; transition: transform .4s cubic-bezier(.4,0,.2,1); }
+    .pbadges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 5px; }
+    .bpill { padding: 3px 10px; border-radius: 100px; font-size: 9px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
+    .bhot { background: var(--blue); color: #fff; } .bnew { background: var(--green); color: #fff; } .bsale { background: var(--red); color: #fff; }
+    .pwish-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.92); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
+    .pwish-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
+    .pwish-btn.on svg { stroke: var(--red); fill: var(--red); }
+    .pactions { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px; background: linear-gradient(transparent, rgba(235,242,255,.97)); opacity: 0; transform: translateY(8px); transition: all .3s; display: flex; gap: 8px; }
+    .btn-ac { flex: 1; background: var(--blue); color: #fff; padding: 10px; border-radius: var(--radius); font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s; }
+    .btn-ac:hover { background: var(--blue2); }
+    .btn-ac svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .pinfo { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .pcat { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; }
+    .pname { font-weight: 500; font-size: 14px; line-height: 1.4; margin-bottom: 8px; flex: 1; }
+    .prating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+    .pstars { color: var(--amber); font-size: 11px; letter-spacing: 1px; }
+    .prcnt { font-size: 11px; color: var(--muted); }
+    .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .pprice { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
+    .pold { font-size: 12px; color: var(--muted); text-decoration: line-through; }
+    .pdisc { font-size: 10px; font-weight: 700; color: #fff; background: var(--red); padding: 2px 7px; border-radius: 4px; margin-left: auto; }
+
+    /* ── CART SIDEBAR ────────────────────────────────────────── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px); }
+    .overlay.on { opacity: 1; pointer-events: all; }
+    .cart-sb { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; background: #fff; border-left: 1px solid var(--border2); z-index: 2000; transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .cart-sb.on { transform: translateX(0); }
+    .cart-hd { padding: 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    .cart-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .cart-cls { width: 34px; height: 34px; border-radius: var(--radius); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); }
+    .cart-cls:hover { border-color: var(--red); color: var(--red); }
+    .cart-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .cart-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .cart-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .cart-empty-st span { font-size: 48px; }
+    .ci { background: var(--bg); border: 1px solid var(--border2); border-radius: 12px; padding: 14px; display: flex; gap: 12px; }
+    .ci-img { width: 60px; height: 60px; border-radius: 8px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+    .ci-info { flex: 1; min-width: 0; }
+    .ci-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-price { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: var(--blue); }
+    .ci-qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .qn { font-size: 13px; font-weight: 600; min-width: 22px; text-align: center; }
+    .del { width: 28px; height: 28px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--muted); align-self: flex-start; }
+    .del:hover { color: var(--red); }
+    .del svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .cart-ft { padding: 20px; border-top: 1px solid var(--border2); }
+    .cart-tots { margin-bottom: 16px; }
+    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .ct-row .lbl { color: var(--muted); }
+    .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
+    .ct-row.ttl .amt { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--blue); }
+    .btn-ckout { width: 100%; background: var(--blue); color: #fff; padding: 14px; border-radius: 100px; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s; margin-bottom: 10px; }
+    .btn-ckout:hover { background: var(--blue2); }
+    .btn-cont { width: 100%; background: none; border: 1px solid var(--border2); color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px; }
+    .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #0F172A; border: 1px solid rgba(255,255,255,.1); color: #fff; padding: 12px 22px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 10px; transition: transform .3s cubic-bezier(.4,0,.2,1); white-space: nowrap; pointer-events: none; }
+    .toast.on { transform: translateX(-50%) translateY(0); }
+    .t-ico { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; flex-shrink: 0; }
+
+    /* ── BACK TO TOP ─────────────────────────────────────────── */
+    .btt { position: fixed; bottom: 28px; right: 28px; width: 44px; height: 44px; background: var(--blue); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 500; opacity: 0; transform: translateY(20px); transition: all .3s; }
+    .btt.on { opacity: 1; transform: translateY(0); }
+    .btt:hover { background: var(--blue2); }
+    .btt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer { background: #fff; border-top: 1px solid var(--border2); padding: 36px 28px; }
+    .ft-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .ft-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
+    .ft-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .ft-links a { font-size: 12px; color: var(--muted); transition: color .2s; }
+    .ft-links a:hover { color: var(--blue); }
+    .ft-copy { font-size: 12px; color: var(--muted); }
+
+    /* ── STICKY MOBILE BUY BAR ───────────────────────────────── */
+    .sticky-buy {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+      background: #fff; border-top: 1px solid var(--border2);
+      padding: 12px 16px; gap: 10px; align-items: center;
+      box-shadow: 0 -8px 24px rgba(0,0,0,.06);
+    }
+    .sb-price { display: flex; flex-direction: column; flex-shrink: 0; }
+    .sb-price strong { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--blue); }
+    .sb-price small { font-size: 10px; color: var(--muted); text-decoration: line-through; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 1280px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px) {
+      .product-main { grid-template-columns: 1fr; gap: 32px; padding: 24px 20px 0; }
+      .gallery-main .gmain-emoji { font-size: 140px; }
+      .info-name { font-size: 28px; }
+      .info-price { font-size: 36px; }
+      .reviews-layout { grid-template-columns: 1fr; gap: 28px; }
+      .desc-feats-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav-main { display: none; }
+      .tabs-section { padding: 40px 20px 0; }
+      .related-section { padding: 48px 20px 110px; }
+      .main-btns { flex-wrap: wrap; }
+      .sticky-buy { display: flex; }
+      body { padding-bottom: 0; }
+      .ft-inner { flex-direction: column; text-align: center; }
+      .ft-links { justify-content: center; }
+      .cart-sb { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .info-name { font-size: 24px; }
+      .gallery-thumbs { overflow-x: auto; }
+      .qty-action-row { flex-direction: column; align-items: stretch; }
+      .stock-note { justify-content: center; }
+      .tabs-nav { overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <span>Ecomme</span>
+      <div class="logo-dot"></div>
+    </a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products" class="active">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="#">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" title="Carrinho" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Entrar
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <a href="/">Início</a>
+    <span class="sep">/</span>
+    <a href="/products">Produtos</a>
+    <span class="sep">/</span>
+    <a href="/products?cat=Eletrônicos">Eletrônicos</a>
+    <span class="sep">/</span>
+    <span class="cur">Smartwatch Pro X7</span>
+  </div>
+</div>
+
+<!-- PRODUCT MAIN -->
+<div class="product-main">
+
+  <!-- GALLERY -->
+  <div class="gallery">
+    <div class="gallery-main" id="galleryMain">
+      <div class="gallery-badges">
+        <span class="gbadge hot">🔥 Mais Vendido</span>
+        <span class="gbadge disc">-36% OFF</span>
+      </div>
+      <button class="gallery-fav" id="galFav" onclick="toggleWishlist(0)">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <span class="gmain-emoji" id="gmainEmoji">⌚</span>
+      <div class="gallery-zoom-hint">
+        <svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Passe o mouse para ampliar
+      </div>
+    </div>
+    <div class="gallery-thumbs" id="galleryThumbs">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="pinfo-side">
+    <div class="info-cat-row">
+      <span class="info-cat">Eletrônicos</span>
+      <span class="info-sku">SKU: SW-X7-2026</span>
+    </div>
+    <h1 class="info-name">Smartwatch Pro X7</h1>
+
+    <div class="info-rating-row">
+      <span class="stars-lg">★★★★★</span>
+      <span class="rating-val">4.9</span>
+      <a class="rating-link" onclick="goToTab('reviews')">2.847 avaliações</a>
+      <div class="rating-sep"></div>
+      <span class="sold-count">+12.400 vendidos</span>
+    </div>
+
+    <div class="info-price-row">
+      <span class="info-price">R$ 189,90</span>
+      <span class="info-old">R$ 299,00</span>
+      <span class="info-disc-pill">-36%</span>
+    </div>
+    <div class="info-installment">ou em <strong>10x de R$ 18,99</strong> sem juros · via Pix <strong>5% de desconto</strong></div>
+
+    <p class="info-desc-short">
+      Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM.
+      Bateria de até 14 dias e tela AMOLED de alto brilho. Compatível com Android e iOS.
+    </p>
+
+    <div class="swatch-row">
+      <div class="swatch-label">Cor: <span id="swatchSelected">Preto Grafite</span></div>
+      <div class="swatches">
+        <button class="swatch on" style="--sc:#1F2937" onclick="selectSwatch(this,'Preto Grafite')" title="Preto Grafite"></button>
+        <button class="swatch" style="--sc:#2563EB" onclick="selectSwatch(this,'Azul Royal')" title="Azul Royal"></button>
+        <button class="swatch" style="--sc:#10B981" onclick="selectSwatch(this,'Verde Floresta')" title="Verde Floresta"></button>
+        <button class="swatch" style="--sc:#F472B6" onclick="selectSwatch(this,'Rosa Coral')" title="Rosa Coral"></button>
+      </div>
+    </div>
+
+    <div class="qty-action-row">
+      <div class="qty-ctrl">
+        <button class="qb" onclick="chgQty(-1)">−</button>
+        <span class="qty-num" id="prodQty">1</span>
+        <button class="qb" onclick="chgQty(1)">+</button>
+      </div>
+      <span class="stock-note">
+        <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        Restam apenas 8 unidades!
+      </span>
+    </div>
+
+    <div class="stock-bar-wrap">
+      <div class="stock-bar-track"><div class="stock-bar-fill" style="width:18%"></div></div>
+      <div class="stock-bar-txt"><strong>82% já vendido</strong> — corra antes que acabe</div>
+    </div>
+
+    <div class="main-btns">
+      <button class="btn-addcart" onclick="addToCartMain()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Adicionar ao Carrinho
+      </button>
+      <button class="btn-buynow" onclick="buyNow()">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Comprar Agora
+      </button>
+      <button class="btn-fav-lg" id="favLg" onclick="toggleWishlist(0)" title="Favoritar">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+
+    <div class="trust-mini">
+      <div class="tm-item">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <span><strong>Frete grátis</strong> para todo o Brasil em compras acima de R$199</span>
+      </div>
+      <div class="tm-item">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span><strong>Compra protegida</strong> — dados criptografados via SSL</span>
+      </div>
+      <div class="tm-item">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        <span><strong>30 dias</strong> para troca ou devolução sem complicação</span>
+      </div>
+    </div>
+
+    <div class="share-row">
+      <span class="share-lbl">Compartilhar:</span>
+      <button class="share-btn" onclick="shareToast()" title="WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+      </button>
+      <button class="share-btn" onclick="shareToast()" title="Copiar link">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+      <button class="share-btn" onclick="shareToast()" title="Instagram">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-section">
+  <div class="tabs-nav">
+    <button class="tab-btn on" data-tab="desc" onclick="goToTab('desc')">Descrição</button>
+    <button class="tab-btn" data-tab="specs" onclick="goToTab('specs')">Especificações</button>
+    <button class="tab-btn" data-tab="reviews" onclick="goToTab('reviews')">Avaliações (2.847)</button>
+  </div>
+
+  <!-- DESCRIPTION -->
+  <div class="tab-panel on" id="tab-desc">
+    <div class="desc-panel">
+      <p>O <strong>Smartwatch Pro X7</strong> foi desenvolvido para acompanhar seu dia a dia com precisão e estilo. Com tela AMOLED de alto brilho e bordas finas, ele entrega informações claras mesmo sob luz solar direta — perfeito para treinos ao ar livre ou reuniões no escritório.</p>
+      <p>O monitoramento contínuo de batimentos cardíacos e saturação de oxigênio (SpO2) ajuda você a entender melhor seu corpo, enquanto o GPS integrado registra rotas de corrida e ciclismo sem precisar do celular por perto. Resistente à água até 5ATM, pode ser usado na piscina, no banho ou em dias de chuva sem preocupação.</p>
+      <p>A bateria de longa duração entrega até 14 dias de uso típico, e o carregamento magnético rápido devolve um dia inteiro de energia em apenas 20 minutos. Compatível com Android 6.0+ e iOS 12.0+, sincroniza notificações, chamadas e músicas direto no pulso.</p>
+      <div class="desc-feats-grid">
+        <div class="desc-feat"><div class="df-ico">❤</div><div class="df-text">Monitor cardíaco e SpO2 em tempo real</div></div>
+        <div class="desc-feat"><div class="df-ico">📍</div><div class="df-text">GPS integrado, sem depender do celular</div></div>
+        <div class="desc-feat"><div class="df-ico">💧</div><div class="df-text">Resistência à água 5ATM</div></div>
+        <div class="desc-feat"><div class="df-ico">🔋</div><div class="df-text">Bateria de até 14 dias de uso</div></div>
+        <div class="desc-feat"><div class="df-ico">📱</div><div class="df-text">Compatível com Android e iOS</div></div>
+        <div class="desc-feat"><div class="df-ico">⚡</div><div class="df-text">Carregamento rápido magnético</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECS -->
+  <div class="tab-panel" id="tab-specs">
+    <table class="specs-table">
+      <tr><td>Marca</td><td>Ecomme Tech</td></tr>
+      <tr><td>Modelo</td><td>Pro X7</td></tr>
+      <tr><td>Tela</td><td>AMOLED 1.43" — 466x466px</td></tr>
+      <tr><td>Resistência à água</td><td>5ATM (até 50m)</td></tr>
+      <tr><td>Bateria</td><td>Até 14 dias (uso típico) / 20 dias (economia)</td></tr>
+      <tr><td>Tempo de carga</td><td>20 min = 1 dia de uso (carregamento magnético)</td></tr>
+      <tr><td>Sensores</td><td>Cardíaco, SpO2, Acelerômetro, Giroscópio, GPS</td></tr>
+      <tr><td>Compatibilidade</td><td>Android 6.0+ / iOS 12.0+</td></tr>
+      <tr><td>Conectividade</td><td>Bluetooth 5.2</td></tr>
+      <tr><td>Material da caixa</td><td>Liga de zinco + vidro 2.5D</td></tr>
+      <tr><td>Peso</td><td>38g (sem pulseira)</td></tr>
+      <tr><td>Garantia</td><td>12 meses Ecomme + nota fiscal</td></tr>
+      <tr><td>Itens inclusos</td><td>Relógio, pulseira extra, cabo magnético, manual</td></tr>
+    </table>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="tab-panel" id="tab-reviews">
+    <div class="reviews-layout">
+      <div class="rev-summary">
+        <div class="rev-avg">
+          <div class="rev-avg-num">4.9</div>
+          <div class="rev-avg-stars">★★★★★</div>
+          <div class="rev-avg-total">baseado em 2.847 avaliações</div>
+        </div>
+        <div class="rev-bars">
+          <div class="rev-bar-row"><span class="rb-lbl">5 ★</span><div class="rev-bar-track"><div class="rev-bar-fill" style="width:84%"></div></div><span class="rb-pct">84%</span></div>
+          <div class="rev-bar-row"><span class="rb-lbl">4 ★</span><div class="rev-bar-track"><div class="rev-bar-fill" style="width:11%"></div></div><span class="rb-pct">11%</span></div>
+          <div class="rev-bar-row"><span class="rb-lbl">3 ★</span><div class="rev-bar-track"><div class="rev-bar-fill" style="width:3%"></div></div><span class="rb-pct">3%</span></div>
+          <div class="rev-bar-row"><span class="rb-lbl">2 ★</span><div class="rev-bar-track"><div class="rev-bar-fill" style="width:1%"></div></div><span class="rb-pct">1%</span></div>
+          <div class="rev-bar-row"><span class="rb-lbl">1 ★</span><div class="rev-bar-track"><div class="rev-bar-fill" style="width:1%"></div></div><span class="rb-pct">1%</span></div>
+        </div>
+        <button class="btn-write-rev" onclick="showToast('Funcionalidade em breve! ✍️')">Escrever Avaliação</button>
+      </div>
+
+      <div class="rev-list">
+        <div class="rev-item">
+          <div class="rev-head">
+            <div class="rev-avatar">MF</div>
+            <div class="rev-name-row">
+              <span class="rev-name">Mariana Ferreira <span class="rev-verified">Compra verificada</span></span>
+              <span class="rev-date">12 de junho de 2026</span>
+            </div>
+          </div>
+          <div class="rev-stars-sm">★★★★★</div>
+          <p class="rev-text">Superou minhas expectativas! A bateria realmente dura quase 2 semanas e o GPS é bem preciso nas corridas. Tela bonita e fácil de configurar pelo app.</p>
+          <div class="rev-helpful">Útil? <button onclick="this.parentElement.querySelector('span')?.remove();this.insertAdjacentHTML('beforeend','<span> · Obrigado!</span>');showToast('Obrigado pelo feedback!')">Sim (47)</button></div>
+        </div>
+
+        <div class="rev-item">
+          <div class="rev-head">
+            <div class="rev-avatar">RC</div>
+            <div class="rev-name-row">
+              <span class="rev-name">Rodrigo Castro <span class="rev-verified">Compra verificada</span></span>
+              <span class="rev-date">3 de junho de 2026</span>
+            </div>
+          </div>
+          <div class="rev-stars-sm">★★★★★</div>
+          <p class="rev-text">Ótimo custo-benefício. Comparei com modelos bem mais caros e esse aqui entrega praticamente as mesmas funções. Recomendo a cor azul, é mais bonita ao vivo.</p>
+          <div class="rev-helpful">Útil? <button onclick="showToast('Obrigado pelo feedback!')">Sim (31)</button></div>
+        </div>
+
+        <div class="rev-item">
+          <div class="rev-head">
+            <div class="rev-avatar">JS</div>
+            <div class="rev-name-row">
+              <span class="rev-name">Juliana Santos <span class="rev-verified">Compra verificada</span></span>
+              <span class="rev-date">28 de maio de 2026</span>
+            </div>
+          </div>
+          <div class="rev-stars-sm">★★★★☆</div>
+          <p class="rev-text">Muito bom no geral, só achei a pulseira original um pouco dura nos primeiros dias. Depois que troquei pela extra que vem na caixa, ficou perfeito.</p>
+          <div class="rev-helpful">Útil? <button onclick="showToast('Obrigado pelo feedback!')">Sim (18)</button></div>
+        </div>
+
+        <div class="rev-item">
+          <div class="rev-head">
+            <div class="rev-avatar">PA</div>
+            <div class="rev-name-row">
+              <span class="rev-name">Pedro Almeida <span class="rev-verified">Compra verificada</span></span>
+              <span class="rev-date">19 de maio de 2026</span>
+            </div>
+          </div>
+          <div class="rev-stars-sm">★★★★★</div>
+          <p class="rev-text">Entrega rápida e produto idêntico às fotos. Uso para monitorar o sono e os dados parecem bem consistentes com o que eu sinto ao acordar. Recomendo!</p>
+          <div class="rev-helpful">Útil? <button onclick="showToast('Obrigado pelo feedback!')">Sim (12)</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED PRODUCTS -->
+<div class="related-section">
+  <div class="related-head">
+    <h2>Você também pode gostar</h2>
+    <a href="/products">Ver todos →</a>
+  </div>
+  <div class="products-grid" id="relatedGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="#">Promoções</a>
+      <a href="#">Rastrear Pedido</a>
+      <a href="#">Suporte</a>
+      <a href="#">Sobre Nós</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- STICKY MOBILE BUY BAR -->
+<div class="sticky-buy" id="stickyBuy">
+  <div class="sb-price"><strong>R$ 189,90</strong><small>R$ 299,00</small></div>
+  <button class="btn-addcart" style="padding:13px;font-size:13px" onclick="addToCartMain()">
+    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    Adicionar
+  </button>
+</div>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartItems"></div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="t-ico">✓</div>
+  <span id="toastMsg">Produto adicionado!</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script>
+/* ─── CURRENT PRODUCT ────────────────────────────────────────────────── */
+const currentProduct = {
+  id: 0, name: 'Smartwatch Pro X7', cat: 'Eletrônicos',
+  price: 189.90, old: 299, discount: 36, emoji: '⌚'
+};
+const thumbEmojis = ['⌚', '⌛', '📿', '🔧'];
+
+/* ─── RELATED PRODUCTS POOL ──────────────────────────────────────────── */
+const products = [
+  { id:1,  name:'Fone Bluetooth ANC Pro',       cat:'Eletrônicos', price:119.90, old:199, discount:39, emoji:'🎧', badge:'new',  rating:4.8, reviews:1523, shipping:true },
+  { id:2,  name:'Câmera de Segurança WiFi',     cat:'Eletrônicos', price:149.90, old:220, discount:31, emoji:'📷', badge:'sale', rating:4.7, reviews:892,  shipping:false },
+  { id:3,  name:'Kit Luzes LED Smart RGB',      cat:'Casa',        price:79.90,  old:130, discount:38, emoji:'💡', badge:'hot',  rating:4.6, reviews:3102, shipping:true },
+  { id:5,  name:'Mini Massageador Portátil',    cat:'Fitness',     price:129.90, old:210, discount:38, emoji:'💆', badge:'sale', rating:4.9, reviews:2231, shipping:true },
+  { id:6,  name:'Tênis Running Ultralight',     cat:'Moda',        price:199.90, old:320, discount:37, emoji:'👟', badge:'hot',  rating:4.7, reviews:1876, shipping:true },
+  { id:11, name:'Garrafa Térmica 1L Inox',      cat:'Fitness',     price:69.90,  old:110, discount:36, emoji:'🍶', badge:'sale', rating:4.7, reviews:3876, shipping:true },
+];
+
+/* ─── STATE ──────────────────────────────────────────────────────────── */
+let cart     = [];
+let wishlist = [];
+let prodQty  = 1;
+
+const $   = id => document.getElementById(id);
+const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+
+/* ─── GALLERY ────────────────────────────────────────────────────────── */
+function renderThumbs() {
+  $('galleryThumbs').innerHTML = thumbEmojis.map((e, i) => `
+    <button class="gthumb ${i === 0 ? 'on' : ''}" onclick="selectThumb(this,'${e}')">${e}</button>
+  `).join('');
+}
+function selectThumb(btn, emoji) {
+  document.querySelectorAll('.gthumb').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  $('gmainEmoji').textContent = emoji;
+}
+
+/* ─── SWATCH ─────────────────────────────────────────────────────────── */
+function selectSwatch(btn, name) {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on');
+  $('swatchSelected').textContent = name;
+}
+
+/* ─── TABS ───────────────────────────────────────────────────────────── */
+function goToTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + tab));
+  document.querySelector('.tabs-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ─── QTY ────────────────────────────────────────────────────────────── */
+function chgQty(d) {
+  prodQty = Math.max(1, prodQty + d);
+  $('prodQty').textContent = prodQty;
+}
+
+/* ─── CART ───────────────────────────────────────────────────────────── */
+function addToCartGeneric(p, qty = 1) {
+  const ex = cart.find(x => x.id === p.id);
+  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
+  updateCart();
+}
+
+function addToCartMain() {
+  addToCartGeneric(currentProduct, prodQty);
+  showToast(`${currentProduct.name} adicionado ao carrinho! 🛒`);
+}
+
+function buyNow() {
+  addToCartGeneric(currentProduct, prodQty);
+  updateCart();
+  openCart();
+  showToast('Pronto! Finalize seu pedido no carrinho 🛍️');
+}
+
+function addRelated(id) {
+  const p = products.find(x => x.id === id);
+  addToCartGeneric(p, 1);
+  showToast(`${p.name} adicionado ao carrinho! 🛒`);
+}
+
+function removeFromCart(id) { cart = cart.filter(x => x.id !== id); updateCart(); }
+function changeCartQty(id, d) {
+  const item = cart.find(x => x.id === id);
+  if (item) { item.qty += d; if (item.qty <= 0) removeFromCart(id); else updateCart(); }
+}
+
+function updateCart() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  $('cartBadge').textContent = count;
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent   = fmt(total);
+  $('cartTotal').textContent = fmt(total);
+
+  const el = $('cartItems');
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
+    return;
+  }
+  el.innerHTML = cart.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="del" onclick="removeFromCart(${item.id})">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
+function checkout() {
+  if (!cart.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+  showToast('Redirecionando para o pagamento… 🔒');
+  setTimeout(closeCart, 1200);
+}
+
+/* ─── WISHLIST ───────────────────────────────────────────────────────── */
+function toggleWishlist(id) {
+  const idx = wishlist.indexOf(id);
+  if (idx === -1) { wishlist.push(id); showToast('Adicionado aos favoritos ❤️'); }
+  else            { wishlist.splice(idx, 1); showToast('Removido dos favoritos'); }
+
+  const badge = $('wishBadge');
+  badge.textContent   = wishlist.length;
+  badge.style.display = wishlist.length ? 'flex' : 'none';
+
+  if (id === 0) {
+    $('galFav').classList.toggle('on', wishlist.includes(0));
+    $('favLg').classList.toggle('on', wishlist.includes(0));
+  }
+  renderRelated();
+}
+function alertWish() { alert(`Lista de favoritos: ${wishlist.length} produto(s)`); }
+
+/* ─── RELATED PRODUCTS RENDER ────────────────────────────────────────── */
+function starsHtml(r) {
+  const f = Math.floor(r); let s = '';
+  for (let i = 0; i < f; i++) s += '★';
+  for (let i = f; i < 5; i++) s += '☆';
+  return s;
+}
+
+function renderRelated() {
+  const grid = $('relatedGrid');
+  grid.innerHTML = products.map(p => {
+    const inW    = wishlist.includes(p.id);
+    const badgeH = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
+                 : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
+                 :                      `<span class="bpill bsale">-${p.discount}%</span>`;
+    return `
+      <div class="pcard" onclick="location.href='/product/${p.id}'">
+        <div class="pimg-wrap">
+          <div class="pimg">${p.emoji}</div>
+          <div class="pbadges">${badgeH}</div>
+          <button class="pwish-btn ${inW ? 'on' : ''}" onclick="event.stopPropagation();toggleWishlist(${p.id})">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="pactions">
+            <button class="btn-ac" onclick="event.stopPropagation();addRelated(${p.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Carrinho
+            </button>
+          </div>
+        </div>
+        <div class="pinfo">
+          <div class="pcat">${p.cat}</div>
+          <div class="pname">${p.name}</div>
+          <div class="prating">
+            <span class="pstars">${starsHtml(p.rating)}</span>
+            <span class="prcnt">(${p.reviews.toLocaleString('pt-BR')})</span>
+          </div>
+          <div class="price-row">
+            <span class="pprice">${fmt(p.price)}</span>
+            <span class="pold">${fmt(p.old)}</span>
+            <span class="pdisc">-${p.discount}%</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ─── SHARE ──────────────────────────────────────────────────────────── */
+function shareToast() { showToast('Link copiado para a área de transferência! 🔗'); }
+
+/* ─── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(() => $('toast').classList.remove('on'), 2800);
+}
+
+/* ─── BACK TO TOP + STICKY BUY ───────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  $('btt').classList.toggle('on', window.scrollY > 300);
+});
+
+/* ─── ESC ────────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
+
+/* ─── INIT ───────────────────────────────────────────────────────────── */
+renderThumbs();
+renderRelated();
+updateCart();
+</script>
+</body>
+</html>
