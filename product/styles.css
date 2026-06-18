@@ -170,7 +170,7 @@
       flex: 1; background: var(--blue); color: #fff; padding: 16px;
       border-radius: 100px; font-weight: 700; font-size: 14px;
       display: flex; align-items: center; justify-content: center; gap: 9px;
-      transition: all .2s;
+      transition: all .2s; max-height: 100px;
     }
     .btn-addcart:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(37,99,235,.28); }
     .btn-addcart svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; }
