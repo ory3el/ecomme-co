@@ -44,9 +44,9 @@
     .logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--blue); flex-shrink: 0; display: flex; align-items: center; gap: 5px; letter-spacing: .5px; }
     .logo-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; margin-top: 2px; }
     .nav-main { display: flex; gap: 2px; }
-    .nav-main button { padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius); transition: all .2s; }
-    .nav-main button:hover { color: var(--text); background: var(--bg3); }
-    .nav-main button.active { color: var(--blue); background: var(--blue-dim); font-weight: 600; }
+    .nav-main a { padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius); transition: all .2s; }
+    .nav-main a:hover { color: var(--text); background: var(--bg3); }
+    .nav-main a.active { color: var(--blue); background: var(--blue-dim); font-weight: 600; }
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
     .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border2); color: var(--muted); transition: all .2s; position: relative; }
