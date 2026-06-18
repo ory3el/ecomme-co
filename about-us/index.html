@@ -22,10 +22,9 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <a class="logo" href="/">
-      <span>Ecomme</span>
-      <div class="logo-dot"></div>
-    </a>
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    	<img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+    </button>
     <nav class="nav-main">
       <a href="/">Início</a>
       <a href="/products">Produtos</a>
@@ -421,30 +420,6 @@
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
-<script>
-  let cart = [];
-  let wishlist = [];
-  const $ = id => document.getElementById(id);
-
-  function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
-  function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
-  function checkout() {
-    showToast('Seu carrinho está vazio. Explore os produtos! 🛍️');
-    setTimeout(closeCart, 1200);
-  }
-  function alertWish() { showToast(`Lista de favoritos: ${wishlist.length} produto(s)`); }
-
-  function showToast(msg) {
-    $('toastMsg').textContent = msg;
-    $('toast').classList.add('on');
-    setTimeout(() => $('toast').classList.remove('on'), 2800);
-  }
-
-  window.addEventListener('scroll', () => {
-    $('btt').classList.toggle('on', window.scrollY > 300);
-  });
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
-</script>
+<script src="script.js"></script>
 </body>
 </html>
