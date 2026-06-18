@@ -67,11 +67,11 @@
     	<img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
     </button>
     <nav class="nav-main">
-      <a href="../">Início</a>
-      <a href="../products" class="active">Produtos</a>
-      <a href="../categories">Categorias</a>
-      <a href="#">Ofertas</a>
-      <a href="../about-us">Sobre</a>
+      <a href="../">Voltar ao Início</a>
+      <a href="#beneficios">Benefícios</a>
+      <a href="#como-funciona">Como Funciona</a>
+      <a href="#tarifas">Tarifas</a>
+      <a href="#faq">FAQ</a>
     </nav>
     <div class="header-spacer"></div>
     <div class="header-actions">
@@ -83,42 +83,8 @@
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="hd-badge" id="cartBadge">0</span>
       </button>
-      <button class="btn-account">
+      <button class="icon-btn" title="Login" onclick="window.location.href = '../login'">
         <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Entrar
-      </button>
-    </div>
-  </div>
-</header>
-  
-  <header>
-  <div class="header-inner">
-    <button onclick="buttonLink('../')" style="background: transparent; border: 2px solid #000; border-radius: 100px; cursor: pointer;">
-          <img src="../images/back-0.png" style="width: 25px; height: auto; display: block; opacity: 100%;" alt="Back"/>
-        </button>
-    
-    <div class="logo">
-       <button onclick="buttonLink('../')">
-         <img src="../images/ecomme-sellers.png" style="position: relative; top: 5px; width: 150px; height: auto; display: block;" alt="Ecomme Sellers"/>
-       </button>
-    </div>
-    <nav class="fac gap16" style="align-items: center">
-        <a href="#beneficios" class="fs12 fw6 muted" style="transition:.2s" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color=''">Benefícios</a>
-        <a href="#como-funciona" class="fs12 fw6 muted" style="transition:.2s" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color=''">Como Funciona</a>
-        <a href="#tarifas" class="fs12 fw6 muted" style="transition:.2s" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color=''">Tarifas</a>
-        <a href="#faq" class="fs12 fw6 muted" style="transition:.2s" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color=''">FAQ</a>
-      </nav>
-    <div class="header-actions">
-      <button class="icon-btn" title="Lista de desejos" onclick="alert('Lista de desejos: ' + wishlist.length + ' item(s)')">
-        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span class="badge" id="wishBadge" style="display:none">0</span>
-      </button>
-      <button class="icon-btn" title="Abrir carrinho" onclick="openCart()">
-        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="badge" id="cartBadge">0</span>
-      </button>
-      <button class="btn-account" onclick="window.location.href='../login'">
-        <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </button>
     </div>
   </div>
