@@ -45,7 +45,7 @@ input,select,textarea{font-family:inherit}
 }
 
 /* ── HEADER ────────────────────────────────────────────── */
-.hdr{background: transparent; border-bottom:0px /*solid var(--border2)*/;position:sticky;top:0;z-index:200;/*box-shadow:var(--sh2)*/}
+.hdr{background: rgba(255, 255, 255, 0.75); border-bottom:0px solid var(--border2);position:sticky;top:0;z-index:200;box-shadow:var(--sh2)}
 .hdr-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px}
 .logo{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--blue);letter-spacing:-.4px}
 .logo span{font-weight:300;color:var(--text);opacity:.7}
