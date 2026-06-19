@@ -35,7 +35,7 @@ function login(url) {
 
 function renderProducts() {
   const grid = document.getElementById('productsGrid');
-  const search = document.getElementById('searchInput').value.toLowerCase();
+  const search = document.getElementById('headerSearch').value.toLowerCase();
   const sort = document.getElementById('sortSelect').value;
   
   const minPriceInput = document.getElementById('minPrice');
