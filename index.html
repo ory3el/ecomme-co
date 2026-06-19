@@ -29,19 +29,25 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    	<img src="./images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
-    </button>
+      <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+         <img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+      </button>
     <nav class="nav-main">
-		<a href="/">Início</a>
-		<a href="/products">Produtos</a>
-		<a href="/categories">Categorias</a>
-		<a href="/categories/offers">Ofertas</a>
-		<a href="/about-us" class="active">Sobre</a>
+      <a href="/">Início</a>
+      <a href="/products" class="active">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="/about-us">Sobre</a>
     </nav>
+    
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
+    </div>
+    
     <div class="header-spacer"></div>
     <div class="header-actions">
-      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+      <button class="icon-btn" title="Favoritos" onclick="openFav()">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span class="hd-badge" id="wishBadge" style="display:none">0</span>
       </button>
@@ -50,7 +56,9 @@
         <span class="hd-badge" id="cartBadge">0</span>
       </button>
       <button class="btn-account">
-        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
         Entrar
       </button>
     </div>
