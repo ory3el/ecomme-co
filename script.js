@@ -193,6 +193,15 @@ function setView(v) {
   renderProducts();
 }
 
+function filterByCategory(event, category) {
+  const searchInput = document.getElementById('headerSearch');
+  if (searchInput) {
+    searchInput.value = category;
+    renderProducts();
+    document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   const p  = products.find(x => x.id === id);
