@@ -475,12 +475,6 @@ body.loading {
       cursor: pointer; font-size: 14px; text-decoration: underline;
     }
 
-  /* LIST VIEW */
-  .products-grid.list-view .product-card { display: grid; grid-template-columns: 180px 1fr; }
-  .products-grid.list-view .product-img-wrap { aspect-ratio: auto; }
-  .products-grid.list-view .product-actions { position: static; opacity: 1; transform: none; background: none; padding: 0; margin-top: 12px; }
-  .products-grid.list-view .product-info { padding: 20px; display: flex; flex-direction: column; }
-
   /* DEAL BANNER */
   .deal-banner { background: linear-gradient(135deg, #e8f2fd 0%, #fff 100%); border: 1px solid var(--border); border-radius: var(--rad-lg); padding: 32px; margin: 40px 0; display: flex; align-items: center; gap: 40px; overflow: hidden; position: relative; }
   .deal-banner::before { content: ''; position: absolute; right: -40px; top: -40px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(160,115,42,0.12) 0%, transparent 70%); pointer-events: none; }
