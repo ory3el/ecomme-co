@@ -74,9 +74,11 @@ function renderProducts() {
   /* search filter */
   if (q) {
     list = list.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.cat.toLowerCase().includes(q)  ||
-      p.desc.toLowerCase().includes(q)
+      p.name.toLowerCase().includes(q) || 
+      p.desc.toLowerCase().includes(q) ||
+      (Array.isArray(p.cat) 
+       ? p.cat.some(c => c.toLowerCase().includes(q)) 
+       : p.cat.toLowerCase().includes(q));
     );
   }
 
@@ -123,6 +125,7 @@ function renderProducts() {
           </div>
           <div class="pinfo">
             <div class="pcat">${p.cat}</div>
+            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
             <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
