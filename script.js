@@ -25,10 +25,6 @@ let modalQty = 1;
 
 function formatPrice(p) { return 'R$ ' + p.toFixed(2).replace('.',','); }
 
-function $(id) {
-    return document.getElementById(id);
-}
-
 function renderStars(r) {
   const full = Math.floor(r);
   const empty = 5 - full;
