@@ -696,36 +696,77 @@ body.loading {
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast-icon { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; }
 
-  /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(6px); }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal { background: #fff; border: 1px solid var(--border2); border-radius: 16px; max-width: 860px; width: 100%; max-height: 90vh; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; }
-  .modal-img-side { background: #eaeff5; border-radius: 16px 0 0 16px; display: flex; align-items: center; justify-content: center; font-size: 120px; min-height: 400px; position: relative; }
-  .modal-info-side { padding: 36px; display: flex; flex-direction: column; }
-  .modal-close { position: absolute; top: 16px; right: 16px; width: 34px; height: 34px; border-radius: var(--radius); background: rgba(255,255,255,0.9); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--text); transition: all 0.2s; z-index: 10; }
-  .modal-close:hover { border-color: var(--red); color: var(--red); }
-  .modal-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
-  .modal-category { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
-  .modal-name { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
-  .modal-desc { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
-  .modal-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 24px; }
-  .modal-price { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; color: var(--blue); }
-  .modal-old { font-size: 14px; color: var(--muted); text-decoration: line-through; }
-  .modal-old-disc { font-size: 12px; font-weight: 700; color: var(--red); background: rgba(192,57,43,0.10); padding: 3px 8px; border-radius: 4px; }
-  .modal-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-  .modal-feature { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
-  .modal-feature::before { content: '✓'; width: 18px; height: 18px; background: rgba(76,175,129,0.15); color: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
-  .modal-qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .modal-qty-label { font-size: 12px; font-weight: 500; color: var(--muted); min-width: 60px; }
-  .modal-qty-ctrl { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); padding: 6px 12px; }
-  .modal-qty-num { font-size: 15px; font-weight: 600; min-width: 28px; text-align: center; }
-  .modal-btns { display: flex; gap: 10px; margin-top: auto; }
-  .btn-modal-cart { flex: 1; background: var(--blue); color: #fff; padding: 13px; border-radius: 100px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
-  .btn-modal-cart:hover { background: var(--blue2); }
-  .btn-modal-wish { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all 0.2s; }
-  .btn-modal-wish:hover { border-color: var(--red); color: var(--red); }
-  .btn-modal-wish svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
-  .modal-divider { border: none; border-top: 1px solid var(--border2); margin: 16px 0; }
+    /* ── MODAL ───────────────────────────────────────────────── */
+    .modal-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75); z-index: 2500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none;
+      transition: opacity .3s; backdrop-filter: blur(8px);
+    }
+    .modal-ov.on { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #fff; border-radius: var(--rad-lg);
+      max-width: 860px; width: 100%; max-height: 90vh; overflow-y: auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .modal-img {
+      background: var(--bg3); border-radius: var(--rad-lg) 0 0 var(--rad-lg);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 400px; position: relative; font-size: 100px;
+    }
+    .mcls {
+      position: absolute; top: 16px; right: 16px;
+      width: 34px; height: 34px; border-radius: var(--radius);
+      background: rgba(255,255,255,.9); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text); z-index: 10;
+    }
+    .mcls:hover { border-color: var(--red); color: var(--red); }
+    .mcls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .modal-info { padding: 36px; display: flex; flex-direction: column; }
+    .m-cat { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+    .m-name { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+    .m-desc { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
+    .m-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+    .m-price { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; color: var(--blue); }
+    .m-old { font-size: 14px; color: var(--muted); text-decoration: line-through; }
+    .m-disc { font-size: 11px; font-weight: 700; color: #fff; background: var(--red); padding: 3px 8px; border-radius: 4px; }
+    .m-feats { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .m-feat { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .fchk {
+      width: 18px; height: 18px; background: rgba(16,185,129,.12);
+      color: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0;
+    }
+    .m-div { border: none; border-top: 1px solid var(--border2); margin: 16px 0; }
+    .m-qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .m-qty-lbl { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .m-qty-ctrl {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 6px 14px;
+    }
+    .m-qty-num { font-size: 15px; font-weight: 700; min-width: 28px; text-align: center; }
+    .m-btns { display: flex; gap: 10px; margin-top: auto; }
+    .btn-madd {
+      flex: 1; background: var(--blue); color: #fff;
+      padding: 13px; border-radius: 100px;
+      font-weight: 700; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s;
+    }
+    .btn-madd:hover { background: var(--blue2); }
+    .btn-mwish {
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+      transition: all .2s;
+    }
+    .btn-mwish:hover, .btn-mwish.on { border-color: var(--red); color: var(--red); }
+    .btn-mwish svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .btn-mwish.on svg { fill: var(--red); }
 
   /* PAGINATION */
   .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 40px 0 0; }
