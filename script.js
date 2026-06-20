@@ -341,17 +341,6 @@ function checkout() {
   setTimeout(closeCart, 1200);
 }
 
-// WISHLIST
-function toggleWishlist(id) {
-  const idx = wishlist.indexOf(id);
-  if(idx === -1) { wishlist.push(id); showToast('Adicionado à lista de desejos ❤️'); }
-  else { wishlist.splice(idx, 1); showToast('Removido da lista de desejos'); }
-  const badge = document.getElementById('wishBadge');
-  badge.textContent = wishlist.length;
-  badge.style.display = wishlist.length ? 'flex' : 'none';
-  renderProducts();
-}
-
 // MODAL
 function openProduct(id) {
   const p = products.find(x => x.id === id);
