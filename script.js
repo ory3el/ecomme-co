@@ -13,9 +13,6 @@ const products = [
   { id:11, name:'Garrafa Térmica 1L Inox', cat:'Fitness', price:69.90, old:110, discount:36, emoji:'🍶', badge:'sale', rating:4.7, reviews:3876, shipping:true, desc:'Garrafa em aço inox 18/8 que mantém bebidas geladas por 24h e quentes por 12h. Tampa hermética.', features:['Aço inox 18/8 premium','Gelado 24h / Quente 12h','Tampa hermética','BPA Free','1 litro de capacidade'] },
 ];
 
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
-
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
 let fav         = [];
@@ -24,14 +21,27 @@ let mQtyVal     = 1;
 let view        = 'grid';
 let shuffled    = [...products];
 
-function formatPrice(p) { return 'R$ ' + p.toFixed(2).replace('.',','); }
+/* ─── UTILS ─────────────────────────────────────────────────────────── */
+const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const $    = id  => document.getElementById(id);
 
-function renderStars(r) {
-  const full = Math.floor(r);
-  const empty = 5 - full;
-
-  return '★'.repeat(full) + '☆'.repeat(empty);
+function starsHtml(r) {
+  let s = '';
+  const f = Math.floor(r);
+  for (let i = 0; i < f; i++)    s += '★';
+  for (let i = f; i < 5; i++)    s += '☆';
+  return s;
 }
+
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 
 function login(url) {
   window.location.href = url;
