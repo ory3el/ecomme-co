@@ -16,12 +16,13 @@ const products = [
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
 const $    = id  => document.getElementById(id);
 
-let cart = [];
-let fav = [];
-let currentCategory = 'Todos';
-let currentView = 'grid';
-let currentProduct = null;
-let modalQty = 1;
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart        = [];
+let fav         = [];
+let curId       = null;
+let mQtyVal     = 1;
+let view        = 'grid';
+let shuffled    = [...products];
 
 function formatPrice(p) { return 'R$ ' + p.toFixed(2).replace('.',','); }
 
