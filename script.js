@@ -78,7 +78,7 @@ function renderProducts() {
       p.desc.toLowerCase().includes(q) ||
       (Array.isArray(p.cat) 
        ? p.cat.some(c => c.toLowerCase().includes(q)) 
-       : p.cat.toLowerCase().includes(q));
+       : p.cat.toLowerCase().includes(q))
     );
   }
 
