@@ -13,8 +13,10 @@
     
     --text: #10161a;
     --muted: #707c8a;
-    --border: rgba(42, 97, 160,0.25);
     --shadow: 0 4px 24px rgba(37,99,235,0.07);
+    --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+
+    --border: rgba(42, 97, 160,0.25);
     --border2: rgba(0,0,0,0.08);
     --red: #c0392b;
     --green: #27855a;
