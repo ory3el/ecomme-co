@@ -28,7 +28,7 @@ const products = [
 ];
 
 let cart = [];
-let wishlist = [];
+let fav = [];
 let currentCategory = 'Todos';
 let currentView = 'grid';
 let currentProduct = null;
@@ -173,12 +173,11 @@ function setActive(el) {
   el.classList.add('active');
 }
 
-// CART
+/* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
-  const p = products.find(x => x.id === id);
-  const existing = cart.find(x => x.id === id);
-  if(existing) existing.qty += qty;
-  else cart.push({...p, qty});
+  const p  = products.find(x => x.id === id);
+  const ex = cart.find(x => x.id === id);
+  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
 }
@@ -188,73 +187,157 @@ function removeFromCart(id) {
   updateCart();
 }
 
-function changeQty(id, delta) {
+function changeCartQty(id, d) {
   const item = cart.find(x => x.id === id);
-  if(item) {
-    item.qty += delta;
-    if(item.qty <= 0) removeFromCart(id);
-    else updateCart();
+  if (item) {
+    item.qty += d;
+    if (item.qty <= 0) removeFromCart(id); else updateCart();
   }
 }
 
 function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
-  document.getElementById('cartBadge').textContent = count;
-  document.getElementById('cartCount').textContent = `(${count})`;
-  document.getElementById('cartSubtotal').textContent = formatPrice(total);
-  document.getElementById('cartTotal').textContent = formatPrice(total);
+  $('cartBadge').textContent = count;
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent   = fmt(total);
+  $('cartTotal').textContent = fmt(total);
 
-  const el = document.getElementById('cartItems');
-  if(!cart.length) {
-    el.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Seu carrinho está vazio</p></div>`;
+  const el = $('cartItems');
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
     return;
   }
   el.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <div class="cart-item-img">${item.emoji}</div>
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">${formatPrice(item.price)}</div>
-        <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
-          <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
         </div>
       </div>
-      <button class="cart-item-delete" onclick="removeFromCart(${item.id})">
-        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
       </button>
-    </div>
-  `).join('');
+      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>`).join('');
   renderProducts();
 }
 
-function openCart() {
-  document.getElementById('cartSidebar').classList.add('open');
-  document.getElementById('cartOverlay').classList.add('open');
-}
-
-function closeCart() {
-  document.getElementById('cartSidebar').classList.remove('open');
-  document.getElementById('cartOverlay').classList.remove('open');
-}
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
 function checkout() {
-  if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
-  showToast('Redirecionando para o pagamento... 🔒');
+  if (!cart.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+  showToast('Redirecionando para o pagamento… 🔒');
   setTimeout(closeCart, 1200);
 }
 
-// WISHLIST
-function toggleWishlist(id) {
-  const idx = wishlist.indexOf(id);
-  if(idx === -1) { wishlist.push(id); showToast('Adicionado à lista de desejos ❤️'); }
-  else { wishlist.splice(idx, 1); showToast('Removido da lista de desejos'); }
-  const badge = document.getElementById('wishBadge');
-  badge.textContent = wishlist.length;
-  badge.style.display = wishlist.length ? 'flex' : 'none';
+/* ─── FAV ───────────────────────────────────────────────────────── */
+function toggleFav(id) {
+  const ex = fav.find(x => x.id === id);
+  if (ex) {
+    removeFromFav(id);
+    showToast('Removido da Lista de Desejos! 💔');
+  } else {
+    addToFav(id, 1);
+  }
+  
+  if ($('mWish')) {
+    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  }
+}
+
+function addToFav(id, qty = 1) {
+  const p  = products.find(x => x.id === id);
+  const ex = fav.find(x => x.id === id);
+  if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  updateFav();
+  showToast(`${p.name} salvo nos favoritos! 🛒`);
+}
+
+function removeFromFav(id) {
+  fav = fav.filter(x => x.id !== id);
+  updateFav();
+}
+
+function changeFavQty(id, d) {
+  const item = fav.find(x => x.id === id);
+  if (item) {
+    item.qty += d;
+    if (item.qty <= 0) removeFromFav(id); else updateFav();
+  }
+}
+
+function updateFav() {
+  const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = fav.reduce((s, i) => s + i.qty, 0);
+  $('wishBadge').textContent = count;
+  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  $('favCount').textContent = `(${count})`;
+  $('favTotal').textContent = fmt(total);
+
+  const el = $('favItems');
+  if (!fav.length) {
+    el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    return;
+  }
+ el.innerHTML = fav.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
+        
+      </div>
+      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>`).join('');
   renderProducts();
+}
+  
+function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
+function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+
+function addAllFavToCart() {
+  if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+  
+  fav.forEach(produto => {
+    addToCart(produto.id, 1);
+  });
+  fav = []; 
+  updateFav(); 
+  renderProducts();
+  // saveFav(); 
+  closeFav();
+  openCart();
+  showToast('Todos os itens foram para o carrinho! 🛒');
+}
+
+function moveFromCartToFav(id) {
+  addToFav(id, 1);
+  showToast('Produto adicionado à Lista de Desejos! ❤️');
 }
 
 // MODAL
