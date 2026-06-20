@@ -418,7 +418,7 @@ window.addEventListener('scroll', () =>
 
 /* ─── ESC ────────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); }
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
 });
 
 /* ─── INIT ───────────────────────────────────────────────────────────── */
