@@ -182,7 +182,20 @@
 
 <!-- PRODUCTS -->
 <div class="products-section" id="produtos">
-
+	<div class="deal-banner">
+      <div class="deal-emoji">⚡</div>
+      <div class="deal-text">
+        <div class="deal-tag">OFERTA DO DIA</div>
+        <h3>Até 60% OFF em<br>Eletrônicos Selecionados</h3>
+        <p>Não perca essa oportunidade. Estoque limitado!</p>
+      </div>
+      <div class="deal-countdown">
+        <div class="countdown-unit"><span class="countdown-num" id="cdH">00</span><div class="countdown-label">Horas</div></div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdM">00</span><div class="countdown-label">Min</div></div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdS">00</span><div class="countdown-label">Seg</div></div>
+      </div>
+    </div>
+	
   <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="tb-left">
@@ -229,64 +242,6 @@
         Ver catálogo completo →
     </a>
 </div>
-  </div>
-</div>
-	
-<!-- MAIN PRODUCT AREA -->
-<div class="main-layout" id="produtos2">
-
-  <!-- PRODUCTS -->
-  <div class="products-area">
-    <!-- DEAL BANNER -->
-    <div class="deal-banner">
-      <div class="deal-emoji">⚡</div>
-      <div class="deal-text">
-        <div class="deal-tag">OFERTA DO DIA</div>
-        <h3>Até 60% OFF em<br>Eletrônicos Selecionados</h3>
-        <p>Não perca essa oportunidade. Estoque limitado!</p>
-      </div>
-      <div class="deal-countdown">
-        <div class="countdown-unit"><span class="countdown-num" id="cdH">00</span><div class="countdown-label">Horas</div></div>
-        <div class="countdown-unit"><span class="countdown-num" id="cdM">00</span><div class="countdown-label">Min</div></div>
-        <div class="countdown-unit"><span class="countdown-num" id="cdS">00</span><div class="countdown-label">Seg</div></div>
-      </div>
-    </div>
-
-    <!-- TOOLBAR -->
-    <div class="products-toolbar">
-      <h2 id="productsTitle">Conheça Nosso Catálogo</h2>
-      <select class="sort-select" id="sortSelect2" onchange="filterProducts()">
-        <option value="popular">Mais Populares</option>
-        <option value="price_asc">Menor Preço</option>
-        <option value="price_desc">Maior Preço</option>
-        <option value="new">Mais Recentes</option>
-        <option value="rating">Melhor Avaliados</option>
-      </select>
-      <div class="view-btns">
-        <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grade">
-          <svg viewBox="0 0 16 16"><rect x="0" y="0" width="7" height="7" rx="1"/><rect x="9" y="0" width="7" height="7" rx="1"/><rect x="0" y="9" width="7" height="7" rx="1"/><rect x="9" y="9" width="7" height="7" rx="1"/></svg>
-        </button>
-        <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="Lista">
-          <svg viewBox="0 0 16 16"><rect x="0" y="1" width="16" height="3" rx="1"/><rect x="0" y="7" width="16" height="3" rx="1"/><rect x="0" y="13" width="16" height="3" rx="1"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="products-grid" id="productsGrid2"></div>
-	  <div class="products-footer-actions">
-    
-    <button class="products-footer-btn"
-        onclick="document.getElementById('produtos').scrollIntoView({behavior:'smooth'})">
-
-        ↑ Voltar ao topo
-    </button>
-
-    <a href="/products" class="products-footer-btn products-footer-primary">
-        Ver catálogo completo →
-    </a>
-
-	  </div>
-    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -395,7 +350,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p style="cursor: default";>&copy 2026 <span style="font-weight: bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
+    <p style="cursor: default;">&copy 2026 <span style="font-weight: bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
     <div class="payment-icons">
 
       <div class="pay-icon">
