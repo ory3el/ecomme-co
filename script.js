@@ -430,9 +430,10 @@ document.addEventListener('keydown', e => {
 updateCart();
 renderProducts();
 
-function buttonLink(url) {
-  window.location.href = url;
-}
+/* ─── ESC ────────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
+});
 
 // FAVICON
 const favicon = document.getElementById('favicon');
