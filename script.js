@@ -1,3 +1,11 @@
+function buttonLink(url) {
+  window.location.href = url;
+}
+
+function login(url) {
+  window.location.href = url;
+}
+
 const products = [
   { id:0, name:'Smartwatch Pro X7', cat:'Eletrônicos', price:189.90, old:299, discount:36, emoji:'⌚', badge:'hot', rating:4.9, reviews:2847, shipping:true, desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água. Bateria de 14 dias. Compatível com Android e iOS.', features:['Monitor cardíaco e SpO2','GPS integrado','Resistência 5ATM','Bateria 14 dias','Compatível Android/iOS'] },
   { id:1, name:'Fone Bluetooth ANC Pro', cat:'Eletrônicos', price:119.90, old:199, discount:39, emoji:'🎧', badge:'new', rating:4.8, reviews:1523, shipping:true, desc:'Fone de ouvido com cancelamento ativo de ruído, driver 40mm, autonomia de 30h e conexão multidevice.', features:['Cancelamento ativo de ruído','30 horas de autonomia','Driver 40mm premium','Conexão multidevice','Estojo de carregamento'] },
@@ -42,9 +50,12 @@ function fishYates(arr) {
   return a;
 }
 
-
-function login(url) {
-  window.location.href = url;
+/* ─── SHUFFLE ────────────────────────────────────────────────────────── */
+function shuffleAndRender() {
+  shuffled = fishYates(products);
+  $('sortSelect').value = 'random';
+  renderProducts();
+  showToast('Produtos embaralhados! 🔀');
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
