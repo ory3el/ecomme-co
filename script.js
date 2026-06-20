@@ -79,7 +79,7 @@ function renderProducts() {
   }
 
   grid.innerHTML = filtered.map(p => {
-    const inWish = wishlist.includes(p.id);
+    const inWish = fav.includes(p.id);
     const badgeHtml = p.badge === 'hot' ? '<span class="badge-pill badge-hot">🔥 Hot</span>' :
       p.badge === 'new' ? '<span class="badge-pill badge-new">Novo</span>' :
       `<span class="badge-pill badge-sale">-${p.discount}%</span>`;
