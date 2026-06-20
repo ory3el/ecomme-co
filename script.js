@@ -28,6 +28,9 @@ const products = [
   { id:11, name:'Garrafa Térmica 1L Inox', cat:'Fitness', price:69.90, old:110, discount:36, emoji:'🍶', badge:'sale', rating:4.7, reviews:3876, shipping:true, desc:'Garrafa em aço inox 18/8 que mantém bebidas geladas por 24h e quentes por 12h. Tampa hermética.', features:['Aço inox 18/8 premium','Gelado 24h / Quente 12h','Tampa hermética','BPA Free','1 litro de capacidade'] },
 ];
 
+const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const $    = id  => document.getElementById(id);
+
 let cart = [];
 let fav = [];
 let currentCategory = 'Todos';
