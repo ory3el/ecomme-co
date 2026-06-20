@@ -36,147 +36,139 @@ function login(url) {
   window.location.href = url;
 }
 
+/* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function renderProducts() {
-  const grid = document.getElementById('productsGrid');
-  const search = document.getElementById('headerSearch').value.toLowerCase();
-  const sort = document.getElementById('sortSelect').value;
+  const grid  = $('productsGrid');
+  const q =
+(
+  $('heroSearch')?.value ||
+  $('headerSearch')?.value ||
+ '').toLowerCase().trim();
   
-  const minPriceInput = document.getElementById('minPrice');
-  const maxPriceInput = document.getElementById('maxPrice');
+  const sort  = $('sortSelect').value;
 
-  const minP = minPriceInput ? parseFloat(minPriceInput.value) || 0 : 0;
-  const maxP = maxPriceInput ? parseFloat(maxPriceInput.value) || Infinity : Infinity;
+  let list = [...shuffled];
 
-  let filtered = products.filter(p => {
-    const matchCat = currentCategory === 'Todos' || p.cat === currentCategory;
-    const matchSearch = p.name.toLowerCase().includes(search) || p.cat.toLowerCase().includes(search);
-    const matchPrice = p.price >= minP && p.price <= maxP;
-    return matchCat && matchSearch && matchPrice;
-  });
+  /* search filter */
+  if (q) {
+    list = list.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.cat.toLowerCase().includes(q)  ||
+      p.desc.toLowerCase().includes(q)
+    );
+  }
 
-  if(sort === 'price_asc') filtered.sort((a,b) => a.price - b.price);
-  else if(sort === 'price_desc') filtered.sort((a,b) => b.price - a.price);
-  else if(sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
-  else if(sort === 'new') filtered.sort((a,b) => b.id - a.id);
+  /* sort */
+  if      (sort === 'price_asc')  list.sort((a, b) => a.price    - b.price);
+  else if (sort === 'price_desc') list.sort((a, b) => b.price    - a.price);
+  else if (sort === 'rating')     list.sort((a, b) => b.rating   - a.rating);
+  else if (sort === 'discount')   list.sort((a, b) => b.discount - a.discount);
 
-  //document.getElementById('productsCount').textContent = `Mostrando ${filtered.length} de ${products.length}`;
+  //$('productsCount').textContent = list.length;
 
-  if(!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px;margin-bottom:16px">🔍</div><p>Nenhum produto encontrado</p></div>`;
+  /* empty state */
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">🔍</div>
+        <h3>Nenhum resultado encontrado</h3>
+        <p>Tente outro termo ou
+          <button class="btn-clear" onclick="$('searchInput').value='';renderProducts()">limpar a busca</button>
+        </p>
+      </div>`;
     return;
   }
 
-  grid.innerHTML = filtered.map(p => {
-    const inWish = fav.includes(p.id);
-    const badgeHtml = p.badge === 'hot' ? '<span class="badge-pill badge-hot">🔥 Hot</span>' :
-      p.badge === 'new' ? '<span class="badge-pill badge-new">Novo</span>' :
-      `<span class="badge-pill badge-sale">-${p.discount}%</span>`;
+  /* render cards */
+  grid.innerHTML = list.map(p => {
+    const inW = fav.some(x => x.id === p.id);
+    const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
+                  : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
+                  :                     `<span class="bpill bsale">-${p.discount}%</span>`;
+    const shipH   = p.shipping
+      ? `<div class="pfship">
+           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+           Frete Grátis
+         </div>`
+      : '';
 
-    if(currentView === 'list') {
-      return `<div class="product-card" onclick="openProduct(${p.id})">
-        <div class="product-img-wrap">
-          <div class="product-img">${p.emoji}</div>
-          <div class="product-badges">${badgeHtml}</div>
-        </div>
-        <div class="product-info">
-          <div class="product-category">${p.cat}</div>
-          <div class="product-name">${p.name}</div>
-          <div class="product-rating">
-            <span class="product-stars">${renderStars(p.rating)}</span>
-            <span class="product-rating-count">${p.rating} (${p.reviews.toLocaleString('pt-BR')})</span>
+    if (view === 'list') {
+      return `
+        <div class="pcard" onclick="openProduct(${p.id})">
+          <div class="pimg-wrap">
+            <div class="pimg">${p.emoji}</div>
+            <div class="pbadges">${badgeH}</div>
           </div>
-          <div>${p.desc.substring(0,120)}...</div>
-          <div class="product-price-row" style="margin-top:8px">
-            <span class="product-price">${formatPrice(p.price)}</span>
-            <span class="product-old-price">${formatPrice(p.old)}</span>
+          <div class="pinfo">
+            <div class="pcat">${p.cat}</div>
+            <div class="pname">${p.name}</div>
+            <div class="prating">
+              <span class="pstars">${starsHtml(p.rating)}</span>
+              <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
+            </div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6">
+              ${p.desc.substring(0, 130)}…
+            </div>
+            <div class="price-row">
+              <span class="pprice">${fmt(p.price)}</span>
+              <span class="pold">${fmt(p.old)}</span>
+              <span class="pdisc">-${p.discount}%</span>
+            </div>
+            ${shipH}
+            <div class="pactions">
+              <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+                <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Adicionar ao Carrinho
+              </button>
+            </div>
           </div>
-          <div class="product-actions">
-            <button class="btn-cart" onclick="event.stopPropagation();addToCart(${p.id})">
-              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Adicionar
+        </div>`;
+    }
+
+    return `
+      <div class="pcard" onclick="openProduct(${p.id})">
+        <div class="pimg-wrap">
+          <div class="pimg">${p.emoji}</div>
+          <div class="pbadges">${badgeH}</div>
+          <button class="pwish-btn ${inW ? 'on' : ''}"
+                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
+                  title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="pactions">
+            <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Carrinho
+            </button>
+            <button class="btn-qv" onclick="event.stopPropagation();openProduct(${p.id})" title="Ver detalhes">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
+        <div class="pinfo">
+          <div class="pcat">${p.cat}</div>
+          <div class="pname">${p.name}</div>
+          <div class="prating">
+            <span class="pstars">${starsHtml(p.rating)}</span>
+            <span class="prcnt">(${p.reviews.toLocaleString('pt-BR')})</span>
+          </div>
+          <div class="price-row">
+            <span class="pprice">${fmt(p.price)}</span>
+            <span class="pold">${fmt(p.old)}</span>
+            <span class="pdisc">-${p.discount}%</span>
+          </div>
+          ${shipH}
+        </div>
       </div>`;
-    }
-
-return `
-    <div class="pcard" onclick="openModal(${p.id})">
-      <div class="pimg-wrap">
-        <div class="pimg">${p.emoji}</div>
-        <div class="pbadges">
-          ${p.badge ? `<span class="bpill b${p.badge}">${p.badge}</span>` : ''}
-        </div>
-        <button class="pwish-btn ${isFav ? 'on' : ''}" onclick="event.stopPropagation(); toggleWishlist(${p.id})">
-          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        </button>
-        <div class="pactions">
-          <button class="btn-ac" onclick="event.stopPropagation(); addToCart(${p.id})">
-            <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg>
-            Comprar
-          </button>
-        </div>
-      </div>
-      <div class="pinfo">
-        <span class="pcat">${p.cat}</span>
-        <h3 class="pname">${p.name}</h3>
-        <div class="prating">
-          <span class="pstars">★★★★★</span>
-          <span class="prcnt">(${p.reviews})</span>
-        </div>
-        <div class="price-row">
-          <span class="pprice">${formatPrice(p.price)}</span>
-          ${p.old ? `<span class="pold">${formatPrice(p.old)}</span>` : ''}
-          ${p.discount ? `<span class="pdisc">-${p.discount}%</span>` : ''}
-        </div>
-        ${p.shipping ? `
-          <div class="pfship">
-            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-            Frete Grátis
-          </div>` : ''}
-      </div>
-    </div>
-  `;
   }).join('');
 }
 
-function filterByCategory(event, cat) {
-  currentCategory = cat;
-
-  document.getElementById('productsTitle').textContent =
-    cat === 'Todos' ? 'Todos os Produtos' : cat;
-
-  if (event?.currentTarget) {
-    document.querySelectorAll('.cat-card')
-      .forEach(card => card.classList.remove('active'));
-
-    event.currentTarget.classList.add('active');
-  }
-
-  document.getElementById('produtos')
-    .scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  renderProducts();
-}
-
-function filterProducts() { renderProducts(); }
-
 function setView(v) {
-  currentView = v;
-  const grid = document.getElementById('productsGrid');
-  grid.className = 'products-grid' + (v === 'list' ? ' list-view' : '');
-  document.getElementById('gridViewBtn').classList.toggle('active', v === 'grid');
-  document.getElementById('listViewBtn').classList.toggle('active', v === 'list');
+  view = v;
+  $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
+  $('gridBtn').classList.toggle('on', v === 'grid');
+  $('listBtn').classList.toggle('on', v === 'list');
   renderProducts();
-}
-
-function toggleTag(btn, tag) {
-  document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function setActive(el) {
-  document.querySelectorAll('.nav-main a').forEach(a => a.classList.remove('active'));
-  el.classList.add('active');
 }
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
