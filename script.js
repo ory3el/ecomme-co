@@ -361,40 +361,31 @@ function checkout() {
   setTimeout(closeCart, 1200);
 }
 
-// MODAL
+/* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProduct(id) {
+  document.body.classList.add("noscroll");
   const p = products.find(x => x.id === id);
-  currentProduct = id;
-  modalQty = 1;
-  document.getElementById('modalQty').textContent = 1;
-  document.getElementById('modalImg').style.fontSize = '120px';
-  document.getElementById('modalImg').innerHTML = `<button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><span style="font-size:100px">${p.emoji}</span>`;
-  document.getElementById('modalCategory').textContent = p.cat;
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalPrice').textContent = formatPrice(p.price);
-  document.getElementById('modalOld').textContent = formatPrice(p.old);
-  document.getElementById('modalDisc').textContent = `-${p.discount}% OFF`;
-  document.getElementById('modalFeatures').innerHTML = p.features.map(f => `<div class="modal-feature">${f}</div>`).join('');
-  document.getElementById('modalOverlay').classList.add('open');
+  curId   = id;
+  mQtyVal = 1;
+  $('mQty').textContent    = 1;
+  $('mEmoji').textContent  = p.emoji;
+  $('mCat').textContent    = p.cat;
+  $('mName').textContent   = p.name;
+  $('mDesc').textContent   = p.desc;
+  $('mPrice').textContent  = fmt(p.price);
+  $('mOld').textContent    = fmt(p.old);
+  $('mDisc').textContent   = `-${p.discount}% OFF`;
+  $('mFeats').innerHTML    = p.features.map(f =>
+    `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
+  $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  $('modalOverlay').classList.add('on');
 }
 
-function closeModal(e) {
-  if(!e || e.target === document.getElementById('modalOverlay') || e.currentTarget === document.querySelector('.modal-close')) {
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
-}
-
-function changeModalQty(delta) {
-  modalQty = Math.max(1, modalQty + delta);
-  document.getElementById('modalQty').textContent = modalQty;
-}
-
-function addFromModal() {
-  addToCart(currentProduct, modalQty);
-  document.getElementById('modalOverlay').classList.remove('open');
-  openCart();
-}
+function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
+function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
+function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
+function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
 function showToast(msg) {
