@@ -180,6 +180,58 @@
  </div>
 </section>
 
+<!-- PRODUCTS -->
+<div class="products-section">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="tb-left">
+      <h2 class="tb-title">Todos os Produtos</h2>
+    </div>
+    <div class="tb-right">
+      <button class="btn-shuffle" onclick="shuffleAndRender()">
+        <svg viewBox="0 0 24 24">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+        </svg>
+        Embaralhar
+      </button>
+      <select class="sort-sel" id="sortSelect" onchange="renderProducts()">
+        <option value="random">Ordem Aleatória</option>
+        <option value="price_asc">Menor Preço</option>
+        <option value="price_desc">Maior Preço</option>
+        <option value="rating">Mais Avaliados</option>
+        <option value="discount">Maior Desconto</option>
+      </select>
+      <div class="view-btns">
+        <button class="vbtn on" id="gridBtn" onclick="setView('grid')" title="Grade">
+          <svg viewBox="0 0 16 16">
+            <rect x="0" y="0" width="7" height="7" rx="1"/><rect x="9" y="0" width="7" height="7" rx="1"/>
+            <rect x="0" y="9" width="7" height="7" rx="1"/><rect x="9" y="9" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+        <button class="vbtn" id="listBtn" onclick="setView('list')" title="Lista">
+          <svg viewBox="0 0 16 16">
+            <rect x="0" y="1" width="16" height="3" rx="1"/>
+            <rect x="0" y="7" width="16" height="3" rx="1"/>
+            <rect x="0" y="13" width="16" height="3" rx="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  <div class="products-grid" id="productsGrid"></div>
+	<div class="products-footer-actions">
+    <button class="products-footer-btn"
+        onclick="document.getElementById('produtos').scrollIntoView({behavior:'smooth'})">
+        ↑ Voltar ao topo
+    </button>
+    <a href="/products" class="products-footer-btn products-footer-primary">
+        Ver catálogo completo →
+    </a>
+</div>
+  </div>
+</div>
+	
 <!-- MAIN PRODUCT AREA -->
 <div class="main-layout" id="produtos">
 
