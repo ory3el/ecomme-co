@@ -430,7 +430,8 @@
 
     .cart-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
-      background: #fff; border-left: 1px solid var(--border2);
+      background: rgba(255, 255, 255, 0.75); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-left: 0px solid var(--border2);
       border-top-left-radius: 25px; border-bottom-left-radius: 25px;
       z-index: 2000; transform: translateX(100%);
       transition: transform .35s cubic-bezier(.4,0,.2,1);
@@ -518,7 +519,8 @@
     /* ── FAV SIDEBAR ────────────────────────────────────────── */
     .fav-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
-      background: #fff; border-left: 1px solid var(--border2);
+      background: rgba(255, 255, 255, 0.75); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-left: 0px solid var(--border2);
       border-top-left-radius: 25px; border-bottom-left-radius: 25px;
       z-index: 2000; transform: translateX(100%);
       transition: transform .35s cubic-bezier(.4,0,.2,1);
