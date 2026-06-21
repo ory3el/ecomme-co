@@ -466,13 +466,13 @@
       display: flex; align-items: center;
       justify-content: center; font-size: 26px; flex-shrink: 0;
     }
-    .ci-info { color: #fff; flex: 1; min-width: 0; }
-    .ci-name { color: #fff; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-info { color: #3d9bff; flex: 1; min-width: 0; }
+    .ci-name { color: #3d9bff; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ci-price { font-family: 'Poppins', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
-    .ci-qty { color: #fff; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .ci-qty { color: #3d9bff; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .qb {
-      width: 26px; height: 26px; border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.1);
+      color: ##3d9bff; width: 26px; height: 26px; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.5);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; font-weight: 600; transition: all .15s;
     }
