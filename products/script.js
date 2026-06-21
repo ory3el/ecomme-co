@@ -274,12 +274,6 @@ function updateCart() {
 function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 
-function checkout() {
-  if (!cart.length) { showToast('Adicione produtos primeiro! 😊'); return; }
-  showToast('Redirecionando para o pagamento… 🔒');
-  setTimeout(closeCart, 1200);
-}
-
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   const ex = fav.find(x => x.id === id);
@@ -376,6 +370,13 @@ function addAllFavToCart() {
 function moveFromCartToFav(id) {
   addToFav(id, 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
+}
+
+function checkout() {
+  if (!cart.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+  showToast('Redirecionando para o pagamento… 🔒');
+  window.location.href = "/checkout"
+  setTimeout(closeCart, 1200);
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
