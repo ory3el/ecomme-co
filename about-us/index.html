@@ -297,7 +297,6 @@
 </section>
 
 <!-- FOOTER -->
-<!-- FOOTER -->
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
@@ -402,7 +401,9 @@
 <div class="cart-sb" id="cartSidebar">
   <div class="cart-hd">
     <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
-    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="cart-cls" onclick="closeCart()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
   <div class="cart-body" id="cartItems"></div>
   <div class="cart-ft">
@@ -412,16 +413,86 @@
       <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
     </div>
     <button class="btn-ckout" onclick="checkout()">
-      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
       Finalizar Compra
     </button>
-    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+    <button class="btn-cont" onclick="closeCart()"><- Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- FAV SIDEBAR -->
+<div class="overlay" id="favOverlay" onclick="closeFav()"></div>
+<div class="fav-sb" id="favSidebar">
+  <div class="fav-hd">
+    <h3>Lista de Desejos <span style="color:var(--muted);font-size:15px" id="favCount">(0)</span></h3>
+    <button class="fav-cls" onclick="closeFav()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="fav-body" id="favItems"></div>
+	<div class="fav-ft">
+   		 <div class="fav-tots">
+      		<div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="favTotal">R$ 0,00</span></div>
+		</div>
+    <button class="btn-ckout" onclick="addAllFavToCart()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Adicionar tudo ao carrinho
+    </button>
+    <button class="btn-cont" onclick="closeFav()"><- Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="mcls" onclick="closeModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span id="mEmoji"></span>
+    </div>
+    <div class="modal-info">
+      <div class="m-cat"  id="mCat"></div>
+      <div class="m-name" id="mName"></div>
+      <div class="m-desc" id="mDesc"></div>
+      <div class="m-price-row">
+        <span class="m-price" id="mPrice"></span>
+        <span class="m-old"   id="mOld"></span>
+        <span class="m-disc"  id="mDisc"></span>
+      </div>
+      <div class="m-feats" id="mFeats"></div>
+      <hr class="m-div">
+      <div class="m-qty-row">
+        <span class="m-qty-lbl">Quantidade:</span>
+        <div class="m-qty-ctrl">
+          <button class="qb" onclick="chgQty(-1)">−</button>
+          <span class="m-qty-num" id="mQty">1</span>
+          <button class="qb" onclick="chgQty(1)">+</button>
+        </div>
+      </div>
+      <div class="m-btns">
+        <button class="btn-madd" onclick="addFromModal()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
+        <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <div class="t-ico">✓</div>
+  <div class="toast-icon">✓</div>
   <span id="toastMsg">Produto adicionado!</span>
 </div>
 
@@ -429,6 +500,15 @@
 <button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
+
+<!-- QUICKLINK -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
+<script>
+  // Start the Quicklink
+  window.addEventListener('load', () => {
+    quicklink.listen();
+  });
+</script>
 
 <script src="script.js"></script>
 </body>
