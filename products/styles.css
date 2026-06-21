@@ -457,21 +457,21 @@
     .cart-empty-st span { font-size: 48px; }
 
     .ci {
-      background: rgba(0, 0, 0, 0.15); border: 1px solid var(--border2);
+      background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(0, 0, 0, 0.5);
       border-radius: 12px; padding: 14px; display: flex; gap: 12px;
     }
     .ci-img {
       width: 60px; height: 60px; border-radius: 8px;
-      background: rgba(0, 0, 0, 0.1); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.5);
       display: flex; align-items: center;
       justify-content: center; font-size: 26px; flex-shrink: 0;
     }
-    .ci-info { color: #3d9bff; flex: 1; min-width: 0; }
-    .ci-name { color: #3d9bff; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-info { color: #000; flex: 1; min-width: 0; }
+    .ci-name { color: #000; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ci-price { font-family: 'Poppins', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
-    .ci-qty { color: #3d9bff; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .ci-qty { color: #000; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .qb {
-      color: ##3d9bff; width: 26px; height: 26px; border-radius: 6px;
+      color: #000; width: 26px; height: 26px; border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.5);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; font-weight: 600; transition: all .15s;
