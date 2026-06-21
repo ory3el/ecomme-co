@@ -32,6 +32,11 @@
     ::-webkit-scrollbar-track { background: var(--bg3); }
     ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
+/* NOSCROLL */
+.noscroll {
+   overflow: hidden; scrollbar-gutter: stable;
+}
+
     /* ── TOPBAR ──────────────────────────────────────────────── */
     .topbar {
       background: #4287f5;
