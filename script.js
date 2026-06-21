@@ -464,10 +464,12 @@ const favicon = document.getElementById('favicon');
 // PRELOADER
 window.addEventListener('load', () => {
   const preloader = document.getElementById('preloader');
+  document.body.classList.add("noscroll");
   
   setTimeout(() => {
     preloader.classList.add('fade-out');
     document.body.classList.remove('loading');
+    document.body.classList.remove("noscroll");
     
     setTimeout(() => {
       preloader.style.display = 'none';
