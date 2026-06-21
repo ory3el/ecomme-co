@@ -1,3 +1,5 @@
+document.body.classList.add("noscroll");
+
 function buttonLink(url) {
   window.location.href = url;
 }
