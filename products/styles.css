@@ -457,12 +457,13 @@
     .cart-empty-st span { font-size: 48px; }
 
     .ci {
-      background: rgba(0, 0, 0, 0.15); border: 1px solid var(--border2);
+      background: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px; padding: 14px; display: flex; gap: 12px;
     }
     .ci-img {
       width: 60px; height: 60px; border-radius: 8px;
-      background: var(--bg3); display: flex; align-items: center;
+      background: rgba(0, 0, 0, 0.1); border: 1px solid var(--border2);
+      display: flex; align-items: center;
       justify-content: center; font-size: 26px; flex-shrink: 0;
     }
     .ci-info { flex: 1; min-width: 0; }
