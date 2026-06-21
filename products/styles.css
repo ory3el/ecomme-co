@@ -431,7 +431,7 @@
     .cart-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
       background: #fff; border-left: 1px solid var(--border2);
-      border-top-left-radius: 50px; border-bottom-left-radius: 50px;
+      border-top-left-radius: 20px; border-bottom-left-radius: 20px;
       z-index: 2000; transform: translateX(100%);
       transition: transform .35s cubic-bezier(.4,0,.2,1);
       display: flex; flex-direction: column;
@@ -519,6 +519,7 @@
     .fav-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
       background: #fff; border-left: 1px solid var(--border2);
+      border-top-left-radius: 20px; border-bottom-left-radius: 20px;
       z-index: 2000; transform: translateX(100%);
       transition: transform .35s cubic-bezier(.4,0,.2,1);
       display: flex; flex-direction: column;
