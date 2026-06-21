@@ -36,6 +36,11 @@
   ::-webkit-scrollbar-track { background: #e8edf0; }
   ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
+/* NOSCROLL */
+.noscroll {
+   overflow: hidden; scrollbar-gutter: stable;
+}
+
 /* PRELOADER */
 body.loading {
   overflow: hidden;
