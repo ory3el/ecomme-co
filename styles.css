@@ -637,7 +637,7 @@ body.loading {
     }
     .btn-ckout:hover { background: var(--blue2); }
     .btn-cont {
-      width: 100%; background: none; border: 1px solid rgba(255,255,255,0.1);
+      width: 100%; background: none; border: 1px solid rgba(0,0,0,0.1);
       color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px;
     }
     .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
