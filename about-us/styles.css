@@ -299,7 +299,7 @@
     .ci-qty { color: #000; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .qb {
       color: #000; width: 26px; height: 26px; border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.5);
+      border: 1px solid rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; font-weight: 600; transition: all .15s;
     }
