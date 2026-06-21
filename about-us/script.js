@@ -251,4 +251,7 @@ window.addEventListener('scroll', () => {
   $('btt').classList.toggle('on', window.scrollY > 300);
 });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); closeFav(); });
+/* ─── ESC ────────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
+});
