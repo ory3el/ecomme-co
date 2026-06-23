@@ -1,14 +1,14 @@
 :root {
-    --blue: #1a5ccc;
+    --2blue: #1a5ccc;
     --blue-dark: #1348a8;
     --blue-light: #e8f0fd;
-    --blue-mid: #3a7bd5;
-    --white: #ffffff;
+    --2blue-mid: #3a7bd5;
+    --2white: #ffffff;
     --off-white: #f5f7fa;
     --gray: #6b7280;
     --gray-light: #e5e7eb;
-    --text: #1f2937;
-    --shadow: 0 2px 12px rgba(26,92,204,0.10);
+    --2text: #1f2937;
+    --2shadow: 0 2px 12px rgba(26,92,204,0.10);
     --shadow-card: 0 4px 18px rgba(0,0,0,0.08);
 }
 
@@ -90,7 +90,7 @@
       width: 7px; height: 7px; background: var(--blue);
       border-radius: 50%; margin-top: 2px;
     }
-    .nav-main { display: flex; gap: 2px; }
+    .nav-main { box-shadow: 0 0px 0px rgba(0,0,0,0); background: transparent; display: flex; gap: 2px; }
     .nav-main a {
       padding: 7px 14px; font-size: 13px; font-weight: 500;
       color: var(--muted); border-radius: 911px; transition: all .2s;
