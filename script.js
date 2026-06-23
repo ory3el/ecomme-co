@@ -56,6 +56,12 @@ function shuffleAndRender() {
   showToast('Produtos embaralhados! 🔀');
 }
 
+function loadShuffleAndRender() {
+  shuffled = fishYates(products);
+  $('sortSelect').value = 'random';
+  renderProducts();
+}
+
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function renderProducts() {
   const grid  = $('productsGrid');
@@ -439,7 +445,7 @@ document.addEventListener('keydown', e => {
 // INIT
 updateCart();
 renderProducts();
-shuffleAndRender();
+loadShuffleAndRender();
 
 /* ─── ESC ────────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', e => {
