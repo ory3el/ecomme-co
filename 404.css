@@ -131,7 +131,7 @@
     .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
 body {
-  background: #00E7DC;
+  background: #fff;
   margin:0; 
   padding:0; 
   overflow:hidden
