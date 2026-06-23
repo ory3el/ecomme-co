@@ -174,3 +174,10 @@ svg {
   height: 100%;
   width:100%
 }
+
+.copyright {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  z-index: 3999;
+}
