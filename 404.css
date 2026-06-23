@@ -113,7 +113,7 @@
       transition: all .2s; position: relative;
     }
     .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
-    .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .icon-btn svg { z-index: 2999px; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
       min-width: 17px; height: 17px;
@@ -157,30 +157,6 @@ body {
     scrollbar-width: thin;
     scrollbar-color: #343a40 #0f1115;
 }
-
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: #00E7DC;
-    border-bottom: none;
-    box-shadow: 0 2px 8px rgba(26,92,204,0.08);
-    padding: 0 5%; height: 64px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-box {
-    background: var(--blue); color: var(--white);
-    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem;
-    padding: 5px 10px; border-radius: 4px; letter-spacing: 1px;
-  }
-  .logo-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text); }
-  .logo-text span { color: var(--blue); }
-  .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
-  .nav-links a { text-decoration: none; color: var(--gray); font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--blue); }
-  .btn-nav { background: var(--blue); color: var(--white) !important; padding: 8px 18px; border-radius: 5px; font-size: 0.85rem !important; transition: background 0.2s !important; }
-  .btn-nav:hover { background: var(--blue-dark) !important; }
-  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
-  .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
 
 h1 {
   font-family: 'Nunito', sans-serif;
