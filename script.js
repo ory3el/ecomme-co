@@ -439,6 +439,7 @@ document.addEventListener('keydown', e => {
 // INIT
 updateCart();
 renderProducts();
+shuffleAndRender();
 
 /* ─── ESC ────────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', e => {
