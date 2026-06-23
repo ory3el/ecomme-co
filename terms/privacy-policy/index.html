@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termos e Condições de Uso | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:      #2563EB;
+      --blue2:     #3B82F6;
+      --blue3:     #60A5FA;
+      --blue-dim:  rgba(37,99,235,0.07);
+      --blue-mid:  rgba(37,99,235,0.14);
+      --white:     #FFFFFF;
+      --bg:        #F3F7FF;
+      --bg2:       #FFFFFF;
+      --bg3:       #EBF2FF;
+      --text:      #0F172A;
+      --muted:     #64748B;
+      --border:    rgba(37,99,235,0.18);
+      --border2:   rgba(0,0,0,0.07);
+      --red:       #EF4444;
+      --green:     #10B981;
+      --amber:     #F59E0B;
+      --radius:    8px;
+      --rad-lg:    16px;
+      --shadow:    0 4px 24px rgba(37,99,235,0.07);
+      --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar { background: var(--blue); color: #fff; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 500; letter-spacing: .3px; position: relative; }
+    .topbar span { opacity: .55; margin: 0 10px; }
+    .topbar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.65); font-size: 18px; line-height: 1; }
+    .topbar-close:hover { color: #fff; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 24px; height: 68px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--blue); flex-shrink: 0; display: flex; align-items: center; gap: 5px; letter-spacing: .5px; }
+    .logo-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; margin-top: 2px; }
+    .nav-main { display: flex; gap: 2px; }
+    .nav-main a { padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius); transition: all .2s; }
+    .nav-main a:hover { color: var(--text); background: var(--bg3); }
+    .nav-main a.active { color: var(--blue); background: var(--blue-dim); font-weight: 600; }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border2); color: var(--muted); transition: all .2s; position: relative; }
+    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .hd-badge { position: absolute; top: 1px; right: 1px; min-width: 17px; height: 17px; background: var(--blue); color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; }
+    .btn-account { background: var(--blue); color: #fff; padding: 8px 20px; border-radius: 100px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all .2s; }
+    .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
+
+    /* ── BREADCRUMB ──────────────────────────────────────────── */
+    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
+    .breadcrumb { max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .breadcrumb a:hover { color: var(--blue); }
+    .breadcrumb .sep { opacity: .5; }
+    .breadcrumb .cur { color: var(--text); font-weight: 500; }
+
+    /* ── LEGAL HERO ──────────────────────────────────────────── */
+    .legal-hero { background: #fff; padding: 56px 28px 44px; position: relative; overflow: hidden; border-bottom: 1px solid var(--border2); }
+    .legal-hero::before { content: ''; position: absolute; top: -200px; right: -180px; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,.07) 0%, transparent 70%); pointer-events: none; }
+    .lh-inner { max-width: 1440px; margin: 0 auto; position: relative; z-index: 1; padding: 0 28px; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 7px; background: var(--blue-dim); border: 1px solid var(--border); color: var(--blue); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 16px; border-radius: 100px; margin-bottom: 18px; }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--blue); border-radius: 50%; }
+    .legal-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 46px; font-weight: 700; line-height: 1.1; margin-bottom: 14px; max-width: 700px; }
+    .lh-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .lh-updated { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+    .lh-updated svg { width: 14px; height: 14px; fill: none; stroke: var(--blue); stroke-width: 2; }
+    .btn-print { display: flex; align-items: center; gap: 7px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 7px 16px; border-radius: 100px; font-size: 12px; font-weight: 600; transition: all .2s; }
+    .btn-print:hover { border-color: var(--blue); color: var(--blue); }
+    .btn-print svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ── INTRO NOTICE ────────────────────────────────────────── */
+    .intro-notice { max-width: 1440px; margin: 32px auto 0; padding: 0 28px; }
+    .notice-box { background: var(--blue-dim); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
+    .notice-box svg { width: 18px; height: 18px; fill: none; stroke: var(--blue); stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+    .notice-box p { font-size: 13px; color: var(--text); line-height: 1.7; }
+    .notice-box strong { color: var(--blue); }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .legal-layout { max-width: 1440px; margin: 0 auto; padding: 44px 28px 90px; display: grid; grid-template-columns: 280px 1fr; gap: 56px; }
+
+    /* TOC sidebar */
+    .toc { position: sticky; top: 92px; height: fit-content; background: #fff; border: 1px solid var(--border2); border-radius: var(--rad-lg); padding: 22px; }
+    .toc-title { font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border2); }
+    .toc-list { display: flex; flex-direction: column; gap: 2px; }
+    .toc-link { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); font-size: 12.5px; color: var(--muted); transition: all .2s; }
+    .toc-link:hover { background: var(--bg3); color: var(--text); }
+    .toc-link.active { background: var(--blue-dim); color: var(--blue); font-weight: 600; }
+    .toc-num { width: 20px; height: 20px; border-radius: 50%; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; color: var(--muted); }
+    .toc-link.active .toc-num { background: var(--blue); color: #fff; }
+
+    /* mobile chips */
+    .toc-chips { display: none; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border2); }
+    .toc-chip { flex-shrink: 0; background: var(--bg3); border: 1px solid var(--border2); color: var(--muted); padding: 7px 14px; border-radius: 100px; font-size: 11.5px; font-weight: 500; white-space: nowrap; transition: all .2s; }
+    .toc-chip.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    /* content */
+    .legal-content { max-width: 760px; }
+    .legal-content > p.lead { font-size: 14.5px; color: var(--muted); line-height: 1.85; margin-bottom: 8px; }
+
+    .lsec { padding-top: 8px; margin-bottom: 48px; scroll-margin-top: 96px; }
+    .lsec:last-child { margin-bottom: 0; }
+    .lsec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .lsec-num { width: 38px; height: 38px; border-radius: 10px; background: var(--blue-dim); border: 1px solid var(--border); color: var(--blue); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+    .lsec-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 25px; font-weight: 700; }
+
+    .legal-content p { color: var(--muted); font-size: 13.5px; line-height: 1.85; margin-bottom: 14px; }
+    .legal-content p:last-child { margin-bottom: 0; }
+    .legal-content strong { color: var(--text); font-weight: 600; }
+    .legal-content h3 { font-size: 14.5px; font-weight: 700; margin: 20px 0 10px; color: var(--text); }
+
+    .legal-content ul, .legal-content ol { margin: 4px 0 16px; padding-left: 22px; color: var(--muted); font-size: 13.5px; line-height: 1.85; }
+    .legal-content li { margin-bottom: 8px; }
+    .legal-content li:last-child { margin-bottom: 0; }
+    .legal-content li::marker { color: var(--blue); font-weight: 700; }
+
+    .def-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 6px; }
+    .def-card { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; }
+    .def-card strong { display: block; font-size: 12.5px; color: var(--blue); margin-bottom: 4px; }
+    .def-card span { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+    .highlight-box { background: var(--bg3); border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 16px 0; }
+    .highlight-box p { color: var(--text); font-size: 13px; margin-bottom: 0; }
+
+    .warn-box { background: rgba(239,68,68,.06); border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 16px 0; }
+    .warn-box p { color: var(--text); font-size: 13px; margin-bottom: 0; }
+
+    .contact-card { background: var(--bg); border-radius: var(--rad-lg); padding: 26px; margin-top: 8px; display: flex; flex-direction: column; gap: 14px; }
+    .cc-row { display: flex; align-items: center; gap: 12px; }
+    .cc-ico { width: 38px; height: 38px; border-radius: 50%; background: var(--blue-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cc-ico svg { width: 16px; height: 16px; fill: none; stroke: var(--blue); stroke-width: 2; }
+    .cc-row strong { display: block; font-size: 13px; }
+    .cc-row span { font-size: 12.5px; color: var(--muted); }
+
+    .lsec hr.div { border: none; border-top: 1px solid var(--border2); margin: 40px 0 0; }
+
+    /* back to toc */
+    .back-to-toc { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--blue); margin-top: 18px; font-weight: 600; }
+    .back-to-toc:hover { text-decoration: underline; }
+    .back-to-toc svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+    /* ── CART SIDEBAR ────────────────────────────────────────── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px); }
+    .overlay.on { opacity: 1; pointer-events: all; }
+    .cart-sb { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; background: #fff; border-left: 1px solid var(--border2); z-index: 2000; transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .cart-sb.on { transform: translateX(0); }
+    .cart-hd { padding: 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    .cart-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .cart-cls { width: 34px; height: 34px; border-radius: var(--radius); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); }
+    .cart-cls:hover { border-color: var(--red); color: var(--red); }
+    .cart-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .cart-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .cart-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .cart-empty-st span { font-size: 48px; }
+    .cart-ft { padding: 20px; border-top: 1px solid var(--border2); }
+    .cart-tots { margin-bottom: 16px; }
+    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .ct-row .lbl { color: var(--muted); }
+    .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
+    .ct-row.ttl .amt { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--blue); }
+    .btn-ckout { width: 100%; background: var(--blue); color: #fff; padding: 14px; border-radius: 100px; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s; margin-bottom: 10px; }
+    .btn-ckout:hover { background: var(--blue2); }
+    .btn-cont { width: 100%; background: none; border: 1px solid var(--border2); color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px; }
+    .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #0F172A; border: 1px solid rgba(255,255,255,.1); color: #fff; padding: 12px 22px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 10px; transition: transform .3s cubic-bezier(.4,0,.2,1); white-space: nowrap; pointer-events: none; }
+    .toast.on { transform: translateX(-50%) translateY(0); }
+    .t-ico { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; flex-shrink: 0; }
+
+    /* ── BACK TO TOP ─────────────────────────────────────────── */
+    .btt { position: fixed; bottom: 28px; right: 28px; width: 44px; height: 44px; background: var(--blue); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 500; opacity: 0; transform: translateY(20px); transition: all .3s; }
+    .btt.on { opacity: 1; transform: translateY(0); }
+    .btt:hover { background: var(--blue2); }
+    .btt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer { background: #fff; border-top: 1px solid var(--border2); padding: 36px 28px; }
+    .ft-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .ft-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
+    .ft-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .ft-links a { font-size: 12px; color: var(--muted); transition: color .2s; }
+    .ft-links a:hover { color: var(--blue); }
+    .ft-copy { font-size: 12px; color: var(--muted); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 1000px) {
+      .legal-layout { grid-template-columns: 1fr; gap: 0; }
+      .toc { display: none; }
+      .toc-chips { display: flex; }
+    }
+    @media (max-width: 768px) {
+      .nav-main { display: none; }
+      .legal-hero { padding: 40px 20px 32px; }
+      .legal-hero h1 { font-size: 32px; }
+      .legal-layout { padding: 28px 20px 70px; }
+      .lsec-head { gap: 10px; }
+      .lsec-head h2 { font-size: 20px; }
+      .def-grid { grid-template-columns: 1fr; }
+      .ft-inner { flex-direction: column; text-align: center; }
+      .ft-links { justify-content: center; }
+      .cart-sb { width: 100%; }
+      .lh-meta { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <span>Ecomme</span>
+      <div class="logo-dot"></div>
+    </a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" title="Carrinho" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Entrar
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <a href="/">Início</a>
+    <span class="sep">/</span>
+    <span class="cur">Termos e Condições de Uso</span>
+  </div>
+</div>
+
+<!-- LEGAL HERO -->
+<section class="legal-hero">
+  <div class="lh-inner">
+    <div class="hero-tag">Documento Legal</div>
+    <h1>Termos e Condições de Uso</h1>
+    <div class="lh-meta">
+      <span class="lh-updated">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Última atualização: 18 de junho de 2026
+      </span>
+      <button class="btn-print" onclick="window.print()">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO NOTICE -->
+<div class="intro-notice">
+  <div class="notice-box">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <p>Este documento regula o uso da plataforma <strong>Ecomme</strong>. Ao criar uma conta ou realizar uma compra em nosso site, você concorda integralmente com os termos descritos abaixo. Recomendamos a leitura completa antes de utilizar nossos serviços.</p>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="legal-layout">
+
+  <!-- TOC SIDEBAR (desktop) -->
+  <aside class="toc" id="toc">
+    <div class="toc-title">Sumário</div>
+    <div class="toc-list">
+      <a class="toc-link" data-target="aceitacao" href="#aceitacao"><span class="toc-num">1</span> Aceitação dos Termos</a>
+      <a class="toc-link" data-target="cadastro" href="#cadastro"><span class="toc-num">2</span> Cadastro e Conta</a>
+      <a class="toc-link" data-target="uso" href="#uso"><span class="toc-num">3</span> Uso da Plataforma</a>
+      <a class="toc-link" data-target="produtos" href="#produtos"><span class="toc-num">4</span> Produtos e Preços</a>
+      <a class="toc-link" data-target="pagamentos" href="#pagamentos"><span class="toc-num">5</span> Pagamentos</a>
+      <a class="toc-link" data-target="entrega" href="#entrega"><span class="toc-num">6</span> Entrega e Frete</a>
+      <a class="toc-link" data-target="devolucoes" href="#devolucoes"><span class="toc-num">7</span> Trocas e Devoluções</a>
+      <a class="toc-link" data-target="propriedade" href="#propriedade"><span class="toc-num">8</span> Propriedade Intelectual</a>
+      <a class="toc-link" data-target="conduta" href="#conduta"><span class="toc-num">9</span> Conduta do Usuário</a>
+      <a class="toc-link" data-target="responsabilidade" href="#responsabilidade"><span class="toc-num">10</span> Limitação de Responsabilidade</a>
+      <a class="toc-link" data-target="privacidade" href="#privacidade"><span class="toc-num">11</span> Privacidade e Dados</a>
+      <a class="toc-link" data-target="alteracoes" href="#alteracoes"><span class="toc-num">12</span> Alterações nos Termos</a>
+      <a class="toc-link" data-target="lei" href="#lei"><span class="toc-num">13</span> Lei Aplicável e Foro</a>
+      <a class="toc-link" data-target="contato" href="#contato"><span class="toc-num">14</span> Contato</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="legal-content">
+
+    <!-- mobile chips -->
+    <div class="toc-chips" id="tocChips">
+      <a class="toc-chip" href="#aceitacao">1. Aceitação</a>
+      <a class="toc-chip" href="#cadastro">2. Cadastro</a>
+      <a class="toc-chip" href="#uso">3. Uso</a>
+      <a class="toc-chip" href="#produtos">4. Produtos</a>
+      <a class="toc-chip" href="#pagamentos">5. Pagamentos</a>
+      <a class="toc-chip" href="#entrega">6. Entrega</a>
+      <a class="toc-chip" href="#devolucoes">7. Devoluções</a>
+      <a class="toc-chip" href="#propriedade">8. Propriedade</a>
+      <a class="toc-chip" href="#conduta">9. Conduta</a>
+      <a class="toc-chip" href="#responsabilidade">10. Responsabilidade</a>
+      <a class="toc-chip" href="#privacidade">11. Privacidade</a>
+      <a class="toc-chip" href="#alteracoes">12. Alterações</a>
+      <a class="toc-chip" href="#lei">13. Lei Aplicável</a>
+      <a class="toc-chip" href="#contato">14. Contato</a>
+    </div>
+
+    <p class="lead">Bem-vindo à Ecomme. Estes Termos e Condições de Uso ("Termos") estabelecem as regras para utilização do site, aplicativo e demais serviços oferecidos pela Ecomme Place ("Ecomme", "nós" ou "plataforma"). Ao acessar ou utilizar nossos serviços, você ("usuário" ou "cliente") declara ter lido, compreendido e aceitado todas as condições aqui descritas.</p>
+
+    <!-- 1 -->
+    <section class="lsec" id="aceitacao">
+      <div class="lsec-head"><div class="lsec-num">1</div><h2>Aceitação dos Termos</h2></div>
+      <p>O uso da plataforma Ecomme, seja para navegação, cadastro ou realização de compras, implica na aceitação plena e irrestrita destes Termos, bem como da nossa Política de Privacidade. Caso você não concorde com qualquer disposição aqui prevista, recomendamos que não utilize nossos serviços.</p>
+      <p>Estes Termos se aplicam a todos os visitantes, usuários cadastrados e clientes que acessem a plataforma por qualquer dispositivo, incluindo computadores, smartphones e tablets.</p>
+      <div class="def-grid">
+        <div class="def-card"><strong>Usuário</strong><span>Qualquer pessoa que acesse ou navegue na plataforma, com ou sem cadastro.</span></div>
+        <div class="def-card"><strong>Cliente</strong><span>Usuário cadastrado que realiza uma ou mais compras na plataforma.</span></div>
+        <div class="def-card"><strong>Plataforma</strong><span>Site, aplicativo móvel e demais canais digitais operados pela Ecomme.</span></div>
+        <div class="def-card"><strong>Parceiro</strong><span>Fornecedor ou marca que comercializa produtos através da Ecomme.</span></div>
+      </div>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 2 -->
+    <section class="lsec" id="cadastro">
+      <div class="lsec-head"><div class="lsec-num">2</div><h2>Cadastro e Conta</h2></div>
+      <p>Para realizar compras, o usuário deverá criar uma conta fornecendo informações verdadeiras, completas e atualizadas, incluindo nome completo, e-mail válido, CPF e endereço de entrega.</p>
+      <h3>2.1 Responsabilidades do usuário</h3>
+      <ul>
+        <li>Manter a confidencialidade de sua senha e demais credenciais de acesso;</li>
+        <li>Notificar imediatamente a Ecomme em caso de uso não autorizado de sua conta;</li>
+        <li>Garantir que as informações cadastrais permaneçam atualizadas;</li>
+        <li>Ser maior de 18 anos ou possuir autorização de responsável legal para realizar compras.</li>
+      </ul>
+      <p>A Ecomme reserva-se o direito de suspender ou cancelar contas que apresentem dados falsos, atividades fraudulentas ou violação destes Termos, sem necessidade de aviso prévio.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 3 -->
+    <section class="lsec" id="uso">
+      <div class="lsec-head"><div class="lsec-num">3</div><h2>Uso da Plataforma</h2></div>
+      <p>A Ecomme licencia ao usuário um direito limitado, não exclusivo e revogável de acesso à plataforma, exclusivamente para fins de consulta, compra de produtos e gestão de pedidos pessoais.</p>
+      <p>É expressamente proibido:</p>
+      <ul>
+        <li>Utilizar a plataforma para fins ilícitos ou não autorizados pela legislação brasileira;</li>
+        <li>Realizar engenharia reversa, copiar ou reproduzir qualquer parte do código-fonte ou design da plataforma;</li>
+        <li>Utilizar robôs, scrapers ou qualquer ferramenta automatizada para extração de dados sem autorização prévia por escrito;</li>
+        <li>Interferir no funcionamento normal do site através de ataques, sobrecarga de servidores ou qualquer meio técnico malicioso.</li>
+      </ul>
+      <div class="highlight-box"><p><strong>Disponibilidade:</strong> a Ecomme se esforça para manter a plataforma disponível 24 horas por dia, mas não garante operação ininterrupta, podendo realizar manutenções programadas com aviso prévio quando possível.</p></div>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 4 -->
+    <section class="lsec" id="produtos">
+      <div class="lsec-head"><div class="lsec-num">4</div><h2>Produtos e Preços</h2></div>
+      <p>Todos os produtos anunciados na plataforma passam por processo de curadoria, porém imagens são meramente ilustrativas e podem apresentar variações de cor devido à configuração de tela do dispositivo utilizado.</p>
+      <p>Os preços exibidos incluem todos os tributos aplicáveis no momento da compra e estão sujeitos a alteração sem aviso prévio, sendo válido o valor exibido no momento da finalização do pedido.</p>
+      <h3>4.1 Disponibilidade de estoque</h3>
+      <p>Em caso de indisponibilidade de estoque após a confirmação da compra, a Ecomme notificará o cliente em até 2 dias úteis, oferecendo a opção de aguardar reposição, substituir por produto similar ou receber reembolso integral.</p>
+      <h3>4.2 Erros de precificação</h3>
+      <p>Em caso de erro evidente de digitação ou sistema que resulte em preço manifestamente incompatível com o valor de mercado do produto, a Ecomme se reserva o direito de cancelar o pedido, com reembolso integral ao cliente.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 5 -->
+    <section class="lsec" id="pagamentos">
+      <div class="lsec-head"><div class="lsec-num">5</div><h2>Pagamentos</h2></div>
+      <p>A Ecomme aceita os seguintes meios de pagamento: cartão de crédito (Visa, Mastercard e Elo), Pix, boleto bancário e PicPay/PagBank, conforme disponibilidade exibida no checkout.</p>
+      <ul>
+        <li>Compras via Pix são confirmadas em até 30 minutos após o pagamento;</li>
+        <li>Boletos têm vencimento de 2 dias úteis e o pedido só é processado após a confirmação de pagamento pelo banco emissor;</li>
+        <li>Parcelamentos no cartão de crédito seguem as condições exibidas no momento da compra, podendo incluir juros de acordo com a operadora;</li>
+        <li>Pedidos com suspeita de fraude poderão ser retidos para análise de segurança antes da confirmação.</li>
+      </ul>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 6 -->
+    <section class="lsec" id="entrega">
+      <div class="lsec-head"><div class="lsec-num">6</div><h2>Entrega e Frete</h2></div>
+      <p>Os prazos de entrega são estimados em dias úteis e variam conforme a região de destino, podendo ser visualizados no momento da compra a partir do CEP informado. O prazo médio é de <strong>7 a 15 dias úteis</strong>, contados a partir da confirmação do pagamento.</p>
+      <p>O frete é gratuito para compras acima de R$ 199,00 em todo o território nacional, exceto quando especificado de forma diferente na página do produto.</p>
+      <div class="highlight-box"><p><strong>Rastreamento:</strong> após o despacho, o cliente recebe um código de rastreamento por e-mail e pode acompanhar o status do pedido em tempo real na área "Meus Pedidos".</p></div>
+      <p>A Ecomme não se responsabiliza por atrasos causados por terceiros (transportadoras, autoridades aduaneiras) ou por endereço incorreto/incompleto fornecido pelo cliente no momento da compra.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 7 -->
+    <section class="lsec" id="devolucoes">
+      <div class="lsec-head"><div class="lsec-num">7</div><h2>Trocas e Devoluções</h2></div>
+      <p>Em conformidade com o Código de Defesa do Consumidor (Lei nº 8.078/90, art. 49), o cliente tem direito ao <strong>arrependimento da compra em até 7 dias corridos</strong> a partir do recebimento do produto, sem necessidade de justificativa.</p>
+      <p>Adicionalmente, a Ecomme oferece uma política estendida de <strong>30 dias para troca ou devolução</strong>, contados do recebimento, desde que o produto esteja:</p>
+      <ul>
+        <li>Sem sinais de uso, na embalagem original e com todos os acessórios inclusos;</li>
+        <li>Acompanhado da nota fiscal de compra;</li>
+        <li>Não pertencente à categoria de itens não retornáveis (produtos íntimos, perecíveis ou personalizados).</li>
+      </ul>
+      <h3>7.1 Produto com defeito</h3>
+      <p>Caso o produto apresente defeito de fabricação, o cliente pode solicitar troca, reparo ou reembolso integral em até 90 dias após o recebimento, conforme garantido pelo CDC.</p>
+      <h3>7.2 Reembolso</h3>
+      <p>Reembolsos são processados no mesmo método de pagamento utilizado na compra, em até 10 dias úteis após a confirmação de recebimento do produto devolvido em nosso centro de distribuição.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 8 -->
+    <section class="lsec" id="propriedade">
+      <div class="lsec-head"><div class="lsec-num">8</div><h2>Propriedade Intelectual</h2></div>
+      <p>Todo o conteúdo da plataforma — incluindo marca, logotipo, layout, textos, imagens, código-fonte e funcionalidades — é de propriedade exclusiva da Ecomme ou de seus parceiros licenciados, sendo protegido pela Lei de Direitos Autorais (Lei nº 9.610/98) e pela Lei de Propriedade Industrial (Lei nº 9.279/96).</p>
+      <p>É proibida a reprodução, distribuição ou utilização comercial de qualquer conteúdo da plataforma sem autorização expressa e por escrito da Ecomme.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 9 -->
+    <section class="lsec" id="conduta">
+      <div class="lsec-head"><div class="lsec-num">9</div><h2>Conduta do Usuário</h2></div>
+      <p>Ao utilizar funcionalidades interativas da plataforma (avaliações, comentários e listas de desejos), o usuário se compromete a:</p>
+      <ul>
+        <li>Não publicar conteúdo ofensivo, discriminatório, difamatório ou ilegal;</li>
+        <li>Não utilizar informações de terceiros sem autorização;</li>
+        <li>Garantir que avaliações de produtos reflitam experiências reais e verídicas;</li>
+        <li>Não utilizar a plataforma para divulgação de produtos ou serviços de terceiros sem autorização.</li>
+      </ul>
+      <div class="warn-box"><p><strong>Atenção:</strong> contas que violarem repetidamente estas diretrizes poderão ser suspensas ou encerradas permanentemente, sem direito a reembolso de eventuais saldos promocionais.</p></div>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 10 -->
+    <section class="lsec" id="responsabilidade">
+      <div class="lsec-head"><div class="lsec-num">10</div><h2>Limitação de Responsabilidade</h2></div>
+      <p>A Ecomme atua como intermediadora entre clientes e parceiros vendedores, empenhando-se para garantir a qualidade e veracidade das informações exibidas. Ainda assim, a Ecomme não se responsabiliza por:</p>
+      <ul>
+        <li>Danos indiretos decorrentes do uso ou impossibilidade de uso da plataforma;</li>
+        <li>Indisponibilidades temporárias causadas por fatores externos, como falhas de internet ou ataques cibernéticos de terceiros;</li>
+        <li>Conteúdo gerado por usuários em avaliações e comentários, ainda que monitorado periodicamente pela equipe de moderação.</li>
+      </ul>
+      <p>Nada nestes Termos exclui ou limita direitos garantidos ao consumidor pelo Código de Defesa do Consumidor, que prevalecem sobre qualquer disposição em contrário.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 11 -->
+    <section class="lsec" id="privacidade">
+      <div class="lsec-head"><div class="lsec-num">11</div><h2>Privacidade e Dados</h2></div>
+      <p>A coleta e tratamento de dados pessoais pela Ecomme seguem estritamente a Lei Geral de Proteção de Dados (Lei nº 13.709/18 — LGPD). Os dados fornecidos são utilizados exclusivamente para processamento de pedidos, comunicação com o cliente e melhoria contínua da experiência de compra.</p>
+      <p>O usuário pode, a qualquer momento, solicitar acesso, correção, portabilidade ou exclusão de seus dados pessoais através do canal de suporte. Para mais detalhes sobre coleta, uso e compartilhamento de dados, consulte nossa Política de Privacidade completa.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 12 -->
+    <section class="lsec" id="alteracoes">
+      <div class="lsec-head"><div class="lsec-num">12</div><h2>Alterações nos Termos</h2></div>
+      <p>A Ecomme pode atualizar estes Termos periodicamente para refletir mudanças legais, operacionais ou de funcionalidades da plataforma. Alterações relevantes serão comunicadas por e-mail e/ou aviso destacado no site com antecedência mínima de 15 dias antes da entrada em vigor.</p>
+      <p>O uso continuado da plataforma após a entrada em vigor das alterações constitui aceitação tácita dos novos Termos.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 13 -->
+    <section class="lsec" id="lei">
+      <div class="lsec-head"><div class="lsec-num">13</div><h2>Lei Aplicável e Foro</h2></div>
+      <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de domicílio do consumidor para dirimir quaisquer controvérsias decorrentes destes Termos, conforme garantido pelo Código de Defesa do Consumidor.</p>
+      <a class="back-to-toc" href="#toc"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Voltar ao sumário</a>
+    </section>
+
+    <!-- 14 -->
+    <section class="lsec" id="contato">
+      <div class="lsec-head"><div class="lsec-num">14</div><h2>Contato</h2></div>
+      <p>Em caso de dúvidas sobre estes Termos e Condições, nossa equipe está disponível através dos canais abaixo:</p>
+      <div class="contact-card">
+        <div class="cc-row">
+          <div class="cc-ico"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><strong>E-mail</strong><span>suporte@ecomme.com.br</span></div>
+        </div>
+        <div class="cc-row">
+          <div class="cc-ico"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
+          <div><strong>WhatsApp / Telefone</strong><span>Atendimento via chat e WhatsApp, 24/7</span></div>
+        </div>
+        <div class="cc-row">
+          <div class="cc-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><strong>Endereço</strong><span>Ecomme Place — Brasil</span></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/about">Sobre Nós</a>
+      <a href="/terms">Termos de Uso</a>
+      <a href="#">Privacidade</a>
+      <a href="#">Suporte</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartItems">
+    <div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>
+  </div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="t-ico">✓</div>
+  <span id="toastMsg">Produto adicionado!</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>
