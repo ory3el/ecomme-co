@@ -1,0 +1,81 @@
+  :root {
+    --blue: #1a5ccc;
+    --blue-dark: #1348a8;
+    --blue-light: #e8f0fd;
+    --blue-mid: #3a7bd5;
+    --white: #ffffff;
+    --off-white: #f5f7fa;
+    --gray: #6b7280;
+    --gray-light: #e5e7eb;
+    --text: #1f2937;
+    --shadow: 0 2px 12px rgba(26,92,204,0.10);
+    --shadow-card: 0 4px 18px rgba(0,0,0,0.08);
+  }
+
+body {
+  background: #00E7DC;
+  margin:0; 
+  padding:0; 
+  overflow:hidden
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f1115; 
+}
+::-webkit-scrollbar-thumb {
+    background: #343a40;
+    border-radius: 10px;
+    border: 2px solid #0f1115;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #007bff;
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #343a40 #0f1115;
+}
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #00E7DC;
+    border-bottom: none;
+    box-shadow: 0 2px 8px rgba(26,92,204,0.08);
+    padding: 0 5%; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-box {
+    background: var(--blue); color: var(--white);
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem;
+    padding: 5px 10px; border-radius: 4px; letter-spacing: 1px;
+  }
+  .logo-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text); }
+  .logo-text span { color: var(--blue); }
+  .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--gray); font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--blue); }
+  .btn-nav { background: var(--blue); color: var(--white) !important; padding: 8px 18px; border-radius: 5px; font-size: 0.85rem !important; transition: background 0.2s !important; }
+  .btn-nav:hover { background: var(--blue-dark) !important; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+h1 {
+  font-family: 'Nunito', sans-serif;
+  color: var(--blue-dark);
+  text-align: center;
+  padding: -2em 0 0;
+  opacity: 0;
+}
+
+svg {
+  position:fixed; 
+  bottom:0; 
+  left:0;
+  height: 100%;
+  width:100%
+}
