@@ -70,6 +70,7 @@
 
     /* ── HEADER ──────────────────────────────────────────────── */
     header {
+      z-index: 2999;
       background: transparent;
       border-bottom: 0px solid var(--border2);
       position: sticky; top: 0; z-index: 1000;
@@ -113,7 +114,7 @@
       transition: all .2s; position: relative;
     }
     .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
-    .icon-btn svg { z-index: 2999px; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .icon-btn svg { z-index: 3999; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
       min-width: 17px; height: 17px;
