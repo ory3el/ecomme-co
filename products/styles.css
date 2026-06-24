@@ -154,7 +154,7 @@
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
 
     .page-hero h1 {
-      font-family: 'Marck Script', serif;
+      font-family: 'Marck Scripts', serif;
       font-size: 58px; font-weight: 400; line-height: 1.06; margin-bottom: 14px;
     }
     .page-hero h1 em { color: var(--blue); font-style: italic; }
