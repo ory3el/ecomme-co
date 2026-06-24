@@ -476,7 +476,7 @@ body.loading {
     .pstars { color: #F59E0B; font-size: 11px; letter-spacing: 1px; }
     .prcnt  { font-size: 11px; color: var(--muted); }
     .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-    .pprice { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
+    .pprice { font-family: 'Outfit', serif; font-size: 22px; font-weight: 500; color: var(--blue); }
     .pold   { font-size: 12px; color: var(--muted); text-decoration: line-through; }
     .pdisc  { font-size: 10px; font-weight: 700; color: #fff; background: var(--red); padding: 2px 7px; border-radius: 4px; margin-left: auto; }
     .pfship {
@@ -497,7 +497,7 @@ body.loading {
     }
     .empty-ico { font-size: 60px; margin-bottom: 18px; }
     .empty h3 {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Outfit', serif;
       font-size: 28px; margin-bottom: 10px;
     }
     .empty p { color: var(--muted); }
@@ -627,7 +627,7 @@ body.loading {
     }
     .ci-info { color: #000; flex: 1; min-width: 0; }
     .ci-name { color: #000; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ci-price { font-family: 'Poppins', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
+    .ci-price { font-family: 'Outfit', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
     .ci-qty { color: #000; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .qb {
       color: #000; width: 26px; height: 26px; border-radius: 6px;
@@ -650,7 +650,7 @@ body.loading {
     .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
     .ct-row .lbl { color: var(--muted); }
     .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
-    .ct-row.ttl .amt { font-family: 'Poppins', serif; font-size: 22px; color: var(--blue); }
+    .ct-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
 
     .btn-ckout {
       width: 100%; background: var(--blue); color: #fff;
@@ -711,7 +711,7 @@ body.loading {
     .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
     .ct-row .lbl { color: var(--muted); }
     .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
-    .ct-row.ttl .amt { font-family: 'Poppins', serif; font-size: 22px; color: var(--blue); }
+    .ct-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
 
     .btn-ckout {
       width: 100%; background: var(--blue); color: #fff;
