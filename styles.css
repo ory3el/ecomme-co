@@ -462,7 +462,7 @@ body.loading {
     .btn-ac svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
     .btn-qv {
       width: 38px; height: 38px; border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(0, 0, 0, 0.5);
       display: flex; align-items: center; justify-content: center;
       color: #000; transition: all .15s;
     }
