@@ -729,7 +729,7 @@ body.loading {
 
     /* ── MENU SIDEBAR ────────────────────────────────────────── */
     .more-sb {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 300px; height: 650px;
+      position: fixed; right: 0; top: 0; bottom: 0; width: 300px; height: 550px;
       background: rgba(255, 255, 255, 0.75); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       border-left: 0px solid var(--border2); padding: 10px;
       border-top-left-radius: 25px; border-bottom-left-radius: 25px;
@@ -740,7 +740,7 @@ body.loading {
     .more-sb.on { transform: translateX(0); }
 
     .more-hd {
-      padding: 24px; border-bottom: 1px solid var(--border2);
+      padding: 10px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
     .more-hd h3 { font-family: 'Outfit'; font-size: 18px; font-weight: 500; }
