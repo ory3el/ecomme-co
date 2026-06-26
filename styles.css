@@ -727,6 +727,44 @@ body.loading {
     }
     .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
 
+    /* ── MENU SIDEBAR ────────────────────────────────────────── */
+    .more-sb {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
+      background: rgba(255, 255, 255, 0.75); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 0px solid var(--border2);
+      border-top-left-radius: 25px; border-bottom-left-radius: 25px;
+      z-index: 2000; transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .more-sb.on { transform: translateX(0); }
+
+    .more-hd {
+      padding: 24px; border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .more-hd h3 { font-family: 'Outfit'; font-size: 22px; font-weight: 500; }
+    .more-cls {
+      width: 34px; height: 34px; border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .more-cls:hover { border-color: var(--red); color: var(--red); }
+    .more-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .more-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .more-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .more-empty-st span { font-size: 48px; }
+
+    .btns-main {
+      width: 100%; background: var(--blue); color: #fff;
+      padding: 14px; border-radius: 100px;
+      font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s; margin-bottom: 10px;
+    }
+    .btns-main:hover { background: var(--blue2); }
+
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
