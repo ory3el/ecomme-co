@@ -766,7 +766,6 @@ body.loading {
       transition: all .2s; margin-bottom: 10px;
     }
     .btn-menu:hover { background: var(--blue2); border: 1px solid var(--blue2); color: #fff; font-size: 16px; }
-    .iconIMG:hover { filter: grayscale(100%); -webkit-filter: grayscale(100%); }
 
     .btn-menu2 {
       width: 100%; background: transparent; 
