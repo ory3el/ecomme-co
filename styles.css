@@ -765,8 +765,7 @@ body.loading {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: all .2s; margin-bottom: 10px;
     }
-    .btn-menu:hover { background: var(--blue2); border: 1px solid var(--blue2); color: #fff; font-size: 16px; 
-                     .iconIMG {size: 17px; }}
+    .btn-menu:hover { transform: scale(1.05); background: var(--blue2); border: 1px solid var(--blue2); color: #fff; /*font-size: 16px;*/ }
 
     .btn-menu2 {
       width: 100%; background: transparent; 
