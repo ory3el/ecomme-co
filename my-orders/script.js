@@ -123,12 +123,6 @@ const orders = [
   },
 ];
 
-/* ─── STATE ──────────────────────────────────────────────────────────── */
-let cart = [];
-let wishlist = [];
-const $ = id => document.getElementById(id);
-const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-
 /* ─── RENDER ORDERS ──────────────────────────────────────────────────── */
 function renderOrders() {
   const q      = $('searchInput').value.toLowerCase().trim();
