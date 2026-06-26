@@ -758,7 +758,7 @@ body.loading {
     .more-empty-st span { font-size: 48px; }
 
     .btn-menu {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2)
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       display: flex; align-items: center;
       width: 95%; background: rgba(255, 255, 255, 0.1); 
       color: var(--blue); border: 1px solid rgba(0, 0, 0, 0);
@@ -770,8 +770,7 @@ body.loading {
     .btn-menu:hover { box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); transform: scale(1.02); background: var(--blue2); border: 1px solid var(--blue2); color: #fff; font-size: 15px; }
 
     .btn-menu2 {
-      background: rgba(255, 255, 255, 0.01);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2)
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       width: 95%; background: transparent; 
       color: rgba(0, 0, 0, 0.7); border: 1px solid rgba(0, 0, 0, 0);
       padding: 14px; border-radius: 100px;
