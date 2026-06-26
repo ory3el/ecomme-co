@@ -743,7 +743,7 @@ body.loading {
       padding: 24px; border-bottom: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .more-hd h3 { font-family: 'Outfit'; font-size: 22px; font-weight: 500; }
+    .more-hd h3 { font-family: 'Outfit'; font-size: 18px; font-weight: 500; }
     .more-cls {
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
