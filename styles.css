@@ -758,8 +758,8 @@ body.loading {
     .more-empty-st span { font-size: 48px; }
 
     .btn-menu {
-      width: 100%; background: rgba(255, 255, 255, 0.15); 
-      color: var(--blue); border: 1px solid var(--blue);
+      width: 100%; background: rgba(255, 255, 255, 0.1); 
+      color: var(--blue); border: 1px solid rgba(0, 0, 0, 0.1);
       padding: 14px; border-radius: 100px;
       font-weight: 700; font-size: 14px;
       display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -776,7 +776,7 @@ body.loading {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: all .2s; margin-bottom: 10px;
     }
-    .btn-menu2:hover { background: rgba(255, 255, 255, 0.5); border: 1px solid var(--blue); color: var(--blue); font-size: 16px; }
+    .btn-menu2:hover { background: rgba(255, 255, 255, 0.2); border: 1px solid var(--blue); color: var(--blue); font-size: 16px; }
 
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
