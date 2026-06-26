@@ -729,7 +729,7 @@ body.loading {
 
     /* ── MENU SIDEBAR ────────────────────────────────────────── */
     .more-sb {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 250px; height: 500px;
+      position: fixed; right: 0; top: 0; bottom: 0; width: 300px; height: 650px;
       background: rgba(255, 255, 255, 0.75); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       border-left: 0px solid var(--border2); padding: 10px;
       border-top-left-radius: 25px; border-bottom-left-radius: 25px;
