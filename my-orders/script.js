@@ -416,7 +416,7 @@ function updateFav() {
         </svg>
       </button>
     </div>`).join('');
-  renderProducts();
+  renderOrders();
 }
   
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
@@ -505,7 +505,7 @@ document.addEventListener('keydown', e => {
 
 // INIT
 updateCart();
-renderProducts();
+renderOrders();
 
 /* ─── ESC ────────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', e => {
