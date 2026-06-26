@@ -327,9 +327,9 @@ const favicon = document.getElementById('favicon');
     
     function verificarTema(e) {
       if (e.matches) {
-        favicon.href = './images/favicon-light.png';
+        favicon.href = '../images/favicon-light.png';
       } else {
-        favicon.href = './images/favicon-blue.png';
+        favicon.href = '../images/favicon-blue.png';
       }
     }
     const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
