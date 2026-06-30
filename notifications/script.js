@@ -3,8 +3,6 @@ let cart        = [];
 let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
-let view        = 'grid';
-let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
