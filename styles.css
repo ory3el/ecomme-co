@@ -225,7 +225,7 @@ body.loading {
       border: 1px solid var(--borderW); color: var(--white);
       transition: all .2s; position: relative;
     }
-    .icon-btn:hover { border-color: #000; color: #000; background: var(--white); }
+    .icon-btn:hover { color: #000; background: var(--white); }
     .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
