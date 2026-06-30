@@ -169,7 +169,7 @@ h1 {
   opacity: 0;
 }
 
-p {
+.p-txt {
   cursor: default;
   font-family: 'Nunito', sans-serif;
   color: var(--blue-dark);
