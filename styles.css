@@ -206,7 +206,7 @@ body.loading {
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
       padding: 7px 14px; font-size: 13px; font-weight: 500;
-      color: var(--muted); border-radius: 911px; transition: all .2s;
+      color: var(--white); border-radius: 911px; transition: all .2s;
     }
     .nav-main a:hover { color: var(--text); background: var(--bg3); }
     .nav-main a.active {
