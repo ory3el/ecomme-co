@@ -66,7 +66,7 @@
 }
 
 body.nobodyscroll {
-  overflow: hidden; scrollbar-gutter: stable;
+  overflow: hidden;
 }
 
 /* PRELOADER */
