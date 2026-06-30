@@ -1,3 +1,17 @@
+// FAVICON
+const favicon = document.getElementById('favicon');
+    
+    function verificarTema(e) {
+      if (e.matches) {
+        favicon.href = './images/favicon-light.png';
+      } else {
+        favicon.href = './images/favicon-blue.png';
+      }
+    }
+const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+verificarTema(mqEscuro);
+mqEscuro.addEventListener('change', verificarTema);
+
 TweenMax.to('h1', 1, {
 	alpha: 1,
   y: 20,	
