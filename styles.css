@@ -196,8 +196,7 @@ body.loading {
     }
     .logo {
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      filter: brightness(0) invert(1); drop-shadow: 0 0 0 #ffffff;
-      transform: translateX(-100%); 
+      filter: brightness(0) invert(1); drop-shadow: 0 0 0 #fff;
       /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
     .logo-dot {
