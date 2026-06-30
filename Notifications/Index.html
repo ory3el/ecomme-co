@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notificações | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:      #2563EB;
+      --blue2:     #3B82F6;
+      --blue3:     #60A5FA;
+      --blue-dim:  rgba(37,99,235,0.07);
+      --blue-mid:  rgba(37,99,235,0.14);
+      --white:     #FFFFFF;
+      --bg:        #F3F7FF;
+      --bg2:       #FFFFFF;
+      --bg3:       #EBF2FF;
+      --text:      #0F172A;
+      --muted:     #64748B;
+      --border:    rgba(37,99,235,0.18);
+      --border2:   rgba(0,0,0,0.07);
+      --red:       #EF4444;
+      --green:     #10B981;
+      --amber:     #F59E0B;
+      --purple:    #8B5CF6;
+      --radius:    8px;
+      --rad-lg:    16px;
+      --shadow:    0 4px 24px rgba(37,99,235,0.07);
+      --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+      --ease:      cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+    input { font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes fadeInUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes ringBell { 0%,100%{ transform: rotate(0); } 15%{ transform: rotate(14deg); } 30%{ transform: rotate(-12deg); } 45%{ transform: rotate(9deg); } 60%{ transform: rotate(-6deg); } 75%{ transform: rotate(3deg); } }
+    @keyframes popIn { 0%{ transform: scale(.5); opacity:0; } 70%{ transform: scale(1.15); opacity:1; } 100%{ transform: scale(1); } }
+    @keyframes slideOutRight { to { opacity: 0; transform: translateX(40px); } }
+    @keyframes shimmerMove { 0%{ background-position: -300px 0; } 100%{ background-position: 300px 0; } }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar { background: var(--blue); color: #fff; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 500; letter-spacing: .3px; position: relative; }
+    .topbar span { opacity: .55; margin: 0 10px; }
+    .topbar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.65); font-size: 18px; line-height: 1; }
+    .topbar-close:hover { color: #fff; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 24px; height: 68px; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--blue); flex-shrink: 0; display: flex; align-items: center; gap: 5px; letter-spacing: .5px; }
+    .logo-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; margin-top: 2px; }
+    .nav-main { display: flex; gap: 2px; }
+    .nav-main a { padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius); transition: all .2s; }
+    .nav-main a:hover { color: var(--text); background: var(--bg3); }
+    .nav-main a.active { color: var(--blue); background: var(--blue-dim); font-weight: 600; }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border2); color: var(--muted); transition: all .2s; position: relative; }
+    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .icon-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .icon-btn.ring svg { animation: ringBell 1.4s var(--ease); transform-origin: top center; }
+    .hd-badge { position: absolute; top: 1px; right: 1px; min-width: 17px; height: 17px; background: var(--blue); color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; transition: transform .25s var(--ease); }
+    .hd-badge.pop { animation: popIn .4s var(--ease); }
+    .btn-account { background: var(--blue-dim); border: 1px solid var(--border); color: var(--blue); padding: 7px 18px 7px 7px; border-radius: 100px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all .2s; }
+    .btn-account:hover { background: var(--blue); color: #fff; }
+    .acc-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .btn-account:hover .acc-avatar { background: #fff; color: var(--blue); }
+
+    /* ── BREADCRUMB ──────────────────────────────────────────── */
+    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
+    .breadcrumb { max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .breadcrumb a:hover { color: var(--blue); }
+    .breadcrumb .sep { opacity: .5; }
+    .breadcrumb .cur { color: var(--text); font-weight: 500; }
+
+    /* ── PAGE HERO ───────────────────────────────────────────── */
+    .notif-hero { background: #fff; border-bottom: 1px solid var(--border2); padding: 36px 28px; position: relative; overflow: hidden; }
+    .notif-hero::before { content: ''; position: absolute; top: -180px; right: -160px; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,.06) 0%, transparent 70%); pointer-events: none; }
+    .nh-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; position: relative; z-index: 1; }
+    .nh-title-row { display: flex; align-items: center; gap: 14px; }
+    .nh-ico { width: 50px; height: 50px; border-radius: 14px; background: var(--blue-dim); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+    .nh-ico svg { width: 22px; height: 22px; fill: none; stroke: var(--blue); stroke-width: 2; }
+    .nh-title h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+    .nh-title p { font-size: 12.5px; color: var(--muted); }
+    .nh-title p strong { color: var(--blue); }
+
+    .nh-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-readall { display: flex; align-items: center; gap: 7px; background: var(--blue); color: #fff; padding: 10px 18px; border-radius: 100px; font-weight: 600; font-size: 12.5px; transition: all .2s; }
+    .btn-readall:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37,99,235,.25); }
+    .btn-readall:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-readall svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .btn-settings { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .3s var(--ease); flex-shrink: 0; }
+    .btn-settings:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); transform: rotate(45deg); }
+    .btn-settings svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .btn-demo { display: flex; align-items: center; gap: 7px; background: var(--bg3); border: 1px dashed var(--border); color: var(--blue); padding: 9px 16px; border-radius: 100px; font-weight: 600; font-size: 12px; transition: all .2s; }
+    .btn-demo:hover { background: var(--blue-dim); }
+    .btn-demo svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+    /* ── FILTER TABS ─────────────────────────────────────────── */
+    .filters-wrap { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 68px; z-index: 90; }
+    .filters-inner { max-width: 1100px; margin: 0 auto; padding: 0 28px; position: relative; }
+    .filter-tabs { display: flex; gap: 4px; position: relative; overflow-x: auto; }
+    .filter-pill-bg { position: absolute; bottom: 0; height: 2px; background: var(--blue); border-radius: 2px; transition: left .35s var(--ease), width .35s var(--ease); }
+    .ftab { position: relative; padding: 16px 16px 14px; font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; transition: color .2s; display: flex; align-items: center; gap: 7px; }
+    .ftab:hover { color: var(--text); }
+    .ftab.active { color: var(--blue); }
+    .ftab-count { font-size: 10.5px; font-weight: 700; background: var(--bg3); color: var(--muted); padding: 1px 7px; border-radius: 100px; transition: all .2s; }
+    .ftab.active .ftab-count { background: var(--blue); color: #fff; }
+
+    /* ── NOTIFICATION LIST ───────────────────────────────────── */
+    .notif-section { max-width: 1100px; margin: 0 auto; padding: 32px 28px 90px; }
+    .group-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin: 28px 0 12px; padding-left: 4px; }
+    .group-label:first-child { margin-top: 0; }
+
+    .notif-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      background: #fff; border: 1px solid var(--border2); border-radius: var(--rad-lg);
+      padding: 16px 18px; margin-bottom: 10px; position: relative;
+      cursor: pointer; transition: border-color .2s, transform .2s, box-shadow .2s, opacity .35s, max-height .35s;
+      animation: fadeInUp .45s var(--ease) backwards;
+      overflow: hidden;
+    }
+    .notif-item:hover { border-color: var(--border); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .notif-item.unread { background: var(--blue-dim); border-color: var(--border); }
+    .notif-item.removing { animation: slideOutRight .35s var(--ease) forwards; pointer-events: none; }
+    .notif-item.new-arrival { animation: fadeInUp .5s var(--ease), highlightFlash 1.6s ease .5s; }
+    @keyframes highlightFlash { 0%{ background: var(--blue-mid); } 100%{ background: var(--blue-dim); } }
+
+    .ni-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ni-icon svg { width: 19px; height: 19px; fill: none; stroke-width: 2; }
+    .ni-icon.order   { background: var(--blue-dim); } .ni-icon.order svg   { stroke: var(--blue); }
+    .ni-icon.promo   { background: rgba(239,68,68,.08); } .ni-icon.promo svg   { stroke: var(--red); }
+    .ni-icon.system  { background: rgba(100,116,139,.1); } .ni-icon.system svg  { stroke: var(--muted); }
+    .ni-icon.review  { background: rgba(245,158,11,.1); } .ni-icon.review svg  { stroke: var(--amber); }
+    .ni-icon.account { background: rgba(139,92,246,.1); } .ni-icon.account svg { stroke: var(--purple); }
+    .ni-icon.delivered { background: rgba(16,185,129,.1); } .ni-icon.delivered svg { stroke: var(--green); }
+
+    .ni-body { flex: 1; min-width: 0; }
+    .ni-top { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+    .ni-title { font-size: 13.5px; font-weight: 700; }
+    .ni-time { font-size: 11px; color: var(--muted); margin-left: auto; flex-shrink: 0; white-space: nowrap; }
+    .ni-text { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+    .ni-text strong { color: var(--text); }
+
+    .ni-cta-row { display: flex; gap: 8px; margin-top: 10px; }
+    .ni-cta { font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 100px; transition: all .2s; }
+    .ni-cta.primary { background: var(--blue); color: #fff; }
+    .ni-cta.primary:hover { background: var(--blue2); }
+    .ni-cta.ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+    .ni-cta.ghost:hover { border-color: var(--blue); color: var(--blue); }
+
+    .ni-side { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; padding-top: 2px; }
+    .ni-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); flex-shrink: 0; animation: pulse-dot 1.8s ease-in-out infinite; transition: opacity .3s, transform .3s; }
+    .ni-dot.hidden-dot { opacity: 0; transform: scale(0); }
+    .ni-del { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--muted); opacity: 0; transition: all .2s; }
+    .notif-item:hover .ni-del { opacity: 1; }
+    .ni-del:hover { background: rgba(239,68,68,.1); color: var(--red); }
+    .ni-del svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .ni-thumb-row { display: flex; margin-top: 10px; }
+    .ni-thumb { width: 30px; height: 30px; border-radius: 8px; background: var(--bg3); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-left: -8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .ni-thumb:first-child { margin-left: 0; }
+
+    /* skeleton loading (shown briefly on load) */
+    .skeleton-item { display: flex; gap: 16px; background: #fff; border: 1px solid var(--border2); border-radius: var(--rad-lg); padding: 16px 18px; margin-bottom: 10px; }
+    .sk-circle { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; background: linear-gradient(90deg, var(--bg3) 25%, #fff 50%, var(--bg3) 75%); background-size: 400px 100%; animation: shimmerMove 1.3s infinite linear; }
+    .sk-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+    .sk-line { height: 10px; border-radius: 4px; background: linear-gradient(90deg, var(--bg3) 25%, #fff 50%, var(--bg3) 75%); background-size: 400px 100%; animation: shimmerMove 1.3s infinite linear; }
+    .sk-line.w60 { width: 60%; } .sk-line.w90 { width: 90%; }
+
+    /* empty state */
+    .empty-notif { text-align: center; padding: 80px 20px; animation: fadeIn .4s ease; }
+    .empty-notif .ico { font-size: 56px; margin-bottom: 18px; display: inline-block; animation: floaty 3s ease-in-out infinite; }
+    @keyframes floaty { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+    .empty-notif h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; margin-bottom: 8px; }
+    .empty-notif p { color: var(--muted); font-size: 13px; }
+
+    /* ── SETTINGS PANEL (slide-over) ─────────────────────────── */
+    .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 2199; opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px); }
+    .settings-overlay.on { opacity: 1; pointer-events: all; }
+    .settings-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 400px; background: #fff; border-left: 1px solid var(--border2); z-index: 2200; transform: translateX(100%); transition: transform .4s var(--ease); display: flex; flex-direction: column; }
+    .settings-panel.on { transform: translateX(0); }
+    .sp-hd { padding: 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    .sp-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 700; }
+    .sp-hd p { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+    .sp-close { width: 34px; height: 34px; border-radius: var(--radius); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; transition: all .2s; }
+    .sp-close:hover { border-color: var(--red); color: var(--red); }
+    .sp-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .sp-body { flex: 1; overflow-y: auto; padding: 22px 24px; display: flex; flex-direction: column; gap: 6px; }
+    .sp-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 4px; border-bottom: 1px solid var(--border2); }
+    .sp-row:last-child { border-bottom: none; }
+    .sp-row-text strong { font-size: 13px; font-weight: 700; display: block; margin-bottom: 3px; }
+    .sp-row-text span { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
+    .toggle { position: relative; width: 44px; height: 25px; border-radius: 100px; background: var(--bg3); border: 1px solid var(--border2); flex-shrink: 0; transition: background .25s var(--ease), border-color .25s; }
+    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .25s var(--ease); }
+    .toggle.on { background: var(--blue); border-color: var(--blue); }
+    .toggle.on::after { transform: translateX(19px); }
+
+    .sp-ft { padding: 18px 24px; border-top: 1px solid var(--border2); }
+    .btn-save-prefs { width: 100%; background: var(--blue); color: #fff; padding: 13px; border-radius: 100px; font-weight: 700; font-size: 13px; transition: all .2s; }
+    .btn-save-prefs:hover { background: var(--blue2); }
+
+    /* ── CART SIDEBAR ────────────────────────────────────────── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px); }
+    .overlay.on { opacity: 1; pointer-events: all; }
+    .cart-sb { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; background: #fff; border-left: 1px solid var(--border2); z-index: 2000; transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .cart-sb.on { transform: translateX(0); }
+    .cart-hd { padding: 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    .cart-hd h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+    .cart-cls { width: 34px; height: 34px; border-radius: var(--radius); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); }
+    .cart-cls:hover { border-color: var(--red); color: var(--red); }
+    .cart-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .cart-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .cart-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .cart-empty-st span { font-size: 48px; }
+    .cart-ft { padding: 20px; border-top: 1px solid var(--border2); }
+    .cart-tots { margin-bottom: 16px; }
+    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .ct-row .lbl { color: var(--muted); }
+    .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
+    .ct-row.ttl .amt { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--blue); }
+    .btn-ckout { width: 100%; background: var(--blue); color: #fff; padding: 14px; border-radius: 100px; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s; margin-bottom: 10px; }
+    .btn-ckout:hover { background: var(--blue2); }
+    .btn-cont { width: 100%; background: none; border: 1px solid var(--border2); color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px; }
+    .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #0F172A; border: 1px solid rgba(255,255,255,.1); color: #fff; padding: 12px 22px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 10px; transition: transform .3s cubic-bezier(.4,0,.2,1); white-space: nowrap; pointer-events: none; }
+    .toast.on { transform: translateX(-50%) translateY(0); }
+    .t-ico { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; flex-shrink: 0; }
+
+    /* ── BACK TO TOP ─────────────────────────────────────────── */
+    .btt { position: fixed; bottom: 28px; right: 28px; width: 44px; height: 44px; background: var(--blue); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 500; opacity: 0; transform: translateY(20px); transition: all .3s; }
+    .btt.on { opacity: 1; transform: translateY(0); }
+    .btt:hover { background: var(--blue2); }
+    .btt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer { background: #fff; border-top: 1px solid var(--border2); padding: 36px 28px; }
+    .ft-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .ft-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--blue); }
+    .ft-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .ft-links a { font-size: 12px; color: var(--muted); transition: color .2s; }
+    .ft-links a:hover { color: var(--blue); }
+    .ft-copy { font-size: 12px; color: var(--muted); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .nav-main { display: none; }
+      .notif-hero { padding: 28px 20px; }
+      .nh-inner { flex-direction: column; align-items: flex-start; }
+      .nh-title h1 { font-size: 24px; }
+      .nh-actions { width: 100%; justify-content: space-between; }
+      .filters-wrap { top: 68px; }
+      .filters-inner { padding: 0 20px; }
+      .notif-section { padding: 24px 20px 70px; }
+      .ni-time { margin-left: 0; }
+      .ni-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .settings-panel { width: 100%; }
+      .cart-sb { width: 100%; }
+      .ft-inner { flex-direction: column; text-align: center; }
+      .ft-links { justify-content: center; }
+      .btn-demo span.dt { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <span>Ecomme</span>
+      <div class="logo-dot"></div>
+    </a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn active" id="bellBtn" title="Notificações">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge" id="bellBadge">4</span>
+      </button>
+      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" title="Carrinho" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <span class="acc-avatar">MF</span>
+        Mariana Ferreira
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <a href="/">Início</a>
+    <span class="sep">/</span>
+    <a href="#">Minha Conta</a>
+    <span class="sep">/</span>
+    <span class="cur">Notificações</span>
+  </div>
+</div>
+
+<!-- PAGE HERO -->
+<section class="notif-hero">
+  <div class="nh-inner">
+    <div class="nh-title-row">
+      <div class="nh-ico">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <div class="nh-title">
+        <h1>Notificações</h1>
+        <p><strong id="unreadCountText">4</strong> não lidas · acompanhe pedidos, ofertas e novidades</p>
+      </div>
+    </div>
+    <div class="nh-actions">
+      <button class="btn-demo" onclick="simulateNewNotification()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span class="dt">Simular nova notificação</span>
+      </button>
+      <button class="btn-settings" onclick="openSettings()" title="Preferências">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="btn-readall" id="readAllBtn" onclick="markAllRead()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Marcar todas como lidas
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER TABS -->
+<div class="filters-wrap">
+  <div class="filters-inner">
+    <div class="filter-tabs" id="filterTabs">
+      <span class="filter-pill-bg" id="filterPillBg"></span>
+      <button class="ftab active" data-filter="todas">Todas <span class="ftab-count" id="cnt-todas">0</span></button>
+      <button class="ftab" data-filter="nao-lidas">Não lidas <span class="ftab-count" id="cnt-nao-lidas">0</span></button>
+      <button class="ftab" data-filter="order">Pedidos <span class="ftab-count" id="cnt-order">0</span></button>
+      <button class="ftab" data-filter="promo">Promoções <span class="ftab-count" id="cnt-promo">0</span></button>
+      <button class="ftab" data-filter="system">Sistema <span class="ftab-count" id="cnt-system">0</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<section class="notif-section" id="notifSection">
+  <!-- rendered by JS -->
+</section>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="sp-hd">
+    <div>
+      <h3>Preferências</h3>
+      <p>Escolha o que você quer ser notificado</p>
+    </div>
+    <button class="sp-close" onclick="closeSettings()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Atualizações de Pedidos</strong><span>Status de envio, entrega e mudanças no pedido</span></div>
+      <button class="toggle on" data-pref="pedidos" onclick="toggleSwitch(this)"></button>
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Promoções e Ofertas</strong><span>Descontos, cupons e ofertas relâmpago</span></div>
+      <button class="toggle on" data-pref="promo" onclick="toggleSwitch(this)"></button>
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Novidades de Produtos</strong><span>Lançamentos e itens de volta ao estoque</span></div>
+      <button class="toggle" data-pref="produtos" onclick="toggleSwitch(this)"></button>
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Solicitações de Avaliação</strong><span>Pedidos para avaliar produtos comprados</span></div>
+      <button class="toggle on" data-pref="review" onclick="toggleSwitch(this)"></button>
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Segurança da Conta</strong><span>Logins, alterações de senha e dados</span></div>
+      <button class="toggle on" data-pref="seguranca" onclick="toggleSwitch(this)"></button>
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-text"><strong>Newsletter Semanal</strong><span>Resumo semanal com destaques e novidades</span></div>
+      <button class="toggle" data-pref="newsletter" onclick="toggleSwitch(this)"></button>
+    </div>
+  </div>
+  <div class="sp-ft">
+    <button class="btn-save-prefs" onclick="savePrefs()">Salvar Preferências</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/about">Sobre Nós</a>
+      <a href="/my-orders">Meus Pedidos</a>
+      <a href="/track-order">Rastrear Pedido</a>
+      <a href="/notifications">Notificações</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartItems">
+    <div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>
+  </div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="t-ico">✓</div>
+  <span id="toastMsg">Produto adicionado!</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script>
+const $ = id => document.getElementById(id);
+let cart = [];
+let wishlist = [];
+
+/* ─── NOTIFICATIONS DATA ─────────────────────────────────────────────── */
+let notifications = [
+  {
+    id: 'n1', type: 'order', read: false, group: 'hoje', time: '08:15',
+    title: 'Seu pedido saiu para entrega 🚚',
+    text: 'Pedido <strong>#EC2026-48271</strong> está com o entregador e chega ainda hoje à tarde.',
+    cta: { label: 'Rastrear Pedido', href: 'track-order.html?order=EC2026-48271&email=mariana.ferreira@exemplo.com', icon: 'order' }
+  },
+  {
+    id: 'n2', type: 'promo', read: false, group: 'hoje', time: '07:02',
+    title: 'Oferta relâmpago: 40% OFF ⚡',
+    text: 'Eletrônicos selecionados com desconto especial só até meia-noite. Não perca!',
+    cta: { label: 'Ver Ofertas', href: 'products.html', icon: 'ghost' }
+  },
+  {
+    id: 'n3', type: 'review', read: false, group: 'ontem', time: 'Ontem · 19:40',
+    title: 'O que achou do seu Smartwatch Pro X7?',
+    text: 'Avalie sua compra e ajude outros clientes a decidir. Leva menos de 1 minuto.',
+    cta: { label: 'Avaliar Produto', href: 'product-example.html', icon: 'ghost' }
+  },
+  {
+    id: 'n4', type: 'account', read: false, group: 'ontem', time: 'Ontem · 11:15',
+    title: 'Novo login detectado',
+    text: 'Identificamos um acesso à sua conta a partir de um novo dispositivo em Curitiba, PR.',
+    cta: null
+  },
+  {
+    id: 'n5', type: 'delivered', read: true, group: 'semana', time: 'Segunda · 14:22',
+    title: 'Pedido entregue com sucesso ✓',
+    text: 'Pedido <strong>#EC2026-47950</strong> foi entregue. Esperamos que aproveite sua compra!',
+    cta: { label: 'Ver Pedido', href: 'my-orders.html', icon: 'ghost' }
+  },
+  {
+    id: 'n6', type: 'promo', read: true, group: 'semana', time: 'Domingo · 09:00',
+    title: 'Frete grátis em toda a loja esse fim de semana',
+    text: 'Aproveite frete grátis sem valor mínimo de compra até domingo às 23h59.',
+    cta: { label: 'Explorar Produtos', href: 'products.html', icon: 'ghost' }
+  },
+  {
+    id: 'n7', type: 'system', read: true, group: 'semana', time: 'Sábado · 16:30',
+    title: 'Atualizamos nossos Termos de Uso',
+    text: 'Fizemos pequenos ajustes na nossa política de privacidade e termos de uso.',
+    cta: { label: 'Ler Termos', href: 'terms.html', icon: 'ghost' }
+  },
+  {
+    id: 'n8', type: 'order', read: true, group: 'antigas', time: '12 de junho',
+    title: 'Pagamento aprovado',
+    text: 'O pagamento do pedido <strong>#EC2026-47950</strong> foi aprovado via Pix.',
+    cta: { label: 'Rastrear Pedido', href: 'track-order.html?order=EC2026-47950&email=mariana.ferreira@exemplo.com', icon: 'order' }
+  },
+  {
+    id: 'n9', type: 'system', read: true, group: 'antigas', time: '05 de junho',
+    title: 'Bem-vinda à Ecomme! 🎉',
+    text: 'Sua conta foi criada com sucesso. Explore nosso catálogo e aproveite o frete grátis de lançamento.',
+    cta: { label: 'Explorar Produtos', href: 'products.html', icon: 'ghost' }
+  },
+];
+
+const iconMap = {
+  order:     `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  promo:     `<svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+  system:    `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+  review:    `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  account:   `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  delivered: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>`,
+};
+
+const groupLabels = { hoje: 'Hoje', ontem: 'Ontem', semana: 'Esta Semana', antigas: 'Mais Antigas' };
+const groupOrder  = ['hoje', 'ontem', 'semana', 'antigas'];
+
+let currentFilter = 'todas';
+
+/* ─── RENDER ─────────────────────────────────────────────────────────── */
+function renderNotifications(skipAnim) {
+  updateCounts();
+  const wrap = $('notifSection');
+
+  let list = notifications.filter(n => {
+    if (currentFilter === 'todas') return true;
+    if (currentFilter === 'nao-lidas') return !n.read;
+    return n.type === currentFilter;
+  });
+
+  if (!list.length) {
+    wrap.innerHTML = `
+      <div class="empty-notif">
+        <div class="ico">🔔</div>
+        <h3>Tudo em dia por aqui</h3>
+        <p>Não há notificações para este filtro no momento.</p>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  let delayIdx = 0;
+  groupOrder.forEach(g => {
+    const items = list.filter(n => n.group === g);
+    if (!items.length) return;
+    html += `<div class="group-label">${groupLabels[g]}</div>`;
+    items.forEach(n => {
+      const delay = skipAnim ? 0 : (delayIdx * 0.05);
+      delayIdx++;
+      html += renderItem(n, delay);
+    });
+  });
+
+  wrap.innerHTML = html;
+}
+
+function renderItem(n, delay) {
+  const ctaHtml = n.cta
+    ? `<div class="ni-cta-row">
+         <a class="ni-cta ${n.cta.icon === 'order' ? 'primary' : 'ghost'}" href="${n.cta.href}" onclick="event.stopPropagation()">${n.cta.label}</a>
+       </div>`
+    : '';
+  return `
+    <div class="notif-item ${n.read ? '' : 'unread'} ${n._isNew ? 'new-arrival' : ''}" id="ni-${n.id}"
+         style="animation-delay:${delay}s" onclick="openNotification('${n.id}')">
+      <div class="ni-icon ${n.type}">${iconMap[n.type]}</div>
+      <div class="ni-body">
+        <div class="ni-top">
+          <span class="ni-title">${n.title}</span>
+          <span class="ni-time">${n.time}</span>
+        </div>
+        <div class="ni-text">${n.text}</div>
+        ${ctaHtml}
+      </div>
+      <div class="ni-side">
+        <span class="ni-dot ${n.read ? 'hidden-dot' : ''}" id="dot-${n.id}"></span>
+        <button class="ni-del" onclick="event.stopPropagation();deleteNotification('${n.id}')" title="Remover">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+/* ─── COUNTS ─────────────────────────────────────────────────────────── */
+function updateCounts() {
+  const total   = notifications.length;
+  const unread  = notifications.filter(n => !n.read).length;
+  const order   = notifications.filter(n => n.type === 'order' || n.type === 'delivered').length;
+  const promo   = notifications.filter(n => n.type === 'promo').length;
+  const system  = notifications.filter(n => n.type === 'system' || n.type === 'account').length;
+
+  $('cnt-todas').textContent      = total;
+  $('cnt-nao-lidas').textContent  = unread;
+  $('cnt-order').textContent      = order;
+  $('cnt-promo').textContent      = promo;
+  $('cnt-system').textContent     = system;
+
+  $('unreadCountText').textContent = unread;
+  $('bellBadge').textContent = unread;
+  $('bellBadge').style.display = unread ? 'flex' : 'none';
+  $('readAllBtn').disabled = unread === 0;
+}
+
+/* ─── INTERACTIONS ───────────────────────────────────────────────────── */
+function openNotification(id) {
+  const n = notifications.find(x => x.id === id);
+  if (!n) return;
+  if (!n.read) {
+    n.read = true;
+    const el = $('ni-' + id);
+    const dot = $('dot-' + id);
+    if (el) el.classList.remove('unread');
+    if (dot) dot.classList.add('hidden-dot');
+    updateCounts();
+    // re-render if filter is "não lidas" so it animates out
+    if (currentFilter === 'nao-lidas') {
+      setTimeout(() => renderNotifications(true), 250);
+    }
+  }
+}
+
+function deleteNotification(id) {
+  const el = $('ni-' + id);
+  if (!el) return;
+  el.classList.add('removing');
+  setTimeout(() => {
+    notifications = notifications.filter(n => n.id !== id);
+    renderNotifications(true);
+    showToast('Notificação removida');
+  }, 320);
+}
+
+function markAllRead() {
+  const hadUnread = notifications.some(n => !n.read);
+  if (!hadUnread) return;
+  notifications.forEach(n => n.read = true);
+  document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+  document.querySelectorAll('.ni-dot').forEach(d => d.classList.add('hidden-dot'));
+  updateCounts();
+  showToast('Todas as notificações foram marcadas como lidas ✓');
+  setTimeout(() => renderNotifications(true), 300);
+}
+
+/* ─── DEMO: simulate a new incoming notification ────────────────────── */
+function simulateNewNotification() {
+  const demoPool = [
+    { type: 'promo', title: 'Cupom exclusivo liberado 🎁', text: 'Use <strong>BEMVINDA10</strong> e ganhe 10% OFF na próxima compra.', cta: { label: 'Usar Cupom', href: 'products.html', icon: 'ghost' } },
+    { type: 'order', title: 'Pedido confirmado ✓', text: 'Recebemos seu pedido <strong>#EC2026-49120</strong> e já estamos preparando tudo.', cta: { label: 'Rastrear Pedido', href: 'track-order.html', icon: 'order' } },
+    { type: 'system', title: 'Nova funcionalidade disponível', text: 'Agora você pode acompanhar pedidos em tempo real direto pela página de notificações.', cta: null },
+  ];
+  const pick = demoPool[Math.floor(Math.random() * demoPool.length)];
+  const newNotif = {
+    id: 'demo-' + Date.now(),
+    type: pick.type, read: false, group: 'hoje', time: 'Agora mesmo',
+    title: pick.title, text: pick.text, cta: pick.cta, _isNew: true
+  };
+  notifications.unshift(newNotif);
+  currentFilter = 'todas';
+  setActiveTab(document.querySelector('.ftab[data-filter="todas"]'));
+  renderNotifications(true);
+
+  $('bellBtn').classList.add('ring');
+  $('bellBadge').classList.add('pop');
+  setTimeout(() => { $('bellBtn').classList.remove('ring'); $('bellBadge').classList.remove('pop'); }, 700);
+
+  showToast('Nova notificação recebida 🔔');
+}
+
+/* ─── FILTER TABS ────────────────────────────────────────────────────── */
+function setActiveTab(btn) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  movePill(btn);
+}
+
+function movePill(btn) {
+  const bg = $('filterPillBg');
+  const wrapRect = $('filterTabs').getBoundingClientRect();
+  const btnRect  = btn.getBoundingClientRect();
+  bg.style.left  = (btnRect.left - wrapRect.left) + 'px';
+  bg.style.width = btnRect.width + 'px';
+}
+
+document.querySelectorAll('.ftab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.filter;
+    setActiveTab(btn);
+    renderNotifications();
+  });
+});
+
+/* ─── SETTINGS PANEL ─────────────────────────────────────────────────── */
+function openSettings()  { $('settingsPanel').classList.add('on'); $('settingsOverlay').classList.add('on'); }
+function closeSettings() { $('settingsPanel').classList.remove('on'); $('settingsOverlay').classList.remove('on'); }
+function toggleSwitch(btn) { btn.classList.toggle('on'); }
+function savePrefs() {
+  showToast('Preferências salvas com sucesso! ⚙️');
+  closeSettings();
+}
+
+/* ─── CART (placeholder) ─────────────────────────────────────────────── */
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
+function checkout() {
+  showToast('Seu carrinho está vazio. Explore os produtos! 🛍️');
+  setTimeout(closeCart, 1200);
+}
+function alertWish() { showToast(`Lista de favoritos: ${wishlist.length} produto(s)`); }
+
+/* ─── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(() => $('toast').classList.remove('on'), 2800);
+}
+
+/* ─── BACK TO TOP / ESC ──────────────────────────────────────────────── */
+window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 300); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeCart(); closeSettings(); } });
+window.addEventListener('resize', () => { const active = document.querySelector('.ftab.active'); if (active) movePill(active); });
+
+/* ─── INIT ───────────────────────────────────────────────────────────── */
+updateCart();
+function updateCart() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  $('cartBadge').textContent = count;
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent   = 'R$ 0,00';
+  $('cartTotal').textContent = 'R$ 0,00';
+}
+renderNotifications(true);
+requestAnimationFrame(() => {
+  const active = document.querySelector('.ftab.active');
+  if (active) movePill(active);
+});
+</script>
+</body>
+</html>
