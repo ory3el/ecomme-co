@@ -187,7 +187,7 @@ body.loading {
       background: #4287f5;
       border-bottom: 1px solid #fff;
       position: sticky; top: 0; z-index: 1000;
-      box-shadow: 0 2px 20px rgba(66, 135, 245, 0.2);
+      box-shadow: 0 5px 15px rgba(66, 135, 245, 0.5);
     }
     .header-inner {
       max-width: 1440px; margin: 0 auto;
