@@ -765,53 +765,47 @@ body.loading {
     .more-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
     .more-empty-st span { font-size: 48px; }
 
-    .btn-menu {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      width: 95%; background: rgba(255, 255, 255, 0.1); 
-      color: var(--blue); border: 1px solid rgba(0, 0, 0, 0);
-      padding: 14px; border-radius: 100px;
-      font-weight: 700; font-size: 14px;
-      display: flex; align-items: center;
-      justify-content: flex-start; gap: 8px;
-      transition: all .3s; margin-bottom: 10px;
-    }
-    .btn-menu:hover { box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); transform: scale(1.02); background: var(--blue2); border: 1px solid var(--blue2); color: #fff; font-size: 15px; }
-
-    .btn-menu2 {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      width: 95%; background: transparent; 
-      color: rgba(0, 0, 0, 0.7); border: 1px solid rgba(0, 0, 0, 0);
-      padding: 14px; border-radius: 100px;
-      font-weight: 500; font-size: 14px;
-      display: flex; align-items: center; 
-      justify-content: flex-start; gap: 8px;
-      transition: all .3s; margin-bottom: 10px;
-    }
-    .btn-menu2:hover { box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); transform: scale(1.02); background: rgba(255, 255, 255, 0.2); border: 1px solid var(--blue); color: var(--blue); font-size: 15px; }
-
 .btn-menu3 {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  width: 95%; padding: 14px;
+  width: 95%; 
   background: transparent; 
   color: rgba(0, 0, 0, 0.7); 
   border: 1px solid rgba(0, 0, 0, 0);
+  padding: 14px; 
   border-radius: 16px; 
-  font-weight: 600;
-  font-size: 14px;
   transition: all .3s; 
   margin-bottom: 10px;
-  display: flex; 
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.btn-content {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4;
+  gap: 4px;
+  flex: 1;
+}
+.btn-title {
+  font-weight: 700;
+  font-size: 14px;
 }
 .btn-txt {
   font-weight: 400; 
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.5);
-  margin: 0;
+  font-size: 11px; 
+  color: rgba(0, 0, 0, 0.5); 
+  margin: 0; 
   text-align: left;
 }
+.btn-arrow {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, color 0.3s;
+}
+/* ─────────────────────────────────────────────────── */
 .btn-menu3:hover { 
   box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); 
   transform: scale(1.02); 
@@ -822,6 +816,10 @@ body.loading {
 .btn-menu3:hover .btn-txt {
   color: var(--blue);
   opacity: 0.8;
+}
+.btn-menu3:hover .btn-arrow {
+  color: var(--blue);
+  transform: translateX(4px); 
 }
 
   /* TOAST */
