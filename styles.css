@@ -65,6 +65,10 @@
    overflow: hidden; scrollbar-gutter: stable;
 }
 
+body.nobodyscroll {
+  overflow: hidden; scrollbar-gutter: stable;
+}
+
 /* PRELOADER */
 body.loading {
   overflow: hidden;
