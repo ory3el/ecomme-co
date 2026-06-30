@@ -40,6 +40,7 @@
     --muted:     #64748B;
     --border:    rgba(37,99,235,0.18);
     --border2:   rgba(0,0,0,0.07);
+    --borderW:   rgba(255,255,255,0.07);
     --red:       #EF4444;
     --green:     #10B981;
     --radius:    8px;
@@ -222,10 +223,10 @@ body.loading {
     .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border2); color: var(--muted);
+      border: 1px solid var(--borderW); color: var(--white);
       transition: all .2s; position: relative;
     }
-    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .icon-btn:hover { border-color: #000; color: #000; background: var(--white); }
     .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
@@ -236,12 +237,12 @@ body.loading {
       padding: 0 2px;
     }
     .btn-account {
-      background: var(--blue); color: #fff;
+      background: var(--white); color: #000;
       padding: 8px 20px; border-radius: 100px;
       font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
-    .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
+    .btn-account:hover { background: #000; color: #fff; transform: translateY(-1px); }
 
   /* HERO */
   .hero { position: relative; min-height: 580px; display: flex; align-items: center; overflow: hidden; background: var(--bg2); }
