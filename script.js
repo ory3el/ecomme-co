@@ -1,4 +1,7 @@
 document.body.classList.add("noscroll");
+body.nobodyscroll {
+  overflow: hidden;
+}
 
 function buttonLink(url) {
   window.location.href = url;
@@ -269,8 +272,8 @@ function updateCart() {
   renderProducts();
 }
 
-function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
@@ -347,8 +350,8 @@ function updateFav() {
   renderProducts();
 }
   
-function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
-function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function addAllFavToCart() {
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
@@ -378,8 +381,8 @@ function checkout() {
 }
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
-function openMore()  { $('moreSidebar').classList.add('on'); $('moreOverlay').classList.add('on'); document.body.classList.add("noscroll"); }
-function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function openMore()  { $('moreSidebar').classList.add('on'); $('moreOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function checkout2() {
   showToast('Redirecionando para a página de checkout... 🔒');
