@@ -1,7 +1,4 @@
 document.body.classList.add("noscroll");
-body.nobodyscroll {
-  overflow: hidden
-};
 
 function buttonLink(url) {
   window.location.href = url;
