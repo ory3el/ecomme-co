@@ -196,7 +196,7 @@ body.loading {
     }
     .logo {
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      background: #fff; border-radius: 200px; padding: 0px 10px;
+      background: #fff; border-radius: 200px; padding: 5px 10px;
     }
     .logo-dot {
       width: 7px; height: 7px; background: var(--blue);
