@@ -19,9 +19,20 @@
 
 <script>
     fetch('../files/no-login/index.html')
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
         .then(data => {
             document.getElementById('index-content').innerHTML = data;
+			
+            const script = document.createElement('script');
+            script.src = 'script.js';
+            document.body.appendChild(script);
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-content').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
         });
 </script>
 
