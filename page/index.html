@@ -27,7 +27,7 @@
             document.getElementById('index-content').innerHTML = data;
 			
             const script = document.createElement('script');
-            script.src = 'script.js';
+            script.src = '../files/no-login/script.js';
             document.body.appendChild(script);
         })
         .catch(error => {
@@ -35,7 +35,5 @@
             document.getElementById('index-content').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
         });
 </script>
-
-<script src="script.js"></script>
 </body>
 </html>
