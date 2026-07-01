@@ -214,7 +214,7 @@ body.loading {
     }
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
-    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: transparent; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
     .search-bar:focus-within { background: rgba(0, 0, 0, 0.7) border: 2.5px solid #fff; }
     .search-bar input { background: none; border: none; outline: none; color: #fff; font-size: 15px; font-weight: 500; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 400; }
