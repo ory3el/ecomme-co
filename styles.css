@@ -215,8 +215,8 @@ body.loading {
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
     .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: transparent; border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
-    .search-bar:focus-within { border-color: var(--blue); }
-    .search-bar input { background: none; border: 1px solid rgba(255, 255, 255, 1); outline: none; color: #fff; font-size: 13px; flex: 1; padding: 9px 0; }
+    .search-bar:focus-within { border-color: #fff; }
+    .search-bar input { background: none; border: none; outline: none; color: #fff; font-size: 13px; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(255, 255, 255, 0.5) }
     .search-bar svg { width: 15px; height: 15px; fill: none; stroke: rgba(255, 255, 255, 0.7); stroke-width: 2; flex-shrink: 0; }
     .icon-btn {
