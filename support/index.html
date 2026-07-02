@@ -63,32 +63,6 @@
     @keyframes countUp       { from { opacity:0; transform:scale(.7); } to { opacity:1; transform:scale(1); } }
     @keyframes waveBar       { 0%,100%{ height:14px; } 50%{ height:28px; } }
 
-    /* ── TOPBAR ──────────────────────────────────────────────── */
-    .topbar { background:var(--blue); color:#fff; text-align:center; padding:8px 20px; font-size:12px; font-weight:500; letter-spacing:.3px; position:relative; }
-    .topbar span { opacity:.55; margin:0 10px; }
-    .topbar-close { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.65); font-size:18px; }
-    .topbar-close:hover { color:#fff; }
-
-    /* ── HEADER ──────────────────────────────────────────────── */
-    header { background:#fff; border-bottom:1px solid var(--border2); position:sticky; top:0; z-index:1000; box-shadow:0 1px 20px rgba(37,99,235,.06); }
-    .header-inner { max-width:1440px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:24px; height:68px; }
-    .logo { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); flex-shrink:0; display:flex; align-items:center; gap:5px; }
-    .logo-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; margin-top:2px; }
-    .nav-main { display:flex; gap:2px; }
-    .nav-main a { padding:7px 14px; font-size:13px; font-weight:500; color:var(--muted); border-radius:var(--radius); transition:all .2s; }
-    .nav-main a:hover { color:var(--text); background:var(--bg3); }
-    .nav-main a.active { color:var(--blue); background:var(--blue-dim); font-weight:600; }
-    .header-spacer { flex:1; }
-    .header-actions { display:flex; align-items:center; gap:6px; }
-    .icon-btn { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2); color:var(--muted); transition:all .2s; position:relative; }
-    .icon-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); }
-    .icon-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; }
-    .hd-badge { position:absolute; top:1px; right:1px; min-width:17px; height:17px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; border-radius:50%; display:flex; align-items:center; justify-content:center; }
-    .btn-account { background:var(--blue-dim); border:1px solid var(--border); color:var(--blue); padding:7px 18px 7px 7px; border-radius:100px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px; transition:all .2s; }
-    .btn-account:hover { background:var(--blue); color:#fff; }
-    .acc-avatar { width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
-    .btn-account:hover .acc-avatar { background:#fff; color:var(--blue); }
-
     /* ── HERO ────────────────────────────────────────────────── */
     .support-hero {
       position:relative; overflow:hidden; min-height:580px;
@@ -386,50 +360,6 @@
     .form-success p { color:var(--muted); font-size:13px; line-height:1.7; }
     .form-success strong { color:var(--blue); }
 
-    /* ── CART SIDEBAR ────────────────────────────────────────── */
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1999; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px); }
-    .overlay.on { opacity:1; pointer-events:all; }
-    .cart-sb { position:fixed; right:0; top:0; bottom:0; width:420px; background:#fff; border-left:1px solid var(--border2); z-index:2000; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; }
-    .cart-sb.on { transform:translateX(0); }
-    .cart-hd { padding:24px; border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; }
-    .cart-hd h3 { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
-    .cart-cls { width:34px; height:34px; border-radius:var(--radius); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
-    .cart-cls:hover { border-color:var(--red); color:var(--red); }
-    .cart-cls svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
-    .cart-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
-    .cart-body span { font-size:48px; }
-    .cart-body p { color:var(--muted); }
-    .cart-ft { padding:20px; border-top:1px solid var(--border2); }
-    .cart-tots { margin-bottom:16px; }
-    .ct-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
-    .ct-row .lbl { color:var(--muted); }
-    .ct-row.ttl { font-size:15px; font-weight:600; padding-top:10px; border-top:1px solid var(--border2); margin-top:10px; }
-    .ct-row.ttl .amt { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--blue); }
-    .btn-ckout { width:100%; background:var(--blue); color:#fff; padding:14px; border-radius:100px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; margin-bottom:10px; }
-    .btn-ckout:hover { background:var(--blue2); }
-    .btn-cont { width:100%; background:none; border:1px solid var(--border2); color:var(--muted); padding:11px; border-radius:100px; font-size:12px; }
-    .btn-cont:hover { border-color:var(--blue); color:var(--blue); }
-
-    /* ── TOAST ───────────────────────────────────────────────── */
-    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:#0F172A; border:1px solid rgba(255,255,255,.1); color:#fff; padding:12px 22px; border-radius:100px; font-size:13px; font-weight:500; z-index:3000; display:flex; align-items:center; gap:10px; transition:transform .3s cubic-bezier(.4,0,.2,1); white-space:nowrap; pointer-events:none; }
-    .toast.on { transform:translateX(-50%) translateY(0); }
-    .t-ico { width:20px; height:20px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0; }
-
-    /* ── BACK TO TOP ─────────────────────────────────────────── */
-    .btt { position:fixed; bottom:28px; right:28px; width:44px; height:44px; background:var(--blue); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; transform:translateY(20px); transition:all .3s; }
-    .btt.on { opacity:1; transform:translateY(0); }
-    .btt:hover { background:var(--blue2); }
-    .btt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.5; }
-
-    /* ── FOOTER ──────────────────────────────────────────────── */
-    footer { background:#fff; border-top:1px solid var(--border2); padding:36px 28px; }
-    .ft-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
-    .ft-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--blue); }
-    .ft-links { display:flex; gap:22px; flex-wrap:wrap; }
-    .ft-links a { font-size:12px; color:var(--muted); transition:color .2s; }
-    .ft-links a:hover { color:var(--blue); }
-    .ft-copy { font-size:12px; color:var(--muted); }
-
     /* ── RESPONSIVE ──────────────────────────────────────────── */
     @media(max-width:1100px){ .topics-grid{grid-template-columns:repeat(2,1fr);} .chat-layout,.ticket-grid{grid-template-columns:1fr;} .faq-grid{grid-template-columns:1fr;} .faq-sidebar{position:static;} .channels-grid{grid-template-columns:1fr;} .hero-inner{grid-template-columns:1fr;} .hero-right{display:none;} .stats-inner{grid-template-columns:repeat(2,1fr);} }
     @media(max-width:768px){ .nav-main{display:none;} .hero-left h1{font-size:36px;} .topics-grid{grid-template-columns:1fr;} .form-row-2{grid-template-columns:1fr;} .cart-sb{width:100%;} .ft-inner{flex-direction:column;text-align:center;} .ft-links{justify-content:center;} .sec{padding:56px 20px;} }
@@ -437,40 +367,8 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar" id="topbar">
-  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
-  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
-    <nav class="nav-main">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/categories">Categorias</a>
-      <a href="#">Ofertas</a>
-      <a href="/about">Sobre</a>
-    </nav>
-    <div class="header-spacer"></div>
-    <div class="header-actions">
-      <button class="icon-btn" title="Notificações" onclick="showToast('Nenhuma notificação nova')">
-        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="hd-badge">3</span>
-      </button>
-      <button class="icon-btn" title="Carrinho" onclick="openCart()">
-        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="hd-badge" id="cartBadge">0</span>
-      </button>
-      <button class="btn-account">
-        <span class="acc-avatar">MF</span>Mariana Ferreira
-      </button>
-    </div>
-  </div>
-</header>
-
+<div id="index-content"></div>
+  
 <!-- ══ HERO ══════════════════════════════════════════════════ -->
 <section class="support-hero">
   <div class="hero-grid-bg"></div>
@@ -873,45 +771,6 @@
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="ft-inner">
-    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
-    <div class="ft-links">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/about">Sobre Nós</a>
-      <a href="/terms">Termos de Uso</a>
-      <a href="/track-order">Rastrear Pedido</a>
-      <a href="/my-orders">Meus Pedidos</a>
-      <a href="/support">Suporte</a>
-    </div>
-    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
-  </div>
-</footer>
-
-<!-- CART SIDEBAR -->
-<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-sb" id="cartSidebar">
-  <div class="cart-hd">
-    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
-    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div class="cart-body"><span>🛒</span><p style="color:var(--muted)">Seu carrinho está vazio</p></div>
-  <div class="cart-ft">
-    <div class="cart-tots">
-      <div class="ct-row"><span class="lbl">Subtotal</span><span>R$ 0,00</span></div>
-      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
-      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt">R$ 0,00</span></div>
-    </div>
-    <button class="btn-ckout" onclick="showToast('Adicione produtos primeiro! 😊');closeCart()">Finalizar Compra</button>
-    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
-<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
-
 <script>
 const $ = id => document.getElementById(id);
 
@@ -1021,17 +880,6 @@ function resetForm() {
   $('fMsg').value = '';
 }
 
-/* ─── CART ───────────────────────────────────────────────────────────── */
-function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
-
-/* ─── TOAST ──────────────────────────────────────────────────────────── */
-function showToast(msg) {
-  $('toastMsg').textContent = msg;
-  $('toast').classList.add('on');
-  setTimeout(() => $('toast').classList.remove('on'), 2800);
-}
-
 /* ─── MISC ───────────────────────────────────────────────────────────── */
 window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 300); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
@@ -1043,5 +891,26 @@ const satObserver = new IntersectionObserver(entries => {
 const satEl = document.querySelector('.sat-circle');
 if (satEl) { document.querySelector('.sat-circle .fill').style.strokeDashoffset = '175'; satObserver.observe(satEl); }
 </script>
+
+<script>
+    fetch('../files/no-login/index.html')
+        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('index-content').innerHTML = data;
+			
+            const script = document.createElement('script');
+            script.src = '/files/no-login/script.js';
+            document.body.appendChild(script);
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-content').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
+        });
+</script>
+  
 </body>
 </html>
