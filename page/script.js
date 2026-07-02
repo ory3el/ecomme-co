@@ -1,12 +1,31 @@
+document.body.classList.add("noscroll");
+
 function buttonLink(url) {
   window.location.href = url;
 }
+
+const products = [
+  { id:0, name:'Smartwatch Pro X7', cat:['Eletrônicos', 'Acessórios'], price:189.90, old:299, discount:36, emoji:'⌚', badge:'hot', rating:4.9, reviews:2847, shipping:true, desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água. Bateria de 14 dias. Compatível com Android e iOS.', features:['Monitor cardíaco e SpO2','GPS integrado','Resistência 5ATM','Bateria 14 dias','Compatível Android/iOS'] },
+  { id:1, name:'Fone Bluetooth ANC Pro', cat:'Eletrônicos', price:119.90, old:199, discount:39, emoji:'🎧', badge:'new', rating:4.8, reviews:1523, shipping:true, desc:'Fone de ouvido com cancelamento ativo de ruído, driver 40mm, autonomia de 30h e conexão multidevice.', features:['Cancelamento ativo de ruído','30 horas de autonomia','Driver 40mm premium','Conexão multidevice','Estojo de carregamento'] },
+  { id:2, name:'Câmera de Segurança WiFi', cat:'Eletrônicos', price:149.90, old:220, discount:31, emoji:'📷', badge:'sale', rating:4.7, reviews:892, shipping:false, desc:'Câmera IP 2K com visão noturna colorida, detecção de movimento e armazenamento na nuvem.', features:['Resolução 2K Super HD','Visão noturna colorida','Detecção inteligente de movimento','Armazenamento em nuvem','Fácil instalação'] },
+  { id:3, name:'Kit Luzes LED Smart RGB', cat:'Casa', price:79.90, old:130, discount:38, emoji:'💡', badge:'hot', rating:4.6, reviews:3102, shipping:true, desc:'Fita LED inteligente de 10m com app, controle por voz (Alexa/Google) e 16 milhões de cores.', features:['10 metros de comprimento','16 milhões de cores','Controle por voz','Compatível Alexa e Google','Instalação simples'] },
+  { id:4, name:'Tapete Antiderrapante Premium', cat:'Casa', price:89.90, old:149, discount:39, emoji:'🏠', badge:'new', rating:4.5, reviews:445, shipping:true, desc:'Tapete ecológico antiderrapante com design escandinavo. Lavável à máquina, resistente e macio.', features:['Material ecológico','Base antiderrapante','Lavável à máquina','Design escandinavo','Alta durabilidade'] },
+  { id:5, name:'Mini Massageador Portátil', cat:'Fitness', price:129.90, old:210, discount:38, emoji:'💆', badge:'sale', rating:4.9, reviews:2231, shipping:true, desc:'Pistola de massagem percussiva com 6 cabeças intercambiáveis, 30 níveis de intensidade e bateria de 5h.', features:['6 cabeças intercambiáveis','30 níveis de intensidade','Bateria de 5 horas','Motor silencioso','Estojo de transporte'] },
+  { id:6, name:'Tênis Running Ultralight', cat:'Moda', price:199.90, old:320, discount:37, emoji:'👟', badge:'hot', rating:4.7, reviews:1876, shipping:true, desc:'Tênis de corrida ultra leve com sola de borracha, tecnologia de amortecimento e palmilha ortopédica removível.', features:['Cabedal em mesh respirável','Amortecimento por gel','Palmilha ortopédica','Solado antiderrapante','Disponível em 8 cores'] },
+  { id:7, name:'Mochila Anti-Furto Executiva', cat:['Moda', 'Acessórios'], price:159.90, old:250, discount:36, emoji:'🎒', badge:'new', rating:4.8, reviews:987, shipping:false, desc:'Mochila com compartimento USB, bolso anti-RFID, material impermeável e capacidade de 28L.', features:['Porta USB embutida','Proteção RFID','Impermeável','28 litros de capacidade','Compartimento para notebook'] },
+  { id:8, name:'Secador de Cabelo Íon Pro', cat:['Beleza', 'Eletrônicos'], price:149.90, old:249, discount:39, emoji:'💇', badge:'sale', rating:4.6, reviews:654, shipping:true, desc:'Secador 2200W com tecnologia iônica, diffusor incluso e 3 velocidades para cabelos mais lisos e brilhosos.', features:['2200W de potência','Tecnologia iônica','Diffusor incluso','3 velocidades','Cabo giratório 360°'] },
+  { id:9, name:'Kit Skincare Vitamina C', cat:'Beleza', price:99.90, old:160, discount:37, emoji:'✨', badge:'hot', rating:4.9, reviews:4521, shipping:true, desc:'Kit completo com sérum, hidratante e protetor solar com vitamina C. Pele radiante em 30 dias.', features:['Sérum vitamina C 30ml','Hidratante FPS 30','Protetor solar facial','Dermatologicamente testado','Vegano e cruelty-free'] },
+  { id:10, name:'Raçao Premium para Cães', cat:'Pets', price:89.90, old:140, discount:35, emoji:'🐕', badge:'new', rating:4.8, reviews:1234, shipping:true, desc:'Ração super premium com proteína animal real, sem corantes artificiais e enriquecida com ômega-3.', features:['Proteína animal real','Sem corantes artificiais','Ômega-3 adicionado','Sem transgênicos','Veterinário aprovado'] },
+  { id:11, name:'Garrafa Térmica 1L Inox', cat:'Fitness', price:69.90, old:110, discount:36, emoji:'🍶', badge:'sale', rating:4.7, reviews:3876, shipping:true, desc:'Garrafa em aço inox 18/8 que mantém bebidas geladas por 24h e quentes por 12h. Tampa hermética.', features:['Aço inox 18/8 premium','Gelado 24h / Quente 12h','Tampa hermética','BPA Free','1 litro de capacidade'] },
+];
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
 let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
+let view        = 'grid';
+let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
@@ -27,6 +46,167 @@ function fishYates(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/* ─── SHUFFLE ────────────────────────────────────────────────────────── */
+function shuffleAndRender() {
+  shuffled = fishYates(products);
+  $('sortSelect').value = 'random';
+  renderProducts();
+  showToast('Produtos embaralhados! 🔀');
+}
+
+function loadShuffleAndRender() {
+  shuffled = fishYates(products);
+  $('sortSelect').value = 'random';
+  renderProducts();
+}
+
+/* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
+function renderProducts() {
+  const grid  = $('productsGrid');
+  const q =
+(
+  $('heroSearch')?.value ||
+  $('headerSearch')?.value ||
+ '').toLowerCase().trim();
+  
+  const sort  = $('sortSelect').value;
+
+  let list = [...shuffled];
+
+  /* search filter */
+  if (q) {
+    list = list.filter(p =>
+      p.name.toLowerCase().includes(q) || 
+      p.desc.toLowerCase().includes(q) ||
+      (Array.isArray(p.cat) 
+       ? p.cat.some(c => c.toLowerCase().includes(q)) 
+       : p.cat.toLowerCase().includes(q))
+    );
+  }
+
+  /* sort */
+  if      (sort === 'price_asc')  list.sort((a, b) => a.price    - b.price);
+  else if (sort === 'price_desc') list.sort((a, b) => b.price    - a.price);
+  else if (sort === 'rating')     list.sort((a, b) => b.rating   - a.rating);
+  else if (sort === 'discount')   list.sort((a, b) => b.discount - a.discount);
+
+  //$('productsCount').textContent = list.length;
+
+  /* empty state */
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">🔍</div>
+        <h3>Nenhum resultado encontrado</h3>
+        <p>Tente outro termo ou
+          <button class="btn-clear" onclick="$('searchInput').value='';renderProducts()">limpar a busca</button>
+        </p>
+      </div>`;
+    return;
+  }
+
+  /* render cards */
+  grid.innerHTML = list.map(p => {
+    const inW = fav.some(x => x.id === p.id);
+    const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
+                  : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
+                  :                     `<span class="bpill bsale">-${p.discount}%</span>`;
+    const shipH   = p.shipping
+      ? `<div class="pfship">
+           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+           Frete Grátis
+         </div>`
+      : '';
+
+    if (view === 'list') {
+      return `
+        <div class="pcard" onclick="openProduct(${p.id})">
+          <div class="pimg-wrap">
+            <div class="pimg">${p.emoji}</div>
+            <div class="pbadges">${badgeH}</div>
+          </div>
+          <div class="pinfo">
+            <div class="pcat">${p.cat}</div>
+            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(',&nbsp;') : p.cat}</div>
+            <div class="pname">${p.name}</div>
+            <div class="prating">
+              <span class="pstars">${starsHtml(p.rating)}</span>
+              <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
+            </div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6">
+              ${p.desc.substring(0, 130)}…
+            </div>
+            <div class="price-row">
+              <span class="pprice">${fmt(p.price)}</span>
+              <span class="pold">${fmt(p.old)}</span>
+              <span class="pdisc">-${p.discount}%</span>
+            </div>
+            ${shipH}
+            <div class="pactions">
+              <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+                <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Adicionar ao Carrinho
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="pcard" onclick="openProduct(${p.id})">
+        <div class="pimg-wrap">
+          <div class="pimg">${p.emoji}</div>
+          <div class="pbadges">${badgeH}</div>
+          <button class="pwish-btn ${inW ? 'on' : ''}"
+                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
+                  title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="pactions">
+            <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Carrinho
+            </button>
+            <button class="btn-qv" onclick="event.stopPropagation();openProduct(${p.id})" title="Ver detalhes">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="pinfo">
+          <div class="pcat">${p.cat}</div>
+          <div class="pname">${p.name}</div>
+          <div class="prating">
+            <span class="pstars">${starsHtml(p.rating)}</span>
+            <span class="prcnt">(${p.reviews.toLocaleString('pt-BR')})</span>
+          </div>
+          <div class="price-row">
+            <span class="pprice">${fmt(p.price)}</span>
+            <span class="pold">${fmt(p.old)}</span>
+            <span class="pdisc">-${p.discount}%</span>
+          </div>
+          ${shipH}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function setView(v) {
+  view = v;
+  $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
+  $('gridBtn').classList.toggle('on', v === 'grid');
+  $('listBtn').classList.toggle('on', v === 'list');
+  renderProducts();
+}
+
+function filterByCategory(event, category) {
+  const searchInput = document.getElementById('headerSearch');
+  if (searchInput) {
+    searchInput.value = category;
+    renderProducts();
+    document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
@@ -241,6 +421,27 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// NEWSLETTER
+function handleSubscribe() {
+  showToast('Inscrito! Você receberá descontos exclusivos 🎉');
+}
+
+// COUNTDOWN
+function updateCountdown() {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 0);
+  const diff = end - now;
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
 // BACK TO TOP
 window.addEventListener('scroll', () => {
   document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
@@ -248,18 +449,46 @@ window.addEventListener('scroll', () => {
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); }
+  if(e.key === 'Escape') { closeModal(); closeCart(); }
+});
+
+// INIT
+updateCart();
+renderProducts();
+loadShuffleAndRender();
+
+/* ─── ESC ────────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
 });
 
 // FAVICON
 const favicon = document.getElementById('favicon');
-function verificarTema(e) {
-  if (e.matches) {
-    favicon.href = '/images/favicon-light.png';
-  } else {
-    favicon.href = '/images/favicon-blue.png';
-  }
-}
-const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
-verificarTema(mqEscuro);
-mqEscuro.addEventListener('change', verificarTema);
+    
+    function verificarTema(e) {
+      if (e.matches) {
+        favicon.href = './images/favicon-light.png';
+      } else {
+        favicon.href = './images/favicon-blue.png';
+      }
+    }
+    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+    verificarTema(mqEscuro);
+    mqEscuro.addEventListener('change', verificarTema);
+
+// PRELOADER
+window.addEventListener('load', () => {
+  const preloader = document.getElementById('preloader');
+  document.body.classList.add("noscroll");
+  
+  setTimeout(() => {
+    preloader.classList.add('fade-out');
+    document.body.classList.remove('loading');
+    document.body.classList.remove("noscroll");
+    
+    setTimeout(() => {
+      preloader.style.display = 'none';
+    }, 800);
+    
+  }, 600);
+});
