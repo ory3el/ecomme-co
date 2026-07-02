@@ -5,16 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ecomme</title>
 
+<link rel="prefetch" href="/login">
 <link rel="stylesheet" href="styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="icon" id="favicon" type="image/png" href="../images/favicon-light.png">
+<link rel="icon" id="favicon" type="image/png" sizes="144x144" href="./images/favicon-light.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	
 </head>
 <body>
 
+<div id="preloader" class="preloader">
+  <div class="loader-content">
+    <img src="./images/mainlogo.png" class="logo-loading" alt="Ecomme">
+    </div>
+</div>
+	
 <!-- TOPBAR -->
 <div class="topbar" id="topbar">
   🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
@@ -24,21 +31,21 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <div class="logo">
+    <div class="logo_dark">
        <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-         <img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+         <img src="./images/mainlogo_dark.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
        </button>
     </div>
     <nav class="nav-main">
-      <a href="/">Início</a>
+      <a href="/" class="active">Início</a>
       <a href="/products">Produtos</a>
       <a href="/categories">Categorias</a>
       <a href="/">Ofertas</a>
-      <a href="/about-us" class="active">Sobre</a>
+      <a href="/about-us">Sobre</a>
     </nav>
     <div class="search-bar">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="filterProducts()">
+      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
     </div>
     <div class="header-actions">
       <button class="icon-btn" title="Lista de desejos" onclick="openFav()">
@@ -53,7 +60,7 @@
         <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Entrar
       </button>
-	  <button class="icon-btn" title="Abrir menu" onclick="openMenu()">
+	  <button class="icon-btn" title="Abrir menu" onclick="openMore()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     	  <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   		</svg>
@@ -62,250 +69,232 @@
   </div>
 </header>
 
-<!-- ABOUT HERO -->
-<section class="about-hero">
-  <div class="ah-center">
-    <div class="hero-tag">Nossa História</div>
-    <h1>Conectando pessoas ao<br><em>melhor do mercado</em></h1>
-    <p>A Ecomme nasceu para simplificar a forma como o Brasil compra online: produtos selecionados a dedo, preços justos e uma experiência de compra que você confia do clique à entrega.</p>
-
-    <div class="ah-stats">
-      <div class="ah-stat"><strong>2.4K+</strong><small>Produtos</small></div>
-      <div class="ah-stat"><strong>18K+</strong><small>Clientes</small></div>
-      <div class="ah-stat"><strong>4.9★</strong><small>Avaliação</small></div>
-      <div class="ah-stat"><strong>99%</strong><small>Satisfação</small></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-accent"></div>
+  <div class="hero-accent2"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <h1>Produtos de<br><em>Tendência</em><br>na Sua Porta</h1>
+      <p>Descubra milhares de produtos exclusivos com entrega rápida e os melhores preços do mercado com segurança, rapidez e praticidade.</p>
+      <div class="hero-btns">
+        <a href="/products" class="btn-primary">
+          Explorar Produtos
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        </a>
+        <a href="#" class="btn-outline">Ver Ofertas do Dia</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>2.4K+</strong><small>Produtos</small></div>
+        <div class="hero-stat"><strong>18K+</strong><small>Clientes</small></div>
+        <div class="hero-stat"><strong>4.9★</strong><small>Avaliação</small></div>
+        <div class="hero-stat"><strong>99%</strong><small>Satisfação</small></div>
+      </div>
     </div>
-  </div>
-</section>
-
-<!-- MISSION / STORY -->
-<section class="sec mission">
-  <div class="mission-grid">
-    <div class="mission-text">
-      <div class="sec-tag">Por que existimos</div>
-      <h2>Comprar online deveria ser <em>simples</em>, não um risco</h2>
-      <p>Tudo começou com uma pergunta simples: por que comprar pela internet ainda parece uma aposta? Preços que não fecham, prazos que nunca chegam, produtos que não são o que prometem.</p>
-      <p>Decidimos construir a Ecomme do jeito que gostaríamos de comprar: com curadoria de verdade, parceiros avaliados, frete transparente e um time de suporte que responde como gente, não como robô.</p>
-      <p>Hoje seguimos com o mesmo compromisso do primeiro dia — colocar o cliente no centro de cada decisão, por mais que a empresa cresça.</p>
-    </div>
-    <div class="mission-visual">
-      <div class="mv-circle1"></div>
-      <div class="mv-circle2"></div>
-      <div class="mv-quote-mark">"</div>
-      <p class="mv-quote">Não queremos ser apenas mais uma loja online. Queremos ser a marca em quem você confia de olhos fechados.</p>
-      <div class="mv-author">
-        <div class="mv-avatar">LC</div>
-        <div>
-          <div class="mv-author-name">Lucas Camargo</div>
-          <div class="mv-author-role">Cofundador & CEO</div>
+    <div class="hero-visual">
+      <div class="hero-cards">
+        <div class="hero-card featured" onclick="openProduct(0)">
+          <div class="hero-card-img">⌚</div>
+          <div>
+            <div class="hero-card-tag">🔥 Mais Vendido</div>
+            <div class="hero-card-name">Smartwatch Pro X7</div>
+            <div><span class="hero-card-price">R$ 189,90</span><span class="hero-card-old">R$ 299</span></div>
+          </div>
+        </div>
+        <div class="hero-card" onclick="openProduct(1)">
+          <div class="hero-card-img" style="font-size:40px">🎧</div>
+          <div class="hero-card-tag">Novo</div>
+          <div class="hero-card-name">Fone Sem Fio BT Pro</div>
+          <div><span class="hero-card-price">R$ 119,90</span></div>
+        </div>
+        <div class="hero-card" onclick="openProduct(3)">
+          <div class="hero-card-img" style="font-size:40px">💡</div>
+          <div class="hero-card-tag">-40%</div>
+          <div class="hero-card-name">Kit Luz LED Smart</div>
+          <div><span class="hero-card-price">R$ 79,90</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- VALUES -->
-<section class="sec values">
-  <div class="sec-head">
-    <div class="sec-tag">Nossos Valores</div>
-    <h2>O que guia cada decisão que tomamos</h2>
-    <p>Esses princípios não são frases de parede — eles definem como escolhemos parceiros, atendemos clientes e construímos o produto.</p>
-  </div>
-  <div class="values-grid">
-    <div class="value-card">
-      <div class="vc-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-      <h3>Cliente em primeiro lugar</h3>
-      <p>Cada funcionalidade, parceria e política nasce de uma pergunta: isso é bom para quem compra?</p>
+<!-- TRUST BADGES -->
+<div class="trust">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      <div class="trust-text"><strong>Entrega Garantida</strong><small>Rastreamento em tempo real</small></div>
     </div>
-    <div class="value-card">
-      <div class="vc-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-      <h3>Curadoria de verdade</h3>
-      <p>Todo produto passa por avaliação de qualidade antes de entrar no catálogo. Sem atalhos.</p>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="trust-text"><strong>Compra Segura</strong><small>SSL 256-bit criptografado</small></div>
     </div>
-    <div class="value-card">
-      <div class="vc-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <h3>Transparência total</h3>
-      <p>Preço, prazo e política de devolução claros desde a primeira tela — sem letras pequenas.</p>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+      <div class="trust-text"><strong>30 Dias de Devolução</strong><small>Sem perguntas feitas</small></div>
     </div>
-    <div class="value-card">
-      <div class="vc-icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <h3>Melhoria contínua</h3>
-      <p>Usamos dados e feedback real para evoluir a plataforma toda semana, não a cada ano.</p>
-    </div>
-  </div>
-</section>
-
-<!-- HOW WE WORK -->
-<section class="sec howwe">
-  <div class="sec-head">
-    <div class="sec-tag">Como Funcionamos</div>
-    <h2>Da seleção do produto até a sua porta</h2>
-  </div>
-  <div class="how-grid">
-    <div class="how-item">
-      <span class="how-num">01</span>
-      <h4>Curadoria de parceiros</h4>
-      <p>Avaliamos fornecedores por qualidade, reputação e capacidade logística antes de aceitá-los na plataforma.</p>
-    </div>
-    <div class="how-item">
-      <span class="how-num">02</span>
-      <h4>Validação de produtos</h4>
-      <p>Cada item é testado e revisado para garantir que a descrição corresponde exatamente ao que você recebe.</p>
-    </div>
-    <div class="how-item">
-      <span class="how-num">03</span>
-      <h4>Logística monitorada</h4>
-      <p>Acompanhamos cada etapa do envio com rastreamento em tempo real e alertas automáticos de atraso.</p>
-    </div>
-    <div class="how-item">
-      <span class="how-num">04</span>
-      <h4>Suporte humano</h4>
-      <p>Time de atendimento real, disponível por chat e WhatsApp, sem fila interminável de robô.</p>
-    </div>
-  </div>
-</section>
-
-<!-- TIMELINE -->
-<section class="sec timeline-sec">
-  <div class="sec-head" style="margin:0 auto 44px;text-align:center">
-    <div class="sec-tag" style="margin-left:auto;margin-right:auto">Nossa Jornada</div>
-    <h2>Ainda no início, já com grandes passos</h2>
-    <p style="margin:0 auto">A Ecomme está dando os primeiros passos — e já são passos largos. Acompanhe o que veio antes e o que vem a seguir.</p>
-  </div>
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">01 de Junho de 2026</div>
-      <div class="tl-card">
-        <h4>A ideia ganha forma</h4>
-        <p>Depois de meses validando fornecedores e testando produtos, o time fecha o catálogo inicial e a infraestrutura da plataforma.</p>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">10 de Junho de 2026</div>
-      <div class="tl-card">
-        <h4>Primeiras parcerias fechadas</h4>
-        <p>Mais de 30 fornecedores avaliados entram no catálogo inicial, cobrindo eletrônicos, moda, casa, beleza, fitness e pets.</p>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">18 de Junho de 2026 · Hoje</div>
-      <div class="tl-card">
-        <h4>Plataforma no ar <span class="tl-badge today">Hoje</span></h4>
-        <p>A Ecomme abre as portas ao público com frete grátis de lançamento e milhares de clientes já navegando no catálogo.</p>
-      </div>
-    </div>
-    <div class="tl-item future">
-      <div class="tl-dot"></div>
-      <div class="tl-date">Em breve</div>
-      <div class="tl-card">
-        <h4>Novas categorias e app mobile <span class="tl-badge soon">Em breve</span></h4>
-        <p>Expansão do catálogo, programa de fidelidade e um aplicativo dedicado para acompanhar pedidos de qualquer lugar.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TEAM -->
-<section class="sec team">
-  <div class="sec-head">
-    <div class="sec-tag">Bastidores</div>
-    <h2>Quem está construindo a Ecomme</h2>
-    <p>Um time pequeno, multidisciplinar e obcecado por resolver os pequenos detalhes que fazem a diferença na sua compra.</p>
-  </div>
-  <div class="team-grid">
-    <div class="team-card">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#2563EB,#60A5FA)">LC</div>
-      <h4>Lucas Camargo</h4>
-      <div class="team-role">Cofundador & CEO</div>
-      <p class="team-bio">Ex-logística, obcecado por reduzir prazos de entrega sem perder qualidade.</p>
-      <div class="team-social">
-        <a class="ts-btn" href="#" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V8h4v1.7A5 5 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
-        <a class="ts-btn" href="#" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/></svg></a>
-      </div>
-    </div>
-    <div class="team-card">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#10B981,#60A5FA)">BS</div>
-      <h4>Beatriz Souza</h4>
-      <div class="team-role">Cofundadora & COO</div>
-      <p class="team-bio">Lidera a curadoria de produtos e o relacionamento com fornecedores.</p>
-      <div class="team-social">
-        <a class="ts-btn" href="#" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V8h4v1.7A5 5 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
-        <a class="ts-btn" href="#" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/></svg></a>
-      </div>
-    </div>
-    <div class="team-card">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#F59E0B,#60A5FA)">RT</div>
-      <h4>Rafael Tavares</h4>
-      <div class="team-role">Head de Tecnologia</div>
-      <p class="team-bio">Construiu a plataforma do zero com foco em performance e segurança.</p>
-      <div class="team-social">
-        <a class="ts-btn" href="#" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V8h4v1.7A5 5 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
-        <a class="ts-btn" href="#" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/></svg></a>
-      </div>
-    </div>
-    <div class="team-card">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#EF4444,#60A5FA)">CM</div>
-      <h4>Carolina Mendes</h4>
-      <div class="team-role">Head de Atendimento</div>
-      <p class="team-bio">Garante que cada cliente seja tratado como gostaria de ser tratado.</p>
-      <div class="team-social">
-        <a class="ts-btn" href="#" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V8h4v1.7A5 5 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
-        <a class="ts-btn" href="#" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/></svg></a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TRUST STRIP -->
-<div class="stats-strip">
-  <div class="stats-inner">
-    <div class="stat-it">
-      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-      <div><strong>Entrega Garantida</strong><span class="sub">Rastreamento em tempo real</span></div>
-    </div>
-    <div class="stat-it">
-      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <div><strong>Compra Segura</strong><span class="sub">SSL 256-bit criptografado</span></div>
-    </div>
-    <div class="stat-it">
-      <div class="si-ico"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
-      <div><strong>30 Dias de Devolução</strong><span class="sub">Sem perguntas feitas</span></div>
-    </div>
-    <div class="stat-it">
-      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
-      <div><strong>Suporte 24/7</strong><span class="sub">Atendimento via chat e WhatsApp</span></div>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
+      <div class="trust-text"><strong>Suporte 24/7</strong><small>Atendimento via chat e WhatsApp</small></div>
     </div>
   </div>
 </div>
 
-<!-- CTA -->
-<section class="sec cta-sec">
-  <div class="cta-box">
-    <div class="cta-inner">
-      <h2>Quer fazer parte dessa jornada?</h2>
-      <p>Explore nosso catálogo com curadoria de verdade ou fale com nosso time — estamos só começando e adoraríamos te ouvir.</p>
-      <div class="cta-btns">
-        <a href="/products" class="btn-cta-primary">
-          Explorar Produtos
-          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
-        </a>
-        <a href="#" class="btn-cta-outline">Falar com o Suporte</a>
+<!-- CATEGORIES -->
+<section class="section" id="categorias" style="padding-top: 60px;">
+  <div class="section-header">
+    <h2>Categorias em Destaque</h2>
+    <a href="/categories">Ver todas →</a>
+  </div>
+	  <div class="categories-grid">
+    <div class="cat-card" onclick="filterByCategory(event, 'Eletrônicos')">
+      <div class="cat-card-icon">📱</div>
+      <div class="cat-card-name">Eletrônicos</div>
+      <div class="cat-card-count">📱 💻 ⌚ 🔌 🔋</div>
+    </div>
+    <div class="cat-card" onclick="filterByCategory(event, 'Moda')">
+      <div class="cat-card-icon">👗</div>
+      <div class="cat-card-name">Moda</div>
+      <div class="cat-card-count">👗 👠 💄 👜 🕶️</div>
+    </div>
+    <div class="cat-card" onclick="filterByCategory(event, 'Casa')">
+      <div class="cat-card-icon">🏠</div>
+      <div class="cat-card-name">Casa & Deco</div>
+      <div class="cat-card-count">🏠 🛋️ 🪴 🕯️ 🛠️</div>
+    </div>
+	<div class="cat-card" onclick="filterByCategory(event, 'Acessórios')">
+      <div class="cat-card-icon">👓</div>
+      <div class="cat-card-name">Acessórios</div>
+      <div class="cat-card-count">👓 🕶️ 🎩 👜 💍</div>
+    </div>
+    <div class="cat-card" onclick="filterByCategory(event, 'Fitness')">
+      <div class="cat-card-icon">💪</div>
+      <div class="cat-card-name">Fitness</div>
+      <div class="cat-card-count">💪 🏋️ 🏃‍♀️ 🥤 🥑</div>
+    </div>
+    <div class="cat-card" onclick="filterByCategory(event, 'Beleza')">
+      <div class="cat-card-icon">💄</div>
+      <div class="cat-card-name">Beleza</div>
+      <div class="cat-card-count">💄 💅 🧖‍♀️ 🧴 ✨</div>
+    </div>
+	<!--
+    <div class="cat-card" onclick="filterByCategory(event, 'Pets')">
+      <div class="cat-card-icon">🐾</div>
+      <div class="cat-card-name">Pets</div>
+      <div class="cat-card-count">🐾 🐶 🐱 🐠 🦜</div>
+    </div>
+	-->
+ </div>
+</section>
+
+<!-- PRODUCTS -->
+<div class="products-section" id="produtos">
+	<div class="deal-banner">
+      <div class="deal-emoji">⚡</div>
+      <div class="deal-text">
+        <div class="deal-tag">OFERTA DO DIA</div>
+        <h3>Até 60% OFF em<br>Eletrônicos Selecionados</h3>
+        <p>Não perca essa oportunidade. Estoque limitado!</p>
+      </div>
+      <div class="deal-countdown">
+        <div class="countdown-unit"><span class="countdown-num" id="cdH">00</span><div class="countdown-label">Horas</div></div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdM">00</span><div class="countdown-label">Min</div></div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdS">00</span><div class="countdown-label">Seg</div></div>
       </div>
     </div>
+	
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="tb-left">
+      <h2 class="tb-title">Produtos Disponíveis</h2>
+    </div>
+    <div class="tb-right">
+      <button class="btn-shuffle" onclick="shuffleAndRender()">
+        <svg viewBox="0 0 24 24">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+        </svg>
+        Embaralhar
+      </button>
+      <select class="sort-sel" id="sortSelect" onchange="renderProducts()">
+        <option value="random">Ordem Aleatória</option>
+        <option value="price_asc">Menor Preço</option>
+        <option value="price_desc">Maior Preço</option>
+        <option value="rating">Mais Avaliados</option>
+        <option value="discount">Maior Desconto</option>
+      </select>
+      <div class="view-btns">
+        <button class="vbtn on" id="gridBtn" onclick="setView('grid')" title="Grade">
+          <svg viewBox="0 0 16 16">
+            <rect x="0" y="0" width="7" height="7" rx="1"/><rect x="9" y="0" width="7" height="7" rx="1"/>
+            <rect x="0" y="9" width="7" height="7" rx="1"/><rect x="9" y="9" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+        <button class="vbtn" id="listBtn" onclick="setView('list')" title="Lista">
+          <svg viewBox="0 0 16 16">
+            <rect x="0" y="1" width="16" height="3" rx="1"/>
+            <rect x="0" y="7" width="16" height="3" rx="1"/>
+            <rect x="0" y="13" width="16" height="3" rx="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  <div class="products-grid" id="productsGrid"></div>
+	<div class="products-footer-actions">
+    <button class="products-footer-btn"
+        onclick="document.getElementById('produtos').scrollIntoView({behavior:'smooth'})">
+        ↑ Voltar ao topo
+    </button>
+    <a href="/products" class="products-footer-btn products-footer-primary">
+        Ver catálogo completo →
+    </a>
+</div>
   </div>
-</section>
+</div>
+
+<!-- BANNER ROW -->
+<div class="banner-row">
+  <div class="banner-card banner-1">
+    <div class="banner-card-bg"></div>
+    <div class="banner-emoji">🎮</div>
+    <div class="banner-content">
+      <div class="banner-sub">Novo Estoque</div>
+      <h3>Gaming &<br>Tecnologia</h3>
+      <p>Acessórios premium para gamers de todos os níveis</p>
+      <a href="#" class="btn-banner">Explorar →</a>
+    </div>
+  </div>
+  <div class="banner-card banner-2">
+    <div class="banner-card-bg"></div>
+    <div class="banner-emoji">💆</div>
+    <div class="banner-content">
+      <div class="banner-sub">Flash Sale</div>
+      <h3>Beleza &<br>Bem-Estar</h3>
+      <p>Skincare, maquiagem e produtos de autocuidado</p>
+      <a href="#" class="btn-banner">Ver Ofertas →</a>
+    </div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="newsletter">
+  <h2>Fique por Dentro das Novidades</h2>
+  <p>Receba ofertas exclusivas, lançamentos e cupons de desconto direto no seu e-mail</p>
+  <div class="newsletter-form">
+    <input class="newsletter-input" type="email" placeholder="Seu melhor e-mail...">
+    <button class="btn-subscribe" onclick="handleSubscribe()">Quero Descontos ✨</button>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <div class="logo">
-       <button onclick="buttonLink('../')">
-
-         <img src="../images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
+      <div class="footerLogo">
+       <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+         <img src="./images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
        </button>
 
       </div>
@@ -314,25 +303,25 @@
 
 	<a href="https://www.tiktok.com/">
         <div class="social-btn">
-<img src="../images/tiktok.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="TikTok Logo"/>
+<img src="./images/tiktok.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="TikTok Logo"/>
     </div>
 	</a>
 
 	<a href="https://www.facebook.com/">
         <div class="social-btn">
-<img src="../images/facebook.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Facebook Logo"/>
+<img src="./images/facebook.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Facebook Logo"/>
     </div>
 	</a>
 
 	<a href="https://www.instagram.com/">
         <div class="social-btn">
-<img src="../images/instagram.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Instagram Logo"/>
+<img src="./images/instagram.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Instagram Logo"/>
     </div>
 	</a>
 
 	<a href="https://wa.me/">
         <div class="social-btn">
-<img src="../images/whatsapp.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Whatsapp Logo"/>
+<img src="./images/whatsapp.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Whatsapp Logo"/>
     </div>
 	</a>
 
@@ -374,25 +363,25 @@
     <div class="payment-icons">
 
       <div class="pay-icon">
-<img src="../images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix Icon"/>
+<img src="./images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa Icon"/>
+<img src="./images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard Icon"/>
+<img src="./images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo Icon"/>
+<img src="./images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto Icon"/>
+<img src="./images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/picpay.png" style="width: 50px; height: auto; display: block;" alt="PicPay Icon"/>
+<img src="./images/payico/picpay.png" style="width: 50px; height: auto; display: block;" alt="PicPay Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/pagbank.png" style="width: 50px; height: auto; display: block;" alt="PagBank Icon"/>
+<img src="./images/payico/pagbank.png" style="width: 50px; height: auto; display: block;" alt="PagBank Icon"/>
       </div>
     </div>
   </div>
@@ -448,6 +437,85 @@
   </div>
 </div>
 
+<!-- MORE SIDEBAR -->
+<div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+<div class="more-sb" id="moreSidebar">
+	<div class="more-hd">
+    <h3>Mais Opções</h3>
+    <button class="more-cls" onclick="closeMore()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+
+	<div class="more-body">
+	<button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/user.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Meu Perfil</span>
+			<p class="btn-txt">Gerencie suas informações, preferências e configurações em um só lugar.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/setting.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Configurações</span>
+			<p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/my-orders'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/box.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Histórico de Compras</span>
+			<p class="btn-txt">Seu registro completo de todos os produtos adquiridos e transações realizadas.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/track-order'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/check.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Acompanhar Pedido</span>
+			<p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/bell.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Notificações</span>
+			<p class="btn-txt">Fique por dentro de tudo o que importa: alertas, mensagens e atualizações essenciais entregues em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/sellers'">
+		<div class="btn-content">
+			<img class="iconIMG" src="./images/icons/full/dashboard.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Página do Vendedor</span>
+			<p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/terms'">
+		<div class="btn-content">
+    		<span class="btn-title">Termos e Condições de Uso</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/support'">
+		<div class="btn-content">
+    		<span class="btn-title">Suporte</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="closeMore()">
+		<div class="btn-content">
+			<span class="btn-title">Fechar Menu</span>
+		</div>
+	</button>
+  </div>
+</div>
+	
 <!-- PRODUCT MODAL -->
 <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
   <div class="modal">
@@ -499,7 +567,7 @@
 </div>
 
 <!-- BACK TO TOP -->
-<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
