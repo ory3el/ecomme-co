@@ -1,0 +1,25 @@
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+    <button class="cart-cls" onclick="closeCart()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cartItems"></div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeCart()"><- Continuar Comprando</button>
+  </div>
+</div>
