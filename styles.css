@@ -934,19 +934,42 @@ body.loading {
   /* 1. HEADER (CABEÇALHO) */
   .header-inner {
     height: auto;
+    display: flex;
     flex-wrap: wrap;
     padding: 16px;
     gap: 16px;
+    /* Alinha o logo na esquerda e os ícones na direita: */
+    justify-content: space-between; 
+    align-items: center;
   }
+
+  /* 2. LOGO */
+  .logo { /* Substitua '.logo' pela classe real do seu logo */
+    order: 1; /* Garante que seja o primeiro item */
+  }
+
+  /* 3. BOTÕES (Coração, Carrinho, Entrar, Menu) */
+  .header-actions { /* Substitua pela classe real da div que agrupa esses botões */
+    order: 2; /* Coloca os ícones logo após o logo, na mesma linha */
+    display: flex; /* Mantém os ícones alinhados entre si */
+    gap: 10px; /* Ajuste o espaçamento entre os ícones se necessário */
+  }
+
+  /* 4. LINKS DE NAVEGAÇÃO (Início, Produtos...) */
   .nav-main {
+    order: 3; /* Joga os links para a linha de baixo do logo/ícones */
     overflow-x: auto;
-    width: 100%;
+    width: 100%; /* Força a quebra de linha */
     padding-bottom: 5px;
   }
+
+  /* 5. BARRA DE PESQUISA */
   .search-bar {
+    order: 4; /* Mantém na última linha */
     max-width: 100%;
-    order: 4; /* Joga a busca para a última linha do cabeçalho */
+    width: 100%;
   }
+}
 
   /* 2. HERO (BANNER PRINCIPAL) */
   .hero-inner {
