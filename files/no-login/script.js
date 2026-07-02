@@ -248,11 +248,17 @@ window.addEventListener('scroll', () => {
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); }
+  if(e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); }
 });
+
+// INIT
+updateCart();
+renderProducts();
+loadShuffleAndRender();
 
 // FAVICON
 const favicon = document.getElementById('favicon');
+    
 function verificarTema(e) {
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
