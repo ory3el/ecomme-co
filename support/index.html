@@ -421,8 +421,7 @@
 </section>
 
 <script>
-    fetch('../files/no-login/index.html')
-        .then(response => response.text())
+    fetch('/files/no-login/index.html')
         .then(response => {
             if (!response.ok) throw new Error("Erro ao carregar o arquivo");
             return response.text();
