@@ -15,8 +15,16 @@
 	
 </head>
 <body>
-<div id="index-content"></div>
+<div id="header-index"></div>
 
+<script>
+    fetch('../files/no-login/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-index').innerHTML = data;
+        });
+</script>
+	
 <script>
     fetch('../files/no-login/index.html')
         .then(response => {
