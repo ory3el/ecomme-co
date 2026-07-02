@@ -1026,6 +1026,7 @@ body.loading {
     grid-template-columns: 1fr; /* CORREÇÃO: Empilha as colunas do rodapé */
     gap: 30px;
     text-align: center;
+    align-items: center;
   }
   .footer-brand p {
     margin: 0 auto 20px;
