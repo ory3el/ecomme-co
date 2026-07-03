@@ -32,14 +32,6 @@
     ::-webkit-scrollbar-track { background: var(--bg3); }
     ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
-    /* ── BREADCRUMB ──────────────────────────────────────────── */
-    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
-    .breadcrumb { margin-top: 15px; max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
-    .breadcrumb a { margin-top: 15px; }
-    .breadcrumb a:hover { color: var(--blue); }
-    .breadcrumb .sep { margin-top: 15px; cursor: default; opacity: .5; }
-    .breadcrumb .cur { margin-top: 15px; cursor: default; color: var(--text); font-weight: 500; }
-
     /* ── TRACK HERO ──────────────────────────────────────────── */
     .track-hero { background: #fff; padding: 64px 28px 0; position: relative; overflow: hidden; }
     .track-hero::before { content: ''; position: absolute; top: -200px; right: -180px; width: 540px; height: 540px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,.07) 0%, transparent 70%); pointer-events: none; }
