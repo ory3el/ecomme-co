@@ -109,32 +109,33 @@ function renderNotifications(skipAnim) {
   wrap.innerHTML = html;
 }
 
-const card
-const card
-
 function renderItem(n, delay) {
+  const safeTitle = DOMPurify.sanitize(n.title);
+  const safeText  = DOMPurify.sanitize(n.text);
+
   const ctaHtml = n.cta
     ? `<div class="ni-cta-row">
          <a class="ni-cta ${n.cta.icon === 'order' ? 'primary' : 'ghost'}" href="${n.cta.href}" onclick="event.stopPropagation()">${n.cta.label}</a>
        </div>`
     : '';
+
   return `
     <div class="notif-item ${n.read ? '' : 'unread'} ${n._isNew ? 'new-arrival' : ''}" id="ni-${n.id}"
          style="animation-delay:${delay}s" onclick="openNotification('${n.id}')">
       <div class="ni-icon ${n.type}">${iconMap[n.type]}</div>
       <div class="ni-body">
         <div class="ni-top">
-          <span class="ni-title">${n.title}</span>
+          <span class="ni-title">${safeTitle}</span>
           <span class="ni-time">${n.time}</span>
         </div>
-        <div class="ni-text">${n.text}</div>
+        <div class="ni-text">${safeText}</div>
         ${ctaHtml}
       </div>
       <div class="ni-side">
         <span class="ni-dot ${n.read ? 'hidden-dot' : ''}" id="dot-${n.id}"></span>
         <button class="ni-del" onclick="event.stopPropagation();deleteNotification('${n.id}')" title="Remover">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+                </button>
       </div>
     </div>`;
 }
