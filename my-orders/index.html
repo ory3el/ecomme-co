@@ -97,72 +97,43 @@
 <footer id="index-footer"></footer>
 <div id="index-sidebars"></div>
 
-<!-- ---------------------------------------------------------- -->
-	
+<!-- --LOGIN ON------------------------------------------------ -->
+
 <script>
-    fetch('/files/no-login/index-files/topbar.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-topbar').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-topbar').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
+  async function loadComponents() {
+    try {
+      const [topbarRes, headerRes, footerRes, sidebarsRes] = await Promise.all([
+        fetch('/files/no-login/index-files/topbar.html'),
+        fetch('/files/login-on/index-files/header.html'),
+        fetch('/files/no-login/index-files/footer.html'),
+        fetch('/files/no-login/index-files/sidebars.html')
+      ]);
 
-// ----------------------------------------------------------------
-	
-    fetch('/files/login-on/index-files/header.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-header').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-header').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
+      const topbarHTML = await topbarRes.text();
+      const headerHTML = await headerRes.text();
+      const footerHTML = await footerRes.text();
+      const sidebarsHTML = await sidebarsRes.text();
 
-// ----------------------------------------------------------------
-	
-	fetch('/files/no-login/index-files/footer.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-footer').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-footer').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
+      document.getElementById('index-topbar').innerHTML = topbarHTML;
+      document.getElementById('index-header').innerHTML = headerHTML;
+      document.getElementById('index-footer').innerHTML = footerHTML;
+      document.getElementById('index-sidebars').innerHTML = sidebarsHTML;
 
-// ----------------------------------------------------------------
-	
-	fetch('/files/no-login/index-files/sidebars.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-sidebars').innerHTML = data;
-			
-            const script = document.createElement('script');
-            script.src = '/files/no-login/scripts/script.js';
-            document.body.appendChild(script);
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-sidebars').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
+      const sidebarScript = document.createElement('script');
+      sidebarScript.src = '/files/no-login/scripts/script.js';
+      document.body.appendChild(sidebarScript);
+
+      const mainScript = document.createElement('script');
+      mainScript.src = 'script.js';
+      document.body.appendChild(mainScript);
+
+    } catch (error) {
+      console.error("Erro no carregamento dos componentes:", error);
+      document.getElementById('index-header').innerHTML = "<h1>Erro ao carregar a interface. Verifique o console.</h1>";
+    }
+  }
+  loadComponents();
 </script>
 	
-<script src="script.js"></script>
 </body>
 </html>
