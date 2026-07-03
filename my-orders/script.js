@@ -248,3 +248,5 @@ function getFilteredSortedList() {
   if (sort === 'menor')    list.sort((a, b) => a.total - b.total);
   return list;
 }
+
+renderOrders();
