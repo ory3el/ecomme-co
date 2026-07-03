@@ -11,10 +11,9 @@
       display: flex; align-items: center; gap: 24px; height: 68px;
     }
     .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 700; color: var(--blue);
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      letter-spacing: .5px;
+      /*filter: brightness(0) invert(1); drop-shadow: 0 0 0 #fff;*/
+      /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
     .logo-dot {
       width: 7px; height: 7px; background: var(--blue);
