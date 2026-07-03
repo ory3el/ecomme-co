@@ -37,8 +37,8 @@
     .breadcrumb { margin-top: 15px; max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
     .breadcrumb a { margin-top: 15px; }
     .breadcrumb a:hover { color: var(--blue); }
-    .breadcrumb .sep { margin-top: 15px; opacity: .5; }
-    .breadcrumb .cur { margin-top: 15px; color: var(--text); font-weight: 500; }
+    .breadcrumb .sep { margin-top: 15px; cursor: default; opacity: .5; }
+    .breadcrumb .cur { margin-top: 15px; cursor: default; color: var(--text); font-weight: 500; }
 
     /* ── TRACK HERO ──────────────────────────────────────────── */
     .track-hero { background: #fff; padding: 64px 28px 0; position: relative; overflow: hidden; }
