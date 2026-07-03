@@ -33,7 +33,7 @@
     ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
     /* ── BREADCRUMB ──────────────────────────────────────────── */
-    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
+    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); margin-top: 10px; }
     .breadcrumb { max-width: 1440px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
     .breadcrumb a:hover { color: var(--blue); }
     .breadcrumb .sep { opacity: .5; }
