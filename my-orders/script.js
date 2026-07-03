@@ -127,6 +127,13 @@ function renderOrders() {
   }
 
   wrap.innerHTML = list.map((o, i) => {
+    /* 🛡️ SANITIZAÇÃO DE SEGURANÇA (XSS) */
+    // Limpamos todos os textos que podem vir de inputs externos ou banco de dados
+    const safeNum         = DOMPurify.sanitize(o.num);
+    const safeNote        = DOMPurify.sanitize(o.note);
+    const safeStatusLabel = DOMPurify.sanitize(o.statusLabel);
+    const safeDateLabel   = DOMPurify.sanitize(o.dateLabel);
+
     const thumbs = o.items.slice(0, 3).map(it => `<div class="oc-thumb">${it.emoji}</div>`).join('');
     const extra  = o.items.length > 3 ? `<div class="oc-thumb more">+${o.items.length - 3}</div>` : '';
     const itemsLabel = `${o.items.length} ${o.items.length === 1 ? 'item' : 'itens'}`;
@@ -136,23 +143,18 @@ function renderOrders() {
     const noteBox = isCancel
       ? `<div class="od-info-box cancel-note">
            <h5><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Pedido Cancelado</h5>
-           <p>${o.note}</p>
-         </div>`
+           <p>${safeNote}</p> </div>`
       : `<div class="od-info-box">
            <h5><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Status da Entrega</h5>
-           <p>${o.note}</p>
-         </div>`;
+           <p>${safeNote}</p> </div>`;
 
     return `
       <div class="order-card" id="oc-${i}">
         <div class="oc-main">
           <div class="oc-id-col">
-            <div class="oc-num">#${o.num}</div>
-            <div class="oc-date">${o.dateLabel}</div>
-          </div>
+            <div class="oc-num">#${safeNum}</div> <div class="oc-date">${safeDateLabel}</div> </div>
           <div class="oc-status-col">
-            <span class="status-pill ${o.pillClass}"><span class="dot"></span>${o.statusLabel}</span>
-          </div>
+            <span class="status-pill ${o.pillClass}"><span class="dot"></span>${safeStatusLabel}</span> </div>
           <div class="oc-items-col">
             <div class="oc-thumbs">${thumbs}${extra}</div>
             <span class="oc-items-label">${itemsLabel}</span>
@@ -174,15 +176,17 @@ function renderOrders() {
         <div class="oc-detail" id="ocDetail-${i}">
           <div class="oc-detail-inner">
             <div class="od-items">
-              ${o.items.map(it => `
+              ${o.items.map(it => {
+                const safeName = DOMPurify.sanitize(it.name);
+                return `
                 <div class="od-item">
                   <div class="od-img">${it.emoji}</div>
                   <div class="od-info">
-                    <div class="od-name">${it.name}</div>
-                    <div class="od-qty">Qtd: ${it.qty}</div>
+                    <div class="od-name">${safeName}</div> <div class="od-qty">Qtd: ${it.qty}</div>
                   </div>
                   <div class="od-price">${fmt(it.price)}</div>
-                </div>`).join('')}
+                </div>`;
+              }).join('')}
             </div>
             <div class="od-side">
               ${noteBox}
