@@ -254,15 +254,6 @@ function savePrefs() {
 }
  
 /* ─── INIT ───────────────────────────────────────────────────────────── */
-updateCart();
-function updateCart() {
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const count = cart.reduce((s, i) => s + i.qty, 0);
-  $('cartBadge').textContent = count;
-  $('cartCount').textContent = `(${count})`;
-  $('cartSub').textContent   = 'R$ 0,00';
-  $('cartTotal').textContent = 'R$ 0,00';
-}
 renderNotifications(true);
 requestAnimationFrame(() => {
   const active = document.querySelector('.ftab.active');
