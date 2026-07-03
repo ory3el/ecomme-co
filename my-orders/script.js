@@ -21,6 +21,8 @@ const customerEmail = 'mariana.ferreira@exemplo.com';
 
 /* ─── ORDERS DATA — kept in sync with the mock DB in /track-order ───── */
 const orders = [
+
+  /*
   {
     num: 'EC2026-48271',
     dateLabel: '18 de junho de 2026',
@@ -89,6 +91,7 @@ const orders = [
     total: 99.90,
     note: 'Cancelado em 03/06/2026 a pedido do cliente. Reembolso processado via Pix em 05/06/2026.'
   },
+  */
 ];
 
 /* ─── RENDER ORDERS ──────────────────────────────────────────────────── */
