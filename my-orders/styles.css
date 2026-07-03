@@ -95,7 +95,7 @@
     .oc-items-label { font-size: 12px; color: var(--muted); }
 
     .oc-total-col { text-align: right; flex-shrink: 0; min-width: 110px; }
-    .oc-total { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--blue); }
+    .oc-total { font-family: 'Outfit', serif; font-size: 20px; font-weight: 500; color: var(--blue); }
     .oc-total-label { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
 
     .oc-actions-col { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -136,7 +136,7 @@
     /* empty state */
     .empty-orders { text-align: center; padding: 70px 20px; background: #fff; border: 1px solid var(--border2); border-radius: var(--rad-lg); }
     .empty-orders .ico { font-size: 52px; margin-bottom: 16px; }
-    .empty-orders h3 { font-family: 'Outfit', serif; font-size: 24px; margin-bottom: 8px; }
+    .empty-orders h3 { font-family: 'Outfit', serif; font-weight: 500; font-size: 24px; margin-bottom: 8px; }
     .empty-orders p { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
     .btn-clear-filters { color: var(--blue); font-weight: 600; font-size: 13px; text-decoration: underline; }
 
