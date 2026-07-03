@@ -11,8 +11,8 @@
       display: flex; align-items: center; gap: 24px; height: 68px;
     }
     .logo {
-      flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      filter: brightness(255) invert(0) drop-shadow: 0 0 0 #000;
+      flex-shrink: 0; display: flex; 
+      align-items: center; gap: 5px; filter: none;
       /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
     .logo-dot {
