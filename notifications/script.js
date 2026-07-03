@@ -1,6 +1,5 @@
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
-
+const $ = id => document.getElementById(id);
+ 
 /* ─── NOTIFICATIONS DATA ─────────────────────────────────────────────── */
 let notifications = [
   {
@@ -58,7 +57,7 @@ let notifications = [
     cta: { label: 'Explorar Produtos', href: 'products.html', icon: 'ghost' }
   },
 ];
-
+ 
 const iconMap = {
   order:     `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
   promo:     `<svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
@@ -67,23 +66,23 @@ const iconMap = {
   account:   `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   delivered: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>`,
 };
-
+ 
 const groupLabels = { hoje: 'Hoje', ontem: 'Ontem', semana: 'Esta Semana', antigas: 'Mais Antigas' };
 const groupOrder  = ['hoje', 'ontem', 'semana', 'antigas'];
-
+ 
 let currentFilter = 'todas';
-
+ 
 /* ─── RENDER ─────────────────────────────────────────────────────────── */
 function renderNotifications(skipAnim) {
   updateCounts();
   const wrap = $('notifSection');
-
+ 
   let list = notifications.filter(n => {
     if (currentFilter === 'todas') return true;
     if (currentFilter === 'nao-lidas') return !n.read;
     return n.type === currentFilter;
   });
-
+ 
   if (!list.length) {
     wrap.innerHTML = `
       <div class="empty-notif">
@@ -93,7 +92,7 @@ function renderNotifications(skipAnim) {
       </div>`;
     return;
   }
-
+ 
   let html = '';
   let delayIdx = 0;
   groupOrder.forEach(g => {
@@ -106,10 +105,10 @@ function renderNotifications(skipAnim) {
       html += renderItem(n, delay);
     });
   });
-
+ 
   wrap.innerHTML = html;
 }
-
+ 
 function renderItem(n, delay) {
   const ctaHtml = n.cta
     ? `<div class="ni-cta-row">
@@ -136,7 +135,7 @@ function renderItem(n, delay) {
       </div>
     </div>`;
 }
-
+ 
 /* ─── COUNTS ─────────────────────────────────────────────────────────── */
 function updateCounts() {
   const total   = notifications.length;
@@ -144,19 +143,19 @@ function updateCounts() {
   const order   = notifications.filter(n => n.type === 'order' || n.type === 'delivered').length;
   const promo   = notifications.filter(n => n.type === 'promo').length;
   const system  = notifications.filter(n => n.type === 'system' || n.type === 'account').length;
-
+ 
   $('cnt-todas').textContent      = total;
   $('cnt-nao-lidas').textContent  = unread;
   $('cnt-order').textContent      = order;
   $('cnt-promo').textContent      = promo;
   $('cnt-system').textContent     = system;
-
+ 
   $('unreadCountText').textContent = unread;
   $('bellBadge').textContent = unread;
   $('bellBadge').style.display = unread ? 'flex' : 'none';
   $('readAllBtn').disabled = unread === 0;
 }
-
+ 
 /* ─── INTERACTIONS ───────────────────────────────────────────────────── */
 function openNotification(id) {
   const n = notifications.find(x => x.id === id);
@@ -174,7 +173,7 @@ function openNotification(id) {
     }
   }
 }
-
+ 
 function deleteNotification(id) {
   const el = $('ni-' + id);
   if (!el) return;
@@ -185,7 +184,7 @@ function deleteNotification(id) {
     showToast('Notificação removida');
   }, 320);
 }
-
+ 
 function markAllRead() {
   const hadUnread = notifications.some(n => !n.read);
   if (!hadUnread) return;
@@ -196,7 +195,7 @@ function markAllRead() {
   showToast('Todas as notificações foram marcadas como lidas ✓');
   setTimeout(() => renderNotifications(true), 300);
 }
-
+ 
 /* ─── DEMO: simulate a new incoming notification ────────────────────── */
 function simulateNewNotification() {
   const demoPool = [
@@ -214,21 +213,21 @@ function simulateNewNotification() {
   currentFilter = 'todas';
   setActiveTab(document.querySelector('.ftab[data-filter="todas"]'));
   renderNotifications(true);
-
+ 
   $('bellBtn').classList.add('ring');
   $('bellBadge').classList.add('pop');
   setTimeout(() => { $('bellBtn').classList.remove('ring'); $('bellBadge').classList.remove('pop'); }, 700);
-
+ 
   showToast('Nova notificação recebida 🔔');
 }
-
+ 
 /* ─── FILTER TABS ────────────────────────────────────────────────────── */
 function setActiveTab(btn) {
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   movePill(btn);
 }
-
+ 
 function movePill(btn) {
   const bg = $('filterPillBg');
   const wrapRect = $('filterTabs').getBoundingClientRect();
@@ -236,7 +235,7 @@ function movePill(btn) {
   bg.style.left  = (btnRect.left - wrapRect.left) + 'px';
   bg.style.width = btnRect.width + 'px';
 }
-
+ 
 document.querySelectorAll('.ftab').forEach(btn => {
   btn.addEventListener('click', () => {
     currentFilter = btn.dataset.filter;
@@ -244,7 +243,7 @@ document.querySelectorAll('.ftab').forEach(btn => {
     renderNotifications();
   });
 });
-
+ 
 /* ─── SETTINGS PANEL ─────────────────────────────────────────────────── */
 function openSettings()  { $('settingsPanel').classList.add('on'); $('settingsOverlay').classList.add('on'); }
 function closeSettings() { $('settingsPanel').classList.remove('on'); $('settingsOverlay').classList.remove('on'); }
@@ -253,7 +252,17 @@ function savePrefs() {
   showToast('Preferências salvas com sucesso! ⚙️');
   closeSettings();
 }
-
+ 
+/* ─── INIT ───────────────────────────────────────────────────────────── */
+updateCart();
+function updateCart() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  $('cartBadge').textContent = count;
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent   = 'R$ 0,00';
+  $('cartTotal').textContent = 'R$ 0,00';
+}
 renderNotifications(true);
 requestAnimationFrame(() => {
   const active = document.querySelector('.ftab.active');
