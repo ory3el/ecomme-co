@@ -8,27 +8,6 @@ let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
 
-/* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
-
-function starsHtml(r) {
-  let s = '';
-  const f = Math.floor(r);
-  for (let i = 0; i < f; i++)    s += '★';
-  for (let i = f; i < 5; i++)    s += '☆';
-  return s;
-}
-
-function fishYates(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   const p  = products.find(x => x.id === id);
@@ -86,7 +65,6 @@ function updateCart() {
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>`).join('');
-  renderProducts();
 }
 
 function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
@@ -164,7 +142,6 @@ function updateFav() {
         </svg>
       </button>
     </div>`).join('');
-  renderProducts();
 }
   
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
@@ -177,8 +154,7 @@ function addAllFavToCart() {
     addToCart(produto.id, 1);
   });
   fav = []; 
-  updateFav(); 
-  renderProducts();
+  updateFav();
   // saveFav(); 
   closeFav();
   openCart();
@@ -250,11 +226,6 @@ window.addEventListener('scroll', () => {
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); }
 });
-
-// INIT
-updateCart();
-renderProducts();
-loadShuffleAndRender();
 
 // FAVICON
 const favicon = document.getElementById('favicon');
