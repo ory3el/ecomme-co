@@ -6,7 +6,7 @@
 <title>Suporte | Ecomme</title>
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="/files/no-login/styles.css">
+<link rel="stylesheet" href="/files/no-login/light-theme/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="icon" id="favicon" type="image/png" sizes="144x144" href="/images/favicon-light.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -425,7 +425,7 @@
 <div id="index-sidebars"></div>
 	
 <script>
-    fetch('/files/no-login/design_1/topbar.html')
+    fetch('/files/no-login/index-files/topbar.html')
         .then(response => {
             if (!response.ok) throw new Error("Erro ao carregar o arquivo");
             return response.text();
@@ -440,7 +440,7 @@
 
 // ----------------------------------------------------------------
 	
-    fetch('/files/no-login/design_1/header.html')
+    fetch('/files/no-login/index-files/header.html')
         .then(response => {
             if (!response.ok) throw new Error("Erro ao carregar o arquivo");
             return response.text();
@@ -455,7 +455,7 @@
 
 // ----------------------------------------------------------------
 	
-	fetch('/files/no-login/design_1/footer.html')
+	fetch('/files/no-login/index-files/footer.html')
         .then(response => {
             if (!response.ok) throw new Error("Erro ao carregar o arquivo");
             return response.text();
@@ -470,7 +470,7 @@
 
 // ----------------------------------------------------------------
 	
-	fetch('/files/no-login/design_1/sidebars.html')
+	fetch('/files/no-login/index-files/sidebars.html')
         .then(response => {
             if (!response.ok) throw new Error("Erro ao carregar o arquivo");
             return response.text();
@@ -479,7 +479,7 @@
             document.getElementById('index-sidebars').innerHTML = data;
 			
             const script = document.createElement('script');
-            script.src = '/files/no-login/script.js';
+            script.src = '/files/no-login/scripts/script.js';
             document.body.appendChild(script);
         })
         .catch(error => {
