@@ -108,7 +108,10 @@ function renderNotifications(skipAnim) {
  
   wrap.innerHTML = html;
 }
- 
+
+const card
+const card
+
 function renderItem(n, delay) {
   const ctaHtml = n.cta
     ? `<div class="ni-cta-row">
