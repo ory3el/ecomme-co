@@ -80,19 +80,19 @@
             <img src="../images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
           </span><span class="nav-lbl">Meu Perfil</span><span class="nav-arrow">›</span>
         </button>
-        <button class="nav-item" data-panel="orders" onclick="showPanel('orders',this)">
+        <!-- <button class="nav-item" data-panel="orders" onclick="showPanel('orders',this)">
           <span class="nav-ico">
             <img src="../images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
-          </span><span class="nav-lbl">Meus Pedidos</span>
+          </span><span class="nav-lbl">Minhas Compras</span>
           <span class="nav-badge">0</span>
-        </button>
+        </button> -->
         <button class="nav-item" data-panel="wishlist" onclick="showPanel('wishlist',this)">
           <span class="nav-ico">❤️</span><span class="nav-lbl">Lista de Desejos</span>
           <span class="nav-badge">0</span>
         </button>
         <button class="nav-item" data-panel="coupons" onclick="showPanel('coupons',this)">
           <span class="nav-ico">🎟️</span><span class="nav-lbl">Meus Cupons</span>
-          <span class="nav-badge red">2</span>
+          <span class="nav-badge">0</span>
         </button>
         <button class="nav-item" data-panel="reviews" onclick="showPanel('reviews',this)">
           <span class="nav-ico">
@@ -215,7 +215,7 @@
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meus Pedidos</h2><p>Acompanhe e gerencie seus pedidos</p></div>
         <div style="display:flex;gap:8px">
-          <button class="btn-outline" onclick="showPanel('profile')">🔍 Rastrear pedido</button>
+          <button class="btn-outline" onclick="buttomLink(/track-order)">🔍 Rastrear Pedidos</button>
         </div>
       </div>
       <!-- filters -->
@@ -307,12 +307,12 @@
     <!-- ════ FAVORITOS ════ -->
     <div class="panel" id="panel-wishlist">
       <div class="panel-hd">
-        <div class="panel-hd-left"><h2>Lista de Desejos</h2><p>8 produtos salvos</p></div>
+        <div class="panel-hd-left"><h2>Lista de Desejos</h2><p>0 produtos salvos</p></div>
         <button class="btn-primary" onclick="toast('Adicionando tudo ao carrinho! 🛒')">🛒 Adicionar tudo ao carrinho</button>
       </div>
       <div class="card">
         <div class="wish-grid">
-          <div class="wcard">
+          <!-- <div class="wcard">
             <div class="wcard-img">
               ⌚
               <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Smartwatch')">✕</button>
@@ -347,7 +347,7 @@
               💆
               <button class="wcard-rm" onclick="event.stopPropagation();removeWish(this,'Massageador')">✕</button>
             </div><div class="wcard-info"><div class="wcard-cat">Fitness</div><div class="wcard-name">Pistola de Massagem Pro</div><div><span class="wcard-price">R$ 129,90</span><span class="wcard-old">R$ 210</span></div>
-              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div>
+              <button class="wcard-add" onclick="addFromModal()">+ Adicionar ao carrinho</button></div></div> -->
         </div>
       </div>
     </div>
@@ -613,12 +613,13 @@
     <!-- ════ CONFIGURAÇÕES ════ -->
     <div class="panel active" id="panel-settings">
       <div class="panel-hd">
-        <div class="panel-hd-left"><h2>Configurações</h2><p>Personalize sua experiência no DropShop</p></div>
+        <div class="panel-hd-left"><h2>Configurações</h2><p>Personalize sua experiência na Ecomme</p></div>
         <button class="btn-primary" onclick="toast('Configurações salvas! ✓')">💾 Salvar</button>
       </div>
       <div class="card">
         <div class="settings-section">
           <div class="settings-title">Aparência</div>
+          <div class="setting-row"><div class="setting-left"><h4>Ícones Estilizados</h4><p>Ícones personalizados com identidade visual marcante.</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
           <div class="setting-row"><div class="setting-left"><h4>Tema</h4><p>Escolha entre claro, escuro ou automático</p></div><div class="theme-btns"><div class="theme-btn light on" onclick="setTheme(this,'light')" title="Claro">☀️</div><div class="theme-btn dark" onclick="setTheme(this,'dark')" title="Escuro">🌙</div><div class="theme-btn auto" onclick="setTheme(this,'auto')" title="Automático">⚙️</div></div></div>
           <div class="setting-row"><div class="setting-left"><h4>Idioma</h4><p>Idioma exibido na interface</p></div><select class="lang-sel"><option>🇧🇷 Português (BR)</option><option>🇺🇸 English (US)</option><option>🇪🇸 Español</option></select></div>
           <div class="setting-row"><div class="setting-left"><h4>Moeda</h4><p>Moeda para exibição de preços</p></div><select class="currency-sel" class="fselect" style="background:#f8fafd;border:1.5px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:12px;outline:none;cursor:pointer;font-family:inherit;color:#0f1a2e"><option>R$ — Real Brasileiro</option><option>$ — Dólar Americano</option><option>€ — Euro</option></select></div>
