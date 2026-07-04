@@ -4,8 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TechPrime Store — Perfil do Vendedor | Ecomme</title>
+
+  <link rel="icon" id="favicon" type="image/png" href="../images/favicon-light.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/files/no-login/styles/styles.css">
+  <link rel="stylesheet" href="/files/login-on/styles/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.11/purify.min.js"></script>
+
+</head>
+<body>
+
   <style>
     :root {
       --blue:      #2563EB;
@@ -450,40 +462,9 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar" id="topbar">
-  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
-  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
-    <nav class="nav-main">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/categories">Categorias</a>
-      <a href="#">Ofertas</a>
-      <a href="/about">Sobre</a>
-    </nav>
-    <div class="header-spacer"></div>
-    <div class="header-actions">
-      <button class="icon-btn" onclick="showToast('Abrindo notificações...')">
-        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="hd-badge">3</span>
-      </button>
-      <button class="icon-btn" onclick="openCart()">
-        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="hd-badge" id="cartBadge">0</span>
-      </button>
-      <button class="btn-account">
-        <span class="acc-avatar">MF</span>Mariana Ferreira
-      </button>
-    </div>
-  </div>
-</header>
-
+<div id="index-topbar"></div>
+<header id="index-header"></header>
+  
 <!-- BREADCRUMB -->
 <div class="breadcrumb-bar">
   <div class="breadcrumb">
@@ -763,36 +744,8 @@
   <span id="bellPillText">Notificações ativadas para TechPrime Store</span>
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="ft-inner">
-    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
-    <div class="ft-links">
-      <a href="/">Início</a><a href="/products">Produtos</a><a href="/about">Sobre Nós</a>
-      <a href="/track-order">Rastrear Pedido</a><a href="/support">Suporte</a>
-    </div>
-    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
-  </div>
-</footer>
-
-<!-- CART SIDEBAR -->
-<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-sb" id="cartSidebar">
-  <div class="cart-hd"><h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3><button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="cart-body" id="cartItems"><div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div></div>
-  <div class="cart-ft">
-    <div class="cart-tots">
-      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
-      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
-      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
-    </div>
-    <button class="btn-ckout" onclick="checkout()"><svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Finalizar Compra</button>
-    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
-<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
+<footer id="index-footer"></footer>
+<div id="index-sidebars"></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -1039,5 +992,44 @@ document.querySelectorAll('.pi-stat-val').forEach((el, i) => {
   el.style.animationDelay = (i * 0.08) + 's';
 });
 </script>
+
+<!-- --LOGIN ON------------------------------------------------ -->
+
+<script>
+  async function loadComponents() {
+    try {
+      const [topbarRes, headerRes, footerRes, sidebarsRes] = await Promise.all([
+        fetch('/files/no-login/index-files/topbar.html'),
+        fetch('/files/login-on/index-files/header.html'),
+        fetch('/files/no-login/index-files/footer.html'),
+        fetch('/files/no-login/index-files/sidebars.html')
+      ]);
+
+      const topbarHTML = await topbarRes.text();
+      const headerHTML = await headerRes.text();
+      const footerHTML = await footerRes.text();
+      const sidebarsHTML = await sidebarsRes.text();
+
+      document.getElementById('index-topbar').innerHTML = topbarHTML;
+      document.getElementById('index-header').innerHTML = headerHTML;
+      document.getElementById('index-footer').innerHTML = footerHTML;
+      document.getElementById('index-sidebars').innerHTML = sidebarsHTML;
+
+      const sidebarScript = document.createElement('script');
+      sidebarScript.src = '/files/no-login/scripts/script.js';
+      document.body.appendChild(sidebarScript);
+
+      const mainScript = document.createElement('script');
+      mainScript.src = 'script.js';
+      document.body.appendChild(mainScript);
+
+    } catch (error) {
+      console.error("Erro no carregamento dos componentes:", error);
+      document.getElementById('index-header').innerHTML = "<h1>Erro ao carregar a interface. Verifique o console.</h1>";
+    }
+  }
+  loadComponents();
+</script>
+  
 </body>
 </html>
