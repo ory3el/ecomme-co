@@ -315,12 +315,12 @@
         fetch('/files/no-login/index-files/sidebars.html')
       ]);
 
-      const topbarHTML = await topbarRes.text();
+      //const topbarHTML = await topbarRes.text();
       const headerHTML = await headerRes.text();
       const footerHTML = await footerRes.text();
       const sidebarsHTML = await sidebarsRes.text();
 
-      document.getElementById('index-topbar').innerHTML = topbarHTML;
+      //document.getElementById('index-topbar').innerHTML = topbarHTML;
       document.getElementById('index-header').innerHTML = headerHTML;
       document.getElementById('index-footer').innerHTML = footerHTML;
       document.getElementById('index-sidebars').innerHTML = sidebarsHTML;
