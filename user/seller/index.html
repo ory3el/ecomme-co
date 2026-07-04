@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechPrime Store — Perfil do Vendedor | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:      #2563EB;
+      --blue2:     #3B82F6;
+      --blue3:     #60A5FA;
+      --blue-dim:  rgba(37,99,235,0.07);
+      --blue-glow: rgba(37,99,235,0.30);
+      --bg:        #F3F7FF;
+      --bg2:       #FFFFFF;
+      --bg3:       #EBF2FF;
+      --text:      #0F172A;
+      --muted:     #64748B;
+      --border:    rgba(37,99,235,0.18);
+      --border2:   rgba(0,0,0,0.07);
+      --red:       #EF4444;
+      --green:     #10B981;
+      --amber:     #F59E0B;
+      --purple:    #8B5CF6;
+      --radius:    8px;
+      --rad-lg:    16px;
+      --ease:      cubic-bezier(.4,0,.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    /* ─── KEYFRAMES ────────────────────────────────────────────── */
+    @keyframes fadeInUp    { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn      { from{opacity:0}to{opacity:1} }
+    @keyframes scaleIn     { from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)} }
+    @keyframes slideDown   { from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse-ring  { 0%{box-shadow:0 0 0 0 var(--blue-glow)}100%{box-shadow:0 0 0 14px transparent} }
+    @keyframes pulse-green { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}100%{box-shadow:0 0 0 12px transparent} }
+    @keyframes ringBell    { 0%,100%{transform:rotate(0) scale(1)}10%{transform:rotate(18deg) scale(1.15)}25%{transform:rotate(-16deg) scale(1.1)}40%{transform:rotate(12deg) scale(1.05)}55%{transform:rotate(-8deg)}70%{transform:rotate(4deg)} }
+    @keyframes bellOff     { 0%{transform:scale(1)}30%{transform:scale(.85) rotate(-8deg)}60%{transform:scale(1.05) rotate(4deg)}100%{transform:scale(1) rotate(0)} }
+    @keyframes followPop   { 0%{transform:scale(1)}35%{transform:scale(.9)}70%{transform:scale(1.08)}100%{transform:scale(1)} }
+    @keyframes checkDraw   { from{stroke-dashoffset:40}to{stroke-dashoffset:0} }
+    @keyframes spinLoad    { to{transform:rotate(360deg)} }
+    @keyframes dotDrift    { 0%{background-position:0 0}100%{background-position:56px 56px} }
+    @keyframes orb1        { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.08)}66%{transform:translate(-30px,20px) scale(.94)} }
+    @keyframes orb2        { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-35px,25px) scale(.92)}66%{transform:translate(30px,-20px) scale(1.1)} }
+    @keyframes waveBar     { 0%,100%{height:10px}50%{height:22px} }
+    @keyframes float1      { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+    @keyframes shimmer     { 0%{background-position:-400px 0}100%{background-position:400px 0} }
+    @keyframes badgePop    { 0%{transform:scale(0) rotate(-15deg)}65%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)} }
+    @keyframes countUp     { from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes glowPulse   { 0%,100%{opacity:.6}50%{opacity:1} }
+    @keyframes avatarShine { 0%{background-position:-200% center}100%{background-position:200% center} }
+
+    /* ── TOPBAR ─────────────────────────────────────────────── */
+    .topbar { background:var(--blue); color:#fff; text-align:center; padding:8px 20px; font-size:12px; font-weight:500; letter-spacing:.3px; position:relative; }
+    .topbar span { opacity:.55; margin:0 10px; }
+    .topbar-close { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.65); font-size:18px; }
+    .topbar-close:hover { color:#fff; }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header { background:#fff; border-bottom:1px solid var(--border2); position:sticky; top:0; z-index:1000; box-shadow:0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width:1440px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:24px; height:68px; }
+    .logo { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); flex-shrink:0; display:flex; align-items:center; gap:5px; }
+    .logo-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; margin-top:2px; }
+    .nav-main { display:flex; gap:2px; }
+    .nav-main a { padding:7px 14px; font-size:13px; font-weight:500; color:var(--muted); border-radius:var(--radius); transition:all .2s; }
+    .nav-main a:hover { color:var(--text); background:var(--bg3); }
+    .header-spacer { flex:1; }
+    .header-actions { display:flex; align-items:center; gap:6px; }
+    .icon-btn { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2); color:var(--muted); transition:all .2s; position:relative; }
+    .icon-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); }
+    .icon-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; }
+    .hd-badge { position:absolute; top:1px; right:1px; min-width:17px; height:17px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .btn-account { background:var(--blue-dim); border:1px solid var(--border); color:var(--blue); padding:7px 18px 7px 7px; border-radius:100px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px; transition:all .2s; }
+    .btn-account:hover { background:var(--blue); color:#fff; }
+    .acc-avatar { width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+    .btn-account:hover .acc-avatar { background:#fff; color:var(--blue); }
+
+    /* ── BREADCRUMB ─────────────────────────────────────────── */
+    .breadcrumb-bar { background:#fff; border-bottom:1px solid var(--border2); }
+    .breadcrumb { max-width:1440px; margin:0 auto; padding:14px 28px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+    .breadcrumb a:hover { color:var(--blue); }
+    .breadcrumb .sep { opacity:.5; }
+    .breadcrumb .cur { color:var(--text); font-weight:500; }
+
+    /* ── SELLER HERO BANNER ────────────────────────────────── */
+    .seller-banner {
+      position:relative; overflow:hidden;
+      background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1D4ED8 100%);
+      height:220px;
+    }
+    .sb-grid-bg { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1px); background-size:28px 28px; animation:dotDrift 18s linear infinite; opacity:.5; }
+    .sb-orb1 { position:absolute; width:500px; height:500px; top:-200px; right:-100px; border-radius:50%; background:radial-gradient(circle,rgba(96,165,250,.2),transparent 70%); animation:orb1 20s ease-in-out infinite; }
+    .sb-orb2 { position:absolute; width:320px; height:320px; bottom:-150px; left:15%; border-radius:50%; background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%); animation:orb2 15s ease-in-out infinite; }
+    .sb-particles { position:absolute; inset:0; pointer-events:none; }
+    .sb-p { position:absolute; width:2px; height:2px; background:rgba(255,255,255,.6); border-radius:50%; animation:float1 var(--d,4s) ease-in-out var(--dl,0s) infinite; }
+    /* Verified glow line bottom */
+    .sb-glow-line { position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--blue3),#fff,var(--blue3),transparent); animation:glowPulse 2.5s ease-in-out infinite; }
+
+    /* ── PROFILE IDENTITY CARD ──────────────────────────────── */
+    .profile-identity { background:#fff; border-bottom:1px solid var(--border2); position:relative; }
+    .pi-inner { max-width:1440px; margin:0 auto; padding:0 28px 28px; }
+    .pi-top { display:flex; align-items:flex-end; gap:24px; position:relative; }
+
+    /* avatar */
+    .pi-avatar-wrap { position:relative; margin-top:-56px; flex-shrink:0; z-index:2; }
+    .pi-avatar {
+      width:112px; height:112px; border-radius:22px;
+      background:linear-gradient(135deg,var(--blue) 0%,#1D4ED8 100%);
+      border:4px solid #fff; box-shadow:0 8px 32px rgba(37,99,235,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; color:#fff;
+      position:relative; overflow:hidden; transition:box-shadow .3s;
+    }
+    .pi-avatar::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.18) 60%,transparent 80%);
+      background-size:200% 200%;
+      animation:avatarShine 3s linear infinite;
+    }
+    .pi-avatar-wrap:hover .pi-avatar { box-shadow:0 12px 48px rgba(37,99,235,.5); }
+    .pi-badge-verified {
+      position:absolute; bottom:-6px; right:-6px;
+      width:30px; height:30px; border-radius:50%;
+      background:var(--blue); border:3px solid #fff;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 12px rgba(37,99,235,.4);
+      animation:badgePop .6s var(--ease) .3s backwards;
+    }
+    .pi-badge-verified svg { width:13px; height:13px; fill:none; stroke:#fff; stroke-width:3; }
+
+    /* info */
+    .pi-info { flex:1; padding-top:16px; min-width:0; }
+    .pi-name-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+    .pi-name { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:700; line-height:1; }
+    .pi-tier { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff; font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:3px 10px; border-radius:100px; }
+    .pi-tier svg { width:10px; height:10px; fill:#fff; }
+    .pi-handle { font-size:13px; color:var(--muted); margin-bottom:8px; }
+    .pi-desc { font-size:13px; color:var(--muted); line-height:1.65; max-width:540px; }
+
+    /* actions area */
+    .pi-actions { display:flex; align-items:center; gap:10px; margin-left:auto; padding-top:20px; flex-shrink:0; }
+
+    /* FOLLOW BUTTON */
+    .btn-follow {
+      position:relative; display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:12px 28px; border-radius:100px; font-weight:700; font-size:13.5px;
+      transition:all .3s var(--ease); overflow:hidden; min-width:138px;
+      background:var(--blue); color:#fff;
+      box-shadow:0 6px 22px rgba(37,99,235,.28);
+    }
+    .btn-follow::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%);
+      background-size:200%;
+      background-position:-200%; transition:background-position .5s;
+    }
+    .btn-follow:hover::before { background-position:200%; }
+    .btn-follow:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(37,99,235,.38); }
+    .btn-follow.following {
+      background:#fff; color:var(--blue);
+      border:2px solid var(--border); box-shadow:none;
+    }
+    .btn-follow.following:hover { border-color:var(--red); color:var(--red); }
+    .btn-follow.loading { pointer-events:none; }
+    .bf-icon { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.5; flex-shrink:0; transition:all .3s; }
+    .bf-spinner { width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spinLoad .7s linear infinite; flex-shrink:0; display:none; }
+    .bf-check { width:15px; height:15px; flex-shrink:0; display:none; }
+    .bf-check path { stroke-dasharray:40; stroke-dashoffset:40; animation:checkDraw .4s var(--ease) forwards; fill:none; stroke:var(--blue); stroke-width:2.5; }
+    .btn-follow.loading .bf-icon { display:none; }
+    .btn-follow.loading .bf-spinner { display:block; }
+    .btn-follow.following .bf-icon { display:none; }
+    .btn-follow.following .bf-check { display:block; }
+    .btn-follow.following:hover .bf-check { display:none; }
+    .btn-follow.following:hover .bf-icon-x { display:block !important; }
+    .bf-icon-x { display:none; width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* BELL BUTTON */
+    .btn-bell {
+      width:46px; height:46px; border-radius:50%; border:1.5px solid var(--border2);
+      display:flex; align-items:center; justify-content:center;
+      transition:all .3s var(--ease); position:relative; flex-shrink:0;
+      background:#fff;
+    }
+    .btn-bell:hover { border-color:var(--blue); background:var(--blue-dim); }
+    .btn-bell.active { background:var(--blue); border-color:var(--blue); box-shadow:0 4px 18px rgba(37,99,235,.35); }
+    .btn-bell.active:hover { background:var(--blue2); }
+    .btn-bell svg { width:19px; height:19px; fill:none; stroke:var(--muted); stroke-width:2; transition:all .3s; transform-origin:top center; }
+    .btn-bell:hover svg { stroke:var(--blue); }
+    .btn-bell.active svg { stroke:#fff; }
+    .btn-bell.ringing svg { animation:ringBell 1s var(--ease); }
+    .btn-bell.silencing svg { animation:bellOff .5s var(--ease); }
+    .bell-notif-dot { position:absolute; top:2px; right:2px; width:10px; height:10px; background:var(--blue); border:2px solid #fff; border-radius:50%; opacity:0; transform:scale(0); transition:all .35s var(--ease); }
+    .btn-bell.active .bell-notif-dot { opacity:1; transform:scale(1); background:#fff; }
+    .bell-tooltip {
+      position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%) scale(.9);
+      background:#0F172A; color:#fff; font-size:11px; font-weight:600; padding:6px 12px;
+      border-radius:8px; white-space:nowrap; pointer-events:none;
+      opacity:0; transition:all .2s var(--ease); transform-origin:bottom center;
+    }
+    .bell-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#0F172A; }
+    .btn-bell:hover .bell-tooltip { opacity:1; transform:translateX(-50%) scale(1); }
+
+    /* share btn */
+    .btn-share { width:46px; height:46px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; background:#fff; transition:all .3s; flex-shrink:0; }
+    .btn-share:hover { border-color:var(--blue); background:var(--blue-dim); }
+    .btn-share svg { width:17px; height:17px; fill:none; stroke:var(--muted); stroke-width:2; transition:stroke .2s; }
+    .btn-share:hover svg { stroke:var(--blue); }
+
+    /* ── STATS ROW ─────────────────────────────────────────── */
+    .pi-stats { display:flex; gap:0; border-top:1px solid var(--border2); margin-top:22px; }
+    .pi-stat { flex:1; padding:18px 22px; border-right:1px solid var(--border2); position:relative; transition:background .2s; cursor:default; }
+    .pi-stat:last-child { border-right:none; }
+    .pi-stat:hover { background:var(--bg); }
+    .pi-stat-val { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); display:block; line-height:1; margin-bottom:4px; animation:countUp .6s var(--ease) backwards; }
+    .pi-stat-lbl { font-size:11px; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:.6px; }
+    .pi-stat-sub { font-size:11px; color:var(--green); margin-top:3px; font-weight:600; display:flex; align-items:center; gap:4px; }
+    .pi-stat-sub svg { width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* live badge */
+    .live-now { display:inline-flex; align-items:center; gap:7px; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); color:#047857; font-size:11px; font-weight:700; padding:5px 12px; border-radius:100px; margin-left:auto; flex-shrink:0; }
+    .live-now .live-dot { width:7px; height:7px; background:var(--green); border-radius:50%; animation:pulse-green .9s ease-out infinite; }
+    .live-bars { display:flex; gap:2px; align-items:center; height:16px; }
+    .live-bar { width:3px; background:var(--green); border-radius:2px; animation:waveBar .9s ease-in-out infinite; }
+    .live-bar:nth-child(2) { animation-delay:.15s; }
+    .live-bar:nth-child(3) { animation-delay:.3s; }
+
+    /* ── CONTENT TABS ──────────────────────────────────────── */
+    .tab-bar { background:#fff; border-bottom:1px solid var(--border2); position:sticky; top:68px; z-index:90; }
+    .tab-inner { max-width:1440px; margin:0 auto; padding:0 28px; display:flex; gap:4px; position:relative; overflow-x:auto; }
+    .tab-pill-bg { position:absolute; bottom:0; height:2.5px; background:var(--blue); border-radius:2px; transition:left .35s var(--ease),width .35s var(--ease); }
+    .tab-btn { padding:16px 18px 14px; font-size:13px; font-weight:600; color:var(--muted); white-space:nowrap; transition:color .2s; display:flex; align-items:center; gap:8px; }
+    .tab-btn:hover { color:var(--text); }
+    .tab-btn.on { color:var(--blue); }
+    .tab-badge { font-size:10.5px; font-weight:700; background:var(--bg3); color:var(--muted); padding:1px 7px; border-radius:100px; transition:all .2s; }
+    .tab-btn.on .tab-badge { background:var(--blue); color:#fff; }
+
+    /* ── MAIN LAYOUT ───────────────────────────────────────── */
+    .main-wrap { max-width:1440px; margin:0 auto; padding:36px 28px 90px; display:grid; grid-template-columns:1fr 320px; gap:32px; }
+
+    /* ── PANELS ────────────────────────────────────────────── */
+    .panel { display:none; }
+    .panel.on { display:block; animation:fadeIn .35s var(--ease); }
+
+    /* PRODUCTS PANEL */
+    .prod-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap; }
+    .pt-search { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid var(--border2); border-radius:100px; padding:0 16px; flex:1; min-width:200px; transition:border-color .2s; }
+    .pt-search:focus-within { border-color:var(--blue); }
+    .pt-search svg { width:14px; height:14px; fill:none; stroke:var(--muted); stroke-width:2; flex-shrink:0; }
+    .pt-search input { flex:1; background:none; border:none; outline:none; padding:10px 0; font-size:13px; color:var(--text); }
+    .pt-search input::placeholder { color:var(--muted); }
+    .pt-sel { background:#fff; border:1.5px solid var(--border2); color:var(--text); padding:10px 32px 10px 14px; border-radius:100px; font-size:12.5px; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; transition:border-color .2s; }
+    .pt-sel:focus { border-color:var(--blue); }
+
+    .prod-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .pcard { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); overflow:hidden; transition:all .35s var(--ease); cursor:pointer; display:flex; flex-direction:column; position:relative; }
+    .pcard:hover { border-color:var(--border); transform:translateY(-5px); box-shadow:0 20px 52px rgba(37,99,235,.13); }
+    .pcard:hover .pc-img { transform:scale(1.09); }
+    .pcard:hover .pc-actions { opacity:1; transform:translateY(0); }
+    .pc-img-wrap { position:relative; aspect-ratio:1; overflow:hidden; background:var(--bg3); flex-shrink:0; }
+    .pc-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:64px; transition:transform .4s var(--ease); }
+    .pc-badges { position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:5px; }
+    .pbadge { padding:3px 9px; border-radius:100px; font-size:9px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; }
+    .ph { background:var(--blue); color:#fff; }
+    .pn { background:var(--green); color:#fff; }
+    .ps { background:var(--red); color:#fff; }
+    .pc-wish { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.9); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; transition:all .2s; backdrop-filter:blur(4px); }
+    .pc-wish:hover, .pc-wish.on { background:#FEE2E2; border-color:var(--red); }
+    .pc-wish svg { width:13px; height:13px; fill:none; stroke:var(--muted); stroke-width:2; }
+    .pc-wish.on svg { stroke:var(--red); fill:var(--red); }
+    .pc-actions { position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent,rgba(235,242,255,.97)); opacity:0; transform:translateY(8px); transition:all .3s; display:flex; gap:7px; }
+    .btn-pcart { flex:1; background:var(--blue); color:#fff; padding:9px; border-radius:var(--radius); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .btn-pcart:hover { background:var(--blue2); }
+    .btn-pcart svg { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2.5; }
+    .pc-info { padding:14px; flex:1; display:flex; flex-direction:column; }
+    .pc-name { font-weight:500; font-size:13.5px; line-height:1.4; margin-bottom:8px; flex:1; }
+    .pc-rating { display:flex; align-items:center; gap:5px; margin-bottom:9px; }
+    .pc-stars { color:var(--amber); font-size:11px; }
+    .pc-rcount { font-size:11px; color:var(--muted); }
+    .pc-price-row { display:flex; align-items:baseline; gap:7px; }
+    .pc-price { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:700; color:var(--blue); }
+    .pc-old { font-size:11.5px; color:var(--muted); text-decoration:line-through; }
+    .pc-disc { font-size:10px; font-weight:700; color:#fff; background:var(--red); padding:2px 7px; border-radius:4px; margin-left:auto; }
+
+    /* REVIEWS PANEL */
+    .rev-layout { display:grid; grid-template-columns:260px 1fr; gap:28px; }
+    .rev-summary { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); padding:28px; height:fit-content; position:sticky; top:130px; }
+    .rs-avg { text-align:center; margin-bottom:22px; }
+    .rs-num { font-family:'Cormorant Garamond',serif; font-size:54px; font-weight:700; color:var(--blue); line-height:1; display:block; }
+    .rs-stars { color:var(--amber); font-size:18px; letter-spacing:2px; margin:8px 0 4px; }
+    .rs-total { font-size:12px; color:var(--muted); }
+    .rs-bars { display:flex; flex-direction:column; gap:9px; }
+    .rs-bar-row { display:flex; align-items:center; gap:9px; font-size:12px; }
+    .rs-bar-row .rbl { width:32px; color:var(--muted); flex-shrink:0; }
+    .rs-bar-track { flex:1; height:7px; background:var(--bg3); border-radius:100px; overflow:hidden; }
+    .rs-bar-fill { height:100%; background:var(--amber); border-radius:100px; transition:width 1.4s var(--ease); }
+    .rs-bar-row .rbp { width:30px; text-align:right; color:var(--muted); font-weight:600; flex-shrink:0; }
+    .rev-list { display:flex; flex-direction:column; gap:20px; }
+    .rev-item { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); padding:22px 24px; transition:border-color .2s; }
+    .rev-item:hover { border-color:var(--border); }
+    .rv-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .rv-ava { width:38px; height:38px; border-radius:50%; background:var(--blue-dim); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+    .rv-name { font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; }
+    .rv-verif { font-size:10px; font-weight:700; color:var(--green); background:rgba(16,185,129,.1); padding:2px 8px; border-radius:100px; }
+    .rv-date { font-size:11px; color:var(--muted); }
+    .rv-stars { color:var(--amber); font-size:13px; letter-spacing:1.5px; margin-bottom:8px; }
+    .rv-text { font-size:13.5px; color:var(--muted); line-height:1.75; }
+    .rv-prod { display:flex; align-items:center; gap:8px; margin-top:10px; padding:9px 12px; background:var(--bg); border-radius:var(--radius); }
+    .rv-prod-img { width:28px; height:28px; border-radius:6px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .rv-prod-name { font-size:11.5px; font-weight:500; color:var(--text); }
+
+    /* ABOUT PANEL */
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .about-card { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); padding:26px; }
+    .about-card h4 { font-size:14px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:9px; }
+    .about-card h4 svg { width:16px; height:16px; fill:none; stroke:var(--blue); stroke-width:2; }
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border2); font-size:13px; }
+    .info-row:last-child { border-bottom:none; }
+    .info-row .lbl { color:var(--muted); }
+    .info-row .val { font-weight:600; }
+    .about-card p { font-size:13.5px; color:var(--muted); line-height:1.8; }
+    .tag-wrap { display:flex; flex-wrap:wrap; gap:8px; }
+    .cat-tag { background:var(--bg3); border:1px solid var(--border); color:var(--blue); font-size:12px; font-weight:600; padding:5px 14px; border-radius:100px; }
+
+    /* ── SIDEBAR ───────────────────────────────────────────── */
+    .sidebar-col { display:flex; flex-direction:column; gap:20px; }
+    .sc-card { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); overflow:hidden; }
+    .sc-card-head { padding:16px 18px 14px; border-bottom:1px solid var(--border2); font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .sc-card-head svg { width:14px; height:14px; fill:none; stroke:var(--blue); stroke-width:2; }
+
+    /* trust badges sidebar */
+    .trust-list { padding:4px 18px 14px; }
+    .tl-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border2); }
+    .tl-row:last-child { border-bottom:none; }
+    .tl-ico { width:34px; height:34px; border-radius:9px; background:var(--blue-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .tl-ico svg { width:15px; height:15px; fill:none; stroke:var(--blue); stroke-width:2; }
+    .tl-text strong { font-size:12.5px; font-weight:700; display:block; }
+    .tl-text span { font-size:11.5px; color:var(--muted); }
+
+    /* similar sellers sidebar */
+    .ss-list { padding:4px 18px 14px; display:flex; flex-direction:column; gap:2px; }
+    .ss-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border2); cursor:pointer; transition:background .2s; border-radius:var(--radius); }
+    .ss-row:last-child { border-bottom:none; }
+    .ss-row:hover { padding-left:6px; }
+    .ss-ava { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; color:#fff; }
+    .ss-name { font-size:12.5px; font-weight:700; margin-bottom:2px; }
+    .ss-rating { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:4px; }
+    .ss-stars-sm { color:var(--amber); font-size:11px; }
+    .ss-follow { margin-left:auto; font-size:11px; font-weight:700; color:var(--blue); background:var(--blue-dim); border:1px solid var(--border); padding:5px 12px; border-radius:100px; transition:all .2s; flex-shrink:0; }
+    .ss-follow:hover { background:var(--blue); color:#fff; }
+
+    /* report/contact sidebar */
+    .sc-actions { padding:14px 18px; display:flex; flex-direction:column; gap:8px; }
+    .btn-contact-seller { width:100%; background:var(--blue); color:#fff; padding:12px; border-radius:100px; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; }
+    .btn-contact-seller:hover { background:var(--blue2); transform:translateY(-1px); box-shadow:0 8px 22px rgba(37,99,235,.28); }
+    .btn-contact-seller svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.5; }
+    .btn-report { width:100%; background:none; border:1px solid var(--border2); color:var(--muted); padding:10px; border-radius:100px; font-size:12px; display:flex; align-items:center; justify-content:center; gap:7px; transition:all .2s; }
+    .btn-report:hover { border-color:var(--red); color:var(--red); }
+    .btn-report svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; }
+
+    /* ── NOTIFICATION PILL (floating) ──────────────────────── */
+    .bell-pill {
+      position:fixed; bottom:88px; right:28px; z-index:600;
+      display:flex; align-items:center; gap:10px;
+      background:#0F172A; color:#fff; padding:12px 20px; border-radius:100px;
+      font-size:13px; font-weight:600;
+      box-shadow:0 12px 36px rgba(0,0,0,.25);
+      transform:translateY(80px); opacity:0; pointer-events:none;
+      transition:all .45s var(--ease);
+    }
+    .bell-pill.show { transform:translateY(0); opacity:1; }
+    .bell-pill svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+    .bell-pill.notif-on { background:var(--blue); }
+    .bell-pill.notif-off { background:#475569; }
+
+    /* ── CART SIDEBAR ──────────────────────────────────────── */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1999; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px); }
+    .overlay.on { opacity:1; pointer-events:all; }
+    .cart-sb { position:fixed; right:0; top:0; bottom:0; width:420px; background:#fff; border-left:1px solid var(--border2); z-index:2000; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; }
+    .cart-sb.on { transform:translateX(0); }
+    .cart-hd { padding:24px; border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; }
+    .cart-hd h3 { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
+    .cart-cls { width:34px; height:34px; border-radius:var(--radius); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+    .cart-cls:hover { border-color:var(--red); color:var(--red); }
+    .cart-cls svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+    .cart-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+    .cart-empty-st { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--muted); gap:12px; }
+    .cart-empty-st span { font-size:48px; }
+    .ci { background:var(--bg); border:1px solid var(--border2); border-radius:12px; padding:14px; display:flex; gap:12px; }
+    .ci-img { width:60px; height:60px; border-radius:8px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+    .ci-info { flex:1; min-width:0; }
+    .ci-name { font-size:13px; font-weight:500; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ci-price { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:700; color:var(--blue); }
+    .ci-qty { display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .qb { width:26px; height:26px; border-radius:6px; border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; transition:all .15s; }
+    .qb:hover { border-color:var(--blue); color:var(--blue); }
+    .qn { font-size:13px; font-weight:600; min-width:22px; text-align:center; }
+    .del { width:28px; height:28px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; color:var(--muted); align-self:flex-start; }
+    .del:hover { color:var(--red); }
+    .del svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; }
+    .cart-ft { padding:20px; border-top:1px solid var(--border2); }
+    .cart-tots { margin-bottom:16px; }
+    .ct-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+    .ct-row .lbl { color:var(--muted); }
+    .ct-row.ttl { font-size:15px; font-weight:600; padding-top:10px; border-top:1px solid var(--border2); margin-top:10px; }
+    .ct-row.ttl .amt { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--blue); }
+    .btn-ckout { width:100%; background:var(--blue); color:#fff; padding:14px; border-radius:100px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; margin-bottom:10px; }
+    .btn-ckout:hover { background:var(--blue2); }
+    .btn-cont { width:100%; background:none; border:1px solid var(--border2); color:var(--muted); padding:11px; border-radius:100px; font-size:12px; }
+    .btn-cont:hover { border-color:var(--blue); color:var(--blue); }
+
+    /* ── TOAST ─────────────────────────────────────────────── */
+    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:#0F172A; border:1px solid rgba(255,255,255,.1); color:#fff; padding:12px 22px; border-radius:100px; font-size:13px; font-weight:500; z-index:3000; display:flex; align-items:center; gap:10px; transition:transform .3s cubic-bezier(.4,0,.2,1); white-space:nowrap; pointer-events:none; }
+    .toast.on { transform:translateX(-50%) translateY(0); }
+    .t-ico { width:20px; height:20px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0; }
+
+    /* ── BTT ───────────────────────────────────────────────── */
+    .btt { position:fixed; bottom:28px; right:28px; width:44px; height:44px; background:var(--blue); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; transform:translateY(20px); transition:all .3s; }
+    .btt.on { opacity:1; transform:translateY(0); }
+    .btt:hover { background:var(--blue2); }
+    .btt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer { background:#fff; border-top:1px solid var(--border2); padding:36px 28px; }
+    .ft-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+    .ft-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--blue); }
+    .ft-links { display:flex; gap:22px; flex-wrap:wrap; }
+    .ft-links a { font-size:12px; color:var(--muted); transition:color .2s; }
+    .ft-links a:hover { color:var(--blue); }
+    .ft-copy { font-size:12px; color:var(--muted); }
+
+    /* reveal */
+    .reveal { opacity:0; transform:translateY(18px); transition:opacity .6s var(--ease),transform .6s var(--ease); }
+    .reveal.in { opacity:1; transform:none; }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────── */
+    @media(max-width:1100px){ .main-wrap{grid-template-columns:1fr;} .rev-layout{grid-template-columns:1fr;} .about-grid{grid-template-columns:1fr;} .rev-summary{position:static;} .prod-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:768px){ .nav-main{display:none;} .pi-top{flex-wrap:wrap;} .pi-actions{width:100%;} .pi-stats{flex-wrap:wrap;} .pi-stat{flex:0 0 50%;} .main-wrap{padding:24px 16px 70px;} .seller-banner{height:160px;} .pi-avatar{width:88px;height:88px;} .pi-avatar-wrap{margin-top:-44px;} .pi-name{font-size:22px;} .prod-grid{grid-template-columns:1fr;} .cart-sb{width:100%;} .ft-inner{flex-direction:column;text-align:center;} .ft-links{justify-content:center;} }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showToast('Abrindo notificações...')">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge">3</span>
+      </button>
+      <button class="icon-btn" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <span class="acc-avatar">MF</span>Mariana Ferreira
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="sep">/</span>
+    <a href="/products">Produtos</a><span class="sep">/</span>
+    <a href="#">Vendedores</a><span class="sep">/</span>
+    <span class="cur">TechPrime Store</span>
+  </div>
+</div>
+
+<!-- ══ SELLER BANNER ════════════════════════════════════════ -->
+<div class="seller-banner">
+  <div class="sb-grid-bg"></div>
+  <div class="sb-orb1"></div>
+  <div class="sb-orb2"></div>
+  <div class="sb-particles" id="particles"></div>
+  <div class="sb-glow-line"></div>
+</div>
+
+<!-- ══ PROFILE IDENTITY ═════════════════════════════════════ -->
+<div class="profile-identity">
+  <div class="pi-inner">
+    <div class="pi-top">
+      <!-- Avatar -->
+      <div class="pi-avatar-wrap">
+        <div class="pi-avatar">TP</div>
+        <div class="pi-badge-verified">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="pi-info">
+        <div class="pi-name-row">
+          <span class="pi-name">TechPrime Store</span>
+          <span class="pi-tier">
+            <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:#fff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Vendedor Ouro
+          </span>
+        </div>
+        <div class="pi-handle">@techprime · Membro desde junho 2024</div>
+        <div class="pi-desc">Especialistas em eletrônicos, gadgets e acessórios tech de alta qualidade. Entrega rápida, atendimento dedicado e garantia em todos os produtos.</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pi-actions">
+        <!-- Live indicator -->
+        <div class="live-now">
+          <div class="live-dot"></div>
+          <div class="live-bars"><div class="live-bar"></div><div class="live-bar"></div><div class="live-bar"></div></div>
+          <span id="liveViewers">148</span> visitantes
+        </div>
+
+        <!-- Share -->
+        <button class="btn-share" onclick="handleShare()" title="Compartilhar perfil">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+
+        <!-- BELL -->
+        <div style="position:relative">
+          <button class="btn-bell" id="bellBtn" onclick="toggleBell()" title="">
+            <div class="bell-tooltip" id="bellTooltip">Ativar notificações</div>
+            <svg viewBox="0 0 24 24" id="bellSvg">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <div class="bell-notif-dot"></div>
+          </button>
+        </div>
+
+        <!-- FOLLOW -->
+        <button class="btn-follow" id="followBtn" onclick="handleFollow()">
+          <svg class="bf-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          <div class="bf-spinner"></div>
+          <svg class="bf-check" viewBox="0 0 24 24"><path d="M20 6 9 17 4 12" stroke-dasharray="40" stroke-dashoffset="40"/></svg>
+          <svg class="bf-icon-x" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="18" y1="18" x2="23" y2="23"/><line x1="23" y1="18" x2="18" y2="23"/></svg>
+          <span id="followLabel">Seguir</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="pi-stats">
+      <div class="pi-stat">
+        <span class="pi-stat-val" id="statFollowers">4.820</span>
+        <span class="pi-stat-lbl">Seguidores</span>
+        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> +124 esta semana</div>
+      </div>
+      <div class="pi-stat" style="transition-delay:.05s">
+        <span class="pi-stat-val">348</span>
+        <span class="pi-stat-lbl">Produtos</span>
+        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 12 novos este mês</div>
+      </div>
+      <div class="pi-stat" style="transition-delay:.1s">
+        <span class="pi-stat-val">18.400</span>
+        <span class="pi-stat-lbl">Vendas realizadas</span>
+        <div class="pi-stat-sub" style="color:var(--blue)">Top 1% de vendedores</div>
+      </div>
+      <div class="pi-stat" style="transition-delay:.15s">
+        <span class="pi-stat-val">4.9★</span>
+        <span class="pi-stat-lbl">Avaliação média</span>
+        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 2.847 avaliações</div>
+      </div>
+      <div class="pi-stat" style="transition-delay:.2s">
+        <span class="pi-stat-val">99%</span>
+        <span class="pi-stat-lbl">Satisfação</span>
+        <div class="pi-stat-sub" style="color:var(--green)">Entrega no prazo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT TABS ══════════════════════════════════════════ -->
+<div class="tab-bar">
+  <div class="tab-inner" id="tabBar">
+    <span class="tab-pill-bg" id="tabPill"></span>
+    <button class="tab-btn on" data-tab="products" onclick="switchTab(this,'products')">
+      Produtos <span class="tab-badge">348</span>
+    </button>
+    <button class="tab-btn" data-tab="reviews" onclick="switchTab(this,'reviews')">
+      Avaliações <span class="tab-badge">2.847</span>
+    </button>
+    <button class="tab-btn" data-tab="about" onclick="switchTab(this,'about')">
+      Sobre o Vendedor <span class="tab-badge">ℹ</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ══════════════════════════════════════════ -->
+<div class="main-wrap">
+
+  <!-- ── PRODUCTS PANEL ──────────────────────────────────── -->
+  <div class="panel on" id="panel-products">
+    <div class="prod-toolbar">
+      <div class="pt-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="prodSearch" placeholder="Buscar produtos deste vendedor..." oninput="filterProds()">
+      </div>
+      <select class="pt-sel" id="prodSort" onchange="filterProds()">
+        <option value="pop">Mais Populares</option>
+        <option value="price_asc">Menor Preço</option>
+        <option value="price_desc">Maior Preço</option>
+        <option value="new">Mais Recentes</option>
+        <option value="rating">Mais Avaliados</option>
+      </select>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </div>
+
+  <!-- ── REVIEWS PANEL ────────────────────────────────────── -->
+  <div class="panel" id="panel-reviews">
+    <div class="rev-layout">
+      <div class="rev-summary reveal">
+        <div class="rs-avg">
+          <span class="rs-num">4.9</span>
+          <div class="rs-stars">★★★★★</div>
+          <div class="rs-total">baseado em 2.847 avaliações</div>
+        </div>
+        <div class="rs-bars">
+          <div class="rs-bar-row"><span class="rbl">5★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="84"></div></div><span class="rbp">84%</span></div>
+          <div class="rs-bar-row"><span class="rbl">4★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="11"></div></div><span class="rbp">11%</span></div>
+          <div class="rs-bar-row"><span class="rbl">3★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="3"></div></div><span class="rbp">3%</span></div>
+          <div class="rs-bar-row"><span class="rbl">2★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="1"></div></div><span class="rbp">1%</span></div>
+          <div class="rs-bar-row"><span class="rbl">1★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="1"></div></div><span class="rbp">1%</span></div>
+        </div>
+      </div>
+      <div class="rev-list">
+        <div class="rev-item reveal"><div class="rv-head"><div class="rv-ava">MF</div><div><div class="rv-name">Mariana Ferreira <span class="rv-verif">Compra verificada</span></div><div class="rv-date">20 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Comprei o Smartwatch Pro X7 e chegou em perfeito estado, em apenas 5 dias úteis. Embalagem impecável e produto 100% original. Com certeza vou comprar mais vezes!</div><div class="rv-prod"><div class="rv-prod-img">⌚</div><span class="rv-prod-name">Smartwatch Pro X7</span></div></div>
+        <div class="rev-item reveal" style="transition-delay:.08s"><div class="rv-head"><div class="rv-ava" style="background:rgba(139,92,246,.1);color:var(--purple)">RC</div><div><div class="rv-name">Rodrigo Castro <span class="rv-verif">Compra verificada</span></div><div class="rv-date">15 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Vendedor excelente! Atendimento rápido, produto original e entrega antes do prazo. Fone chegou com nota fiscal e manual em português. Recomendo muito!</div><div class="rv-prod"><div class="rv-prod-img">🎧</div><span class="rv-prod-name">Fone Bluetooth ANC Pro</span></div></div>
+        <div class="rev-item reveal" style="transition-delay:.16s"><div class="rv-head"><div class="rv-ava" style="background:rgba(16,185,129,.1);color:var(--green)">JS</div><div><div class="rv-name">Juliana Santos <span class="rv-verif">Compra verificada</span></div><div class="rv-date">10 de junho de 2026</div></div></div><div class="rv-stars">★★★★☆</div><div class="rv-text">Produto muito bom, câmera funciona perfeitamente. Tirei uma estrela porque a embalagem veio um pouco amassada, mas o produto em si estava sem defeito.</div><div class="rv-prod"><div class="rv-prod-img">📷</div><span class="rv-prod-name">Câmera de Segurança WiFi</span></div></div>
+        <div class="rev-item reveal" style="transition-delay:.24s"><div class="rv-head"><div class="rv-ava" style="background:rgba(245,158,11,.1);color:var(--amber)">PA</div><div><div class="rv-name">Pedro Almeida <span class="rv-verif">Compra verificada</span></div><div class="rv-date">05 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Segunda compra com esse vendedor e novamente impecável. Entrega super rápida, embalagem cuidadosa. O Kit LED é incrível, fácil de instalar e com cores lindas.</div><div class="rv-prod"><div class="rv-prod-img">💡</div><span class="rv-prod-name">Kit Luzes LED Smart RGB</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT PANEL ──────────────────────────────────────── -->
+  <div class="panel" id="panel-about">
+    <div class="about-grid">
+      <div class="about-card reveal">
+        <h4><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Sobre o Vendedor</h4>
+        <p>A TechPrime Store é uma empresa especializada em eletrônicos e gadgets de alta performance. Operamos desde 2024 com foco em curadoria de produtos tech de qualidade, parceria com marcas homologadas e atendimento pós-venda dedicado. Todos os nossos produtos passam por inspeção de qualidade antes de serem despachados.</p>
+      </div>
+      <div class="about-card reveal" style="transition-delay:.08s">
+        <h4><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Informações</h4>
+        <div class="info-row"><span class="lbl">Membro desde</span><span class="val">Junho de 2024</span></div>
+        <div class="info-row"><span class="lbl">Localização</span><span class="val">São Paulo, SP</span></div>
+        <div class="info-row"><span class="lbl">Tempo de resposta</span><span class="val" style="color:var(--green)">~1 hora</span></div>
+        <div class="info-row"><span class="lbl">Despacho em</span><span class="val">1 dia útil</span></div>
+        <div class="info-row"><span class="lbl">CNPJ verificado</span><span class="val" style="color:var(--green)">✓ Sim</span></div>
+      </div>
+      <div class="about-card reveal" style="transition-delay:.16s">
+        <h4><svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Categorias</h4>
+        <div class="tag-wrap">
+          <span class="cat-tag">📱 Eletrônicos</span>
+          <span class="cat-tag">🎧 Áudio</span>
+          <span class="cat-tag">⌚ Wearables</span>
+          <span class="cat-tag">📷 Câmeras</span>
+          <span class="cat-tag">💡 Smart Home</span>
+          <span class="cat-tag">🎮 Gaming</span>
+          <span class="cat-tag">🔋 Acessórios</span>
+        </div>
+      </div>
+      <div class="about-card reveal" style="transition-delay:.24s">
+        <h4><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Garantias Oferecidas</h4>
+        <div class="info-row"><span class="lbl">Política de devolução</span><span class="val">30 dias</span></div>
+        <div class="info-row"><span class="lbl">Garantia de produto</span><span class="val">12 meses</span></div>
+        <div class="info-row"><span class="lbl">Produto original</span><span class="val" style="color:var(--green)">✓ Garantido</span></div>
+        <div class="info-row"><span class="lbl">Nota fiscal</span><span class="val" style="color:var(--green)">✓ Sempre inclusa</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ───────────────────────────────────────────── -->
+  <div class="sidebar-col">
+    <!-- Contact -->
+    <div class="sc-card reveal">
+      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Contato</div>
+      <div class="sc-actions">
+        <button class="btn-contact-seller" onclick="showToast('Abrindo chat com o vendedor... 💬')">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Enviar Mensagem
+        </button>
+        <button class="btn-report" onclick="showToast('Obrigado pelo reporte. Vamos analisar! 🔍')">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Reportar Vendedor
+        </button>
+      </div>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="sc-card reveal" style="transition-delay:.08s">
+      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Selos de Confiança</div>
+      <div class="trust-list">
+        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg></div><div class="tl-text"><strong>Vendedor Verificado</strong><span>Identidade e CNPJ confirmados</span></div></div>
+        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="tl-text"><strong>Vendedor Ouro</strong><span>Top 1% da plataforma</span></div></div>
+        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="tl-text"><strong>Entrega Expressa</strong><span>Despacho em 1 dia útil</span></div></div>
+        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><div class="tl-text"><strong>Devolução Garantida</strong><span>30 dias sem perguntas</span></div></div>
+      </div>
+    </div>
+
+    <!-- Similar sellers -->
+    <div class="sc-card reveal" style="transition-delay:.16s">
+      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Vendedores Similares</div>
+      <div class="ss-list">
+        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
+          <div class="ss-ava" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">GX</div>
+          <div>
+            <div class="ss-name">GadgetXpress</div>
+            <div class="ss-rating"><span class="ss-stars-sm">★★★★★</span> 4.8 · 11.2K vendas</div>
+          </div>
+          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo GadgetXpress! 🔔')">Seguir</button>
+        </div>
+        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
+          <div class="ss-ava" style="background:linear-gradient(135deg,#10B981,#059669)">EL</div>
+          <div>
+            <div class="ss-name">ElectroLab</div>
+            <div class="ss-rating"><span class="ss-stars-sm">★★★★★</span> 4.9 · 8.7K vendas</div>
+          </div>
+          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo ElectroLab! 🔔')">Seguir</button>
+        </div>
+        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
+          <div class="ss-ava" style="background:linear-gradient(135deg,#F59E0B,#D97706)">SM</div>
+          <div>
+            <div class="ss-name">SmartMais</div>
+            <div class="ss-rating"><span class="ss-stars-sm">★★★★☆</span> 4.7 · 6.1K vendas</div>
+          </div>
+          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo SmartMais! 🔔')">Seguir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING BELL PILL -->
+<div class="bell-pill" id="bellPill">
+  <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  <span id="bellPillText">Notificações ativadas para TechPrime Store</span>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a><a href="/products">Produtos</a><a href="/about">Sobre Nós</a>
+      <a href="/track-order">Rastrear Pedido</a><a href="/support">Suporte</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd"><h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3><button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="cart-body" id="cartItems"><div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div></div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()"><svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Finalizar Compra</button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+
+/* ─── PARTICLES ──────────────────────────────────────────────────────── */
+(function spawnParticles() {
+  const wrap = $('particles');
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'sb-p';
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${3+Math.random()*5}s;--dl:${Math.random()*3}s;opacity:${.3+Math.random()*.6}`;
+    wrap.appendChild(p);
+  }
+})();
+
+/* ─── LIVE VIEWERS ANIMATION ─────────────────────────────────────────── */
+let viewers = 148;
+setInterval(() => {
+  viewers = Math.max(100, Math.min(210, viewers + (Math.random() > .45 ? 1 : -1) * Math.ceil(Math.random() * 3)));
+  const el = $('liveViewers'); if (el) el.textContent = viewers;
+}, 2800);
+
+/* ─── PRODUCTS DATA ──────────────────────────────────────────────────── */
+const products = [
+  { id:0, name:'Smartwatch Pro X7', emoji:'⌚', price:189.90, old:299, discount:36, rating:4.9, reviews:2847, badge:'hot', shipping:true },
+  { id:1, name:'Fone Bluetooth ANC Pro', emoji:'🎧', price:119.90, old:199, discount:39, rating:4.8, reviews:1523, badge:'new', shipping:true },
+  { id:2, name:'Câmera de Segurança WiFi', emoji:'📷', price:149.90, old:220, discount:31, rating:4.7, reviews:892, badge:'sale', shipping:false },
+  { id:3, name:'Kit Luzes LED Smart RGB', emoji:'💡', price:79.90, old:130, discount:38, rating:4.6, reviews:3102, badge:'hot', shipping:true },
+  { id:4, name:'Fone Gamer RGB Pro', emoji:'🎮', price:99.90, old:160, discount:37, rating:4.7, reviews:745, badge:'new', shipping:true },
+  { id:5, name:'Hub USB-C 7 em 1', emoji:'🔌', price:69.90, old:110, discount:36, rating:4.8, reviews:1230, badge:'hot', shipping:true },
+  { id:6, name:'Mesa Digitalizadora Pro', emoji:'🖊️', price:229.90, old:360, discount:36, rating:4.9, reviews:432, badge:'new', shipping:false },
+  { id:7, name:'Teclado Mecânico RGB', emoji:'⌨️', price:179.90, old:280, discount:35, rating:4.8, reviews:987, badge:'sale', shipping:true },
+  { id:8, name:'Mouse Gamer 16K DPI', emoji:'🖱️', price:139.90, old:210, discount:33, rating:4.7, reviews:654, badge:'hot', shipping:true },
+];
+let wishlist = [];
+let cart = [];
+
+function renderProds(list) {
+  const grid = $('prodGrid');
+  const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
+  const badgeHtml = p => p.badge==='hot' ? `<span class="pbadge ph">🔥 Hot</span>` : p.badge==='new' ? `<span class="pbadge pn">Novo</span>` : `<span class="pbadge ps">-${p.discount}%</span>`;
+  grid.innerHTML = list.map((p,i) => {
+    const inW = wishlist.includes(p.id);
+    return `<div class="pcard" style="animation:fadeInUp .4s var(--ease) ${i*.05}s backwards" onclick="openProductModal(${p.id})">
+      <div class="pc-img-wrap">
+        <div class="pc-img">${p.emoji}</div>
+        <div class="pc-badges">${badgeHtml(p)}</div>
+        <button class="pc-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${p.id},this)" title="Favoritar">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="pc-actions">
+          <button class="btn-pcart" onclick="event.stopPropagation();addToCart(${p.id})">
+            <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Carrinho
+          </button>
+        </div>
+      </div>
+      <div class="pc-info">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-rating"><span class="pc-stars">${stars(p.rating)}</span><span class="pc-rcount">(${p.reviews.toLocaleString('pt-BR')})</span></div>
+        <div class="pc-price-row">
+          <span class="pc-price">${fmt(p.price)}</span>
+          <span class="pc-old">${fmt(p.old)}</span>
+          <span class="pc-disc">-${p.discount}%</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterProds() {
+  const q = $('prodSearch').value.toLowerCase();
+  const sort = $('prodSort').value;
+  let list = products.filter(p => !q || p.name.toLowerCase().includes(q));
+  if (sort==='price_asc') list.sort((a,b)=>a.price-b.price);
+  else if (sort==='price_desc') list.sort((a,b)=>b.price-a.price);
+  else if (sort==='rating') list.sort((a,b)=>b.rating-a.rating);
+  else if (sort==='new') list.sort((a,b)=>b.id-a.id);
+  renderProds(list);
+}
+filterProds();
+
+/* ─── WISHLIST ───────────────────────────────────────────────────────── */
+function toggleWish(id, btn) {
+  const idx = wishlist.indexOf(id);
+  if (idx===-1) { wishlist.push(id); btn.classList.add('on'); btn.style.animation='popIn .35s var(--ease)'; showToast('Adicionado aos favoritos ❤️'); }
+  else { wishlist.splice(idx,1); btn.classList.remove('on'); showToast('Removido dos favoritos'); }
+  setTimeout(()=>btn.style.animation='',400);
+}
+
+/* ─── CART ───────────────────────────────────────────────────────────── */
+function addToCart(id) {
+  const p = products.find(x=>x.id===id);
+  const ex = cart.find(x=>x.id===id);
+  if (ex) ex.qty+=1; else cart.push({...p, qty:1});
+  updateCart();
+  showToast(`${p.name} adicionado ao carrinho! 🛒`);
+}
+function removeFromCart(id) { cart=cart.filter(x=>x.id!==id); updateCart(); }
+function changeQty(id,d) { const it=cart.find(x=>x.id===id); if(it){it.qty+=d;if(it.qty<=0)removeFromCart(id);else updateCart();} }
+function updateCart() {
+  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const count=cart.reduce((s,i)=>s+i.qty,0);
+  $('cartBadge').textContent=count;
+  $('cartCount').textContent=`(${count})`;
+  $('cartSub').textContent=fmt(total);
+  $('cartTotal').textContent=fmt(total);
+  const el=$('cartItems');
+  if(!cart.length){el.innerHTML='<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>';return;}
+  el.innerHTML=cart.map(it=>`<div class="ci"><div class="ci-img">${it.emoji}</div><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-price">${fmt(it.price)}</div><div class="ci-qty"><button class="qb" onclick="changeQty(${it.id},-1)">−</button><span class="qn">${it.qty}</span><button class="qb" onclick="changeQty(${it.id},1)">+</button></div></div><button class="del" onclick="removeFromCart(${it.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div>`).join('');
+}
+function openCart(){$('cartSidebar').classList.add('on');$('cartOverlay').classList.add('on');}
+function closeCart(){$('cartSidebar').classList.remove('on');$('cartOverlay').classList.remove('on');}
+function checkout(){if(!cart.length){showToast('Adicione produtos primeiro! 😊');return;}showToast('Redirecionando para o pagamento… 🔒');setTimeout(closeCart,1200);}
+function openProductModal(id){showToast('Abrindo detalhes do produto...');}
+
+/* ─── FOLLOW ─────────────────────────────────────────────────────────── */
+let isFollowing = false;
+let followCount = 4820;
+function handleFollow() {
+  const btn = $('followBtn');
+  const lbl = $('followLabel');
+  const statEl = $('statFollowers');
+  if (btn.classList.contains('loading')) return;
+  btn.classList.add('loading');
+  btn.style.animation = 'followPop .45s var(--ease)';
+  setTimeout(() => { btn.style.animation = ''; }, 450);
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    isFollowing = !isFollowing;
+    if (isFollowing) {
+      btn.classList.add('following');
+      lbl.textContent = 'Seguindo';
+      followCount++;
+      statEl.textContent = followCount.toLocaleString('pt-BR');
+      statEl.style.animation = 'countUp .4s var(--ease)';
+      setTimeout(() => statEl.style.animation = '', 400);
+      showToast('Agora você segue TechPrime Store! 🎉');
+      if ($('bellBtn') && !$('bellBtn').classList.contains('active')) {
+        setTimeout(() => { showToast('💡 Ative o sino para receber notificações deste vendedor.'); }, 1400);
+      }
+    } else {
+      btn.classList.remove('following');
+      lbl.textContent = 'Seguir';
+      followCount--;
+      statEl.textContent = followCount.toLocaleString('pt-BR');
+    }
+  }, 900);
+}
+
+/* ─── BELL / NOTIFICATIONS ───────────────────────────────────────────── */
+let bellActive = false;
+let bellPillTimer;
+function toggleBell() {
+  const btn = $('bellBtn');
+  const tooltip = $('bellTooltip');
+  const pill = $('bellPill');
+  const pillText = $('bellPillText');
+  bellActive = !bellActive;
+  if (bellActive) {
+    btn.classList.add('active','ringing');
+    btn.classList.remove('silencing');
+    tooltip.textContent = 'Desativar notificações';
+    pillText.textContent = '🔔 Notificações ativadas para TechPrime Store';
+    pill.className = 'bell-pill notif-on show';
+    setTimeout(() => btn.classList.remove('ringing'), 1000);
+    showToast('Você será notificado sobre novidades da TechPrime Store 🔔');
+  } else {
+    btn.classList.remove('active','ringing');
+    btn.classList.add('silencing');
+    tooltip.textContent = 'Ativar notificações';
+    pillText.textContent = '🔕 Notificações desativadas';
+    pill.className = 'bell-pill notif-off show';
+    setTimeout(() => btn.classList.remove('silencing'), 500);
+    showToast('Notificações da TechPrime Store desativadas.');
+  }
+  clearTimeout(bellPillTimer);
+  bellPillTimer = setTimeout(() => { pill.classList.remove('show'); }, 3200);
+}
+
+/* ─── SHARE ──────────────────────────────────────────────────────────── */
+function handleShare() {
+  showToast('Link do vendedor copiado! 🔗');
+}
+
+/* ─── TABS ───────────────────────────────────────────────────────────── */
+function switchTab(btn, tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  $('panel-' + tab).classList.add('on');
+  movePill(btn);
+  if (tab === 'reviews') {
+    setTimeout(() => {
+      document.querySelectorAll('.rs-bar-fill').forEach(b => { b.style.transition = 'width 1.4s var(--ease)'; b.style.width = (b.dataset.w||0)+'%'; });
+    }, 100);
+  }
+}
+function movePill(btn) {
+  const bg = $('tabPill');
+  const barRect = $('tabBar').getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  bg.style.left = (btnRect.left - barRect.left) + 'px';
+  bg.style.width = btnRect.width + 'px';
+}
+window.addEventListener('resize', () => { const a = document.querySelector('.tab-btn.on'); if(a) movePill(a); });
+
+/* ─── SCROLL REVEAL ──────────────────────────────────────────────────── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ─── REVIEW BARS ANIMATE (lazy) ────────────────────────────────────── */
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.rs-bar-fill').forEach(b => { b.style.transition='width 1.4s var(--ease)'; b.style.width=(b.dataset.w||0)+'%'; });
+      barObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.rev-summary').forEach(el => {
+  el.querySelectorAll('.rs-bar-fill').forEach(b => { b.style.width='0'; });
+  barObs.observe(el);
+});
+
+/* ─── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(() => $('toast').classList.remove('on'), 2800);
+}
+
+/* ─── MISC ───────────────────────────────────────────────────────────── */
+window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 300); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
+
+/* ─── INIT PILL POSITION ─────────────────────────────────────────────── */
+requestAnimationFrame(() => { const a = document.querySelector('.tab-btn.on'); if(a) movePill(a); });
+
+/* ─── STATS ENTRANCE ANIMATION ───────────────────────────────────────── */
+document.querySelectorAll('.pi-stat-val').forEach((el, i) => {
+  el.style.animationDelay = (i * 0.08) + 's';
+});
+</script>
+</body>
+</html>
