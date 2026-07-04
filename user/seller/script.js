@@ -37,7 +37,7 @@ function renderProds(list) {
   const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
   const badgeHtml = p => p.badge==='hot' ? `<span class="pbadge ph">🔥 Hot</span>` : p.badge==='new' ? `<span class="pbadge pn">Novo</span>` : `<span class="pbadge ps">-${p.discount}%</span>`;
   grid.innerHTML = list.map((p,i) => {
-    const inW = wishlist.includes(p.id);
+    const inW = fav.includes(p.id);
     return `<div class="pcard" style="animation:fadeInUp .4s var(--ease) ${i*.05}s backwards" onclick="openProductModal(${p.id})">
       <div class="pc-img-wrap">
         <div class="pc-img">${p.emoji}</div>
