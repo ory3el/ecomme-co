@@ -57,7 +57,7 @@
       background:linear-gradient(135deg,var(--blue) 0%,#1D4ED8 100%);
       border:4px solid #fff; box-shadow:0 8px 32px rgba(37,99,235,.35);
       display:flex; align-items:center; justify-content:center;
-      font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; color:#fff;
+      font-family:'Outfit',serif; font-size:40px; font-weight:500; color:#fff;
       position:relative; overflow:hidden; transition:box-shadow .3s;
     }
     .pi-avatar::after {
@@ -80,7 +80,7 @@
     /* info */
     .pi-info { flex:1; padding-top:16px; min-width:0; }
     .pi-name-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
-    .pi-name { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:700; line-height:1; }
+    .pi-name { font-family:'Outfit',serif; font-size:28px; font-weight:500; line-height:1; }
     .pi-tier { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff; font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:3px 10px; border-radius:100px; }
     .pi-tier svg { width:10px; height:10px; fill:#fff; }
     .pi-handle { font-size:13px; color:var(--muted); margin-bottom:8px; }
@@ -160,7 +160,7 @@
     .pi-stat { flex:1; padding:18px 22px; border-right:1px solid var(--border2); position:relative; transition:background .2s; cursor:default; }
     .pi-stat:last-child { border-right:none; }
     .pi-stat:hover { background:var(--bg); }
-    .pi-stat-val { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); display:block; line-height:1; margin-bottom:4px; animation:countUp .6s var(--ease) backwards; }
+    .pi-stat-val { font-family:'Outfit',serif; font-size:26px; font-weight:500; color:var(--blue); display:block; line-height:1; margin-bottom:4px; animation:countUp .6s var(--ease) backwards; }
     .pi-stat-lbl { font-size:11px; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:.6px; }
     .pi-stat-sub { font-size:11px; color:var(--green); margin-top:3px; font-weight:600; display:flex; align-items:center; gap:4px; }
     .pi-stat-sub svg { width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.5; }
@@ -226,7 +226,7 @@
     .pc-stars { color:var(--amber); font-size:11px; }
     .pc-rcount { font-size:11px; color:var(--muted); }
     .pc-price-row { display:flex; align-items:baseline; gap:7px; }
-    .pc-price { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:700; color:var(--blue); }
+    .pc-price { font-family:'Outfit',serif; font-size:21px; font-weight:500; color:var(--blue); }
     .pc-old { font-size:11.5px; color:var(--muted); text-decoration:line-through; }
     .pc-disc { font-size:10px; font-weight:700; color:#fff; background:var(--red); padding:2px 7px; border-radius:4px; margin-left:auto; }
 
@@ -234,7 +234,7 @@
     .rev-layout { display:grid; grid-template-columns:260px 1fr; gap:28px; }
     .rev-summary { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); padding:28px; height:fit-content; position:sticky; top:130px; }
     .rs-avg { text-align:center; margin-bottom:22px; }
-    .rs-num { font-family:'Cormorant Garamond',serif; font-size:54px; font-weight:700; color:var(--blue); line-height:1; display:block; }
+    .rs-num { font-family:'Outfit',serif; font-size:54px; font-weight:500; color:var(--blue); line-height:1; display:block; }
     .rs-stars { color:var(--amber); font-size:18px; letter-spacing:2px; margin:8px 0 4px; }
     .rs-total { font-size:12px; color:var(--muted); }
     .rs-bars { display:flex; flex-direction:column; gap:9px; }
