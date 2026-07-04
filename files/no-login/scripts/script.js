@@ -43,11 +43,13 @@ function updateCart() {
     el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
     return;
   }
-  el.innerHTML = cart.map(item => `
+  el.innerHTML = cart.map(item => {
+    const safeName = purificar(item.name);
+    return `
     <div class="ci">
       <div class="ci-img">${item.emoji}</div>
       <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
+        <div class="ci-name">${safeName}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         <div class="ci-qty">
           <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
@@ -64,7 +66,8 @@ function updateCart() {
       <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
@@ -119,14 +122,16 @@ function updateFav() {
     el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
     return;
   }
- el.innerHTML = fav.map(item => `
+  el.innerHTML = fav.map(item => {
+    const safeName = purificar(item.name);
+    return `
     <div class="ci">
       <div class="ci-img">${item.emoji}</div>
       <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
+        <div class="ci-name">${safeName}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         
-        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); if(typeof renderProducts === 'function') renderProducts();">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -135,13 +140,14 @@ function updateFav() {
         </button>
         
       </div>
-      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+      <button class="del" onclick="removeFromFav(${item.id}); if(typeof renderProducts === 'function') renderProducts();">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
   
 function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
