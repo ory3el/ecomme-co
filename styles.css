@@ -253,8 +253,8 @@ body.loading {
     }
     .btn-account:hover { background: #000; color: #fff; transform: translateY(-1px); }
 
-    /* ── SELLER HERO BANNER ────────────────────────────────── */
-    .seller-banner {
+    /* ── TOP BANNER ────────────────────────────────── */
+    .top-banner {
       position:relative; overflow:hidden;
       background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1D4ED8 100%);
       height:320px;
