@@ -87,7 +87,7 @@
     .pi-name { font-family:'Outfit',serif; font-size:28px; font-weight:500; line-height:1; }
     .pi-tier { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff; font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:3px 10px; border-radius:100px; }
     .pi-verified { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg,#0B69F5,#0661D9); color:#fff; font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:3px 10px; border-radius:100px; }
-    .pi-verified svg { width:10px; height:10px; fill:#fff; }
+    .pi-verified img { width:10px; height:10px; fill:#fff; }
     .pi-tier svg { width:10px; height:10px; fill:#fff; }
     .pi-handle { font-size:13px; color:var(--muted); margin-bottom:8px; }
     .pi-desc { font-size:13px; color:var(--muted); line-height:1.65; max-width:540px; }
