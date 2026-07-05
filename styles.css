@@ -262,7 +262,7 @@ body.loading {
     .sb-grid-bg { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1px); background-size:28px 28px; animation:dotDrift 18s linear infinite; opacity:.5; }
     .sb-orb1 { position:absolute; width:500px; height:500px; top:-200px; right:-100px; border-radius:50%; background:radial-gradient(circle,rgba(96,165,250,.2),transparent 70%); animation:orb1 20s ease-in-out infinite; }
     .sb-orb2 { position:absolute; width:320px; height:320px; bottom:-150px; left:15%; border-radius:50%; background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%); animation:orb2 15s ease-in-out infinite; }
-    .sb-particles { position:absolute; inset:0; pointer-events:none; }
+    .sb-particles { z-index: 100; position:absolute; inset:0; pointer-events:none; }
     .sb-p { position:absolute; width:2px; height:2px; background:rgba(255,255,255,.6); border-radius:50%; animation:float1 var(--d,4s) ease-in-out var(--dl,0s) infinite; }
     .sb-glow-line { position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--blue3),#fff,var(--blue3),transparent); animation:glowPulse 2.5s ease-in-out infinite; }
 
