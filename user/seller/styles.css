@@ -69,7 +69,7 @@
     .pi-avatar-wrap:hover .pi-avatar { box-shadow:0 12px 48px rgba(37,99,235,.5); }
     .pi-badge-verified {
       position:absolute; bottom:-6px; right:-6px;
-      width:30px; height:30px; border-radius:50%;
+      width:40px; height:40px; border-radius:50%;
       /* background:var(--blue); border:3px solid #fff; */
       background: transparent; border: none;
       display:flex; align-items:center; justify-content:center;
@@ -78,8 +78,7 @@
     }
     .pi-badge-verified svg { width:13px; height:13px; fill:none; stroke:#fff; stroke-width:3; }
     .imgg { 
-      width: 100%; box-shadow:0 4px 12px rgba(37,99,235,.4);
-      animation:badgePop .6s var(--ease) .3s backwards;
+      width: 100%; animation:badgePop .6s var(--ease) .3s backwards;
     }
 
     /* info */
