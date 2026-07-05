@@ -274,7 +274,7 @@ body.loading {
   /* HERO */
   .hero { 
     position: relative; min-height: 580px; display: flex; align-items: center; overflow: hidden; 
-    background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1D4ED8 100%)
+    background:linear-gradient(135deg, #20459e 0%, #254ec2 50%, #3467f7 100%)
   }
   .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #e4eaf0 0%, #eef3fa 40%, #e4eaf0 100%); }
   .hero-pattern { position: absolute; inset: 0; opacity: 0.025; background-image: repeating-linear-gradient(45deg, var(--blue) 0, var(--blue) 1px, transparent 0, transparent 50%); background-size: 24px 24px; }
@@ -297,11 +297,11 @@ body.loading {
   .hero-stat small { font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.8px; }
   .hero-visual { display: flex; flex-direction: column; gap: 16px; }
   .hero-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .hero-card { background: rgba(255, 255, 255, 0.7); border: 1px solid var(--border2); border-radius: var(--rad-lg); padding: 20px; transition: all 0.3s; cursor: pointer; overflow: hidden; position: relative; }
+  .hero-card { background: rgba(255, 255, 255, 1); border: 1px solid var(--border2); border-radius: var(--rad-lg); padding: 20px; transition: all 0.3s; cursor: pointer; overflow: hidden; position: relative; }
   .hero-card:hover { border-color: var(--border); transform: translateY(-3px); }
   .hero-card.featured { grid-column: 1 / -1; display: flex; align-items: center; gap: 20px; }
-  .hero-card-img { width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(255, 255, 255, 0.7); border-radius: 8px; object-fit: cover; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; }
-  .hero-card.featured .hero-card-img { width: 120px; height: 90px; flex-shrink: 0; margin-bottom: 0; }
+  .hero-card-img { width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(0, 0, 0, 0.5); border-radius: 15px; object-fit: cover; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; }
+  .hero-card.featured .hero-card-img { aspect-ratio: 1/1; width: 100px; height: 100px; flex-shrink: 0; margin-bottom: 0; }
   .hero-card-tag { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
   .hero-card-name { font-weight: 500; font-size: 13px; margin-bottom: 4px; }
   .hero-card-price { color: var(--blue); font-weight: 700; font-size: 15px; }
@@ -367,8 +367,8 @@ body.loading {
     }
     .tb-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 180px; }
     .tb-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 700;
+      font-family: 'Outfit', serif;
+      font-size: 22px; font-weight: 500;
     }
     .tb-count {
       background: var(--blue-dim); color: var(--blue);
@@ -558,8 +558,8 @@ body.loading {
   /* CATEGORIES GRID */
   .section { max-width: 1400px; margin: 0 auto; padding: 0 24px 0px; }
   .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; }
-  .section-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; }
-  .section-header a { font-size: 12px; color: var(--blue); font-weight: 500; display: flex; align-items: center; gap: 4px; letter-spacing: 0.3px; }
+  .section-header h2 { font-family: 'Outfit', serif; font-size: 36px; font-weight: 500; }
+  .section-header a { font-size: 12px; color: var(--blue); font-weight: 400; display: flex; align-items: center; gap: 4px; letter-spacing: 0.3px; }
   .section-header a:hover { text-decoration: underline; }
   .categories-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
   .cat-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--rad-lg); padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.3s; }
@@ -579,7 +579,7 @@ body.loading {
   .banner-emoji { position: absolute; top: 20px; right: 20px; font-size: 64px; opacity: 0.6; }
   .banner-content { position: relative; z-index: 1; }
   .banner-sub { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
-  .banner-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; margin-bottom: 6px; line-height: 1.2; color: #10141a; }
+  .banner-card h3 { font-family: 'Outfit', serif; font-size: 28px; font-weight: 500; margin-bottom: 6px; line-height: 1.2; color: #10141a; }
   .banner-card p { color: #555e6b; font-size: 12px; margin-bottom: 18px; }
   .btn-banner { background: #10151a; color: white; padding: 10px 22px; border-radius: 100px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
   .banner-card.banner-2 .btn-banner { background: var(--red); color: white; }
