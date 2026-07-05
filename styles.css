@@ -548,7 +548,7 @@ body.loading {
   .deal-emoji { font-size: 64px; flex-shrink: 0; }
   .deal-text { flex: 1; }
   .deal-tag { display: inline-block; background: var(--red); color: white; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 10px; }
-  .deal-text h3 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; margin-bottom: 6px; line-height: 1.1; }
+  .deal-text h3 { font-family: 'Outfit', serif; font-size: 32px; font-weight: 500; margin-bottom: 6px; line-height: 1.1; }
   .deal-text p { color: var(--muted); font-size: 13px; }
   .deal-countdown { display: flex; gap: 12px; flex-shrink: 0; }
   .countdown-unit { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; text-align: center; min-width: 72px; }
@@ -558,7 +558,7 @@ body.loading {
   /* CATEGORIES GRID */
   .section { max-width: 1400px; margin: 0 auto; padding: 0 24px 0px; }
   .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; }
-  .section-header h2 { font-family: 'Outfit', serif; font-size: 36px; font-weight: 500; }
+  .section-header h2 { font-family: 'Outfit', serif; font-size: 28px; font-weight: 500; }
   .section-header a { font-size: 12px; color: var(--blue); font-weight: 400; display: flex; align-items: center; gap: 4px; letter-spacing: 0.3px; }
   .section-header a:hover { text-decoration: underline; }
   .categories-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
