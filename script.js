@@ -392,12 +392,6 @@ function checkout() {
 function openMore()  { $('moreSidebar').classList.add('on'); $('moreOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
 function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
-function checkout2() {
-  showToast('Redirecionando para a página de checkout... 🔒');
-  window.location.href = "/checkout"
-  setTimeout(closeCart, 1200);
-}
-
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
