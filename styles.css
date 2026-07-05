@@ -38,6 +38,7 @@
     --text:      #0F172A;
     --textW:     #fff;
     --muted:     #64748B;
+    --muted2:    #c1cdde;
     --border:    rgba(37,99,235,0.18);
     --border2:   rgba(0,0,0,0.07);
     --borderW:   rgba(255,255,255,0.15);
@@ -280,9 +281,9 @@ body.loading {
   .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--blue-dim); border: 1px solid var(--border); color: var(--blue); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; margin-bottom: 24px; }
   .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--blue); border-radius: 50%; animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .hero h1 { font-family: 'Marck Script', serif; font-size: 64px; line-height: 1.05; font-weight: 400; margin-bottom: 20px; }
-  .hero h1 em { color: var(--blue); font-style: italic; }
-  .hero p { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 440px; margin-bottom: 36px; }
+  .hero h1 { color: (--white); font-family: 'Marck Script', serif; font-size: 64px; line-height: 1.05; font-weight: 400; margin-bottom: 20px; }
+  .hero h1 em { color: var(--blue3); font-style: italic; }
+  .hero p { color: var(--muted2); font-size: 16px; line-height: 1.7; max-width: 440px; margin-bottom: 36px; }
   .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
   .btn-primary { background: var(--blue); color: #fff; padding: 13px 28px; border-radius: 100px; font-weight: 600; font-size: 13px; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
   .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); }
