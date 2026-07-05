@@ -48,6 +48,17 @@ function fishYates(arr) {
   return a;
 }
 
+/* ─── PARTICLES ──────────────────────────────────────────────────────── */
+(function spawnParticles() {
+  const wrap = $('particles');
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'sb-p';
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${3+Math.random()*5}s;--dl:${Math.random()*3}s;opacity:${.3+Math.random()*.6}`;
+    wrap.appendChild(p);
+  }
+})();
+
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
 function shuffleAndRender() {
   shuffled = fishYates(products);
