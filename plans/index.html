@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planos e Assinaturas | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:        #2563EB;
+      --blue2:       #3B82F6;
+      --blue3:       #60A5FA;
+      --blue-dim:    rgba(37,99,235,0.07);
+      --blue-glow:   rgba(37,99,235,0.28);
+      --bg:          #F3F7FF;
+      --bg2:         #FFFFFF;
+      --bg3:         #EBF2FF;
+      --text:        #0F172A;
+      --muted:       #64748B;
+      --border:      rgba(37,99,235,0.18);
+      --border2:     rgba(0,0,0,0.07);
+      --red:         #EF4444;
+      --green:       #10B981;
+      --amber:       #F59E0B;
+      --purple:      #8B5CF6;
+      --gold:        #D97706;
+      --radius:      8px;
+      --rad-lg:      16px;
+      --ease:        cubic-bezier(.4,0,.2,1);
+
+      /* Plan colors */
+      --c-free:      #64748B;
+      --c-plus:      #2563EB;
+      --c-premium:   #8B5CF6;
+      --c-business:  #D97706;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    /* ── KEYFRAMES ────────────────────────────────────────────── */
+    @keyframes fadeInUp    { from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn      { from{opacity:0}to{opacity:1} }
+    @keyframes scaleIn     { from{opacity:0;transform:scale(.84)}to{opacity:1;transform:scale(1)} }
+    @keyframes slideRight  { from{transform:translateX(-100%)}to{transform:translateX(0)} }
+    @keyframes pulse-ring  { 0%{box-shadow:0 0 0 0 var(--blue-glow)}100%{box-shadow:0 0 0 18px transparent} }
+    @keyframes pulse-gold  { 0%{box-shadow:0 0 0 0 rgba(217,119,6,.4)}100%{box-shadow:0 0 0 14px transparent} }
+    @keyframes orb1        { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(50px,-40px) scale(1.1)}66%{transform:translate(-35px,28px) scale(.93)} }
+    @keyframes orb2        { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-40px,30px) scale(.92)}66%{transform:translate(35px,-25px) scale(1.12)} }
+    @keyframes dotDrift    { 0%{background-position:0 0}100%{background-position:56px 56px} }
+    @keyframes shimmer     { 0%{background-position:-400px 0}100%{background-position:400px 0} }
+    @keyframes floatY      { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+    @keyframes floatY2     { 0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)} }
+    @keyframes rotateSlow  { to{transform:rotate(360deg)} }
+    @keyframes borderGlow  { 0%,100%{opacity:.7}50%{opacity:1} }
+    @keyframes priceFlip   { 0%{opacity:0;transform:translateY(-12px) scale(.9)}100%{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes checkPop    { 0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1} }
+    @keyframes badgeSlide  { from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)} }
+    @keyframes waveBar     { 0%,100%{height:8px}50%{height:20px} }
+    @keyframes ribbonIn    { from{opacity:0;transform:rotate(-2deg) scale(.9)}to{opacity:1;transform:rotate(0) scale(1)} }
+    @keyframes countUp     { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes progressFill{ from{width:0}to{width:var(--tw)} }
+    @keyframes spinSlow    { to{transform:rotate(360deg)} }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar { background:var(--blue); color:#fff; text-align:center; padding:8px 20px; font-size:12px; font-weight:500; letter-spacing:.3px; position:relative; }
+    .topbar span { opacity:.55; margin:0 10px; }
+    .topbar-close { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.65); font-size:18px; }
+    .topbar-close:hover { color:#fff; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header { background:#fff; border-bottom:1px solid var(--border2); position:sticky; top:0; z-index:1000; box-shadow:0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width:1440px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:24px; height:68px; }
+    .logo { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); flex-shrink:0; display:flex; align-items:center; gap:5px; }
+    .logo-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; margin-top:2px; }
+    .nav-main { display:flex; gap:2px; }
+    .nav-main a { padding:7px 14px; font-size:13px; font-weight:500; color:var(--muted); border-radius:var(--radius); transition:all .2s; }
+    .nav-main a:hover { color:var(--text); background:var(--bg3); }
+    .nav-main a.active { color:var(--blue); background:var(--blue-dim); font-weight:600; }
+    .header-spacer { flex:1; }
+    .header-actions { display:flex; align-items:center; gap:6px; }
+    .icon-btn { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2); color:var(--muted); transition:all .2s; position:relative; }
+    .icon-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); }
+    .icon-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; }
+    .hd-badge { position:absolute; top:1px; right:1px; min-width:17px; height:17px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .btn-account { background:var(--blue-dim); border:1px solid var(--border); color:var(--blue); padding:7px 18px 7px 7px; border-radius:100px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px; transition:all .2s; }
+    .btn-account:hover { background:var(--blue); color:#fff; }
+    .acc-avatar { width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+    .btn-account:hover .acc-avatar { background:#fff; color:var(--blue); }
+
+    /* ── HERO ────────────────────────────────────────────────── */
+    .hero {
+      position:relative; overflow:hidden; min-height:620px;
+      background:#fff; display:flex; align-items:center;
+      border-bottom:1px solid var(--border2);
+    }
+    .hero-grid  { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(37,99,235,.13) 1px,transparent 1px); background-size:28px 28px; animation:dotDrift 16s linear infinite; opacity:.55; }
+    .orb        { position:absolute; border-radius:50%; pointer-events:none; filter:blur(70px); }
+    .orb.o1     { width:600px; height:600px; top:-180px; right:-140px; background:radial-gradient(circle,rgba(37,99,235,.11),transparent 70%); animation:orb1 20s ease-in-out infinite; }
+    .orb.o2     { width:380px; height:380px; bottom:-140px; left:8%; background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%); animation:orb2 16s ease-in-out infinite; }
+    .orb.o3     { width:280px; height:280px; top:10%; left:32%; background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%); animation:orb1 24s ease-in-out infinite reverse; }
+
+    /* rotating ring decorations */
+    .hero-ring  { position:absolute; border-radius:50%; border:1px solid rgba(37,99,235,.12); pointer-events:none; }
+    .hero-ring.r1 { width:440px; height:440px; top:50%; right:-80px; transform:translateY(-50%); animation:rotateSlow 60s linear infinite; }
+    .hero-ring.r2 { width:300px; height:300px; top:50%; right:0; transform:translateY(-50%); animation:rotateSlow 40s linear infinite reverse; }
+    .hero-ring.r3 { width:180px; height:180px; top:50%; right:80px; transform:translateY(-50%); animation:rotateSlow 25s linear infinite; }
+    .ring-dot { position:absolute; width:6px; height:6px; border-radius:50%; background:var(--blue); top:-3px; left:50%; transform:translateX(-50%); }
+
+    .hero-inner { max-width:1440px; margin:0 auto; padding:90px 28px; position:relative; z-index:1; width:100%; }
+    .hero-center { max-width:760px; margin:0 auto; text-align:center; }
+    .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; background:var(--blue-dim); border:1px solid var(--border); color:var(--blue); font-size:11px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; padding:6px 18px; border-radius:100px; margin-bottom:26px; animation:fadeInUp .6s var(--ease) backwards; }
+    .hero-eyebrow::before { content:''; width:6px; height:6px; background:var(--blue); border-radius:50%; animation:pulse-ring .9s ease-out infinite; }
+    .hero-center h1 { font-family:'Cormorant Garamond',serif; font-size:66px; font-weight:700; line-height:1.04; margin-bottom:20px; animation:fadeInUp .7s var(--ease) .08s backwards; }
+    .hero-center h1 em { color:var(--blue); font-style:italic; }
+    .hero-center p  { color:var(--muted); font-size:16px; line-height:1.75; max-width:520px; margin:0 auto 44px; animation:fadeInUp .7s var(--ease) .16s backwards; }
+
+    /* ── BILLING TOGGLE ─────────────────────────────────────── */
+    .toggle-wrap { display:inline-flex; align-items:center; gap:14px; background:var(--bg3); border:1px solid var(--border); border-radius:100px; padding:6px 8px 6px 16px; animation:scaleIn .6s var(--ease) .28s backwards; position:relative; }
+    .tg-label { font-size:13px; font-weight:600; color:var(--muted); transition:color .25s; white-space:nowrap; }
+    .tg-label.active { color:var(--text); }
+    .tg-pill { position:relative; width:54px; height:28px; background:var(--blue); border-radius:100px; cursor:pointer; transition:background .3s; flex-shrink:0; box-shadow:0 3px 10px rgba(37,99,235,.35); }
+    .tg-pill::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,.2); transition:transform .35s var(--ease); }
+    .tg-pill.annual::after { transform:translateX(26px); }
+    .save-badge { background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-size:10.5px; font-weight:700; padding:4px 11px; border-radius:100px; letter-spacing:.4px; white-space:nowrap; animation:badgeSlide .4s var(--ease); }
+
+    /* ── PLANS GRID ─────────────────────────────────────────── */
+    .plans-section { max-width:1440px; margin:0 auto; padding:72px 28px; }
+    .plans-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; align-items:start; }
+
+    .plan-card {
+      background:#fff; border:1.5px solid var(--border2); border-radius:var(--rad-lg);
+      padding:32px 26px; position:relative; overflow:hidden;
+      transition:transform .4s var(--ease), box-shadow .4s var(--ease), border-color .3s;
+      animation:fadeInUp .6s var(--ease) backwards;
+    }
+    .plan-card:hover { transform:translateY(-8px); }
+    .plan-card.featured { border-color:var(--blue); box-shadow:0 0 0 1px var(--blue), 0 24px 60px rgba(37,99,235,.18); }
+    .plan-card.featured:hover { box-shadow:0 0 0 1px var(--blue), 0 36px 80px rgba(37,99,235,.28); }
+
+    /* glowing border on featured */
+    .plan-card.featured::before {
+      content:''; position:absolute; inset:-1.5px; border-radius:calc(var(--rad-lg)+1.5px);
+      background:linear-gradient(135deg,var(--blue3),var(--blue),var(--purple),var(--blue));
+      background-size:300% 300%; animation:borderGlow 3s ease-in-out infinite;
+      z-index:-1; opacity:.6;
+    }
+    .plan-card.featured::after { content:''; position:absolute; inset:1.5px; background:#fff; border-radius:calc(var(--rad-lg) - 1px); z-index:-1; }
+
+    /* plan bg orb */
+    .pc-orb { position:absolute; top:-60px; right:-60px; width:180px; height:180px; border-radius:50%; opacity:.07; pointer-events:none; }
+
+    /* POPULAR RIBBON */
+    .popular-badge {
+      position:absolute; top:20px; right:-28px;
+      background:linear-gradient(135deg,var(--blue),#1D4ED8);
+      color:#fff; font-size:10px; font-weight:700; letter-spacing:1px;
+      text-transform:uppercase; padding:6px 40px;
+      transform:rotate(38deg);
+      box-shadow:0 4px 14px rgba(37,99,235,.4);
+      animation:ribbonIn .5s var(--ease) .4s backwards;
+      white-space:nowrap;
+    }
+
+    /* plan header */
+    .pc-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; position:relative; z-index:1; }
+    .pc-icon svg { width:22px; height:22px; fill:none; stroke-width:2; }
+    .pc-tier   { font-size:11px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
+    .pc-name   { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; margin-bottom:6px; position:relative; z-index:1; }
+    .pc-desc   { font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:22px; position:relative; z-index:1; min-height:40px; }
+
+    /* price */
+    .pc-price-wrap { margin-bottom:26px; position:relative; z-index:1; }
+    .pc-price-row  { display:flex; align-items:baseline; gap:5px; margin-bottom:4px; }
+    .pc-currency   { font-size:18px; font-weight:700; color:var(--muted); padding-top:4px; }
+    .pc-amount     { font-family:'Cormorant Garamond',serif; font-size:50px; font-weight:700; line-height:1; transition:all .3s; }
+    .pc-period     { font-size:13px; color:var(--muted); }
+    .pc-save-note  { font-size:11.5px; color:var(--green); font-weight:600; min-height:16px; }
+    .pc-old-price  { font-size:13px; color:var(--muted); text-decoration:line-through; }
+    .price-anim    { animation:priceFlip .35s var(--ease); }
+
+    /* plan CTA */
+    .btn-plan { width:100%; padding:14px; border-radius:100px; font-weight:700; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .25s var(--ease); margin-bottom:26px; position:relative; z-index:1; overflow:hidden; }
+    .btn-plan::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.15)); transform:translateX(-100%); transition:transform .4s; }
+    .btn-plan:hover::before { transform:translateX(100%); }
+    .btn-plan.outline { border:2px solid var(--border2); color:var(--text); }
+    .btn-plan.outline:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); transform:translateY(-1px); }
+    .btn-plan.solid-blue { background:var(--blue); color:#fff; box-shadow:0 8px 26px rgba(37,99,235,.3); }
+    .btn-plan.solid-blue:hover { background:var(--blue2); transform:translateY(-2px); box-shadow:0 14px 36px rgba(37,99,235,.42); }
+    .btn-plan.solid-purple { background:var(--purple); color:#fff; box-shadow:0 8px 26px rgba(139,92,246,.3); }
+    .btn-plan.solid-purple:hover { background:#7C3AED; transform:translateY(-2px); box-shadow:0 14px 36px rgba(139,92,246,.42); }
+    .btn-plan.solid-gold   { background:linear-gradient(135deg,var(--gold),#B45309); color:#fff; box-shadow:0 8px 26px rgba(217,119,6,.3); }
+    .btn-plan.solid-gold:hover { transform:translateY(-2px); box-shadow:0 14px 36px rgba(217,119,6,.42); }
+    .btn-plan svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* feature list */
+    .pc-features { display:flex; flex-direction:column; gap:10px; position:relative; z-index:1; }
+    .pf-row { display:flex; align-items:flex-start; gap:10px; font-size:12.5px; }
+    .pf-ico { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .pf-ico.ok  { background:rgba(16,185,129,.12); }
+    .pf-ico.ok  svg { stroke:var(--green); }
+    .pf-ico.no  { background:rgba(100,116,139,.1); }
+    .pf-ico.no  svg { stroke:var(--muted); }
+    .pf-ico.star{ background:rgba(139,92,246,.12); }
+    .pf-ico.star svg { stroke:var(--purple); }
+    .pf-ico svg { width:11px; height:11px; fill:none; stroke-width:2.5; }
+    .pf-text { color:var(--muted); line-height:1.5; }
+    .pf-text strong { color:var(--text); font-weight:600; }
+    .pf-text .new-tag { font-size:9.5px; font-weight:700; background:var(--blue-dim); color:var(--blue); border:1px solid var(--border); padding:1px 7px; border-radius:100px; vertical-align:middle; margin-left:4px; }
+
+    .pc-divider { border:none; border-top:1px solid var(--border2); margin:22px 0; position:relative; z-index:1; }
+
+    /* ── CURRENT PLAN INDICATOR ──────────────────────────────── */
+    .current-plan-bar { background:var(--blue-dim); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; display:flex; align-items:center; gap:9px; margin-bottom:22px; font-size:12px; font-weight:600; color:var(--blue); position:relative; z-index:1; animation:badgeSlide .5s var(--ease); }
+    .current-plan-bar svg { width:14px; height:14px; fill:none; stroke:var(--blue); stroke-width:2.5; }
+    .prog-bar { height:5px; background:var(--border2); border-radius:100px; overflow:hidden; margin-top:6px; }
+    .prog-fill { height:100%; background:var(--blue); border-radius:100px; --tw:42%; width:0; animation:progressFill 1.2s var(--ease) .5s forwards; }
+
+    /* ── STATS STRIP ─────────────────────────────────────────── */
+    .stats-strip { background:var(--blue); padding:24px 28px; }
+    .stats-inner { max-width:1440px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); }
+    .stat-it { display:flex; align-items:center; gap:12px; padding:12px 20px; opacity:0; transform:translateY(10px); transition:opacity .5s,transform .5s; }
+    .stat-it.visible { opacity:1; transform:none; }
+    .si-ico { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .si-ico svg { width:17px; height:17px; fill:none; stroke:#fff; stroke-width:2; }
+    .stat-it strong { color:#fff; font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; display:block; line-height:1; }
+    .stat-it span { font-size:11.5px; color:rgba(255,255,255,.7); }
+
+    /* ── COMPARISON TABLE ────────────────────────────────────── */
+    .compare-section { max-width:1440px; margin:0 auto; padding:0 28px 80px; }
+    .compare-head { text-align:center; margin-bottom:48px; }
+    .sec-tag { display:inline-flex; align-items:center; gap:7px; background:var(--blue-dim); border:1px solid var(--border); color:var(--blue); font-size:11px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; padding:5px 16px; border-radius:100px; margin-bottom:16px; }
+    .compare-head h2 { font-family:'Cormorant Garamond',serif; font-size:38px; font-weight:700; margin-bottom:10px; }
+    .compare-head p { color:var(--muted); font-size:14.5px; max-width:480px; margin:0 auto; line-height:1.7; }
+
+    .compare-table { width:100%; border-collapse:collapse; background:#fff; border-radius:var(--rad-lg); overflow:hidden; box-shadow:0 4px 28px rgba(37,99,235,.07); }
+    .ct-head { display:grid; grid-template-columns:2fr repeat(4,1fr); border-bottom:1px solid var(--border2); }
+    .ct-head-cell { padding:20px 16px; font-size:12px; font-weight:700; text-align:center; }
+    .ct-head-cell:first-child { text-align:left; padding-left:24px; }
+    .ct-head-cell.featured-col { background:var(--blue-dim); border-bottom:2px solid var(--blue); color:var(--blue); }
+
+    .ct-group-label { padding:12px 24px; background:var(--bg3); font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:2fr repeat(4,1fr); }
+    .ct-row { display:grid; grid-template-columns:2fr repeat(4,1fr); border-bottom:1px solid var(--border2); transition:background .2s; }
+    .ct-row:last-child { border-bottom:none; }
+    .ct-row:hover { background:var(--bg); }
+    .ct-cell { padding:15px 16px; font-size:13px; text-align:center; display:flex; align-items:center; justify-content:center; }
+    .ct-cell:first-child { text-align:left; justify-content:flex-start; padding-left:24px; color:var(--text); font-weight:500; }
+    .ct-cell.featured-col { background:rgba(37,99,235,.04); }
+    .ct-cell .check { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .ct-cell .check.ok  { background:rgba(16,185,129,.12); }
+    .ct-cell .check.ok  svg { stroke:var(--green); }
+    .ct-cell .check.no  { background:rgba(100,116,139,.08); }
+    .ct-cell .check.no  svg { stroke:#CBD5E1; }
+    .ct-cell .check.part { background:rgba(245,158,11,.12); }
+    .ct-cell .check.part svg { stroke:var(--amber); }
+    .ct-cell .check svg { width:12px; height:12px; fill:none; stroke-width:3; }
+    .ct-cell .t-val { font-weight:600; font-size:12.5px; }
+    .ct-cell .t-val.blue { color:var(--blue); }
+    .ct-cell .t-val.purple { color:var(--purple); }
+    .ct-cell .t-val.gold { color:var(--gold); }
+
+    /* ── TESTIMONIALS ────────────────────────────────────────── */
+    .testi-section { background:#fff; border-top:1px solid var(--border2); border-bottom:1px solid var(--border2); padding:80px 28px; }
+    .testi-inner { max-width:1440px; margin:0 auto; }
+    .testi-head { text-align:center; margin-bottom:48px; }
+    .testi-head h2 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:700; margin-bottom:8px; }
+    .testi-head p { color:var(--muted); font-size:14.5px; }
+    .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .testi-card { background:var(--bg); border:1px solid var(--border2); border-radius:var(--rad-lg); padding:28px 24px; position:relative; transition:all .35s var(--ease); }
+    .testi-card:hover { border-color:var(--border); transform:translateY(-5px); box-shadow:0 20px 52px rgba(37,99,235,.1); }
+    .tc-stars { color:var(--amber); font-size:14px; letter-spacing:2px; margin-bottom:14px; }
+    .tc-text { font-size:13.5px; color:var(--muted); line-height:1.8; margin-bottom:18px; font-style:italic; }
+    .tc-author { display:flex; align-items:center; gap:12px; }
+    .tc-ava { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff; flex-shrink:0; }
+    .tc-name { font-weight:700; font-size:13px; }
+    .tc-plan { font-size:11px; font-weight:600; padding:2px 10px; border-radius:100px; }
+    .tc-quote { position:absolute; top:22px; right:22px; font-family:'Cormorant Garamond',serif; font-size:52px; line-height:1; opacity:.1; color:var(--blue); font-weight:700; }
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .faq-section { background:var(--bg); padding:80px 28px; }
+    .faq-inner { max-width:800px; margin:0 auto; }
+    .faq-head { text-align:center; margin-bottom:44px; }
+    .faq-head h2 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:700; margin-bottom:8px; }
+    .faq-head p { color:var(--muted); }
+    .faq-item { background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); margin-bottom:10px; overflow:hidden; transition:border-color .25s, box-shadow .25s; }
+    .faq-item.open { border-color:var(--border); box-shadow:0 4px 24px rgba(37,99,235,.07); }
+    .faq-q { width:100%; display:flex; align-items:center; justify-content:space-between; padding:18px 22px; font-size:14px; font-weight:600; background:#fff; transition:background .2s; gap:16px; text-align:left; }
+    .faq-q:hover { background:var(--bg); }
+    .faq-item.open .faq-q { background:var(--bg); color:var(--blue); }
+    .faq-q-icon { width:28px; height:28px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s; }
+    .faq-item.open .faq-q-icon { background:var(--blue); border-color:var(--blue); transform:rotate(45deg); }
+    .faq-q-icon svg { width:12px; height:12px; fill:none; stroke:var(--muted); stroke-width:2.5; transition:stroke .3s; }
+    .faq-item.open .faq-q-icon svg { stroke:#fff; }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height .4s var(--ease); }
+    .faq-a-inner { padding:0 22px 18px; font-size:13.5px; color:var(--muted); line-height:1.8; }
+
+    /* ── FINAL CTA ────────────────────────────────────────────── */
+    .cta-section { background:var(--bg); padding:0 28px 90px; }
+    .cta-card {
+      max-width:1440px; margin:0 auto;
+      background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 45%,var(--blue) 100%);
+      border-radius:var(--rad-lg); padding:72px 56px;
+      text-align:center; position:relative; overflow:hidden; color:#fff;
+    }
+    .cta-card::before { content:'✦'; position:absolute; font-size:280px; opacity:.04; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; font-family:'Cormorant Garamond',serif; }
+    .cta-grid-bg { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1px); background-size:24px 24px; opacity:.4; animation:dotDrift 20s linear infinite; }
+    .cta-card h2 { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; margin-bottom:14px; position:relative; z-index:1; }
+    .cta-card p { font-size:15px; opacity:.85; max-width:480px; margin:0 auto 34px; line-height:1.7; position:relative; z-index:1; }
+    .cta-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1; }
+    .btn-cta-white  { background:#fff; color:var(--blue); padding:14px 32px; border-radius:100px; font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; transition:all .25s; box-shadow:0 8px 24px rgba(255,255,255,.2); }
+    .btn-cta-white:hover  { transform:translateY(-2px); box-shadow:0 16px 36px rgba(255,255,255,.3); }
+    .btn-cta-ghost  { border:1.5px solid rgba(255,255,255,.45); color:#fff; padding:14px 32px; border-radius:100px; font-weight:600; font-size:13.5px; transition:all .25s; }
+    .btn-cta-ghost:hover  { border-color:#fff; background:rgba(255,255,255,.1); transform:translateY(-1px); }
+    .btn-cta-white svg, .btn-cta-ghost svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* ── CART SIDEBAR ─────────────────────────────────────────── */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1999; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px); }
+    .overlay.on { opacity:1; pointer-events:all; }
+    .cart-sb { position:fixed; right:0; top:0; bottom:0; width:420px; background:#fff; border-left:1px solid var(--border2); z-index:2000; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; }
+    .cart-sb.on { transform:translateX(0); }
+    .cart-hd { padding:24px; border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; }
+    .cart-hd h3 { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
+    .cart-cls { width:34px; height:34px; border-radius:var(--radius); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+    .cart-cls:hover { border-color:var(--red); color:var(--red); }
+    .cart-cls svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+    .cart-body { flex:1; overflow-y:auto; padding:40px 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--muted); }
+    .cart-body span { font-size:48px; }
+    .cart-ft { padding:20px; border-top:1px solid var(--border2); }
+    .cart-tots { margin-bottom:16px; }
+    .ct-row2 { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+    .ct-row2 .lbl { color:var(--muted); }
+    .ct-row2.ttl { font-size:15px; font-weight:600; padding-top:10px; border-top:1px solid var(--border2); margin-top:10px; }
+    .ct-row2.ttl .amt { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--blue); }
+    .btn-ckout { width:100%; background:var(--blue); color:#fff; padding:14px; border-radius:100px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; margin-bottom:10px; }
+    .btn-ckout:hover { background:var(--blue2); }
+    .btn-cont { width:100%; background:none; border:1px solid var(--border2); color:var(--muted); padding:11px; border-radius:100px; font-size:12px; }
+    .btn-cont:hover { border-color:var(--blue); color:var(--blue); }
+
+    /* ── TOAST ────────────────────────────────────────────────── */
+    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:#0F172A; border:1px solid rgba(255,255,255,.1); color:#fff; padding:12px 22px; border-radius:100px; font-size:13px; font-weight:500; z-index:3000; display:flex; align-items:center; gap:10px; transition:transform .3s cubic-bezier(.4,0,.2,1); white-space:nowrap; pointer-events:none; }
+    .toast.on { transform:translateX(-50%) translateY(0); }
+    .t-ico { width:20px; height:20px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0; }
+
+    /* ── BTT ──────────────────────────────────────────────────── */
+    .btt { position:fixed; bottom:28px; right:28px; width:44px; height:44px; background:var(--blue); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; transform:translateY(20px); transition:all .3s; }
+    .btt.on { opacity:1; transform:translateY(0); }
+    .btt:hover { background:var(--blue2); }
+    .btt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* ── FOOTER ───────────────────────────────────────────────── */
+    footer { background:#fff; border-top:1px solid var(--border2); padding:36px 28px; }
+    .ft-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+    .ft-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--blue); }
+    .ft-links { display:flex; gap:22px; flex-wrap:wrap; }
+    .ft-links a { font-size:12px; color:var(--muted); transition:color .2s; }
+    .ft-links a:hover { color:var(--blue); }
+    .ft-copy { font-size:12px; color:var(--muted); }
+
+    /* reveal */
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity .6s var(--ease),transform .6s var(--ease); }
+    .reveal.in { opacity:1; transform:none; }
+
+    /* ── RESPONSIVE ───────────────────────────────────────────── */
+    @media(max-width:1100px) { .plans-grid{grid-template-columns:repeat(2,1fr);} .testi-grid{grid-template-columns:1fr;} }
+    @media(max-width:900px)  { .ct-head,.ct-group-label,.ct-row{grid-template-columns:2fr repeat(2,1fr);} .ct-cell:nth-child(3),.ct-cell:nth-child(5),.ct-head-cell:nth-child(3),.ct-head-cell:nth-child(5),.ct-group-label>*:nth-child(3),.ct-group-label>*:nth-child(5){display:none;} .stats-inner{grid-template-columns:1fr 1fr;} }
+    @media(max-width:768px)  { .nav-main{display:none;} .plans-grid{grid-template-columns:1fr;} .hero-center h1{font-size:42px;} .plans-section{padding:48px 20px;} .compare-section{padding:0 20px 60px;} .faq-section{padding:56px 20px;} .cta-card{padding:44px 24px;} .cta-card h2{font-size:30px;} .hero-ring{display:none;} .ct-head,.ct-group-label,.ct-row{grid-template-columns:2fr 1fr 1fr;} .ct-cell:nth-child(4),.ct-head-cell:nth-child(4),.ct-group-label>*:nth-child(4){display:none;} .cart-sb{width:100%;} .ft-inner{flex-direction:column;text-align:center;} .ft-links{justify-content:center;} }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="#">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showToast('Abrindo notificações...')">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge">3</span>
+      </button>
+      <button class="icon-btn" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <span class="acc-avatar">MF</span>Plano Grátis
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="hero-ring r1"><div class="ring-dot"></div></div>
+  <div class="hero-ring r2"><div class="ring-dot" style="top:auto;bottom:-3px"></div></div>
+  <div class="hero-ring r3"><div class="ring-dot" style="left:auto;right:-3px;top:50%;transform:translateY(-50%)"></div></div>
+
+  <div class="hero-inner">
+    <div class="hero-center">
+      <div class="hero-eyebrow">Ecomme Assinaturas</div>
+      <h1>Compre <em>mais</em>,<br>pague <em>menos</em></h1>
+      <p>Escolha o plano certo para sua rotina de compras. Do gratuito ao VIP — cada assinatura foi desenhada para devolver tempo e dinheiro para você.</p>
+
+      <!-- BILLING TOGGLE -->
+      <div class="toggle-wrap">
+        <span class="tg-label active" id="lblMonthly">Mensal</span>
+        <div class="tg-pill" id="tgPill" onclick="toggleBilling()"></div>
+        <span class="tg-label" id="lblAnnual">Anual</span>
+        <div class="save-badge" id="saveBadge">Economize até 25%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PLANS GRID ══════════════════════════════════════════════ -->
+<section class="plans-section">
+  <div class="plans-grid" id="plansGrid">
+
+    <!-- FREE -->
+    <div class="plan-card" style="animation-delay:.05s">
+      <div class="pc-orb" style="background:var(--c-free)"></div>
+      <div class="pc-icon" style="background:rgba(100,116,139,.1)">
+        <svg viewBox="0 0 24 24" style="stroke:var(--c-free)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="pc-tier" style="color:var(--c-free)">Básico</div>
+      <div class="pc-name">Grátis</div>
+      <div class="pc-desc">Tudo que você precisa para começar a comprar com segurança.</div>
+
+      <div class="pc-price-wrap">
+        <div class="pc-price-row"><span class="pc-amount" id="amt-free" style="color:var(--c-free)">R$0</span></div>
+        <div class="pc-save-note" id="save-free">&nbsp;</div>
+      </div>
+
+      <div class="current-plan-bar">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>
+        Seu plano atual
+        <div class="prog-bar" style="display:block;width:100%;margin-left:auto"><div class="prog-fill" style="--tw:100%;background:var(--c-free)"></div></div>
+      </div>
+
+      <button class="btn-plan outline" onclick="showToast('Você já está no plano Grátis.')">Plano Atual</button>
+
+      <div class="pc-features">
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Catálogo completo de produtos</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Carrinho e checkout seguro</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Rastreamento de pedidos</div></div>
+        <div class="pf-row"><div class="pf-ico no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="pf-text" style="color:#CBD5E1">Frete grátis ilimitado</div></div>
+        <div class="pf-row"><div class="pf-ico no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="pf-text" style="color:#CBD5E1">Cashback em compras</div></div>
+        <div class="pf-row"><div class="pf-ico no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="pf-text" style="color:#CBD5E1">Acesso antecipado a ofertas</div></div>
+      </div>
+    </div>
+
+    <!-- PLUS -->
+    <div class="plan-card" style="animation-delay:.14s">
+      <div class="pc-orb" style="background:var(--c-plus)"></div>
+      <div class="pc-icon" style="background:var(--blue-dim)">
+        <svg viewBox="0 0 24 24" style="stroke:var(--c-plus)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="pc-tier" style="color:var(--c-plus)">Plus</div>
+      <div class="pc-name">Ecomme Plus</div>
+      <div class="pc-desc">Para quem compra com frequência e quer mais vantagens no dia a dia.</div>
+
+      <div class="pc-price-wrap">
+        <div class="pc-price-row">
+          <span class="pc-currency" style="color:var(--c-plus)">R$</span>
+          <span class="pc-amount" id="amt-plus" style="color:var(--c-plus)">19</span>
+          <span class="pc-period">/mês</span>
+        </div>
+        <div class="pc-save-note" id="save-plus">&nbsp;</div>
+      </div>
+
+      <button class="btn-plan solid-blue" onclick="selectPlan('Plus')">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        Assinar Plus
+      </button>
+
+      <div class="pc-features">
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Tudo do plano Grátis</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text"><strong>Frete grátis</strong> em todos os pedidos</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text"><strong>Cashback 2%</strong> em todas as compras</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Acesso 24h antes às promoções</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Lista de desejos ilimitada</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Suporte prioritário</div></div>
+        <div class="pf-row"><div class="pf-ico no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="pf-text" style="color:#CBD5E1">Personal Shopper</div></div>
+      </div>
+    </div>
+
+    <!-- PREMIUM (FEATURED) -->
+    <div class="plan-card featured" style="animation-delay:.22s">
+      <div class="popular-badge">⚡ Mais Popular</div>
+      <div class="pc-orb" style="background:var(--c-premium)"></div>
+      <div class="pc-icon" style="background:rgba(139,92,246,.1)">
+        <svg viewBox="0 0 24 24" style="stroke:var(--c-premium)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="pc-tier" style="color:var(--c-premium)">Premium</div>
+      <div class="pc-name">Ecomme Premium</div>
+      <div class="pc-desc">A experiência de compra mais completa, com benefícios exclusivos e atendimento VIP.</div>
+
+      <div class="pc-price-wrap">
+        <div class="pc-price-row">
+          <span class="pc-currency" style="color:var(--c-premium)">R$</span>
+          <span class="pc-amount" id="amt-premium" style="color:var(--c-premium)">49</span>
+          <span class="pc-period">/mês</span>
+        </div>
+        <div class="pc-save-note" id="save-premium">&nbsp;</div>
+      </div>
+
+      <button class="btn-plan solid-purple" onclick="selectPlan('Premium')">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        Assinar Premium
+      </button>
+
+      <div class="pc-features">
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Tudo do plano Plus</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text"><strong>Cashback 5%</strong> em todas as compras</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text"><strong>Frete expresso</strong> grátis ilimitado</div></div>
+        <div class="pf-row"><div class="pf-ico star"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="pf-text"><strong>Personal Shopper</strong> dedicado <span class="new-tag">Novo</span></div></div>
+        <div class="pf-row"><div class="pf-ico star"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="pf-text">Acesso a <strong>produtos exclusivos</strong></div></div>
+        <div class="pf-row"><div class="pf-ico star"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><div class="pf-text">Devoluções <strong>ilimitadas</strong></div></div>
+        <div class="pf-row"><div class="pf-ico star"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13"/></svg></div><div class="pf-text">Suporte <strong>VIP 24/7</strong></div></div>
+      </div>
+    </div>
+
+    <!-- BUSINESS -->
+    <div class="plan-card" style="animation-delay:.30s">
+      <div class="pc-orb" style="background:var(--c-business)"></div>
+      <div class="pc-icon" style="background:rgba(217,119,6,.1)">
+        <svg viewBox="0 0 24 24" style="stroke:var(--c-business)"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="pc-tier" style="color:var(--c-business)">Business</div>
+      <div class="pc-name">Ecomme Business</div>
+      <div class="pc-desc">Para empresas e revendedores que precisam de controle, escala e integração.</div>
+
+      <div class="pc-price-wrap">
+        <div class="pc-price-row">
+          <span class="pc-currency" style="color:var(--c-business)">R$</span>
+          <span class="pc-amount" id="amt-business" style="color:var(--c-business)">99</span>
+          <span class="pc-period">/mês</span>
+        </div>
+        <div class="pc-save-note" id="save-business">&nbsp;</div>
+      </div>
+
+      <button class="btn-plan solid-gold" onclick="selectPlan('Business')">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        Assinar Business
+      </button>
+
+      <div class="pc-features">
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Tudo do plano Premium</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Multi-contas (até <strong>10 usuários</strong>)</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Nota fiscal <strong>automática</strong></div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Dashboard de gastos e relatórios</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Compras recorrentes automatizadas</div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">API de integração <span class="new-tag">Novo</span></div></div>
+        <div class="pf-row"><div class="pf-ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="pf-text">Gerente de conta dedicado</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ STATS STRIP ═══════════════════════════════════════════ -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-it"><div class="si-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><strong>+48K</strong><span>Assinantes ativos</span></div></div>
+    <div class="stat-it" style="transition-delay:.08s"><div class="si-ico"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><strong>R$12M+</strong><span>Economizados em cashback</span></div></div>
+    <div class="stat-it" style="transition-delay:.16s"><div class="si-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div><strong>98%</strong><span>Satisfação dos assinantes</span></div></div>
+    <div class="stat-it" style="transition-delay:.24s"><div class="si-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><strong>Cancele</strong><span>A qualquer momento</span></div></div>
+  </div>
+</div>
+
+<!-- ══ COMPARISON TABLE ══════════════════════════════════════ -->
+<section class="compare-section" style="padding-top:80px">
+  <div class="compare-head reveal">
+    <div class="sec-tag">Comparativo Completo</div>
+    <h2>Tudo lado a lado</h2>
+    <p>Veja exatamente o que cada plano inclui antes de decidir.</p>
+  </div>
+
+  <div style="background:#fff;border-radius:var(--rad-lg);overflow:hidden;box-shadow:0 4px 28px rgba(37,99,235,.07);border:1px solid var(--border2)">
+    <!-- Header -->
+    <div class="ct-head" style="background:var(--bg)">
+      <div class="ct-head-cell">Funcionalidade</div>
+      <div class="ct-head-cell">Grátis</div>
+      <div class="ct-head-cell featured-col">Plus</div>
+      <div class="ct-head-cell featured-col" style="background:rgba(139,92,246,.06);border-bottom-color:var(--purple);color:var(--purple)">Premium</div>
+      <div class="ct-head-cell" style="color:var(--gold)">Business</div>
+    </div>
+
+    <!-- Entregas -->
+    <div class="ct-group-label"><span>🚚 Entrega e Frete</span><span></span><span></span><span></span><span></span></div>
+    <div class="ct-row"><div class="ct-cell">Frete com desconto</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+    <div class="ct-row"><div class="ct-cell">Frete grátis (todos pedidos)</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+    <div class="ct-row"><div class="ct-cell">Frete expresso grátis</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+
+    <!-- Cashback -->
+    <div class="ct-group-label"><span>💰 Cashback e Economias</span><span></span><span></span><span></span><span></span></div>
+    <div class="ct-row"><div class="ct-cell">Cashback em compras</div><div class="ct-cell"><span class="t-val">—</span></div><div class="ct-cell featured-col"><span class="t-val blue">2%</span></div><div class="ct-cell featured-col"><span class="t-val purple">5%</span></div><div class="ct-cell"><span class="t-val gold">5%</span></div></div>
+    <div class="ct-row"><div class="ct-cell">Cupons exclusivos mensais</div><div class="ct-cell"><span class="t-val">—</span></div><div class="ct-cell featured-col"><span class="t-val blue">2 cupons</span></div><div class="ct-cell featured-col"><span class="t-val purple">Ilimitado</span></div><div class="ct-cell"><span class="t-val gold">Ilimitado</span></div></div>
+    <div class="ct-row"><div class="ct-cell">Acesso antecipado às ofertas</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><span class="t-val blue">24h antes</span></div><div class="ct-cell featured-col"><span class="t-val purple">48h antes</span></div><div class="ct-cell"><span class="t-val gold">72h antes</span></div></div>
+
+    <!-- Suporte -->
+    <div class="ct-group-label"><span>🎧 Suporte e Atendimento</span><span></span><span></span><span></span><span></span></div>
+    <div class="ct-row"><div class="ct-cell">Chat de suporte</div><div class="ct-cell"><span class="t-val">Fila padrão</span></div><div class="ct-cell featured-col"><span class="t-val blue">Prioritário</span></div><div class="ct-cell featured-col"><span class="t-val purple">VIP 24/7</span></div><div class="ct-cell"><span class="t-val gold">Dedicado</span></div></div>
+    <div class="ct-row"><div class="ct-cell">Personal Shopper</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+    <div class="ct-row"><div class="ct-cell">Gerente de conta</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+
+    <!-- Business -->
+    <div class="ct-group-label"><span>🏢 Recursos Business</span><span></span><span></span><span></span><span></span></div>
+    <div class="ct-row"><div class="ct-cell">Multi-contas</div><div class="ct-cell"><span class="t-val">—</span></div><div class="ct-cell featured-col"><span class="t-val">—</span></div><div class="ct-cell featured-col"><span class="t-val">—</span></div><div class="ct-cell"><span class="t-val gold">Até 10</span></div></div>
+    <div class="ct-row"><div class="ct-cell">Nota fiscal automática</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+    <div class="ct-row"><div class="ct-cell">API de integração</div><div class="ct-cell"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell featured-col"><div class="check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><div class="ct-cell"><div class="check ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ══════════════════════════════════════════ -->
+<section class="testi-section">
+  <div class="testi-inner">
+    <div class="testi-head reveal">
+      <div class="sec-tag" style="margin-bottom:14px">O que nossos assinantes dizem</div>
+      <h2>Quem já assinou, não volta atrás</h2>
+      <p>Mais de 48 mil pessoas já escolheram uma assinatura Ecomme.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="tc-quote">"</div>
+        <div class="tc-stars">★★★★★</div>
+        <div class="tc-text">"O cashback do Premium pagou praticamente metade da assinatura já no primeiro mês. Sem falar no frete expresso grátis — comprei sexta e chegou sábado."</div>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,var(--purple),#6D28D9)">LM</div>
+          <div>
+            <div class="tc-name">Lucas Monteiro</div>
+            <span class="tc-plan" style="background:rgba(139,92,246,.1);color:var(--purple)">⭐ Ecomme Premium</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:.1s">
+        <div class="tc-quote">"</div>
+        <div class="tc-stars">★★★★★</div>
+        <div class="tc-text">"Assino o Plus há 4 meses e o frete grátis em tudo já me economizou mais do que o valor total das assinaturas. E o acesso antecipado às promoções é ouro."</div>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,var(--blue),#1D4ED8)">RC</div>
+          <div>
+            <div class="tc-name">Rafaela Costa</div>
+            <span class="tc-plan" style="background:var(--blue-dim);color:var(--blue)">✦ Ecomme Plus</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:.2s">
+        <div class="tc-quote">"</div>
+        <div class="tc-stars">★★★★★</div>
+        <div class="tc-text">"O Business foi um divisor de águas para minha empresa. Nota fiscal automática, multi-contas e o gerente dedicado resolvem tudo antes mesmo de eu perceber que é problema."</div>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,var(--gold),#B45309)">GA</div>
+          <div>
+            <div class="tc-name">Gustavo Alves</div>
+            <span class="tc-plan" style="background:rgba(217,119,6,.1);color:var(--gold)">◆ Ecomme Business</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ═══════════════════════════════════════════════════ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="faq-head reveal">
+      <div class="sec-tag" style="margin-bottom:14px">Dúvidas Frequentes</div>
+      <h2>Perguntas sobre assinaturas</h2>
+      <p>Tudo o que você precisa saber antes de assinar.</p>
+    </div>
+
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Posso cancelar quando quiser?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Sim. Nenhum dos planos tem fidelidade mínima. Você pode cancelar a qualquer momento diretamente nas configurações da sua conta, sem taxas ou burocracia. A assinatura fica ativa até o final do período já pago.</div></div></div>
+
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como funciona o cashback?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">O cashback é calculado sobre o valor total de cada compra (excluindo frete). O saldo fica disponível na sua conta em até 15 dias após a entrega confirmada, e pode ser usado como desconto em compras futuras — sem prazo de expiração.</div></div></div>
+
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Posso mudar de plano depois?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Sim, o upgrade é imediato — você começa a aproveitar os novos benefícios no mesmo instante. Downgrade entra em vigor no início do próximo ciclo de cobrança, e você não perde os dias já pagos no plano atual.</div></div></div>
+
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">O plano Business serve para pessoa física?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Sim! O Business é voltado principalmente para empresas e revendedores, mas pessoa física também pode assinar. É especialmente útil se você compartilha a conta com familiares (multi-contas) ou faz compras muito frequentes.</div></div></div>
+
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">O desconto anual é aplicado imediatamente?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Sim. Ao escolher a cobrança anual, você paga o valor com desconto em uma única parcela e os benefícios são ativados imediatamente. Caso cancele antes do fim do ano, o valor proporcional dos meses restantes é reembolsado.</div></div></div>
+  </div>
+</section>
+
+<!-- ══ FINAL CTA ══════════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-card reveal">
+    <div class="cta-grid-bg"></div>
+    <h2>Pronto para economizar mais?</h2>
+    <p>Comece com 7 dias grátis em qualquer plano pago. Sem precisar de cartão de crédito para testar.</p>
+    <div class="cta-btns">
+      <button class="btn-cta-white" onclick="selectPlan('Premium')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Testar 7 dias grátis
+      </button>
+      <button class="btn-cta-ghost" onclick="document.querySelector('.plans-section').scrollIntoView({behavior:'smooth'})">
+        Ver todos os planos
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/about">Sobre Nós</a>
+      <a href="/terms">Termos de Uso</a>
+      <a href="/support">Suporte</a>
+      <a href="/my-orders">Meus Pedidos</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd"><h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3><button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="cart-body"><span>🛒</span><p>Seu carrinho está vazio</p></div>
+  <div class="cart-ft">
+    <div class="cart-tots"><div class="ct-row2"><span class="lbl">Subtotal</span><span>R$ 0,00</span></div><div class="ct-row2"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div><div class="ct-row2 ttl"><span class="lbl">Total</span><span class="amt">R$ 0,00</span></div></div>
+    <button class="btn-ckout" onclick="showToast('Adicione produtos primeiro! 😊');closeCart()"><svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Finalizar Compra</button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ─── BILLING TOGGLE ─────────────────────────────────────────────────── */
+let isAnnual = false;
+
+const prices = {
+  monthly: { free: 'R$0', plus: '19', premium: '49', business: '99' },
+  annual:  { free: 'R$0', plus: '15', premium: '39', business: '79' },
+  saveNotes: {
+    plus:     { m: '', a: 'R$48 de economia por ano' },
+    premium:  { m: '', a: 'R$120 de economia por ano' },
+    business: { m: '', a: 'R$240 de economia por ano' },
+  }
+};
+
+function toggleBilling() {
+  isAnnual = !isAnnual;
+  const pill = $('tgPill');
+  const lblM = $('lblMonthly');
+  const lblA = $('lblAnnual');
+
+  if (isAnnual) {
+    pill.classList.add('annual');
+    lblM.classList.remove('active');
+    lblA.classList.add('active');
+  } else {
+    pill.classList.remove('annual');
+    lblA.classList.remove('active');
+    lblM.classList.add('active');
+  }
+
+  const p = isAnnual ? prices.annual : prices.monthly;
+  const sn = prices.saveNotes;
+
+  /* animate prices */
+  ['plus','premium','business'].forEach(plan => {
+    const el = $('amt-' + plan);
+    el.classList.remove('price-anim');
+    void el.offsetWidth;
+    el.classList.add('price-anim');
+    el.textContent = p[plan];
+
+    const saveEl = $('save-' + plan);
+    if (isAnnual) {
+      saveEl.innerHTML = `<span style="animation:badgeSlide .4s var(--ease)">${sn[plan].a}</span>`;
+    } else {
+      saveEl.innerHTML = '&nbsp;';
+    }
+  });
+
+  showToast(isAnnual ? '💰 Preços anuais aplicados — até 25% de desconto!' : 'Preços mensais aplicados.');
+}
+
+/* ─── SELECT PLAN ────────────────────────────────────────────────────── */
+function selectPlan(name) {
+  const period = isAnnual ? 'anual' : 'mensal';
+  const priceMap = { Plus: isAnnual ? 'R$15' : 'R$19', Premium: isAnnual ? 'R$39' : 'R$49', Business: isAnnual ? 'R$79' : 'R$99' };
+  showToast(`🎉 Iniciando assinatura ${name} — ${priceMap[name]}/mês (${period})`);
+}
+
+/* ─── FAQ ────────────────────────────────────────────────────────────── */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const ans  = item.querySelector('.faq-a');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null; });
+  if (!wasOpen) { item.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
+}
+
+/* ─── CART ───────────────────────────────────────────────────────────── */
+function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
+
+/* ─── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(() => $('toast').classList.remove('on'), 2800);
+}
+
+/* ─── SCROLL ─────────────────────────────────────────────────────────── */
+window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 300); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
+
+/* ─── REVEAL ON SCROLL ───────────────────────────────────────────────── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in','visible'); revealObs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal, .stat-it').forEach(el => revealObs.observe(el));
+
+/* ─── COMPARISON TABLE COLUMN HOVER ─────────────────────────────────── */
+document.querySelectorAll('.ct-cell.featured-col, .ct-head-cell.featured-col').forEach(cell => {
+  const idx = Array.from(cell.parentElement.children).indexOf(cell);
+  cell.addEventListener('mouseenter', () => {
+    document.querySelectorAll('.ct-row').forEach(row => {
+      if (row.children[idx]) row.children[idx].style.background = 'rgba(37,99,235,.08)';
+    });
+  });
+  cell.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.ct-row').forEach(row => {
+      if (row.children[idx]) row.children[idx].style.background = '';
+    });
+  });
+});
+
+/* ─── PLAN CARD TILT ON MOUSE ────────────────────────────────────────── */
+document.querySelectorAll('.plan-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `translateY(-8px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg)`;
+    card.style.transition = 'transform .1s';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'transform .4s var(--ease)';
+  });
+});
+
+/* ─── STAGGER PLAN CARDS ─────────────────────────────────────────────── */
+const planObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; planObs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.plan-card').forEach(card => {
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(32px)';
+  card.style.transition = 'opacity .6s var(--ease), transform .6s var(--ease)';
+  planObs.observe(card);
+});
+</script>
+</body>
+</html>
