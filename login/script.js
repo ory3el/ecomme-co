@@ -16,16 +16,6 @@ const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
-// ── 1. INICIALIZAR O SUPABASE ──────────────────
-const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let googleLoginRendered = false;
-let googleRegRendered = false;
-let googleInitialized = false;
-
 // ── TAB SWITCH ─────────────────────────────────────────────
 function showTab(tab){
   const isLogin = tab === 'login';
@@ -38,83 +28,32 @@ function showTab(tab){
   verificarERenderizarBotoes();
 }
 
-window.onGoogleLibraryLoad = function () {
-  inicializarEConfigurarGoogle();
-};
-
-// ── CONFIGURAÇÃO SEGURA DO GOOGLE ───────────────────────────
-function inicializarEConfigurarGoogle() {
-  if (typeof google !== 'undefined' && google.accounts) {
-    
-    if (!googleInitialized) {
-      google.accounts.id.initialize({
-        client_id: "713059185567-mf4f30n7qrmgt474gjhon9ltc2s895rb.apps.googleusercontent.com",
-        callback: handleCredentialResponse,
-        auto_prompt: false,
-        context: "signin"
-      });
-      googleInitialized = true;
+// ── SOCIAL LOGIN (GOOGLE E FACEBOOK VIA SUPABASE) ──────────
+async function socialLogin(provider) {
+  // Provider deve ser 'google' ou 'facebook'
+  toast(`Redirecionando para o ${provider}...`);
+  
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    provider: provider,
+    options: {
+      // O Supabase redirecionará o usuário para a página principal após o login.
+      // Ajuste o caminho se necessário (ex: window.location.origin + '/dashboard.html')
+      redirectTo: window.location.origin + '/' 
     }
-
-    verificarERenderizarBotoes();
-  }
-}
-
-function verificarERenderizarBotoes() {
-  if (typeof google === 'undefined' || !google.accounts) return;
-
-  const opcoesEstilo = {
-    type: "standard",
-    size: "large",
-    theme: "outline", 
-    text: "signin", 
-    shape: "rectangular",
-    logo_alignment: "left",
-    width: "210"
-  };
-
-  // Botão de Login
-  const elLogin = document.getElementById('google-btn-login');
-  const formLoginEscondido = document.getElementById('formLogin').classList.contains('hidden');
-  
-  if (elLogin && !formLoginEscondido && !googleLoginRendered) {
-    google.accounts.id.renderButton(elLogin, opcoesEstilo);
-    googleLoginRendered = true;
-  }
-
-  // Botão de Cadastro
-  const elReg = document.getElementById('google-btn-reg');
-  const formRegEscondido = document.getElementById('formReg').classList.contains('hidden');
-  
-  if (elReg && !formRegEscondido && !googleRegRendered) {
-    google.accounts.id.renderButton(elReg, opcoesEstilo);
-    googleRegRendered = true;
-  }
-}
-
-// Monitor de segurança ao carregar a página
-window.addEventListener('load', () => {
-  inicializarEConfigurarGoogle();
-  verificarSessao();
-});
-
-// ── RETORNO DO GOOGLE COM SUPABASE ──────────────────────────
-async function handleCredentialResponse(response) {
-  toast('Autenticando com o Google... 🔐');
-  
-  const { data, error } = await supabaseClient.auth.signInWithIdToken({
-    provider: 'google',
-    token: response.credential,
   });
 
   if (error) {
     console.error(error);
-    toast('Erro ao autenticar com o Google.', 'err');
-  } else {
-    toast(`Bem-vindo, ${data.user.user_metadata.full_name || 'ao Sellerium'}! 🎉`);
-    setTimeout(() => window.location.href = '../', 1200);
+    toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
+
+// ── VERIFICADOR DE SESSÃO ATIVA ─────────────────────────────
+// (Mantenha o seu verificador original, apenas certifique-se de que 
+// ele execute quando a página carregar para pegar o usuário retornando do OAuth)
+window.addEventListener('load', () => {
+  verificarSessao();
+});
 
 // ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
 async function doLogin(){
@@ -287,50 +226,6 @@ function simulateLoad(btnId, cb, delay=1400){
   const btn = document.getElementById(btnId);
   if (btn) btn.classList.add('loading');
   setTimeout(() => { if(btn) btn.classList.remove('loading'); cb(); }, delay);
-}
-
-// ── INICIALIZAÇÃO ASSÍNCRONA DO SDK DO FACEBOOK ─────────────
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "https://connect.facebook.net/pt_BR/sdk.js";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-
-window.fbAsyncInit = function() {
-  if (typeof FB !== 'undefined') {
-    FB.init({
-      appId      : 'SEU_APP_ID_AQUI', // ⚠️ OBRIGATÓRIO SUBSTITUIR
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v18.0'
-    });
-  }
-};
-
-// ── SOCIAL LOGIN ───────────────────────────────────────────
-function socialLogin(prov){
-  if (prov === 'Facebook') {
-    if (typeof FB === 'undefined') {
-      toast('O serviço do Facebook está carregando. Aguarde um instante.', 'err');
-      return;
-    }
-    
-    toast('Conectando com Facebook...');
-    
-    FB.login(function(response) {
-      if (response.authResponse) {
-        const accessToken = response.authResponse.accessToken;
-        console.log("Token do Facebook recebido com sucesso:", accessToken);
-        
-        toast('Login com Facebook efetuado! Redirecionando... 🎉');
-        setTimeout(() => window.location.href = '../', 1200);
-      } else {
-        toast('Autenticação cancelada ou recusada.', 'err');
-      }
-    }, { scope: 'public_profile,email' });
-  }
 }
   
 // ── TOAST ──────────────────────────────────────────────────
