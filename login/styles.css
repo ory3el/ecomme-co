@@ -30,6 +30,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f6ff;color:#0f1a2e
 /* ── LAYOUT ───────────────────────────────────────────────── */
 .auth-shell{
   display:grid;
+  background:#fff;
   grid-template-columns:1fr 1fr;
   width:100%;
   max-width:1060px;
