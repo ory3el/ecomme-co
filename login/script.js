@@ -2,6 +2,13 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+// ── SUPABASE STARTER
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+
+// Esta é a linha que o seu código não estava encontrando:
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // FAVICON
 const favicon = document.getElementById('favicon');
     
