@@ -68,143 +68,58 @@ const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Variável global para sabermos quem é o usuário logado nas funções abaixo
-let usuarioLogadoId = null;
-
-// ESCUTADOR DE SESSÃO COM BANCO DE DADOS
+// ESCUTADOR INTELIGENTE DE SESSÃO (Evita loops e corrige o bug do token expirado)
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  
+  // O evento 'INITIAL_SESSION' garante que o Supabase já terminou de checar e renovar o token antigo
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    
+    // Se REALMENTE não houver sessão após a validação completa, expulsa para o login
     if (!session) {
       window.location.href = '../login/index.html';
       return;
     }
 
+    // USUÁRIO LOGADO COM SUCESSO! Agora preenchemos os dados com segurança:
     const user = session.user;
-    usuarioLogadoId = user.id; // Guarda o ID único do usuário
-
-    // ── NOVIDADE: Buscando os dados direto da tabela 'profiles' ──
-    const { data: perfil, error } = await supabaseClient
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single(); // Traz apenas uma linha
-
-    if (error) {
-      console.error("Erro ao buscar perfil:", error.message);
-      return;
-    }
-
-    // Se achou o perfil, extrai as informações do banco
-    const email = user.email || "";
-    const fullName = perfil.full_name || "Cliente";
-    const phone = perfil.phone || "";
+    const meta = user.user_metadata || {};
     
-    // Novas informações estruturadas
-    const cpf = perfil.cpf || "";
-    const birthDate = perfil.birth_date || "";
-    const gender = perfil.gender || "Selecione uma opção";
-    const language = perfil.language || "Português (BR)";
-    const bio = perfil.bio || "";
+    const email = user.email || "";
+    const fullName = meta.full_name || "Cliente";
+    const phone = meta.phone || "";
 
-    // Divide o Nome para os inputs
+    // Divide o "Nome Completo" em Nome e Sobrenome
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
 
-    // Atualiza a Sidebar do seu index.html
-    const sidebarName = document.getElementById('perfilNome');
-    const sidebarEmail = document.getElementById('perfilEmail');
+    // Injeta os dados na Barra Lateral (Sidebar)
+    const sidebarName = document.getElementById('sidebarName');
+    const sidebarEmail = document.getElementById('sidebarEmail');
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
-    // Preenche TODOS os Inputs do seu Formulário
+    // Injeta os dados no Formulário de Perfil
     const inputFirstName = document.getElementById('profileFirstName');
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
     const inputPhone = document.getElementById('profilePhone');
-    
-    // Mapeamento dos novos campos (adicione IDs correspondentes no seu HTML)
-    const inputCPF = document.getElementById('profileCPF');
-    const inputBirth = document.getElementById('profileBirth');
-    const inputGender = document.getElementById('profileGender');
-    const inputLang = document.getElementById('profileLang');
-    const inputBio = document.getElementById('profileBio');
 
     if (inputFirstName) inputFirstName.value = firstName;
     if (inputLastName) inputLastName.value = lastName;
     if (inputEmail) inputEmail.value = email;
-    
-    if (inputPhone) { inputPhone.value = phone; if (typeof maskPhone === 'function') maskPhone(inputPhone); }
-    if (inputCPF) { inputCPF.value = cpf; if (typeof maskCPF === 'function') maskCPF(inputCPF); }
-    if (inputBirth) inputBirth.value = birthDate;
-    if (inputGender) inputGender.value = gender;
-    if (inputLang) inputLang.value = language;
-    if (inputBio) inputBio.value = bio;
+    if (inputPhone) {
+      inputPhone.value = phone;
+      maskPhone(inputPhone); // Aplica a máscara visual ao carregar
+    }
   }
 
+  // Se o usuário clicar em sair, o evento SIGNED_OUT é disparado e o redireciona
   if (event === 'SIGNED_OUT') {
     window.location.href = '../login/index.html';
   }
 });
-
-// FUNÇÃO SALVAR ATUALIZADA: Faz um UPDATE na tabela 'profiles'
-async function saveProfile() {
-  if (!usuarioLogadoId) return;
-
-  const inputFirstName = document.getElementById('profileFirstName');
-  const inputLastName = document.getElementById('profileLastName');
-  const inputPhone = document.getElementById('profilePhone');
-  
-  // Captura dos novos inputs
-  const inputCPF = document.getElementById('profileCPF');
-  const inputBirth = document.getElementById('profileBirth');
-  const inputGender = document.getElementById('profileGender');
-  const inputLang = document.getElementById('profileLang');
-  const inputBio = document.getElementById('profileBio');
-
-  if (!inputFirstName || !inputFirstName.value.trim()) {
-    toast('O primeiro nome é obrigatório', 'err');
-    return;
-  }
-
-  const firstName = inputFirstName.value.trim();
-  const lastName = inputLastName ? inputLastName.value.trim() : "";
-  const fullName = `${firstName} ${lastName}`.trim();
-  
-  const phoneRaw = inputPhone ? inputPhone.value.replace(/\D/g, '') : "";
-  const cpfRaw = inputCPF ? inputCPF.value.replace(/\D/g, '') : "";
-  const birthDate = inputBirth ? inputBirth.value : null;
-  const gender = inputGender ? inputGender.value : "";
-  const language = inputLang ? inputLang.value : "";
-  const bio = inputBio ? inputBio.value.trim() : "";
-
-  toast('A guardar alterações...', 'info');
-
-  // ── ATUALIZANDO NA TABELA 'PROFILES' VIA SQL/API ──
-  const { error } = await supabaseClient
-    .from('profiles')
-    .update({
-      full_name: fullName,
-      phone: phoneRaw,
-      cpf: cpfRaw,
-      birth_date: birthDate ? birthDate : null, // Evita erro se enviar data vazia
-      gender: gender,
-      language: language,
-      bio: bio
-    })
-    .eq('id', usuarioLogadoId); // Garante que só altera a linha do próprio usuário
-
-  if (error) {
-    console.error(error);
-    toast('Erro ao salvar: ' + error.message, 'err');
-  } else {
-    toast('Perfil guardado com sucesso! ✓', 'ok');
-    
-    const sidebarName = document.getElementById('perfilNome');
-    if (sidebarName) sidebarName.textContent = fullName;
-  }
-}
-
+      
 // FUNÇÃO DE LOGOUT
 async function doLogout() { 
   toast('A terminar sessão... 👋', 'info'); 
