@@ -90,8 +90,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const lastName = nameParts.slice(1).join(' ') || "";
 
     // Atualiza a Sidebar
-    const sidebarName = document.getElementById('perfilNome'); // ID original do seu HTML
-    const sidebarEmail = document.getElementById('perfilEmail'); // ID original do seu HTML
+    const sidebarName = document.getElementById('sidebarNome'); // ID original do seu HTML
+    const sidebarEmail = document.getElementById('sidebarEmail'); // ID original do seu HTML
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
