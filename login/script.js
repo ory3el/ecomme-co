@@ -52,7 +52,7 @@ async function socialLogin(provider) {
 
 // ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
 window.addEventListener('load', () => {
-  verifySection();
+  verificarSecao();
 });
 
 // ── LOGIN E-MAIL + PASSWORD (SUPABASE) ────────────────
@@ -135,7 +135,7 @@ async function doRegister(){
 }
 
 // ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
-async function verifySection() {
+async function verificarSecao() {
   const { data: { session }, error } = await supabaseClient.auth.getSession();
 
   if (session) {
