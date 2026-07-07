@@ -148,7 +148,6 @@ async function verificarSessao() {
     console.log("Nenhum usuário autenticado.");
   }
 }
-}
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
 function toggleForgot(show){
