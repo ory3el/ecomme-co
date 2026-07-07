@@ -77,7 +77,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
 
     const user = session.user;
-    // IMPORTANTE: Buscamos primeiro os metadados customizados que o usuário alterou
     const meta = user.user_metadata || {};
     
     const email = user.email || "";
@@ -89,13 +88,13 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
 
-    // Atualiza a Sidebar
-    const sidebarName = document.getElementById('sidebarNome'); // ID original do seu HTML
-    const sidebarEmail = document.getElementById('sidebarEmail'); // ID original do seu HTML
+    // Sidebar
+    const sidebarName = document.getElementById('sidebarName');
+    const sidebarEmail = document.getElementById('sidebarEmail');
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
-    // Preenche os Inputs do Formulário
+    // Inputs Forms
     const inputFirstName = document.getElementById('profileFirstName');
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
