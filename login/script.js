@@ -138,7 +138,7 @@ async function doRegister(){
 async function verificarSessao() {
   const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-  if (session) {
+  if (session && window.location.pathname.includes('index.html')) {
     window.history.replaceState({}, document.title, window.location.pathname);
     toast('Sessão ativa! Redirecionando... 🎉');
     setTimeout(() => {
