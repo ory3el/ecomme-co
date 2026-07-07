@@ -1,6 +1,6 @@
 // ── 1. INICIALIZAR O SUPABASE (DEVE FICAR NO TOPO) ──────────────────
-const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── NAVEGAÇÃO E TEMA ───────────────────────────────────────────────
@@ -13,9 +13,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
