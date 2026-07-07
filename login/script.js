@@ -52,7 +52,7 @@ async function socialLogin(provider) {
 
 // ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
 window.addEventListener('load', () => {
-  verificarSessao();
+  verifySection();
 });
 
 // ── LOGIN E-MAIL + PASSWORD (SUPABASE) ────────────────
@@ -135,12 +135,19 @@ async function doRegister(){
 }
 
 // ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
-async function verificarSessao() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session && window.location.pathname.includes('index.html')) {
+async function verifySection() {
+  const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    window.location.href = '/';
+  if (session) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    toast('Sessão ativa! Redirecionando... 🎉');
+    setTimeout(() => {
+      window.location.href = '/'; 
+    }, 1500);
+  } else {
+    console.log("Nenhum usuário autenticado.");
   }
+}
 }
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
