@@ -1,3 +1,9 @@
+// ── 1. INICIALIZAR O SUPABASE (DEVE FICAR NO TOPO) ──────────────────
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── NAVEGAÇÃO E TEMA ───────────────────────────────────────────────
 function buttonLink(url) {
   window.location.href = url;
 }
@@ -16,15 +22,6 @@ const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
-// ── 1. INICIALIZAR O SUPABASE ──────────────────
-const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let googleLoginRendered = false;
-let googleRegRendered = false;
-let googleInitialized = false;
 
 // ── TAB SWITCH ─────────────────────────────────────────────
 function showTab(tab){
@@ -34,87 +31,31 @@ function showTab(tab){
   document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
   document.getElementById('formReg').classList.toggle('hidden', isLogin);
   if(isLogin) toggleForgot(false);
-
-  verificarERenderizarBotoes();
 }
 
-window.onGoogleLibraryLoad = function () {
-  inicializarEConfigurarGoogle();
-};
-
-// ── CONFIGURAÇÃO SEGURA DO GOOGLE ───────────────────────────
-function inicializarEConfigurarGoogle() {
-  if (typeof google !== 'undefined' && google.accounts) {
-    
-    if (!googleInitialized) {
-      google.accounts.id.initialize({
-        client_id: "713059185567-mf4f30n7qrmgt474gjhon9ltc2s895rb.apps.googleusercontent.com",
-        callback: handleCredentialResponse,
-        auto_prompt: false,
-        context: "signin"
-      });
-      googleInitialized = true;
-    }
-
-    verificarERenderizarBotoes();
-  }
-}
-
-function verificarERenderizarBotoes() {
-  if (typeof google === 'undefined' || !google.accounts) return;
-
-  const opcoesEstilo = {
-    type: "standard",
-    size: "large",
-    theme: "outline", 
-    text: "signin", 
-    shape: "rectangular",
-    logo_alignment: "left",
-    width: "210"
-  };
-
-  // Botão de Login
-  const elLogin = document.getElementById('google-btn-login');
-  const formLoginEscondido = document.getElementById('formLogin').classList.contains('hidden');
-  
-  if (elLogin && !formLoginEscondido && !googleLoginRendered) {
-    google.accounts.id.renderButton(elLogin, opcoesEstilo);
-    googleLoginRendered = true;
-  }
-
-  // Botão de Cadastro
-  const elReg = document.getElementById('google-btn-reg');
-  const formRegEscondido = document.getElementById('formReg').classList.contains('hidden');
-  
-  if (elReg && !formRegEscondido && !googleRegRendered) {
-    google.accounts.id.renderButton(elReg, opcoesEstilo);
-    googleRegRendered = true;
-  }
-}
-
-// Monitor de segurança ao carregar a página
+// Monitor de carregamento da página
 window.addEventListener('load', () => {
-  inicializarEConfigurarGoogle();
   verificarSessao();
 });
 
-// ── RETORNO DO GOOGLE COM SUPABASE ──────────────────────────
-async function handleCredentialResponse(response) {
-  toast('Autenticando com o Google... 🔐');
+
+// ── SOCIAL LOGIN (GOOGLE E FACEBOOK VIA SUPABASE) ──────────
+async function socialLogin(provider) {
+  toast(`Redirecionando para o ${provider}...`);
   
-  const { data, error } = await supabaseClient.auth.signInWithIdToken({
-    provider: 'google',
-    token: response.credential,
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    provider: provider,
+    options: {
+      redirectTo: window.location.origin + '/' 
+    }
   });
 
   if (error) {
     console.error(error);
-    toast('Erro ao autenticar com o Google.', 'err');
-  } else {
-    toast(`Bem-vindo, ${data.user.user_metadata.full_name || 'ao Sellerium'}! 🎉`);
-    setTimeout(() => window.location.href = '../', 1200);
+    toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
+
 
 // ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
 async function doLogin(){
@@ -147,6 +88,7 @@ async function doLogin(){
     setTimeout(() => window.location.href = '../', 1200);
   }
 }
+
 
 // ── CADASTRO COM E-MAIL E SENHA REAL (SUPABASE) ─────────────
 async function doRegister(){
@@ -195,21 +137,25 @@ async function doRegister(){
   }
 }
 
-// ── VERIFICADOR DE SESSÃO ATIVA + LIMPEZA DE URL ─────────────
+
+// ── VERIFICADOR DE SESSÃO ATIVA E LIMPEZA DE URL ────────────
 async function verificarSessao() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session }, error } = await supabaseClient.auth.getSession();
   
   if (session) {
-    // CORREÇÃO: Limpa os parâmetros gigantes da URL (?code= ou #access_token=) instantaneamente
+    // Limpa o código gigante da URL sem recarregar a página
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    // Se estiver na página de login (index.html), redireciona para a loja
     if (window.location.pathname.includes('index.html')) {
-      window.location.href = '../';
+      toast('Sessão ativa! Redirecionando... 🎉');
+      setTimeout(() => window.location.href = '../', 1200);
     }
   }
 }
+
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
 function toggleForgot(show){
@@ -227,6 +173,7 @@ function sendForgot(){
   });
 }
 
+
 // ── TOGGLE PASSWORD ────────────────────────────────────────
 function togglePwd(id, btn){
   const inp = document.getElementById(id);
@@ -234,6 +181,7 @@ function togglePwd(id, btn){
   inp.type = show ? 'text' : 'password';
   btn.textContent = show ? '🙈' : '👁';
 }
+
 
 // ── FIELD VALIDATION ───────────────────────────────────────
 function showFieldErr(inp, msgId){
@@ -249,6 +197,7 @@ function clearFieldErr(inp){
 }
 function validateEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
+
 // ── MASKS ──────────────────────────────────────────────────
 function maskCPF(inp){
   let v = inp.value.replace(/\D/g,'').slice(0,11);
@@ -263,6 +212,7 @@ function maskPhone(inp){
   else if(v.length > 2) v = '('+v.slice(0,2)+') '+v.slice(2);
   inp.value = v;
 }
+
 
 // ── PASSWORD STRENGTH ──────────────────────────────────────
 function checkPwd(v){
@@ -289,6 +239,7 @@ function checkPwd(v){
   lbl.className = 'pwd-label ' + (score ? cls[score-1] : 's1');
 }
 
+
 // ── SIMULATE LOADING (Mantido para recuperar senha) ────────
 function simulateLoad(btnId, cb, delay=1400){
   const btn = document.getElementById(btnId);
@@ -296,50 +247,7 @@ function simulateLoad(btnId, cb, delay=1400){
   setTimeout(() => { if(btn) btn.classList.remove('loading'); cb(); }, delay);
 }
 
-// ── INICIALIZAÇÃO ASSÍNCRONA DO SDK DO FACEBOOK ─────────────
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "https://connect.facebook.net/pt_BR/sdk.js";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
 
-window.fbAsyncInit = function() {
-  if (typeof FB !== 'undefined') {
-    FB.init({
-      appId      : 'SEU_APP_ID_AQUI', 
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v18.0'
-    });
-  }
-};
-
-// ── SOCIAL LOGIN ───────────────────────────────────────────
-function socialLogin(prov){
-  if (prov === 'Facebook') {
-    if (typeof FB === 'undefined') {
-      toast('O serviço do Facebook está carregando. Aguarde um instante.', 'err');
-      return;
-    }
-    
-    toast('Conectando com Facebook...');
-    
-    FB.login(function(response) {
-      if (response.authResponse) {
-        const accessToken = response.authResponse.accessToken;
-        console.log("Token do Facebook recebido com sucesso:", accessToken);
-        
-        toast('Login com Facebook efetuado! Redirecionando... 🎉');
-        setTimeout(() => window.location.href = '../', 1200);
-      } else {
-        toast('Autenticação cancelada ou recusada.', 'err');
-      }
-    }, { scope: 'public_profile,email' });
-  }
-}
-  
 // ── TOAST ──────────────────────────────────────────────────
 function toast(msg, type='ok'){
   const t  = document.getElementById('toast1');
@@ -354,9 +262,11 @@ function toast(msg, type='ok'){
   t._timer = setTimeout(() => t.classList.remove('on'), 3000);
 }
 
+
 // ── KEYBOARD SUBMIT ────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if(e.key !== 'Enter') return;
+  const active = document.activeElement;
   if(document.getElementById('formLogin').classList.contains('hidden')) doRegister();
   else doLogin();
 });
