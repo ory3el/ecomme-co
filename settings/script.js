@@ -65,10 +65,15 @@ function toast(msg, type='ok'){
 
 // ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co/rest/v1/";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+// ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ESCUTADOR DE SESSÃO: Garante o carregamento correto dos dados salvos
+// Variável global para sabermos quem é o usuário logado nas funções abaixo
+let usuarioLogadoId = null;
+
+// ESCUTADOR DE SESSÃO COM BANCO DE DADOS
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     if (!session) {
@@ -77,37 +82,66 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
 
     const user = session.user;
-    // IMPORTANTE: Buscamos primeiro os metadados customizados que o usuário alterou
-    const meta = user.user_metadata || {};
-    
+    usuarioLogadoId = user.id; // Guarda o ID único do usuário
+
+    // ── NOVIDADE: Buscando os dados direto da tabela 'profiles' ──
+    const { data: perfil, error } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single(); // Traz apenas uma linha
+
+    if (error) {
+      console.error("Erro ao buscar perfil:", error.message);
+      return;
+    }
+
+    // Se achou o perfil, extrai as informações do banco
     const email = user.email || "";
-    const fullName = meta.full_name || "Cliente";
-    const phone = meta.phone || "";
+    const fullName = perfil.full_name || "Cliente";
+    const phone = perfil.phone || "";
+    
+    // Novas informações estruturadas
+    const cpf = perfil.cpf || "";
+    const birthDate = perfil.birth_date || "";
+    const gender = perfil.gender || "Selecione uma opção";
+    const language = perfil.language || "Português (BR)";
+    const bio = perfil.bio || "";
 
     // Divide o Nome para os inputs
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
 
-    // Atualiza a Sidebar
-    const sidebarName = document.getElementById('perfilNome'); // ID original do seu HTML
-    const sidebarEmail = document.getElementById('perfilEmail'); // ID original do seu HTML
+    // Atualiza a Sidebar do seu index.html
+    const sidebarName = document.getElementById('perfilNome');
+    const sidebarEmail = document.getElementById('perfilEmail');
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
-    // Preenche os Inputs do Formulário
+    // Preenche TODOS os Inputs do seu Formulário
     const inputFirstName = document.getElementById('profileFirstName');
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
     const inputPhone = document.getElementById('profilePhone');
+    
+    // Mapeamento dos novos campos (adicione IDs correspondentes no seu HTML)
+    const inputCPF = document.getElementById('profileCPF');
+    const inputBirth = document.getElementById('profileBirth');
+    const inputGender = document.getElementById('profileGender');
+    const inputLang = document.getElementById('profileLang');
+    const inputBio = document.getElementById('profileBio');
 
     if (inputFirstName) inputFirstName.value = firstName;
     if (inputLastName) inputLastName.value = lastName;
     if (inputEmail) inputEmail.value = email;
-    if (inputPhone) {
-      inputPhone.value = phone;
-      if (typeof maskPhone === 'function') maskPhone(inputPhone);
-    }
+    
+    if (inputPhone) { inputPhone.value = phone; if (typeof maskPhone === 'function') maskPhone(inputPhone); }
+    if (inputCPF) { inputCPF.value = cpf; if (typeof maskCPF === 'function') maskCPF(inputCPF); }
+    if (inputBirth) inputBirth.value = birthDate;
+    if (inputGender) inputGender.value = gender;
+    if (inputLang) inputLang.value = language;
+    if (inputBio) inputBio.value = bio;
   }
 
   if (event === 'SIGNED_OUT') {
@@ -115,11 +149,20 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// FUNÇÃO SALVAR ATUALIZADA: Grava de verdade no Supabase
+// FUNÇÃO SALVAR ATUALIZADA: Faz um UPDATE na tabela 'profiles'
 async function saveProfile() {
+  if (!usuarioLogadoId) return;
+
   const inputFirstName = document.getElementById('profileFirstName');
   const inputLastName = document.getElementById('profileLastName');
   const inputPhone = document.getElementById('profilePhone');
+  
+  // Captura dos novos inputs
+  const inputCPF = document.getElementById('profileCPF');
+  const inputBirth = document.getElementById('profileBirth');
+  const inputGender = document.getElementById('profileGender');
+  const inputLang = document.getElementById('profileLang');
+  const inputBio = document.getElementById('profileBio');
 
   if (!inputFirstName || !inputFirstName.value.trim()) {
     toast('O primeiro nome é obrigatório', 'err');
@@ -129,17 +172,29 @@ async function saveProfile() {
   const firstName = inputFirstName.value.trim();
   const lastName = inputLastName ? inputLastName.value.trim() : "";
   const fullName = `${firstName} ${lastName}`.trim();
+  
   const phoneRaw = inputPhone ? inputPhone.value.replace(/\D/g, '') : "";
+  const cpfRaw = inputCPF ? inputCPF.value.replace(/\D/g, '') : "";
+  const birthDate = inputBirth ? inputBirth.value : null;
+  const gender = inputGender ? inputGender.value : "";
+  const language = inputLang ? inputLang.value : "";
+  const bio = inputBio ? inputBio.value.trim() : "";
 
   toast('A guardar alterações...', 'info');
 
-  // Comando real que salva nos metadados da conta do Supabase
-  const { data, error } = await supabaseClient.auth.updateUser({
-    data: { 
+  // ── ATUALIZANDO NA TABELA 'PROFILES' VIA SQL/API ──
+  const { error } = await supabaseClient
+    .from('profiles')
+    .update({
       full_name: fullName,
-      phone: phoneRaw
-    }
-  });
+      phone: phoneRaw,
+      cpf: cpfRaw,
+      birth_date: birthDate ? birthDate : null, // Evita erro se enviar data vazia
+      gender: gender,
+      language: language,
+      bio: bio
+    })
+    .eq('id', usuarioLogadoId); // Garante que só altera a linha do próprio usuário
 
   if (error) {
     console.error(error);
@@ -147,13 +202,12 @@ async function saveProfile() {
   } else {
     toast('Perfil guardado com sucesso! ✓', 'ok');
     
-    // Atualiza o nome na barra lateral imediatamente sem precisar dar F5
     const sidebarName = document.getElementById('perfilNome');
     if (sidebarName) sidebarName.textContent = fullName;
   }
 }
 
-// FUNÇÃO DE LOGOUT REAL
+// FUNÇÃO DE LOGOUT
 async function doLogout() { 
   toast('A terminar sessão... 👋', 'info'); 
   await supabaseClient.auth.signOut();
