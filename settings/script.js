@@ -63,55 +63,62 @@ function toast(msg, type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-// ── SUPABASE: INICIALIZAÇÃO E AUTENTICAÇÃO ─────────────────
+// ── SUPABASE: INICIALIZAÇÃO E AUTENTICAÇÃO REAL ─────────────────
 const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-window.addEventListener('DOMContentLoaded', async () => {
-  // 1. Busca a sessão ativa
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
+// ESCUTADOR INTELIGENTE DE SESSÃO (Evita loops e corrige o bug do token expirado)
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  
+  // O evento 'INITIAL_SESSION' garante que o Supabase já terminou de checar e renovar o token antigo
+  if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    
+    // Se REALMENTE não houver sessão após a validação completa, expulsa para o login
+    if (!session) {
+      window.location.href = '../login/index.html';
+      return;
+    }
 
-  // 2. Proteção de Rota: Se não estiver logado, expulsa para o login
-  if (!session) {
-    window.location.href = '../login/index.html'; // Ajuste este caminho se necessário
-    return;
+    // USUÁRIO LOGADO COM SUCESSO! Agora preenchemos os dados com segurança:
+    const user = session.user;
+    const meta = user.user_metadata || {};
+    
+    const email = user.email || "";
+    const fullName = meta.full_name || "Cliente";
+    const phone = meta.phone || "";
+
+    // Divide o "Nome Completo" em Nome e Sobrenome
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    // Injeta os dados na Barra Lateral (Sidebar)
+    const sidebarName = document.getElementById('sidebarName');
+    const sidebarEmail = document.getElementById('sidebarEmail');
+    if (sidebarName) sidebarName.textContent = fullName;
+    if (sidebarEmail) sidebarEmail.textContent = email;
+
+    // Injeta os dados no Formulário de Perfil
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const inputPhone = document.getElementById('profilePhone');
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+    if (inputPhone) {
+      inputPhone.value = phone;
+      maskPhone(inputPhone); // Aplica a máscara visual ao carregar
+    }
   }
 
-  // 3. Extrai os dados do usuário
-  const user = session.user;
-  const meta = user.user_metadata || {};
-  
-  const email = user.email || "";
-  const fullName = meta.full_name || "Cliente";
-  const phone = meta.phone || "";
-
-  // Divide o "Nome Completo" em Nome e Sobrenome para preencher os inputs separados
-  const nameParts = fullName.trim().split(' ');
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.slice(1).join(' ') || "";
-
-  // 4. Injeta os dados na Barra Lateral (Sidebar)
-  const sidebarName = document.getElementById('sidebarName');
-  const sidebarEmail = document.getElementById('sidebarEmail');
-  if (sidebarName) sidebarName.textContent = fullName;
-  if (sidebarEmail) sidebarEmail.textContent = email;
-
-  // 5. Injeta os dados no Formulário de Perfil
-  const inputFirstName = document.getElementById('profileFirstName');
-  const inputLastName = document.getElementById('profileLastName');
-  const inputEmail = document.getElementById('profileEmail');
-  const inputPhone = document.getElementById('profilePhone');
-
-  if (inputFirstName) inputFirstName.value = firstName;
-  if (inputLastName) inputLastName.value = lastName;
-  if (inputEmail) inputEmail.value = email;
-  if (inputPhone) {
-    inputPhone.value = phone;
-    maskPhone(inputPhone); // Aplica a máscara visual no número carregado
+  // Se o usuário clicar em sair, o evento SIGNED_OUT é disparado e o redireciona
+  if (event === 'SIGNED_OUT') {
+    window.location.href = '../login/index.html';
   }
 });
-
 
 // ── FUNÇÃO PARA SALVAR OS DADOS NO SUPABASE ─────────────────
 // Substitua a sua função vazia 'saveProfile()' por esta:
