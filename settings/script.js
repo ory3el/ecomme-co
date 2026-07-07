@@ -64,10 +64,8 @@ function toast(msg, type='ok'){
 }
 
 // ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co/rest/v1/";
-// ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
-const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Variável global para sabermos quem é o usuário logado nas funções abaixo
