@@ -63,43 +63,39 @@ function toast(msg, type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-// ── SUPABASE: INICIALIZAÇÃO E AUTENTICAÇÃO REAL ─────────────────
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+// ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ESCUTADOR INTELIGENTE DE SESSÃO (Evita loops e corrige o bug do token expirado)
+// ESCUTADOR DE SESSÃO: Garante o carregamento correto dos dados salvos
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  
-  // O evento 'INITIAL_SESSION' garante que o Supabase já terminou de checar e renovar o token antigo
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-    
-    // Se REALMENTE não houver sessão após a validação completa, expulsa para o login
     if (!session) {
       window.location.href = '../login/index.html';
       return;
     }
 
-    // USUÁRIO LOGADO COM SUCESSO! Agora preenchemos os dados com segurança:
     const user = session.user;
+    // IMPORTANTE: Buscamos primeiro os metadados customizados que o usuário alterou
     const meta = user.user_metadata || {};
     
     const email = user.email || "";
     const fullName = meta.full_name || "Cliente";
     const phone = meta.phone || "";
 
-    // Divide o "Nome Completo" em Nome e Sobrenome
+    // Divide o Nome para os inputs
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
 
-    // Injeta os dados na Barra Lateral (Sidebar)
-    const sidebarName = document.getElementById('sidebarName');
-    const sidebarEmail = document.getElementById('sidebarEmail');
+    // Atualiza a Sidebar
+    const sidebarName = document.getElementById('perfilNome'); // ID original do seu HTML
+    const sidebarEmail = document.getElementById('perfilEmail'); // ID original do seu HTML
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
-    // Injeta os dados no Formulário de Perfil
+    // Preenche os Inputs do Formulário
     const inputFirstName = document.getElementById('profileFirstName');
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
@@ -110,33 +106,34 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (inputEmail) inputEmail.value = email;
     if (inputPhone) {
       inputPhone.value = phone;
-      maskPhone(inputPhone); // Aplica a máscara visual ao carregar
+      if (typeof maskPhone === 'function') maskPhone(inputPhone);
     }
   }
 
-  // Se o usuário clicar em sair, o evento SIGNED_OUT é disparado e o redireciona
   if (event === 'SIGNED_OUT') {
     window.location.href = '../login/index.html';
   }
 });
 
-// ── FUNÇÃO PARA SALVAR OS DADOS NO SUPABASE ─────────────────
-// Substitua a sua função vazia 'saveProfile()' por esta:
+// FUNÇÃO SALVAR ATUALIZADA: Grava de verdade no Supabase
 async function saveProfile() {
-  const firstName = document.getElementById('profileFirstName').value.trim();
-  const lastName = document.getElementById('profileLastName').value.trim();
-  // Pega o telefone e remove tudo que não for número antes de salvar no banco
-  const phoneRaw = document.getElementById('profilePhone').value.replace(/\D/g, ''); 
+  const inputFirstName = document.getElementById('profileFirstName');
+  const inputLastName = document.getElementById('profileLastName');
+  const inputPhone = document.getElementById('profilePhone');
 
-  if (!firstName) {
+  if (!inputFirstName || !inputFirstName.value.trim()) {
     toast('O primeiro nome é obrigatório', 'err');
     return;
   }
 
+  const firstName = inputFirstName.value.trim();
+  const lastName = inputLastName ? inputLastName.value.trim() : "";
   const fullName = `${firstName} ${lastName}`.trim();
-  toast('Salvando informações...', 'info');
+  const phoneRaw = inputPhone ? inputPhone.value.replace(/\D/g, '') : "";
 
-  // Atualiza os metadados do usuário no banco
+  toast('A guardar alterações...', 'info');
+
+  // Comando real que salva nos metadados da conta do Supabase
   const { data, error } = await supabaseClient.auth.updateUser({
     data: { 
       full_name: fullName,
@@ -148,17 +145,16 @@ async function saveProfile() {
     console.error(error);
     toast('Erro ao salvar: ' + error.message, 'err');
   } else {
-    toast('Perfil salvo com sucesso! ✓', 'ok');
-    // Atualiza o nome na sidebar instantaneamente
-    document.getElementById('sidebarName').textContent = fullName;
+    toast('Perfil guardado com sucesso! ✓', 'ok');
+    
+    // Atualiza o nome na barra lateral imediatamente sem precisar dar F5
+    const sidebarName = document.getElementById('perfilNome');
+    if (sidebarName) sidebarName.textContent = fullName;
   }
 }
 
-
-// ── FUNÇÃO DE LOGOUT CORRIGIDA ──────────────────────────────
-// Substitua a sua função 'doLogout()' do painel de ações por esta:
+// FUNÇÃO DE LOGOUT REAL
 async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut(); // Desloga do banco
-  setTimeout(() => window.location.href = '../login/index.html', 1200); // Redireciona
+  toast('A terminar sessão... 👋', 'info'); 
+  await supabaseClient.auth.signOut();
 }
