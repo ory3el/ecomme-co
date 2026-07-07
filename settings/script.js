@@ -63,32 +63,95 @@ function toast(msg, type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-  // 2. Inicializa o banco de dados (Use as suas chaves reais)
-  const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ── SUPABASE: INICIALIZAÇÃO E AUTENTICAÇÃO ─────────────────
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 3. Executa a busca de dados assim que a página carrega
-  window.addEventListener('DOMContentLoaded', async () => {
-    // Busca a sessão ativa guardada no navegador
-    const { data: { session }, error } = await supabaseClient.auth.getSession();
+window.addEventListener('DOMContentLoaded', async () => {
+  // 1. Busca a sessão ativa
+  const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    // 5. Extrai os dados do utilizador
-    const usuario = session.user;
-    const nomeCompleto = usuario.user_metadata.full_name || "Utilizador";
-    const emailUsuario = usuario.email;
+  // 2. Proteção de Rota: Se não estiver logado, expulsa para o login
+  if (!session) {
+    window.location.href = '../login/index.html'; // Ajuste este caminho se necessário
+    return;
+  }
 
-    // 6. Injeta os dados no seu HTML
-    // Certifique-se de que os IDs abaixo são os mesmos que você colocou no seu HTML
-    const elementoNome = document.getElementById('perfilNome');
-    const elementoEmail = document.getElementById('perfilEmail');
+  // 3. Extrai os dados do usuário
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  
+  const email = user.email || "";
+  const fullName = meta.full_name || "Cliente";
+  const phone = meta.phone || "";
 
-    if(elementoNome) elementoNome.textContent = nomeCompleto;
-    if(elementoEmail) elementoEmail.textContent = emailUsuario;
+  // Divide o "Nome Completo" em Nome e Sobrenome para preencher os inputs separados
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(' ') || "";
+
+  // 4. Injeta os dados na Barra Lateral (Sidebar)
+  const sidebarName = document.getElementById('sidebarName');
+  const sidebarEmail = document.getElementById('sidebarEmail');
+  if (sidebarName) sidebarName.textContent = fullName;
+  if (sidebarEmail) sidebarEmail.textContent = email;
+
+  // 5. Injeta os dados no Formulário de Perfil
+  const inputFirstName = document.getElementById('profileFirstName');
+  const inputLastName = document.getElementById('profileLastName');
+  const inputEmail = document.getElementById('profileEmail');
+  const inputPhone = document.getElementById('profilePhone');
+
+  if (inputFirstName) inputFirstName.value = firstName;
+  if (inputLastName) inputLastName.value = lastName;
+  if (inputEmail) inputEmail.value = email;
+  if (inputPhone) {
+    inputPhone.value = phone;
+    maskPhone(inputPhone); // Aplica a máscara visual no número carregado
+  }
+});
+
+
+// ── FUNÇÃO PARA SALVAR OS DADOS NO SUPABASE ─────────────────
+// Substitua a sua função vazia 'saveProfile()' por esta:
+async function saveProfile() {
+  const firstName = document.getElementById('profileFirstName').value.trim();
+  const lastName = document.getElementById('profileLastName').value.trim();
+  // Pega o telefone e remove tudo que não for número antes de salvar no banco
+  const phoneRaw = document.getElementById('profilePhone').value.replace(/\D/g, ''); 
+
+  if (!firstName) {
+    toast('O primeiro nome é obrigatório', 'err');
+    return;
+  }
+
+  const fullName = `${firstName} ${lastName}`.trim();
+  toast('Salvando informações...', 'info');
+
+  // Atualiza os metadados do usuário no banco
+  const { data, error } = await supabaseClient.auth.updateUser({
+    data: { 
+      full_name: fullName,
+      phone: phoneRaw
+    }
   });
 
-  // 7. Função bônus: Botão de Sair (Deslogar)
-  async function sairDaConta() {
-    await supabaseClient.auth.signOut();
-    window.location.href = '../login'; // Volta pra página de login
+  if (error) {
+    console.error(error);
+    toast('Erro ao salvar: ' + error.message, 'err');
+  } else {
+    toast('Perfil salvo com sucesso! ✓', 'ok');
+    // Atualiza o nome na sidebar instantaneamente
+    document.getElementById('sidebarName').textContent = fullName;
   }
+}
+
+
+// ── FUNÇÃO DE LOGOUT CORRIGIDA ──────────────────────────────
+// Substitua a sua função 'doLogout()' do painel de ações por esta:
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut(); // Desloga do banco
+  setTimeout(() => window.location.href = '../login/index.html', 1200); // Redireciona
+}
