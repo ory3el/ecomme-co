@@ -5,8 +5,6 @@ function buttonLink(url) {
 // ── SUPABASE STARTER
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-
-// Esta é a linha que o seu código não estava encontrando:
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // FAVICON
@@ -14,9 +12,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -35,16 +33,13 @@ function showTab(tab){
   verificarERenderizarBotoes();
 }
 
-// ── SOCIAL LOGIN (GOOGLE E FACEBOOK VIA SUPABASE) ──────────
+// ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
-  // Provider deve ser 'google' ou 'facebook'
   toast(`Redirecionando para o ${provider}...`);
   
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
-      // O Supabase redirecionará o usuário para a página principal após o login.
-      // Ajuste o caminho se necessário (ex: window.location.origin + '/dashboard.html')
       redirectTo: window.location.origin + '/' 
     }
   });
@@ -55,14 +50,12 @@ async function socialLogin(provider) {
   }
 }
 
-// ── VERIFICADOR DE SESSÃO ATIVA ─────────────────────────────
-// (Mantenha o seu verificador original, apenas certifique-se de que 
-// ele execute quando a página carregar para pegar o usuário retornando do OAuth)
+// ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
 window.addEventListener('load', () => {
   verificarSessao();
 });
 
-// ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
+// ── LOGIN E-MAIL + PASSWORD (SUPABASE) ────────────────
 async function doLogin(){
   let valid = true;
   const email = document.getElementById('loginEmail');
@@ -90,11 +83,11 @@ const btn = document.getElementById('btnLogin');
     toast('E-mail ou senha incorretos.', 'err');
   } else {
     toast('Login realizado com sucesso! 🎉');
-    setTimeout(() => window.location.href = '../', 1200);
+    setTimeout(() => window.location.href = '/', 1200);
   }
 }
 
-// ── CADASTRO COM E-MAIL E SENHA REAL (SUPABASE) ─────────────
+// ── REGISTER E-MAIL & PASSWORD (SUPABASE) ─────────────
 async function doRegister(){
   let valid = true;
   const name  = document.getElementById('regName');
@@ -141,12 +134,12 @@ async function doRegister(){
   }
 }
 
-// ── VERIFICADOR DE SESSÃO ATIVA ─────────────────────────────
+// ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
 async function verificarSessao() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session && window.location.pathname.includes('index.html')) {
 
-    window.location.href = '../';
+    window.location.href = '/';
   }
 }
 
