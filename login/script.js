@@ -46,7 +46,7 @@ async function socialLogin(provider) {
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
-      redirectTo: window.location.origin + '/' 
+      redirectTo: window.location.origin + window.location.pathname 
     }
   });
 
@@ -55,7 +55,6 @@ async function socialLogin(provider) {
     toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
-
 
 // ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
 async function doLogin(){
@@ -143,13 +142,11 @@ async function verificarSessao() {
   const { data: { session }, error } = await supabaseClient.auth.getSession();
   
   if (session) {
-    // Limpa o código gigante da URL sem recarregar a página
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Se estiver na página de login (index.html), redireciona para a loja
-    if (window.location.pathname.includes('index.html')) {
+    if (document.getElementById('formLogin')) {
       toast('Sessão ativa! Redirecionando... 🎉');
       setTimeout(() => window.location.href = '../', 1200);
     }
