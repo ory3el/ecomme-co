@@ -2,24 +2,29 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
-// ── SUPABASE STARTER
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // FAVICON
 const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '/images/favicon-light.png';
+    favicon.href = '../images/favicon-light.png';
   } else {
-    favicon.href = '/images/favicon-blue.png';
+    favicon.href = '../images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
+
+// ── 1. INICIALIZAR O SUPABASE ──────────────────
+const SUPABASE_URL = "https://putdougjaadksnfyfbgc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_UJYrU4E9UtTywzq3ghGLsQ_fRHE9nRR";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let googleLoginRendered = false;
+let googleRegRendered = false;
+let googleInitialized = false;
 
 // ── TAB SWITCH ─────────────────────────────────────────────
 function showTab(tab){
@@ -33,29 +38,85 @@ function showTab(tab){
   verificarERenderizarBotoes();
 }
 
-// ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
-async function socialLogin(provider) {
-  toast(`Redirecionando para o ${provider}...`);
-  
-  const { data, error } = await supabaseClient.auth.signInWithOAuth({
-    provider: provider,
-    options: {
-      redirectTo: window.location.origin + '/' 
+window.onGoogleLibraryLoad = function () {
+  inicializarEConfigurarGoogle();
+};
+
+// ── CONFIGURAÇÃO SEGURA DO GOOGLE ───────────────────────────
+function inicializarEConfigurarGoogle() {
+  if (typeof google !== 'undefined' && google.accounts) {
+    
+    if (!googleInitialized) {
+      google.accounts.id.initialize({
+        client_id: "713059185567-mf4f30n7qrmgt474gjhon9ltc2s895rb.apps.googleusercontent.com",
+        callback: handleCredentialResponse,
+        auto_prompt: false,
+        context: "signin"
+      });
+      googleInitialized = true;
     }
+
+    verificarERenderizarBotoes();
+  }
+}
+
+function verificarERenderizarBotoes() {
+  if (typeof google === 'undefined' || !google.accounts) return;
+
+  const opcoesEstilo = {
+    type: "standard",
+    size: "large",
+    theme: "outline", 
+    text: "signin", 
+    shape: "rectangular",
+    logo_alignment: "left",
+    width: "210"
+  };
+
+  // Botão de Login
+  const elLogin = document.getElementById('google-btn-login');
+  const formLoginEscondido = document.getElementById('formLogin').classList.contains('hidden');
+  
+  if (elLogin && !formLoginEscondido && !googleLoginRendered) {
+    google.accounts.id.renderButton(elLogin, opcoesEstilo);
+    googleLoginRendered = true;
+  }
+
+  // Botão de Cadastro
+  const elReg = document.getElementById('google-btn-reg');
+  const formRegEscondido = document.getElementById('formReg').classList.contains('hidden');
+  
+  if (elReg && !formRegEscondido && !googleRegRendered) {
+    google.accounts.id.renderButton(elReg, opcoesEstilo);
+    googleRegRendered = true;
+  }
+}
+
+// Monitor de segurança ao carregar a página
+window.addEventListener('load', () => {
+  inicializarEConfigurarGoogle();
+  verificarSessao();
+});
+
+// ── RETORNO DO GOOGLE COM SUPABASE ──────────────────────────
+async function handleCredentialResponse(response) {
+  toast('Autenticando com o Google... 🔐');
+  
+  const { data, error } = await supabaseClient.auth.signInWithIdToken({
+    provider: 'google',
+    token: response.credential,
   });
 
   if (error) {
     console.error(error);
-    toast(`Erro ao conectar com ${provider}.`, 'err');
+    toast('Erro ao autenticar com o Google.', 'err');
+  } else {
+    toast(`Bem-vindo, ${data.user.user_metadata.full_name || 'ao Sellerium'}! 🎉`);
+    setTimeout(() => window.location.href = '../', 1200);
   }
 }
 
-// ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
-window.addEventListener('load', () => {
-  verificarSessao();
-});
-
-// ── LOGIN E-MAIL + PASSWORD (SUPABASE) ────────────────
+// ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
 async function doLogin(){
   let valid = true;
   const email = document.getElementById('loginEmail');
@@ -69,7 +130,7 @@ async function doLogin(){
   }
   if(!valid){ toast('Preencha os campos obrigatórios','err'); return; }
 
-const btn = document.getElementById('btnLogin');
+  const btn = document.getElementById('btnLogin');
   btn.classList.add('loading');
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -83,11 +144,11 @@ const btn = document.getElementById('btnLogin');
     toast('E-mail ou senha incorretos.', 'err');
   } else {
     toast('Login realizado com sucesso! 🎉');
-    setTimeout(() => window.location.href = '/', 1200);
+    setTimeout(() => window.location.href = '../', 1200);
   }
 }
 
-// ── REGISTER E-MAIL & PASSWORD (SUPABASE) ─────────────
+// ── CADASTRO COM E-MAIL E SENHA REAL (SUPABASE) ─────────────
 async function doRegister(){
   let valid = true;
   const name  = document.getElementById('regName');
@@ -134,18 +195,19 @@ async function doRegister(){
   }
 }
 
-// ── ACTIVE SECTION VERIFICATOR ─────────────────────────────
+// ── VERIFICADOR DE SESSÃO ATIVA + LIMPEZA DE URL ─────────────
 async function verificarSessao() {
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  
+  if (session) {
+    // CORREÇÃO: Limpa os parâmetros gigantes da URL (?code= ou #access_token=) instantaneamente
+    if (window.location.search || window.location.hash) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
 
-  if (session && window.location.pathname.includes('index.html')) {
-    window.history.replaceState({}, document.title, window.location.pathname);
-    toast('Sessão ativa! Redirecionando... 🎉');
-    setTimeout(() => {
-      window.location.href = '/'; 
-    }, 1500);
-  } else {
-    console.log("Nenhum usuário autenticado.");
+    if (window.location.pathname.includes('index.html')) {
+      window.location.href = '../';
+    }
   }
 }
 
@@ -233,6 +295,50 @@ function simulateLoad(btnId, cb, delay=1400){
   if (btn) btn.classList.add('loading');
   setTimeout(() => { if(btn) btn.classList.remove('loading'); cb(); }, delay);
 }
+
+// ── INICIALIZAÇÃO ASSÍNCRONA DO SDK DO FACEBOOK ─────────────
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "https://connect.facebook.net/pt_BR/sdk.js";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+window.fbAsyncInit = function() {
+  if (typeof FB !== 'undefined') {
+    FB.init({
+      appId      : 'SEU_APP_ID_AQUI', 
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v18.0'
+    });
+  }
+};
+
+// ── SOCIAL LOGIN ───────────────────────────────────────────
+function socialLogin(prov){
+  if (prov === 'Facebook') {
+    if (typeof FB === 'undefined') {
+      toast('O serviço do Facebook está carregando. Aguarde um instante.', 'err');
+      return;
+    }
+    
+    toast('Conectando com Facebook...');
+    
+    FB.login(function(response) {
+      if (response.authResponse) {
+        const accessToken = response.authResponse.accessToken;
+        console.log("Token do Facebook recebido com sucesso:", accessToken);
+        
+        toast('Login com Facebook efetuado! Redirecionando... 🎉');
+        setTimeout(() => window.location.href = '../', 1200);
+      } else {
+        toast('Autenticação cancelada ou recusada.', 'err');
+      }
+    }, { scope: 'public_profile,email' });
+  }
+}
   
 // ── TOAST ──────────────────────────────────────────────────
 function toast(msg, type='ok'){
@@ -251,7 +357,6 @@ function toast(msg, type='ok'){
 // ── KEYBOARD SUBMIT ────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if(e.key !== 'Enter') return;
-  const active = document.activeElement;
   if(document.getElementById('formLogin').classList.contains('hidden')) doRegister();
   else doLogin();
 });
