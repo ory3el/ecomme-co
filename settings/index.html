@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="icon" id="favicon" type="image/png" href="../images/favicon.png">
+<link rel="icon" id="favicon" type="image/png" href="/images/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
@@ -23,24 +23,24 @@
 <header class="site-header">
   <div class="hdr-in">
     <a href="../"><div class="logo">
-      <img src="../images/logo.png" style="width: 150px; height: auto; display: block;" alt="Ecomme"/>
+      <img src="/images/logo.png" style="width: 150px; height: auto; display: block;" alt="Ecomme"/>
       </div>
     </a>
     <div class="hdr-bc">
-      <a href="../">Início</a>
+      <a href="/">Início</a>
       <span>›</span>
       <span style="cursor: default" id="bcSection">Configurações</span>
     </div>
     <div class="hdr-right">
       <div class="hdr-ico" style="cursor: pointer;" onclick="showPanel('notifications')" title="Notificações">
-        <img src="../images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
+        <img src="/images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
       </div>
       <div class="hdr-ico" style="cursor: pointer;" onclick="openCart()" title="Carrinho">
-        <img src="../images/icons/full/cart.webp" style="width: 20px; height: auto; display: block;" alt="Cart"/>
+        <img src="/images/icons/full/cart.webp" style="width: 20px; height: auto; display: block;" alt="Cart"/>
         <span class="hd-badge" id="cartBadge">0</span>
       </div>
       <div class="hdr-av" onclick="showPanel('profile')" title="Perfil">
-        <img src="../images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
+        <img src="/images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
       </div>
     </div>
   </div>
@@ -59,12 +59,12 @@
           <circle class="ring-fg" cx="44" cy="44" r="40"/>
         </svg>
         <div class="user-av" onclick="showPanel('profile')" title="Editar perfil">
-          <img src="../images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
+          <img src="/images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
         </div>
         <div class="av-edit" onclick="showPanel('profile')">✏️</div>
       </div>
-      <div class="perfilNome" id="sidebarName">Carregando...</div>
-      <div class="user-email" id="sidebarEmail">Buscando dados...</div>
+      <div class="perfilNome" id="profileFirstName">Carregando...</div>
+      <div class="user-email" id="profileEmail">Buscando dados...</div>
       <!-- <div class="user-badge">⭐ Cliente Gold</div> -->
       <div class="user-stats">
         <div class="ustat"><strong>0</strong><small>Pedidos</small></div>
@@ -79,12 +79,12 @@
         <div class="sb-sec-label">Conta</div>
         <button class="nav-item" data-panel="profile" onclick="showPanel('profile',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
+            <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
           </span><span class="nav-lbl">Meu Perfil</span><span class="nav-arrow">›</span>
         </button>
         <!-- <button class="nav-item" data-panel="orders" onclick="showPanel('orders',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+            <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
           </span><span class="nav-lbl">Minhas Compras</span>
           <span class="nav-badge">0</span>
         </button> -->
@@ -98,7 +98,7 @@
         </button>
         <button class="nav-item" data-panel="reviews" onclick="showPanel('reviews',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/star.webp" style="width: 20px; height: auto; display: block;" alt="Star"/>
+            <img src="/images/icons/full/star.webp" style="width: 20px; height: auto; display: block;" alt="Star"/>
           </span><span class="nav-lbl">Minhas Avaliações</span><span class="nav-arrow">›</span>
         </button>
       </div>
@@ -106,27 +106,27 @@
         <div class="sb-sec-label">Configurações</div>
         <button class="nav-item" data-panel="addresses" onclick="showPanel('addresses',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/pin.webp" style="width: 20px; height: auto; display: block;" alt="Pin"/>
+            <img src="/images/icons/full/pin.webp" style="width: 20px; height: auto; display: block;" alt="Pin"/>
           </span><span class="nav-lbl">Endereços</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="payments" onclick="showPanel('payments',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/card.webp" style="width: 20px; height: auto; display: block;" alt=Card"/>
+            <img src="/images/icons/full/card.webp" style="width: 20px; height: auto; display: block;" alt=Card"/>
           </span><span class="nav-lbl">Pagamentos</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="notifications" onclick="showPanel('notifications',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
+            <img src="/images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
           </span><span class="nav-lbl">Notificações</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="security" onclick="showPanel('security',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/padlock.webp" style="width: 20px; height: auto; display: block;" alt="Padlock"/>
+            <img src="/images/icons/full/padlock.webp" style="width: 20px; height: auto; display: block;" alt="Padlock"/>
           </span><span class="nav-lbl">Segurança</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item active" data-panel="settings" onclick="showPanel('settings',this)">
           <span class="nav-ico">
-            <img src="../images/icons/full/setting.webp" style="width: 20px; height: auto; display: block;" alt="Setting"/>
+            <img src="/images/icons/full/setting.webp" style="width: 20px; height: auto; display: block;" alt="Setting"/>
           </span><span class="nav-lbl">Configurações</span><span class="nav-arrow">›</span>
         </button>
       </div>
@@ -154,7 +154,7 @@
         <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
         <div class="av-upload" onclick="toast('Selecionar imagem...','info')">
           <div class="av-big">
-            <img src="../images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
+            <img src="/images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
           </div>
           <div class="av-upload-txt">
             <h4>Alterar foto de perfil</h4>
@@ -166,7 +166,7 @@
           </div>
         </div>
         <div class="card-title"><span class="ct-ico">
-          <img src="../images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
+          <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
         </span> Informações Pessoais</div>
         <div class="fgrid">
           <div class="fgrp"><label>Nome</label><input type="text" id="profileFirstName" class="finput" placeholder="Seu nome"></div>
