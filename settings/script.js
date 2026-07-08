@@ -3,9 +3,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -75,7 +75,7 @@ let usuarioLogadoId = null;
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     if (!session) {
-      window.location.href = '../login/index.html';
+      window.location.href = '/login/';
       return;
     }
 
@@ -112,8 +112,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const lastName = nameParts.slice(1).join(' ') || "";
 
     // Atualiza a Sidebar do seu index.html
-    const sidebarName = document.getElementById('profileName');
-    const sidebarEmail = document.getElementById('profileEmail');
+    const sidebarName = document.getElementById('sidebarName');
+    const sidebarEmail = document.getElementById('sidebarEmail');
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
