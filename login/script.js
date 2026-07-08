@@ -33,12 +33,6 @@ function showTab(tab){
   if(isLogin) toggleForgot(false);
 }
 
-// Monitor de carregamento da página
-window.addEventListener('load', () => {
-  verificarSessao();
-});
-
-
 // ── SOCIAL LOGIN (GOOGLE E FACEBOOK VIA SUPABASE) ──────────
 async function socialLogin(provider) {
   toast(`Redirecionando para o ${provider}...`);
@@ -115,7 +109,6 @@ async function doRegister(){
   const btn = document.getElementById('btnReg');
   btn.classList.add('loading');
 
-  // 👈 Junta o Nome com o Sobrenome de forma inteligente
   const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
 
   const { data, error } = await supabaseClient.auth.signUp({
@@ -141,20 +134,17 @@ async function doRegister(){
 
 
 // ── VERIFICADOR DE SESSÃO ATIVA E LIMPEZA DE URL ────────────
-async function verificarSessao() {
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
-  
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-
     if (document.getElementById('formLogin')) {
       toast('Sessão ativa! Redirecionando... 🎉');
       setTimeout(() => window.location.href = '../', 1200);
     }
   }
-}
+});
 
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
