@@ -149,22 +149,22 @@
           <button class="btn-ghost" onclick="toast('Visualizando como cliente','info')">👁 Visualizar</button>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
-        <div class="av-upload" onclick="toast('Selecionar imagem...','info')">
-          <div class="av-big">
-            <img src="/images/icons/full/user.webp" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
-          </div>
-          <div class="av-upload-txt">
-            <h4>Alterar foto de perfil</h4>
-            <p>JPG, PNG ou GIF · Máximo 5MB · Recomendado 400×400px</p>
-            <div class="av-btns">
-              <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
-              <button class="btn-xs gray red" onclick="event.stopPropagation();toast('Foto removida')"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
-            </div>
-          </div>
-        </div>
+<div class="card">
+  <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
+  <div class="av-upload" onclick="toast('Selecionar imagem...','info')">
+    <div class="av-big" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+      <img src="/images/icons/full/user.webp" id="profileAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
+    </div>
+    <div class="av-upload-txt">
+      <h4>Alterar foto de perfil</h4>
+      <p>JPG, PNG ou GIF · Máximo 5MB · Recomendado 400×400px</p>
+      <div class="av-btns">
+        <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
+        <button class="btn-xs gray red" onclick="removePhoto(event)"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
+      </div>
+    </div>
+  </div>
+</div>
         <div class="card-title"><span class="ct-ico">
           <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
         </span> Informações Pessoais</div>
