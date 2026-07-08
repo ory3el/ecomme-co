@@ -1,14 +1,14 @@
-// ── 1. INICIALIZAR O SUPABASE (DEVE FICAR NO TOPO) ──────────────────
+// ── 1. SUPABASE STARTER ──
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ── NAVEGAÇÃO E TEMA ───────────────────────────────────────────────
+// ── NAV ──
 function buttonLink(url) {
   window.location.href = url;
 }
 
-// FAVICON
+// ── FAVICON ──
 const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
@@ -33,7 +33,7 @@ function showTab(tab){
   if(isLogin) toggleForgot(false);
 }
 
-// ── SOCIAL LOGIN (GOOGLE E FACEBOOK VIA SUPABASE) ──────────
+// ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
   toast(`Redirecionando para o ${provider}...`);
   
@@ -43,14 +43,13 @@ async function socialLogin(provider) {
       redirectTo: window.location.origin + window.location.pathname 
     }
   });
-
   if (error) {
     console.error(error);
     toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
 
-// ── LOGIN COM E-MAIL E SENHA REAL (SUPABASE) ────────────────
+// ── LOGIN E-MAIL & PWD (SUPABASE) ────────────────
 async function doLogin(){
   let valid = true;
   const email = document.getElementById('loginEmail');
@@ -82,7 +81,7 @@ async function doLogin(){
   }
 }
 
-// ── CADASTRO COM E-MAIL E SENHA REAL (SUPABASE) ─────────────
+// ── REGISTER E-MAIL & PWD (SUPABASE) ─────────────
 async function doRegister(){
   let valid = true;
   const name  = document.getElementById('regName');
@@ -101,7 +100,7 @@ async function doRegister(){
   if(phoneValue.length < 11){ showFieldErr(phone, 'regPhoneErr'); valid = false; }
   if(pwd.value.length < 8){ showFieldErr(pwd,'regPwdErr'); valid = false; }
   
-  if(termsAge && !termsAge.checked){ toast('Precisa de ter 18 anos ou mais','err'); return; }
+  if(termsAge && !termsAge.checked){ toast('Você precisa ter 18 anos ou mais','err'); return; }
   if(termsDoc && !termsDoc.checked){ toast('Aceite os termos para continuar','err'); return; }
   
   if(!valid) return;
@@ -116,7 +115,7 @@ async function doRegister(){
     password: pwd.value,
     options: {
       data: {
-        full_name: fullName, // 👈 Envia o nome completo para o banco
+        full_name: fullName,
         phone: phoneValue
       }
     }
@@ -133,7 +132,7 @@ async function doRegister(){
 }
 
 
-// ── VERIFICADOR DE SESSÃO ATIVA E LIMPEZA DE URL ────────────
+// ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     if (window.location.search || window.location.hash) {
