@@ -88,11 +88,11 @@ async function doLogin(){
   }
 }
 
-
 // ── CADASTRO COM E-MAIL E SENHA REAL (SUPABASE) ─────────────
 async function doRegister(){
   let valid = true;
   const name  = document.getElementById('regName');
+  const sob   = document.getElementById('regSob');
   const email = document.getElementById('regEmail');
   const phone = document.getElementById('regPhone');
   const pwd   = document.getElementById('regPwd');
@@ -115,12 +115,15 @@ async function doRegister(){
   const btn = document.getElementById('btnReg');
   btn.classList.add('loading');
 
+  // 👈 Junta o Nome com o Sobrenome de forma inteligente
+  const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
+
   const { data, error } = await supabaseClient.auth.signUp({
     email: email.value.trim(),
     password: pwd.value,
     options: {
       data: {
-        full_name: name.value.trim(),
+        full_name: fullName, // 👈 Envia o nome completo para o banco
         phone: phoneValue
       }
     }
