@@ -122,8 +122,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
     const inputPhone = document.getElementById('profilePhone');
-    
-    // Mapeamento dos novos campos (adicione IDs correspondentes no seu HTML)
+      
     const inputCPF = document.getElementById('profileCPF');
     const inputBirth = document.getElementById('profileBirth');
     const inputGender = document.getElementById('profileGender');
@@ -143,7 +142,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 
   if (event === 'SIGNED_OUT') {
-    window.location.href = '../login/index.html';
+    window.location.href = '/login/';
   }
 });
 
