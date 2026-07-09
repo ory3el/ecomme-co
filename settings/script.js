@@ -93,7 +93,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
 
     const email = user.email || "";
-    const fullName = perfil.full_name || "Cliente";
+    const fullName = profile.full_name || "Cliente";
     const phone = profile.phone || "";
     
     const cpf = profile.cpf || "";
