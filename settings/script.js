@@ -67,9 +67,7 @@ function toast(msg, type='ok'){
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Variável global para sabermos quem é o usuário logado nas funções abaixo
-let usuarioLogadoId = null;
+let userId = null;
 
 // ESCUTADOR DE SESSÃO COM BANCO DE DADOS
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -80,48 +78,44 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
 
     const user = session.user;
-    usuarioLogadoId = user.id; // Guarda o ID único do usuário
+    userId = user.id;
 
     // ── NOVIDADE: Buscando os dados direto da tabela 'profiles' ──
-    const { data: perfil, error } = await supabaseClient
+    const { data: profile, error } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single(); // Traz apenas uma linha
+      .single();
 
     if (error) {
       console.error("Erro ao buscar perfil:", error.message);
       return;
     }
 
-    // Se achou o perfil, extrai as informações do banco
     const email = user.email || "";
     const fullName = perfil.full_name || "Cliente";
-    const phone = perfil.phone || "";
+    const phone = profile.phone || "";
     
-    // Novas informações estruturadas
-    const cpf = perfil.cpf || "";
-    const birthDate = perfil.birth_date || "";
-    const gender = perfil.gender || "Selecione uma opção";
-    const language = perfil.language || "Português (BR)";
-    const bio = perfil.bio || "";
+    const cpf = profile.cpf || "";
+    const birthDate = profile.birth_date || "";
+    const gender = profile.gender || "Selecione uma opção";
+    const language = profile.language || "Português (BR)";
+    const bio = profile.bio || "";
 
-    // Divide o Nome para os inputs
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
 
-    // Atualiza a Sidebar do seu index.html
     const sidebarName = document.getElementById('sidebarName');
     const sidebarEmail = document.getElementById('sidebarEmail');
     if (sidebarName) sidebarName.textContent = fullName;
     if (sidebarEmail) sidebarEmail.textContent = email;
 
-    // Preenche TODOS os Inputs do seu Formulário
     const inputFirstName = document.getElementById('profileFirstName');
     const inputLastName = document.getElementById('profileLastName');
     const inputEmail = document.getElementById('profileEmail');
     const inputPhone = document.getElementById('profilePhone');
+    const photoUrl = profile.avatar_url || "";
       
     const inputCPF = document.getElementById('profileCPF');
     const inputBirth = document.getElementById('profileBirth');
@@ -144,17 +138,28 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }
+
+  // ── Renderiza a foto do Google se ela existir ──
+  if (photoUrl) {
+    const avatarImage = document.getElementById('profileAvatar');
+    if (avatarImage) {
+      avatarImage.src = photoUrl;
+      avatarImage.style.filter = "none";
+      avatarImage.style.width = "100%";
+      avatarImage.style.height = "100%";
+      avatarImage.style.objectFit = "cover";
+    }
+  }
 });
 
 // FUNÇÃO SALVAR ATUALIZADA: Faz um UPDATE na tabela 'profiles'
 async function saveProfile() {
-  if (!usuarioLogadoId) return;
+  if (!userId) return;
 
   const inputFirstName = document.getElementById('profileFirstName');
   const inputLastName = document.getElementById('profileLastName');
   const inputPhone = document.getElementById('profilePhone');
   
-  // Captura dos novos inputs
   const inputCPF = document.getElementById('profileCPF');
   const inputBirth = document.getElementById('profileBirth');
   const inputGender = document.getElementById('profileGender');
@@ -186,12 +191,12 @@ async function saveProfile() {
       full_name: fullName,
       phone: phoneRaw,
       cpf: cpfRaw,
-      birth_date: birthDate ? birthDate : null, // Evita erro se enviar data vazia
+      birth_date: birthDate ? birthDate : null,
       gender: gender,
       language: language,
       bio: bio
     })
-    .eq('id', usuarioLogadoId); // Garante que só altera a linha do próprio usuário
+    .eq('id', userId);
 
   if (error) {
     console.error(error);
@@ -201,6 +206,21 @@ async function saveProfile() {
     
     const sidebarName = document.getElementById('perfilNome');
     if (sidebarName) sidebarName.textContent = fullName;
+  }
+}
+
+function removePhoto(event) {
+  event.stopPropagation();
+  
+  const avatarImage = document.getElementById('profileAvatar');
+  if (avatarImage) {
+    avatarImage.src = "/images/icons/full/user.webp";
+    
+    avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+    avatarImage.style.width = "75%";
+    avatarImage.style.height = "auto";
+    
+    toast('Foto de perfil removida', 'ok');
   }
 }
 
