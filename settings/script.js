@@ -96,7 +96,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const fullName = profile.full_name || "Cliente";
     const phone = profile.phone || "";
     
-    const cpf = profile.cpf || "";
+    const cpf = perfil.cpf || "";
     const birthDate = profile.birth_date || "";
     const gender = profile.gender || "Selecione uma opção";
     const language = profile.language || "Português (BR)";
