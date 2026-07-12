@@ -93,6 +93,13 @@ async function doRegister(){
   const termsAge = document.getElementById('acceptAge');
   const termsDoc = document.getElementById('acceptTerms');
 
+  if (error) {
+    console.error(error);
+    toast(error.message, 'err');
+  } else {
+    toast('Conta criada! Verifique o seu e-mail. 🚀');
+  }
+  
   if(!name.value.trim()){ showFieldErr(name,'regNameErr'); valid = false; }
   if(!validateEmail(email.value.trim())){ showFieldErr(email,'regEmailErr'); valid = false; }
   
@@ -105,23 +112,29 @@ async function doRegister(){
   
   if(!valid) return;
 
+  const captchaToken = hcaptcha.getResponse();
+  if (!captchaToken) {
+    toast('Por favor, confirme que você não é um robô 🤖', 'err');
+    return;
+  }
   const btn = document.getElementById('btnReg');
   btn.classList.add('loading');
-
   const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
-
   const { data, error } = await supabaseClient.auth.signUp({
     email: email.value.trim(),
     password: pwd.value,
     options: {
+      captchaToken: captchaToken,
       data: {
         full_name: fullName,
         phone: phoneValue
       }
     }
   });
-
+  hcaptcha.reset();
   btn.classList.remove('loading');
+
+  const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
 
   if (error) {
     console.error(error);
