@@ -1,3 +1,8 @@
+// ── NAV LINKS ──────────────────────────────────────
+function buttonLink(url) {
+  window.location.href = url;
+}
+
 // FAVICON
 const favicon = document.getElementById('favicon');
     
@@ -152,9 +157,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputBio) inputBio.value = bio;
   
 
-  if (event === 'SIGNED_OUT') {
+  /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
-  }
+  }*/
 
   // ── Renderiza a foto do Google se ela existir ──
   if (photoUrl) {
@@ -245,4 +250,5 @@ function removePhoto(event) {
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
+  buttomLink('/login')
 }
