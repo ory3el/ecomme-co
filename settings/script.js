@@ -68,7 +68,26 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 // ESCUTADOR DE SESSÃO COM BANCO DE DADOS
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
+window.addEventListener('DOMContentLoaded', async () => {
+  
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  if (!user || userError) {
+    console.warn("Sessão inválida ou expirada. Redirecionando...");
+    window.location.href = '/login/';
+    return;
+  }
+
+  userId = user.id; 
+
+  const { data: perfil, error: perfilError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+
+/* supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     if (!session) {
       window.location.href = '/login/';
@@ -88,7 +107,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (error) {
       console.error("Erro ao buscar perfil:", error.message);
       return;
-    }
+    } */
 
     const email = user.email || "";
     const fullName = profile.full_name || "Cliente";
