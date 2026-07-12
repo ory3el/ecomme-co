@@ -202,7 +202,7 @@ async function saveProfile() {
   } else {
     toast('Perfil guardado com sucesso! ✓', 'ok');
     
-    const sidebarName = document.getElementById('perfilNome');
+    const sidebarName = document.getElementById('sidebarName');
     if (sidebarName) sidebarName.textContent = fullName;
   }
 }
