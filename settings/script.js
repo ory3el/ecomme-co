@@ -250,5 +250,5 @@ function removePhoto(event) {
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
-  buttomLink('/login')
+  buttonLink('/login')
 }
