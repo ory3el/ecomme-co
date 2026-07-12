@@ -92,13 +92,6 @@ async function doRegister(){
   
   const termsAge = document.getElementById('acceptAge');
   const termsDoc = document.getElementById('acceptTerms');
-
-  if (error) {
-    console.error(error);
-    toast(error.message, 'err');
-  } else {
-    toast('Conta criada! Verifique o seu e-mail. 🚀');
-  }
   
   if(!name.value.trim()){ showFieldErr(name,'regNameErr'); valid = false; }
   if(!validateEmail(email.value.trim())){ showFieldErr(email,'regEmailErr'); valid = false; }
