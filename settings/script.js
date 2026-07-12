@@ -27,7 +27,6 @@ function showPanel(id, btn){
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
-function saveProfile(){ toast('Perfil salvo com sucesso! ✓'); }
 function changePwd(){
   const card = document.getElementById('pwdChangeCard');
   card.style.display = card.style.display === 'none' ? 'block' : 'none';
