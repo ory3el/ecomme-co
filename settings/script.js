@@ -163,7 +163,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // ── Renderiza a foto do Google se ela existir ──
   if (photoUrl) {
-    const avatarImage = document.getElementById('profileAvatar', 'sidebarAvatar');
+    const avatarImage = document.getElementById('profileAvatar');
+    const sidebarImage = document.getElementById('sidebarAvatar');
     if (avatarImage) {
       avatarImage.src = photoUrl;
       avatarImage.style.filter = "none";
@@ -171,6 +172,14 @@ window.addEventListener('DOMContentLoaded', async () => {
       avatarImage.style.height = "100%";
       avatarImage.style.borderRadius = "100%";
       avatarImage.style.objectFit = "cover";
+    }
+    if (sidebarImage) {
+      sidebarImage.src = photoUrl;
+      sidebarImage.style.filter = "none";
+      sidebarImage.style.width = "100%";
+      sidebarImage.style.height = "100%";
+      sidebarImage.style.borderRadius = "100%";
+      sidebarImage.style.objectFit = "cover";
     }
   }
 });
