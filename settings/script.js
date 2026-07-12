@@ -151,7 +151,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputGender) inputGender.value = gender;
     if (inputLang) inputLang.value = language;
     if (inputBio) inputBio.value = bio;
-  }
+  
 
   if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
