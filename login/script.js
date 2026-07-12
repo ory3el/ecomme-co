@@ -134,8 +134,6 @@ async function doRegister(){
   hcaptcha.reset();
   btn.classList.remove('loading');
 
-  const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
-
   if (error) {
     console.error(error);
     toast(error.message, 'err');
