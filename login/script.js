@@ -102,8 +102,6 @@ async function doRegister(){
   
   if(termsAge && !termsAge.checked){ toast('Você precisa ter 18 anos ou mais','err'); return; }
   if(termsDoc && !termsDoc.checked){ toast('Aceite os termos para continuar','err'); return; }
-  
-  if(!valid) return;
 
   const captchaToken = hcaptcha.getResponse();
   if (!captchaToken) {
@@ -127,6 +125,8 @@ async function doRegister(){
   hcaptcha.reset();
   btn.classList.remove('loading');
 
+  if(!valid) return;
+  
   if (error) {
     console.error(error);
     toast(error.message, 'err');
