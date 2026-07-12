@@ -163,12 +163,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // ── Renderiza a foto do Google se ela existir ──
   if (photoUrl) {
-    const avatarImage = document.getElementById('profileAvatar');
+    const avatarImage = document.getElementById('profileAvatar', 'sidebarAvatar');
     if (avatarImage) {
       avatarImage.src = photoUrl;
       avatarImage.style.filter = "none";
       avatarImage.style.width = "100%";
       avatarImage.style.height = "100%";
+      avatarImage.style.borderRadius = "100%";
       avatarImage.style.objectFit = "cover";
     }
   }
