@@ -172,6 +172,8 @@
           <button class="forgot" onclick="toggleForgot(true)">Esqueceu a senha?</button>
         </div>
 
+        <div class="h-captcha" data-sitekey="47e469ca-e75c-426a-97b6-e3e2c8e2d96c"></div>
+        
         <button class="btn-submit" id="btnLogin" onclick="doLogin()">
           <span class="btn-txt">Entrar na conta</span>
           <div class="spinner"></div>
@@ -275,7 +277,8 @@
         </label>
       </div>
 
-
+      <div class="h-captcha" data-sitekey="47e469ca-e75c-426a-97b6-e3e2c8e2d96c"></div>
+      
       <button class="btn-submit" id="btnReg" onclick="doRegister()">
         <span class="btn-txt">Criar conta</span>
         <div class="spinner"></div>
@@ -299,6 +302,7 @@
   });
 </script>
 
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js" defer></script>
 </body>
