@@ -160,7 +160,9 @@
     <div class="av-upload-txt">
       <h4>Alterar foto de perfil</h4>
       <p>JPEG, PNG, WebP ou HEIC · Máximo 5MB <br>Recomendado 500×500px</p>
-      <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp, image/heic" style="display: none;" onchange="uploadPhoto(event)">
+      
+      <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp, image/heic" style="display: none;" onchange="openCropModal(event)">
+      
       <div class="av-btns">
         <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
         <button class="btn-xs gray red" onclick="removePhoto(event)"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
@@ -704,7 +706,7 @@
   <div class="crop-modal-content">
     <div class="crop-hd">
       <h3>Ajustar Foto</h3>
-      <button class="cart-cls" onclick="fecharModalRecorte()">
+      <button class="cart-cls" onclick="closeCropModal()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -714,8 +716,8 @@
     </div>
     
     <div class="av-btns" style="justify-content: flex-end; margin-top: 15px;">
-      <button class="btn-xs gray" onclick="fecharModalRecorte()">Cancelar</button>
-      <button class="btn-xs blue" onclick="executarRecorte()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
+      <button class="btn-xs gray" onclick="closeCropModal()">Cancelar</button>
+      <button class="btn-xs blue" onclick="executeCrop()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
     </div>
   </div>
 </div>
