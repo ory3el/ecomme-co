@@ -294,18 +294,55 @@ async function saveProfile() {
   }
 }
 
-function removePhoto(event) {
+// ── FUNÇÃO PARA REMOVER FOTO (E APAGAR DO SERVIDOR) ──────────
+async function removePhoto(event) {
   event.stopPropagation();
   
-  const avatarImage = document.getElementById('profileAvatar');
-  if (avatarImage) {
-    avatarImage.src = "/images/icons/full/user.webp";
-    
-    avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
-    avatarImage.style.width = "75%";
-    avatarImage.style.height = "auto";
-    
-    toast('Foto de perfil removida', 'ok');
+  if (!userId) return;
+  toast('A remover foto... ⏳', 'info');
+
+  try {
+    const { data: profile, error: fetchError } = await supabaseClient
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+    const oldUrl = profile.avatar_url;
+
+    if (oldUrl) {
+      const urlParts = oldUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      const { error: removeError } = await supabaseClient.storage
+        .from('avatars')
+        .remove([fileName]);
+
+      if (removeError) {
+        console.warn("Aviso: Não foi possível apagar o ficheiro do Storage.", removeError.message);
+      }
+    }
+
+    const { error: updateError } = await supabaseClient
+      .from('profiles')
+      .update({ avatar_url: null })
+      .eq('id', userId);
+
+    if (updateError) throw updateError;
+
+    const avatarImage = document.getElementById('profileAvatar');
+    if (avatarImage) {
+      avatarImage.src = "/images/icons/full/user.webp";
+      avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      avatarImage.style.width = "75%";
+      avatarImage.style.height = "auto";
+    }
+    toast('Foto de perfil removida com sucesso! 🗑️', 'ok');
+
+  } catch (erro) {
+    console.error('Erro ao remover foto:', erro.message);
+    toast('Ocorreu um erro ao remover a foto.', 'err');
   }
 }
 
