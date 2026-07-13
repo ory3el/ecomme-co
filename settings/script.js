@@ -237,7 +237,7 @@ function closeCropModal() {
   }
 }
 
-async function saveCrop() {
+async function executeCrop() {
   if (!cropperInstance) return;
 
   toast('A preparar imagem... ⏳', 'info');
