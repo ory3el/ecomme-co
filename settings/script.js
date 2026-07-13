@@ -263,7 +263,7 @@ async function uploadPhoto(event) {
       avatarImage.style.objectFit = "cover";
     }
     if (sidebarImage) {
-      sidebarImage.src = photoUrl;
+      sidebarImage.src = publicUrlPhoto;
       sidebarImage.style.filter = "none";
       sidebarImage.style.width = "100%";
       sidebarImage.style.height = "100%";
@@ -271,7 +271,7 @@ async function uploadPhoto(event) {
       sidebarImage.style.objectFit = "cover";
     }
     if (headerImage) {
-      headerImage.src = photoUrl;
+      headerImage.src = publicUrlPhoto;
       headerImage.style.filter = "none";
       headerImage.style.width = "100%";
       headerImage.style.height = "100%";
