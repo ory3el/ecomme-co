@@ -186,6 +186,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // ── FUNÇÃO DE UPLOAD DA FOTO DE PERFIL ─────────────────────
 async function uploadPhoto(event) {
+  event.stopPropagation();
   const file = event.target.files[0];
   if (!file) return;
 
