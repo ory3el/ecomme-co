@@ -231,6 +231,7 @@ function openCropModal(event) {
 
 function closeCropModal() {
   document.getElementById('cropModal').classList.remove('active');
+  
   if (cropperInstance) {
     cropperInstance.destroy();
     cropperInstance = null;
@@ -238,17 +239,25 @@ function closeCropModal() {
 }
 
 async function executeCrop() {
-  if (!cropperInstance) return;
-
+  if (!cropperInstance) {
+    toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
+    return;
+  }
   toast('A preparar imagem... ⏳', 'info');
-  closeCropModal();
 
   cropperInstance.getCroppedCanvas({
-    width: 500,
-    height: 500,
+    width: 400,
+    height: 400,
     imageSmoothingQuality: 'high'
   }).toBlob(async (blob) => {
     
+    if (!blob) {
+      toast('Erro ao processar o recorte da imagem.', 'err');
+      closeCropModal();
+      return;
+    }
+    closeCropModal();
+
     try {
       const { data: currentProfile, error: fetchError } = await supabaseClient
         .from('profiles').select('avatar_url').eq('id', userId).single();
@@ -279,7 +288,7 @@ async function executeCrop() {
         const oldFileName = urlParts[urlParts.length - 1];
         await supabaseClient.storage.from('avatars').remove([oldFileName]);
       }
-      
+
       const avatarImage = document.getElementById('profileAvatar');
       if (avatarImage) {
         avatarImage.src = publicPhotoUrl;
