@@ -25,6 +25,62 @@
    overflow: hidden; scrollbar-gutter: stable;
 }
 
+/* ── CROP MODAL ── */
+.crop-modal {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.crop-modal.active {
+  display: flex;
+  opacity: 1;
+}
+.crop-modal-content {
+  background-color: var(--bg-card, #ffffff);
+  width: 90%;
+  max-width: 450px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+.crop-modal.active .crop-modal-content {
+  transform: scale(1);
+}
+.crop-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.crop-hd h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.img-container {
+  max-height: 50vh; 
+  width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.img-container img {
+  display: block;
+  max-width: 100%;
+}
+
 /* ── CART SIDEBAR ────────────────────────────────────────── */
 .overlay {
   position: fixed; inset: 0;
