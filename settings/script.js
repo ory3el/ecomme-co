@@ -184,6 +184,59 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// ── FUNÇÃO DE UPLOAD DA FOTO DE PERFIL ─────────────────────
+async function uploadPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
+    return;
+  }
+
+  toast('A fazer upload da foto... ⏳', 'info');
+
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}-${Math.random()}.${fileExt}`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from('avatars')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicUrlData } = supabaseClient.storage
+      .from('avatars')
+      .getPublicUrl(fileName);
+      
+    const publicUrlPhoto = publicUrlData.publicUrl;
+
+    const { error: updateError } = await supabaseClient
+      .from('profiles')
+      .update({ avatar_url: publicUrlPhoto })
+      .eq('id', userId);
+    if (updateError) throw updateError;
+    
+    const avatarImage = document.getElementById('profileAvatar');
+    if (avatarImage) {
+      avatarImage.src = publicUrlPhoto;
+      avatarImage.style.filter = "none";
+      avatarImage.style.width = "100%";
+      avatarImage.style.height = "100%";
+      avatarImage.style.objectFit = "cover";
+    }
+
+    toast('Foto atualizada com sucesso! 🎉', 'ok');
+
+  } catch (erro) {
+    console.error('Erro no upload:', erro.message);
+    toast('Erro ao enviar a foto.', 'err');
+  } finally {
+    event.target.value = '';
+  }
+}
+        
 // FUNÇÃO SALVAR ATUALIZADA: Faz um UPDATE na tabela 'profiles'
 async function saveProfile() {
   if (!userId) return;
