@@ -194,99 +194,109 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ── FUNÇÃO DE UPLOAD DA FOTO DE PERFIL ─────────────────────
-async function uploadPhoto(event) {
+let cropperInstance = null;
+let originalFileName = "";
+
+function openCropModal(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
     toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
+    event.target.value = '';
     return;
   }
 
-  toast('A fazer upload da foto... ⏳', 'info');
+  originalFileName = file.name;
 
-  try {
-    const { data: currentProfile, error: searchError } = await supabaseClient
-      .from('profiles')
-      .select('avatar_url')
-      .eq('id', userId)
-      .single();
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imgElement = document.getElementById('imageToCrop');
+    imgElement.src = e.target.result;
+    document.getElementById('cropModal').classList.add('active');
 
-    let oldUrl = null;
-    if (!searchError && currentProfile) {
-      oldUrl = currentProfile.avatar_url;
-    }
+    if (cropperInstance) cropperInstance.destroy();
+    cropperInstance = new Cropper(imgElement, {
+      aspectRatio: 1,
+      viewMode: 2,
+      dragMode: 'move',
+      autoCropArea: 0.9,
+      background: false,
+    });
+  };
+  
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}-${Math.random()}.${fileExt}`;
-
-    const { error: uploadError } = await supabaseClient.storage
-      .from('avatars')
-      .upload(fileName, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: publicUrlData } = supabaseClient.storage
-      .from('avatars')
-      .getPublicUrl(fileName);
-      
-    const publicUrlPhoto = publicUrlData.publicUrl;
-
-    const { error: updateError } = await supabaseClient
-      .from('profiles')
-      .update({ avatar_url: publicUrlPhoto })
-      .eq('id', userId);
-
-    if (updateError) throw updateError;
-
-    if (oldUrl && oldUrl.includes('/avatars/')) {
-      const urlParts = oldUrl.split('/');
-      const oldFileName = urlParts[urlParts.length - 1];
-
-      const { error: removeError } = await supabaseClient.storage
-        .from('avatars')
-        .remove([oldFileName]);
-        
-      if (removeError) {
-         console.warn("Aviso: A nova foto foi salva, mas a antiga não foi apagada.", removeError.message);
-      }
-    }
-
-    const avatarImage = document.getElementById('profileAvatar');
-    const sidebarImage = document.getElementById('sidebarAvatar');
-    const headerImage = document.getElementById('headerAvatar');
-    if (avatarImage) {
-      avatarImage.src = publicUrlPhoto;
-      avatarImage.style.filter = "none";
-      avatarImage.style.width = "100%";
-      avatarImage.style.height = "100%";
-      avatarImage.style.objectFit = "cover";
-    }
-    if (sidebarImage) {
-      sidebarImage.src = publicUrlPhoto;
-      sidebarImage.style.filter = "none";
-      sidebarImage.style.width = "100%";
-      sidebarImage.style.height = "100%";
-      sidebarImage.style.borderRadius = "100%";
-      sidebarImage.style.objectFit = "cover";
-    }
-    if (headerImage) {
-      headerImage.src = publicUrlPhoto;
-      headerImage.style.filter = "none";
-      headerImage.style.width = "100%";
-      headerImage.style.height = "100%";
-      headerImage.style.borderRadius = "100%";
-      headerImage.style.objectFit = "cover";
-    }
-
-    toast('Foto atualizada com sucesso! 🎉', 'ok');
-
-  } catch (erro) {
-    console.error('Erro no upload:', erro.message);
-    toast('Erro ao enviar a foto.', 'err');
-  } finally {
-    event.target.value = '';
+function closeCropModal() {
+  document.getElementById('cropModal').classList.remove('active');
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
   }
+}
+
+async function saveCrop() {
+  if (!cropperInstance) return;
+
+  toast('A preparar imagem... ⏳', 'info');
+  closeCropModal();
+
+  cropperInstance.getCroppedCanvas({
+    width: 500,
+    height: 500,
+    imageSmoothingQuality: 'high'
+  }).toBlob(async (blob) => {
+    
+    try {
+      const { data: currentProfile, error: fetchError } = await supabaseClient
+        .from('profiles').select('avatar_url').eq('id', userId).single();
+
+      let oldUrl = (!fetchError && currentProfile) ? currentProfile.avatar_url : null;
+
+      const fileExt = originalFileName.split('.').pop() || 'jpg';
+      const fileName = `${userId}-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(fileName, blob, { contentType: 'image/jpeg' });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabaseClient.storage.from('avatars').getPublicUrl(fileName);
+      const publicPhotoUrl = publicUrlData.publicUrl;
+
+      const { error: updateError } = await supabaseClient
+        .from('profiles')
+        .update({ avatar_url: publicPhotoUrl })
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      if (oldUrl && oldUrl.includes('/avatars/')) {
+        const urlParts = oldUrl.split('/');
+        const oldFileName = urlParts[urlParts.length - 1];
+        await supabaseClient.storage.from('avatars').remove([oldFileName]);
+      }
+      
+      const avatarImage = document.getElementById('profileAvatar');
+      if (avatarImage) {
+        avatarImage.src = publicPhotoUrl;
+        avatarImage.style.filter = "none";
+        avatarImage.style.width = "100%";
+        avatarImage.style.height = "100%";
+        avatarImage.style.objectFit = "cover";
+      }
+
+      toast('Foto atualizada com sucesso! 🎉', 'ok');
+
+    } catch (error) {
+      console.error('Erro no upload:', error.message);
+      toast('Erro ao enviar a foto.', 'err');
+    }
+
+  }, 'image/jpeg', 0.85);
 }
         
 // FUNÇÃO SALVAR ATUALIZADA: Faz um UPDATE na tabela 'profiles'
