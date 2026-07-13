@@ -290,12 +290,29 @@ async function executeCrop() {
       }
 
       const avatarImage = document.getElementById('profileAvatar');
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      const headerImage = document.getElementById('headerAvatar');
+      
       if (avatarImage) {
         avatarImage.src = publicPhotoUrl;
         avatarImage.style.filter = "none";
         avatarImage.style.width = "100%";
         avatarImage.style.height = "100%";
         avatarImage.style.objectFit = "cover";
+      }
+      if (sidebarImage) {
+        sidebarImage.src = publicPhotoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = publicPhotoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.objectFit = "cover";
       }
 
       toast('Foto atualizada com sucesso! 🎉', 'ok');
