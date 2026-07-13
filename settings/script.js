@@ -384,11 +384,25 @@ async function removePhoto(event) {
     if (updateError) throw updateError;
 
     const avatarImage = document.getElementById('profileAvatar');
+    const sidebarImage = document.getElementById('sidebarAvatar');
+    const headerImage = document.getElementById('headerAvatar');
     if (avatarImage) {
       avatarImage.src = "/images/icons/full/user.webp";
       avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
       avatarImage.style.width = "75%";
       avatarImage.style.height = "auto";
+    }
+    if (sidebarImage) {
+      sidebarImage.src = "/images/icons/full/user.webp";
+      sidebarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      sidebarImage.style.width = "75%";
+      sidebarImage.style.height = "auto";
+    }
+    if (headerImage) {
+      headerImage.src = "/images/icons/full/user.webp";
+      headerImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      headerImage.style.width = "75%";
+      headerImage.style.height = "auto";
     }
     toast('Foto de perfil removida com sucesso! 🗑️', 'ok');
 
