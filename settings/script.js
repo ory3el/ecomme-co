@@ -165,6 +165,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (photoUrl) {
     const avatarImage = document.getElementById('profileAvatar');
     const sidebarImage = document.getElementById('sidebarAvatar');
+    const headerImage = document.getElementById('headerAvatar');
     if (avatarImage) {
       avatarImage.src = photoUrl;
       avatarImage.style.filter = "none";
@@ -181,12 +182,19 @@ window.addEventListener('DOMContentLoaded', async () => {
       sidebarImage.style.borderRadius = "100%";
       sidebarImage.style.objectFit = "cover";
     }
+    if (headerImage) {
+      headerImage.src = photoUrl;
+      headerImage.style.filter = "none";
+      headerImage.style.width = "100%";
+      headerImage.style.height = "100%";
+      headerImage.style.borderRadius = "100%";
+      headerImage.style.objectFit = "cover";
+    }
   }
 });
 
 // ── FUNÇÃO DE UPLOAD DA FOTO DE PERFIL ─────────────────────
 async function uploadPhoto(event) {
-  event.stopPropagation();
   const file = event.target.files[0];
   if (!file) return;
 
@@ -198,6 +206,17 @@ async function uploadPhoto(event) {
   toast('A fazer upload da foto... ⏳', 'info');
 
   try {
+    const { data: currentProfile, error: searchError } = await supabaseClient
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', userId)
+      .single();
+
+    let oldUrl = null;
+    if (!searchError && currentProfile) {
+      oldUrl = currentProfile.avatar_url;
+    }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}-${Math.random()}.${fileExt}`;
 
@@ -217,15 +236,47 @@ async function uploadPhoto(event) {
       .from('profiles')
       .update({ avatar_url: publicUrlPhoto })
       .eq('id', userId);
+
     if (updateError) throw updateError;
-    
+
+    if (oldUrl && oldUrl.includes('/avatars/')) {
+      const urlParts = oldUrl.split('/');
+      const oldFileName = urlParts[urlParts.length - 1];
+
+      const { error: removeError } = await supabaseClient.storage
+        .from('avatars')
+        .remove([oldFileName]);
+        
+      if (removeError) {
+         console.warn("Aviso: A nova foto foi salva, mas a antiga não foi apagada.", removeError.message);
+      }
+    }
+
     const avatarImage = document.getElementById('profileAvatar');
+    const sidebarImage = document.getElementById('sidebarAvatar');
+    const headerImage = document.getElementById('headerAvatar');
     if (avatarImage) {
       avatarImage.src = publicUrlPhoto;
       avatarImage.style.filter = "none";
       avatarImage.style.width = "100%";
       avatarImage.style.height = "100%";
       avatarImage.style.objectFit = "cover";
+    }
+    if (sidebarImage) {
+      sidebarImage.src = photoUrl;
+      sidebarImage.style.filter = "none";
+      sidebarImage.style.width = "100%";
+      sidebarImage.style.height = "100%";
+      sidebarImage.style.borderRadius = "100%";
+      sidebarImage.style.objectFit = "cover";
+    }
+    if (headerImage) {
+      headerImage.src = photoUrl;
+      headerImage.style.filter = "none";
+      headerImage.style.width = "100%";
+      headerImage.style.height = "100%";
+      headerImage.style.borderRadius = "100%";
+      headerImage.style.objectFit = "cover";
     }
 
     toast('Foto atualizada com sucesso! 🎉', 'ok');
