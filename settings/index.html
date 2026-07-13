@@ -151,15 +151,16 @@
       </div>
 <div class="card">
   <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
-  <div class="av-upload" onclick="toast('Selecionar imagem...','info')">
+  <div class="av-upload" onclick="toast('Selecionar imagem...','info'); document.getElementById('avatarInput').click()">
     <div class="av-big" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
       <img src="/images/icons/full/user.webp" id="profileAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
     </div>
     <div class="av-upload-txt">
       <h4>Alterar foto de perfil</h4>
       <p>JPEG, PNG, WebP ou HEIC · Máximo 5MB <br>Recomendado 500×500px</p>
+      <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp, image/heic" style="display: none;" onchange="uploadFoto(event)">
       <div class="av-btns">
-        <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
+        <button class="btn-xs blue" onclick="document.getElementById('avatarInput').click()"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
         <button class="btn-xs gray red" onclick="removePhoto(event)"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
       </div>
     </div>
