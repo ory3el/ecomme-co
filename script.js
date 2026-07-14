@@ -673,24 +673,28 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, wishlist')
+    .select('cart, wishlist') 
     .eq('id', userId)
     .single();
 
-  if (!error && data) {
+  if (error) {
+    console.error("Erro ao carregar dados do Supabase:", error);
+    return;
+  }
+
+  if (data) {
     if (data.cart) {
       cart = data.cart;
     }
     
     if (data.wishlist) {
-        fav = data.wishlist;
+      fav = data.wishlist;
     }
 
     if (typeof updateCart === 'function') updateCart();
     if (typeof updateFav === 'function') updateFav(); 
   }
 }
-
 // ── POP-UP LOGIN WARNING ──
 function showAuthAlert(message) {
   let authModal = document.getElementById('authAlertModal');
