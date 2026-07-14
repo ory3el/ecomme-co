@@ -651,14 +651,11 @@ async function syncToSupabase() {
   const currentFav = typeof fav !== 'undefined' ? fav : [];
   const currentCart = typeof cart !== 'undefined' ? cart : [];
 
-  localStorage.setItem('cart', JSON.stringify(currentCart));
-  localStorage.setItem('fav', JSON.stringify(currentFav));
-
   const { error } = await supabaseClient
     .from('profiles')
     .update({
       cart: currentCart,
-      fav: currentFav
+      wishlist: currentFav
     })
     .eq('id', userId);
 
@@ -673,7 +670,7 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, wishlist') 
+    .select('cart, wishlist')
     .eq('id', userId)
     .single();
 
@@ -695,6 +692,7 @@ async function loadFromSupabase() {
     if (typeof updateFav === 'function') updateFav(); 
   }
 }
+
 // ── POP-UP LOGIN WARNING ──
 function showAuthAlert(message) {
   let authModal = document.getElementById('authAlertModal');
