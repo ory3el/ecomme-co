@@ -430,14 +430,16 @@ function toggleFav(id) {
   if (ex) {
     removeFromFav(id);
     showToast('Removido da Lista de Desejos! 💔');
+    syncToSupabase();
   } else {
     addToFav(id, 1);
+    syncToSupabase();
   }
   
   if ($('mWish')) {
     $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+    syncToSupabase();
   }
-  syncToSupabase();
 }
 
 function addToFav(id, qty = 1) {
