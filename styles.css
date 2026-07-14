@@ -258,7 +258,7 @@ body.loading {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      border: 2px solid var(--bg, #fff);
+      border: 1px solid var(--bg3, #fff);
       overflow: hidden;
       cursor: pointer;
       display: flex;
