@@ -298,6 +298,7 @@ async function executeCrop() {
         avatarImage.style.filter = "none";
         avatarImage.style.width = "100%";
         avatarImage.style.height = "100%";
+        avatarImage.style.borderRadius = "100%";
         avatarImage.style.objectFit = "cover";
       }
       if (sidebarImage) {
@@ -305,6 +306,7 @@ async function executeCrop() {
         sidebarImage.style.filter = "none";
         sidebarImage.style.width = "100%";
         sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
         sidebarImage.style.objectFit = "cover";
       }
       if (headerImage) {
@@ -312,6 +314,7 @@ async function executeCrop() {
         headerImage.style.filter = "none";
         headerImage.style.width = "100%";
         headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
         headerImage.style.objectFit = "cover";
       }
 
