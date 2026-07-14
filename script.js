@@ -564,3 +564,4 @@ window.addEventListener('load', () => {
     
   }, 600);
 });
+};
