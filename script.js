@@ -400,7 +400,14 @@ function updateCart() {
   renderProducts();
 }
 
-function openCart()  { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function openCart() { 
+  closeMore();
+  closeFav();
+  closeNotif();
+  $('cartSidebar').classList.add('on'); 
+  $('cartOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
@@ -478,7 +485,14 @@ function updateFav() {
   renderProducts();
 }
   
-function openFav()  { $('favSidebar').classList.add('on'); $('favOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function openFav() { 
+  closeMore();
+  closeCart();
+  closeNotif();
+  $('favSidebar').classList.add('on'); 
+  $('favOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
 function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function addAllFavToCart() {
@@ -509,11 +523,25 @@ function checkout() {
 }
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
-function openNotif()  { $('notifSidebar').classList.add('on'); $('notifOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function openNotif() { 
+  closeMore();
+  closeCart();
+  closeFav();
+  $('notifSidebar').classList.add('on'); 
+  $('notifOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
 function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
-function openMore()  { $('moreSidebar').classList.add('on'); $('moreOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function openMore() { 
+  closeFav();
+  closeCart();
+  closeNotif();
+  $('moreSidebar').classList.add('on'); 
+  $('moreOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
 function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
