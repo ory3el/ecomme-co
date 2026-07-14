@@ -276,9 +276,6 @@ body.loading {
       height: 100%;
       object-fit: cover;
     }
-    .hidden {
-      display: none !important;
-    }
 
     /* ── TOP BANNER ────────────────────────────────── */
     .top-banner {
