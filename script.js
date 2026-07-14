@@ -658,7 +658,7 @@ async function syncToSupabase() {
     .from('profiles')
     .update({
       cart: currentCart,
-      wishlist: currentFav
+      fav: currentFav
     })
     .eq('id', userId);
 
