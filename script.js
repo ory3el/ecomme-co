@@ -94,12 +94,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 function initHeaderAuthListener() {
   const loginBtn = document.getElementById('authLoginBtn');
   const profileContainer = document.getElementById('headerProfileContainer');
+  const bellBtn = document.getElementById('bellBtn');
   const headerAvatar = document.getElementById('headerAvatar');
   
   if (!loginBtn || !profileContainer) return;
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (session && session.user) {
       loginBtn.classList.add('hidden');
+      bellBtn.classList.remove('hidden');
       profileContainer.classList.remove('hidden');
 
       try {
@@ -121,6 +123,7 @@ function initHeaderAuthListener() {
     } else {
       loginBtn.classList.remove('hidden');
       profileContainer.classList.add('hidden');
+      bellBtn.classList.add('hidden');
       if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
     }
   });
