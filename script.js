@@ -78,7 +78,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.borderRadius = "100%";
       headerImage.style.objectFit = "cover";
     }
-}
+  }
+});
 // LOGOUT
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
@@ -563,5 +564,4 @@ window.addEventListener('load', () => {
     }, 800);
     
   }, 600);
-});
 });
