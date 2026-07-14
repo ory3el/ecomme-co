@@ -78,7 +78,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.borderRadius = "100%";
       headerImage.style.objectFit = "cover";
     }
-  }
 }
 // LOGOUT
 async function doLogout() { 
