@@ -56,12 +56,12 @@
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="hd-badge" id="cartBadge">0</span>
       </button>
-      <button id="authLoginBtn" class="btn-login" onclick="buttonLink('/login')">
-        <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Entrar
-      </button>
-	  <div id="headerProfileContainer" class="header-profile hidden" onclick="buttonLink('/settings')">
-    	<img id="headerAvatar" src="/images/icons/full/user.webp" alt="Foto de perfil">
+	  <button id="authLoginBtn" class="btn-account" onclick="buttonLink('/login')">
+    	<svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    	Entrar
+  	  </button>
+  	  <div id="headerProfileContainer" class="header-profile hidden" onclick="buttonLink('/settings')">
+    	<img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
   	  </div>
 	  <button class="icon-btn" title="Abrir menu" onclick="openMore()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
