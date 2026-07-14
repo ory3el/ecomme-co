@@ -274,7 +274,7 @@ body.loading {
       box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
     }
     .header-profile img { width: 30px; height: 30px; border: 0.7px solid #fff; border-radius: 50%; background: transparent; color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
-    .user-img { width: 70%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5)); }
+    .headerAvatar { width: 70%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5)); }
     .header-profile:hover .acc-avatar { color: var(--blue); }
 
     /*.header-profile {
