@@ -506,11 +506,15 @@ function checkout() {
   setTimeout(closeCart, 1200);
 }
 
+/* ─── NOTIFICATION ───────────────────────────────────────────────── */
+function openNotif()  { $('notifSidebar').classList.add('on'); $('notifOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
+function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
 /* ─── MORE ───────────────────────────────────────────────────────── */
 function openMore()  { $('moreSidebar').classList.add('on'); $('moreOverlay').classList.add('on'); document.body.classList.add("nobodyscroll"); }
 function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
-/* ─── MODAL ──────────────────────────────────────────────────────────── */
+/* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
   const p = products.find(x => x.id === id);
