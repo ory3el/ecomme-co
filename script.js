@@ -648,11 +648,11 @@ document.addEventListener('keydown', e => {
 async function syncToSupabase() {
   if (!userId) return;
   
-  const currentWishlist = typeof wishlist !== 'undefined' ? wishlist : (typeof favs !== 'undefined' ? favs : []);
+  const currentWishlist = typeof wishlist !== 'undefined' ? wishlist : (typeof fav !== 'undefined' ? fav : []);
   const currentCart = typeof cart !== 'undefined' ? cart : [];
 
   localStorage.setItem('cart', JSON.stringify(currentCart));
-  localStorage.setItem(typeof wishlist !== 'undefined' ? 'wishlist' : 'favs', JSON.stringify(currentWishlist));
+  localStorage.setItem(typeof wishlist !== 'undefined' ? 'wishlist' : 'fav', JSON.stringify(currentWishlist));
 
   const { error } = await supabaseClient
     .from('profiles')
