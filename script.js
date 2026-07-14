@@ -25,6 +25,45 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
+
+// HEADER
+function initHeaderAuthListener() {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const headerAvatar = document.getElementById('headerAvatar');
+  
+  if (!loginBtn || !profileContainer) return;
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (session && session.user) {
+      loginBtn.classList.add('hidden');
+      profileContainer.classList.remove('hidden');
+
+      try {
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!profileError && profileData && profileData.avatar_url) {
+          headerAvatar.src = profileData.avatar_url;
+        } else {
+          headerAvatar.src = "/images/icons/full/user.webp";
+        }
+      } catch (err) {
+        console.error("Erro ao carregar o avatar do header:", err);
+      }
+      
+    } else {
+      loginBtn.classList.remove('hidden');
+      profileContainer.classList.add('hidden');
+      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
+    }
+  });
+}
+
+initHeaderAuthListener();
+
 // EXECUTE DATABASE DATA
 window.addEventListener('DOMContentLoaded', async () => {
   
