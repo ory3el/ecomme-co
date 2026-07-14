@@ -524,9 +524,9 @@ function checkout() {
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
 function openNotif() { 
-  closeMore();
   closeCart();
   closeFav();
+  if (typeof closeMore === 'function') closeMore();
   $('notifSidebar').classList.add('on'); 
   $('notifOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
@@ -537,7 +537,7 @@ function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverla
 function openMore() { 
   closeFav();
   closeCart();
-  closeNotif();
+  if (typeof closeMore === 'function') closeNotif();
   $('moreSidebar').classList.add('on'); 
   $('moreOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
