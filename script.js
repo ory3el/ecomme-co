@@ -79,7 +79,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.objectFit = "cover";
     }
   }
-
+}
 // LOGOUT
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
