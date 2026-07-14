@@ -363,7 +363,9 @@ function changeCartQty(id, d) {
 function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
+  
   $('cartBadge').textContent = count;
+  $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
   $('cartCount').textContent = `(${count})`;
   $('cartSub').textContent   = fmt(total);
   $('cartTotal').textContent = fmt(total);
