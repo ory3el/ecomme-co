@@ -27,15 +27,22 @@ let userId = null;
 
 // EXECUTE DATABASE DATA
 window.addEventListener('DOMContentLoaded', async () => {
-  
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const headerImage = document.getElementById('headerAvatar');
+
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
-    console.warn("UserId not available.");
+    console.warn("User session not active.");
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (profileContainer) profileContainer.classList.add('hidden');
     return;
   }
-
   userId = user.id; 
+
+  if (loginBtn) loginBtn.classList.add('hidden');
+  if (profileContainer) profileContainer.classList.remove('hidden');
 
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
@@ -43,6 +50,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     .eq('id', user.id)
     .single();
 
+  if (!profileError && profile) {
     const email = user.email || "";
     const fullName = profile.full_name || "Cliente";
 
@@ -59,24 +67,25 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputLastName) inputLastName.value = lastName;
     if (inputEmail) inputEmail.value = email;
 
-  if (photoUrl) {
-    const sidebarImage = document.getElementById('sidebarAvatar');
-    const headerImage = document.getElementById('headerAvatar');
-    if (sidebarImage) {
-      sidebarImage.src = photoUrl;
-      sidebarImage.style.filter = "none";
-      sidebarImage.style.width = "100%";
-      sidebarImage.style.height = "100%";
-      sidebarImage.style.borderRadius = "100%";
-      sidebarImage.style.objectFit = "cover";
-    }
-    if (headerImage) {
-      headerImage.src = photoUrl;
-      headerImage.style.filter = "none";
-      headerImage.style.width = "100%";
-      headerImage.style.height = "100%";
-      headerImage.style.borderRadius = "100%";
-      headerImage.style.objectFit = "cover";
+    if (photoUrl) {
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
     }
   }
 });
