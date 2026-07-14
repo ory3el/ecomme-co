@@ -25,6 +25,68 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
+// EXECUTE DATABASE DATA
+window.addEventListener('DOMContentLoaded', async () => {
+  
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  if (!user || userError) {
+    console.warn("UserId not available.");
+    return;
+  }
+
+  userId = user.id; 
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+    const email = user.email || "";
+    const fullName = profile.full_name || "Cliente";
+
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const photoUrl = profile.avatar_url || "";
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+
+  if (photoUrl) {
+    const sidebarImage = document.getElementById('sidebarAvatar');
+    const headerImage = document.getElementById('headerAvatar');
+    if (sidebarImage) {
+      sidebarImage.src = photoUrl;
+      sidebarImage.style.filter = "none";
+      sidebarImage.style.width = "100%";
+      sidebarImage.style.height = "100%";
+      sidebarImage.style.borderRadius = "100%";
+      sidebarImage.style.objectFit = "cover";
+    }
+    if (headerImage) {
+      headerImage.src = photoUrl;
+      headerImage.style.filter = "none";
+      headerImage.style.width = "100%";
+      headerImage.style.height = "100%";
+      headerImage.style.borderRadius = "100%";
+      headerImage.style.objectFit = "cover";
+    }
+  }
+
+// LOGOUT
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut();
+  buttonLink('/login')
+}
+
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
 let fav         = [];
