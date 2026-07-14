@@ -243,7 +243,7 @@ async function executeCrop() {
     toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
     return;
   }
-  toast('A preparar imagem... ⏳', 'info');
+  toast('Carregando imagem... ⏳', 'info');
 
   cropperInstance.getCroppedCanvas({
     width: 400,
@@ -355,7 +355,7 @@ async function saveProfile() {
   const language = inputLang ? inputLang.value : "";
   const bio = inputBio ? inputBio.value.trim() : "";
 
-  toast('A guardar alterações...', 'info');
+  toast('Salvando alterações...', 'info');
 
   // ── ATUALIZANDO NA TABELA 'PROFILES' VIA SQL/API ──
   const { error } = await supabaseClient
@@ -375,7 +375,7 @@ async function saveProfile() {
     console.error(error);
     toast('Erro ao salvar: ' + error.message, 'err');
   } else {
-    toast('Perfil guardado com sucesso! ✓', 'ok');
+    toast('Perfil salvo com sucesso! ✓', 'ok');
     
     const sidebarName = document.getElementById('sidebarName');
     if (sidebarName) sidebarName.textContent = fullName;
@@ -387,7 +387,7 @@ async function removePhoto(event) {
   event.stopPropagation();
   
   if (!userId) return;
-  toast('A remover foto... ⏳', 'info');
+  toast('Removendo foto... ⏳', 'info');
 
   try {
     const { data: profile, error: fetchError } = await supabaseClient
@@ -409,6 +409,7 @@ async function removePhoto(event) {
 
       if (removeError) {
         console.warn("Aviso: Não foi possível apagar o ficheiro do Storage.", removeError.message);
+        toast('Algo não está certo.', 'err');
       }
     }
 
