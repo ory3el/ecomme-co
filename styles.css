@@ -824,6 +824,8 @@ body.loading {
     .notif-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
     .notif-empty-st span { font-size: 48px; }
 
+    .notif-ft { padding: 20px 0px; border-top: 1px solid rgba(0, 0, 0, 0.7); }
+
     /* ── MENU SIDEBAR ────────────────────────────────────────── */
     .more-sb {
       position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
