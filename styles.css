@@ -916,6 +916,12 @@ body.loading {
   transform: translateX(4px); 
 }
 
+  .more-sb, 
+  .cart-sb, 
+  .notif-sb {
+    z-index: 1000;
+  }
+
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
