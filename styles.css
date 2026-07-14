@@ -122,8 +122,8 @@ body.loading {
   gap: 3px;
 }
 
-  .loading-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: #619efa; }
-  .loading-text span { color: var(--muted); font-size: 0.9rem; }
+.loading-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: #619efa; }
+.loading-text span { color: var(--muted); font-size: 0.9rem; }
 
 .logo-loading {
   width: 250px;
