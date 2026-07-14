@@ -277,6 +277,10 @@ body.loading {
       object-fit: cover;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     /* ── TOP BANNER ────────────────────────────────── */
     .top-banner {
       position: relative; min-height: 580px; display: flex; align-items: center; overflow: hidden; background: var(--bg2); 
