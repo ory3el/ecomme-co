@@ -673,7 +673,7 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, fav')
+    .select('cart, wishlist')
     .eq('id', userId)
     .single();
 
@@ -682,8 +682,8 @@ async function loadFromSupabase() {
       cart = data.cart;
     }
     
-    if (data.fav) {
-        fav = data.fav;
+    if (data.wishlist) {
+        fav = data.wishlist;
     }
 
     if (typeof updateCart === 'function') updateCart();
