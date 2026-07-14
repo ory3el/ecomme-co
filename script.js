@@ -648,17 +648,17 @@ document.addEventListener('keydown', e => {
 async function syncToSupabase() {
   if (!userId) return;
   
-  const currentWishlist = typeof wishlist !== 'undefined' ? wishlist : (typeof fav !== 'undefined' ? fav : []);
+  const currentFav = typeof fav !== 'undefined' ? fav : [];
   const currentCart = typeof cart !== 'undefined' ? cart : [];
 
   localStorage.setItem('cart', JSON.stringify(currentCart));
-  localStorage.setItem(typeof wishlist !== 'undefined' ? 'wishlist' : 'fav', JSON.stringify(currentWishlist));
+  localStorage.setItem('fav', JSON.stringify(currentFav));
 
   const { error } = await supabaseClient
     .from('profiles')
     .update({
       cart: currentCart,
-      wishlist: currentWishlist
+      wishlist: currentFav
     })
     .eq('id', userId);
 
@@ -673,7 +673,7 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, wishlist')
+    .select('cart, fav')
     .eq('id', userId)
     .single();
 
@@ -682,12 +682,8 @@ async function loadFromSupabase() {
       cart = data.cart;
     }
     
-    if (data.wishlist) {
-      if (typeof wishlist !== 'undefined') {
-        wishlist = data.wishlist;
-      } else if (typeof favs !== 'undefined') {
-        favs = data.wishlist;
-      }
+    if (data.fav) {
+        fav = data.fav;
     }
 
     if (typeof updateCart === 'function') updateCart();
