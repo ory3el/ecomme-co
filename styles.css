@@ -259,14 +259,18 @@ body.loading {
       width: 40px;
       height: 40px;
       background: var(--blue);
-      border: 1px solid var(--border);
+      border: 1px solid var(--bg3, #fff);
+      overflow: hidden;
+      cursor: pointer;
       color: #fff; padding: 3px/*18px 7px 7px*/;
       border-radius: 50%;
       font-size: 12px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px; transition: all .2s;
+      justify-content: center;
+      gap: 8px; 
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .header-profile:hover { 
       background: rgba(0, 0, 0, 0.5); color: #fff;
