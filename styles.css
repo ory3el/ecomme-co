@@ -825,6 +825,11 @@ body.loading {
     .notif-empty-st span { font-size: 48px; }
 
     .notif-ft { padding: 20px 0px; border-top: 1px solid rgba(0, 0, 0, 0.7); }
+    .notif-tots { margin-bottom: 16px; }
+    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .ct-row .lbl { color: var(--muted); }
+    .ct-row.ttl { font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--border2); margin-top: 10px; }
+    .ct-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
 
     /* ── MENU SIDEBAR ────────────────────────────────────────── */
     .more-sb {
