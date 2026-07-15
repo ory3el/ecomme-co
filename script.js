@@ -25,7 +25,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-// EXECUTE DATABASE DATA
+// EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
   const loginBtn = document.getElementById('authLoginBtn');
   const profileContainer = document.getElementById('headerProfileContainer');
@@ -41,6 +41,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   userId = user.id; 
 
+  await loadFromSupabase();
+  
   if (loginBtn) loginBtn.classList.add('hidden');
   if (profileContainer) profileContainer.classList.remove('hidden');
 
@@ -340,16 +342,22 @@ function filterByCategory(event, category) {
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
+  if (!userId) {
+    showAuthAlert("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    return;
+  }
   const p  = products.find(x => x.id === id);
   const ex = cart.find(x => x.id === id);
   if (ex) ex.qty += qty; else cart.push({ ...p, qty });
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
+  syncToSupabase();
 }
 
 function removeFromCart(id) {
   cart = cart.filter(x => x.id !== id);
   updateCart();
+  syncToSupabase();
 }
 
 function changeCartQty(id, d) {
@@ -358,6 +366,7 @@ function changeCartQty(id, d) {
     item.qty += d;
     if (item.qty <= 0) removeFromCart(id); else updateCart();
   }
+  syncToSupabase();
 }
 
 function updateCart() {
@@ -398,6 +407,7 @@ function updateCart() {
       </button>
     </div>`).join('');
   renderProducts();
+  syncToSupabase();
 }
 
 function openCart() { 
@@ -412,6 +422,10 @@ function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay')
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
+  if (!userId) {
+    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    return;
+  }
   const ex = fav.find(x => x.id === id);
   if (ex) {
     removeFromFav(id);
@@ -423,19 +437,26 @@ function toggleFav(id) {
   if ($('mWish')) {
     $('mWish').classList.toggle('on', fav.some(x => x.id === id));
   }
+  syncToSupabase();
 }
 
 function addToFav(id, qty = 1) {
+  if (!userId) {
+    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    return;
+  }
   const p  = products.find(x => x.id === id);
   const ex = fav.find(x => x.id === id);
   if (ex) ex.qty += qty; else fav.push({ ...p, qty });
   updateFav();
   showToast(`${p.name} salvo nos favoritos! 🛒`);
+  syncToSupabase();
 }
 
 function removeFromFav(id) {
   fav = fav.filter(x => x.id !== id);
   updateFav();
+  syncToSupabase();
 }
 
 function changeFavQty(id, d) {
@@ -444,6 +465,7 @@ function changeFavQty(id, d) {
     item.qty += d;
     if (item.qty <= 0) removeFromFav(id); else updateFav();
   }
+  syncToSupabase();
 }
 
 function updateFav() {
@@ -483,6 +505,7 @@ function updateFav() {
       </button>
     </div>`).join('');
   renderProducts();
+  syncToSupabase();
 }
   
 function openFav() { 
@@ -619,6 +642,57 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
 });
 
+// ── SYNC CART AND WISHLIST WITH SUPABASE ──
+async function syncToSupabase() {
+  if (!userId) return;
+  
+  const currentWishlist = typeof wishlist !== 'undefined' ? wishlist : (typeof favs !== 'undefined' ? favs : []);
+  const currentCart = typeof cart !== 'undefined' ? cart : [];
+
+  localStorage.setItem('cart', JSON.stringify(currentCart));
+  localStorage.setItem(typeof wishlist !== 'undefined' ? 'wishlist' : 'favs', JSON.stringify(currentWishlist));
+
+  const { error } = await supabaseClient
+    .from('profiles')
+    .update({
+      cart: currentCart,
+      wishlist: currentWishlist
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error("Erro ao sincronizar dados com o Supabase:", error);
+  }
+}
+
+// ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
+async function loadFromSupabase() {
+  if (!userId) return;
+
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('cart, wishlist')
+    .eq('id', userId)
+    .single();
+
+  if (!error && data) {
+    if (data.cart) {
+      cart = data.cart;
+    }
+    
+    if (data.wishlist) {
+      if (typeof wishlist !== 'undefined') {
+        wishlist = data.wishlist;
+      } else if (typeof favs !== 'undefined') {
+        favs = data.wishlist;
+      }
+    }
+
+    if (typeof updateCart === 'function') updateCart();
+    if (typeof updateFav === 'function') updateFav(); 
+  }
+}
+
 // ── POP-UP LOGIN WARNING ──
 function showAuthAlert(message) {
   let authModal = document.getElementById('authAlertModal');
@@ -639,7 +713,6 @@ function showAuthAlert(message) {
     `;
     document.body.appendChild(authModal);
     
-    // Injeta os estilos do Modal para que o design fique perfeito
     const style = document.createElement('style');
     style.textContent = `
       .modal-auth-container {
