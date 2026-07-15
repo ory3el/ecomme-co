@@ -232,7 +232,10 @@ function renderProducts() {
         <div class="empty-ico">🔍</div>
         <h3>Nenhum resultado encontrado</h3>
         <p>Tente outro termo ou
-          <button class="btn-clear" onclick="$('searchInput').value='';renderProducts()">limpar a busca</button>
+          <button class="btn-clear"
+            onclick="$('headerSearch').value='';renderProducts()">
+            Limpar busca
+          </button>
         </p>
       </div>`;
     return;
