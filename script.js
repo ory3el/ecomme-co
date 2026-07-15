@@ -259,8 +259,9 @@ function renderProducts() {
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
-            <div class="pcat">${p.cat}</div>
-            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(',&nbsp;') : p.cat}</div>
+            <div class="pcat">
+              ${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}
+            </div>
             <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
