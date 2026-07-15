@@ -840,3 +840,4 @@ window.addEventListener('load', () => {
     
   }, 600);
 });
+document.body.classList.remove("noscroll");
