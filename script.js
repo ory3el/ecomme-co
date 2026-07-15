@@ -19,11 +19,123 @@ const products = [
   { id:11, name:'Garrafa Térmica 1L Inox', cat:'Fitness', price:69.90, old:110, discount:36, emoji:'🍶', badge:'sale', rating:4.7, reviews:3876, shipping:true, desc:'Garrafa em aço inox 18/8 que mantém bebidas geladas por 24h e quentes por 12h. Tampa hermética.', features:['Aço inox 18/8 premium','Gelado 24h / Quente 12h','Tampa hermética','BPA Free','1 litro de capacidade'] },
 ];
 
-/* ─── SUPABASE INITIALIZATION ───────────────────────────────────────── */
+/* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
+
+// EXECUTE DATABASE DATA
+window.addEventListener('DOMContentLoaded', async () => {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const headerImage = document.getElementById('headerAvatar');
+
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  if (!user || userError) {
+    console.warn("User session not active.");
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (profileContainer) profileContainer.classList.add('hidden');
+    return;
+  }
+  userId = user.id; 
+
+  if (loginBtn) loginBtn.classList.add('hidden');
+  if (profileContainer) profileContainer.classList.remove('hidden');
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!profileError && profile) {
+    const email = user.email || "";
+    const fullName = profile.full_name || "Cliente";
+
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const photoUrl = profile.avatar_url || "";
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+
+    if (photoUrl) {
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
+    }
+  }
+});
+
+// HEADER
+function initHeaderAuthListener() {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const bellBtn = document.getElementById('bellBtn');
+  const headerAvatar = document.getElementById('headerAvatar');
+  
+  if (!loginBtn || !profileContainer) return;
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (session && session.user) {
+      loginBtn.classList.add('hidden');
+      bellBtn.classList.remove('hidden');
+      profileContainer.classList.remove('hidden');
+
+      try {
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!profileError && profileData && profileData.avatar_url) {
+          headerAvatar.src = profileData.avatar_url;
+        } else {
+          headerAvatar.src = "/images/icons/full/user.webp";
+        }
+      } catch (err) {
+        console.error("Erro ao carregar o avatar do header:", err);
+      }
+      
+    } else {
+      loginBtn.classList.remove('hidden');
+      profileContainer.classList.add('hidden');
+      bellBtn.classList.add('hidden');
+      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
+    }
+  });
+}
+initHeaderAuthListener();
+
+// LOGOUT
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut();
+  buttonLink('/login')
+}
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
@@ -32,99 +144,6 @@ let curId       = null;
 let mQtyVal     = 1;
 let view        = 'grid';
 let shuffled    = [...products];
-
-/* ─── DOM CONTENT LOADED (MAIN INIT) ─────────────────────────────────── */
-window.addEventListener('DOMContentLoaded', () => {
-  
-  // Ouvinte único e centralizado para mudanças de Autenticação
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    const loginBtn = document.getElementById('authLoginBtn');
-    const profileContainer = document.getElementById('headerProfileContainer');
-    const bellBtn = document.getElementById('bellBtn');
-    const headerAvatar = document.getElementById('headerAvatar');
-
-    if (session && session.user) {
-      userId = session.user.id; // Define globalmente o ID do utilizador ativo
-      
-      if (loginBtn) loginBtn.classList.add('hidden');
-      if (bellBtn) bellBtn.classList.remove('hidden');
-      if (profileContainer) profileContainer.classList.remove('hidden');
-
-      // 1. Carrega dados salvos do utilizador (carrinho e favoritos)
-      await loadFromSupabase();
-
-      // 2. Carrega as informações do Perfil
-      try {
-        const { data: profile, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        if (!profileError && profile) {
-          const email = session.user.email || "";
-          const fullName = profile.full_name || "Cliente";
-
-          const nameParts = fullName.trim().split(' ');
-          const firstName = nameParts[0] || "";
-          const lastName = nameParts.slice(1).join(' ') || "";
-
-          const inputFirstName = document.getElementById('profileFirstName');
-          const inputLastName = document.getElementById('profileLastName');
-          const inputEmail = document.getElementById('profileEmail');
-          const photoUrl = profile.avatar_url || "";
-
-          if (inputFirstName) inputFirstName.value = firstName;
-          if (inputLastName) inputLastName.value = lastName;
-          if (inputEmail) inputEmail.value = email;
-
-          const sidebarImage = document.getElementById('sidebarAvatar');
-          
-          if (photoUrl) {
-            if (sidebarImage) {
-              sidebarImage.src = photoUrl;
-              sidebarImage.style.cssText = "filter: none; width: 100%; height: 100%; border-radius: 100%; object-fit: cover;";
-            }
-            if (headerAvatar) {
-              headerAvatar.src = photoUrl;
-              headerAvatar.style.cssText = "filter: none; width: 100%; height: 100%; border-radius: 100%; object-fit: cover;";
-            }
-          } else {
-            if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao carregar dados do perfil:", err);
-      }
-
-    } else {
-      // Caso não haja sessão (utilizador deslogado)
-      userId = null;
-      cart = [];
-      fav = [];
-
-      if (loginBtn) loginBtn.classList.remove('hidden');
-      if (profileContainer) profileContainer.classList.add('hidden');
-      if (bellBtn) bellBtn.classList.add('hidden');
-      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
-
-      // Limpa os elementos visuais
-      updateCart(false);
-      updateFav(false);
-    }
-  });
-
-  // Inicializa o contador e outros setups do DOM
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-});
-
-/* ─── LOGOUT ────────────────────────────────────────────────────────── */
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut();
-  buttonLink('/login');
-}
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
@@ -150,7 +169,6 @@ function fishYates(arr) {
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
 (function spawnParticles() {
   const wrap = $('particles');
-  if(!wrap) return;
   for (let i = 0; i < 22; i++) {
     const p = document.createElement('div');
     p.className = 'sb-p';
@@ -169,17 +187,20 @@ function shuffleAndRender() {
 
 function loadShuffleAndRender() {
   shuffled = fishYates(products);
-  if($('sortSelect')) $('sortSelect').value = 'random';
+  $('sortSelect').value = 'random';
   renderProducts();
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function renderProducts() {
   const grid  = $('productsGrid');
-  if(!grid) return;
+  const q =
+(
+  $('heroSearch')?.value ||
+  $('headerSearch')?.value ||
+ '').toLowerCase().trim();
   
-  const q = ($('heroSearch')?.value || $('headerSearch')?.value || '').toLowerCase().trim();
-  const sort = $('sortSelect')?.value || 'random';
+  const sort  = $('sortSelect').value;
 
   let list = [...shuffled];
 
@@ -200,6 +221,8 @@ function renderProducts() {
   else if (sort === 'rating')     list.sort((a, b) => b.rating   - a.rating);
   else if (sort === 'discount')   list.sort((a, b) => b.discount - a.discount);
 
+  //$('productsCount').textContent = list.length;
+
   /* empty state */
   if (!list.length) {
     grid.innerHTML = `
@@ -207,7 +230,7 @@ function renderProducts() {
         <div class="empty-ico">🔍</div>
         <h3>Nenhum resultado encontrado</h3>
         <p>Tente outro termo ou
-          <button class="btn-clear" onclick="$('headerSearch').value='';renderProducts()">limpar a busca</button>
+          <button class="btn-clear" onclick="$('searchInput').value='';renderProducts()">limpar a busca</button>
         </p>
       </div>`;
     return;
@@ -234,7 +257,8 @@ function renderProducts() {
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
-            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+            <div class="pcat">${p.cat}</div>
+            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(',&nbsp;') : p.cat}</div>
             <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
@@ -280,7 +304,7 @@ function renderProducts() {
           </div>
         </div>
         <div class="pinfo">
-          <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+          <div class="pcat">${p.cat}</div>
           <div class="pname">${p.name}</div>
           <div class="prating">
             <span class="pstars">${starsHtml(p.rating)}</span>
@@ -299,9 +323,9 @@ function renderProducts() {
 
 function setView(v) {
   view = v;
-  if($('productsGrid')) $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
-  if($('gridBtn')) $('gridBtn').classList.toggle('on', v === 'grid');
-  if($('listBtn')) $('listBtn').classList.toggle('on', v === 'list');
+  $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
+  $('gridBtn').classList.toggle('on', v === 'grid');
+  $('listBtn').classList.toggle('on', v === 'list');
   renderProducts();
 }
 
@@ -316,96 +340,78 @@ function filterByCategory(event, category) {
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
-  if (!userId) {
-    showAuthAlert("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
-    return;
-  }
   const p  = products.find(x => x.id === id);
   const ex = cart.find(x => x.id === id);
   if (ex) ex.qty += qty; else cart.push({ ...p, qty });
-  updateCart(true); // Envia ao Supabase
+  updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
 }
 
 function removeFromCart(id) {
   cart = cart.filter(x => x.id !== id);
-  updateCart(true);
+  updateCart();
 }
 
 function changeCartQty(id, d) {
   const item = cart.find(x => x.id === id);
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromCart(id); else updateCart(true);
+    if (item.qty <= 0) removeFromCart(id); else updateCart();
   }
 }
 
-function updateCart(sync = true) {
+function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
   
-  if($('cartBadge')) {
-    $('cartBadge').textContent = count;
-    $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
-  }
-  if($('cartCount')) $('cartCount').textContent = `(${count})`;
-  if($('cartSub')) $('cartSub').textContent   = fmt(total);
-  if($('cartTotal')) $('cartTotal').textContent = fmt(total);
+  $('cartBadge').textContent = count;
+  $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent   = fmt(total);
+  $('cartTotal').textContent = fmt(total);
 
   const el = $('cartItems');
-  if (el) {
-    if (!cart.length) {
-      el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
-    } else {
-      el.innerHTML = cart.map(item => `
-        <div class="ci">
-          <div class="ci-img">${item.emoji}</div>
-          <div class="ci-info">
-            <div class="ci-name">${item.name}</div>
-            <div class="ci-price">${fmt(item.price)}</div>
-            <div class="ci-qty">
-              <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
-              <span class="qn">${item.qty}</span>
-              <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
-            </div>
-          </div>
-          <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
-            <svg viewBox="0 0 24 24">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-            </svg>
-          </button>
-          <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
-            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-        </div>`).join('');
-    }
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
+    return;
   }
-  
+  el.innerHTML = cart.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>`).join('');
   renderProducts();
-  if (sync) syncToSupabase();
 }
 
 function openCart() { 
   closeMore();
   closeFav();
   closeNotif();
-  if($('cartSidebar')) $('cartSidebar').classList.add('on'); 
-  if($('cartOverlay')) $('cartOverlay').classList.add('on'); 
+  $('cartSidebar').classList.add('on'); 
+  $('cartOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
 }
-function closeCart() { 
-  if($('cartSidebar')) $('cartSidebar').classList.remove('on'); 
-  if($('cartOverlay')) $('cartOverlay').classList.remove('on'); 
-  document.body.classList.remove("nobodyscroll"); 
-}
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
-  if (!userId) {
-    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
-    return;
-  }
   const ex = fav.find(x => x.id === id);
   if (ex) {
     removeFromFav(id);
@@ -420,89 +426,74 @@ function toggleFav(id) {
 }
 
 function addToFav(id, qty = 1) {
-  if (!userId) {
-    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
-    return;
-  }
   const p  = products.find(x => x.id === id);
   const ex = fav.find(x => x.id === id);
   if (ex) ex.qty += qty; else fav.push({ ...p, qty });
-  updateFav(true); // Envia ao Supabase
-  showToast(`${p.name} salvo nos favoritos! ❤️`);
+  updateFav();
+  showToast(`${p.name} salvo nos favoritos! 🛒`);
 }
 
 function removeFromFav(id) {
   fav = fav.filter(x => x.id !== id);
-  updateFav(true);
+  updateFav();
 }
 
 function changeFavQty(id, d) {
   const item = fav.find(x => x.id === id);
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromFav(id); else updateFav(true);
+    if (item.qty <= 0) removeFromFav(id); else updateFav();
   }
 }
 
-function updateFav(sync = true) {
+function updateFav() {
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
-  
-  if($('wishBadge')){
-    $('wishBadge').textContent = count;
-    $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
-  }
-  if($('favCount')) $('favCount').textContent = `(${count})`;
-  if($('favTotal')) $('favTotal').textContent = fmt(total);
+  $('wishBadge').textContent = count;
+  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  $('favCount').textContent = `(${count})`;
+  $('favTotal').textContent = fmt(total);
 
   const el = $('favItems');
-  if(el){
-    if (!fav.length) {
-      el.innerHTML = `<div class="fav-empty-st"><span>🤍</span><p>Nenhum produto salvo no momento</p></div>`;
-    } else {
-      el.innerHTML = fav.map(item => `
-        <div class="ci">
-          <div class="ci-img">${item.emoji}</div>
-          <div class="ci-info">
-            <div class="ci-name">${item.name}</div>
-            <div class="ci-price">${fmt(item.price)}</div>
-            
-            <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
-              <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-              </svg>
-              Ao Carrinho
-            </button>
-            
-          </div>
-          <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
-            <svg viewBox="0 0 24 24">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-            </svg>
-          </button>
-        </div>`).join('');
-    }
+  if (!fav.length) {
+    el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    return;
   }
-  
+ el.innerHTML = fav.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
+        
+      </div>
+      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>`).join('');
   renderProducts();
-  if (sync) syncToSupabase();
 }
   
 function openFav() { 
   closeMore();
   closeCart();
   closeNotif();
-  if($('favSidebar')) $('favSidebar').classList.add('on'); 
-  if($('favOverlay')) $('favOverlay').classList.add('on'); 
+  $('favSidebar').classList.add('on'); 
+  $('favOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
 }
-function closeFav() { 
-  if($('favSidebar')) $('favSidebar').classList.remove('on'); 
-  if($('favOverlay')) $('favOverlay').classList.remove('on'); 
-  document.body.classList.remove("nobodyscroll"); 
-}
+function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function addAllFavToCart() {
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
@@ -511,8 +502,9 @@ function addAllFavToCart() {
     addToCart(produto.id, 1);
   });
   fav = []; 
-  updateFav(true); 
+  updateFav(); 
   renderProducts();
+  // saveFav(); 
   closeFav();
   openCart();
   showToast('Todos os itens foram para o carrinho! 🛒');
@@ -520,13 +512,13 @@ function addAllFavToCart() {
 
 function moveFromCartToFav(id) {
   addToFav(id, 1);
-  removeFromCart(id);
+  showToast('Produto adicionado à Lista de Desejos! ❤️');
 }
 
 function checkout() {
   if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento... 🔒');
-  window.location.href = "/checkout";
+  window.location.href = "/checkout"
   setTimeout(closeCart, 1200);
 }
 
@@ -535,30 +527,22 @@ function openNotif() {
   closeCart();
   closeFav();
   if (typeof closeMore === 'function') closeMore();
-  if($('notifSidebar')) $('notifSidebar').classList.add('on'); 
-  if($('notifOverlay')) $('notifOverlay').classList.add('on'); 
+  $('notifSidebar').classList.add('on'); 
+  $('notifOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
 }
-function closeNotif() { 
-  if($('notifSidebar')) $('notifSidebar').classList.remove('on'); 
-  if($('notifOverlay')) $('notifOverlay').classList.remove('on'); 
-  document.body.classList.remove("nobodyscroll"); 
-}
+function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
 function openMore() { 
   closeFav();
   closeCart();
-  if (typeof closeNotif === 'function') closeNotif();
-  if($('moreSidebar')) $('moreSidebar').classList.add('on'); 
-  if($('moreOverlay')) $('moreOverlay').classList.add('on'); 
+  if (typeof closeMore === 'function') closeNotif();
+  $('moreSidebar').classList.add('on'); 
+  $('moreOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
 }
-function closeMore() { 
-  if($('moreSidebar')) $('moreSidebar').classList.remove('on'); 
-  if($('moreOverlay')) $('moreOverlay').classList.remove('on'); 
-  document.body.classList.remove("nobodyscroll"); 
-}
+function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
@@ -566,30 +550,29 @@ function openProduct(id) {
   const p = products.find(x => x.id === id);
   curId   = id;
   mQtyVal = 1;
-  if($('mQty')) $('mQty').textContent    = 1;
-  if($('mEmoji')) $('mEmoji').textContent  = p.emoji;
-  if($('mCat')) $('mCat').textContent    = Array.isArray(p.cat) ? p.cat.join(', ') : p.cat;
-  if($('mName')) $('mName').textContent   = p.name;
-  if($('mDesc')) $('mDesc').textContent   = p.desc;
-  if($('mPrice')) $('mPrice').textContent  = fmt(p.price);
-  if($('mOld')) $('mOld').textContent    = fmt(p.old);
-  if($('mDisc')) $('mDisc').textContent   = `-${p.discount}% OFF`;
-  if($('mFeats')) $('mFeats').innerHTML    = p.features.map(f =>
+  $('mQty').textContent    = 1;
+  $('mEmoji').textContent  = p.emoji;
+  $('mCat').textContent    = p.cat;
+  $('mName').textContent   = p.name;
+  $('mDesc').textContent   = p.desc;
+  $('mPrice').textContent  = fmt(p.price);
+  $('mOld').textContent    = fmt(p.old);
+  $('mDisc').textContent   = `-${p.discount}% OFF`;
+  $('mFeats').innerHTML    = p.features.map(f =>
     `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
-  if($('mWish')) $('mWish').classList.toggle('on', fav.some(x => x.id === id));
-  if($('modalOverlay')) $('modalOverlay').classList.add('on');
+  $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  $('modalOverlay').classList.add('on');
 }
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal()        { if($('modalOverlay')) $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
-function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); if($('mQty')) $('mQty').textContent = mQtyVal; }
+function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
 function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2()     { toggleFav(curId); closeModal(); openFav(); }
+function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
 function showToast(msg) {
   const t = document.getElementById('toast');
-  if(!t) return;
   document.getElementById('toastMsg').textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
@@ -606,85 +589,35 @@ function updateCountdown() {
   const end = new Date(now);
   end.setHours(23, 59, 59, 0);
   const diff = end - now;
-  if(diff < 0) return;
   const h = Math.floor(diff / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
-  if($('cdH')) document.getElementById('cdH').textContent = String(h).padStart(2,'0');
-  if($('cdM')) document.getElementById('cdM').textContent = String(m).padStart(2,'0');
-  if($('cdS')) document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
 }
+setInterval(updateCountdown, 1000);
+updateCountdown();
 
 // BACK TO TOP
 window.addEventListener('scroll', () => {
-  const bt = document.getElementById('backTop');
-  if(bt) bt.classList.toggle('visible', window.scrollY > 400);
+  document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
 });
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeNotif(); closeMore();}
+  if(e.key === 'Escape') { closeModal(); closeCart(); }
 });
 
-// ── SYNC CART AND WISHLIST WITH SUPABASE ──
-async function syncToSupabase() {
-  if (!userId) return;
-  
-  const currentFav = typeof fav !== 'undefined' ? fav : [];
-  const currentCart = typeof cart !== 'undefined' ? cart : [];
+// INIT
+updateCart();
+renderProducts();
+loadShuffleAndRender();
 
-  // Usamos .upsert() para garantir que a linha do perfil é criada se não existir
-  const { error } = await supabaseClient
-    .from('profiles')
-    .upsert({
-      id: userId,
-      cart: currentCart,
-      wishlist: currentFav
-    });
-
-  if (error) {
-    console.error("Erro ao sincronizar dados com o Supabase:", error);
-  }
-}
-
-// ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
-async function loadFromSupabase() {
-  if (!userId) return;
-
-  // Usamos maybeSingle() em vez de single() para evitar que o código quebre caso o utilizador não tenha registo na tabela profiles
-  const { data, error } = await supabaseClient
-    .from('profiles')
-    .select('cart, wishlist')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Erro ao carregar dados do Supabase:", error);
-    return;
-  }
-
-  if (!data) {
-    // Se o perfil não existe, cria um novo registo limpo
-    console.log("Perfil não encontrado no Supabase. Criando novo perfil...");
-    const { error: insertError } = await supabaseClient
-      .from('profiles')
-      .upsert({ id: userId, cart: [], wishlist: [] });
-    
-    if (insertError) {
-      console.error("Erro ao criar perfil no Supabase:", insertError);
-    }
-    cart = [];
-    fav = [];
-  } else {
-    // Se o perfil existe, popula o estado da aplicação
-    cart = data.cart || [];
-    fav = data.wishlist || [];
-  }
-
-  // Atualiza as interfaces locais, passando sync = false para evitar loop infinito de rede
-  if (typeof updateCart === 'function') updateCart(false);
-  if (typeof updateFav === 'function') updateFav(false); 
-}
+/* ─── ESC ────────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
+});
 
 // ── POP-UP LOGIN WARNING ──
 function showAuthAlert(message) {
@@ -706,6 +639,7 @@ function showAuthAlert(message) {
     `;
     document.body.appendChild(authModal);
     
+    // Injeta os estilos do Modal para que o design fique perfeito
     const style = document.createElement('style');
     style.textContent = `
       .modal-auth-container {
@@ -802,23 +736,20 @@ function closeAuthAlert() {
 // FAVICON
 const favicon = document.getElementById('favicon');
     
-function verificarTema(e) {
-  if(favicon) {
-    if (e.matches) {
-      favicon.href = './images/favicon-light.png';
-    } else {
-      favicon.href = './images/favicon-blue.png';
+    function verificarTema(e) {
+      if (e.matches) {
+        favicon.href = './images/favicon-light.png';
+      } else {
+        favicon.href = './images/favicon-blue.png';
+      }
     }
-  }
-}
-const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
-verificarTema(mqEscuro);
-mqEscuro.addEventListener('change', verificarTema);
+    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+    verificarTema(mqEscuro);
+    mqEscuro.addEventListener('change', verificarTema);
 
 // PRELOADER
 window.addEventListener('load', () => {
   const preloader = document.getElementById('preloader');
-  if(!preloader) return;
   document.body.classList.add("noscroll");
   
   setTimeout(() => {
@@ -832,8 +763,3 @@ window.addEventListener('load', () => {
     
   }, 600);
 });
-
-// INIT LOCAL DISPLAY BEFORE DATABASE RESOLVES
-updateCart(false);
-renderProducts();
-loadShuffleAndRender();
