@@ -4,6 +4,15 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+function injectPrefetch(url) {
+  if (!document.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    document.head.appendChild(link);
+  }
+}
+
 let products = [];
 
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
