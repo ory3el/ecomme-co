@@ -103,11 +103,11 @@
     }
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
-      border: 1px solid transparent;
+      border: 1px solid #4287f5;
       padding: 7px 14px; font-size: 13px; font-weight: 500;
       color: #000; border-radius: 911px; transition: all .2s;
     }
-    .nav-main a:hover { border: 1px solid #4287f5; color: #fff; background: #4287f5; }
+    .nav-main a:hover { border: 1px solid transparent; color: #fff; background: #4287f5; }
     .nav-main a.active {
       color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
     }
@@ -124,7 +124,7 @@
       border: 1px solid #4287f5; color: #000;
       transition: all .2s; position: relative;
     }
-    .icon-btn:hover { color: #000; background: var(--white); }
+    .icon-btn:hover { border: 1px solid transparent; background: #4287f5; color: #fff; transform: translateY(1px); }
     .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
