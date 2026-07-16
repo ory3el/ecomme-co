@@ -107,7 +107,7 @@
       padding: 7px 14px; font-size: 13px; font-weight: 500;
       color: #000; border-radius: 911px; transition: all .2s;
     }
-    .nav-main a:hover { border: 1px solid transparent; color: #fff; background: #000; }
+    .nav-main a:hover { border: 1px solid transparent; color: #fff; background: #4287f5; }
     .nav-main a.active {
       color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
     }
@@ -121,7 +121,7 @@
     .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(0, 0, 0, 0.1); color: #000;
+      border: 1px solid #4287f5; color: #000;
       transition: all .2s; position: relative;
     }
     .icon-btn:hover { color: #000; background: var(--white); }
@@ -142,7 +142,7 @@
       font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
-    .btn-account:hover { border: none; background: #000; color: #fff; transform: translateY(-1px); }
+    .btn-account:hover { border: 1px solid transparent; background: #000; color: #fff; transform: translateY(1px); }
 
     .header-profile { 
       width: 40px;
