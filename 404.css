@@ -224,12 +224,14 @@ body {
 .returnTxt {
   cursor: pointer;
   font-family: 'Nunito', sans-serif;
+  border-bottom: 1px solid var(--blue-dark);
   color: var(--blue-dark);
   text-align: center;
   position: relative;
   top: 10px;
   padding: -2em 0 0;
   opacity: 0;
+  z-index: 9999;
 }
 
 .content {
