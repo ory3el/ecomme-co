@@ -125,13 +125,6 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
-// LOGOUT
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut();
-  buttonLink('/login')
-}
-
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
 let fav         = [];
@@ -839,6 +832,13 @@ updateCart();
 syncToSupabase();
 renderProducts();
 loadShuffleAndRender();
+
+// LOGOUT
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut();
+  buttonLink('/login')
+}
 
 // FAVICON
 const favicon = document.getElementById('favicon');  
