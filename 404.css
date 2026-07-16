@@ -213,6 +213,11 @@ body {
 }
 
 .txt {
+  display: flex;
+  align-items: center;
+}
+
+.title {
   cursor: default;
   font-family: 'Nunito', sans-serif;
   color: var(--blue-dark);
@@ -227,7 +232,6 @@ body {
   font-family: 'Nunito', sans-serif;
   border-bottom: 1px solid var(--blue-dark);
   color: var(--blue-dark);
-  align-items: center;
   text-align: center;
   position: relative;
   top: 10px;
