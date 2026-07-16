@@ -40,9 +40,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     .single();
 
   if (!profileError && profile) {
-    const email = user.email || "";
     const fullName = profile.full_name || "Cliente";
+    const email = session.user.email || "";
 
+    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
+    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
+    if (profile.avatar_url && $('accSidebarAvatar')) {
+      $('accSidebarAvatar').src = profile.avatar_url;
+    }
+    
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
@@ -102,16 +108,6 @@ function initHeaderAuthListener() {
 
         if (!profileError && profileData && profileData.avatar_url) {
           headerAvatar.src = profileData.avatar_url;
-          const fullName = profile.full_name || "Cliente";
-          const email = session.user.email || "";
-
-          if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
-          if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
-
-          if (profile.avatar_url && $('accSidebarAvatar')) {
-            $('accSidebarAvatar').src = profile.avatar_url;
-          }
-          
         } else {
           headerAvatar.src = "/images/icons/full/user.webp";
         }
