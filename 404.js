@@ -23,6 +23,13 @@ TweenMax.to('.txt', 1, {
 	ease: Power3.easeInOut
 });
 
+TweenMax.to('.returnTxt', 1, {
+	alpha: 1,
+  y: 20,	
+  yoyo: true,
+	ease: Power3.easeInOut
+});
+
 TweenMax.staggerTo('#water path', 2, {
 	x:"+=10",
   y:"+=5",	
