@@ -40,14 +40,20 @@
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; border: none; background: none; font-family: inherit; }
     img { max-width: 100%; display: block; }
+    input { font-family: inherit; }
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: var(--bg3); }
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #e8edf0; }
     ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
     /* NOSCROLL */
-    .noscroll {
-       overflow: hidden; scrollbar-gutter: stable;
+      .noscroll {
+      overflow: hidden; scrollbar-gutter: stable;
+    }
+
+    body.nobodyscroll {
+      overflow: hidden;
     }
 
     /* ── TOPBAR ──────────────────────────────────────────────── */
