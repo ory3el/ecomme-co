@@ -227,7 +227,7 @@ body {
   font-family: 'Nunito', sans-serif;
   border-bottom: 1px solid var(--blue-dark);
   color: var(--blue-dark);
-  align-itens: center;
+  align-items: center;
   text-align: center;
   position: relative;
   top: 10px;
