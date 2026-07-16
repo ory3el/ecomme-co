@@ -42,14 +42,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   buildBarcode();
   startPixTimer();
 });
+
 async function carregarCarrinhoDoSupabase() {
   try {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
-      console.warn("Usuário não está logado. Redirecionando ou usando dados locais...");
+      console.warn("Sessão de utilizador não ativa. Redirecionando para o login...");
+      buttonLink('/login');
       return;
     }
+    const userId = user.id; 
+
     const { data: dbCartItems, error: cartError } = await supabaseClient
       .from('cart')
       .select(`
@@ -58,29 +62,37 @@ async function carregarCarrinhoDoSupabase() {
           id,
           name,
           price,
-          emoji
+          emoji,
+          category
         )
       `)
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     if (cartError) throw cartError;
 
     if (dbCartItems && dbCartItems.length > 0) {
-      cartItems = dbCartItems.map(item => ({
-        id: item.products.id,
-        name: item.products.name,
-        price: item.products.price,
-        em: item.products.emoji || "📦",
-        qty: item.quantity
-      }));
+      cartItems = dbCartItems.map(item => {
+        const prod = item.products || {}; 
+        
+        return {
+          id: prod.id,
+          name: prod.name || "Produto Sem Nome",
+          price: prod.price || 0,
+          em: prod.emoji || "📦",
+          qty: item.quantity || 1,
+          cat: prod.category || "Geral"
+        };
+      });
     } else {
-      alert("Seu carrinho está vazio!");
-      window.location.href = "/"; 
+      toast("O seu carrinho está vazio! Redirecionando...", "inf");
+      setTimeout(() => {
+        buttonLink('/');
+      }, 2000);
     }
 
   } catch (error) {
     console.error("Erro ao importar itens do carrinho do Supabase:", error);
-    alert("Houve um erro ao carregar seu carrinho. Tente novamente.");
+    toast("Houve um erro ao carregar o seu carrinho.", "err");
   }
 }
 
