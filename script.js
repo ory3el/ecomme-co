@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
 
+  await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
@@ -27,8 +28,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   userId = user.id; 
-
-  await loadProductsFromSupabase();
   await loadFromSupabase();
   
   if (loginBtn) loginBtn.classList.add('hidden');
