@@ -16,12 +16,13 @@ const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
+// ── SUPABASE CONFIGURATION ─────────────────────────────
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ── STATE ──────────────────────────────────────────────
-let cartItems = [
-  {id:0,name:'Smartwatch Pro X7',cat:'Eletrônicos',price:189.90,em:'⌚',qty:1},
-  {id:1,name:'Fone Bluetooth ANC Pro',cat:'Eletrônicos',price:119.90,em:'🎧',qty:1},
-  {id:3,name:'Kit LED Smart RGB 10m',cat:'Casa',price:79.90,em:'💡',qty:2},
-];
+let cartItems = [];
 let discount = 0;
 let couponCode = '';
 let shipping = 0;
@@ -32,7 +33,8 @@ let pixInterval;
 let pixSeconds = 1799;
 
 // ── INIT ───────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await carregarCarrinhoDoSupabase();
   renderCart();
   renderSummary();
   buildInstallOpts();
@@ -40,6 +42,47 @@ window.addEventListener('DOMContentLoaded', () => {
   buildBarcode();
   startPixTimer();
 });
+async function carregarCarrinhoDoSupabase() {
+  try {
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.warn("Usuário não está logado. Redirecionando ou usando dados locais...");
+      return;
+    }
+    const { data: dbCartItems, error: cartError } = await supabaseClient
+      .from('cart')
+      .select(`
+        quantity,
+        products (
+          id,
+          name,
+          price,
+          emoji
+        )
+      `)
+      .eq('user_id', user.id);
+
+    if (cartError) throw cartError;
+
+    if (dbCartItems && dbCartItems.length > 0) {
+      cartItems = dbCartItems.map(item => ({
+        id: item.products.id,
+        name: item.products.name,
+        price: item.products.price,
+        em: item.products.emoji || "📦",
+        qty: item.quantity
+      }));
+    } else {
+      alert("Seu carrinho está vazio!");
+      window.location.href = "/"; 
+    }
+
+  } catch (error) {
+    console.error("Erro ao importar itens do carrinho do Supabase:", error);
+    alert("Houve um erro ao carregar seu carrinho. Tente novamente.");
+  }
+}
 
 // ── CART ───────────────────────────────────────────────
 function renderCart(){
