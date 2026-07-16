@@ -201,11 +201,11 @@ function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
   
-  //$('cartBadge').textContent = count;
-  //$('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+  /*$('cartBadge').textContent = count;
+  $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
   $('cartCount').textContent = `(${count})`;
   $('cartSub').textContent   = fmt(total);
-  $('cartTotal').textContent = fmt(total);
+  $('cartTotal').textContent = fmt(total);*/
 
   const el = $('cartItems');
   if (!cart.length) {
@@ -300,10 +300,10 @@ function changeFavQty(id, d) {
 function updateFav() {
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
-  //$('wishBadge').textContent = count;
-  //$('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  /*$('wishBadge').textContent = count;
+  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
   $('favCount').textContent = `(${count})`;
-  $('favTotal').textContent = fmt(total);
+  $('favTotal').textContent = fmt(total);*/
 
   const el = $('favItems');
   if (!fav.length) {
