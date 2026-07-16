@@ -3,9 +3,9 @@ const favicon = document.getElementById('favicon');
     
     function verificarTema(e) {
       if (e.matches) {
-        favicon.href = './images/favicon-light.png';
+        favicon.href = '/images/favicon-light.png';
       } else {
-        favicon.href = './images/favicon-blue.png';
+        favicon.href = '/images/favicon-blue.png';
       }
     }
 const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
@@ -226,8 +226,6 @@ let cart        = [];
 let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
-let view        = 'grid';
-let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
@@ -249,17 +247,6 @@ function fishYates(arr) {
   }
   return a;
 }
-
-/* ─── PARTICLES ──────────────────────────────────────────────────────── */
-(function spawnParticles() {
-  const wrap = $('particles');
-  for (let i = 0; i < 22; i++) {
-    const p = document.createElement('div');
-    p.className = 'sb-p';
-    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${3+Math.random()*5}s;--dl:${Math.random()*3}s;opacity:${.3+Math.random()*.6}`;
-    wrap.appendChild(p);
-  }
-})();
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
