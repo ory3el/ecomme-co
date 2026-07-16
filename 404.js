@@ -549,8 +549,7 @@ document.addEventListener('keydown', e => {
 
 // INIT
 updateCart();
-renderProducts();
-loadShuffleAndRender();
+updateFav();
 
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
