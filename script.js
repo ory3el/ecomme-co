@@ -1,10 +1,3 @@
-// PRELOADER
-window.addEventListener('load', () => {
-  const preloader = document.getElementById('preloader');
-  document.body.classList.add("noscroll");
-
-// document.body.classList.add("noscroll");
-
 function buttonLink(url) {
   window.location.href = url;
 }
@@ -860,6 +853,11 @@ function verificarTema(e) {
 const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
 verificarTema(mqEscuro);
 mqEscuro.addEventListener('change', verificarTema);
+
+// PRELOADER
+window.addEventListener('load', () => {
+  const preloader = document.getElementById('preloader');
+  document.body.classList.add("noscroll");
   
   setTimeout(() => {
     preloader.classList.add('fade-out');
