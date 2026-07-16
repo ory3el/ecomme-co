@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+  let shuffled = [...products];
 
   if (!user || userError) {
     console.warn("User session not active.");
@@ -869,7 +870,6 @@ mqEscuro.addEventListener('change', verificarTema);
 // PRELOADER
 window.addEventListener('load', () => {
   const preloader = document.getElementById('preloader');
-  document.body.classList.add("noscroll");
   
   setTimeout(() => {
     preloader.classList.add('fade-out');
