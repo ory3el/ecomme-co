@@ -207,12 +207,13 @@
 body {
   cursor: default;
   background: #fff;
-  margin:0; 
-  padding:0; 
-  overflow:hidden
+  margin: 0; 
+  padding: 0; 
+  overflow: hidden;
 }
 
 .txt {
+  font-size: 20px;
   cursor: default;
   font-family: 'Nunito', sans-serif;
   color: var(--blue-dark);
