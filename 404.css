@@ -225,7 +225,6 @@ body {
   cursor: pointer;
   max-width: 20px;
   font-family: 'Nunito', sans-serif;
-  flex-shrink: 0; display: flex; align-items: center;
   border-bottom: 1px solid var(--blue-dark);
   color: var(--blue-dark);
   text-align: center;
