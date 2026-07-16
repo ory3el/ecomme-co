@@ -650,19 +650,16 @@ document.addEventListener('keydown', e => {
 async function syncToSupabase() {
   if (!userId) return;
   
-  const currentWishlist = typeof wishlist !== 'undefined' ? wishlist : (typeof favs !== 'undefined' ? favs : []);
-  const currentCart = typeof cart !== 'undefined' ? cart : [];
+const currentWishlist = fav;
+const currentCart = cart;
 
-  localStorage.setItem('cart', JSON.stringify(currentCart));
-  localStorage.setItem(typeof wishlist !== 'undefined' ? 'wishlist' : 'favs', JSON.stringify(currentWishlist));
-
-  const { error } = await supabaseClient
-    .from('profiles')
-    .update({
-      cart: currentCart,
-      wishlist: currentWishlist
-    })
-    .eq('id', userId);
+const { error } = await supabaseClient
+.from("profiles")
+.update({
+    cart: currentCart,
+    wishlist: currentWishlist
+})
+.eq("id", userId);
 
   if (error) {
     console.error("Erro ao sincronizar dados com o Supabase:", error);
