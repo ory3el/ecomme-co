@@ -136,6 +136,7 @@
     }
 
     .btn-account {
+      height: 40px; width: auto;
       background: transparent; color: #000;
       border: 1px solid #4287f5;
       padding: 8px 20px; border-radius: 100px;
