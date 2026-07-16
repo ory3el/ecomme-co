@@ -76,7 +76,7 @@
 
     /* ── HEADER ──────────────────────────────────────────────── */
     header {
-      background: #4287f5;
+      background: #fff;
       border-bottom: 0px solid transparent;
       position: sticky; top: 0; z-index: 1000;
       box-shadow: 0 10px 20px rgba(66, 135, 245, 0.7);
@@ -87,8 +87,9 @@
       display: flex; align-items: center; gap: 24px; height: 68px;
     }
     .logo {
-      flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      filter: brightness(0) invert(1); drop-shadow: 0 0 0 #fff;
+      flex-shrink: 0; display: flex; align-items: center;
+      gap: 5px; filter: none;
+      /*filter: brightness(0) invert(1); drop-shadow: 0 0 0 #fff;*/
       /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
     .logo_dark {
@@ -100,16 +101,12 @@
       flex-shrink: 0; display: flex; align-items: center; gap: 5px; position: relative; bottom: 25px;
       /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
-    .logo-dot {
-      width: 7px; height: 7px; background: var(--blue);
-      border-radius: 50%; margin-top: 2px;
-    }
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
       padding: 7px 14px; font-size: 13px; font-weight: 500;
-      color: var(--white); border-radius: 911px; transition: all .2s;
+      color: #000; border-radius: 911px; transition: all .2s;
     }
-    .nav-main a:hover { color: var(--text); background: var(--bg3); }
+    .nav-main a:hover { border: 1px solid rgba(0, 0, 0, 0.7); color: var(--text); background: var(--bg3); }
     .nav-main a.active {
       color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
     }
@@ -131,19 +128,20 @@
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
       min-width: 17px; height: 17px;
-      background: var(--blue); color: #fff;
+      background: var(--blue); color: #000;
       font-size: 9px; font-weight: 700; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       padding: 0 2px;
     }
 
     .btn-account {
-      background: var(--white); color: #000;
+      background: transparent; color: #000;
+      border: 1px solid #000;
       padding: 8px 20px; border-radius: 100px;
       font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
-    .btn-account:hover { background: #000; color: #fff; transform: translateY(-1px); }
+    .btn-account:hover { border: none; background: #000; color: #fff; transform: translateY(-1px); }
 
     .header-profile { 
       width: 40px;
@@ -152,7 +150,7 @@
       border: 1px solid var(--bg3, #fff);
       overflow: hidden;
       cursor: pointer;
-      color: #fff; padding: 3px/*18px 7px 7px*/;
+      color: #000; padding: 3px/*18px 7px 7px*/;
       border-radius: 50%;
       font-size: 12px;
       font-weight: 600;
