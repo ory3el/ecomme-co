@@ -240,6 +240,7 @@ function openCart() {
   closeMore();
   closeFav();
   closeNotif();
+  closeAcc();
   $('cartSidebar').classList.add('on'); 
   $('cartOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
@@ -338,6 +339,7 @@ function openFav() {
   closeMore();
   closeCart();
   closeNotif();
+  closeAcc();
   $('favSidebar').classList.add('on'); 
   $('favOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
@@ -375,6 +377,8 @@ function checkout() {
 function openNotif() { 
   closeCart();
   closeFav();
+  closeAcc();
+  closeMore();
   if (typeof closeMore === 'function') closeMore();
   $('notifSidebar').classList.add('on'); 
   $('notifOverlay').classList.add('on'); 
@@ -386,12 +390,36 @@ function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverla
 function openMore() { 
   closeFav();
   closeCart();
+  closeAcc();
+  closeNotif();
   if (typeof closeMore === 'function') closeNotif();
   $('moreSidebar').classList.add('on'); 
   $('moreOverlay').classList.add('on'); 
   document.body.classList.add("nobodyscroll"); 
 }
 function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+/* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
+function openAcc() { 
+  closeCart();
+  closeFav();
+  closeNotif();
+  closeMore();
+  
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if(sb) sb.classList.add('on'); 
+  if(ov) ov.classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
+
+function closeAcc() { 
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if(sb) sb.classList.remove('on'); 
+  if(ov) ov.classList.remove('on'); 
+  document.body.classList.remove("nobodyscroll"); 
+}
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
