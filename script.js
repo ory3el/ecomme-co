@@ -654,8 +654,10 @@ function shuffleAndRender() {
 
 function loadShuffleAndRender() {
   shuffled = fishYates(products);
-  $('sortSelect').value = 'random';
-  loadProductsFromSupabase();
+  if ($('sortSelect')) {
+    $('sortSelect').value = 'random';
+  }
+  renderProducts();
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
