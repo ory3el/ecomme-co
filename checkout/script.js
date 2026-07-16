@@ -342,7 +342,7 @@ function renderCart(){
   if(!cartItems.length){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px">🛒 Carrinho vazio</div>';return;}
   list.innerHTML = cartItems.map(it => `
     <div class="ci" id="ci-${it.id}">
-      <div class="ci-em">${it.em}</div>
+      <div class="ci-em">${it.emoji}</div>
       <div style="flex:1;min-width:0">
         <div class="ci-name">${it.name}</div>
         <div class="ci-meta">${it.cat}</div>
@@ -429,7 +429,7 @@ function renderSummary(){
 
   document.getElementById('sumItems').innerHTML = cartItems.map(it => `
     <div class="sum-item">
-      <div class="sum-item-em">${it.em}<div class="sum-item-qty">${it.qty}</div></div>
+      <div class="sum-item-em">${it.emoji}<div class="sum-item-qty">${it.qty}</div></div>
       <div style="flex:1;min-width:0"><div class="sum-item-name">${it.name}</div><div class="sum-item-cat">${it.cat}</div></div>
       <div class="sum-item-price">${fp(it.price*it.qty)}</div>
     </div>`).join('');
