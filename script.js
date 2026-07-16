@@ -729,10 +729,9 @@ function renderProducts() {
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
-            <div class="pcat">
-              ${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}
-            </div>
-            <div class="pname">${p.name}</div>
+            <div class="pinfo">
+              <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+              <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
               <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
