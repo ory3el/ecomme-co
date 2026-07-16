@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sellerium | Finalizar Pedido</title>
+<title>Finalizar Pedido | Ecomme</title>
 
 <link rel="stylesheet" href="styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="icon" id="favicon" type="image/png" href="../images/favicon.png">
+<link rel="icon" id="favicon" type="image/png" href="/images/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,13 +22,13 @@
 <!-- ── HEADER ──────────────────────────────────────────── -->
 <header class="hdr">
   <div class="hdr-in">
-    <a href="../" class="back-link">
+    <a href="/" class="back-link">
       <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
       Voltar à loja
     </a>
     <div class="logo">
-      <button class="logo-btn" onclick="buttonLink('../')">
-        <img src="../images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
+      <button class="logo-btn" onclick="buttonLink('/')">
+        <img src="/images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
       </button>
     </div>
     <div class="secure-badge">
@@ -65,7 +65,7 @@
         </div>
         <div class="coupon-feedback" id="couponFb"></div>
         <div class="form-actions" style="margin-top:18px">
-          <a href="../produtos" class="btn-back"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Continuar comprando</a>
+          <a href="/products" class="btn-back"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Continuar comprando</a>
           <button class="btn-next" onclick="goStep(2)">Ir para entrega <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></button>
         </div>
       </div>
@@ -215,12 +215,12 @@
 
           <div class="card-brand-icons">
             <div class="brand-ico on" id="bi-visa">
-            <img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
+            <img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
             <div class="brand-ico" id="bi-master">
-            <img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard"/></div>
+            <img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard"/></div>
             <div class="brand-ico" id="bi-amex">AMEX</div>
             <div class="brand-ico" id="bi-elo">
-            <img src="../images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo"/></div>
+            <img src="/images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo"/></div>
           </div>
 
           <div class="card-form-fields">
@@ -302,13 +302,13 @@
           </div>
         </div>
         <div class="confirm-btns">
-          <a href="../settigs/" class="btn-track">📦 Acompanhar Pedido</a>
-          <a href="../categories" class="btn-store">🛍️ Continuar Comprando</a>
+          <a href="/track-order" class="btn-track">📦 Acompanhar Pedido</a>
+          <a href="/products" class="btn-store">🛍️ Continuar Comprando</a>
         </div>
       </div>
     </div>
 
-  </div><!-- /form-col -->
+  </div>
 
   <!-- ── SUMMARY COLUMN ──────────────────────────────────── -->
   <aside class="summary-col">
@@ -330,13 +330,13 @@
         <div class="trust-row"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Rastreamento incluído no envio</div>
         <div style="display:flex;gap:6px;margin-top:4px">
           <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;">
-          <img src="../images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix"/></div>
+          <img src="/images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix"/></div>
           <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
-          <img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
+          <img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
           <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
-          <img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="MasterCard"/></div>
+          <img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="MasterCard"/></div>
           <div style="background:#f1f5f9;border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
-          <img src="../images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto"/></div>
+          <img src="/images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto"/></div>
         </div>
       </div>
     </div>
