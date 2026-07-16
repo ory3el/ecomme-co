@@ -493,7 +493,9 @@ document.addEventListener('keydown', e => {
 });
 
 // INIT
+updateFav();
 updateCart();
+syncToSupabase();
 renderProducts();
 loadShuffleAndRender();
 
