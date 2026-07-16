@@ -733,11 +733,10 @@
 <script>
     const today = new Date();
     today.setMonth(today.getMonth() - 1);
-
     const options = { month: 'long' };
     const monthName = today.toLocaleDateString('pt-BR', options);
-
-    document.getElementById('pastMonth').textContent = monthName;
+    const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    document.getElementById('pastMonth').textContent = capitalizedMonth;
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
