@@ -492,13 +492,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); closeAcc(); }
 });
 
-// INIT
-updateFav();
-updateCart();
-syncToSupabase();
-renderProducts();
-loadShuffleAndRender();
-
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
   if (!userId) return;
@@ -840,19 +833,25 @@ function filterByCategory(event, category) {
   }
 }
 
+// INIT
+updateFav();
+updateCart();
+syncToSupabase();
+renderProducts();
+loadShuffleAndRender();
+
 // FAVICON
-const favicon = document.getElementById('favicon');
-    
-    function verificarTema(e) {
-      if (e.matches) {
-        favicon.href = './images/favicon-light.png';
-      } else {
-        favicon.href = './images/favicon-blue.png';
-      }
-    }
-    const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
-    verificarTema(mqEscuro);
-    mqEscuro.addEventListener('change', verificarTema);
+const favicon = document.getElementById('favicon');  
+function verificarTema(e) {
+  if (e.matches) {
+    favicon.href = '/images/favicon-light.png';
+  } else {
+    favicon.href = '/images/favicon-blue.png';
+  }
+}
+const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+verificarTema(mqEscuro);
+mqEscuro.addEventListener('change', verificarTema);
 
 // PRELOADER
 window.addEventListener('load', () => {
