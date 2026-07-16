@@ -92,7 +92,7 @@ function initHeaderAuthListener() {
       loginBtn.classList.add('hidden');
       bellBtn.classList.remove('hidden');
       profileContainer.classList.remove('hidden');
-
+      
       try {
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
@@ -102,6 +102,16 @@ function initHeaderAuthListener() {
 
         if (!profileError && profileData && profileData.avatar_url) {
           headerAvatar.src = profileData.avatar_url;
+          const fullName = profile.full_name || "Cliente";
+          const email = session.user.email || "";
+
+          if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
+          if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
+
+          if (profile.avatar_url && $('accSidebarAvatar')) {
+            $('accSidebarAvatar').src = profile.avatar_url;
+          }
+          
         } else {
           headerAvatar.src = "/images/icons/full/user.webp";
         }
