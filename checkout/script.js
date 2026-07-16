@@ -528,7 +528,6 @@ async function loadProductsFromSupabase() {
   if (data) {
     products = data;
     shuffled = [...products];
-    loadShuffleAndRender();
   }
 }
 // ── STATE ──────────────────────────────────────────────
