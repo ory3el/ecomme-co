@@ -7,9 +7,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -188,7 +188,7 @@ function onCardNum(inp){
   document.getElementById('cardNumDisp').textContent=disp;
   document.getElementById('cardNumBack').textContent=disp;
   // brand detection
-  const brands={visa:/^4/,master:/^5[1-5]/,amex:/^3[47]/,elo:/^(636368|636369)/};
+  const brands={visa:/^4/,master:/^5[1-5]/,amex:/^3[47]/,elo:/^(65|63|50|40|43)/};
   let brand='VISA';
   for(const [name,re] of Object.entries(brands)) if(re.test(v)){brand=name.toUpperCase();break;}
   document.getElementById('cardBrandDisp').textContent=brand;
