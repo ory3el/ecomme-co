@@ -107,13 +107,13 @@
       padding: 7px 14px; font-size: 13px; font-weight: 500;
       color: #000; border-radius: 911px; transition: all .2s;
     }
-    .nav-main a:hover { border: 1px solid transparent; color: #fff; background: #4287f5; }
+    .nav-main a:hover { border: 1px solid #4287f5; color: #fff; background: #4287f5; }
     .nav-main a.active {
       color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
     }
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
-    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 2px solid rgba(255, 255, 255, 0); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 2px solid #4287f5; border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
     .search-bar:focus-within { background: #fff; border: 1.5px solid #4287f5; }
     .search-bar input { background: none; border: none; outline: none; color: #000; font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(0, 0, 0, 0.9); font-size: 14px; font-weight: 400; }
@@ -137,12 +137,12 @@
 
     .btn-account {
       background: transparent; color: #000;
-      border: 1px solid #000;
+      border: 1px solid #4287f5;
       padding: 8px 20px; border-radius: 100px;
       font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
-    .btn-account:hover { border: 1px solid transparent; background: #000; color: #fff; transform: translateY(1px); }
+    .btn-account:hover { border: 1px solid transparent; background: #4287f5; color: #fff; transform: translateY(1px); }
 
     .header-profile { 
       width: 40px;
