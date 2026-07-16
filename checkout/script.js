@@ -42,6 +42,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   buildBarcode();
   startPixTimer();
 });
+
 async function carregarCarrinhoDoSupabase() {
   try {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
@@ -58,7 +59,8 @@ async function carregarCarrinhoDoSupabase() {
           id,
           name,
           price,
-          emoji
+          emoji,
+          category
         )
       `)
       .eq('user_id', user.id);
@@ -71,7 +73,8 @@ async function carregarCarrinhoDoSupabase() {
         name: item.products.name,
         price: item.products.price,
         em: item.products.emoji || "📦",
-        qty: item.quantity
+        qty: item.quantity,
+        cat: item.products.category || "Geral" // Corrigido: Agora mapeia corretamente a categoria
       }));
     } else {
       alert("Seu carrinho está vazio!");
@@ -95,16 +98,16 @@ function renderCart(){
         <div class="ci-name">${it.name}</div>
         <div class="ci-meta">${it.cat}</div>
         <div class="qty-ctrl">
-          <button class="qbtn" onclick="chgQty(${it.id},-1)">−</button>
+          <button class="qbtn" onclick="chgQty('${it.id}',-1)">−</button>
           <span class="qn" id="q-${it.id}">${it.qty}</span>
-          <button class="qbtn" onclick="chgQty(${it.id},1)">+</button>
+          <button class="qbtn" onclick="chgQty('${it.id}',1)">+</button>
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div class="ci-price" id="p-${it.id}">${fp(it.price*it.qty)}</div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px">${fp(it.price)} un.</div>
       </div>
-      <button class="rm-btn" onclick="rmItem(${it.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      <button class="rm-btn" onclick="rmItem('${it.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
     </div>`).join('');
 }
 
@@ -210,13 +213,6 @@ function buildQR(){
 
 function startPixTimer(){
   pixInterval=setInterval(()=>{ if(pixSeconds<=0){clearInterval(pixInterval);document.getElementById('pixTimer').textContent='EXPIRADO';return;} pixSeconds--; const m=Math.floor(pixSeconds/60),s=pixSeconds%60; document.getElementById('pixTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); },1000);
-}
-
-function copyPIX(){
-  navigator.clipboard?.writeText('00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-426614174000');
-  const b=document.getElementById('copyPixBtn'); b.textContent='✓ Copiado!'; b.className='btn-copy copied';
-  setTimeout(()=>{ b.textContent='📋 Copiar'; b.className='btn-copy'; },3000);
-  toast('Chave PIX copiada! 📋');
 }
 
 // ── CARD ───────────────────────────────────────────────
