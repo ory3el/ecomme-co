@@ -141,11 +141,8 @@ initHeaderAuthListener();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
-let fav         = [];
 let curId       = null;
 let mQtyVal     = 1;
-let view        = 'grid';
-let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
@@ -240,14 +237,9 @@ function toast(msg) {
   showToast(msg);
 }
 
-// BACK TO TOP
-window.addEventListener('scroll', () => {
-  document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
-});
-
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); closeAcc(); }
+  if (e.key === 'Escape') { closeModal(); closeMore(); closeAcc(); }
 });
 
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
@@ -330,8 +322,6 @@ async function doLogout() {
 
 // ── INIT ───────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  updateFav();
-  updateCart();
   syncToSupabase();
   renderProducts();
   renderCart();
