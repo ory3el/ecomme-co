@@ -1,4 +1,4 @@
-body.style.cursor = "default";
+document.body.style.cursor = "default";
 
 function buttonLink(url) {
   window.location.href = url;
