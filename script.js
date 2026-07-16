@@ -6,24 +6,6 @@ function buttonLink(url) {
 
 let products = [];
 
-async function loadProductsFromSupabase() {
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', { ascending: true });
-
-  if (error) {
-    console.error("Erro ao carregar produtos do banco:", error);
-    return;
-  }
-
-  if (data) {
-    products = data;
-    shuffled = [...products];
-    renderProducts();
-  }
-}
-
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
@@ -806,6 +788,24 @@ function closeAuthAlert() {
   const authModal = document.getElementById('authAlertModal');
   if (authModal) {
     authModal.classList.remove('active');
+  }
+}
+
+async function loadProductsFromSupabase() {
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar produtos do banco:", error);
+    return;
+  }
+
+  if (data) {
+    products = data;
+    shuffled = [...products];
+    renderProducts();
   }
 }
 
