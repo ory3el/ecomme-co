@@ -201,7 +201,7 @@ function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
   
-  $('cartBadge').textContent = count;
+  //$('cartBadge').textContent = count;
   $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
   $('cartCount').textContent = `(${count})`;
   $('cartSub').textContent   = fmt(total);
@@ -300,7 +300,7 @@ function changeFavQty(id, d) {
 function updateFav() {
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
-  $('wishBadge').textContent = count;
+  //$('wishBadge').textContent = count;
   $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
   $('favCount').textContent = `(${count})`;
   $('favTotal').textContent = fmt(total);
