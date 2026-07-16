@@ -16,6 +16,8 @@ const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
+let products = [];
+
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
