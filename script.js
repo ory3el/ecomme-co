@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!profileError && profile) {
     const fullName = profile.full_name || "Cliente";
-    const email = session.user.email || "";
+    const email = user.email || "";
 
     if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
     if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
