@@ -212,7 +212,7 @@ body {
   overflow:hidden
 }
 
-h1 {
+.txt {
   cursor: default;
   font-family: 'Nunito', sans-serif;
   color: var(--blue-dark);
@@ -221,7 +221,7 @@ h1 {
   opacity: 0;
 }
 
-.txt {
+.returnTxt {
   cursor: pointer;
   font-family: 'Nunito', sans-serif;
   color: var(--blue-dark);
