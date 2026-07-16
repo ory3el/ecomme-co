@@ -103,17 +103,17 @@
     }
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
-      border: 1px solid #4287f5;
+      border: 1px solid transparent;
       padding: 7px 14px; font-size: 13px; font-weight: 500;
       color: #000; border-radius: 911px; transition: all .2s;
     }
-    .nav-main a:hover { border: 1px solid transparent; color: #fff; background: #4287f5; }
+    .nav-main a:hover { border: 1px solid transparent; background: #4287f5; color: #fff; transform: translateY(1px); }
     .nav-main a.active {
       color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
     }
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
-    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 2px solid #4287f5; border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 2px solid rgba(0, 0, 0, 0.2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
     .search-bar:focus-within { background: #fff; border: 1.5px solid #4287f5; }
     .search-bar input { background: none; border: none; outline: none; color: #000; font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(0, 0, 0, 0.9); font-size: 14px; font-weight: 400; }
@@ -121,7 +121,7 @@
     .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid #4287f5; color: #000;
+      border: 1px solid rgba(0, 0, 0, 0.2); color: #000;
       transition: all .2s; position: relative;
     }
     .icon-btn:hover { border: 1px solid transparent; background: #4287f5; color: #fff; transform: translateY(1px); }
