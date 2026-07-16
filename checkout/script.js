@@ -323,7 +323,6 @@ async function doLogout() {
 // ── INIT ───────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   syncToSupabase();
-  renderProducts();
   renderCart();
   renderSummary();
   buildInstallOpts();
