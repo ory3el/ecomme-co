@@ -275,11 +275,15 @@ async function loadFromSupabase() {
   if (!error && data) {
     if (data.cart) {
       cart = data.cart;
+      cartItems = data.cart;
     }
     
     if (data.fav) {
       fav = data.fav;
     }
+
+    renderCart();
+    renderSummary();
 
     if (typeof updateCart === 'function') updateCart();
     if (typeof updateFav === 'function') updateFav(); 
