@@ -650,14 +650,14 @@ document.addEventListener('keydown', e => {
 async function syncToSupabase() {
   if (!userId) return;
   
-const currentWishlist = fav;
+const currentFav = fav;
 const currentCart = cart;
 
 const { error } = await supabaseClient
 .from("profiles")
 .update({
     cart: currentCart,
-    wishlist: currentWishlist
+    fav: currentFav
 })
 .eq("id", userId);
 
@@ -672,7 +672,7 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, wishlist')
+    .select('cart, fav')
     .eq('id', userId)
     .single();
 
@@ -681,12 +681,8 @@ async function loadFromSupabase() {
       cart = data.cart;
     }
     
-    if (data.wishlist) {
-      if (typeof wishlist !== 'undefined') {
-        wishlist = data.wishlist;
-      } else if (typeof favs !== 'undefined') {
-        favs = data.wishlist;
-      }
+    if (data.fav) {
+      fav = data.fav;
     }
 
     if (typeof updateCart === 'function') updateCart();
