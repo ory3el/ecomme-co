@@ -34,6 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn("User session not active.");
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (profileContainer) profileContainer.classList.add('hidden');
+    injectPrefetch('/login');
     return;
   }
   userId = user.id; 
