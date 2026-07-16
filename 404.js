@@ -16,7 +16,7 @@ const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
 verificarTema(mqEscuro);
 mqEscuro.addEventListener('change', verificarTema);
 
-TweenMax.to('h1', 1, {
+TweenMax.to('txt', 1, {
 	alpha: 1,
   y: 20,	
   yoyo: true,
