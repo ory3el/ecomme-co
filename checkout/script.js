@@ -542,9 +542,19 @@ let installSel = 1;
 let pixInterval;
 let pixSeconds = 1799;
 
+// LOGOUT
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut();
+  buttonLink('/login')
+}
+
 // ── INIT ───────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  await carregarCarrinhoDoSupabase();
+  updateFav();
+  updateCart();
+  syncToSupabase();
+  renderProducts();
   renderCart();
   renderSummary();
   buildInstallOpts();
