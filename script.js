@@ -453,7 +453,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
-function Toast(msg) {
+function toast(msg) {
   function showToast(msg)
 }
 
