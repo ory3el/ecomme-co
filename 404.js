@@ -96,6 +96,7 @@ TweenMax.to('#tent3', 3, {
 });
 
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
+/*
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -218,6 +219,7 @@ async function doLogout() {
   await supabaseClient.auth.signOut();
   buttonLink('/login')
 }
+*/
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
