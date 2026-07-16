@@ -454,7 +454,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 function toast(msg) {
-  function showToast(msg)
+  function showToast(msg);
 }
 
 // NEWSLETTER
