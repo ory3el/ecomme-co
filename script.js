@@ -489,18 +489,13 @@ window.addEventListener('scroll', () => {
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape') { closeModal(); closeCart(); }
+  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); closeAcc(); }
 });
 
 // INIT
 updateCart();
 renderProducts();
 loadShuffleAndRender();
-
-/* ─── ESC ────────────────────────────────────────────────────────────── */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav();}
-});
 
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
