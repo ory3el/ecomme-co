@@ -758,11 +758,12 @@ function showAlert(message, title) {
       }
     `;
     document.head.appendChild(style);
+
   } else {
     document.getElementById('alertMsg').textContent = message;
     document.getElementById('alertTitle').textContent = title;
   }
-  
+  alertModal.offsetHeight; 
   alertModal.classList.add('active');
 }
 
