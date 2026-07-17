@@ -409,26 +409,16 @@
       <div class="card">
         <div class="addr-grid">
           <div class="addr-card default">
-            <div class="addr-default-badge">🏠 Principal</div>
-            <div class="addr-type">Casa</div>
-            <div class="addr-name">Ana Carolina</div>
-            <div class="addr-street">Rua das Flores, 142, Apto 51<br>Vila Madalena — São Paulo, SP<br>CEP: 05433-000</div>
+            <div class="addr-default-badge"></div>
+            <div class="addr-type"></div>
+            <div class="addr-name"></div>
+            <div class="addr-street"><br><br></div>
             <div class="addr-actions">
-              <button class="btn-xs blue" onclick="toast('Editando endereço','info')">✏️ Editar</button>
-              <button class="btn-xs gray" onclick="toast('Endereço excluído')">🗑 Excluir</button>
+              <button class="btn-xs blue" onclick="toast('Editando endereço','info')">✏️</button>
+              <button class="btn-xs gray" onclick="toast('Endereço excluído')">🗑</button>
             </div>
           </div>
-          <div class="addr-card">
-            <div class="addr-type">Trabalho</div>
-            <div class="addr-name">Ana Carolina</div>
-            <div class="addr-street">Av. Paulista, 1000, 5º andar<br>Bela Vista — São Paulo, SP<br>CEP: 01310-100</div>
-            <div class="addr-actions">
-              <button class="btn-xs blue" onclick="toast('Editando endereço','info')">✏️ Editar</button>
-              <button class="btn-xs blue" onclick="toast('Definido como principal! ✓')">⭐ Principal</button>
-              <button class="btn-xs gray" onclick="toast('Endereço excluído')">🗑 Excluir</button>
-            </div>
-          </div>
-          <div class="add-card" onclick="toast('Adicionar novo endereço','info')">
+          <div class="add-card" onclick="openAddressModal()">
             <div class="add-card-ico">📍</div>
             <span>Adicionar novo endereço</span>
           </div>
