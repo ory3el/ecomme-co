@@ -470,4 +470,4 @@ textarea.finput{resize:vertical;min-height:80px}
 .coupon-code{font-family:monospace;background:#fff;border:1.5px solid #93c5fd;color:#2563eb;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;letter-spacing:1px;margin-left:auto;cursor:pointer;transition:.2s;white-space:nowrap}
 .coupon-code:hover{background:#eff6ff}
 
-@media(max-width:900px){.page{grid-template-columns:1fr}.sidebar{display:none}}
+@media(max-width:768px){.page{grid-template-columns:1fr}.sidebar{display:none}}
