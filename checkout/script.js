@@ -62,6 +62,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (profile.avatar_url && $('accSidebarAvatar')) {
       $('accSidebarAvatar').src = profile.avatar_url;
     }
+    const recipient = document.getElementById('recipient');
     if (recipient) recipient.textContent = fullName;
     
     const nameParts = fullName.trim().split(' ');
