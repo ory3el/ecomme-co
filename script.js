@@ -545,7 +545,7 @@ async function loadFromSupabase() {
 }
 
 // ── POP-UP WARNING ──
-function showAlert(message, title, icon) {
+async function showAlert(message, title, icon) {
   let alertModal = document.getElementById('alertModal');
   
   if (!alertModal) {
@@ -554,7 +554,7 @@ function showAlert(message, title, icon) {
     alertModal.className = 'modal-alert-container';
     alertModal.innerHTML = `
       <div class="modal-alert-content">
-        <div class="modal-alert-icon">${icon}</div>
+        <div class="modal-alert-icon" id="alertIcon">${icon}</div>
         <h3 id="alertTitle">${title}</h3>
         <p id="alertMsg">${message}</p>
         <div class="modal-alert-buttons">
@@ -564,6 +564,26 @@ function showAlert(message, title, icon) {
       </div>
     `;
     document.body.appendChild(alertModal);
+
+async function showAuth(message, title, icon) { 
+  let authModal = document.getElementById('authModal');
+  
+  if (!authModal) {
+    authModal = document.createElement('div');
+    authModal.id = 'authModal';
+    authModal.className = 'modal-alert-container';
+    authModal.innerHTML = `
+      <div class="modal-alert-content">
+        <div class="modal-alert-icon" id="authIcon">${icon}</div>
+        <h3 id="authTitle">${title}</h3>
+        <p id="authMsg">${message}</p>
+        <div class="modal-alert-buttons">
+          <button class="btn-alert-confirm" onclick="buttonLink('/login')">Fazer Login</button>
+          <button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(authModal);
     
     const style = document.createElement('style');
     style.textContent = `
@@ -649,15 +669,30 @@ function showAlert(message, title, icon) {
   } else {
     document.getElementById('alertMsg').textContent = message;
     document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertIcon').textContent = icon;
+
+    document.getElementById('authMsg').textContent = message;
+    document.getElementById('authTitle').textContent = title;
+    document.getElementById('authIcon').textContent = icon;
   }
   alertModal.offsetHeight; 
   alertModal.classList.add('active');
+
+  authModal.offsetHeight; 
+  authModal.classList.add('active');
 }
 
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
     alertModal.classList.remove('active');
+  }
+}
+
+function closeAuth() {
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    authModal.classList.remove('active');
   }
 }
 
