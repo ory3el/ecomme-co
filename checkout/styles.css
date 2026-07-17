@@ -159,6 +159,13 @@ input,select,textarea{font-family:inherit}
 .fselect{width:100%;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);padding:10px 13px;border-radius:var(--r);font-size:13px;outline:none;transition:.2s;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 .fselect:focus{border-color:var(--blue);background-color:#fff}
 
+input[readonly] {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  border-color: #cbd5e1;
+}
+
 /* shipping options */
 .ship-opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .ship-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border:2px solid var(--border2);border-radius:var(--rl);cursor:pointer;transition:all .2s}
