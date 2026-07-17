@@ -142,9 +142,10 @@ function initHeaderAuthListener() {
 initHeaderAuthListener();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart        = [];
-let curId       = null;
-let mQtyVal     = 1;
+let savedAddresses = [];
+let cart = [];
+let curId = null;
+let mQtyVal = 1;
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
@@ -270,22 +271,20 @@ async function loadFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('profiles')
-    .select('cart, fav')
+    .select('cart, fav, addresses')
     .eq('id', userId)
     .single();
 
   if (!error && data) {
-    if (data.cart) {
-      cart = data.cart;
-      cartItems = data.cart;
-    }
+    if (data.cart) { cart = data.cart; cartItems = data.cart; }
     
-    if (data.fav) {
-      fav = data.fav;
+    if (data.addresses) {
+      savedAddresses = data.addresses;
     }
 
     renderCart();
     renderSummary();
+    renderAddresses();
 
     if (typeof updateCart === 'function') updateCart();
     if (typeof updateFav === 'function') updateFav(); 
@@ -458,6 +457,7 @@ function toggleNewAddr(){ const f=document.getElementById('newAddrForm'); f.clas
 function selShip(el,price){ document.querySelectorAll('.ship-opt').forEach(s=>s.classList.remove('on')); el.classList.add('on'); shipping=price; renderSummary(); }
 function maskCEP(inp){ let v=inp.value.replace(/\D/g,'').slice(0,8); if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5); inp.value=v; }
 
+//-------------------------------------------------------------
 async function searchCEP() {
   const v = document.getElementById('cepInp').value.replace(/\D/g, '');
   if (v.length !== 8) {
@@ -476,7 +476,7 @@ async function searchCEP() {
       document.getElementById('neighInp').value = '';
       document.getElementById('cityInp').value = '';
       document.getElementById('stateInp').value = '';
-      document.getElementById('unlockAddrBtn').style.display = 'none';
+      document.getElementById('unlockAddrBtn').style.display = 'inline-block';
       return;
     }
 
@@ -489,6 +489,7 @@ async function searchCEP() {
     document.getElementById('cityInp').readOnly = true;
     document.getElementById('stateInp').readOnly = true;
     document.getElementById('unlockAddrBtn').style.display = 'inline-block';
+    document.getElementById('saveAddrBtn').style.display = 'inline-block';
     
     const numInput = document.getElementById('numInp');
     if (numInput) numInput.focus();
@@ -501,6 +502,7 @@ async function searchCEP() {
   }
 }
 
+//-------------------------------------------------------------
 function unlockAddressFields() {
   const msg = "⚠️ ATENÇÃO:\n\nAlterar os dados do endereço manualmente não é aconselhável. Se a rua ou o bairro não baterem exatamente com o registro oficial do CEP nos Correios, a transportadora poderá recusar ou falhar na entrega do seu pacote.\n\nDeseja liberar a digitação mesmo assim?";
   
@@ -513,6 +515,91 @@ function unlockAddressFields() {
     document.getElementById('streetInp').focus();
     toast('Campos liberados para edição manual ✏️', 'inf');
   }
+}
+
+//-------------------------------------------------------------
+async function saveAddressToSupabase() {
+  if (!userId) {
+    toast('Faça login para salvar endereços', 'err');
+    return;
+  }
+
+  const cep = document.getElementById('cepInp').value;
+  const street = document.getElementById('streetInp').value;
+  const num = document.getElementById('numInp').value;
+  const neigh = document.getElementById('neighInp').value;
+  const city = document.getElementById('cityInp').value;
+  const state = document.getElementById('stateInp').value;
+  const recipientInputs = document.querySelectorAll('#newAddrForm .finput');
+  const recipient = recipientInputs[recipientInputs.length - 1].value || 'Destinatário Padrão';
+
+  if (!cep || !street || !num || !city) {
+    toast('Preencha os campos obrigatórios (Número do local)', 'err');
+    return;
+  }
+  
+  const newAddress = {
+    id: Date.now(),
+    recipient: recipient,
+    cep: cep,
+    street: street,
+    number: num,
+    neighborhood: neigh,
+    city: city,
+    state: state
+  };
+  savedAddresses.push(newAddress);
+
+  const btn = document.getElementById('saveAddrBtn');
+  btn.textContent = '⏳ Salvando...';
+  btn.style.opacity = '0.7';
+
+  const { error } = await supabaseClient
+    .from('profiles')
+    .update({ addresses: savedAddresses })
+    .eq('id', userId);
+
+  if (error) {
+    console.error("Erro ao salvar endereço:", error);
+    toast('Erro ao salvar endereço', 'err');
+    savedAddresses.pop();
+    btn.textContent = '💾 Salvar na minha conta';
+    btn.style.opacity = '1';
+    return;
+  }
+  toast('Endereço salvo com sucesso! 📍', 'ok');
+  
+  document.getElementById('numInp').value = '';
+  document.getElementById('cepInp').value = '';
+  document.getElementById('streetInp').value = '';
+  document.getElementById('neighInp').value = '';
+  document.getElementById('cityInp').value = '';
+  document.getElementById('stateInp').value = '';
+  document.getElementById('saveAddrBtn').style.display = 'none';
+  document.getElementById('unlockAddrBtn').style.display = 'none';
+
+  toggleNewAddr();
+  renderAddresses();
+}
+
+function renderAddresses() {
+  const container = document.getElementById('savedAddressesList');
+  
+  if (!savedAddresses || savedAddresses.length === 0) {
+    container.innerHTML = '<div style="font-size:13px; color:var(--muted); text-align:center; padding: 20px;">Nenhum endereço salvo.</div>';
+    return;
+  }
+
+  container.innerHTML = savedAddresses.map((addr, index) => `
+    <div class="addr-opt ${index === savedAddresses.length - 1 ? 'on' : ''}" onclick="selAddr(this)">
+      <div class="addr-label">
+        ${index === 0 ? '🏠 Casa' : '📍 Endereço Salvo'} 
+        ${index === savedAddresses.length - 1 ? '— Selecionado' : ''}
+      </div>
+      <div class="addr-name">${addr.recipient}</div>
+      <div class="addr-street">${addr.street}, ${addr.number}<br>${addr.neighborhood} · ${addr.state} · CEP ${addr.cep}</div>
+    </div>
+  `).join('');
 }
 
 // ── PAYMENT TABS ───────────────────────────────────────
