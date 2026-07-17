@@ -456,40 +456,45 @@ function toggleNewAddr(){ const f=document.getElementById('newAddrForm'); f.clas
 function selShip(el,price){ document.querySelectorAll('.ship-opt').forEach(s=>s.classList.remove('on')); el.classList.add('on'); shipping=price; renderSummary(); }
 function maskCEP(inp){ let v=inp.value.replace(/\D/g,'').slice(0,8); if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5); inp.value=v; }
 
-async function searchCEP() {
-  const v = document.getElementById('cepInp').value.replace(/\D/g, '');
-  if (v.length !== 8) {
-    toast('CEP inválido', 'err');
+function searchCEP(){
+  const v = document.getElementById('cepInp').value.replace(/\D/g,'');
+  if(v.length !== 8){
+    toast('CEP inválido','err');
     return;
   }
+  
+  document.getElementById('streetInp').value = 'Rua Simulada pelo Sistema';
+  document.getElementById('neighInp').value = 'Bairro Exemplo';
+  document.getElementById('cityInp').value = 'São Paulo';
+  document.getElementById('stateInp').value = 'SP';
+  
+  const btnEditar = document.getElementById('editAddrBtn');
+  if (btnEditar) {
+    btnEditar.style.display = 'inline-block';
+  }
+  
+  toast('CEP encontrado! ✓');
+}
 
-  try {
-    document.getElementById('streetInp').value = 'Buscando...';
+function liberarEdicaoEndereco() {
+  const confirmar = confirm(
+    "⚠️ ATENÇÃO:\n\nNão é aconselhável alterar manualmente os dados do CEP preenchidos automaticamente. Dados incorretos podem fazer com que a sua encomenda seja devolvida ou perdida.\n\nDeseja mesmo editar os campos manualmente?"
+  );
 
-    const response = await fetch(`https://viacep.com.br/ws/${v}/json/`);
-    const data = await response.json();
-
-    if (data.erro) {
-      toast('CEP não encontrado', 'err');
-      document.getElementById('streetInp').value = '';
-      document.getElementById('neighInp').value = '';
-      document.getElementById('cityInp').value = '';
-      return;
-    }
-
-    document.getElementById('streetInp').value = data.logradouro || '';
-    document.getElementById('neighInp').value = data.bairro || '';
-    document.getElementById('cityInp').value = data.localidade || '';
-    document.getElementById('stateInp').value = data.uf || '';
+  if (confirmar) {
+    const campos = ['streetInp', 'neighInp', 'cityInp', 'stateInp'];
     
-    const numInput = document.getElementById('numInp');
-    if (numInput) numInput.focus();
-    toast('CEP encontrado! ✓');
-    
-  } catch (error) {
-    toast('Erro de conexão ao buscar o CEP', 'err');
-    document.getElementById('streetInp').value = '';
-    console.error("Erro no ViaCEP:", error);
+    campos.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.removeAttribute('readonly');
+        input.style.backgroundColor = '';
+        input.style.cursor = 'text';
+      }
+    });
+
+    document.getElementById('editAddrBtn').style.display = 'none';
+    toast('Campos libertados para edição!', 'inf');
   }
 }
 
