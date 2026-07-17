@@ -671,7 +671,7 @@ function showAlert(message) {
         <p id="alertMsg">${message}</p>
         <div class="modal-alert-buttons">
           <button class="btn-alert-confirm" onclick="closeAlert()">OK</button>
-          <!--<button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button-->
+          <!--<button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button>-->
         </div>
       </div>
     `;
