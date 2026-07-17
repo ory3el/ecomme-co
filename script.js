@@ -258,7 +258,7 @@ function openCart() {
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function checkout() {
-  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!"); return; }
+  if(!cart.length) { showAuthAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!"); return; }
   //if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento... 🔒');
   window.location.href = "/checkout"
