@@ -460,6 +460,7 @@ async function doLogout() {
 }
 
 // ── SUPABASE: ADDRESSES ───────────────────────────
+let currentAddressCount = 0;
 
 async function fetchAddresses() {
   if (!userId) return;
@@ -480,6 +481,8 @@ async function fetchAddresses() {
 }
 
 function renderAddresses(addresses) {
+  currentAddressCount = addresses.length;
+  
   const grid = document.querySelector('.addr-grid');
   if (!grid) return;
 
@@ -540,6 +543,24 @@ async function setDefaultAddress(addressId) {
   }
 }
 
+function openAddressModal() {
+  if (currentAddressCount >= 5) {
+    toast('Limite atingido: Você pode salvar no máximo 5 endereços. ⚠️', 'err');
+    return;
+  }
+
+  const inputs = ['cepInp', 'streetInp', 'numInp', 'neighInp', 'cityInp', 'stateInp'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  const formDiv = document.getElementById('newAddrForm');
+  if (formDiv) formDiv.classList.add('on');
+  
+  toast('Preencha os dados do novo endereço', 'info');
+}
+
 async function deleteAddress(addressId) {
   if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
 
@@ -553,5 +574,63 @@ async function deleteAddress(addressId) {
   } else {
     toast('Endereço excluído', 'ok');
     fetchAddresses();
+  }
+}
+
+async function submitNewAddress() {
+  if (currentAddressCount >= 5) {
+    toast('Você já possui 5 endereços cadastrados.', 'err');
+    return;
+  }
+
+  if (!userId) {
+    toast('Sessão expirada. Faça login novamente.', 'err');
+    return;
+  }
+
+  const cep = document.getElementById('cepInp').value.replace(/\D/g, '');
+  const street = document.getElementById('streetInp').value;
+  const num = document.getElementById('numInp').value;
+  const neigh = document.getElementById('neighInp').value;
+  const city = document.getElementById('cityInp').value;
+  const state = document.getElementById('stateInp').value;
+  
+  const recipientName = document.getElementById('recipientInp')?.value || 'Meu Endereço';
+  const type = document.getElementById('typeInp')?.value || 'Casa';
+
+  if (!cep || !street || !num || !city) {
+    toast('Preencha todos os campos obrigatórios.', 'err');
+    return;
+  }
+
+  toast('Salvando endereço... ⏳', 'info');
+
+  const { error } = await supabaseClient
+    .from('addresses')
+    .insert([
+      { 
+        user_id: userId, 
+        type: type,
+        recipient_name: recipientName,
+        street: street,
+        number: num,
+        neighborhood: neigh,
+        city: city,
+        state: state,
+        zip_code: cep,
+        is_default: currentAddressCount === 0 
+      }
+    ]);
+
+  if (error) {
+    console.error("Erro no insert:", error);
+    toast('Erro ao salvar endereço.', 'err');
+  } else {
+    toast('Endereço salvo com sucesso! 📍', 'ok');
+
+    const formDiv = document.getElementById('newAddrForm');
+    if (formDiv) formDiv.classList.remove('on');
+    
+    fetchAddresses(); 
   }
 }
