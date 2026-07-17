@@ -666,7 +666,7 @@ function showAlert(message) {
     alertModal.className = 'modal-alert-container';
     alertModal.innerHTML = `
       <div class="modal-alert-container">
-        <div class="modal-alert-icon">🔒</div>
+        <div class="modal-alert-icon">ℹ️</div>
         <h3 id="alertTitle">Carrinho sem Itens</h3>
         <p id="alertMsg">${message}</p>
         <div class="modal-alert-buttons">
