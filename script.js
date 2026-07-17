@@ -564,7 +564,8 @@ async function showAlert(message, title, icon) {
       </div>
     `;
     document.body.appendChild(alertModal);
-
+  }
+    
 async function showAuth(message, title, icon) { 
   let authModal = document.getElementById('authModal');
   
