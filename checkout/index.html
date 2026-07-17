@@ -92,35 +92,48 @@
           Usar um novo endereço
         </div>
         <div class="new-addr-form" id="newAddrForm">
-          <div class="fgrid">
-            <div class="fgrp span2"><label>CEP</label>
-              <div style="display:flex;gap:8px">
-                <input class="finput" id="cepInp" type="text" placeholder="00000-000" oninput="maskCEP(this)" maxlength="9">
-                <button style="background:var(--blue);color:#fff;padding:10px 16px;border-radius:var(--r);font-size:12px;font-weight:700;white-space:nowrap" onclick="searchCEP()">Buscar CEP</button>
-              </div>
-            </div>
-            <div class="fgrp span2"><label>Rua / Logradouro</label><input class="finput" id="streetInp" placeholder="Ex: Rua das Flores" readonly></div>
-            <div class="fgrp"><label>Número</label><input class="finput" id="numInp" placeholder="Ex: 142"></div>
-            <div class="fgrp"><label>Complemento</label><input class="finput" placeholder="Apto, sala..."></div>
-            <div class="fgrp"><label>Bairro</label><input class="finput" id="neighInp" placeholder="Seu bairro" readonly></div>
-            <div class="fgrp"><label>Cidade</label><input class="finput" id="cityInp" placeholder="Sua cidade" readonly></div>
-            <div class="fgrp"><label>Estado</label>
-              <select class="fselect" id="stateInp" readonly>
-                <option>Selecione...</option>
-                <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
-                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                <option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option>
-                <option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
-                <option>RS</option><option>RO</option><option>RR</option><option>SC</option><option selected>SP</option>
-                <option>SE</option><option>TO</option>
-              </select>
-            </div>
-            <div class="fgrp"><label>Destinatário</label><input class="finput" placeholder="Nome completo" value=""></div>
-          </div>
-          <button type="button" id="editAddrBtn" onclick="liberarEdicaoEndereco()" style="display: none; background: none; border: none; color: var(--blue, #2563eb); cursor: pointer; font-size: 12px; margin-top: 8px; text-decoration: underline;">
-            Editar endereço manualmente
-          </button>
-        </div>
+  <div class="fgrid">
+    <div class="fgrp span2"><label>CEP</label>
+      <div style="display:flex;gap:8px">
+        <input class="finput" id="cepInp" type="text" placeholder="00000-000" oninput="maskCEP(this)" maxlength="9">
+        <button style="background:var(--blue);color:#fff;padding:10px 16px;border-radius:var(--r);font-size:12px;font-weight:700;white-space:nowrap" onclick="searchCEP()">Buscar CEP</button>
+      </div>
+    </div>
+    <div class="fgrp span2">
+      <label>Rua / Logradouro</label>
+      <input class="finput" id="streetInp" placeholder="Digite o CEP para preencher" readonly>
+    </div>
+    <div class="fgrp">
+      <label>Número</label>
+      <input class="finput" id="numInp" placeholder="Ex: 142">
+    </div>
+    <div class="fgrp">
+      <label>Complemento</label>
+      <input class="finput" placeholder="Apto, sala...">
+    </div>
+    <div class="fgrp">
+      <label>Bairro</label>
+      <input class="finput" id="neighInp" placeholder="Digite o CEP para preencher" readonly>
+    </div>
+    <div class="fgrp">
+      <label>Cidade</label>
+      <input class="finput" id="cityInp" placeholder="Digite o CEP para preencher" readonly>
+    </div>
+    <div class="fgrp">
+      <label>Estado</label>
+      <input class="finput" id="stateInp" placeholder="UF" readonly>
+    </div>
+    <div class="fgrp">
+      <label>Destinatário</label>
+      <input class="finput" placeholder="Nome completo" value="">
+    </div>
+  </div>
+  <div style="margin-top: 12px; text-align: right;">
+    <span id="unlockAddrBtn" onclick="unlockAddressFields()" style="font-size: 12px; color: var(--blue); cursor: pointer; text-decoration: underline; font-weight: 500; display: none;">
+      ✏️ Editar endereço manualmente
+    </span>
+  </div>
+</div>
         <!-- shipping -->
         <div style="margin-top:20px">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Opção de Envio</div>
