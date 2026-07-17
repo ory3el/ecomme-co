@@ -179,7 +179,7 @@ function fishYates(arr) {
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
-    showAuthAlert("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    showAlert("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
   const p  = products.find(x => x.id === id);
@@ -258,7 +258,7 @@ function openCart() {
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function checkout() {
-  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho"); return; }
+  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho", "ℹ️"); return; }
   //if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento... 🔒');
   window.location.href = "/checkout"
@@ -268,7 +268,7 @@ function checkout() {
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   if (!userId) {
-    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    showAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
   const ex = fav.find(x => x.id === id);
@@ -544,121 +544,8 @@ async function loadFromSupabase() {
   }
 }
 
-// ── POP-UP LOGIN WARNING ──
-function showAuthAlert(message) {
-  let authModal = document.getElementById('authAlertModal');
-  if (!authModal) {
-    authModal = document.createElement('div');
-    authModal.id = 'authAlertModal';
-    authModal.className = 'modal-auth-container';
-    authModal.innerHTML = `
-      <div class="modal-auth-content">
-        <div class="modal-auth-icon">🔒</div>
-        <h3 id="authAlertTitle">Conta Necessária</h3>
-        <p id="authAlertMsg">${message}</p>
-        <div class="modal-auth-buttons">
-          <button class="btn-auth-confirm" onclick="buttonLink('/login')">Fazer Login</button>
-          <button class="btn-auth-cancel" onclick="closeAuthAlert()">Cancelar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(authModal);
-    
-    const style = document.createElement('style');
-    style.textContent = `
-      .modal-auth-container {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 10000;
-        opacity: 0; pointer-events: none;
-        transition: opacity 0.3s ease;
-      }
-      .modal-auth-container.active {
-        opacity: 1; pointer-events: auto;
-      }
-      .modal-auth-content {
-        background: #fff;
-        padding: 30px;
-        border-radius: 16px;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        transform: scale(0.8);
-        transition: transform 0.3s ease;
-      }
-      .modal-auth-container.active .modal-auth-content {
-        transform: scale(1);
-      }
-      .modal-auth-icon {
-        font-size: 44px;
-        margin-bottom: 15px;
-      }
-      .modal-auth-content h3 {
-        margin: 0 0 10px 0;
-        font-family: 'Sora', 'Poppins', sans-serif;
-        color: #10161a;
-        font-size: 20px;
-        font-weight: 700;
-      }
-      .modal-auth-content p {
-        color: #707c8a;
-        font-size: 14.5px;
-        line-height: 1.5;
-        margin: 0 0 24px 0;
-      }
-      .modal-auth-buttons {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-      }
-      .btn-auth-confirm {
-        background: #2563EB;
-        color: #fff;
-        border: none;
-        padding: 11px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.2s;
-      }
-      .btn-auth-confirm:hover {
-        background: #1d4ed8;
-      }
-      .btn-auth-cancel {
-        background: #e8ebf0;
-        color: #10161a;
-        border: none;
-        padding: 11px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.2s;
-      }
-      .btn-auth-cancel:hover {
-        background: #d1d5db;
-      }
-    `;
-    document.head.appendChild(style);
-  } else {
-    document.getElementById('authAlertMsg').textContent = message;
-  }
-  authModal.classList.add('active');
-}
-
-function closeAuthAlert() {
-  const authModal = document.getElementById('authAlertModal');
-  if (authModal) {
-    authModal.classList.remove('active');
-  }
-}
-
 // ── POP-UP WARNING ──
-function showAlert(message, title) {
+function showAlert(message, title, icon) {
   let alertModal = document.getElementById('alertModal');
   
   if (!alertModal) {
@@ -667,7 +554,7 @@ function showAlert(message, title) {
     alertModal.className = 'modal-alert-container';
     alertModal.innerHTML = `
       <div class="modal-alert-content">
-        <div class="modal-alert-icon">ℹ️</div>
+        <div class="modal-alert-icon">${icon}</div>
         <h3 id="alertTitle">${title}</h3>
         <p id="alertMsg">${message}</p>
         <div class="modal-alert-buttons">
