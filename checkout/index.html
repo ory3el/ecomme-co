@@ -99,13 +99,13 @@
                 <button style="background:var(--blue);color:#fff;padding:10px 16px;border-radius:var(--r);font-size:12px;font-weight:700;white-space:nowrap" onclick="searchCEP()">Buscar CEP</button>
               </div>
             </div>
-            <div class="fgrp span2"><label>Rua / Logradouro</label><input class="finput" id="streetInp" placeholder="Ex: Rua das Flores"></div>
+            <div class="fgrp span2"><label>Rua / Logradouro</label><input class="finput" id="streetInp" placeholder="Ex: Rua das Flores" readonly></div>
             <div class="fgrp"><label>Número</label><input class="finput" id="numInp" placeholder="Ex: 142"></div>
             <div class="fgrp"><label>Complemento</label><input class="finput" placeholder="Apto, sala..."></div>
-            <div class="fgrp"><label>Bairro</label><input class="finput" id="neighInp" placeholder="Seu bairro"></div>
-            <div class="fgrp"><label>Cidade</label><input class="finput" id="cityInp" placeholder="Sua cidade"></div>
+            <div class="fgrp"><label>Bairro</label><input class="finput" id="neighInp" placeholder="Seu bairro" readonly></div>
+            <div class="fgrp"><label>Cidade</label><input class="finput" id="cityInp" placeholder="Sua cidade" readonly></div>
             <div class="fgrp"><label>Estado</label>
-              <select class="fselect" id="stateInp">
+              <select class="fselect" id="stateInp" readonly>
                 <option>Selecione...</option>
                 <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
                 <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
@@ -117,6 +117,9 @@
             </div>
             <div class="fgrp"><label>Destinatário</label><input class="finput" placeholder="Nome completo" value=""></div>
           </div>
+          <button type="button" id="editAddrBtn" onclick="liberarEdicaoEndereco()" style="display: none; background: none; border: none; color: var(--blue, #2563eb); cursor: pointer; font-size: 12px; margin-top: 8px; text-decoration: underline;">
+            Editar endereço manualmente
+          </button>
         </div>
         <!-- shipping -->
         <div style="margin-top:20px">
