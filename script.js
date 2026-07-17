@@ -257,6 +257,14 @@ function openCart() {
 }
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
+function checkout() {
+  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!"); return; }
+  //if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
+  showToast('Redirecionando para o pagamento... 🔒');
+  window.location.href = "/checkout"
+  setTimeout(closeCart, 1200);
+}
+
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   if (!userId) {
@@ -374,13 +382,6 @@ function addAllFavToCart() {
 function moveFromCartToFav(id) {
   addToFav(id, 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
-}
-
-function checkout() {
-  if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
-  showToast('Redirecionando para o pagamento... 🔒');
-  window.location.href = "/checkout"
-  setTimeout(closeCart, 1200);
 }
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
@@ -553,7 +554,7 @@ function showAuthAlert(message) {
     authModal.innerHTML = `
       <div class="modal-auth-content">
         <div class="modal-auth-icon">🔒</div>
-        <h3>Conta Necessária</h3>
+        <h3 id="authAlertTitle">Conta Necessária</h3>
         <p id="authAlertMsg">${message}</p>
         <div class="modal-auth-buttons">
           <button class="btn-auth-confirm" onclick="buttonLink('/login')">Fazer Login</button>
@@ -656,6 +657,120 @@ function closeAuthAlert() {
   }
 }
 
+// ── POP-UP WARNING ──
+function showAlert(message) {
+  let alertModal = document.getElementById('alertModal');
+  if (!alertModal) {
+    alertModal = document.createElement('div');
+    alertModal.id = 'alertModal';
+    alertModal.className = 'modal-alert-container';
+    alertModal.innerHTML = `
+      <div class="modal-alert-container">
+        <div class="modal-alert-icon">🔒</div>
+        <h3 id="alertTitle">Carrinho sem Itens</h3>
+        <p id="alertMsg">${message}</p>
+        <div class="modal-alert-buttons">
+          <button class="btn-alert-confirm" onclick="closeAlert()">OK</button>
+          <!--<button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button-->
+        </div>
+      </div>
+    `;
+    document.body.appendChild(alertModal);
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      .modal-alert-container {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 10000;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .modal-alert-container.active {
+        opacity: 1; pointer-events: auto;
+      }
+      .modal-alert-content {
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transform: scale(0.8);
+        transition: transform 0.3s ease;
+      }
+      .modal-alert-container.active .modal-alert-content {
+        transform: scale(1);
+      }
+      .modal-alert-icon {
+        font-size: 44px;
+        margin-bottom: 15px;
+      }
+      .modal-alert-content h3 {
+        margin: 0 0 10px 0;
+        font-family: 'Sora', 'Poppins', sans-serif;
+        color: #10161a;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .modal-alert-content p {
+        color: #707c8a;
+        font-size: 14.5px;
+        line-height: 1.5;
+        margin: 0 0 24px 0;
+      }
+      .modal-alert-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+      .btn-alert-confirm {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        padding: 11px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .btn-alert-confirm:hover {
+        background: #1d4ed8;
+      }
+      .btn-alert-cancel {
+        background: #e8ebf0;
+        color: #10161a;
+        border: none;
+        padding: 11px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .btn-alert-cancel:hover {
+        background: #d1d5db;
+      }
+    `;
+    document.head.appendChild(style);
+  } else {
+    document.getElementById('authAlertMsg').textContent = message;
+  }
+  alertModal.classList.add('active');
+}
+
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('active');
+  }
+}
+
+//--------------------------------------------------------
 async function loadProductsFromSupabase() {
   const { data, error } = await supabaseClient
     .from('products')
