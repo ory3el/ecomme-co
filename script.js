@@ -258,7 +258,7 @@ function openCart() {
 function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function checkout() {
-  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!"); return; }
+  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho"); return; }
   //if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
   showToast('Redirecionando para o pagamento... 🔒');
   window.location.href = "/checkout"
@@ -658,20 +658,21 @@ function closeAuthAlert() {
 }
 
 // ── POP-UP WARNING ──
-function showAlert(message) {
+function showAlert(message, title) {
   let alertModal = document.getElementById('alertModal');
+  
   if (!alertModal) {
     alertModal = document.createElement('div');
     alertModal.id = 'alertModal';
     alertModal.className = 'modal-alert-container';
     alertModal.innerHTML = `
-      <div class="modal-alert-container">
+      <div class="modal-alert-content">
         <div class="modal-alert-icon">ℹ️</div>
-        <h3>Carrinho sem Itens</h3>
+        <h3 id="alertTitle">${title}</h3>
         <p id="alertMsg">${message}</p>
         <div class="modal-alert-buttons">
           <button class="btn-alert-confirm" onclick="closeAlert()">OK</button>
-          <button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button>
+          <!--<button class="btn-alert-cancel" onclick="closeAlert()">Cancelar</button>-->
         </div>
       </div>
     `;
@@ -759,7 +760,9 @@ function showAlert(message) {
     document.head.appendChild(style);
   } else {
     document.getElementById('alertMsg').textContent = message;
+    document.getElementById('alertTitle').textContent = title;
   }
+  
   alertModal.classList.add('active');
 }
 
