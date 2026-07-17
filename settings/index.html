@@ -404,7 +404,7 @@
     <div class="panel" id="panel-addresses">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Endereços</h2><p>Gerencie seus endereços de entrega</p></div>
-        <button class="btn-primary" onclick="toast('Abrindo formulário de novo endereço','info')">+ Novo endereço</button>
+        <button class="btn-primary" onclick="openAddressModal()">+ Novo endereço</button>
       </div>
       <div class="card">
         <div class="addr-grid">
@@ -710,6 +710,69 @@
     <div class="av-btns" style="justify-content: flex-end; margin-top: 15px;">
       <button class="btn-xs gray" onclick="closeCropModal()">Cancelar</button>
       <button class="btn-xs blue" onclick="executeCrop()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADDRESS MODAL -->
+<div id="newAddrModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>Novo Endereço</h3>
+    
+    <div class="input-group">
+      <label>Nome de quem vai receber (Destinatário)</label>
+      <input type="text" id="recipientInp" placeholder="Ex: João da Silva">
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Tipo</label>
+        <select id="typeInp">
+          <option value="Casa">Casa</option>
+          <option value="Trabalho">Trabalho</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>CEP</label>
+        <input type="text" id="cepInp" placeholder="00000-000" onblur="fetchCep()">
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group" style="flex: 2;">
+        <label>Rua / Avenida</label>
+        <input type="text" id="streetInp" placeholder="Ex: Rua das Flores">
+      </div>
+      <div class="input-group" style="flex: 1;">
+        <label>Número</label>
+        <input type="text" id="numInp" placeholder="Ex: 123">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Complemento (Opcional)</label>
+      <input type="text" id="compInp" placeholder="Ex: Apto 42, Bloco B">
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Bairro</label>
+        <input type="text" id="neighInp">
+      </div>
+      <div class="input-group">
+        <label>Cidade</label>
+        <input type="text" id="cityInp">
+      </div>
+      <div class="input-group">
+        <label>Estado (UF)</label>
+        <input type="text" id="stateInp" maxlength="2">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn gray" onclick="closeAddressModal()">Cancelar</button>
+      <button class="btn blue" onclick="submitNewAddress()">Salvar Endereço</button>
     </div>
   </div>
 </div>
