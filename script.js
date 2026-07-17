@@ -681,8 +681,9 @@ async function showAuth(message, title, icon) {
 
   authModal.offsetHeight; 
   authModal.classList.add('active');
+ }
 }
-
+  
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
@@ -696,7 +697,7 @@ function closeAuth() {
     authModal.classList.remove('active');
   }
 }
-
+  
 //--------------------------------------------------------
 async function loadProductsFromSupabase() {
   const { data, error } = await supabaseClient
@@ -863,7 +864,6 @@ function renderProducts() {
         </div>
       </div>`;
   }).join('');
- }
 }
   
 function setView(v) {
