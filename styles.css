@@ -1021,11 +1021,6 @@ body.loading {
 
 @media (max-width: 480px) { .acc-sb { width: 100%; } }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 3000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast-icon { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; }
-
     /* ── MODAL ───────────────────────────────────────────────── */
     .modal-ov {
       position: fixed; inset: 0;
@@ -1110,6 +1105,11 @@ body.loading {
   .back-top.visible { opacity: 1; transform: translateY(0); }
   .back-top:hover { background: var(--blue2); }
   .back-top svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 11000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast-icon { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; }
 
   /* LOADING SKELETON */
   @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
