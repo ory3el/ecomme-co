@@ -156,7 +156,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputLang) inputLang.value = language;
     if (inputBio) inputBio.value = bio;
   
-
+    fetchAddresses();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
@@ -457,4 +457,101 @@ async function doLogout() {
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
   buttonLink('/login')
+}
+
+// ── SUPABASE: ADDRESSES ───────────────────────────
+
+async function fetchAddresses() {
+  if (!userId) return;
+
+  const { data, error } = await supabaseClient
+    .from('addresses')
+    .select('*')
+    .eq('user_id', userId)
+    .order('is_default', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar endereços:", error.message);
+    return;
+  }
+
+  renderAddresses(data);
+}
+
+function renderAddresses(addresses) {
+  const grid = document.querySelector('.addr-grid');
+  if (!grid) return;
+
+  const addCardHtml = `
+    <div class="add-card" onclick="openAddressModal()">
+      <div class="add-card-ico">📍</div>
+      <span>Adicionar novo endereço</span>
+    </div>
+  `;
+
+  let html = '';
+
+  addresses.forEach(addr => {
+    const defaultBadge = addr.is_default ? `<div class="addr-default-badge">🏠 Principal</div>` : '';
+    const cardClass = addr.is_default ? 'addr-card default' : 'addr-card';
+    const defaultBtn = !addr.is_default ? `<button class="btn-xs blue" onclick="setDefaultAddress('${addr.id}')">⭐ Principal</button>` : '';
+
+    html += `
+      <div class="${cardClass}">
+        ${defaultBadge}
+        <div class="addr-type">${addr.type || 'Casa'}</div>
+        <div class="addr-name">${addr.recipient_name}</div>
+        <div class="addr-street">
+          ${addr.street}, ${addr.number} ${addr.complement ? '- ' + addr.complement : ''}<br>
+          ${addr.neighborhood} — ${addr.city}, ${addr.state}<br>
+          CEP: ${addr.zip_code}
+        </div>
+        <div class="addr-actions">
+          <button class="btn-xs blue" onclick="editAddress('${addr.id}')">✏️ Editar</button>
+          ${defaultBtn}
+          <button class="btn-xs gray" onclick="deleteAddress('${addr.id}')">🗑 Excluir</button>
+        </div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html + addCardHtml;
+}
+
+async function setDefaultAddress(addressId) {
+  toast('Atualizando...', 'info');
+
+  await supabaseClient
+    .from('addresses')
+    .update({ is_default: false })
+    .eq('user_id', userId);
+
+  const { error } = await supabaseClient
+    .from('addresses')
+    .update({ is_default: true })
+    .eq('id', addressId);
+
+  if (error) {
+    toast('Erro ao atualizar: ' + error.message, 'err');
+  } else {
+    toast('Definido como principal! ✓', 'ok');
+    fetchAddresses();
+  }
+}
+
+async function deleteAddress(addressId) {
+  if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
+
+  const { error } = await supabaseClient
+    .from('addresses')
+    .delete()
+    .eq('id', addressId);
+
+  if (error) {
+    toast('Erro ao excluir: ' + error.message, 'err');
+  } else {
+    toast('Endereço excluído', 'ok');
+    fetchAddresses();
+  }
 }
