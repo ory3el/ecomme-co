@@ -147,57 +147,58 @@
     <div class="panel" id="panel-profile">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meu Perfil</h2><p>Gerencie suas informações pessoais</p></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn-ghost" onclick="toast('Visualizando como cliente','info')">👁 Visualizar</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-ghost" onclick="toast('Visualizando como cliente','info')">👁 Visualizar</button>
+          </div>
         </div>
-      </div>
-<div class="card">
-  <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
-  <div class="av-upload" onclick="toast('Selecionar imagem...','info'); document.getElementById('avatarInput').click()">
-    <div class="av-big" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
-      <img src="/images/icons/full/user.webp" id="profileAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
-    </div>
-    <div class="av-upload-txt">
-      <h4>Alterar foto de perfil</h4>
-      <p>JPEG, PNG, WebP ou HEIC · Máximo 5MB <br>Recomendado 500×500px</p>
+      <div class="card">
+    <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
+      <div class="av-upload" onclick="toast('Selecionar imagem...','info'); document.getElementById('avatarInput').click()">
+        <div class="av-big" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+          <img src="/images/icons/full/user.webp" id="profileAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
+        </div>
+      <div class="av-upload-txt">
+        <h4>Alterar foto de perfil</h4>
+        <p>JPEG, PNG, WebP ou HEIC · Máximo 5MB <br>Recomendado 500×500px</p>
+        <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp, image/heic" style="display: none;" onchange="openCropModal(event)">
       
-      <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp, image/heic" style="display: none;" onchange="openCropModal(event)">
-      
-      <div class="av-btns">
-        <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
-        <button class="btn-xs gray red" onclick="removePhoto(event)"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
+        <div class="av-btns">
+          <button class="btn-xs blue"><span style="font-weight: bold;">+&nbsp;</span>&nbsp;Escolher arquivo</button>
+          <button class="btn-xs gray red" onclick="removePhoto(event)"><span style="font-weight: bold;">-&nbsp;</span>&nbsp;Remover Foto</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-        <div class="card-title"><span class="ct-ico">
-          <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
+  <div class="card-title"><span class="ct-ico">
+      <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
         </span> Informações Pessoais</div>
         <div class="fgrid">
           <div class="fgrp"><label>Nome</label><input type="text" id="profileFirstName" class="finput" placeholder="Seu nome"></div>
-<div class="fgrp"><label>Sobrenome</label><input type="text" id="profileLastName" class="finput" placeholder="Sobrenome"></div>
-<div class="fgrp"><label>E-mail</label><input type="email" id="profileEmail" class="finput" placeholder="seu@email.com" disabled></div>
-<div class="fgrp"><label>Celular</label><input type="text" id="profilePhone" class="finput" placeholder="(00) 00000-0000" maxlength="15" oninput="maskPhone(this)"></div>
-<div class="fgrp"><label>CPF</label><input type="text" id="profileCPF" class="finput" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
-<div class="fgrp"><label>Data de nascimento</label><input type="date" id="profileBirth" class="finput"></div>
-<div class="fgrp"><label>Gênero</label>
-  <select id="profileGender" class="fselect">
-    <option>Selecione uma opção</option><option>Feminino</option><option>Masculino</option><option>Não binário</option><option>Prefiro não informar</option>
-  </select>
-</div>
-<div class="fgrp"><label>Idioma</label>
-  <select id="profileLang" class="fselect"><option>Português (BR)</option><option>English</option><option>Español</option></select>
-</div>
-<div class="fgrp span2"><label>Bio / Sobre mim</label><textarea id="profileBio" class="finput" rows="3" placeholder="Conte um pouco sobre você..."></textarea></div>
+          <div class="fgrp"><label>Sobrenome</label><input type="text" id="profileLastName" class="finput" placeholder="Sobrenome"></div>
+          <div class="fgrp"><label>E-mail</label><input type="email" id="profileEmail" class="finput" placeholder="seu@email.com" disabled></div>
+          <div class="fgrp"><label>Celular</label><input type="text" id="profilePhone" class="finput" placeholder="(00) 00000-0000" maxlength="15" oninput="maskPhone(this)"></div>
+          <div class="fgrp"><label>CPF</label><input type="text" id="profileCPF" class="finput" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
+          <div class="fgrp"><label>Data de nascimento</label><input type="date" id="profileBirth" class="finput"></div>
+          <div class="fgrp"><label>Gênero</label>
+            <select id="profileGender" class="fselect">
+              <option>Selecione uma opção</option><option>Feminino</option><option>Masculino</option><option>Não binário</option><option>Prefiro não informar</option>
+            </select>
+          </div>
+          <div class="fgrp"><label>Idioma</label>
+            <select id="profileLang" class="fselect">
+              <option>Português (BR)</option><option>English</option><option>Español</option>
+            </select>
+          </div>
+          <div class="fgrp span2"><label>Bio / Sobre mim</label><textarea id="profileBio" class="finput" rows="3" placeholder="Conte um pouco sobre você..."></textarea></div>
         </div>
         <div class="form-actions">
           <button class="btn-primary" onclick="saveProfile()">Salvar alterações</button>
           <button class="btn-ghost" onclick="toast('Alterações descartadas')"><span style="font-weight: bold;">✕&nbsp;</span>&nbsp;Cancelar</button>
         </div>
 
-      <div class="card">
+      <div class="card" style="padding-top: 10px;">
         <div class="card-title"><span class="ct-ico">
-          <img src="../images/icons/full/dashboard.webp" style="width: 20px; height: auto; display: block;" alt="Dashboard"/>
+          <img src="/images/icons/full/dashboard.webp" style="width: 20px; height: auto; display: block;" alt="Dashboard"/>
         </span> Nível de Completude do Perfil</div>
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
           <div style="flex:1;background:#e2e8f0;border-radius:100px;height:8px;overflow:hidden">
