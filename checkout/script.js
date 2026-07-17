@@ -490,7 +490,6 @@ async function searchCEP() {
     
     const numInput = document.getElementById('numInp');
     if (numInput) numInput.focus();
-    
     toast('CEP encontrado! ✓');
     
   } catch (error) {
@@ -500,18 +499,6 @@ async function searchCEP() {
   }
 }
 
-/*async function searchCEP() {
-    const numInput = document.getElementById('numInp');
-    if (numInput) numInput.focus();
-    toast('CEP encontrado! ✓');
-    
-  } catch (error) {
-    toast('Erro de conexão ao buscar o CEP', 'err');
-    document.getElementById('streetInp').value = '';
-    console.error("Erro no ViaCEP:", error);
-  }
-}
-*/
 function unlockAddressFields() {
   const msg = "⚠️ ATENÇÃO:\n\nAlterar os dados do endereço manualmente não é aconselhável. Se a rua ou o bairro não baterem exatamente com o registro oficial do CEP nos Correios, a transportadora poderá recusar ou falhar na entrega do seu pacote.\n\nDeseja liberar a digitação mesmo assim?";
   
