@@ -179,7 +179,7 @@ function fishYates(arr) {
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
-    showAlert("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
   const p  = products.find(x => x.id === id);
@@ -268,7 +268,7 @@ function checkout() {
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   if (!userId) {
-    showAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
   const ex = fav.find(x => x.id === id);
@@ -287,7 +287,7 @@ function toggleFav(id) {
 
 function addToFav(id, qty = 1) {
   if (!userId) {
-    showAuthAlert("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.");
+    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
   const p  = products.find(x => x.id === id);
@@ -863,8 +863,9 @@ function renderProducts() {
         </div>
       </div>`;
   }).join('');
+ }
 }
-
+  
 function setView(v) {
   view = v;
   $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
