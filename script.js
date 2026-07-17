@@ -679,8 +679,8 @@ async function showAuth(message, title, icon) {
         <h3 id="authTitle">${title}</h3>
         <p id="authMsg">${message}</p>
         <div class="modal-alert-buttons">
-          <button class="btn-alert-confirm" onclick="buttonLink('/login')">Fazer Login</button>
           <button class="btn-alert-cancel" onclick="closeAuth()">Cancelar</button>
+          <button class="btn-alert-confirm" onclick="buttonLink('/login')">Fazer Login</button>
         </div>
       </div>
     `;
