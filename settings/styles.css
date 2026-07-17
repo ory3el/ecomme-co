@@ -265,7 +265,7 @@ input,select,textarea{font-family:inherit}
 .finput{width:100%;background:#fff;border:1.5px solid #e2e8f0;color:#0f1a2e;padding:10px 14px;border-radius:10px;font-size:13px;outline:none;transition:.2s;font-family:'Plus Jakarta Sans',sans-serif}
 .finput:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
 .finput::placeholder{color:#94a3b8}
-.fselect{width:100%;background:#f8fafd;border:1.5px solid #e2e8f0;color:#0f1a2e;padding:10px 14px;border-radius:10px;font-size:13px;outline:none;transition:.2s;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.fselect{width:100%;background:#fff;border:1.5px solid #e2e8f0;color:#0f1a2e;padding:10px 14px;border-radius:10px;font-size:13px;outline:none;transition:.2s;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .fselect:focus{border-color:#2563eb;background-color:#fff}
 textarea.finput{resize:vertical;min-height:80px}
 .form-actions{display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid #f1f5f9}
