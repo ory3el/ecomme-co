@@ -548,17 +548,37 @@ function openAddressModal() {
     toast('Limite atingido: Você pode salvar no máximo 5 endereços. ⚠️', 'err');
     return;
   }
-
-  const inputs = ['cepInp', 'streetInp', 'numInp', 'neighInp', 'cityInp', 'stateInp'];
+  const inputs = ['recipientInp', 'cepInp', 'streetInp', 'numInp', 'compInp', 'neighInp', 'cityInp', 'stateInp'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const modal = document.getElementById('newAddrModal');
+  if (modal) modal.classList.add('on');
+}
 
-  const formDiv = document.getElementById('newAddrForm');
-  if (formDiv) formDiv.classList.add('on');
-  
-  toast('Preencha os dados do novo endereço', 'info');
+function closeAddressModal() {
+  const modal = document.getElementById('newAddrModal');
+  if (modal) modal.classList.remove('on');
+}
+async function fetchCep() {
+  const cep = document.getElementById('cepInp').value.replace(/\D/g, '');
+  if (cep.length === 8) {
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      
+      if (!data.erro) {
+        document.getElementById('streetInp').value = data.logradouro;
+        document.getElementById('neighInp').value = data.bairro;
+        document.getElementById('cityInp').value = data.localidade;
+        document.getElementById('stateInp').value = data.uf;
+        document.getElementById('numInp').focus();
+      }
+    } catch (err) {
+      console.log('Erro ao buscar CEP', err);
+    }
+  }
 }
 
 async function deleteAddress(addressId) {
