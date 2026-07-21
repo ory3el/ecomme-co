@@ -3,10 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#06070c">
+<meta name="color-scheme" id="metaColorScheme" content="dark">
+<meta name="theme-color" id="metaThemeColor" content="#06070c">
 <meta name="description" content="Selecione seu país para acessar a versão local da plataforma.">
 <title>Ecomme — Escolha seu país</title>
+
+<script>
+  /* Theme bootstrap — runs synchronously, before the stylesheet below is
+     parsed, so the correct data-theme attribute exists on <html> before
+     first paint (prevents a flash of the wrong theme / FOUC).
+     This mirrors ThemeManager's resolution logic in the main script at
+     the bottom of the page; it is intentionally small and duplicated so
+     it can run on the critical path with zero dependencies. */
+  (function () {
+    var STORAGE_KEY = "ecomme-theme-choice";
+    var choice = "auto";
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "light" || stored === "dark" || stored === "auto") choice = stored;
+    } catch (e) { /* storage unavailable (private mode, etc.) — fall back to auto */ }
+
+    var prefersDark = false;
+    try { prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+
+    var visual = choice === "auto" ? (prefersDark ? "dark" : "light") : choice;
+
+    var html = document.documentElement;
+    html.setAttribute("data-theme", visual);
+    html.setAttribute("data-theme-choice", choice);
+
+    var mColorScheme = document.getElementById("metaColorScheme");
+    var mThemeColor  = document.getElementById("metaThemeColor");
+    if (mColorScheme) mColorScheme.setAttribute("content", visual);
+    if (mThemeColor)  mThemeColor.setAttribute("content", visual === "dark" ? "#06070c" : "#f5f6fb");
+  })();
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,14 +58,149 @@
     overscroll-behavior: none;
   }
 
+  /* ============================================================
+     THEME TOKENS
+     Every color in the page is a CSS custom property, scoped per
+     theme under [data-theme="..."]. To add a new theme later,
+     duplicate one of these blocks with a new attribute value
+     (e.g. [data-theme="midnight"]) and register it in THEME_ICONS
+     / the theme menu markup — no other CSS needs to change.
+  ============================================================ */
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* page canvas */
+    --page-bg: #06070c;
+    --page-radial-core: #12142a;
+    --grid-line: rgba(255,255,255,.035);
+
+    /* typography */
+    --text-primary: #f3f4f8;
+    --text-secondary: #9799b3;
+    --text-tertiary: #5c5e73;
+    --eyebrow: #8688a3;
+    --title-grad-start: #ffffff;
+    --title-grad-end: #b9bbd4;
+
+    /* glass surfaces — country cards */
+    --surface: rgba(255,255,255,.035);
+    --surface-hover: rgba(255,255,255,.065);
+    --surface-border: rgba(255,255,255,.09);
+    --surface-border-hover: rgba(255,255,255,.2);
+    --surface-shadow-hover: 0 16px 36px -14px rgba(99,102,241,.45);
+    --ripple: rgba(255,255,255,.35);
+
+    /* glass surfaces — header pill toggles (language / theme) */
+    --pill-bg: rgba(255,255,255,.05);
+    --pill-bg-hover: rgba(255,255,255,.09);
+    --pill-border: rgba(255,255,255,.10);
+    --pill-border-hover: rgba(255,255,255,.2);
+
+    /* dropdown menus */
+    --menu-bg: rgba(18,19,32,.85);
+    --menu-border: rgba(255,255,255,.12);
+    --menu-shadow: 0 20px 50px -12px rgba(0,0,0,.6);
+    --option-text: #d3d4e2;
+    --option-text-selected: #ffffff;
+    --option-hover-bg: rgba(255,255,255,.07);
+    --check-color: #22d3ee;
+
+    /* icon strokes */
+    --icon: #a9abc0;
+    --icon-strong: #cfd0e6;
+    --chev: #7d7f95;
+
+    /* toast */
+    --toast-bg: rgba(18,19,32,.9);
+    --toast-border: rgba(255,255,255,.14);
+    --toast-text: #f0f1f9;
+    --toast-shadow: 0 12px 32px -8px rgba(0,0,0,.55);
+
+    /* footer */
+    --footer-link: #82849c;
+    --footer-link-hover: #cfd0e6;
+
+    /* misc */
+    --focus-ring: #8b8bff;
+    --blob-opacity-a: .38;
+    --blob-opacity-b: .38;
+    --blob-opacity-c: .22;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+
+    --page-bg: #f5f6fb;
+    --page-radial-core: #ffffff;
+    --grid-line: rgba(10,12,30,.05);
+
+    --text-primary: #14151f;
+    --text-secondary: #5b5d72;
+    --text-tertiary: #7a7c92;
+    --eyebrow: #6b6d85;
+    --title-grad-start: #14151f;
+    --title-grad-end: #565873;
+
+    --surface: rgba(20,21,40,.035);
+    --surface-hover: rgba(20,21,40,.06);
+    --surface-border: rgba(20,21,40,.08);
+    --surface-border-hover: rgba(20,21,40,.16);
+    --surface-shadow-hover: 0 16px 36px -14px rgba(79,70,229,.25);
+    --ripple: rgba(20,21,40,.14);
+
+    --pill-bg: rgba(255,255,255,.55);
+    --pill-bg-hover: rgba(255,255,255,.8);
+    --pill-border: rgba(20,21,40,.08);
+    --pill-border-hover: rgba(20,21,40,.16);
+
+    --menu-bg: rgba(255,255,255,.9);
+    --menu-border: rgba(20,21,40,.09);
+    --menu-shadow: 0 20px 50px -12px rgba(30,35,60,.16);
+    --option-text: #3d3f52;
+    --option-text-selected: #0d0e14;
+    --option-hover-bg: rgba(20,21,40,.05);
+    --check-color: #0891b2;
+
+    --icon: #7a7c92;
+    --icon-strong: #33354a;
+    --chev: #8688a0;
+
+    --toast-bg: rgba(255,255,255,.92);
+    --toast-border: rgba(20,21,40,.1);
+    --toast-text: #14151f;
+    --toast-shadow: 0 12px 32px -8px rgba(30,35,60,.18);
+
+    --footer-link: #6b6d85;
+    --footer-link-hover: #14151f;
+
+    --focus-ring: #4f46e5;
+    --blob-opacity-a: .22;
+    --blob-opacity-b: .2;
+    --blob-opacity-c: .14;
+  }
+
+  /* high-contrast: sharpen each theme further rather than forcing one look */
+  @media (prefers-contrast: more) {
+    :root[data-theme="dark"] {
+      --page-bg: #000; --text-secondary: #fff; --text-tertiary: #fff;
+      --surface-border: rgba(255,255,255,.4);
+    }
+    :root[data-theme="light"] {
+      --page-bg: #fff; --text-secondary: #000; --text-tertiary: #000;
+      --surface-border: rgba(0,0,0,.4);
+    }
+  }
+
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #06070c;
-    color: #f3f4f8;
+    background: var(--page-bg);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     height: 100vh;
     height: 100dvh; /* falls back gracefully to 100vh on old browsers */
+    transition: background-color .32s ease, color .32s ease;
   }
 
   a { color: inherit; text-decoration: none; }
@@ -44,7 +210,7 @@
 
   :focus { outline: none; }
   :focus-visible {
-    outline: 2px solid #8b8bff;
+    outline: 2px solid var(--focus-ring);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -59,15 +225,16 @@
     inset: 0;
     z-index: 0;
     overflow: hidden;
-    background: radial-gradient(ellipse 120% 80% at 50% -10%, #12142a 0%, #06070c 55%);
+    background: radial-gradient(ellipse 120% 80% at 50% -10%, var(--page-radial-core) 0%, var(--page-bg) 55%);
+    transition: background-color .32s ease;
   }
 
   .bg-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 56px 56px;
     -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
             mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
@@ -77,26 +244,28 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(90px);
-    opacity: .38;
     will-change: transform;
+    transition: opacity .32s ease;
   }
   .blob-a {
     width: 46vw; height: 46vw; max-width: 620px; max-height: 620px;
     top: -14%; left: -10%;
     background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+    opacity: var(--blob-opacity-a);
     animation: drift-a 24s ease-in-out infinite alternate;
   }
   .blob-b {
     width: 40vw; height: 40vw; max-width: 560px; max-height: 560px;
     bottom: -16%; right: -8%;
     background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
+    opacity: var(--blob-opacity-b);
     animation: drift-b 28s ease-in-out infinite alternate;
   }
   .blob-c {
     width: 30vw; height: 30vw; max-width: 420px; max-height: 420px;
     bottom: 10%; left: 30%;
     background: radial-gradient(circle, #d946ef 0%, transparent 70%);
-    opacity: .22;
+    opacity: var(--blob-opacity-c);
     animation: drift-c 32s ease-in-out infinite alternate;
   }
 
@@ -181,65 +350,76 @@
     font-weight: 700;
     font-size: 15px;
     letter-spacing: -0.01em;
-    color: #f3f4f8;
+    color: var(--text-primary);
+    transition: color .32s ease;
   }
 
-  /* language switcher */
-  .lang-switcher { position: relative; }
+  /* header controls — language + theme switchers share one row */
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-  .lang-toggle {
+  /* language + theme switcher share the exact same visual language */
+  .lang-switcher, .theme-switcher { position: relative; }
+
+  .lang-toggle, .theme-toggle {
     display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.10);
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
     padding: 8px 12px 8px 10px;
     border-radius: 100px;
     font-size: 12px;
     font-weight: 600;
-    color: #e4e5ee;
+    color: var(--text-primary);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    transition: background .3s, border-color .3s, transform .3s;
+    transition: background-color .32s ease, border-color .32s ease, transform .3s;
     touch-action: manipulation;
   }
-  .lang-toggle:hover {
-    background: rgba(255,255,255,.09);
-    border-color: rgba(255,255,255,.2);
+  .lang-toggle:hover, .theme-toggle:hover {
+    background: var(--pill-bg-hover);
+    border-color: var(--pill-border-hover);
   }
-  .lang-toggle svg { width: 15px; height: 15px; stroke: #a9abc0; flex-shrink: 0; }
-  .lang-toggle .chev {
-    width: 11px; height: 11px; stroke: #7d7f95;
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
+  .lang-toggle svg, .theme-toggle svg { width: 15px; height: 15px; stroke: var(--icon); flex-shrink: 0; transition: stroke .32s ease; }
+  .theme-icon { display: flex; align-items: center; }
+  .lang-toggle .chev, .theme-toggle .chev {
+    width: 11px; height: 11px; stroke: var(--chev);
+    transition: transform .3s cubic-bezier(.4,0,.2,1), stroke .32s ease;
   }
-  .lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .lang-toggle[aria-expanded="true"] .chev,
+  .theme-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
   .lang-code { min-width: 18px; text-align: center; }
 
-  .lang-menu {
+  .lang-menu, .theme-menu {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
     min-width: 190px;
-    background: rgba(18,19,32,.85);
-    border: 1px solid rgba(255,255,255,.12);
+    background: var(--menu-bg);
+    border: 1px solid var(--menu-border);
     border-radius: 14px;
     padding: 6px;
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 20px 50px -12px rgba(0,0,0,.6);
+    box-shadow: var(--menu-shadow);
     opacity: 0;
     transform: translateY(-6px) scale(.97);
     transform-origin: top right;
     pointer-events: none;
-    transition: opacity .22s ease, transform .22s cubic-bezier(.4,0,.2,1);
+    transition: opacity .22s ease, transform .22s cubic-bezier(.4,0,.2,1),
+                background-color .32s ease, border-color .32s ease, box-shadow .32s ease;
     z-index: 20;
   }
-  .lang-menu:not([hidden]) {
+  .lang-menu:not([hidden]), .theme-menu:not([hidden]) {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
   }
-  .lang-menu[hidden] { display: block; } /* keep transition-able, JS also toggles opacity */
+  .lang-menu[hidden], .theme-menu[hidden] { display: block; } /* keep transition-able, JS also toggles opacity */
 
-  .lang-option {
+  .lang-option, .theme-option {
     display: flex; align-items: center; gap: 10px;
     width: 100%;
     padding: 9px 10px;
@@ -247,20 +427,22 @@
     font-size: 13px;
     font-weight: 500;
     background: none; border: none;
-    color: #d3d4e2;
-    transition: background .18s;
+    color: var(--option-text);
+    transition: background-color .18s, color .32s ease;
     text-align: left;
   }
-  .lang-option:hover { background: rgba(255,255,255,.07); }
-  .lang-option[aria-selected="true"] { color: #fff; font-weight: 700; }
-  .lang-option .flag { font-size: 15px; }
-  .lang-option .check {
+  .lang-option:hover, .theme-option:hover { background: var(--option-hover-bg); }
+  .lang-option[aria-selected="true"], .theme-option[aria-selected="true"] { color: var(--option-text-selected); font-weight: 700; }
+  .lang-option .flag, .theme-option .flag { font-size: 15px; }
+  .lang-option .check, .theme-option .check {
     margin-left: auto;
     width: 14px; height: 14px;
-    stroke: #22d3ee;
+    stroke: var(--check-color);
     opacity: 0;
+    transition: stroke .32s ease;
   }
-  .lang-option[aria-selected="true"] .check { opacity: 1; }
+  .lang-option[aria-selected="true"] .check,
+  .theme-option[aria-selected="true"] .check { opacity: 1; }
 
   /* ============================================================
      MAIN CONTENT
@@ -280,10 +462,11 @@
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: #8688a3;
+    color: var(--eyebrow);
     margin-bottom: clamp(6px, 1.2vh, 10px);
     opacity: 0;
     animation: fade-slide .6s cubic-bezier(.16,1,.3,1) .15s forwards;
+    transition: color .32s ease;
   }
 
   .title {
@@ -291,7 +474,7 @@
     font-weight: 800;
     letter-spacing: -0.035em;
     line-height: 1.05;
-    background: linear-gradient(180deg, #ffffff 20%, #b9bbd4 100%);
+    background: linear-gradient(180deg, var(--title-grad-start) 20%, var(--title-grad-end) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -302,12 +485,13 @@
 
   .subtitle {
     font-size: clamp(12.5px, 1.5vw, 15px);
-    color: #9799b3;
+    color: var(--text-secondary);
     max-width: 460px;
     line-height: 1.6;
     margin-bottom: clamp(18px, 3vh, 30px);
     opacity: 0;
     animation: fade-slide .7s cubic-bezier(.16,1,.3,1) .3s forwards;
+    transition: color .32s ease;
   }
 
   @keyframes fade-slide {
@@ -343,8 +527,8 @@
     gap: 10px;
     padding: clamp(11px, 1.3vw, 14px) clamp(13px, 1.5vw, 16px);
     border-radius: 14px;
-    background: rgba(255,255,255,.035);
-    border: 1px solid rgba(255,255,255,.09);
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     text-align: left;
@@ -358,7 +542,7 @@
     animation-delay: calc(380ms + (var(--i, 0) * 55ms));
     transition: transform .35s cubic-bezier(.2,.8,.2,1),
                 box-shadow .35s cubic-bezier(.2,.8,.2,1),
-                background-color .3s, border-color .3s;
+                background-color .32s ease, border-color .32s ease;
   }
   @keyframes card-in {
     to { opacity: 1; transform: translateY(0); }
@@ -367,9 +551,9 @@
   .country-card:hover,
   .country-card:focus-visible {
     transform: translateY(-3px) scale(1.015);
-    background: rgba(255,255,255,.065);
-    border-color: rgba(255,255,255,.2);
-    box-shadow: 0 16px 36px -14px rgba(99,102,241,.45);
+    background: var(--surface-hover);
+    border-color: var(--surface-border-hover);
+    box-shadow: var(--surface-shadow-hover);
   }
   .country-card:active { transform: translateY(-1px) scale(1.0); }
 
@@ -383,28 +567,29 @@
     min-width: 0;
     font-size: clamp(12.5px, 1.25vw, 14px);
     font-weight: 600;
-    color: #eceeF7;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color .32s ease;
   }
   .country-go {
     width: 15px; height: 15px;
-    stroke: #7d7f95;
+    stroke: var(--chev);
     flex-shrink: 0;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), stroke .3s;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), stroke .32s ease;
   }
   .country-card:hover .country-go,
   .country-card:focus-visible .country-go {
     transform: translate(2px, -2px);
-    stroke: #cfd0e6;
+    stroke: var(--icon-strong);
   }
 
   /* ripple */
   .ripple {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255,255,255,.35);
+    background: var(--ripple);
     transform: scale(0);
     pointer-events: none;
     animation: ripple-anim .6s ease-out forwards;
@@ -419,12 +604,13 @@
   .page-footer {
     text-align: center;
     font-size: clamp(10px, .95vw, 11.5px);
-    color: #5c5e73;
+    color: var(--text-tertiary);
     opacity: 0;
     animation: fade-slide .6s cubic-bezier(.16,1,.3,1) .5s forwards;
+    transition: color .32s ease;
   }
-  .page-footer a { color: #82849c; transition: color .25s; }
-  .page-footer a:hover { color: #cfd0e6; }
+  .page-footer a { color: var(--footer-link); transition: color .25s; }
+  .page-footer a:hover { color: var(--footer-link-hover); }
   .footer-dot { margin: 0 8px; opacity: .5; }
 
   /* ============================================================
@@ -437,26 +623,28 @@
     transform: translate(-50%, 16px);
     opacity: 0;
     pointer-events: none;
-    background: rgba(18,19,32,.9);
-    border: 1px solid rgba(255,255,255,.14);
-    color: #f0f1f9;
+    background: var(--toast-bg);
+    border: 1px solid var(--toast-border);
+    color: var(--toast-text);
     font-size: 12.5px;
     font-weight: 600;
     padding: 10px 18px;
     border-radius: 100px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 12px 32px -8px rgba(0,0,0,.55);
+    box-shadow: var(--toast-shadow);
     z-index: 50;
     display: flex; align-items: center; gap: 8px;
-    transition: opacity .35s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1);
+    transition: opacity .35s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1),
+                background-color .32s ease, border-color .32s ease, color .32s ease;
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
   .toast-dot {
     width: 7px; height: 7px; border-radius: 50%;
-    background: #22d3ee;
+    background: var(--check-color);
     flex-shrink: 0;
     animation: pulse-dot 1s ease-in-out infinite;
+    transition: background-color .32s ease;
   }
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; } 50% { opacity: .35; }
@@ -494,13 +682,6 @@
       transform: none !important;
     }
   }
-
-  /* high-contrast safety: ensure text never drops below AA on the dark bg */
-  @media (prefers-contrast: more) {
-    body { background: #000; }
-    .subtitle, .page-footer, .country-name { color: #fff; }
-    .country-card { border-color: rgba(255,255,255,.4); }
-  }
 </style>
 </head>
 <body>
@@ -525,52 +706,90 @@
         <span class="brand-name">ecomme</span>
       </a>
 
-      <div class="lang-switcher">
-        <button type="button" class="lang-toggle" id="langToggle"
-                aria-haspopup="listbox" aria-expanded="false" aria-controls="langMenu"
-                aria-label="Selecionar idioma">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/>
-          </svg>
-          <span class="lang-code" id="langCode">PT</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
+      <div class="header-controls">
 
-        <ul class="lang-menu" id="langMenu" role="listbox" aria-label="Idiomas disponíveis" hidden>
-          <li role="option" data-lang="pt" aria-selected="true">
-            <button type="button" class="lang-option" data-lang="pt">
-              <span class="flag">🇧🇷</span> Português
-              <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </li>
-          <li role="option" data-lang="en" aria-selected="false">
-            <button type="button" class="lang-option" data-lang="en">
-              <span class="flag">🇺🇸</span> English
-              <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </li>
-          <li role="option" data-lang="es" aria-selected="false">
-            <button type="button" class="lang-option" data-lang="es">
-              <span class="flag">🇪🇸</span> Español
-              <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </li>
-          <li role="option" data-lang="fr" aria-selected="false">
-            <button type="button" class="lang-option" data-lang="fr">
-              <span class="flag">🇫🇷</span> Français
-              <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </li>
-          <li role="option" data-lang="de" aria-selected="false">
-            <button type="button" class="lang-option" data-lang="de">
-              <span class="flag">🇩🇪</span> Deutsch
-              <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </li>
-        </ul>
+        <!-- theme switcher -->
+        <div class="theme-switcher">
+          <button type="button" class="theme-toggle" id="themeToggle"
+                  aria-haspopup="listbox" aria-expanded="false" aria-controls="themeMenu"
+                  aria-label="Selecionar tema">
+            <span class="theme-icon" id="themeIcon"></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <ul class="theme-menu" id="themeMenu" role="listbox" aria-label="Temas disponíveis" hidden>
+            <li role="option" data-theme-choice="light" aria-selected="false">
+              <button type="button" class="theme-option" data-theme-choice="light">
+                <span class="flag">☀️</span> <span data-i18n="themeLight">Claro</span>
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-theme-choice="dark" aria-selected="false">
+              <button type="button" class="theme-option" data-theme-choice="dark">
+                <span class="flag">🌙</span> <span data-i18n="themeDark">Escuro</span>
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-theme-choice="auto" aria-selected="true">
+              <button type="button" class="theme-option" data-theme-choice="auto">
+                <span class="flag">💻</span> <span data-i18n="themeAuto">Automático</span>
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- language switcher -->
+        <div class="lang-switcher">
+          <button type="button" class="lang-toggle" id="langToggle"
+                  aria-haspopup="listbox" aria-expanded="false" aria-controls="langMenu"
+                  aria-label="Selecionar idioma">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/>
+            </svg>
+            <span class="lang-code" id="langCode">PT</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <ul class="lang-menu" id="langMenu" role="listbox" aria-label="Idiomas disponíveis" hidden>
+            <li role="option" data-lang="pt" aria-selected="true">
+              <button type="button" class="lang-option" data-lang="pt">
+                <span class="flag">🇧🇷</span> Português
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-lang="en" aria-selected="false">
+              <button type="button" class="lang-option" data-lang="en">
+                <span class="flag">🇺🇸</span> English
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-lang="es" aria-selected="false">
+              <button type="button" class="lang-option" data-lang="es">
+                <span class="flag">🇪🇸</span> Español
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-lang="fr" aria-selected="false">
+              <button type="button" class="lang-option" data-lang="fr">
+                <span class="flag">🇫🇷</span> Français
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+            <li role="option" data-lang="de" aria-selected="false">
+              <button type="button" class="lang-option" data-lang="de">
+                <span class="flag">🇩🇪</span> Deutsch
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </header>
 
@@ -616,7 +835,14 @@
       footer: "© 2025 ecomme. Todos os direitos reservados.",
       privacy: "Privacidade",
       terms: "Termos",
-      redirecting: "Redirecionando para"
+      redirecting: "Redirecionando para",
+      langSelectLabel: "Selecionar idioma",
+      langMenuLabel: "Idiomas disponíveis",
+      themeSelectLabel: "Selecionar tema",
+      themeMenuLabel: "Temas disponíveis",
+      themeLight: "Claro",
+      themeDark: "Escuro",
+      themeAuto: "Automático"
     },
     en: {
       eyebrow: "Select your region",
@@ -625,7 +851,14 @@
       footer: "© 2025 ecomme. All rights reserved.",
       privacy: "Privacy",
       terms: "Terms",
-      redirecting: "Redirecting to"
+      redirecting: "Redirecting to",
+      langSelectLabel: "Select language",
+      langMenuLabel: "Available languages",
+      themeSelectLabel: "Select theme",
+      themeMenuLabel: "Available themes",
+      themeLight: "Light",
+      themeDark: "Dark",
+      themeAuto: "Automatic"
     },
     es: {
       eyebrow: "Selecciona tu región",
@@ -634,7 +867,14 @@
       footer: "© 2025 ecomme. Todos los derechos reservados.",
       privacy: "Privacidad",
       terms: "Términos",
-      redirecting: "Redirigiendo a"
+      redirecting: "Redirigiendo a",
+      langSelectLabel: "Seleccionar idioma",
+      langMenuLabel: "Idiomas disponibles",
+      themeSelectLabel: "Seleccionar tema",
+      themeMenuLabel: "Temas disponibles",
+      themeLight: "Claro",
+      themeDark: "Oscuro",
+      themeAuto: "Automático"
     },
     fr: {
       eyebrow: "Sélectionnez votre région",
@@ -643,7 +883,14 @@
       footer: "© 2025 ecomme. Tous droits réservés.",
       privacy: "Confidentialité",
       terms: "Conditions",
-      redirecting: "Redirection vers"
+      redirecting: "Redirection vers",
+      langSelectLabel: "Sélectionner la langue",
+      langMenuLabel: "Langues disponibles",
+      themeSelectLabel: "Sélectionner le thème",
+      themeMenuLabel: "Thèmes disponibles",
+      themeLight: "Clair",
+      themeDark: "Sombre",
+      themeAuto: "Automatique"
     },
     de: {
       eyebrow: "Wählen Sie Ihre Region",
@@ -652,7 +899,14 @@
       footer: "© 2025 ecomme. Alle Rechte vorbehalten.",
       privacy: "Datenschutz",
       terms: "Bedingungen",
-      redirecting: "Weiterleitung zu"
+      redirecting: "Weiterleitung zu",
+      langSelectLabel: "Sprache auswählen",
+      langMenuLabel: "Verfügbare Sprachen",
+      themeSelectLabel: "Design auswählen",
+      themeMenuLabel: "Verfügbare Designs",
+      themeLight: "Hell",
+      themeDark: "Dunkel",
+      themeAuto: "Automatisch"
     }
   };
 
@@ -683,17 +937,23 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var currentLang = "pt";
+  var currentThemeChoice = "auto";
 
   /* ============================================================
      2. DOM REFERENCES
   ============================================================ */
-  var $grid       = document.getElementById("countriesGrid");
-  var $langToggle = document.getElementById("langToggle");
-  var $langMenu   = document.getElementById("langMenu");
-  var $langCode   = document.getElementById("langCode");
-  var $toast      = document.getElementById("toast");
-  var $toastText  = document.getElementById("toastText");
-  var $cursorGlow = document.getElementById("cursorGlow");
+  var $grid          = document.getElementById("countriesGrid");
+  var $langToggle     = document.getElementById("langToggle");
+  var $langMenu       = document.getElementById("langMenu");
+  var $langCode       = document.getElementById("langCode");
+  var $themeToggle    = document.getElementById("themeToggle");
+  var $themeMenu      = document.getElementById("themeMenu");
+  var $themeIcon      = document.getElementById("themeIcon");
+  var $toast          = document.getElementById("toast");
+  var $toastText      = document.getElementById("toastText");
+  var $cursorGlow     = document.getElementById("cursorGlow");
+  var $metaColorScheme = document.getElementById("metaColorScheme");
+  var $metaThemeColor  = document.getElementById("metaThemeColor");
 
   /* ============================================================
      3. RENDER — country grid
@@ -771,6 +1031,8 @@
     });
 
     $langCode.textContent = LANG_CODE_LABEL[lang];
+    $langToggle.setAttribute("aria-label", STRINGS[lang].langSelectLabel);
+    $langMenu.setAttribute("aria-label", STRINGS[lang].langMenuLabel);
 
     document.querySelectorAll(".lang-option").forEach(function (btn) {
       var li = btn.closest("li");
@@ -779,45 +1041,147 @@
     });
 
     renderCountries(lang);
+
+    // theme toggle's aria-label embeds the current choice name, which is
+    // itself localized — refresh it whenever the UI language changes.
+    refreshThemeA11y();
   }
 
   /* ============================================================
-     6. LANGUAGE DROPDOWN — open/close + keyboard support
+     6. THEME MANAGEMENT
+     Persists the user's choice ('light' | 'dark' | 'auto') and
+     resolves it to a visual theme ('light' | 'dark'). While the
+     choice is 'auto', the visual theme tracks the OS/browser
+     setting live via a matchMedia listener.
   ============================================================ */
-  function openMenu() {
-    $langMenu.hidden = false;
-    $langToggle.setAttribute("aria-expanded", "true");
-    var current = $langMenu.querySelector('.lang-option[data-lang="' + currentLang + '"]');
-    if (current) current.focus();
-  }
-  function closeMenu(focusToggle) {
-    $langMenu.hidden = true;
-    $langToggle.setAttribute("aria-expanded", "false");
-    if (focusToggle) $langToggle.focus();
-  }
-  function isMenuOpen() { return !$langMenu.hidden; }
+  var THEME_ICONS = {
+    light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+             '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' +
+           '</svg>',
+    dark:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+             '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' +
+           '</svg>',
+    auto:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+             '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>' +
+           '</svg>'
+  };
 
-  $langToggle.addEventListener("click", function () {
-    isMenuOpen() ? closeMenu(false) : openMenu();
-  });
+  var ThemeManager = (function () {
+    var STORAGE_KEY = "ecomme-theme-choice";
+    var mql = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function readStored() {
+      try {
+        var v = localStorage.getItem(STORAGE_KEY);
+        return (v === "light" || v === "dark" || v === "auto") ? v : "auto";
+      } catch (e) { return "auto"; }
+    }
+    function writeStored(choice) {
+      try { localStorage.setItem(STORAGE_KEY, choice); }
+      catch (e) { /* storage unavailable — theme still works for this session */ }
+    }
+    function resolveVisual(choice) {
+      return choice === "auto" ? (mql.matches ? "dark" : "light") : choice;
+    }
+    function apply(choice) {
+      var visual = resolveVisual(choice);
+      document.documentElement.setAttribute("data-theme", visual);
+      document.documentElement.setAttribute("data-theme-choice", choice);
+      currentThemeChoice = choice;
+      syncThemeIcon(choice);
+      syncThemeMeta(visual);
+      refreshThemeA11y();
+    }
+    function setChoice(choice) {
+      writeStored(choice);
+      apply(choice);
+    }
+    function init() {
+      apply(readStored());
+      // live-update while "Automático" is selected and the OS theme changes
+      mql.addEventListener("change", function () {
+        if (readStored() === "auto") apply("auto");
+      });
+    }
+    return { init: init, setChoice: setChoice };
+  })();
+
+  function syncThemeIcon(choice) {
+    $themeIcon.innerHTML = THEME_ICONS[choice];
+    document.querySelectorAll(".theme-option").forEach(function (btn) {
+      var li = btn.closest("li");
+      var selected = btn.getAttribute("data-theme-choice") === choice;
+      li.setAttribute("aria-selected", selected ? "true" : "false");
+    });
+  }
+
+  function syncThemeMeta(visual) {
+    if ($metaColorScheme) $metaColorScheme.setAttribute("content", visual);
+    if ($metaThemeColor)  $metaThemeColor.setAttribute("content", visual === "dark" ? "#06070c" : "#f5f6fb");
+  }
+
+  function refreshThemeA11y() {
+    var key = "theme" + currentThemeChoice.charAt(0).toUpperCase() + currentThemeChoice.slice(1);
+    var label = STRINGS[currentLang].themeSelectLabel + ": " + STRINGS[currentLang][key];
+    $themeToggle.setAttribute("aria-label", label);
+    $themeMenu.setAttribute("aria-label", STRINGS[currentLang].themeMenuLabel);
+  }
+
+  /* ============================================================
+     7. DROPDOWNS — shared open/close/keyboard behaviour for both
+     the language switcher and the theme switcher.
+  ============================================================ */
+  function createDropdown(toggle, menu, wrapper) {
+    function isOpen() { return !menu.hidden; }
+    function open() {
+      dropdowns.forEach(function (d) { if (d !== api) d.close(false); });
+      menu.hidden = false;
+      toggle.setAttribute("aria-expanded", "true");
+      var selectedLi = menu.querySelector('li[aria-selected="true"]');
+      var target = (selectedLi && selectedLi.querySelector("button")) || menu.querySelector("button");
+      if (target) target.focus();
+    }
+    function close(focusToggle) {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      if (focusToggle) toggle.focus();
+    }
+    var api = { isOpen: isOpen, open: open, close: close, toggle: toggle, menu: menu, wrapper: wrapper };
+    toggle.addEventListener("click", function () { isOpen() ? close(false) : open(); });
+    return api;
+  }
+
+  var langDropdown  = createDropdown($langToggle, $langMenu, document.querySelector(".lang-switcher"));
+  var themeDropdown = createDropdown($themeToggle, $themeMenu, document.querySelector(".theme-switcher"));
+  var dropdowns = [langDropdown, themeDropdown];
 
   document.querySelectorAll(".lang-option").forEach(function (btn) {
     btn.addEventListener("click", function () {
       applyLanguage(btn.getAttribute("data-lang"));
-      closeMenu(true);
+      langDropdown.close(true);
+    });
+  });
+
+  document.querySelectorAll(".theme-option").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      ThemeManager.setChoice(btn.getAttribute("data-theme-choice"));
+      themeDropdown.close(true);
     });
   });
 
   document.addEventListener("click", function (e) {
-    if (isMenuOpen() && !e.target.closest(".lang-switcher")) closeMenu(false);
+    dropdowns.forEach(function (d) {
+      if (d.isOpen() && !d.wrapper.contains(e.target)) d.close(false);
+    });
   });
 
   document.addEventListener("keydown", function (e) {
-    if (!isMenuOpen()) return;
-    var options = Array.prototype.slice.call(document.querySelectorAll(".lang-option"));
+    var open = dropdowns.filter(function (d) { return d.isOpen(); })[0];
+    if (!open) return;
+    var options = Array.prototype.slice.call(open.menu.querySelectorAll("button"));
     var idx = options.indexOf(document.activeElement);
 
-    if (e.key === "Escape") { closeMenu(true); }
+    if (e.key === "Escape") { open.close(true); }
     else if (e.key === "ArrowDown") { e.preventDefault(); options[(idx + 1) % options.length].focus(); }
     else if (e.key === "ArrowUp")   { e.preventDefault(); options[(idx - 1 + options.length) % options.length].focus(); }
     else if (e.key === "Home")      { e.preventDefault(); options[0].focus(); }
@@ -825,7 +1189,7 @@
   });
 
   /* ============================================================
-     7. CURSOR GLOW — desktop only, smooth follow via rAF
+     8. CURSOR GLOW — desktop only, smooth follow via rAF
   ============================================================ */
   var supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   if (supportsFinePointer && !reduceMotion) {
@@ -841,8 +1205,9 @@
   }
 
   /* ============================================================
-     8. INIT
+     9. INIT
   ============================================================ */
+  ThemeManager.init();
   applyLanguage("pt");
 })();
 </script>
