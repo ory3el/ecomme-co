@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bandeiras Realistas</title>
+<style>
+  body {
+    background-color: #1a1a1a;
+    color: #fff;
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 40px 20px;
+    margin: 0;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 600;
+  }
+  .flag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .flag-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .flag-name {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    color: #e0e0e0;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.1);
+    background-color: #fff;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Bandeiras Nacionais</h1>
+
+  <div class="flag-grid">
+
+    <!-- 1. Brasil -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="400" fill="#00A859"/>
+        <polygon points="300,35 565,200 300,365 35,200" fill="#FFCC29"/>
+        <circle cx="300" cy="200" r="115" fill="#3E4095"/>
+        <path d="M 185 220 Q 300 160 415 210 Q 300 175 185 220" fill="#FFFFFF"/>
+        <circle cx="280" cy="240" r="4" fill="#FFFFFF"/>
+        <circle cx="310" cy="260" r="4" fill="#FFFFFF"/>
+        <circle cx="330" cy="230" r="4" fill="#FFFFFF"/>
+        <circle cx="260" cy="270" r="4" fill="#FFFFFF"/>
+        <circle cx="340" cy="280" r="4" fill="#FFFFFF"/>
+      </svg>
+      <div class="flag-name">Brasil</div>
+    </div>
+
+    <!-- 2. Estados Unidos -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <g id="usa-star"><polygon points="0,-9 5,7 -8,-3 8,-3 -5,7" fill="#FFFFFF"/></g>
+          <g id="usa-row6">
+            <use href="#usa-star" x="20"/><use href="#usa-star" x="60"/><use href="#usa-star" x="100"/>
+            <use href="#usa-star" x="140"/><use href="#usa-star" x="180"/><use href="#usa-star" x="220"/>
+          </g>
+          <g id="usa-row5">
+            <use href="#usa-star" x="40"/><use href="#usa-star" x="80"/><use href="#usa-star" x="120"/>
+            <use href="#usa-star" x="160"/><use href="#usa-star" x="200"/>
+          </g>
+        </defs>
+        <rect width="600" height="400" fill="#FFFFFF"/>
+        <rect width="600" height="30.77" y="0" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="61.54" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="123.08" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="184.62" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="246.16" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="307.70" fill="#E0162B"/>
+        <rect width="600" height="30.77" y="369.24" fill="#E0162B"/>
+        <rect width="240" height="215.39" fill="#0052A5"/>
+        <use href="#usa-row6" y="21.5"/>
+        <use href="#usa-row5" y="43"/>
+        <use href="#usa-row6" y="64.5"/>
+        <use href="#usa-row5" y="86"/>
+        <use href="#usa-row6" y="107.5"/>
+        <use href="#usa-row5" y="129"/>
+        <use href="#usa-row6" y="150.5"/>
+        <use href="#usa-row5" y="172"/>
+        <use href="#usa-row6" y="193.5"/>
+      </svg>
+      <div class="flag-name">Estados Unidos</div>
+    </div>
+
+    <!-- 3. Canadá -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="400" fill="#FF0000"/>
+        <rect width="300" height="400" x="150" fill="#FFFFFF"/>
+        <polygon points="300,70 275,150 200,150 245,195 210,270 275,245 290,360 310,360 325,245 390,270 355,195 400,150 325,150" fill="#FF0000"/>
+      </svg>
+      <div class="flag-name">Canadá</div>
+    </div>
+
+    <!-- 4. Reino Unido -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="uk-clip"><rect width="600" height="400"/></clipPath>
+        <g clip-path="url(#uk-clip)">
+          <rect width="600" height="400" fill="#012169"/>
+          <!-- St. Andrew -->
+          <line x1="0" y1="0" x2="600" y2="400" stroke="#FFFFFF" stroke-width="60"/>
+          <line x1="0" y1="400" x2="600" y2="0" stroke="#FFFFFF" stroke-width="60"/>
+          <!-- St. Patrick -->
+          <line x1="0" y1="0" x2="300" y2="200" stroke="#C8102E" stroke-width="20" transform="translate(0, 12)"/>
+          <line x1="300" y1="200" x2="600" y2="400" stroke="#C8102E" stroke-width="20" transform="translate(0, -12)"/>
+          <line x1="0" y1="400" x2="300" y2="200" stroke="#C8102E" stroke-width="20" transform="translate(0, -12)"/>
+          <line x1="300" y1="200" x2="600" y2="0" stroke="#C8102E" stroke-width="20" transform="translate(0, 12)"/>
+          <!-- St. George -->
+          <rect x="250" y="0" width="100" height="400" fill="#FFFFFF"/>
+          <rect x="0" y="150" width="600" height="100" fill="#FFFFFF"/>
+          <rect x="270" y="0" width="60" height="400" fill="#C8102E"/>
+          <rect x="0" y="170" width="600" height="60" fill="#C8102E"/>
+        </g>
+      </svg>
+      <div class="flag-name">Reino Unido</div>
+    </div>
+
+    <!-- 5. Alemanha -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="133.33" y="0" fill="#000000"/>
+        <rect width="600" height="133.33" y="133.33" fill="#DD0000"/>
+        <rect width="600" height="133.34" y="266.66" fill="#FFCC00"/>
+      </svg>
+      <div class="flag-name">Alemanha</div>
+    </div>
+
+    <!-- 6. Itália -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="400" x="0" fill="#009246"/>
+        <rect width="200" height="400" x="200" fill="#FFFFFF"/>
+        <rect width="200" height="400" x="400" fill="#CE2B37"/>
+      </svg>
+      <div class="flag-name">Itália</div>
+    </div>
+
+    <!-- 7. Espanha -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="100" y="0" fill="#AA151B"/>
+        <rect width="600" height="200" y="100" fill="#F1BF00"/>
+        <rect width="600" height="100" y="300" fill="#AA151B"/>
+        <!-- Brasão simplificado -->
+        <rect x="180" y="150" width="40" height="60" rx="20" fill="#AA151B" stroke="#000" stroke-width="2"/>
+        <rect x="145" y="160" width="15" height="45" fill="#FFFFFF" stroke="#000" stroke-width="2"/>
+        <rect x="240" y="160" width="15" height="45" fill="#FFFFFF" stroke="#000" stroke-width="2"/>
+        <path d="M180,170 H220 V190 Q200,220 180,190 Z" fill="#FFFFFF"/>
+        <circle cx="200" cy="145" r="10" fill="#AA151B"/>
+      </svg>
+      <div class="flag-name">Espanha</div>
+    </div>
+
+    <!-- 8. Japão -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="400" fill="#FFFFFF"/>
+        <circle cx="300" cy="200" r="120" fill="#BC002D"/>
+      </svg>
+      <div class="flag-name">Japão</div>
+    </div>
+
+    <!-- 9. Austrália -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <polygon id="aus-star" points="0,-12 4,3 11,3 5,8 7,15 0,11 -7,15 -5,8 -11,3 -4,3" fill="#FFFFFF"/>
+          <polygon id="aus-bigstar" points="0,-24 8,6 22,6 10,16 14,30 0,22 -14,30 -10,16 -22,6 -8,6" fill="#FFFFFF"/>
+        </defs>
+        <rect width="600" height="400" fill="#012169"/>
+        
+        <!-- Canton (UK Flag scaled) -->
+        <g clip-path="url(#uk-clip)" transform="scale(0.5)">
+          <rect width="600" height="400" fill="#012169"/>
+          <line x1="0" y1="0" x2="600" y2="400" stroke="#FFFFFF" stroke-width="60"/>
+          <line x1="0" y1="400" x2="600" y2="0" stroke="#FFFFFF" stroke-width="60"/>
+          <line x1="0" y1="0" x2="300" y2="200" stroke="#C8102E" stroke-width="20" transform="translate(0, 12)"/>
+          <line x1="300" y1="200" x2="600" y2="400" stroke="#C8102E" stroke-width="20" transform="translate(0, -12)"/>
+          <line x1="0" y1="400" x2="300" y2="200" stroke="#C8102E" stroke-width="20" transform="translate(0, -12)"/>
+          <line x1="300" y1="200" x2="600" y2="0" stroke="#C8102E" stroke-width="20" transform="translate(0, 12)"/>
+          <rect x="250" y="0" width="100" height="400" fill="#FFFFFF"/>
+          <rect x="0" y="150" width="600" height="100" fill="#FFFFFF"/>
+          <rect x="270" y="0" width="60" height="400" fill="#C8102E"/>
+          <rect x="0" y="170" width="600" height="60" fill="#C8102E"/>
+        </g>
+        
+        <!-- Commonwealth Star -->
+        <use href="#aus-bigstar" x="150" y="300"/>
+        <!-- Cruzeiro do Sul -->
+        <use href="#aus-star" x="450" y="80"/>
+        <use href="#aus-star" x="390" y="180"/>
+        <use href="#aus-star" x="510" y="150"/>
+        <use href="#aus-star" x="450" y="290"/>
+        <!-- Estrela menor -->
+        <circle cx="480" cy="220" r="5" fill="#FFFFFF"/>
+      </svg>
+      <div class="flag-name">Austrália</div>
+    </div>
+
+    <!-- 10. Argentina -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="133.33" y="0" fill="#74ACDF"/>
+        <rect width="600" height="133.33" y="133.33" fill="#FFFFFF"/>
+        <rect width="600" height="133.34" y="266.66" fill="#74ACDF"/>
+        <!-- Sol de Maio simplificado -->
+        <g transform="translate(300, 200)">
+          <circle cx="0" cy="0" r="30" fill="#F6B40E"/>
+          <path d="M-5,-45 L0,-30 L5,-45 Z" fill="#F6B40E"/>
+          <path d="M-5,45 L0,30 L5,45 Z" fill="#F6B40E"/>
+          <path d="M-45,-5 L-30,0 L-45,5 Z" fill="#F6B40E"/>
+          <path d="M45,-5 L30,0 L45,5 Z" fill="#F6B40E"/>
+          <path d="M-30,-35 L-20,-20 L-25,-25 Z" fill="#F6B40E"/>
+          <path d="M30,35 L20,20 L25,25 Z" fill="#F6B40E"/>
+          <path d="M-30,35 L-20,20 L-25,25 Z" fill="#F6B40E"/>
+          <path d="M30,-35 L20,-20 L25,-25 Z" fill="#F6B40E"/>
+          <circle cx="0" cy="0" r="25" fill="#F6B40E" stroke="#B87333" stroke-width="2"/>
+        </g>
+      </svg>
+      <div class="flag-name">Argentina</div>
+    </div>
+
+    <!-- 11. México -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="400" x="0" fill="#006341"/>
+        <rect width="200" height="400" x="200" fill="#FFFFFF"/>
+        <rect width="200" height="400" x="400" fill="#C8102E"/>
+        <!-- Brasão simplificado -->
+        <g transform="translate(300, 200)">
+          <ellipse cx="0" cy="-10" rx="15" ry="22" fill="#6B4423"/> <!-- Águia -->
+          <path d="M0,-25 Q-20,-40 -30,-15 Q-15,0 0,-10" fill="#6B4423"/> <!-- Asa -->
+          <path d="M0,-25 Q20,-40 30,-15 Q15,0 0,-10" fill="#6B4423"/> <!-- Asa -->
+          <path d="M0,15 Q-25,30 -15,45 Q0,40 15,45 Q25,30 0,15" fill="#006341"/> <!-- Cacto -->
+          <path d="M5,-25 Q15,-30 5,-15" stroke="#C8102E" stroke-width="3" fill="none"/> <!-- Cobra (simplificada) -->
+        </g>
+      </svg>
+      <div class="flag-name">México</div>
+    </div>
+
+    <!-- 12. França -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="400" x="0" fill="#002654"/>
+        <rect width="200" height="400" x="200" fill="#FFFFFF"/>
+        <rect width="200" height="400" x="400" fill="#ED2939"/>
+      </svg>
+      <div class="flag-name">França</div>
+    </div>
+
+    <!-- 13. Portugal -->
+    <div class="flag-card">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="400" x="0" fill="#006600"/>
+        <rect width="360" height="400" x="240" fill="#FF0000"/>
+        <!-- Esfera Armilar e Escudo -->
+        <g transform="translate(240, 200)">
+          <circle cx="0" cy="0" r="45" fill="#F1C40F"/>
+          <circle cx="0" cy="0" r="38" fill="transparent" stroke="#000000" stroke-width="2"/>
+          <line x1="-45" y1="0" x2="45" y2="0" stroke="#000000" stroke-width="2"/>
+          <line x1="0" y1="-45" x2="0" y2="45" stroke="#000000" stroke-width="2"/>
+          <path d="M-35,-25 Q0,40 35,-25" fill="none" stroke="#000000" stroke-width="2"/>
+          
+          <!-- Escudo -->
+          <path d="M-22,-25 H22 V15 Q0,40 -22,15 Z" fill="#FFFFFF" stroke="#FF0000" stroke-width="7"/>
+          
+          <!-- Quinas e Castelos (simplificados) -->
+          <circle cx="0" cy="-5" r="4" fill="#003399"/>
+          <circle cx="-10" cy="5" r="4" fill="#003399"/>
+          <circle cx="10" cy="5" r="4" fill="#003399"/>
+          <circle cx="0" cy="15" r="4" fill="#003399"/>
+          <circle cx="-10" cy="-15" r="4" fill="#003399"/>
+          <circle cx="10" cy="-15" r="4" fill="#003399"/>
+          
+          <rect x="-18" y="-22" width="4" height="4" fill="#F1C40F"/>
+          <rect x="14" y="-22" width="4" height="4" fill="#F1C40F"/>
+          <rect x="-18" y="5" width="4" height="4" fill="#F1C40F"/>
+          <rect x="14" y="5" width="4" height="4" fill="#F1C40F"/>
+        </g>
+      </svg>
+      <div class="flag-name">Portugal</div>
+    </div>
+
+  </div>
+
+</body>
+</html>
