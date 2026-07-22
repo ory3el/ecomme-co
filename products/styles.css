@@ -152,7 +152,7 @@ body.nobodyscroll {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .header-profile:hover { 
-      background: rgba(0, 0, 0, 0.5); color: #fff;
+      background: rgba(0, 225, 0, 0.15); color: #fff;
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
     }
@@ -192,68 +192,6 @@ body.nobodyscroll {
     .hidden {
       display: none !important;
     }
-
-    /* ── HEADER ────────────────────────────────────────────────
-    header {
-      background: #fff;
-      border-bottom: 1px solid var(--border2);
-      position: sticky; top: 0; z-index: 1000;
-      box-shadow: 0 1px 20px rgba(37,99,235,0.06);
-    }
-    .header-inner {
-      max-width: 1440px; margin: 0 auto;
-      padding: 0 28px;
-      display: flex; align-items: center; gap: 24px; height: 68px;
-    }
-    .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 700; color: var(--blue);
-      flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      letter-spacing: .5px;
-    }
-    .logo-dot {
-      width: 7px; height: 7px; background: var(--blue);
-      border-radius: 50%; margin-top: 2px;
-    }
-    .nav-main { display: flex; gap: 2px; }
-    .nav-main a {
-      padding: 7px 14px; font-size: 13px; font-weight: 500;
-      color: var(--muted); border-radius: 911px; transition: all .2s;
-    }
-    .nav-main a:hover { color: var(--text); background: var(--bg3); }
-    .nav-main a.active {
-      color: var(--blue); background: var(--blue-dim); font-weight: 600;
-    }
-    .header-spacer { flex: 1; }
-    .header-actions { display: flex; align-items: center; gap: 6px; }
-    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: #eaeff5; border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
-    .search-bar:focus-within { border-color: var(--blue); }
-    .search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; flex: 1; padding: 9px 0; }
-    .search-bar input::placeholder { color: var(--muted); }
-    .search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; }
-    .icon-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border2); color: var(--muted);
-      transition: all .2s; position: relative;
-    }
-    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
-    .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-    .hd-badge {
-      position: absolute; top: 1px; right: 1px;
-      min-width: 17px; height: 17px;
-      background: var(--blue); color: #fff;
-      font-size: 9px; font-weight: 700; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 2px;
-    }
-    .btn-account {
-      background: var(--blue); color: #fff;
-      padding: 8px 20px; border-radius: 100px;
-      font-size: 12px; font-weight: 600;
-      display: flex; align-items: center; gap: 6px; transition: all .2s;
-    }
-    .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
     /* ── PAGE HERO ───────────────────────────────────────────── */
     .page-hero {
