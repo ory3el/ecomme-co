@@ -65,10 +65,10 @@ body.nobodyscroll {
 
     /* ── HEADER ──────────────────────────────────────────────── */
     header {
-      background: #4287f5;
-      border-bottom: 0px solid transparent;
+      background: #fff;
+      border-bottom: 1px solid var(--border2);
       position: sticky; top: 0; z-index: 1000;
-      box-shadow: 0 10px 20px rgba(66, 135, 245, 0.7);
+      box-shadow: 0 1px 20px rgba(37,99,235,0.06);
     }
     .header-inner {
       max-width: 1440px; margin: 0 auto;
@@ -76,10 +76,12 @@ body.nobodyscroll {
       display: flex; align-items: center; gap: 24px; height: 68px;
     }
     .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 700; color: var(--blue);
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-      filter: brightness(0) invert(1); drop-shadow: 0 0 0 #fff;
-      /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
+      letter-spacing: .5px;
     }
+
     .logo_dark {
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
       filter: brightness(0) invert(1); drop-shadow: 0 0 0 #000;
@@ -89,19 +91,16 @@ body.nobodyscroll {
       flex-shrink: 0; display: flex; align-items: center; gap: 5px; position: relative; bottom: 25px;
       /*background: #fff; border-radius: 200px; padding: 5px 10px;*/
     }
-    .logo-dot {
-      width: 7px; height: 7px; background: var(--blue);
-      border-radius: 50%; margin-top: 2px;
-    }
     .nav-main { display: flex; gap: 2px; }
     .nav-main a {
       padding: 7px 14px; font-size: 13px; font-weight: 500;
-      color: var(--white); border-radius: 911px; transition: all .2s;
+      color: var(--muted); border-radius: 911px; transition: all .2s;
     }
     .nav-main a:hover { color: var(--text); background: var(--bg3); }
     .nav-main a.active {
-      color: #fff; background: rgba(0, 0, 0, 0.7); font-weight: 600;
+      color: var(--blue); background: var(--blue-dim); font-weight: 600;
     }
+
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
     .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 2px solid rgba(255, 255, 255, 0); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
@@ -109,13 +108,14 @@ body.nobodyscroll {
     .search-bar input { background: none; border: none; outline: none; color: #000; font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(0, 0, 0, 0.9); font-size: 14px; font-weight: 400; }
     .search-bar svg { width: 15px; height: 15px; fill: none; stroke: rgba(0, 0, 0, 0.7); stroke-width: 2; flex-shrink: 0; }
+
     .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--borderW); color: var(--white);
+      border: 1px solid var(--border2); color: var(--muted);
       transition: all .2s; position: relative;
     }
-    .icon-btn:hover { color: #000; background: var(--white); }
+    .icon-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
     .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .hd-badge {
       position: absolute; top: 1px; right: 1px;
@@ -127,12 +127,12 @@ body.nobodyscroll {
     }
 
     .btn-account {
-      background: var(--white); color: #000;
+      background: var(--blue); color: #fff;
       padding: 8px 20px; border-radius: 100px;
       font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
-    .btn-account:hover { background: #000; color: #fff; transform: translateY(-1px); }
+    .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
     .header-profile { 
       width: 40px;
