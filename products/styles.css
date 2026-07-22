@@ -137,11 +137,11 @@ body.nobodyscroll {
     .header-profile { 
       width: 40px;
       height: 40px;
-      background: var(--blue);
-      border: 1px solid var(--bg3, #fff);
+      background: #fff;
+      border: 1px solid var(--bg3, var(--blue3));
       overflow: hidden;
       cursor: pointer;
-      color: #fff; padding: 3px/*18px 7px 7px*/;
+      color: var(--blue3); padding: 3px/*18px 7px 7px*/;
       border-radius: 50%;
       font-size: 12px;
       font-weight: 600;
