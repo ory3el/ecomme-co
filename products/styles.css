@@ -152,9 +152,9 @@ body.nobodyscroll {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .header-profile:hover { 
-      background: rgba(0, 225, 0, 0.15); color: #fff;
+      background: rgba(0, 0, 225, 0.2); color: #fff;
       transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 0 5px rgba(0, 0, 215, 0.3);
     }
     .header-profile img { 
       width: 30px; height: 30px; border-radius: 50%;
