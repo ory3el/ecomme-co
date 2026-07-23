@@ -587,7 +587,6 @@ function renderOffers() {
       : `<div class="oc-type-badge combo">📦 Combo</div>`;
     const claimedClass = o.claimed >= 85 ? '' : 'warm';
     
-    // O HTML abaixo mantém 100% do seu design original
     return `
       <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
         <div class="oc-img-wrap">
