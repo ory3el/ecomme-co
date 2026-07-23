@@ -157,6 +157,7 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
+/*
 function updateHeaderContrast() {
   const header = document.querySelector("header");
   const sampleY = header.offsetHeight + 10;
@@ -183,6 +184,7 @@ function updateHeaderContrast() {
 window.addEventListener("scroll", updateHeaderContrast);
 window.addEventListener("resize", updateHeaderContrast);
 updateHeaderContrast();
+*/
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
