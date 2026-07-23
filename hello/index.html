@@ -694,6 +694,28 @@
       transform: none !important;
     }
   }
+
+/* ── PARTICLES BACKGROUND ── */
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+#particles-js {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+}
+  
 </style>
 </head>
 <body>
@@ -705,7 +727,8 @@
     <div class="blob blob-b"></div>
     <div class="blob blob-c"></div>
   </div>
-
+  
+  <div id="particles-js"></div>
   <!-- decorative cursor glow (desktop only, non-interactive) -->
   <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 
@@ -843,6 +866,7 @@
     <span id="toastText"></span>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1235,6 +1259,45 @@
   ThemeManager.init();
   applyLanguage("en");
 })();
+
+/* ─── PARTICLES CONFIG ───────────────────────────────────────────────── */
+if (typeof particlesJS !== 'undefined' && document.getElementById('particles-js')) {
+  particlesJS('particles-js', {
+    particles: {
+      number: { value: 40, density: { enable: true, value_area: 800 } },
+      color: { value: '#2563eb' }, // Usa o azul do seu tema (--blue)
+      shape: { type: 'circle' },
+      opacity: { value: 0.3, random: true },
+      size: { value: 3, random: true },
+      line_linked: {
+        enable: true,
+        distance: 140,
+        color: '#2563eb',
+        opacity: 0.2,
+        width: 1
+      },
+      move: {
+        enable: true,
+        speed: 1.8,
+        direction: 'none',
+        random: false,
+        straight: false,
+        out_mode: 'out',
+        bounce: false
+      }
+    },
+    interactivity: {
+      detect_on: 'canvas',
+      events: {
+        onhover: { enable: true, mode: 'grab' },
+        onclick: { enable: true, mode: 'push' },
+        resize: true
+      }
+    },
+    retina_detect: true
+  });
+}
+  
 </script>
 </body>
 </html>
