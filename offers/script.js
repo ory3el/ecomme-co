@@ -28,6 +28,7 @@ function injectPrefetch(url) {
 }
 
 let products = [];
+let offers = [];
 
 /* ─── SEARCH ─────────────────────────────────────────────────────────── */
 function searchFor(term) {
@@ -49,6 +50,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const headerImage = document.getElementById('headerAvatar');
 
   await loadProductsFromSupabase();
+  await loadOffersFromSupabase();
+  
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
   let shuffled = [...products];
 
@@ -496,25 +499,6 @@ function closeAcc() {
 }
 
 /* ─── OFFERS DATA ────────────────────────────────────────────────────── */
-/* endsInMin: minutes from page load until offer ends (drives per-card countdown) */
-const offers = [
-  { id:0,  name:'Smartwatch Pro X7',           cat:'Eletrônicos', price:189.90, old:299,   discount:36, emoji:'⌚', type:'flash', rating:4.9, reviews:2847, claimed:82, freeShip:true,  endsInMin:185,  desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM. Bateria de 14 dias.' },
-  { id:1,  name:'Fone Bluetooth ANC Pro',      cat:'Eletrônicos', price:99.90,  old:199,   discount:50, emoji:'🎧', type:'flash', rating:4.8, reviews:1523, claimed:91, freeShip:true,  endsInMin:62,   desc:'Fone com cancelamento ativo de ruído, driver 40mm e autonomia de 30h.' },
-  { id:2,  name:'Câmera de Segurança WiFi',    cat:'Eletrônicos', price:149.90, old:220,   discount:32, emoji:'📷', type:'daily', rating:4.7, reviews:892,  claimed:44, freeShip:false, endsInMin:960,  desc:'Câmera IP 2K com visão noturna colorida e detecção de movimento.' },
-  { id:3,  name:'Kit Luzes LED Smart RGB',     cat:'Casa',        price:59.90,  old:130,   discount:54, emoji:'💡', type:'flash', rating:4.6, reviews:3102, claimed:96, freeShip:true,  endsInMin:38,   desc:'Fita LED inteligente de 10m com controle por voz e 16M de cores.' },
-  { id:4,  name:'Tapete Antiderrapante Premium',cat:'Casa',       price:59.90,  old:149,   discount:60, emoji:'🏠', type:'daily', rating:4.5, reviews:445,  claimed:38, freeShip:true,  endsInMin:960,  desc:'Tapete ecológico antiderrapante com design escandinavo, lavável à máquina.' },
-  { id:5,  name:'Mini Massageador Portátil',   cat:'Fitness',     price:89.90,  old:210,   discount:57, emoji:'💆', type:'flash', rating:4.9, reviews:2231, claimed:88, freeShip:true,  endsInMin:120,  desc:'Pistola de massagem percussiva com 6 cabeças e 30 níveis de intensidade.' },
-  { id:6,  name:'Tênis Running Ultralight',    cat:'Moda',        price:159.90, old:320,   discount:50, emoji:'👟', type:'combo', rating:4.7, reviews:1876, claimed:64, freeShip:true,  endsInMin:1440, desc:'Tênis de corrida ultra leve com amortecimento por gel e palmilha ortopédica.' },
-  { id:7,  name:'Mochila Anti-Furto Executiva',cat:'Moda',        price:99.90,  old:250,   discount:60, emoji:'🎒', type:'combo', rating:4.8, reviews:987,  claimed:71, freeShip:false, endsInMin:1440, desc:'Mochila com USB embutido, proteção RFID e 28 litros de capacidade.' },
-  { id:8,  name:'Secador de Cabelo Íon Pro',   cat:'Beleza',      price:99.90,  old:249,   discount:60, emoji:'💇', type:'flash', rating:4.6, reviews:654,  claimed:79, freeShip:true,  endsInMin:95,   desc:'Secador 2200W com tecnologia iônica e diffusor incluso.' },
-  { id:9,  name:'Kit Skincare Vitamina C',     cat:'Beleza',      price:69.90,  old:160,   discount:56, emoji:'✨', type:'daily', rating:4.9, reviews:4521, claimed:93, freeShip:true,  endsInMin:960,  desc:'Kit completo com sérum, hidratante e protetor solar com vitamina C.' },
-  { id:10, name:'Ração Premium para Cães',     cat:'Pets',        price:69.90,  old:140,   discount:50, emoji:'🐕', type:'combo', rating:4.8, reviews:1234, claimed:55, freeShip:true,  endsInMin:1440, desc:'Ração super premium com proteína animal real e ômega-3.' },
-  { id:11, name:'Garrafa Térmica 1L Inox',     cat:'Fitness',     price:39.90,  old:110,   discount:64, emoji:'🍶', type:'flash', rating:4.7, reviews:3876, claimed:98, freeShip:true,  endsInMin:20,   desc:'Garrafa em aço inox que mantém bebidas geladas por 24h e quentes por 12h.' },
-  { id:12, name:'Fone Gamer RGB Pro',          cat:'Eletrônicos', price:69.90,  old:160,   discount:56, emoji:'🎮', type:'flash', rating:4.7, reviews:745,  claimed:87, freeShip:true,  endsInMin:150,  desc:'Fone gamer com iluminação RGB, microfone destacável e som surround.' },
-  { id:13, name:'Hub USB-C 7 em 1',            cat:'Eletrônicos', price:49.90,  old:110,   discount:55, emoji:'🔌', type:'daily', rating:4.8, reviews:1230, claimed:61, freeShip:true,  endsInMin:960,  desc:'Hub com HDMI 4K, USB 3.0, leitor de cartão e carregamento rápido.' },
-  { id:14, name:'Teclado Mecânico RGB',        cat:'Eletrônicos', price:129.90, old:280,   discount:54, emoji:'⌨️', type:'combo', rating:4.8, reviews:987,  claimed:69, freeShip:false, endsInMin:1440, desc:'Teclado mecânico switch blue com iluminação RGB customizável.' },
-  { id:15, name:'Kit Skincare Facial Noturno', cat:'Beleza',      price:79.90,  old:189,   discount:58, emoji:'🌙', type:'flash', rating:4.7, reviews:521,  claimed:73, freeShip:true,  endsInMin:210,  desc:'Rotina noturna completa com sérum reparador e creme anti-idade.' },
-];
 
 let currentDealFilter = 'todos';
 let currentProduct = null;
@@ -579,7 +563,7 @@ function renderOffers() {
   else if (sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
   else if (sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
   else if (sort === 'ending') list.sort((a,b)=>a.endsInMin-b.endsInMin);
-  else list.sort((a,b)=>b.discount-a.discount); /* discount default */
+  else list.sort((a,b)=>b.discount-a.discount);
 
   $('offersCount').textContent = `${list.length} oferta${list.length!==1?'s':''}`;
   $('statActive').textContent = list.length;
@@ -602,6 +586,8 @@ function renderOffers() {
       ? `<div class="oc-type-badge daily">☀️ Do Dia</div>`
       : `<div class="oc-type-badge combo">📦 Combo</div>`;
     const claimedClass = o.claimed >= 85 ? '' : 'warm';
+    
+    // O HTML abaixo mantém 100% do seu design original
     return `
       <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
         <div class="oc-img-wrap">
@@ -835,20 +821,20 @@ function closeAuth() {
 }
   
 //--------------------------------------------------------
-async function loadProductsFromSupabase() {
+async function loadOffersFromSupabase() {
   const { data, error } = await supabaseClient
-    .from('products')
+    .from('offers')
     .select('*')
     .order('id', { ascending: true });
 
   if (error) {
-    console.error("Erro ao carregar produtos do banco:", error);
+    console.error("Erro ao carregar ofertas do banco:", error);
     return;
   }
 
   if (data) {
-    products = data;
-    shuffled = [...products];
+    offers = data;
+    renderOffers();
   }
 }
 
