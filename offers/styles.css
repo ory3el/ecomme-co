@@ -404,15 +404,15 @@ header.dark-glass input::placeholder{
 
     /* ── OFFERS HERO ─────────────────────────────────────────── */
     .offers-hero { background: var(--white); position:relative; overflow:hidden; padding:64px 28px 0; }
-    .oh-grid  { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1px); background-size:26px 26px; animation:dotDrift 16s linear infinite; opacity:.45; }
+    .oh-grid  { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(0,0,0,.1) 1px,transparent 1px); background-size:26px 26px; animation:dotDrift 16s linear infinite; opacity:.45; }
     .oh-orb1  { position:absolute; width:520px; height:520px; top:-200px; right:-140px; border-radius:50%; background:radial-gradient(circle,rgba(239,68,68,.18),transparent 70%); filter:blur(50px); animation:orb1 18s ease-in-out infinite; }
     .oh-orb2  { position:absolute; width:360px; height:360px; bottom:-160px; left:8%; border-radius:50%; background:radial-gradient(circle,rgba(96,165,250,.16),transparent 70%); filter:blur(50px); animation:orb2 15s ease-in-out infinite; }
-    .oh-inner { max-width:1440px; margin:0 auto; position:relative; z-index:1; color:#fff; }
+    .oh-inner { max-width:1440px; margin:0 auto; position:relative; z-index:1; color:#000; }
     .oh-top   { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; padding-bottom:36px; }
-    .oh-tag   { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:6px 16px; border-radius:100px; margin-bottom:18px; animation:fadeInUp .6s var(--ease) backwards; }
+    .oh-tag   { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,.12); border:1px solid rgba(0,0,0,.25); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:6px 16px; border-radius:100px; margin-bottom:18px; animation:fadeInUp .6s var(--ease) backwards; }
     .oh-tag .flame { animation:flameFlicker 1.4s ease-in-out infinite; display:inline-block; }
 
-    .oh-top h1 { font-family: 'Marck Script', serif; font-size: 64px; line-height: 1.05; font-weight: 400; margin-bottom: 20px; }
+    .oh-top h1 { color: #000; font-family: 'Marck Script', serif; font-size: 64px; line-height: 1.05; font-weight: 400; margin-bottom: 20px; }
     .oh-top h1 em { color: var(--blue); font-style: italic; }
     .oh-top p { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 440px; margin-bottom: 36px; }
 
