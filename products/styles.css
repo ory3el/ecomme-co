@@ -363,6 +363,38 @@ inset 0 1px rgba(255,255,255,.55);
       display: none !important;
     }
 
+header.dark-glass{
+
+    color:white;
+
+}
+
+header.dark-glass a,
+
+header.dark-glass svg,
+
+header.dark-glass button,
+
+header.dark-glass input,
+
+header.dark-glass .logo{
+
+    color:white;
+
+}
+
+header.dark-glass svg{
+
+    stroke:white;
+
+}
+
+header.dark-glass input::placeholder{
+
+    color:rgba(255,255,255,.7);
+
+}
+
     /* ── PAGE HERO ───────────────────────────────────────────── */
     .page-hero {
       background: #fff; padding: 72px 28px 56px;
