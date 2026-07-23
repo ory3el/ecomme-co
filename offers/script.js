@@ -593,7 +593,7 @@ function renderOffers() {
   }
 
   grid.innerHTML = list.map((o, i) => {
-    const inW = wishlist.includes(o.id);
+    const inW = fav.includes(o.id);
     const typeBadge = o.type === 'flash'
       ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
       : o.type === 'daily'
