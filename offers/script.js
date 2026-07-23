@@ -648,6 +648,26 @@ async function loadProductsFromSupabase() {
   }
 }
 
+// ── SYNC CART AND WISHLIST WITH SUPABASE ──
+async function syncToSupabase() {
+  if (!userId) return;
+  
+const currentFav = fav;
+const currentCart = cart;
+
+const { error } = await supabaseClient
+.from("profiles")
+.update({
+    cart: currentCart,
+    fav: currentFav
+})
+.eq("id", userId);
+
+  if (error) {
+    console.error("Erro ao sincronizar dados com o Supabase:", error);
+  }
+}
+
 // ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
 async function loadFromSupabase() {
   if (!userId) return;
