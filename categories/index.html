@@ -22,44 +22,51 @@
   🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
   <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
 </div>
-
+	
 <!-- HEADER -->
 <header>
   <div class="header-inner">
     <div class="logo">
        <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-         <img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+         <img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
        </button>
     </div>
     <nav class="nav-main">
       <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/categories" class="active">Categorias</a>
+      <a href="/products" class="active">Produtos</a>
+      <a href="/categories">Categorias</a>
       <a href="/">Ofertas</a>
       <a href="/about-us">Sobre</a>
     </nav>
     <div class="search-bar">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="filterProducts()">
+      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
     </div>
     <div class="header-actions">
+	  <button class="icon-btn hidden" id="bellBtn" title="Notificações" onclick="openNotif()">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge" id="bellBadge" style="display:none">0</span>
+      </button>
       <button class="icon-btn" title="Lista de desejos" onclick="openFav()">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span class="hd-badge" id="wishBadge" style="display:none">0</span>
       </button>
       <button class="icon-btn" title="Abrir carrinho" onclick="openCart()">
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="hd-badge" id="cartBadge">0</span>
+        <span class="hd-badge" id="cartBadge" style="display:none">0</span>
       </button>
-      <button class="btn-account" onclick="login('/login')">
-        <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Entrar
-      </button>
-	  <button class="icon-btn" title="Abrir menu" onclick="openMenu()">
+	  <button id="authLoginBtn" class="btn-account" onclick="buttonLink('/login')">
+    	<svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    	Entrar
+  	  </button>
+	  <button class="icon-btn" title="Abrir menu" onclick="openMore()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     	  <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   		</svg>
       </button>
+  	  <div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()">
+    	<img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+  	  </div>
     </div>
   </div>
 </header>
@@ -216,44 +223,38 @@
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <div class="logo">
-       <button onclick="buttonLink('../')">
-
-         <img src="../images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
+      <div class="footerLogo">
+       <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+         <img src="/images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
        </button>
 
       </div>
-      <p style="cursor: default";>Conectamos você às melhores tendências globais com preços justos e entrega garantida em todo o Brasil.</p>
+      <p style="cursor: default;">Conectamos você às melhores tendências globais com preços justos e entrega garantida em todo o Brasil.</p>
       <div class="social-links">
-
 	<a href="https://www.tiktok.com/">
         <div class="social-btn">
-<img src="../images/tiktok.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="TikTok Logo"/>
-    </div>
+			<img src="/images/tiktok.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="TikTok Logo"/>
+    	</div>
 	</a>
-
 	<a href="https://www.facebook.com/">
         <div class="social-btn">
-<img src="../images/facebook.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Facebook Logo"/>
-    </div>
+			<img src="/images/facebook.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Facebook Logo"/>
+    	</div>
 	</a>
-
 	<a href="https://www.instagram.com/">
         <div class="social-btn">
-<img src="../images/instagram.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Instagram Logo"/>
-    </div>
+			<img src="/images/instagram.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Instagram Logo"/>
+    	</div>
 	</a>
-
 	<a href="https://wa.me/">
         <div class="social-btn">
-<img src="../images/whatsapp.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Whatsapp Logo"/>
-    </div>
+			<img src="/images/whatsapp.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Whatsapp Logo"/>
+    	</div>
 	</a>
-
       </div>
     </div>
     <div class="footer-col">
-      <h4 style="cursor: default";>Loja</h4>
+      <h4 style="cursor: default;">Loja</h4>
       <div class="footer-links">
         <a href="#">Novidades</a>
         <a href="#">Mais Vendidos</a>
@@ -263,7 +264,7 @@
       </div>
     </div>
     <div class="footer-col">
-      <h4 style="cursor: default";>Suporte</h4>
+      <h4 style="cursor: default;">Suporte</h4>
       <div class="footer-links">
         <a href="#">Rastrear Pedido</a>
         <a href="#">Política de Devolução</a>
@@ -273,9 +274,9 @@
       </div>
     </div>
     <div class="footer-col">
-      <h4 style="cursor: default";>Empresa</h4>
+      <h4 style="cursor: default;">Empresa</h4>
       <div class="footer-links">
-        <a href="#">Sobre Nós</a>
+        <a href="/about-us">Sobre Nós</a>
         <a href="#">Seja um Parceiro</a>
         <a href="#">Programa de Afiliados</a>
         <a href="#">Termos de Uso</a>
@@ -284,29 +285,28 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p style="cursor: default";>&copy 2026 <span style="font-weight: bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
+    <p style="cursor: default;">&copy; 2026 <span style="font-weight: bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
     <div class="payment-icons">
-
       <div class="pay-icon">
-<img src="../images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix Icon"/>
+		<img src="/images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa Icon"/>
+		<img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard Icon"/>
+		<img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo Icon"/>
+		<img src="/images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto Icon"/>
+		<img src="/images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/picpay.png" style="width: 50px; height: auto; display: block;" alt="PicPay Icon"/>
+		<img src="/images/payico/picpay.png" style="width: 50px; height: auto; display: block;" alt="PicPay Icon"/>
       </div>
       <div class="pay-icon">
-<img src="../images/payico/pagbank.png" style="width: 50px; height: auto; display: block;" alt="PagBank Icon"/>
+		<img src="/images/payico/pagbank.png" style="width: 50px; height: auto; display: block;" alt="PagBank Icon"/>
       </div>
     </div>
   </div>
@@ -362,37 +362,212 @@
   </div>
 </div>
 
-<!-- PRODUCT MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
-    <div class="modal-img-side" id="modalImg">
-      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+<!-- NOTIFICATION SIDEBAR -->
+<div class="overlay" id="notifOverlay" onclick="closeNotif()"></div>
+<div class="notif-sb" id="notifSidebar">
+	<div class="notif-hd">
+    <h3>Notificações <span style="color:var(--muted);font-size:15px" id="notifCount">(0)</span></h3>
+    <button class="notif-cls" onclick="closeNotif()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+	<div class="notif-body">
+		
     </div>
-    <div class="modal-info-side">
-      <div class="modal-category" id="modalCategory"></div>
-      <div class="modal-name" id="modalName"></div>
-      <div class="modal-desc" id="modalDesc"></div>
-      <div class="modal-price-row">
-        <span class="modal-price" id="modalPrice"></span>
-        <span class="modal-old" id="modalOld"></span>
-        <span class="modal-old-disc" id="modalDisc"></span>
+	
+	<div class="notif-ft">
+		<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+			<div class="btn-content">
+    			<span class="btn-title">Ver Mais Notificações</span>
+			</div>
+			<span class="btn-arrow">&gt;</span>
+    	</button>
+	    <button class="btn-menu3" onclick="closeNotif()">
+			<div class="btn-content">
+				<span class="btn-title">Fechar Notificações</span>
+			</div>
+		</button>
+    </div>
+</div>
+
+<!-- MORE SIDEBAR -->
+<div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+<div class="more-sb" id="moreSidebar">
+	<div class="more-hd">
+    <h3>Mais Opções</h3>
+    <button class="more-cls" onclick="closeMore()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+
+	<div class="more-body">
+	<button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/user.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Meu Perfil</span>
+			<p class="btn-txt">Gerencie suas informações, preferências e configurações em um só lugar.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/setting.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Configurações</span>
+			<p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/my-orders'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/box.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Histórico de Compras</span>
+			<p class="btn-txt">Seu registro completo de todos os produtos adquiridos e transações realizadas.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/track-order'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/check.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Acompanhar Pedido</span>
+			<p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/bell.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Notificações</span>
+			<p class="btn-txt">Fique por dentro de tudo o que importa: alertas, mensagens e atualizações essenciais entregues em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/sellers'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/dashboard.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Página do Vendedor</span>
+			<p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/terms'">
+		<div class="btn-content">
+    		<span class="btn-title">Termos e Condições de Uso</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/support'">
+		<div class="btn-content">
+    		<span class="btn-title">Suporte</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="closeMore()">
+		<div class="btn-content">
+			<span class="btn-title">Fechar Menu</span>
+		</div>
+	</button>
+  </div>
+</div>
+
+<!-- ACC SIDEBAR -->
+<div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+<div class="acc-sb" id="accSidebar">
+  <div class="acc-hd">
+    <h3>Minha Conta</h3>
+    <button class="acc-cls" onclick="closeAcc()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="acc-body">
+    <div class="acc-profile-summary">
+      <div class="acc-avatar-large">
+        <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
       </div>
-      <div class="modal-features" id="modalFeatures"></div>
-      <hr class="modal-divider">
-      <div class="modal-qty-row">
-        <span class="modal-qty-label">Quantidade:</span>
-        <div class="modal-qty-ctrl">
-          <button class="qty-btn" onclick="changeModalQty(-1)">−</button>
-          <span class="modal-qty-num" id="modalQty">1</span>
-          <button class="qty-btn" onclick="changeModalQty(1)">+</button>
+      <div class="acc-info">
+        <strong id="accSidebarName"></strong>
+        <span id="accSidebarEmail"></span>
+      </div>
+    </div>
+
+    <div class="acc-menu-group">
+      <p class="acc-label">Atalhos</p>
+      <button class="btn-acc-option" onclick="buttonLink('/settings')">
+        <i class="fa-solid fa-user-pen"></i>
+        <span>Editar Perfil</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/my-orders')">
+        <i class="fa-solid fa-box-open"></i>
+        <span>Minhas Compras</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/reviews')">
+        <i class="fa-solid fa-star"></i>
+        <span>Minhas Avaliações</span>
+      </button>
+      <button class="btn-acc-option" onclick="openFav(); closeAcc();">
+        <i class="fa-solid fa-heart"></i>
+        <span>Lista de Desejos</span>
+      </button>
+    </div>
+
+    <div class="acc-menu-group">
+      <p class="acc-label">Suporte</p>
+      <button class="btn-acc-option" onclick="buttonLink('/support')">
+        <i class="fa-solid fa-circle-question"></i>
+        <span>Ajuda & FAQ</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/terms')">
+        <i class="fa-solid fa-file-contract"></i>
+        <span>Termos de Uso</span>
+      </button>
+    </div>
+
+    <div class="acc-ft">
+      <button class="btn-logout-sb" onclick="doLogout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        Sair da Conta
+      </button>
+    </div>
+  </div>
+</div>
+	
+<!-- PRODUCT MODAL -->
+<div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="mcls" onclick="closeModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span id="mEmoji"></span>
+    </div>
+    <div class="modal-info">
+      <div class="m-cat"  id="mCat"></div>
+      <div class="m-name" id="mName"></div>
+      <div class="m-desc" id="mDesc"></div>
+      <div class="m-price-row">
+        <span class="m-price" id="mPrice"></span>
+        <span class="m-old"   id="mOld"></span>
+        <span class="m-disc"  id="mDisc"></span>
+      </div>
+      <div class="m-feats" id="mFeats"></div>
+      <hr class="m-div">
+      <div class="m-qty-row">
+        <span class="m-qty-lbl">Quantidade:</span>
+        <div class="m-qty-ctrl">
+          <button class="qb" onclick="chgQty(-1)">−</button>
+          <span class="m-qty-num" id="mQty">1</span>
+          <button class="qb" onclick="chgQty(1)">+</button>
         </div>
       </div>
-      <div class="modal-btns">
-        <button class="btn-modal-cart" id="modalAddBtn" onclick="addFromModal()">
-          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <div class="m-btns">
+        <button class="btn-madd" onclick="addFromModal()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
           Adicionar ao Carrinho
         </button>
-        <button class="btn-modal-wish" onclick="toggleWishlist(currentProduct)">
+        <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
           <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
       </div>
@@ -420,6 +595,7 @@
   });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>
