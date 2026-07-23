@@ -177,6 +177,10 @@ body.nobodyscroll {
     .headerAvatar { width: 70%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5)); }
     .header-profile:hover .acc-avatar { color: var(--blue); }
 
+    .hidden {
+      display: none !important;
+    }
+
   /* HERO */
   .hero { position: relative; min-height: 580px; display: flex; align-items: center; overflow: hidden; background: var(--bg2); }
   .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #e4eaf0 0%, #eef3fa 40%, #e4eaf0 100%); }
