@@ -913,3 +913,14 @@ setInterval(() => {
 
 /* ─── INIT ───────────────────────────────────────────────────────────── */
 renderOffers();
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function toast(msg) {
+  showToast(msg);
+}
