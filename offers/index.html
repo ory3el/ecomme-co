@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ofertas | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:      #2563EB;
+      --blue2:     #3B82F6;
+      --blue3:     #60A5FA;
+      --blue-dim:  rgba(37,99,235,0.07);
+      --blue-glow: rgba(37,99,235,0.3);
+      --bg:        #F3F7FF;
+      --bg2:       #FFFFFF;
+      --bg3:       #EBF2FF;
+      --text:      #0F172A;
+      --muted:     #64748B;
+      --border:    rgba(37,99,235,0.18);
+      --border2:   rgba(0,0,0,0.07);
+      --red:       #EF4444;
+      --red-glow:  rgba(239,68,68,.35);
+      --green:     #10B981;
+      --amber:     #F59E0B;
+      --radius:    8px;
+      --rad-lg:    16px;
+      --shadow:    0 4px 24px rgba(37,99,235,0.07);
+      --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+      --ease:      cubic-bezier(.4,0,.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+    input, select { font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    /* ── KEYFRAMES ────────────────────────────────────────────── */
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn     { from{opacity:0}to{opacity:1} }
+    @keyframes scaleIn    { from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)} }
+    @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 var(--red-glow)}100%{box-shadow:0 0 0 14px transparent} }
+    @keyframes pulse-blue { 0%{box-shadow:0 0 0 0 var(--blue-glow)}100%{box-shadow:0 0 0 12px transparent} }
+    @keyframes orb1       { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(45px,-35px) scale(1.1)}66%{transform:translate(-30px,25px) scale(.92)} }
+    @keyframes orb2       { 0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-35px,25px) scale(.92)}66%{transform:translate(35px,-20px) scale(1.1)} }
+    @keyframes dotDrift   { 0%{background-position:0 0}100%{background-position:56px 56px} }
+    @keyframes flameFlicker{ 0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.06) rotate(-2deg)}50%{transform:scale(.97) rotate(2deg)}75%{transform:scale(1.03) rotate(-1deg)} }
+    @keyframes digitFlip  { 0%{opacity:0;transform:translateY(-10px) rotateX(60deg)}100%{opacity:1;transform:translateY(0) rotateX(0)} }
+    @keyframes shimmerBar { 0%{background-position:-300px 0}100%{background-position:300px 0} }
+    @keyframes bounce-badge{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)} }
+    @keyframes lightning  { 0%,100%{opacity:1}50%{opacity:.5} }
+    @keyframes progressGrow{ from{width:0}to{width:var(--tw)} }
+    @keyframes ribbonWave { 0%,100%{transform:skewX(0)}50%{transform:skewX(-2deg)} }
+    @keyframes ticketPop  { 0%{transform:scale(0) rotate(-8deg);opacity:0}70%{transform:scale(1.1) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1} }
+    @keyframes float1     { 0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)} }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar { background:var(--blue); color:#fff; text-align:center; padding:8px 20px; font-size:12px; font-weight:500; letter-spacing:.3px; position:relative; }
+    .topbar span { opacity:.55; margin:0 10px; }
+    .topbar-close { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.65); font-size:18px; }
+    .topbar-close:hover { color:#fff; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header { background:#fff; border-bottom:1px solid var(--border2); position:sticky; top:0; z-index:1000; box-shadow:0 1px 20px rgba(37,99,235,.06); }
+    .header-inner { max-width:1440px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:24px; height:68px; }
+    .logo { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--blue); flex-shrink:0; display:flex; align-items:center; gap:5px; }
+    .logo-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; margin-top:2px; }
+    .nav-main { display:flex; gap:2px; }
+    .nav-main a { padding:7px 14px; font-size:13px; font-weight:500; color:var(--muted); border-radius:var(--radius); transition:all .2s; }
+    .nav-main a:hover { color:var(--text); background:var(--bg3); }
+    .nav-main a.active { color:var(--blue); background:var(--blue-dim); font-weight:600; }
+    .header-spacer { flex:1; }
+    .header-actions { display:flex; align-items:center; gap:6px; }
+    .icon-btn { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2); color:var(--muted); transition:all .2s; position:relative; }
+    .icon-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); }
+    .icon-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; }
+    .hd-badge { position:absolute; top:1px; right:1px; min-width:17px; height:17px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .btn-account { background:var(--blue); color:#fff; padding:8px 20px; border-radius:100px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; transition:all .2s; }
+    .btn-account:hover { background:var(--blue2); transform:translateY(-1px); }
+
+    /* ── OFFERS HERO ─────────────────────────────────────────── */
+    .offers-hero { background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 55%,var(--blue) 100%); position:relative; overflow:hidden; padding:64px 28px 0; }
+    .oh-grid  { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1px); background-size:26px 26px; animation:dotDrift 16s linear infinite; opacity:.45; }
+    .oh-orb1  { position:absolute; width:520px; height:520px; top:-200px; right:-140px; border-radius:50%; background:radial-gradient(circle,rgba(239,68,68,.18),transparent 70%); filter:blur(50px); animation:orb1 18s ease-in-out infinite; }
+    .oh-orb2  { position:absolute; width:360px; height:360px; bottom:-160px; left:8%; border-radius:50%; background:radial-gradient(circle,rgba(96,165,250,.16),transparent 70%); filter:blur(50px); animation:orb2 15s ease-in-out infinite; }
+    .oh-inner { max-width:1440px; margin:0 auto; position:relative; z-index:1; color:#fff; }
+    .oh-top   { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; padding-bottom:36px; }
+    .oh-tag   { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:6px 16px; border-radius:100px; margin-bottom:18px; animation:fadeInUp .6s var(--ease) backwards; }
+    .oh-tag .flame { animation:flameFlicker 1.4s ease-in-out infinite; display:inline-block; }
+    .oh-top h1 { font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:700; line-height:1.05; margin-bottom:10px; animation:fadeInUp .7s var(--ease) .06s backwards; }
+    .oh-top h1 em { font-style:italic; background:linear-gradient(120deg,#FCA5A5,#FCD34D); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .oh-top p { color:rgba(255,255,255,.78); font-size:14.5px; max-width:440px; line-height:1.7; animation:fadeInUp .7s var(--ease) .12s backwards; }
+
+    /* countdown */
+    .oh-countdown { display:flex; align-items:center; gap:14px; animation:scaleIn .6s var(--ease) .2s backwards; }
+    .cd-label { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.65); margin-right:4px; }
+    .cd-unit { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:12px 16px; text-align:center; min-width:64px; backdrop-filter:blur(6px); }
+    .cd-num { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:700; display:block; line-height:1; }
+    .cd-digit { display:inline-block; animation:digitFlip .4s var(--ease); }
+    .cd-lbl { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:3px; }
+    .cd-sep { font-size:24px; font-weight:700; color:rgba(255,255,255,.4); }
+
+    /* deal type chips */
+    .deal-chips { display:flex; gap:10px; padding-bottom:28px; flex-wrap:wrap; }
+    .dchip { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.85); padding:9px 18px; border-radius:100px; font-size:12.5px; font-weight:600; transition:all .25s var(--ease); cursor:pointer; }
+    .dchip:hover { background:rgba(255,255,255,.16); transform:translateY(-2px); }
+    .dchip.active { background:#fff; color:var(--blue); border-color:#fff; }
+    .dchip .em { font-size:14px; }
+
+    /* stats mini row */
+    .oh-stats { display:flex; gap:40px; padding:20px 0 32px; border-top:1px solid rgba(255,255,255,.12); flex-wrap:wrap; }
+    .ohs-item { display:flex; align-items:center; gap:10px; }
+    .ohs-item strong { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; display:block; line-height:1; }
+    .ohs-item span { font-size:11px; color:rgba(255,255,255,.6); }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+    .main-wrap { max-width:1440px; margin:0 auto; padding:40px 28px 90px; }
+
+    /* toolbar */
+    .toolbar { display:flex; align-items:center; gap:14px; margin-bottom:26px; padding:16px 20px; background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); box-shadow:var(--shadow); flex-wrap:wrap; }
+    .tb-search { flex:1; min-width:220px; display:flex; align-items:center; gap:9px; background:var(--bg); border:1px solid var(--border2); border-radius:100px; padding:0 16px; transition:border-color .2s; }
+    .tb-search:focus-within { border-color:var(--blue); }
+    .tb-search svg { width:15px; height:15px; fill:none; stroke:var(--muted); stroke-width:2; flex-shrink:0; }
+    .tb-search input { flex:1; background:none; border:none; outline:none; padding:10px 0; font-size:13px; color:var(--text); }
+    .tb-count { background:var(--blue-dim); color:var(--blue); padding:2px 12px; border-radius:100px; font-size:12px; font-weight:700; border:1px solid var(--border); white-space:nowrap; }
+    .tb-sel { background:var(--bg); border:1px solid var(--border2); color:var(--text); padding:9px 32px 9px 14px; border-radius:100px; font-size:12.5px; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; transition:border-color .2s; }
+    .tb-sel:focus { border-color:var(--blue); }
+
+    /* section title */
+    .sec-title-row { display:flex; align-items:baseline; justify-content:space-between; margin:36px 0 18px; }
+    .sec-title-row:first-child { margin-top:0; }
+    .sec-title { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; display:flex; align-items:center; gap:10px; }
+    .sec-title .em { font-size:22px; }
+    .sec-sub { font-size:12px; color:var(--muted); }
+
+    /* ── PRODUCT GRID ────────────────────────────────────────── */
+    .offers-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+
+    .ocard {
+      background:#fff; border:1px solid var(--border2); border-radius:var(--rad-lg); overflow:hidden;
+      transition:all .35s var(--ease); cursor:pointer; position:relative; display:flex; flex-direction:column;
+      animation:fadeInUp .5s var(--ease) backwards;
+    }
+    .ocard:hover { border-color:var(--border); transform:translateY(-6px); box-shadow:var(--shadow-hv); }
+    .ocard:hover .oc-img { transform:scale(1.1); }
+    .ocard:hover .oc-actions { opacity:1; transform:translateY(0); }
+
+    .oc-img-wrap { position:relative; aspect-ratio:1; overflow:hidden; background:var(--bg3); flex-shrink:0; }
+    .oc-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:68px; transition:transform .4s var(--ease); }
+
+    .oc-disc-badge {
+      position:absolute; top:12px; left:12px; z-index:2;
+      background:var(--red); color:#fff; font-weight:800; font-size:13px;
+      padding:6px 11px; border-radius:8px; box-shadow:0 4px 14px rgba(239,68,68,.4);
+      animation:bounce-badge 1.8s ease-in-out infinite;
+      display:flex; flex-direction:column; align-items:center; line-height:1;
+    }
+    .oc-disc-badge small { font-size:8px; font-weight:700; letter-spacing:.5px; opacity:.85; margin-top:1px; }
+
+    .oc-type-badge { position:absolute; top:12px; right:12px; z-index:2; font-size:9px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:4px 9px; border-radius:100px; color:#fff; }
+    .oc-type-badge.flash { background:var(--red); display:flex; align-items:center; gap:4px; }
+    .oc-type-badge.flash .lg { animation:lightning 1s ease-in-out infinite; }
+    .oc-type-badge.daily { background:var(--amber); }
+    .oc-type-badge.combo { background:var(--blue); }
+
+    .oc-wish { position:absolute; bottom:12px; right:12px; z-index:2; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.9); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; transition:all .2s; backdrop-filter:blur(4px); }
+    .oc-wish:hover, .oc-wish.on { background:#FEE2E2; border-color:var(--red); }
+    .oc-wish svg { width:13px; height:13px; fill:none; stroke:var(--muted); stroke-width:2; }
+    .oc-wish.on svg { stroke:var(--red); fill:var(--red); }
+
+    .oc-actions { position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent,rgba(235,242,255,.97)); opacity:0; transform:translateY(8px); transition:all .3s; display:flex; gap:7px; }
+    .btn-oc-cart { flex:1; background:var(--blue); color:#fff; padding:9px; border-radius:var(--radius); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .btn-oc-cart:hover { background:var(--blue2); }
+    .btn-oc-cart svg { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    .oc-info { padding:14px; flex:1; display:flex; flex-direction:column; }
+    .oc-cat { font-size:9.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--blue); margin-bottom:5px; }
+    .oc-name { font-weight:500; font-size:13.5px; line-height:1.4; margin-bottom:8px; flex:1; }
+    .oc-rating { display:flex; align-items:center; gap:5px; margin-bottom:9px; }
+    .oc-stars { color:var(--amber); font-size:11px; }
+    .oc-rcount { font-size:11px; color:var(--muted); }
+    .oc-price-row { display:flex; align-items:baseline; gap:7px; margin-bottom:10px; }
+    .oc-price { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--red); }
+    .oc-old { font-size:11.5px; color:var(--muted); text-decoration:line-through; }
+
+    /* mini countdown per card */
+    .oc-cd { display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--red); font-weight:700; margin-bottom:10px; }
+    .oc-cd svg { width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.5; }
+    .oc-cd .oc-cd-time { font-variant-numeric:tabular-nums; }
+
+    /* stock progress */
+    .oc-stock-wrap { margin-top:auto; }
+    .oc-stock-track { height:5px; background:var(--bg3); border-radius:100px; overflow:hidden; margin-bottom:5px; }
+    .oc-stock-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--red),#F87171); width:0; animation:progressGrow 1.2s var(--ease) forwards; }
+    .oc-stock-fill.warm { background:linear-gradient(90deg,var(--amber),#FBBF24); }
+    .oc-stock-txt { font-size:10px; color:var(--muted); display:flex; justify-content:space-between; }
+    .oc-stock-txt strong { color:var(--red); }
+
+    /* empty state */
+    .empty { grid-column:1/-1; text-align:center; padding:70px 20px; }
+    .empty-ico { font-size:56px; margin-bottom:16px; }
+    .empty h3 { font-family:'Cormorant Garamond',serif; font-size:26px; margin-bottom:8px; }
+    .empty p { color:var(--muted); }
+    .btn-clear { color:var(--blue); background:none; border:none; cursor:pointer; text-decoration:underline; font-size:13px; }
+
+    /* ── NEWSLETTER / DEAL ALERT ─────────────────────────────── */
+    .alert-section { margin-top:64px; background:linear-gradient(135deg,var(--blue) 0%,#1D4ED8 100%); border-radius:var(--rad-lg); padding:48px 40px; text-align:center; position:relative; overflow:hidden; color:#fff; }
+    .alert-section::before { content:'⚡'; position:absolute; font-size:220px; opacity:.08; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+    .alert-section h2 { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:700; margin-bottom:10px; position:relative; z-index:1; }
+    .alert-section p { font-size:14px; opacity:.85; max-width:440px; margin:0 auto 26px; line-height:1.7; position:relative; z-index:1; }
+    .alert-form { display:flex; max-width:440px; margin:0 auto; border-radius:100px; overflow:hidden; background:#fff; position:relative; z-index:1; }
+    .alert-form input { flex:1; border:none; outline:none; padding:14px 20px; font-size:13.5px; color:var(--text); }
+    .alert-form button { background:var(--text); color:#fff; padding:14px 26px; font-weight:700; font-size:13px; white-space:nowrap; transition:background .2s; }
+    .alert-form button:hover { background:#1E293B; }
+
+    /* ── CART SIDEBAR ────────────────────────────────────────── */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1999; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px); }
+    .overlay.on { opacity:1; pointer-events:all; }
+    .cart-sb { position:fixed; right:0; top:0; bottom:0; width:420px; background:#fff; border-left:1px solid var(--border2); z-index:2000; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; }
+    .cart-sb.on { transform:translateX(0); }
+    .cart-hd { padding:24px; border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; }
+    .cart-hd h3 { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
+    .cart-cls { width:34px; height:34px; border-radius:var(--radius); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+    .cart-cls:hover { border-color:var(--red); color:var(--red); }
+    .cart-cls svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+    .cart-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+    .cart-empty-st { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--muted); gap:12px; }
+    .cart-empty-st span { font-size:48px; }
+    .ci { background:var(--bg); border:1px solid var(--border2); border-radius:12px; padding:14px; display:flex; gap:12px; }
+    .ci-img { width:60px; height:60px; border-radius:8px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+    .ci-info { flex:1; min-width:0; }
+    .ci-name { font-size:13px; font-weight:500; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ci-price { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:700; color:var(--blue); }
+    .ci-qty { display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .qb { width:26px; height:26px; border-radius:6px; border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; transition:all .15s; }
+    .qb:hover { border-color:var(--blue); color:var(--blue); }
+    .qn { font-size:13px; font-weight:600; min-width:22px; text-align:center; }
+    .del { width:28px; height:28px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; color:var(--muted); align-self:flex-start; }
+    .del:hover { color:var(--red); }
+    .del svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; }
+    .cart-ft { padding:20px; border-top:1px solid var(--border2); }
+    .cart-tots { margin-bottom:16px; }
+    .ct-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+    .ct-row .lbl { color:var(--muted); }
+    .ct-row.ttl { font-size:15px; font-weight:600; padding-top:10px; border-top:1px solid var(--border2); margin-top:10px; }
+    .ct-row.ttl .amt { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--blue); }
+    .btn-ckout { width:100%; background:var(--blue); color:#fff; padding:14px; border-radius:100px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; margin-bottom:10px; }
+    .btn-ckout:hover { background:var(--blue2); }
+    .btn-cont { width:100%; background:none; border:1px solid var(--border2); color:var(--muted); padding:11px; border-radius:100px; font-size:12px; }
+    .btn-cont:hover { border-color:var(--blue); color:var(--blue); }
+
+    /* ── MODAL ───────────────────────────────────────────────── */
+    .modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:2500; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(8px); }
+    .modal-ov.on { opacity:1; pointer-events:all; }
+    .modal { background:#fff; border-radius:var(--rad-lg); max-width:820px; width:100%; max-height:88vh; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; }
+    .modal-img { background:var(--bg3); border-radius:var(--rad-lg) 0 0 var(--rad-lg); display:flex; align-items:center; justify-content:center; min-height:380px; position:relative; font-size:96px; }
+    .mcls { position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:var(--radius); background:rgba(255,255,255,.9); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--text); z-index:10; }
+    .mcls:hover { border-color:var(--red); color:var(--red); }
+    .mcls svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+    .modal-info { padding:32px; display:flex; flex-direction:column; }
+    .m-cat { font-size:10px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+    .m-name { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; margin-bottom:14px; line-height:1.2; }
+    .m-price-row { display:flex; align-items:baseline; gap:10px; margin-bottom:16px; }
+    .m-price { font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:700; color:var(--red); }
+    .m-old { font-size:14px; color:var(--muted); text-decoration:line-through; }
+    .m-disc { font-size:11px; font-weight:700; color:#fff; background:var(--red); padding:3px 8px; border-radius:4px; }
+    .m-btns { display:flex; gap:10px; margin-top:auto; }
+    .btn-madd { flex:1; background:var(--blue); color:#fff; padding:13px; border-radius:100px; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; }
+    .btn-madd:hover { background:var(--blue2); }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:#0F172A; border:1px solid rgba(255,255,255,.1); color:#fff; padding:12px 22px; border-radius:100px; font-size:13px; font-weight:500; z-index:3000; display:flex; align-items:center; gap:10px; transition:transform .3s cubic-bezier(.4,0,.2,1); white-space:nowrap; pointer-events:none; }
+    .toast.on { transform:translateX(-50%) translateY(0); }
+    .t-ico { width:20px; height:20px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0; }
+
+    /* ── BTT ─────────────────────────────────────────────────── */
+    .btt { position:fixed; bottom:28px; right:28px; width:44px; height:44px; background:var(--blue); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; transform:translateY(20px); transition:all .3s; }
+    .btt.on { opacity:1; transform:translateY(0); }
+    .btt:hover { background:var(--blue2); }
+    .btt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.5; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer { background:#fff; border-top:1px solid var(--border2); padding:36px 28px; }
+    .ft-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+    .ft-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--blue); }
+    .ft-links { display:flex; gap:22px; flex-wrap:wrap; }
+    .ft-links a { font-size:12px; color:var(--muted); transition:color .2s; }
+    .ft-links a:hover { color:var(--blue); }
+    .ft-copy { font-size:12px; color:var(--muted); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media(max-width:1280px){ .offers-grid{grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:1100px){ .oh-stats{gap:24px;} }
+    @media(max-width:900px) { .offers-grid{grid-template-columns:repeat(2,1fr);} .oh-countdown{flex-wrap:wrap;} }
+    @media(max-width:768px) {
+      .nav-main{display:none;}
+      .oh-top{flex-direction:column;align-items:flex-start;}
+      .oh-top h1{font-size:36px;}
+      .cd-unit{min-width:52px;padding:9px 11px;}
+      .cd-num{font-size:22px;}
+      .main-wrap{padding:24px 16px 70px;}
+      .toolbar{padding:12px 14px;}
+      .modal{grid-template-columns:1fr;max-height:85vh;}
+      .modal-img{min-height:240px;border-radius:var(--rad-lg) var(--rad-lg) 0 0;}
+      .cart-sb{width:100%;}
+      .ft-inner{flex-direction:column;text-align:center;}
+      .ft-links{justify-content:center;}
+      .alert-form{flex-direction:column;border-radius:16px;}
+      .alert-form input{text-align:center;}
+    }
+    @media(max-width:480px) { .offers-grid{grid-template-columns:1fr;} }
+    @media(pointer:coarse) { .ocard:hover{transform:none;} .oc-actions{opacity:1;transform:none;position:static;background:none;padding:8px 0 0;} }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="/offers" class="active">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showToast('Nenhuma notificação nova')">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge">3</span>
+      </button>
+      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" title="Carrinho" onclick="openCart()">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hd-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-account">
+        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Entrar
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ OFFERS HERO ═══════════════════════════════════════════ -->
+<section class="offers-hero">
+  <div class="oh-grid"></div>
+  <div class="oh-orb1"></div>
+  <div class="oh-orb2"></div>
+  <div class="oh-inner">
+    <div class="oh-top">
+      <div>
+        <div class="oh-tag"><span class="flame">🔥</span> Ofertas Ativas Agora</div>
+        <h1>Descontos que<br><em>não esperam</em> por você</h1>
+        <p>Ofertas relâmpago, promoções do dia e combos exclusivos — tudo em um só lugar, com estoque e tempo limitados.</p>
+      </div>
+      <div class="oh-countdown">
+        <span class="cd-label">Encerra em</span>
+        <div class="cd-unit"><span class="cd-num" id="cdH">00</span><div class="cd-lbl">Horas</div></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cdM">00</span><div class="cd-lbl">Min</div></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cdS">00</span><div class="cd-lbl">Seg</div></div>
+      </div>
+    </div>
+
+    <div class="deal-chips" id="dealChips">
+      <button class="dchip active" data-type="todos" onclick="setDealFilter(this,'todos')"><span class="em">🏷️</span> Todas as Ofertas</button>
+      <button class="dchip" data-type="flash" onclick="setDealFilter(this,'flash')"><span class="em">⚡</span> Relâmpago</button>
+      <button class="dchip" data-type="daily" onclick="setDealFilter(this,'daily')"><span class="em">☀️</span> Oferta do Dia</button>
+      <button class="dchip" data-type="combo" onclick="setDealFilter(this,'combo')"><span class="em">📦</span> Combos</button>
+      <button class="dchip" data-type="frete" onclick="setDealFilter(this,'frete')"><span class="em">🚚</span> Frete Grátis</button>
+    </div>
+
+    <div class="oh-stats">
+      <div class="ohs-item"><strong id="statActive">42</strong><span>Ofertas ativas</span></div>
+      <div class="ohs-item"><strong>Até 60%</strong><span>De desconto</span></div>
+      <div class="ohs-item"><strong id="statClaimed">1.2K</strong><span>Itens vendidos hoje</span></div>
+      <div class="ohs-item"><strong>Estoque</strong><span>Limitado por oferta</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAIN CONTENT ══════════════════════════════════════════ -->
+<div class="main-wrap">
+
+  <div class="toolbar">
+    <div class="tb-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar ofertas..." oninput="renderOffers()">
+    </div>
+    <span class="tb-count" id="offersCount">42 ofertas</span>
+    <select class="tb-sel" id="sortSelect" onchange="renderOffers()">
+      <option value="discount">Maior Desconto</option>
+      <option value="price_asc">Menor Preço</option>
+      <option value="price_desc">Maior Preço</option>
+      <option value="ending">Terminando em Breve</option>
+      <option value="rating">Mais Avaliados</option>
+    </select>
+  </div>
+
+  <div class="sec-title-row">
+    <span class="sec-title"><span class="em">🔥</span> Ofertas em Destaque</span>
+    <span class="sec-sub" id="offersSub">Atualizado agora mesmo</span>
+  </div>
+
+  <div class="offers-grid" id="offersGrid"></div>
+
+  <!-- DEAL ALERT -->
+  <div class="alert-section">
+    <h2>Nunca mais perca uma oferta relâmpago</h2>
+    <p>Cadastre seu e-mail e receba um alerta assim que novas ofertas com até 60% de desconto forem publicadas.</p>
+    <div class="alert-form">
+      <input type="email" placeholder="Seu melhor e-mail...">
+      <button onclick="showToast('Alertas de ofertas ativados! 🔔')">Ativar Alertas</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="/offers">Ofertas</a>
+      <a href="/about">Sobre Nós</a>
+      <a href="/support">Suporte</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sb" id="cartSidebar">
+  <div class="cart-hd">
+    <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartItems"></div>
+  <div class="cart-ft">
+    <div class="cart-tots">
+      <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+      <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+      <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+    </div>
+    <button class="btn-ckout" onclick="checkout()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Finalizar Compra
+    </button>
+    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="mcls" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <span id="mEmoji"></span>
+    </div>
+    <div class="modal-info">
+      <div class="m-cat" id="mCat"></div>
+      <div class="m-name" id="mName"></div>
+      <div class="m-price-row">
+        <span class="m-price" id="mPrice"></span>
+        <span class="m-old" id="mOld"></span>
+        <span class="m-disc" id="mDisc"></span>
+      </div>
+      <p style="color:var(--muted);font-size:13px;line-height:1.75;margin-bottom:16px" id="mDesc"></p>
+      <div class="oc-cd" style="margin-bottom:20px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="mCdText">Termina em breve</span></div>
+      <div class="m-btns">
+        <button class="btn-madd" onclick="addFromModal()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Adicionar ao Carrinho
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+
+/* ─── OFFERS DATA ────────────────────────────────────────────────────── */
+/* endsInMin: minutes from page load until offer ends (drives per-card countdown) */
+const offers = [
+  { id:0,  name:'Smartwatch Pro X7',           cat:'Eletrônicos', price:189.90, old:299,   discount:36, emoji:'⌚', type:'flash', rating:4.9, reviews:2847, claimed:82, freeShip:true,  endsInMin:185,  desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM. Bateria de 14 dias.' },
+  { id:1,  name:'Fone Bluetooth ANC Pro',      cat:'Eletrônicos', price:99.90,  old:199,   discount:50, emoji:'🎧', type:'flash', rating:4.8, reviews:1523, claimed:91, freeShip:true,  endsInMin:62,   desc:'Fone com cancelamento ativo de ruído, driver 40mm e autonomia de 30h.' },
+  { id:2,  name:'Câmera de Segurança WiFi',    cat:'Eletrônicos', price:149.90, old:220,   discount:32, emoji:'📷', type:'daily', rating:4.7, reviews:892,  claimed:44, freeShip:false, endsInMin:960,  desc:'Câmera IP 2K com visão noturna colorida e detecção de movimento.' },
+  { id:3,  name:'Kit Luzes LED Smart RGB',     cat:'Casa',        price:59.90,  old:130,   discount:54, emoji:'💡', type:'flash', rating:4.6, reviews:3102, claimed:96, freeShip:true,  endsInMin:38,   desc:'Fita LED inteligente de 10m com controle por voz e 16M de cores.' },
+  { id:4,  name:'Tapete Antiderrapante Premium',cat:'Casa',       price:59.90,  old:149,   discount:60, emoji:'🏠', type:'daily', rating:4.5, reviews:445,  claimed:38, freeShip:true,  endsInMin:960,  desc:'Tapete ecológico antiderrapante com design escandinavo, lavável à máquina.' },
+  { id:5,  name:'Mini Massageador Portátil',   cat:'Fitness',     price:89.90,  old:210,   discount:57, emoji:'💆', type:'flash', rating:4.9, reviews:2231, claimed:88, freeShip:true,  endsInMin:120,  desc:'Pistola de massagem percussiva com 6 cabeças e 30 níveis de intensidade.' },
+  { id:6,  name:'Tênis Running Ultralight',    cat:'Moda',        price:159.90, old:320,   discount:50, emoji:'👟', type:'combo', rating:4.7, reviews:1876, claimed:64, freeShip:true,  endsInMin:1440, desc:'Tênis de corrida ultra leve com amortecimento por gel e palmilha ortopédica.' },
+  { id:7,  name:'Mochila Anti-Furto Executiva',cat:'Moda',        price:99.90,  old:250,   discount:60, emoji:'🎒', type:'combo', rating:4.8, reviews:987,  claimed:71, freeShip:false, endsInMin:1440, desc:'Mochila com USB embutido, proteção RFID e 28 litros de capacidade.' },
+  { id:8,  name:'Secador de Cabelo Íon Pro',   cat:'Beleza',      price:99.90,  old:249,   discount:60, emoji:'💇', type:'flash', rating:4.6, reviews:654,  claimed:79, freeShip:true,  endsInMin:95,   desc:'Secador 2200W com tecnologia iônica e diffusor incluso.' },
+  { id:9,  name:'Kit Skincare Vitamina C',     cat:'Beleza',      price:69.90,  old:160,   discount:56, emoji:'✨', type:'daily', rating:4.9, reviews:4521, claimed:93, freeShip:true,  endsInMin:960,  desc:'Kit completo com sérum, hidratante e protetor solar com vitamina C.' },
+  { id:10, name:'Ração Premium para Cães',     cat:'Pets',        price:69.90,  old:140,   discount:50, emoji:'🐕', type:'combo', rating:4.8, reviews:1234, claimed:55, freeShip:true,  endsInMin:1440, desc:'Ração super premium com proteína animal real e ômega-3.' },
+  { id:11, name:'Garrafa Térmica 1L Inox',     cat:'Fitness',     price:39.90,  old:110,   discount:64, emoji:'🍶', type:'flash', rating:4.7, reviews:3876, claimed:98, freeShip:true,  endsInMin:20,   desc:'Garrafa em aço inox que mantém bebidas geladas por 24h e quentes por 12h.' },
+  { id:12, name:'Fone Gamer RGB Pro',          cat:'Eletrônicos', price:69.90,  old:160,   discount:56, emoji:'🎮', type:'flash', rating:4.7, reviews:745,  claimed:87, freeShip:true,  endsInMin:150,  desc:'Fone gamer com iluminação RGB, microfone destacável e som surround.' },
+  { id:13, name:'Hub USB-C 7 em 1',            cat:'Eletrônicos', price:49.90,  old:110,   discount:55, emoji:'🔌', type:'daily', rating:4.8, reviews:1230, claimed:61, freeShip:true,  endsInMin:960,  desc:'Hub com HDMI 4K, USB 3.0, leitor de cartão e carregamento rápido.' },
+  { id:14, name:'Teclado Mecânico RGB',        cat:'Eletrônicos', price:129.90, old:280,   discount:54, emoji:'⌨️', type:'combo', rating:4.8, reviews:987,  claimed:69, freeShip:false, endsInMin:1440, desc:'Teclado mecânico switch blue com iluminação RGB customizável.' },
+  { id:15, name:'Kit Skincare Facial Noturno', cat:'Beleza',      price:79.90,  old:189,   discount:58, emoji:'🌙', type:'flash', rating:4.7, reviews:521,  claimed:73, freeShip:true,  endsInMin:210,  desc:'Rotina noturna completa com sérum reparador e creme anti-idade.' },
+];
+
+let wishlist = [];
+let cart = [];
+let currentDealFilter = 'todos';
+let currentProduct = null;
+
+/* ─── COUNTDOWN (hero master timer, resets daily at midnight) ───────── */
+function updateHeroCountdown() {
+  const now = new Date();
+  const end = new Date(now); end.setHours(23,59,59,0);
+  const diff = end - now;
+  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+  $('cdH').textContent = String(h).padStart(2,'0');
+  $('cdM').textContent = String(m).padStart(2,'0');
+  $('cdS').textContent = String(s).padStart(2,'0');
+}
+setInterval(updateHeroCountdown, 1000);
+updateHeroCountdown();
+
+/* ─── PER-CARD COUNTDOWN ─────────────────────────────────────────────── */
+const startTime = Date.now();
+function fmtCardCountdown(endsInMin) {
+  const elapsedMs = Date.now() - startTime;
+  const totalMs = endsInMin * 60000 - elapsedMs;
+  if (totalMs <= 0) return '00:00:00';
+  const h = Math.floor(totalMs / 3600000);
+  const m = Math.floor((totalMs % 3600000) / 60000);
+  const s = Math.floor((totalMs % 60000) / 1000);
+  if (h > 0) return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function tickCardCountdowns() {
+  document.querySelectorAll('.oc-cd-time[data-ends]').forEach(el => {
+    const ends = parseFloat(el.dataset.ends);
+    el.textContent = fmtCardCountdown(ends);
+  });
+}
+setInterval(tickCardCountdowns, 1000);
+
+/* ─── DEAL FILTER ────────────────────────────────────────────────────── */
+function setDealFilter(btn, type) {
+  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentDealFilter = type;
+  renderOffers();
+}
+
+/* ─── RENDER ─────────────────────────────────────────────────────────── */
+const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
+
+function renderOffers() {
+  const q = $('searchInput').value.toLowerCase().trim();
+  const sort = $('sortSelect').value;
+
+  let list = offers.filter(o => {
+    const matchQ = !q || o.name.toLowerCase().includes(q) || o.cat.toLowerCase().includes(q);
+    const matchType = currentDealFilter === 'todos'
+      || (currentDealFilter === 'frete' ? o.freeShip : o.type === currentDealFilter);
+    return matchQ && matchType;
+  });
+
+  if (sort === 'price_asc') list.sort((a,b)=>a.price-b.price);
+  else if (sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
+  else if (sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
+  else if (sort === 'ending') list.sort((a,b)=>a.endsInMin-b.endsInMin);
+  else list.sort((a,b)=>b.discount-a.discount); /* discount default */
+
+  $('offersCount').textContent = `${list.length} oferta${list.length!==1?'s':''}`;
+  $('statActive').textContent = list.length;
+
+  const grid = $('offersGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-ico">🔍</div>
+      <h3>Nenhuma oferta encontrada</h3>
+      <p>Tente outro termo ou <button class="btn-clear" onclick="clearFilters()">limpar os filtros</button></p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((o, i) => {
+    const inW = wishlist.includes(o.id);
+    const typeBadge = o.type === 'flash'
+      ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
+      : o.type === 'daily'
+      ? `<div class="oc-type-badge daily">☀️ Do Dia</div>`
+      : `<div class="oc-type-badge combo">📦 Combo</div>`;
+    const claimedClass = o.claimed >= 85 ? '' : 'warm';
+    return `
+      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
+        <div class="oc-img-wrap">
+          <div class="oc-img">${o.emoji}</div>
+          <div class="oc-disc-badge">-${o.discount}%<small>OFF</small></div>
+          ${typeBadge}
+          <button class="oc-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${o.id})">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="oc-actions">
+            <button class="btn-oc-cart" onclick="event.stopPropagation();addToCart(${o.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Adicionar
+            </button>
+          </div>
+        </div>
+        <div class="oc-info">
+          <div class="oc-cat">${o.cat}</div>
+          <div class="oc-name">${o.name}</div>
+          <div class="oc-rating"><span class="oc-stars">${stars(o.rating)}</span><span class="oc-rcount">(${o.reviews.toLocaleString('pt-BR')})</span></div>
+          <div class="oc-price-row"><span class="oc-price">${fmt(o.price)}</span><span class="oc-old">${fmt(o.old)}</span></div>
+          <div class="oc-cd">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Termina em <span class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</span>
+          </div>
+          <div class="oc-stock-wrap">
+            <div class="oc-stock-track"><div class="oc-stock-fill ${claimedClass}" style="--tw:${o.claimed}%"></div></div>
+            <div class="oc-stock-txt"><span><strong>${o.claimed}%</strong> vendido</span><span>Estoque limitado</span></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function clearFilters() {
+  $('searchInput').value = '';
+  currentDealFilter = 'todos';
+  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.dchip[data-type="todos"]').classList.add('active');
+  renderOffers();
+}
+
+/* ─── WISHLIST ───────────────────────────────────────────────────────── */
+function toggleWish(id) {
+  const idx = wishlist.indexOf(id);
+  if (idx===-1) { wishlist.push(id); showToast('Adicionado aos favoritos ❤️'); }
+  else { wishlist.splice(idx,1); showToast('Removido dos favoritos'); }
+  const badge = $('wishBadge');
+  badge.textContent = wishlist.length;
+  badge.style.display = wishlist.length ? 'flex' : 'none';
+  renderOffers();
+}
+function alertWish() { showToast(`Lista de favoritos: ${wishlist.length} produto(s)`); }
+
+/* ─── CART ───────────────────────────────────────────────────────────── */
+function addToCart(id, qty=1) {
+  const p = offers.find(x=>x.id===id);
+  const ex = cart.find(x=>x.id===id);
+  if (ex) ex.qty += qty; else cart.push({...p, qty});
+  updateCart();
+  showToast(`${p.name} adicionado ao carrinho! 🛒`);
+}
+function removeFromCart(id) { cart = cart.filter(x=>x.id!==id); updateCart(); }
+function changeQty(id, d) { const it=cart.find(x=>x.id===id); if(it){it.qty+=d; if(it.qty<=0) removeFromCart(id); else updateCart();} }
+function updateCart() {
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  $('cartBadge').textContent = count;
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent = fmt(total);
+  $('cartTotal').textContent = fmt(total);
+  const el = $('cartItems');
+  if (!cart.length) { el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`; return; }
+  el.innerHTML = cart.map(it => `
+    <div class="ci">
+      <div class="ci-img">${it.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${it.name}</div>
+        <div class="ci-price">${fmt(it.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeQty(${it.id},-1)">−</button>
+          <span class="qn">${it.qty}</span>
+          <button class="qb" onclick="changeQty(${it.id},1)">+</button>
+        </div>
+      </div>
+      <button class="del" onclick="removeFromCart(${it.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+    </div>`).join('');
+}
+function openCart() { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
+function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
+function checkout() { if(!cart.length){showToast('Adicione produtos ao carrinho primeiro! 😊');return;} showToast('Redirecionando para o pagamento… 🔒'); setTimeout(closeCart,1200); }
+
+/* ─── MODAL ──────────────────────────────────────────────────────────── */
+function openProductModal(id) {
+  const o = offers.find(x=>x.id===id);
+  currentProduct = id;
+  $('mEmoji').textContent = o.emoji;
+  $('mCat').textContent = o.cat;
+  $('mName').textContent = o.name;
+  $('mPrice').textContent = fmt(o.price);
+  $('mOld').textContent = fmt(o.old);
+  $('mDisc').textContent = `-${o.discount}% OFF`;
+  $('mDesc').textContent = o.desc;
+  $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
+  $('modalOverlay').classList.add('on');
+}
+function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
+function closeModal() { $('modalOverlay').classList.remove('on'); }
+function addFromModal() { addToCart(currentProduct,1); closeModal(); openCart(); }
+
+/* ─── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(()=>$('toast').classList.remove('on'), 2800);
+}
+
+/* ─── STOCK ANIMATION TICK (slowly increases claimed% for urgency) ──── */
+setInterval(() => {
+  const el = document.querySelector('.oc-stock-fill');
+  // Simulate a random item's stock ticking up slightly
+  if (Math.random() > 0.6 && offers.length) {
+    const idx = Math.floor(Math.random() * offers.length);
+    if (offers[idx].claimed < 99) offers[idx].claimed += 1;
+  }
+}, 4000);
+
+/* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
+let soldCount = 1200;
+setInterval(() => {
+  soldCount += Math.floor(Math.random()*3);
+  $('statClaimed').textContent = soldCount >= 1000 ? (soldCount/1000).toFixed(1)+'K' : soldCount;
+}, 3500);
+
+/* ─── SCROLL / ESC ───────────────────────────────────────────────────── */
+window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY>300); });
+document.addEventListener('keydown', e => { if (e.key==='Escape'){closeCart();closeModal();} });
+
+/* ─── INIT ───────────────────────────────────────────────────────────── */
+updateCart();
+renderOffers();
+</script>
+</body>
+</html>
