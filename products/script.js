@@ -157,6 +157,33 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
+function updateHeaderContrast(){
+    const header = document.querySelector("header");
+    const sampleY = header.offsetHeight + 10;
+    const x = window.innerWidth / 2;
+    const el = document.elementFromPoint(x, sampleY);
+  
+    if(!el) return;
+    const style = getComputedStyle(el);
+    const bg = style.backgroundColor;
+    const rgb = bg.match(/\d+/g);
+  
+    if(!rgb) return;
+    const r = Number(rgb[0]);
+    const g = Number(rgb[1]);
+    const b = Number(rgb[2]);
+    const brightness =
+        (r*299 + g*587 + b*114) / 1000;
+    if(brightness < 90){
+        header.classList.add("dark-glass");
+    }else{
+        header.classList.remove("dark-glass");
+    }
+}
+window.addEventListener("scroll",updateHeaderContrast);
+window.addEventListener("resize",updateHeaderContrast);
+updateHeaderContrast();
+
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart        = [];
 let fav         = [];
