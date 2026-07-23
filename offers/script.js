@@ -579,7 +579,8 @@ function renderOffers() {
   }
 
   grid.innerHTML = list.map((o, i) => {
-    const inW = fav.includes(o.id);
+    const inW = fav.includes(String(o.id)) || fav.includes(Number(o.id));
+    
     const typeBadge = o.type === 'flash'
       ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
       : o.type === 'daily'
@@ -588,16 +589,16 @@ function renderOffers() {
     const claimedClass = o.claimed >= 85 ? '' : 'warm';
     
     return `
-      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
+      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal('${o.id}')">
         <div class="oc-img-wrap">
           <div class="oc-img">${o.emoji}</div>
           <div class="oc-disc-badge">-${o.discount}%<small>OFF</small></div>
           ${typeBadge}
-          <button class="oc-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${o.id})">
+          <button class="oc-wish ${inW ? 'on' : ''}" onclick="event.stopPropagation(); toggleWish('${o.id}')">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
           <div class="oc-actions">
-            <button class="btn-oc-cart" onclick="event.stopPropagation();addToCart(${o.id})">
+            <button class="btn-oc-cart" onclick="event.stopPropagation(); addToCart('${o.id}')">
               <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Adicionar
             </button>
