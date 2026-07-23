@@ -630,6 +630,24 @@ function clearFilters() {
   renderOffers();
 }
 
+//--------------------------------------------------------
+async function loadProductsFromSupabase() {
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar produtos do banco:", error);
+    return;
+  }
+
+  if (data) {
+    products = data;
+    shuffled = [...products];
+  }
+}
+
 // ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
 async function loadFromSupabase() {
   if (!userId) return;
