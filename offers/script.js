@@ -341,11 +341,14 @@ function addToFav(id, qty = 1) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p = products.find(x => x.id === id);
-  const ex = fav.find(x => x.id === id);
+  const p = products.find(x => String(x.id) === String(id)) || offers.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  const ex = fav.find(x => String(x.id) === String(id));
   if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  
   updateFav();
-  showToast(`${p.name} salvo nos favoritos! 🛒`);
+  showToast(`${p.name} salvo nos favoritos! ❤️`);
   syncToSupabase();
 }
 
@@ -579,7 +582,7 @@ function renderOffers() {
   }
 
   grid.innerHTML = list.map((o, i) => {
-    const inW = fav.includes(String(o.id)) || fav.includes(Number(o.id));
+    const inW = fav.some(x => String(x.id) === String(o.id));
     
     const typeBadge = o.type === 'flash'
       ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
