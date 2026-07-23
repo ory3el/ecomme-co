@@ -1,5 +1,5 @@
 // FAVICON
-const favicon = document.getElementById('favicon');  
+const favicon = document.getElementById('favicon');
 function verificarTema(e) {
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
@@ -59,9 +59,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     injectPrefetch('/login');
     return;
   }
-  userId = user.id; 
+  userId = user.id;
   await loadFromSupabase();
-  
+
   if (loginBtn) loginBtn.classList.add('hidden');
   if (profileContainer) profileContainer.classList.remove('hidden');
 
@@ -80,7 +80,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (profile.avatar_url && $('accSidebarAvatar')) {
       $('accSidebarAvatar').src = profile.avatar_url;
     }
-    
+
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(' ') || "";
@@ -96,7 +96,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if (photoUrl) {
       const sidebarImage = document.getElementById('sidebarAvatar');
-      
+
       if (sidebarImage) {
         sidebarImage.src = photoUrl;
         sidebarImage.style.filter = "none";
@@ -123,14 +123,15 @@ function initHeaderAuthListener() {
   const profileContainer = document.getElementById('headerProfileContainer');
   const bellBtn = document.getElementById('bellBtn');
   const headerAvatar = document.getElementById('headerAvatar');
-  
+
   if (!loginBtn || !profileContainer) return;
+  
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (session && session.user) {
       loginBtn.classList.add('hidden');
       bellBtn.classList.remove('hidden');
       profileContainer.classList.remove('hidden');
-      
+
       try {
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
@@ -146,7 +147,6 @@ function initHeaderAuthListener() {
       } catch (err) {
         console.error("Erro ao carregar o avatar do header:", err);
       }
-      
     } else {
       loginBtn.classList.remove('hidden');
       profileContainer.classList.add('hidden');
@@ -157,50 +157,50 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
-function updateHeaderContrast(){
-    const header = document.querySelector("header");
-    const sampleY = header.offsetHeight + 10;
-    const x = window.innerWidth / 2;
-    const el = document.elementFromPoint(x, sampleY);
+function updateHeaderContrast() {
+  const header = document.querySelector("header");
+  const sampleY = header.offsetHeight + 10;
+  const x = window.innerWidth / 2;
+  const el = document.elementFromPoint(x, sampleY);
+
+  if (!el) return;
+  const style = getComputedStyle(el);
+  const bg = style.backgroundColor;
+  const rgb = bg.match(/\d+/g);
+
+  if (!rgb) return;
+  const r = Number(rgb[0]);
+  const g = Number(rgb[1]);
+  const b = Number(rgb[2]);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
   
-    if(!el) return;
-    const style = getComputedStyle(el);
-    const bg = style.backgroundColor;
-    const rgb = bg.match(/\d+/g);
-  
-    if(!rgb) return;
-    const r = Number(rgb[0]);
-    const g = Number(rgb[1]);
-    const b = Number(rgb[2]);
-    const brightness =
-        (r*299 + g*587 + b*114) / 1000;
-    if(brightness < 90){
-        header.classList.add("dark-glass");
-    }else{
-        header.classList.remove("dark-glass");
-    }
+  if (brightness < 90) {
+    header.classList.add("dark-glass");
+  } else {
+    header.classList.remove("dark-glass");
+  }
 }
-window.addEventListener("scroll",updateHeaderContrast);
-window.addEventListener("resize",updateHeaderContrast);
+window.addEventListener("scroll", updateHeaderContrast);
+window.addEventListener("resize", updateHeaderContrast);
 updateHeaderContrast();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart        = [];
-let fav         = [];
-let curId       = null;
-let mQtyVal     = 1;
-let view        = 'grid';
-let shuffled    = [...products];
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let shuffled = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
+const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const $ = id => document.getElementById(id);
 
 function starsHtml(r) {
   let s = '';
   const f = Math.floor(r);
-  for (let i = 0; i < f; i++)    s += '★';
-  for (let i = f; i < 5; i++)    s += '☆';
+  for (let i = 0; i < f; i++) s += '★';
+  for (let i = f; i < 5; i++) s += '☆';
   return s;
 }
 
@@ -219,7 +219,7 @@ function addToCart(id, qty = 1) {
     showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p  = products.find(x => x.id === id);
+  const p = products.find(x => x.id === id);
   const ex = cart.find(x => x.id === id);
   if (ex) ex.qty += qty; else cart.push({ ...p, qty });
   updateCart();
@@ -245,11 +245,11 @@ function changeCartQty(id, d) {
 function updateCart() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
-  
+
   $('cartBadge').textContent = count;
   $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
   $('cartCount').textContent = `(${count})`;
-  $('cartSub').textContent   = fmt(total);
+  $('cartSub').textContent = fmt(total);
   $('cartTotal').textContent = fmt(total);
 
   const el = $('cartItems');
@@ -257,6 +257,7 @@ function updateCart() {
     el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
     return;
   }
+  
   el.innerHTML = cart.map(item => `
     <div class="ci">
       <div class="ci-img">${item.emoji}</div>
@@ -279,24 +280,32 @@ function updateCart() {
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>`).join('');
+    
   renderProducts();
   syncToSupabase();
 }
 
-function openCart() { 
+function openCart() {
   closeMore();
   closeFav();
   closeNotif();
   closeAcc();
-  $('cartSidebar').classList.add('on'); 
-  $('cartOverlay').classList.add('on'); 
-  document.body.classList.add("nobodyscroll"); 
+  $('cartSidebar').classList.add('on');
+  $('cartOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
 }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+function closeCart() {
+  $('cartSidebar').classList.remove('on');
+  $('cartOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
 
 function checkout() {
-  if(!cart.length) { showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho", "ℹ️"); return; }
-  //if(!cart.length) { showToast('Adicione produtos ao carrinho primeiro! 😊'); return; }
+  if (!cart.length) {
+    showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho", "ℹ️");
+    return;
+  }
   showToast('Redirecionando para o pagamento... 🔒');
   window.location.href = "/checkout"
   setTimeout(closeCart, 1200);
@@ -315,7 +324,7 @@ function toggleFav(id) {
   } else {
     addToFav(id, 1);
   }
-  
+
   if ($('mWish')) {
     $('mWish').classList.toggle('on', fav.some(x => x.id === id));
   }
@@ -327,7 +336,7 @@ function addToFav(id, qty = 1) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p  = products.find(x => x.id === id);
+  const p = products.find(x => x.id === id);
   const ex = fav.find(x => x.id === id);
   if (ex) ex.qty += qty; else fav.push({ ...p, qty });
   updateFav();
@@ -353,6 +362,7 @@ function changeFavQty(id, d) {
 function updateFav() {
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
+  
   $('wishBadge').textContent = count;
   $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
   $('favCount').textContent = `(${count})`;
@@ -363,13 +373,13 @@ function updateFav() {
     el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
     return;
   }
- el.innerHTML = fav.map(item => `
+  
+  el.innerHTML = fav.map(item => `
     <div class="ci">
       <div class="ci-img">${item.emoji}</div>
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
-        
         <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -377,7 +387,6 @@ function updateFav() {
           </svg>
           Adicionar ao Carrinho
         </button>
-        
       </div>
       <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
         <svg viewBox="0 0 24 24">
@@ -386,31 +395,36 @@ function updateFav() {
         </svg>
       </button>
     </div>`).join('');
+    
   renderProducts();
   syncToSupabase();
 }
-  
-function openFav() { 
+
+function openFav() {
   closeMore();
   closeCart();
   closeNotif();
   closeAcc();
-  $('favSidebar').classList.add('on'); 
-  $('favOverlay').classList.add('on'); 
-  document.body.classList.add("nobodyscroll"); 
+  $('favSidebar').classList.add('on');
+  $('favOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
 }
-function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+function closeFav() {
+  $('favSidebar').classList.remove('on');
+  $('favOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
 
 function addAllFavToCart() {
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
-  
+
   fav.forEach(produto => {
     addToCart(produto.id, 1);
   });
-  fav = []; 
-  updateFav(); 
+  fav = [];
+  updateFav();
   renderProducts();
-  // saveFav(); 
   closeFav();
   openCart();
   showToast('Todos os itens foram para o carrinho! 🛒');
@@ -422,78 +436,88 @@ function moveFromCartToFav(id) {
 }
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
-function openNotif() { 
+function openNotif() {
   closeCart();
   closeFav();
   closeAcc();
   closeMore();
   if (typeof closeMore === 'function') closeMore();
-  $('notifSidebar').classList.add('on'); 
-  $('notifOverlay').classList.add('on'); 
-  document.body.classList.add("nobodyscroll"); 
+  $('notifSidebar').classList.add('on');
+  $('notifOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
 }
-function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+function closeNotif() {
+  $('notifSidebar').classList.remove('on');
+  $('notifOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
-function openMore() { 
+function openMore() {
   closeFav();
   closeCart();
   closeAcc();
   closeNotif();
   if (typeof closeMore === 'function') closeNotif();
-  $('moreSidebar').classList.add('on'); 
-  $('moreOverlay').classList.add('on'); 
-  document.body.classList.add("nobodyscroll"); 
+  $('moreSidebar').classList.add('on');
+  $('moreOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
 }
-function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+function closeMore() {
+  $('moreSidebar').classList.remove('on');
+  $('moreOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
 
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
-function openAcc() { 
+function openAcc() {
   closeCart();
   closeFav();
   closeNotif();
   closeMore();
-  
+
   const sb = document.getElementById('accSidebar');
   const ov = document.getElementById('accOverlay');
-  if(sb) sb.classList.add('on'); 
-  if(ov) ov.classList.add('on'); 
-  document.body.classList.add("nobodyscroll"); 
+  if (sb) sb.classList.add('on');
+  if (ov) ov.classList.add('on');
+  document.body.classList.add("nobodyscroll");
 }
 
-function closeAcc() { 
+function closeAcc() {
   const sb = document.getElementById('accSidebar');
   const ov = document.getElementById('accOverlay');
-  if(sb) sb.classList.remove('on'); 
-  if(ov) ov.classList.remove('on'); 
-  document.body.classList.remove("nobodyscroll"); 
+  if (sb) sb.classList.remove('on');
+  if (ov) ov.classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
   const p = products.find(x => x.id === id);
-  curId   = id;
+  curId = id;
   mQtyVal = 1;
-  $('mQty').textContent    = 1;
-  $('mEmoji').textContent  = p.emoji;
-  $('mCat').textContent    = p.cat;
-  $('mName').textContent   = p.name;
-  $('mDesc').textContent   = p.desc;
-  $('mPrice').textContent  = fmt(p.price);
-  $('mOld').textContent    = fmt(p.old);
-  $('mDisc').textContent   = `-${p.discount}% OFF`;
-  $('mFeats').innerHTML    = p.features.map(f =>
+  $('mQty').textContent = 1;
+  $('mEmoji').textContent = p.emoji;
+  $('mCat').textContent = p.cat;
+  $('mName').textContent = p.name;
+  $('mDesc').textContent = p.desc;
+  $('mPrice').textContent = fmt(p.price);
+  $('mOld').textContent = fmt(p.old);
+  $('mDisc').textContent = `-${p.discount}% OFF`;
+  $('mFeats').innerHTML = p.features.map(f =>
     `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
   $('mWish').classList.toggle('on', fav.some(x => x.id === id));
   $('modalOverlay').classList.add('on');
 }
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
-function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
-function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
+function closeModal() { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function chgQty(d) { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
+function addFromModal() { addToCart(curId, mQtyVal); closeModal(); openCart(); }
+function addFromModal2() { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
 function showToast(msg) {
@@ -502,10 +526,10 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
 function toast(msg) {
   showToast(msg);
 }
-
 
 // BACK TO TOP
 window.addEventListener('scroll', () => {
@@ -520,17 +544,17 @@ document.addEventListener('keydown', e => {
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
   if (!userId) return;
-  
-const currentFav = fav;
-const currentCart = cart;
 
-const { error } = await supabaseClient
-.from("profiles")
-.update({
-    cart: currentCart,
-    fav: currentFav
-})
-.eq("id", userId);
+  const currentFav = fav;
+  const currentCart = cart;
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .update({
+      cart: currentCart,
+      fav: currentFav
+    })
+    .eq("id", userId);
 
   if (error) {
     console.error("Erro ao sincronizar dados com o Supabase:", error);
@@ -551,13 +575,13 @@ async function loadFromSupabase() {
     if (data.cart) {
       cart = data.cart;
     }
-    
+
     if (data.fav) {
       fav = data.fav;
     }
 
     if (typeof updateCart === 'function') updateCart();
-    if (typeof updateFav === 'function') updateFav(); 
+    if (typeof updateFav === 'function') updateFav();
   }
 }
 
@@ -569,81 +593,24 @@ function injectModalStyles() {
   style.id = 'modal-alert-styles';
   style.textContent = `
     .modal-alert-container {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10000;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+      z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     }
-    .modal-alert-container.active {
-      opacity: 1; pointer-events: auto;
-    }
+    .modal-alert-container.active { opacity: 1; pointer-events: auto; }
     .modal-alert-content {
-      background: #fff;
-      padding: 30px;
-      border-radius: 16px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      transform: scale(0.8);
-      transition: transform 0.3s ease;
+      background: #fff; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%;
+      text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.8); transition: transform 0.3s ease;
     }
-    .modal-alert-container.active .modal-alert-content {
-      transform: scale(1);
-    }
-    .modal-alert-icon {
-      font-size: 44px;
-      margin-bottom: 15px;
-    }
-    .modal-alert-content h3 {
-      margin: 0 0 10px 0;
-      font-family: 'Sora', 'Poppins', sans-serif;
-      color: #10161a;
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .modal-alert-content p {
-      color: #707c8a;
-      font-size: 14.5px;
-      line-height: 1.5;
-      margin: 0 0 24px 0;
-    }
-    .modal-alert-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-    .btn-alert-confirm {
-      background: #2563EB;
-      color: #fff;
-      border: none;
-      padding: 11px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .btn-alert-confirm:hover {
-      background: #1d4ed8;
-    }
-    .btn-alert-cancel {
-      background: #e8ebf0;
-      color: #10161a;
-      border: none;
-      padding: 11px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .btn-alert-cancel:hover {
-      background: #d1d5db;
-    }
+    .modal-alert-container.active .modal-alert-content { transform: scale(1); }
+    .modal-alert-icon { font-size: 44px; margin-bottom: 15px; }
+    .modal-alert-content h3 { margin: 0 0 10px 0; font-family: 'Sora', 'Poppins', sans-serif; color: #10161a; font-size: 20px; font-weight: 700; }
+    .modal-alert-content p { color: #707c8a; font-size: 14.5px; line-height: 1.5; margin: 0 0 24px 0; }
+    .modal-alert-buttons { display: flex; gap: 12px; justify-content: center; }
+    .btn-alert-confirm { background: #2563EB; color: #fff; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+    .btn-alert-confirm:hover { background: #1d4ed8; }
+    .btn-alert-cancel { background: #e8ebf0; color: #10161a; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+    .btn-alert-cancel:hover { background: #d1d5db; }
   `;
   document.head.appendChild(style);
 }
@@ -651,9 +618,9 @@ function injectModalStyles() {
 // ── POP-UP WARNING ──
 async function showAlert(message, title, icon) {
   injectModalStyles();
-  
+
   let alertModal = document.getElementById('alertModal');
-  
+
   if (!alertModal) {
     alertModal = document.createElement('div');
     alertModal.id = 'alertModal';
@@ -670,22 +637,21 @@ async function showAlert(message, title, icon) {
     `;
     document.body.appendChild(alertModal);
   } else {
-
     document.getElementById('alertMsg').textContent = message;
     document.getElementById('alertTitle').textContent = title;
     document.getElementById('alertIcon').textContent = icon;
   }
-  
+
   alertModal.offsetHeight;
   alertModal.classList.add('active');
 }
 
 // ── POP-UP AUTH ──
-async function showAuth(message, title, icon) { 
+async function showAuth(message, title, icon) {
   injectModalStyles();
-  
+
   let authModal = document.getElementById('authModal');
-  
+
   if (!authModal) {
     authModal = document.createElement('div');
     authModal.id = 'authModal';
@@ -703,16 +669,15 @@ async function showAuth(message, title, icon) {
     `;
     document.body.appendChild(authModal);
   } else {
-    
     document.getElementById('authMsg').textContent = message;
     document.getElementById('authTitle').textContent = title;
     document.getElementById('authIcon').textContent = icon;
   }
-  
+
   authModal.offsetHeight;
   authModal.classList.add('active');
 }
-  
+
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
@@ -726,7 +691,7 @@ function closeAuth() {
     authModal.classList.remove('active');
   }
 }
-  
+
 //--------------------------------------------------------
 async function loadProductsFromSupabase() {
   const { data, error } = await supabaseClient
@@ -764,35 +729,32 @@ function loadShuffleAndRender() {
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function renderProducts() {
-  const grid  = $('productsGrid');
-  const q =
-(
-  $('heroSearch')?.value ||
-  $('headerSearch')?.value ||
- '').toLowerCase().trim();
-  
-  const sort  = $('sortSelect').value;
+  const grid = $('productsGrid');
+  const q = (
+    $('heroSearch')?.value ||
+    $('headerSearch')?.value ||
+    ''
+  ).toLowerCase().trim();
 
+  const sort = $('sortSelect').value;
   let list = [...shuffled];
 
   /* search filter */
   if (q) {
     list = list.filter(p =>
-      p.name.toLowerCase().includes(q) || 
+      p.name.toLowerCase().includes(q) ||
       p.desc.toLowerCase().includes(q) ||
-      (Array.isArray(p.cat) 
-       ? p.cat.some(c => c.toLowerCase().includes(q)) 
-       : p.cat.toLowerCase().includes(q))
+      (Array.isArray(p.cat)
+        ? p.cat.some(c => c.toLowerCase().includes(q))
+        : p.cat.toLowerCase().includes(q))
     );
   }
 
   /* sort */
-  if      (sort === 'price_asc')  list.sort((a, b) => a.price    - b.price);
-  else if (sort === 'price_desc') list.sort((a, b) => b.price    - a.price);
-  else if (sort === 'rating')     list.sort((a, b) => b.rating   - a.rating);
-  else if (sort === 'discount')   list.sort((a, b) => b.discount - a.discount);
-
-  //$('productsCount').textContent = list.length;
+  if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
+  else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
+  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
+  else if (sort === 'discount') list.sort((a, b) => b.discount - a.discount);
 
   /* empty state */
   if (!list.length) {
@@ -801,8 +763,7 @@ function renderProducts() {
         <div class="empty-ico">🔍</div>
         <h3>Nenhum resultado encontrado</h3>
         <p>Tente outro termo ou
-          <button class="btn-clear"
-            onclick="$('headerSearch').value='';renderProducts()">
+          <button class="btn-clear" onclick="$('headerSearch').value='';renderProducts()">
             Limpar busca
           </button>
         </p>
@@ -813,15 +774,15 @@ function renderProducts() {
   /* render cards */
   grid.innerHTML = list.map(p => {
     const inW = fav.some(x => x.id === p.id);
-    const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
-                  : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
-                  :                     `<span class="bpill bsale">-${p.discount}%</span>`;
-    const shipH   = p.shipping
-      ? `<div class="pfship">
-           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-           Frete Grátis
-         </div>`
-      : '';
+    const badgeH = p.badge === 'hot' ? `<span class="bpill bhot">🔥 Hot</span>`
+                 : p.badge === 'new' ? `<span class="bpill bnew">Novo</span>`
+                 : `<span class="bpill bsale">-${p.discount}%</span>`;
+                 
+    const shipH = p.shipping ? `
+      <div class="pfship">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Frete Grátis
+      </div>` : '';
 
     if (view === 'list') {
       return `
@@ -831,9 +792,8 @@ function renderProducts() {
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
-            <div class="pinfo">
-              <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
-              <div class="pname">${p.name}</div>
+            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+            <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
               <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
@@ -862,8 +822,8 @@ function renderProducts() {
         <div class="pimg-wrap">
           <div class="pimg">${p.emoji}</div>
           <div class="pbadges">${badgeH}</div>
-          <button class="pwish-btn ${inW ? 'on' : ''}"
-                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
+          <button class="pwish-btn ${inW ? 'on' : ''}" 
+                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();" 
                   title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
@@ -894,7 +854,7 @@ function renderProducts() {
       </div>`;
   }).join('');
 }
-  
+
 function setView(v) {
   view = v;
   $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
@@ -920,8 +880,8 @@ renderProducts();
 loadShuffleAndRender();
 
 // LOGOUT
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
+async function doLogout() {
+  toast('Saindo da conta... 👋', 'info');
   await supabaseClient.auth.signOut();
   buttonLink('/login')
 }
