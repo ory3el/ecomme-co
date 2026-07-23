@@ -48,6 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
 
+  updateHeaderContrast();
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
   let shuffled = [...products];
@@ -182,7 +183,6 @@ function updateHeaderContrast() {
 }
 window.addEventListener("scroll", updateHeaderContrast);
 window.addEventListener("resize", updateHeaderContrast);
-updateHeaderContrast();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
