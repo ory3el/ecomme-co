@@ -86,6 +86,7 @@ body.nobodyscroll {
       font-family: 'Cormorant Garamond', serif;
       font-size: 26px; font-weight: 700; color: var(--blue);
       flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+      box-shadow: 0 8px 32px 0 rgba(210, 210, 212, 0.15);
       letter-spacing: .5px;
     }
 
@@ -106,19 +107,19 @@ body.nobodyscroll {
     }
     .nav-main a:hover { color: var(--text); background: var(--bg3); }
     .nav-main a.active {
-      color: var(--blue); background: var(--blue-dim); border: 1px solid #fff; font-weight: 600;
+      color: var(--blue); background: var(--white); border: 1px solid var(--blue); font-weight: 600;
     }
 
     .header-spacer { flex: 1; }
     .header-actions { display: flex; align-items: center; gap: 6px; }
-    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.7); border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
+    .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.3); border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px; transition: border-color 0.2s; }
     .search-bar:focus-within { background: #fff; border: 1.5px solid #4287f5; }
     .search-bar input { background: none; border: none; outline: none; color: #000; font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
     .search-bar input::placeholder { color: rgba(0, 0, 0, 0.9); font-size: 14px; font-weight: 400; }
     .search-bar svg { width: 15px; height: 15px; fill: none; stroke: rgba(0, 0, 0, 0.7); stroke-width: 2; flex-shrink: 0; }
 
     .icon-btn {
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2);
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       border: 1px solid var(--border2); color: var(--muted);
