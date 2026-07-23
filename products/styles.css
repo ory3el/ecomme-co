@@ -74,8 +74,8 @@ body.nobodyscroll {
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,.40),
-            rgba(255,255,255,.18)
+            rgba(255,255,255,0.25),
+            rgba(255,255,255,0.18)
         );
 
     backdrop-filter:
