@@ -224,8 +224,10 @@ function addToCart(id, qty = 1) {
     showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p = products.find(x => x.id === id);
-  const ex = cart.find(x => x.id === id);
+  const p = products.find(x => String(x.id) === String(id)) || offers.find(x => String(x.id) === String(id));
+  
+  if (!p) return;
+  const ex = cart.find(x => String(x.id) === String(id));
   if (ex) ex.qty += qty; else cart.push({ ...p, qty });
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
@@ -322,7 +324,8 @@ function toggleFav(id) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const ex = fav.find(x => x.id === id);
+  const ex = fav.find(x => String(x.id) === String(id));
+  
   if (ex) {
     removeFromFav(id);
     showToast('Removido da Lista de Desejos! 💔');
@@ -331,7 +334,7 @@ function toggleFav(id) {
   }
 
   if ($('mWish')) {
-    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+    $('mWish').classList.toggle('on', fav.some(x => String(x.id) === String(id)));
   }
   syncToSupabase();
 }
