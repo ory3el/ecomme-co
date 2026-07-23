@@ -48,7 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
 
-  updateHeaderContrast();
+  //updateHeaderContrast();
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
   let shuffled = [...products];
