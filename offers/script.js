@@ -884,31 +884,31 @@ async function loadOffersFromSupabase() {
 
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProductModal(id) {
-  const o = offers.find(x=>x.id===id);
+  const o = offers.find(x => String(x.id) === String(id)) || products.find(x => String(x.id) === String(id));
+  
+  if (!o) {
+    console.error("Produto não encontrado para o ID:", id);
+    return; 
+  }
+
   currentProduct = id;
   $('mEmoji').textContent = o.emoji;
   $('mCat').textContent = o.cat;
   $('mName').textContent = o.name;
   $('mPrice').textContent = fmt(o.price);
-  $('mOld').textContent = fmt(o.old);
-  $('mDisc').textContent = `-${o.discount}% OFF`;
-  $('mDesc').textContent = o.desc;
-  $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
+  
+  $('mOld').textContent = o.old ? fmt(o.old) : '';
+  $('mDisc').textContent = o.discount ? `-${o.discount}% OFF` : '';
+  $('mDesc').textContent = o.desc || "Sem descrição disponível.";
+  
+  if (o.endsInMin) {
+    $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
+  } else {
+    $('mCdText').innerHTML = ""; 
+  }
+  
   $('modalOverlay').classList.add('on');
 }
-function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal() { $('modalOverlay').classList.remove('on'); }
-function addFromModal() { addToCart(currentProduct,1); closeModal(); openCart(); }
-
-/* ─── STOCK ANIMATION TICK (slowly increases claimed% for urgency) ──── */
-setInterval(() => {
-  const el = document.querySelector('.oc-stock-fill');
-  // Simulate a random item's stock ticking up slightly
-  if (Math.random() > 0.6 && offers.length) {
-    const idx = Math.floor(Math.random() * offers.length);
-    if (offers[idx].claimed < 99) offers[idx].claimed += 1;
-  }
-}, 4000);
 
 /* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
 let soldCount = 1200;
