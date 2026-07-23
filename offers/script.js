@@ -1,0 +1,681 @@
+// FAVICON
+const favicon = document.getElementById('favicon');
+function verificarTema(e) {
+  if (e.matches) {
+    favicon.href = '/images/favicon-light.png';
+  } else {
+    favicon.href = '/images/favicon-blue.png';
+  }
+}
+const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+verificarTema(mqEscuro);
+mqEscuro.addEventListener('change', verificarTema);
+
+/* ────────────────────────────────────────────────────────────────────── */
+document.body.style.cursor = "default";
+
+function buttonLink(url) {
+  window.location.href = url;
+}
+
+function injectPrefetch(url) {
+  if (!document.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    document.head.appendChild(link);
+  }
+}
+
+let products = [];
+
+/* ─── SEARCH ─────────────────────────────────────────────────────────── */
+function searchFor(term) {
+  if ($('heroSearch')) $('heroSearch').value = term;
+  if ($('headerSearch')) $('headerSearch').value = term;
+  renderProducts();
+}
+
+/* ─── SUPABASE ──────────────────────────────────────────────────────── */
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
+
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const headerImage = document.getElementById('headerAvatar');
+
+  await loadProductsFromSupabase();
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+  let shuffled = [...products];
+
+  if (!user || userError) {
+    console.warn("User session not active.");
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (profileContainer) profileContainer.classList.add('hidden');
+    injectPrefetch('/login');
+    return;
+  }
+  userId = user.id;
+  await loadFromSupabase();
+
+  if (loginBtn) loginBtn.classList.add('hidden');
+  if (profileContainer) profileContainer.classList.remove('hidden');
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!profileError && profile) {
+    const fullName = profile.full_name || "Cliente";
+    const email = user.email || "";
+
+    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
+    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
+    if (profile.avatar_url && $('accSidebarAvatar')) {
+      $('accSidebarAvatar').src = profile.avatar_url;
+    }
+
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const photoUrl = profile.avatar_url || "";
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+
+    if (photoUrl) {
+      const sidebarImage = document.getElementById('sidebarAvatar');
+
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
+    }
+  }
+});
+
+// HEADER
+function initHeaderAuthListener() {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const bellBtn = document.getElementById('bellBtn');
+  const headerAvatar = document.getElementById('headerAvatar');
+
+  if (!loginBtn || !profileContainer) return;
+  
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (session && session.user) {
+      loginBtn.classList.add('hidden');
+      bellBtn.classList.remove('hidden');
+      profileContainer.classList.remove('hidden');
+
+      try {
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!profileError && profileData && profileData.avatar_url) {
+          headerAvatar.src = profileData.avatar_url;
+        } else {
+          headerAvatar.src = "/images/icons/full/user.webp";
+        }
+      } catch (err) {
+        console.error("Erro ao carregar o avatar do header:", err);
+      }
+    } else {
+      loginBtn.classList.remove('hidden');
+      profileContainer.classList.add('hidden');
+      bellBtn.classList.add('hidden');
+      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
+    }
+  });
+}
+initHeaderAuthListener();
+
+function updateHeaderContrast() {
+  const header = document.querySelector("header");
+  const sampleY = header.offsetHeight + 10;
+  const x = window.innerWidth / 2;
+  const el = document.elementFromPoint(x, sampleY);
+
+  if (!el) return;
+  const style = getComputedStyle(el);
+  const bg = style.backgroundColor;
+  const rgb = bg.match(/\d+/g);
+
+  if (!rgb) return;
+  const r = Number(rgb[0]);
+  const g = Number(rgb[1]);
+  const b = Number(rgb[2]);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  
+  if (brightness < 90) {
+    header.classList.add("dark-glass");
+  } else {
+    header.classList.remove("dark-glass");
+  }
+}
+window.addEventListener("scroll", updateHeaderContrast);
+window.addEventListener("resize", updateHeaderContrast);
+updateHeaderContrast();
+
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let shuffled = [...products];
+
+/* ─── UTILS ─────────────────────────────────────────────────────────── */
+const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const $ = id => document.getElementById(id);
+
+function starsHtml(r) {
+  let s = '';
+  const f = Math.floor(r);
+  for (let i = 0; i < f; i++) s += '★';
+  for (let i = f; i < 5; i++) s += '☆';
+  return s;
+}
+
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ─── CART ───────────────────────────────────────────────────────────── */
+function addToCart(id, qty = 1) {
+  if (!userId) {
+    showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    return;
+  }
+  const p = products.find(x => x.id === id);
+  const ex = cart.find(x => x.id === id);
+  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
+  updateCart();
+  showToast(`${p.name} adicionado ao carrinho! 🛒`);
+  syncToSupabase();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  updateCart();
+  syncToSupabase();
+}
+
+function changeCartQty(id, d) {
+  const item = cart.find(x => x.id === id);
+  if (item) {
+    item.qty += d;
+    if (item.qty <= 0) removeFromCart(id); else updateCart();
+  }
+  syncToSupabase();
+}
+
+function updateCart() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+
+  $('cartBadge').textContent = count;
+  $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+  $('cartCount').textContent = `(${count})`;
+  $('cartSub').textContent = fmt(total);
+  $('cartTotal').textContent = fmt(total);
+
+  const el = $('cartItems');
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
+    return;
+  }
+  
+  el.innerHTML = cart.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <div class="ci-qty">
+          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>`).join('');
+    
+  renderProducts();
+  syncToSupabase();
+}
+
+function openCart() {
+  closeMore();
+  closeFav();
+  closeNotif();
+  closeAcc();
+  $('cartSidebar').classList.add('on');
+  $('cartOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeCart() {
+  $('cartSidebar').classList.remove('on');
+  $('cartOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+function checkout() {
+  if (!cart.length) {
+    showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho", "ℹ️");
+    return;
+  }
+  showToast('Redirecionando para o pagamento... 🔒');
+  window.location.href = "/checkout"
+  setTimeout(closeCart, 1200);
+}
+
+/* ─── FAV ───────────────────────────────────────────────────────── */
+function toggleFav(id) {
+  if (!userId) {
+    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    return;
+  }
+  const ex = fav.find(x => x.id === id);
+  if (ex) {
+    removeFromFav(id);
+    showToast('Removido da Lista de Desejos! 💔');
+  } else {
+    addToFav(id, 1);
+  }
+
+  if ($('mWish')) {
+    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  }
+  syncToSupabase();
+}
+
+function addToFav(id, qty = 1) {
+  if (!userId) {
+    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    return;
+  }
+  const p = products.find(x => x.id === id);
+  const ex = fav.find(x => x.id === id);
+  if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  updateFav();
+  showToast(`${p.name} salvo nos favoritos! 🛒`);
+  syncToSupabase();
+}
+
+function removeFromFav(id) {
+  fav = fav.filter(x => x.id !== id);
+  updateFav();
+  syncToSupabase();
+}
+
+function changeFavQty(id, d) {
+  const item = fav.find(x => x.id === id);
+  if (item) {
+    item.qty += d;
+    if (item.qty <= 0) removeFromFav(id); else updateFav();
+  }
+  syncToSupabase();
+}
+
+function updateFav() {
+  const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = fav.reduce((s, i) => s + i.qty, 0);
+  
+  $('wishBadge').textContent = count;
+  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  $('favCount').textContent = `(${count})`;
+  $('favTotal').textContent = fmt(total);
+
+  const el = $('favItems');
+  if (!fav.length) {
+    el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    return;
+  }
+  
+  el.innerHTML = fav.map(item => `
+    <div class="ci">
+      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmt(item.price)}</div>
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
+      </div>
+      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>`).join('');
+    
+  renderProducts();
+  syncToSupabase();
+}
+
+function openFav() {
+  closeMore();
+  closeCart();
+  closeNotif();
+  closeAcc();
+  $('favSidebar').classList.add('on');
+  $('favOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeFav() {
+  $('favSidebar').classList.remove('on');
+  $('favOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+function addAllFavToCart() {
+  if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
+
+  fav.forEach(produto => {
+    addToCart(produto.id, 1);
+  });
+  fav = [];
+  updateFav();
+  renderProducts();
+  closeFav();
+  openCart();
+  showToast('Todos os itens foram para o carrinho! 🛒');
+}
+
+function moveFromCartToFav(id) {
+  addToFav(id, 1);
+  showToast('Produto adicionado à Lista de Desejos! ❤️');
+}
+
+/* ─── NOTIFICATION ───────────────────────────────────────────────── */
+function openNotif() {
+  closeCart();
+  closeFav();
+  closeAcc();
+  closeMore();
+  if (typeof closeMore === 'function') closeMore();
+  $('notifSidebar').classList.add('on');
+  $('notifOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeNotif() {
+  $('notifSidebar').classList.remove('on');
+  $('notifOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+/* ─── MORE ───────────────────────────────────────────────────────── */
+function openMore() {
+  closeFav();
+  closeCart();
+  closeAcc();
+  closeNotif();
+  if (typeof closeMore === 'function') closeNotif();
+  $('moreSidebar').classList.add('on');
+  $('moreOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeMore() {
+  $('moreSidebar').classList.remove('on');
+  $('moreOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+/* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
+function openAcc() {
+  closeCart();
+  closeFav();
+  closeNotif();
+  closeMore();
+
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if (sb) sb.classList.add('on');
+  if (ov) ov.classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeAcc() {
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if (sb) sb.classList.remove('on');
+  if (ov) ov.classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+/* ─── OFFERS DATA ────────────────────────────────────────────────────── */
+/* endsInMin: minutes from page load until offer ends (drives per-card countdown) */
+const offers = [
+  { id:0,  name:'Smartwatch Pro X7',           cat:'Eletrônicos', price:189.90, old:299,   discount:36, emoji:'⌚', type:'flash', rating:4.9, reviews:2847, claimed:82, freeShip:true,  endsInMin:185,  desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM. Bateria de 14 dias.' },
+  { id:1,  name:'Fone Bluetooth ANC Pro',      cat:'Eletrônicos', price:99.90,  old:199,   discount:50, emoji:'🎧', type:'flash', rating:4.8, reviews:1523, claimed:91, freeShip:true,  endsInMin:62,   desc:'Fone com cancelamento ativo de ruído, driver 40mm e autonomia de 30h.' },
+  { id:2,  name:'Câmera de Segurança WiFi',    cat:'Eletrônicos', price:149.90, old:220,   discount:32, emoji:'📷', type:'daily', rating:4.7, reviews:892,  claimed:44, freeShip:false, endsInMin:960,  desc:'Câmera IP 2K com visão noturna colorida e detecção de movimento.' },
+  { id:3,  name:'Kit Luzes LED Smart RGB',     cat:'Casa',        price:59.90,  old:130,   discount:54, emoji:'💡', type:'flash', rating:4.6, reviews:3102, claimed:96, freeShip:true,  endsInMin:38,   desc:'Fita LED inteligente de 10m com controle por voz e 16M de cores.' },
+  { id:4,  name:'Tapete Antiderrapante Premium',cat:'Casa',       price:59.90,  old:149,   discount:60, emoji:'🏠', type:'daily', rating:4.5, reviews:445,  claimed:38, freeShip:true,  endsInMin:960,  desc:'Tapete ecológico antiderrapante com design escandinavo, lavável à máquina.' },
+  { id:5,  name:'Mini Massageador Portátil',   cat:'Fitness',     price:89.90,  old:210,   discount:57, emoji:'💆', type:'flash', rating:4.9, reviews:2231, claimed:88, freeShip:true,  endsInMin:120,  desc:'Pistola de massagem percussiva com 6 cabeças e 30 níveis de intensidade.' },
+  { id:6,  name:'Tênis Running Ultralight',    cat:'Moda',        price:159.90, old:320,   discount:50, emoji:'👟', type:'combo', rating:4.7, reviews:1876, claimed:64, freeShip:true,  endsInMin:1440, desc:'Tênis de corrida ultra leve com amortecimento por gel e palmilha ortopédica.' },
+  { id:7,  name:'Mochila Anti-Furto Executiva',cat:'Moda',        price:99.90,  old:250,   discount:60, emoji:'🎒', type:'combo', rating:4.8, reviews:987,  claimed:71, freeShip:false, endsInMin:1440, desc:'Mochila com USB embutido, proteção RFID e 28 litros de capacidade.' },
+  { id:8,  name:'Secador de Cabelo Íon Pro',   cat:'Beleza',      price:99.90,  old:249,   discount:60, emoji:'💇', type:'flash', rating:4.6, reviews:654,  claimed:79, freeShip:true,  endsInMin:95,   desc:'Secador 2200W com tecnologia iônica e diffusor incluso.' },
+  { id:9,  name:'Kit Skincare Vitamina C',     cat:'Beleza',      price:69.90,  old:160,   discount:56, emoji:'✨', type:'daily', rating:4.9, reviews:4521, claimed:93, freeShip:true,  endsInMin:960,  desc:'Kit completo com sérum, hidratante e protetor solar com vitamina C.' },
+  { id:10, name:'Ração Premium para Cães',     cat:'Pets',        price:69.90,  old:140,   discount:50, emoji:'🐕', type:'combo', rating:4.8, reviews:1234, claimed:55, freeShip:true,  endsInMin:1440, desc:'Ração super premium com proteína animal real e ômega-3.' },
+  { id:11, name:'Garrafa Térmica 1L Inox',     cat:'Fitness',     price:39.90,  old:110,   discount:64, emoji:'🍶', type:'flash', rating:4.7, reviews:3876, claimed:98, freeShip:true,  endsInMin:20,   desc:'Garrafa em aço inox que mantém bebidas geladas por 24h e quentes por 12h.' },
+  { id:12, name:'Fone Gamer RGB Pro',          cat:'Eletrônicos', price:69.90,  old:160,   discount:56, emoji:'🎮', type:'flash', rating:4.7, reviews:745,  claimed:87, freeShip:true,  endsInMin:150,  desc:'Fone gamer com iluminação RGB, microfone destacável e som surround.' },
+  { id:13, name:'Hub USB-C 7 em 1',            cat:'Eletrônicos', price:49.90,  old:110,   discount:55, emoji:'🔌', type:'daily', rating:4.8, reviews:1230, claimed:61, freeShip:true,  endsInMin:960,  desc:'Hub com HDMI 4K, USB 3.0, leitor de cartão e carregamento rápido.' },
+  { id:14, name:'Teclado Mecânico RGB',        cat:'Eletrônicos', price:129.90, old:280,   discount:54, emoji:'⌨️', type:'combo', rating:4.8, reviews:987,  claimed:69, freeShip:false, endsInMin:1440, desc:'Teclado mecânico switch blue com iluminação RGB customizável.' },
+  { id:15, name:'Kit Skincare Facial Noturno', cat:'Beleza',      price:79.90,  old:189,   discount:58, emoji:'🌙', type:'flash', rating:4.7, reviews:521,  claimed:73, freeShip:true,  endsInMin:210,  desc:'Rotina noturna completa com sérum reparador e creme anti-idade.' },
+];
+
+let currentDealFilter = 'todos';
+let currentProduct = null;
+
+/* ─── COUNTDOWN (hero master timer, resets daily at midnight) ───────── */
+function updateHeroCountdown() {
+  const now = new Date();
+  const end = new Date(now); end.setHours(23,59,59,0);
+  const diff = end - now;
+  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+  $('cdH').textContent = String(h).padStart(2,'0');
+  $('cdM').textContent = String(m).padStart(2,'0');
+  $('cdS').textContent = String(s).padStart(2,'0');
+}
+setInterval(updateHeroCountdown, 1000);
+updateHeroCountdown();
+
+/* ─── PER-CARD COUNTDOWN ─────────────────────────────────────────────── */
+const startTime = Date.now();
+function fmtCardCountdown(endsInMin) {
+  const elapsedMs = Date.now() - startTime;
+  const totalMs = endsInMin * 60000 - elapsedMs;
+  if (totalMs <= 0) return '00:00:00';
+  const h = Math.floor(totalMs / 3600000);
+  const m = Math.floor((totalMs % 3600000) / 60000);
+  const s = Math.floor((totalMs % 60000) / 1000);
+  if (h > 0) return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function tickCardCountdowns() {
+  document.querySelectorAll('.oc-cd-time[data-ends]').forEach(el => {
+    const ends = parseFloat(el.dataset.ends);
+    el.textContent = fmtCardCountdown(ends);
+  });
+}
+setInterval(tickCardCountdowns, 1000);
+
+/* ─── DEAL FILTER ────────────────────────────────────────────────────── */
+function setDealFilter(btn, type) {
+  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentDealFilter = type;
+  renderOffers();
+}
+
+/* ─── RENDER ─────────────────────────────────────────────────────────── */
+const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
+
+function renderOffers() {
+  const q = $('searchInput').value.toLowerCase().trim();
+  const sort = $('sortSelect').value;
+
+  let list = offers.filter(o => {
+    const matchQ = !q || o.name.toLowerCase().includes(q) || o.cat.toLowerCase().includes(q);
+    const matchType = currentDealFilter === 'todos'
+      || (currentDealFilter === 'frete' ? o.freeShip : o.type === currentDealFilter);
+    return matchQ && matchType;
+  });
+
+  if (sort === 'price_asc') list.sort((a,b)=>a.price-b.price);
+  else if (sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
+  else if (sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
+  else if (sort === 'ending') list.sort((a,b)=>a.endsInMin-b.endsInMin);
+  else list.sort((a,b)=>b.discount-a.discount); /* discount default */
+
+  $('offersCount').textContent = `${list.length} oferta${list.length!==1?'s':''}`;
+  $('statActive').textContent = list.length;
+
+  const grid = $('offersGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-ico">🔍</div>
+      <h3>Nenhuma oferta encontrada</h3>
+      <p>Tente outro termo ou <button class="btn-clear" onclick="clearFilters()">limpar os filtros</button></p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((o, i) => {
+    const inW = wishlist.includes(o.id);
+    const typeBadge = o.type === 'flash'
+      ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
+      : o.type === 'daily'
+      ? `<div class="oc-type-badge daily">☀️ Do Dia</div>`
+      : `<div class="oc-type-badge combo">📦 Combo</div>`;
+    const claimedClass = o.claimed >= 85 ? '' : 'warm';
+    return `
+      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
+        <div class="oc-img-wrap">
+          <div class="oc-img">${o.emoji}</div>
+          <div class="oc-disc-badge">-${o.discount}%<small>OFF</small></div>
+          ${typeBadge}
+          <button class="oc-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${o.id})">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="oc-actions">
+            <button class="btn-oc-cart" onclick="event.stopPropagation();addToCart(${o.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Adicionar
+            </button>
+          </div>
+        </div>
+        <div class="oc-info">
+          <div class="oc-cat">${o.cat}</div>
+          <div class="oc-name">${o.name}</div>
+          <div class="oc-rating"><span class="oc-stars">${stars(o.rating)}</span><span class="oc-rcount">(${o.reviews.toLocaleString('pt-BR')})</span></div>
+          <div class="oc-price-row"><span class="oc-price">${fmt(o.price)}</span><span class="oc-old">${fmt(o.old)}</span></div>
+          <div class="oc-cd">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Termina em <span class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</span>
+          </div>
+          <div class="oc-stock-wrap">
+            <div class="oc-stock-track"><div class="oc-stock-fill ${claimedClass}" style="--tw:${o.claimed}%"></div></div>
+            <div class="oc-stock-txt"><span><strong>${o.claimed}%</strong> vendido</span><span>Estoque limitado</span></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function clearFilters() {
+  $('searchInput').value = '';
+  currentDealFilter = 'todos';
+  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.dchip[data-type="todos"]').classList.add('active');
+  renderOffers();
+}
+
+/* ─── MODAL ──────────────────────────────────────────────────────────── */
+function openProductModal(id) {
+  const o = offers.find(x=>x.id===id);
+  currentProduct = id;
+  $('mEmoji').textContent = o.emoji;
+  $('mCat').textContent = o.cat;
+  $('mName').textContent = o.name;
+  $('mPrice').textContent = fmt(o.price);
+  $('mOld').textContent = fmt(o.old);
+  $('mDisc').textContent = `-${o.discount}% OFF`;
+  $('mDesc').textContent = o.desc;
+  $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
+  $('modalOverlay').classList.add('on');
+}
+function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
+function closeModal() { $('modalOverlay').classList.remove('on'); }
+function addFromModal() { addToCart(currentProduct,1); closeModal(); openCart(); }
+
+/* ─── STOCK ANIMATION TICK (slowly increases claimed% for urgency) ──── */
+setInterval(() => {
+  const el = document.querySelector('.oc-stock-fill');
+  // Simulate a random item's stock ticking up slightly
+  if (Math.random() > 0.6 && offers.length) {
+    const idx = Math.floor(Math.random() * offers.length);
+    if (offers[idx].claimed < 99) offers[idx].claimed += 1;
+  }
+}, 4000);
+
+/* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
+let soldCount = 1200;
+setInterval(() => {
+  soldCount += Math.floor(Math.random()*3);
+  $('statClaimed').textContent = soldCount >= 1000 ? (soldCount/1000).toFixed(1)+'K' : soldCount;
+}, 3500);
+
+/* ─── INIT ───────────────────────────────────────────────────────────── */
+renderOffers();
