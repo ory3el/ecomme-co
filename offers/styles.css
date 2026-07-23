@@ -403,7 +403,7 @@ header.dark-glass input::placeholder{
     @keyframes float1     { 0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)} }
 
     /* ── OFFERS HERO ─────────────────────────────────────────── */
-    .offers-hero { background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 55%,var(--blue) 100%); position:relative; overflow:hidden; padding:64px 28px 0; }
+    .offers-hero { background: var(--white); position:relative; overflow:hidden; padding:64px 28px 0; }
     .oh-grid  { position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1px); background-size:26px 26px; animation:dotDrift 16s linear infinite; opacity:.45; }
     .oh-orb1  { position:absolute; width:520px; height:520px; top:-200px; right:-140px; border-radius:50%; background:radial-gradient(circle,rgba(239,68,68,.18),transparent 70%); filter:blur(50px); animation:orb1 18s ease-in-out infinite; }
     .oh-orb2  { position:absolute; width:360px; height:360px; bottom:-160px; left:8%; border-radius:50%; background:radial-gradient(circle,rgba(96,165,250,.16),transparent 70%); filter:blur(50px); animation:orb2 15s ease-in-out infinite; }
