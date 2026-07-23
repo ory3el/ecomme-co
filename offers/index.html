@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ofertas | Ecomme</title>
+
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
+  <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
 
@@ -14,36 +19,51 @@
   🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
   <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
 </div>
-
+	
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
+    <div class="logo">
+       <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+         <img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+       </button>
+    </div>
     <nav class="nav-main">
       <a href="/">Início</a>
       <a href="/products">Produtos</a>
       <a href="/categories">Categorias</a>
       <a href="/offers" class="active">Ofertas</a>
-      <a href="/about">Sobre</a>
+      <a href="/about-us">Sobre</a>
     </nav>
-    <div class="header-spacer"></div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
+    </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="showToast('Nenhuma notificação nova')">
+	  <button class="icon-btn hidden" id="bellBtn" title="Notificações" onclick="openNotif()">
         <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="hd-badge">3</span>
+        <span class="hd-badge" id="bellBadge" style="display:none">0</span>
       </button>
-      <button class="icon-btn" title="Favoritos" onclick="alertWish()">
+      <button class="icon-btn" title="Lista de desejos" onclick="openFav()">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span class="hd-badge" id="wishBadge" style="display:none">0</span>
       </button>
-      <button class="icon-btn" title="Carrinho" onclick="openCart()">
+      <button class="icon-btn" title="Abrir carrinho" onclick="openCart()">
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="hd-badge" id="cartBadge">0</span>
+        <span class="hd-badge" id="cartBadge" style="display:none">0</span>
       </button>
-      <button class="btn-account">
-        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Entrar
+	  <button id="authLoginBtn" class="btn-account" onclick="buttonLink('/login')">
+    	<svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    	Entrar
+  	  </button>
+	  <button class="icon-btn" title="Abrir menu" onclick="openMore()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    	  <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  		</svg>
       </button>
+  	  <div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()">
+    	<img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+  	  </div>
     </div>
   </div>
 </header>
@@ -125,17 +145,94 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="ft-inner">
-    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:7px;vertical-align:super">●</span></a>
-    <div class="ft-links">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/categories">Categorias</a>
-      <a href="/offers">Ofertas</a>
-      <a href="/about">Sobre Nós</a>
-      <a href="/support">Suporte</a>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footerLogo">
+       <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+         <img src="/images/mainlogo.png" style="width: 200px; height: auto; display: block;" alt="Ecomme"/>
+       </button>
+
+      </div>
+      <p style="cursor: default;">Conectamos você às melhores tendências globais com preços justos e entrega garantida em todo o Brasil.</p>
+      <div class="social-links">
+	<a href="https://www.tiktok.com/">
+        <div class="social-btn">
+			<img src="/images/tiktok.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="TikTok Logo"/>
+    	</div>
+	</a>
+	<a href="https://www.facebook.com/">
+        <div class="social-btn">
+			<img src="/images/facebook.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Facebook Logo"/>
+    	</div>
+	</a>
+	<a href="https://www.instagram.com/">
+        <div class="social-btn">
+			<img src="/images/instagram.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Instagram Logo"/>
+    	</div>
+	</a>
+	<a href="https://wa.me/">
+        <div class="social-btn">
+			<img src="/images/whatsapp.png" style="width: 50px; border-radius: 100%; height: auto; display: block;" alt="Whatsapp Logo"/>
+    	</div>
+	</a>
+      </div>
     </div>
-    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+    <div class="footer-col">
+      <h4 style="cursor: default;">Loja</h4>
+      <div class="footer-links">
+        <a href="#">Novidades</a>
+        <a href="#">Mais Vendidos</a>
+        <a href="#">Promoções</a>
+        <a href="#">Kits e Combos</a>
+        <a href="#">Presentes</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 style="cursor: default;">Suporte</h4>
+      <div class="footer-links">
+        <a href="#">Rastrear Pedido</a>
+        <a href="#">Política de Devolução</a>
+        <a href="#">Perguntas Frequentes</a>
+        <a href="#">Contato</a>
+        <a href="#">WhatsApp</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 style="cursor: default;">Empresa</h4>
+      <div class="footer-links">
+        <a href="/about-us">Sobre Nós</a>
+        <a href="#">Seja um Parceiro</a>
+        <a href="#">Programa de Afiliados</a>
+        <a href="#">Termos de Uso</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p style="cursor: default;">&copy; 2026 <span style="font-weight: bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
+    <div class="payment-icons">
+      <div class="pay-icon">
+		<img src="/images/payico/pix.png" style="width: 50px; height: auto; display: block;" alt="Pix Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/picpay.png" style="width: 50px; height: auto; display: block;" alt="PicPay Icon"/>
+      </div>
+      <div class="pay-icon">
+		<img src="/images/payico/pagbank.png" style="width: 50px; height: auto; display: block;" alt="PagBank Icon"/>
+      </div>
+    </div>
   </div>
 </footer>
 
@@ -144,7 +241,9 @@
 <div class="cart-sb" id="cartSidebar">
   <div class="cart-hd">
     <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
-    <button class="cart-cls" onclick="closeCart()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="cart-cls" onclick="closeCart()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
   <div class="cart-body" id="cartItems"></div>
   <div class="cart-ft">
@@ -154,12 +253,264 @@
       <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
     </div>
     <button class="btn-ckout" onclick="checkout()">
-      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
       Finalizar Compra
     </button>
-    <button class="btn-cont" onclick="closeCart()">← Continuar Comprando</button>
+    <button class="btn-cont" onclick="closeCart()"><- Continuar Comprando</button>
   </div>
 </div>
+
+<!-- FAV SIDEBAR -->
+<div class="overlay" id="favOverlay" onclick="closeFav()"></div>
+<div class="fav-sb" id="favSidebar">
+  <div class="fav-hd">
+    <h3>Lista de Desejos <span style="color:var(--muted);font-size:15px" id="favCount">(0)</span></h3>
+    <button class="fav-cls" onclick="closeFav()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="fav-body" id="favItems"></div>
+	<div class="fav-ft">
+   		 <div class="fav-tots">
+      		<div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="favTotal">R$ 0,00</span></div>
+		</div>
+    <button class="btn-ckout" onclick="addAllFavToCart()">
+      <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Adicionar tudo ao carrinho
+    </button>
+    <button class="btn-cont" onclick="closeFav()"><- Continuar Comprando</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION SIDEBAR -->
+<div class="overlay" id="notifOverlay" onclick="closeNotif()"></div>
+<div class="notif-sb" id="notifSidebar">
+	<div class="notif-hd">
+    <h3>Notificações <span style="color:var(--muted);font-size:15px" id="notifCount">(0)</span></h3>
+    <button class="notif-cls" onclick="closeNotif()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+	<div class="notif-body">
+		
+    </div>
+	
+	<div class="notif-ft">
+		<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+			<div class="btn-content">
+    			<span class="btn-title">Ver Mais Notificações</span>
+			</div>
+			<span class="btn-arrow">&gt;</span>
+    	</button>
+	    <button class="btn-menu3" onclick="closeNotif()">
+			<div class="btn-content">
+				<span class="btn-title">Fechar Notificações</span>
+			</div>
+		</button>
+    </div>
+</div>
+
+<!-- MORE SIDEBAR -->
+<div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+<div class="more-sb" id="moreSidebar">
+	<div class="more-hd">
+    <h3>Mais Opções</h3>
+    <button class="more-cls" onclick="closeMore()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+
+	<div class="more-body">
+	<button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/user.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Meu Perfil</span>
+			<p class="btn-txt">Gerencie suas informações, preferências e configurações em um só lugar.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/setting.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Configurações</span>
+			<p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/my-orders'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/box.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Histórico de Compras</span>
+			<p class="btn-txt">Seu registro completo de todos os produtos adquiridos e transações realizadas.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/track-order'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/check.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Acompanhar Pedido</span>
+			<p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/bell.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Notificações</span>
+			<p class="btn-txt">Fique por dentro de tudo o que importa: alertas, mensagens e atualizações essenciais entregues em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/sellers'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/dashboard.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Página do Vendedor</span>
+			<p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/terms'">
+		<div class="btn-content">
+    		<span class="btn-title">Termos e Condições de Uso</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/support'">
+		<div class="btn-content">
+    		<span class="btn-title">Suporte</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="closeMore()">
+		<div class="btn-content">
+			<span class="btn-title">Fechar Menu</span>
+		</div>
+	</button>
+  </div>
+</div>
+
+<!-- ACC SIDEBAR -->
+<div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+<div class="acc-sb" id="accSidebar">
+  <div class="acc-hd">
+    <h3>Minha Conta</h3>
+    <button class="acc-cls" onclick="closeAcc()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="acc-body">
+    <div class="acc-profile-summary">
+      <div class="acc-avatar-large">
+        <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
+      </div>
+      <div class="acc-info">
+        <strong id="accSidebarName"></strong>
+        <span id="accSidebarEmail"></span>
+      </div>
+    </div>
+
+    <div class="acc-menu-group">
+      <p class="acc-label">Atalhos</p>
+      <button class="btn-acc-option" onclick="buttonLink('/settings')">
+        <i class="fa-solid fa-user-pen"></i>
+        <span>Editar Perfil</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/my-orders')">
+        <i class="fa-solid fa-box-open"></i>
+        <span>Minhas Compras</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/reviews')">
+        <i class="fa-solid fa-star"></i>
+        <span>Minhas Avaliações</span>
+      </button>
+      <button class="btn-acc-option" onclick="openFav(); closeAcc();">
+        <i class="fa-solid fa-heart"></i>
+        <span>Lista de Desejos</span>
+      </button>
+    </div>
+
+    <div class="acc-menu-group">
+      <p class="acc-label">Suporte</p>
+      <button class="btn-acc-option" onclick="buttonLink('/support')">
+        <i class="fa-solid fa-circle-question"></i>
+        <span>Ajuda & FAQ</span>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/terms')">
+        <i class="fa-solid fa-file-contract"></i>
+        <span>Termos de Uso</span>
+      </button>
+    </div>
+
+    <div class="acc-ft">
+      <button class="btn-logout-sb" onclick="doLogout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        Sair da Conta
+      </button>
+    </div>
+  </div>
+</div>
+	
+<!-- PRODUCT MODAL -->
+<!--
+<div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="mcls" onclick="closeModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span id="mEmoji"></span>
+    </div>
+    <div class="modal-info">
+      <div class="m-cat"  id="mCat"></div>
+      <div class="m-name" id="mName"></div>
+      <div class="m-desc" id="mDesc"></div>
+      <div class="m-price-row">
+        <span class="m-price" id="mPrice"></span>
+        <span class="m-old"   id="mOld"></span>
+        <span class="m-disc"  id="mDisc"></span>
+      </div>
+      <div class="m-feats" id="mFeats"></div>
+      <hr class="m-div">
+      <div class="m-qty-row">
+        <span class="m-qty-lbl">Quantidade:</span>
+        <div class="m-qty-ctrl">
+          <button class="qb" onclick="chgQty(-1)">−</button>
+          <span class="m-qty-num" id="mQty">1</span>
+          <button class="qb" onclick="chgQty(1)">+</button>
+        </div>
+      </div>
+      <div class="m-btns">
+        <button class="btn-madd" onclick="addFromModal()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Adicionar ao Carrinho
+        </button>
+        <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+-->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <span id="toastMsg">Produto adicionado!</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
 
 <!-- PRODUCT MODAL -->
 <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
@@ -188,263 +539,16 @@
   </div>
 </div>
 
-<div class="toast" id="toast"><div class="t-ico">✓</div><span id="toastMsg"></span></div>
-<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
-
+<!-- QUICKLINK -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
 <script>
-const $ = id => document.getElementById(id);
-const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-
-/* ─── OFFERS DATA ────────────────────────────────────────────────────── */
-/* endsInMin: minutes from page load until offer ends (drives per-card countdown) */
-const offers = [
-  { id:0,  name:'Smartwatch Pro X7',           cat:'Eletrônicos', price:189.90, old:299,   discount:36, emoji:'⌚', type:'flash', rating:4.9, reviews:2847, claimed:82, freeShip:true,  endsInMin:185,  desc:'Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM. Bateria de 14 dias.' },
-  { id:1,  name:'Fone Bluetooth ANC Pro',      cat:'Eletrônicos', price:99.90,  old:199,   discount:50, emoji:'🎧', type:'flash', rating:4.8, reviews:1523, claimed:91, freeShip:true,  endsInMin:62,   desc:'Fone com cancelamento ativo de ruído, driver 40mm e autonomia de 30h.' },
-  { id:2,  name:'Câmera de Segurança WiFi',    cat:'Eletrônicos', price:149.90, old:220,   discount:32, emoji:'📷', type:'daily', rating:4.7, reviews:892,  claimed:44, freeShip:false, endsInMin:960,  desc:'Câmera IP 2K com visão noturna colorida e detecção de movimento.' },
-  { id:3,  name:'Kit Luzes LED Smart RGB',     cat:'Casa',        price:59.90,  old:130,   discount:54, emoji:'💡', type:'flash', rating:4.6, reviews:3102, claimed:96, freeShip:true,  endsInMin:38,   desc:'Fita LED inteligente de 10m com controle por voz e 16M de cores.' },
-  { id:4,  name:'Tapete Antiderrapante Premium',cat:'Casa',       price:59.90,  old:149,   discount:60, emoji:'🏠', type:'daily', rating:4.5, reviews:445,  claimed:38, freeShip:true,  endsInMin:960,  desc:'Tapete ecológico antiderrapante com design escandinavo, lavável à máquina.' },
-  { id:5,  name:'Mini Massageador Portátil',   cat:'Fitness',     price:89.90,  old:210,   discount:57, emoji:'💆', type:'flash', rating:4.9, reviews:2231, claimed:88, freeShip:true,  endsInMin:120,  desc:'Pistola de massagem percussiva com 6 cabeças e 30 níveis de intensidade.' },
-  { id:6,  name:'Tênis Running Ultralight',    cat:'Moda',        price:159.90, old:320,   discount:50, emoji:'👟', type:'combo', rating:4.7, reviews:1876, claimed:64, freeShip:true,  endsInMin:1440, desc:'Tênis de corrida ultra leve com amortecimento por gel e palmilha ortopédica.' },
-  { id:7,  name:'Mochila Anti-Furto Executiva',cat:'Moda',        price:99.90,  old:250,   discount:60, emoji:'🎒', type:'combo', rating:4.8, reviews:987,  claimed:71, freeShip:false, endsInMin:1440, desc:'Mochila com USB embutido, proteção RFID e 28 litros de capacidade.' },
-  { id:8,  name:'Secador de Cabelo Íon Pro',   cat:'Beleza',      price:99.90,  old:249,   discount:60, emoji:'💇', type:'flash', rating:4.6, reviews:654,  claimed:79, freeShip:true,  endsInMin:95,   desc:'Secador 2200W com tecnologia iônica e diffusor incluso.' },
-  { id:9,  name:'Kit Skincare Vitamina C',     cat:'Beleza',      price:69.90,  old:160,   discount:56, emoji:'✨', type:'daily', rating:4.9, reviews:4521, claimed:93, freeShip:true,  endsInMin:960,  desc:'Kit completo com sérum, hidratante e protetor solar com vitamina C.' },
-  { id:10, name:'Ração Premium para Cães',     cat:'Pets',        price:69.90,  old:140,   discount:50, emoji:'🐕', type:'combo', rating:4.8, reviews:1234, claimed:55, freeShip:true,  endsInMin:1440, desc:'Ração super premium com proteína animal real e ômega-3.' },
-  { id:11, name:'Garrafa Térmica 1L Inox',     cat:'Fitness',     price:39.90,  old:110,   discount:64, emoji:'🍶', type:'flash', rating:4.7, reviews:3876, claimed:98, freeShip:true,  endsInMin:20,   desc:'Garrafa em aço inox que mantém bebidas geladas por 24h e quentes por 12h.' },
-  { id:12, name:'Fone Gamer RGB Pro',          cat:'Eletrônicos', price:69.90,  old:160,   discount:56, emoji:'🎮', type:'flash', rating:4.7, reviews:745,  claimed:87, freeShip:true,  endsInMin:150,  desc:'Fone gamer com iluminação RGB, microfone destacável e som surround.' },
-  { id:13, name:'Hub USB-C 7 em 1',            cat:'Eletrônicos', price:49.90,  old:110,   discount:55, emoji:'🔌', type:'daily', rating:4.8, reviews:1230, claimed:61, freeShip:true,  endsInMin:960,  desc:'Hub com HDMI 4K, USB 3.0, leitor de cartão e carregamento rápido.' },
-  { id:14, name:'Teclado Mecânico RGB',        cat:'Eletrônicos', price:129.90, old:280,   discount:54, emoji:'⌨️', type:'combo', rating:4.8, reviews:987,  claimed:69, freeShip:false, endsInMin:1440, desc:'Teclado mecânico switch blue com iluminação RGB customizável.' },
-  { id:15, name:'Kit Skincare Facial Noturno', cat:'Beleza',      price:79.90,  old:189,   discount:58, emoji:'🌙', type:'flash', rating:4.7, reviews:521,  claimed:73, freeShip:true,  endsInMin:210,  desc:'Rotina noturna completa com sérum reparador e creme anti-idade.' },
-];
-
-let wishlist = [];
-let cart = [];
-let currentDealFilter = 'todos';
-let currentProduct = null;
-
-/* ─── COUNTDOWN (hero master timer, resets daily at midnight) ───────── */
-function updateHeroCountdown() {
-  const now = new Date();
-  const end = new Date(now); end.setHours(23,59,59,0);
-  const diff = end - now;
-  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-  $('cdH').textContent = String(h).padStart(2,'0');
-  $('cdM').textContent = String(m).padStart(2,'0');
-  $('cdS').textContent = String(s).padStart(2,'0');
-}
-setInterval(updateHeroCountdown, 1000);
-updateHeroCountdown();
-
-/* ─── PER-CARD COUNTDOWN ─────────────────────────────────────────────── */
-const startTime = Date.now();
-function fmtCardCountdown(endsInMin) {
-  const elapsedMs = Date.now() - startTime;
-  const totalMs = endsInMin * 60000 - elapsedMs;
-  if (totalMs <= 0) return '00:00:00';
-  const h = Math.floor(totalMs / 3600000);
-  const m = Math.floor((totalMs % 3600000) / 60000);
-  const s = Math.floor((totalMs % 60000) / 1000);
-  if (h > 0) return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function tickCardCountdowns() {
-  document.querySelectorAll('.oc-cd-time[data-ends]').forEach(el => {
-    const ends = parseFloat(el.dataset.ends);
-    el.textContent = fmtCardCountdown(ends);
+  // Start the Quicklink
+  window.addEventListener('load', () => {
+    quicklink.listen();
   });
-}
-setInterval(tickCardCountdowns, 1000);
-
-/* ─── DEAL FILTER ────────────────────────────────────────────────────── */
-function setDealFilter(btn, type) {
-  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  currentDealFilter = type;
-  renderOffers();
-}
-
-/* ─── RENDER ─────────────────────────────────────────────────────────── */
-const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
-
-function renderOffers() {
-  const q = $('searchInput').value.toLowerCase().trim();
-  const sort = $('sortSelect').value;
-
-  let list = offers.filter(o => {
-    const matchQ = !q || o.name.toLowerCase().includes(q) || o.cat.toLowerCase().includes(q);
-    const matchType = currentDealFilter === 'todos'
-      || (currentDealFilter === 'frete' ? o.freeShip : o.type === currentDealFilter);
-    return matchQ && matchType;
-  });
-
-  if (sort === 'price_asc') list.sort((a,b)=>a.price-b.price);
-  else if (sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
-  else if (sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
-  else if (sort === 'ending') list.sort((a,b)=>a.endsInMin-b.endsInMin);
-  else list.sort((a,b)=>b.discount-a.discount); /* discount default */
-
-  $('offersCount').textContent = `${list.length} oferta${list.length!==1?'s':''}`;
-  $('statActive').textContent = list.length;
-
-  const grid = $('offersGrid');
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty">
-      <div class="empty-ico">🔍</div>
-      <h3>Nenhuma oferta encontrada</h3>
-      <p>Tente outro termo ou <button class="btn-clear" onclick="clearFilters()">limpar os filtros</button></p>
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = list.map((o, i) => {
-    const inW = wishlist.includes(o.id);
-    const typeBadge = o.type === 'flash'
-      ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
-      : o.type === 'daily'
-      ? `<div class="oc-type-badge daily">☀️ Do Dia</div>`
-      : `<div class="oc-type-badge combo">📦 Combo</div>`;
-    const claimedClass = o.claimed >= 85 ? '' : 'warm';
-    return `
-      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal(${o.id})">
-        <div class="oc-img-wrap">
-          <div class="oc-img">${o.emoji}</div>
-          <div class="oc-disc-badge">-${o.discount}%<small>OFF</small></div>
-          ${typeBadge}
-          <button class="oc-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${o.id})">
-            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-          <div class="oc-actions">
-            <button class="btn-oc-cart" onclick="event.stopPropagation();addToCart(${o.id})">
-              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              Adicionar
-            </button>
-          </div>
-        </div>
-        <div class="oc-info">
-          <div class="oc-cat">${o.cat}</div>
-          <div class="oc-name">${o.name}</div>
-          <div class="oc-rating"><span class="oc-stars">${stars(o.rating)}</span><span class="oc-rcount">(${o.reviews.toLocaleString('pt-BR')})</span></div>
-          <div class="oc-price-row"><span class="oc-price">${fmt(o.price)}</span><span class="oc-old">${fmt(o.old)}</span></div>
-          <div class="oc-cd">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Termina em <span class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</span>
-          </div>
-          <div class="oc-stock-wrap">
-            <div class="oc-stock-track"><div class="oc-stock-fill ${claimedClass}" style="--tw:${o.claimed}%"></div></div>
-            <div class="oc-stock-txt"><span><strong>${o.claimed}%</strong> vendido</span><span>Estoque limitado</span></div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function clearFilters() {
-  $('searchInput').value = '';
-  currentDealFilter = 'todos';
-  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
-  document.querySelector('.dchip[data-type="todos"]').classList.add('active');
-  renderOffers();
-}
-
-/* ─── WISHLIST ───────────────────────────────────────────────────────── */
-function toggleWish(id) {
-  const idx = wishlist.indexOf(id);
-  if (idx===-1) { wishlist.push(id); showToast('Adicionado aos favoritos ❤️'); }
-  else { wishlist.splice(idx,1); showToast('Removido dos favoritos'); }
-  const badge = $('wishBadge');
-  badge.textContent = wishlist.length;
-  badge.style.display = wishlist.length ? 'flex' : 'none';
-  renderOffers();
-}
-function alertWish() { showToast(`Lista de favoritos: ${wishlist.length} produto(s)`); }
-
-/* ─── CART ───────────────────────────────────────────────────────────── */
-function addToCart(id, qty=1) {
-  const p = offers.find(x=>x.id===id);
-  const ex = cart.find(x=>x.id===id);
-  if (ex) ex.qty += qty; else cart.push({...p, qty});
-  updateCart();
-  showToast(`${p.name} adicionado ao carrinho! 🛒`);
-}
-function removeFromCart(id) { cart = cart.filter(x=>x.id!==id); updateCart(); }
-function changeQty(id, d) { const it=cart.find(x=>x.id===id); if(it){it.qty+=d; if(it.qty<=0) removeFromCart(id); else updateCart();} }
-function updateCart() {
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  const count = cart.reduce((s,i)=>s+i.qty,0);
-  $('cartBadge').textContent = count;
-  $('cartCount').textContent = `(${count})`;
-  $('cartSub').textContent = fmt(total);
-  $('cartTotal').textContent = fmt(total);
-  const el = $('cartItems');
-  if (!cart.length) { el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`; return; }
-  el.innerHTML = cart.map(it => `
-    <div class="ci">
-      <div class="ci-img">${it.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${it.name}</div>
-        <div class="ci-price">${fmt(it.price)}</div>
-        <div class="ci-qty">
-          <button class="qb" onclick="changeQty(${it.id},-1)">−</button>
-          <span class="qn">${it.qty}</span>
-          <button class="qb" onclick="changeQty(${it.id},1)">+</button>
-        </div>
-      </div>
-      <button class="del" onclick="removeFromCart(${it.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-    </div>`).join('');
-}
-function openCart() { $('cartSidebar').classList.add('on'); $('cartOverlay').classList.add('on'); }
-function closeCart() { $('cartSidebar').classList.remove('on'); $('cartOverlay').classList.remove('on'); }
-function checkout() { if(!cart.length){showToast('Adicione produtos ao carrinho primeiro! 😊');return;} showToast('Redirecionando para o pagamento… 🔒'); setTimeout(closeCart,1200); }
-
-/* ─── MODAL ──────────────────────────────────────────────────────────── */
-function openProductModal(id) {
-  const o = offers.find(x=>x.id===id);
-  currentProduct = id;
-  $('mEmoji').textContent = o.emoji;
-  $('mCat').textContent = o.cat;
-  $('mName').textContent = o.name;
-  $('mPrice').textContent = fmt(o.price);
-  $('mOld').textContent = fmt(o.old);
-  $('mDisc').textContent = `-${o.discount}% OFF`;
-  $('mDesc').textContent = o.desc;
-  $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
-  $('modalOverlay').classList.add('on');
-}
-function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal() { $('modalOverlay').classList.remove('on'); }
-function addFromModal() { addToCart(currentProduct,1); closeModal(); openCart(); }
-
-/* ─── TOAST ──────────────────────────────────────────────────────────── */
-function showToast(msg) {
-  $('toastMsg').textContent = msg;
-  $('toast').classList.add('on');
-  setTimeout(()=>$('toast').classList.remove('on'), 2800);
-}
-
-/* ─── STOCK ANIMATION TICK (slowly increases claimed% for urgency) ──── */
-setInterval(() => {
-  const el = document.querySelector('.oc-stock-fill');
-  // Simulate a random item's stock ticking up slightly
-  if (Math.random() > 0.6 && offers.length) {
-    const idx = Math.floor(Math.random() * offers.length);
-    if (offers[idx].claimed < 99) offers[idx].claimed += 1;
-  }
-}, 4000);
-
-/* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
-let soldCount = 1200;
-setInterval(() => {
-  soldCount += Math.floor(Math.random()*3);
-  $('statClaimed').textContent = soldCount >= 1000 ? (soldCount/1000).toFixed(1)+'K' : soldCount;
-}, 3500);
-
-/* ─── SCROLL / ESC ───────────────────────────────────────────────────── */
-window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY>300); });
-document.addEventListener('keydown', e => { if (e.key==='Escape'){closeCart();closeModal();} });
-
-/* ─── INIT ───────────────────────────────────────────────────────────── */
-updateCart();
-renderOffers();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
