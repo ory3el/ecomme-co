@@ -83,11 +83,18 @@ body.loading {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  background: linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.58));
+
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  /*border-radius:0 0 24px 24px;*/
+  box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.65), inset 0 -1px rgba(255,255,255,.08);
 
   transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
 }
