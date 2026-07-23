@@ -158,7 +158,7 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
-function updateHeaderContrast() {
+/*function updateHeaderContrast() {
   const header = document.querySelector("header");
   const sampleY = header.offsetHeight + 10;
   const x = window.innerWidth / 2;
@@ -182,7 +182,7 @@ function updateHeaderContrast() {
   }
 }
 window.addEventListener("scroll", updateHeaderContrast);
-window.addEventListener("resize", updateHeaderContrast);
+window.addEventListener("resize", updateHeaderContrast);*/
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
