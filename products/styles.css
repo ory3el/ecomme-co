@@ -79,7 +79,7 @@ body.nobodyscroll {
         );
 
     backdrop-filter:
-        blur(28px)
+        blur(16px)
         saturate(180%)
         brightness(1.08);
 
