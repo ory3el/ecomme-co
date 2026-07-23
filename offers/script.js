@@ -286,7 +286,7 @@ function updateCart() {
       </button>
     </div>`).join('');
     
-  renderProducts();
+  renderOffers();
   syncToSupabase();
 }
 
@@ -401,7 +401,7 @@ function updateFav() {
       </button>
     </div>`).join('');
     
-  renderProducts();
+  renderOffers();
   syncToSupabase();
 }
 
