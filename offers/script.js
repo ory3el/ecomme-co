@@ -910,6 +910,10 @@ function openProductModal(id) {
   $('modalOverlay').classList.add('on');
 }
 
+function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
+function closeModal() { $('modalOverlay').classList.remove('on'); }
+function addFromModal() { addToCart(currentProduct, 1); closeModal(); openCart(); }
+
 /* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
 let soldCount = 1200;
 setInterval(() => {
