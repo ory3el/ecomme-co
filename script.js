@@ -21,7 +21,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-document.addEventListener("DOMContentLoaded", () => {
+/* document.addEventListener("DOMContentLoaded", () => {
   const modalPerfo = document.getElementById('performanceModal');
   const btnClosePerfo = document.getElementById('btnCloseModal');
   const chkNeverShow = document.getElementById('chkNeverShowAgain');
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }, 1000);
-});
+});*/
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1013,6 +1013,7 @@ window.addEventListener('load', () => {
   }, 600); 
 });
 
+/*
 const lagBadge = document.getElementById('lagCounterBadge');
 
 let lastTick;
@@ -1063,3 +1064,4 @@ document.addEventListener("visibilitychange", () => {
     }
   }
 });
+*/
