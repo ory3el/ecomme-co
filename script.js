@@ -1010,3 +1010,26 @@ window.addEventListener('load', () => {
     
   }, 600); 
 });
+
+const lagBadge = document.getElementById('lagCounterBadge');
+let lastTick = performance.now();
+let lagCount = 0;
+
+const performanceMonitor = setInterval(() => {
+  const currentTick = performance.now();
+  const delta = currentTick - lastTick;
+  lastTick = currentTick;
+
+  if (delta > 1500) {
+    lagCount++;
+      
+    if (lagBadge) {
+      lagBadge.innerText = lagCount;
+    }
+      
+    if (lagCount >= 2) {
+      showModal();
+      clearInterval(performanceMonitor); 
+    }
+  }
+}, 1000);
