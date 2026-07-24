@@ -923,8 +923,41 @@ verificarTema(mqEscuro);
 mqEscuro.addEventListener('change', verificarTema);
 
 // PRELOADER
+document.addEventListener("DOMContentLoaded", () => {
+  const progressBar = document.getElementById("progress-fill");
+  const progressText = document.getElementById("progress-text");
+  
+  let loadedImages = 0;
+  let totalImages = document.images.length;
+
+  function updateProgress(percent) {
+    if (progressBar) progressBar.style.width = percent + "%";
+    if (progressText) progressText.innerText = percent + "%";
+  }
+
+  if (totalImages === 0) {
+    updateProgress(100);
+  } else {
+    for (let i = 0; i < totalImages; i++) {
+      let img = new Image();
+      
+      img.onload = img.onerror = function() {
+        loadedImages++;
+        let percent = Math.floor((loadedImages / totalImages) * 100);
+        updateProgress(percent);
+      };
+      img.src = document.images[i].src;
+    }
+  }
+});
+
 window.addEventListener('load', () => {
   const preloader = document.getElementById('preloader');
+  const progressBar = document.getElementById("progress-fill");
+  const progressText = document.getElementById("progress-text");
+  
+  if (progressBar) progressBar.style.width = "100%";
+  if (progressText) progressText.innerText = "100%";
   
   setTimeout(() => {
     preloader.classList.add('fade-out');
@@ -935,5 +968,5 @@ window.addEventListener('load', () => {
       preloader.style.display = 'none';
     }, 800);
     
-  }, 600);
+  }, 600); 
 });
