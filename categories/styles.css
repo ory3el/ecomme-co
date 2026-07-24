@@ -1436,3 +1436,10 @@ header.dark-glass input::placeholder{
     color:var(--blue);
     border-color:var(--border);
 }
+
+.product-wishlist {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
