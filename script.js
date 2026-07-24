@@ -1014,24 +1014,50 @@ window.addEventListener('load', () => {
 });
 
 const lagBadge = document.getElementById('lagCounterBadge');
-let lastTick = performance.now();
+
+let lastTick;
 let lagCount = 0;
+let performanceMonitor;
 
-const performanceMonitor = setInterval(() => {
-  const currentTick = performance.now();
-  const delta = currentTick - lastTick;
-  lastTick = currentTick;
+function startMonitor() {
+  lastTick = performance.now(); 
+    
+  performanceMonitor = setInterval(() => {
+    const currentTick = performance.now();
+    const delta = currentTick - lastTick;
+    lastTick = currentTick;
 
-  if (delta > 1500) {
-    lagCount++;
-      
-    if (lagBadge) {
-      lagBadge.innerText = lagCount;
+    if (delta > 1500) {
+      if (delta > 4000) {
+        lagCount += 2; 
+      } else {
+        lagCount++;
+      }
+
+      if (lagBadge) {
+        lagBadge.innerText = lagCount;
+      }
+        
+      if (lagCount >= 2) {
+        showModalPerfo();
+        stopMonitor(); 
+      }
     }
-      
-    if (lagCount >= 2) {
-      showModalPerfo();
-      clearInterval(performanceMonitor); 
+  }, 1000);
+}
+
+function stopMonitor() {
+  clearInterval(performanceMonitor);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopMonitor(); 
+  } else {
+    if (lagCount < 2) {
+      startMonitor(); 
     }
   }
-}, 1000);
+});
+startMonitor();
+});
