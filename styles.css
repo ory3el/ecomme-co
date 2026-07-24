@@ -144,7 +144,7 @@ body.loading {
   display: inline-block;
   margin: 0 0.5rem;
 
-  animation-name: fa-swing;
+  animation: swing;
   animation-duration: var(--fa-animation-duration,1.2s);
   animation-iteration-count: var(--fa-animation-iteration-count,infinite);
   animation-timing-function: var(--fa-animation-timing,ease-out);
