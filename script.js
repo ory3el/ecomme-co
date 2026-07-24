@@ -21,15 +21,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-// EXECUTE DATABASE
-window.addEventListener('DOMContentLoaded', async () => {
-  const loginBtn = document.getElementById('authLoginBtn');
-  const profileContainer = document.getElementById('headerProfileContainer');
-  const headerImage = document.getElementById('headerAvatar');
-
+document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById('performanceModal');
   const btnClose = document.getElementById('btnCloseModal');
   const chkNeverShow = document.getElementById('chkNeverShowAgain');
+  
   const hideWarning = localStorage.getItem('hidePerformanceWarning');
   
   if (hideWarning === 'true') {
@@ -46,7 +42,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       localStorage.setItem('hidePerformanceWarning', 'true');
     }
   }
-
   btnClose.addEventListener('click', closeModal);
 
   let lastTick = performance.now();
@@ -66,6 +61,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }, 1000);
+});
+
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const headerImage = document.getElementById('headerAvatar');
   
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
