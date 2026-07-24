@@ -27,6 +27,46 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
 
+  const modal = document.getElementById('performanceModal');
+  const btnClose = document.getElementById('btnCloseModal');
+  const chkNeverShow = document.getElementById('chkNeverShowAgain');
+  const hideWarning = localStorage.getItem('hidePerformanceWarning');
+  
+  if (hideWarning === 'true') {
+    return;
+  }
+
+  function showModal() {
+    modal.classList.add('show');
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    if (chkNeverShow.checked) {
+      localStorage.setItem('hidePerformanceWarning', 'true');
+    }
+  }
+
+  btnClose.addEventListener('click', closeModal);
+
+  let lastTick = performance.now();
+  let lagCount = 0;
+
+  const performanceMonitor = setInterval(() => {
+    const currentTick = performance.now();
+    const delta = currentTick - lastTick;
+    lastTick = currentTick;
+
+    if (delta > 1500) {
+      lagCount++;
+      
+      if (lagCount >= 2) {
+        showModal();
+        clearInterval(performanceMonitor); 
+      }
+    }
+  }, 1000);
+  
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
   let shuffled = [...products];
