@@ -1060,4 +1060,3 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 startMonitor();
-});
