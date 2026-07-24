@@ -144,7 +144,7 @@ body.loading {
 
   animation: 
   jackInTheBox 1.2s ease-out 0s 1,
-  pulse 1.8s ease-in-out 3.2s infinite;
+  pulse 1.8s ease-in-out 1.2s infinite;
 }
 
 @keyframes pulse {
