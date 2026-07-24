@@ -143,7 +143,7 @@ body.loading {
   margin: 0 0.5rem;
 
   animation: 
-  jackInTheBox 1.2s ease-out 2s 1,
+  jackInTheBox 1.2s ease-out 0s 1,
   pulse 1.8s ease-in-out 3.2s infinite;
 }
 
