@@ -133,13 +133,6 @@ body.loading {
 .loading-text span { color: var(--muted); font-size: 0.9rem; }
 
 .logo-loading {
-
-  animation: jackInTheBox;
-  animation-duration: var(--fa-animation-duration,1.2s);
-  animation-iteration-count: var(--fa-animation-iteration-count,1);
-  animation-timing-function: var(--fa-animation-timing,ease-out);
-  transform-origin: top center;
-    
   width: 250px;
   height: auto;
   border-radius: 0%;
@@ -149,6 +142,12 @@ body.loading {
 
   display: inline-block;
   margin: 0 0.5rem;
+
+  animation: jackInTheBox;
+  animation-duration: var(--fa-animation-duration,1.2s);
+  animation-iteration-count: var(--fa-animation-iteration-count,1);
+  animation-timing-function: var(--fa-animation-timing,ease-out);
+  transform-origin: top center;
 }
 
 @keyframes pulse {
