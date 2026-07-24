@@ -60,7 +60,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (delta > 1500) {
       lagCount++;
       
-      if (lagCount >= 1) {
+      if (lagCount >= 2) {
         showModal();
         clearInterval(performanceMonitor); 
       }
