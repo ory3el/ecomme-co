@@ -3,9 +3,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -472,7 +472,6 @@ function toast(msg) {
   showToast(msg);
 }
 
-
 // BACK TO TOP
 window.addEventListener('scroll', () => {
   document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
@@ -860,16 +859,15 @@ function renderProducts() {
       </div>`;
   }).join('');
 }
-  
+
 function setView(v) {
-  view = v;
-  $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
-  $('gridBtn').classList.toggle('on', v === 'grid');
-  $('listBtn').classList.toggle('on', v === 'list');
+  viewMode = v;
+  $('gridViewBtn').classList.toggle('on', v === 'grid');
+  $('listViewBtn').classList.toggle('on', v === 'list');
   renderProducts();
 }
 
-function filterByCategory(event, category) {
+function filterByCategory(category) {
   const searchInput = document.getElementById('headerSearch');
   if (searchInput) {
     searchInput.value = category;
