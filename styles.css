@@ -143,8 +143,8 @@ body.loading {
   display: inline-block;
   margin: 0 0.5rem;
 
-  animation: bounce;
-  animation-duration: 2s;
+  animation: swing;
+  animation-duration: 100s;
   --animate-repeat: 100;
 }
 
