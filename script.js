@@ -1055,8 +1055,11 @@ document.addEventListener("visibilitychange", () => {
     stopMonitor(); 
   } else {
     if (lagCount < 2) {
-      startMonitor(); 
+      setTimeout(() => {
+        if (!document.hidden) {
+          startMonitor(); 
+        }
+      }, 2500); 
     }
   }
 });
-startMonitor();
