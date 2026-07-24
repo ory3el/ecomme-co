@@ -134,11 +134,11 @@ body.loading {
 
 .logo-loading {
 
-  animation: zoomInDown;
+  /*animation: zoomInDown;
   animation-duration: 1.5;
   animation-iteration-count: 10;
   animation-timing-function: ease-out;
-  transform-origin: top center;
+  transform-origin: top center;*/
     
   width: 250px;
   height: auto;
@@ -150,11 +150,11 @@ body.loading {
   display: inline-block;
   margin: 0 0.5rem;
 
-  /*animation: swing;
+  animation: zoomInDown;
   animation-duration: var(--fa-animation-duration,1.2s);
   animation-iteration-count: var(--fa-animation-iteration-count,infinite);
   animation-timing-function: var(--fa-animation-timing,ease-out);
-  transform-origin: top center;*/
+  transform-origin: top center;
 }
 
 @keyframes pulse {
