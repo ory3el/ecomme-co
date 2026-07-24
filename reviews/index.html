@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minhas Avaliações | Ecomme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — Ecomme / Minhas Avaliações
+     White #FFFFFF + Azure #4287F5, gold reserved only for stars
+     ============================================================ */
+  :root{
+    --white:      #FFFFFF;
+    --page-bg:    #F7F9FE;
+    --blue:       #4287F5;
+    --blue-deep:  #2E6BDE;
+    --blue-soft:  #EFF4FE;
+    --blue-mist:  #E4ECFD;
+    --ink:        #0F1729;
+    --slate:      #5B6B85;
+    --slate-2:    #8A97AC;
+    --line:       rgba(15,23,41,0.08);
+    --line-2:     rgba(15,23,41,0.05);
+    --gold:       #F0A93A;
+    --gold-dim:   #E7E9EF;
+    --green:      #1FAA6E;
+    --red:        #E64848;
+    --r-sm:       10px;
+    --r-md:       16px;
+    --r-lg:       24px;
+    --shadow-1:   0 1px 2px rgba(15,23,41,.04), 0 1px 3px rgba(15,23,41,.03);
+    --shadow-2:   0 4px 16px rgba(15,23,41,.06), 0 2px 6px rgba(15,23,41,.04);
+    --shadow-3:   0 20px 48px rgba(15,23,41,.10), 0 8px 20px rgba(66,135,245,.08);
+    --spring:     cubic-bezier(.34,1.56,.64,1);
+    --ease:       cubic-bezier(.4,0,.2,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--page-bg); color:var(--ink);
+    font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{cursor:pointer;border:none;background:none;font-family:inherit;}
+  img{max-width:100%;display:block;}
+  input,select,textarea{font-family:inherit;}
+  ::selection{background:var(--blue-mist);color:var(--blue-deep);}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:var(--blue-soft);}
+  ::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px;}
+
+  :focus-visible{outline:2.5px solid var(--blue); outline-offset:2px; border-radius:4px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  /* ============================================================ KEYFRAMES */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeScaleBlur{from{opacity:0;transform:translateY(14px) scale(.95);filter:blur(6px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+  @keyframes scaleSpring{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+  @keyframes shimmer{0%{background-position:-360px 0}100%{background-position:360px 0}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(66,135,245,.35)}100%{box-shadow:0 0 0 10px rgba(66,135,245,0)}}
+  @keyframes barGrow{from{width:0}to{width:var(--w)}}
+  @keyframes floatSlow{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,-10px)}}
+  @keyframes floatSlow2{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,12px)}}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,16px) scale(.92)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+  @keyframes toastBar{from{width:100%}to{width:0%}}
+  @keyframes starPop{0%{transform:scale(0.4) rotate(-15deg);opacity:0}60%{transform:scale(1.18) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  @keyframes cardCollapse{to{opacity:0;transform:scale(.9) translateY(6px);max-height:0;margin-bottom:0;padding-top:0;padding-bottom:0}}
+  @keyframes countBadgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+  /* ============================================================ TOPBAR / HEADER (site shell) */
+  .topbar{background:var(--blue);color:#fff;text-align:center;padding:8px 20px;font-size:12px;font-weight:500;letter-spacing:.3px;position:relative;}
+  .topbar span{opacity:.55;margin:0 10px;}
+  .topbar-close{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.65);font-size:18px;}
+  .topbar-close:hover{color:#fff;}
+
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000;}
+  .header-inner{max-width:1440px;margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:24px;height:66px;}
+  .logo{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;color:var(--blue);flex-shrink:0;display:flex;align-items:center;gap:5px;}
+  .logo-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;margin-top:2px;}
+  .nav-main{display:flex;gap:2px;}
+  .nav-main a{padding:7px 14px;font-size:13px;font-weight:500;color:var(--slate);border-radius:8px;transition:all .2s var(--ease);}
+  .nav-main a:hover{color:var(--ink);background:var(--blue-soft);}
+  .header-spacer{flex:1;}
+  .header-actions{display:flex;align-items:center;gap:6px;}
+  .icon-btn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--slate);transition:all .25s var(--spring);position:relative;}
+  .icon-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);transform:translateY(-1px);}
+  .icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;}
+  .hd-badge{position:absolute;top:0px;right:0px;min-width:16px;height:16px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .btn-account{background:var(--blue-soft);border:1px solid var(--blue-mist);color:var(--blue-deep);padding:7px 16px 7px 6px;border-radius:100px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all .25s var(--spring);}
+  .btn-account:hover{background:var(--blue);color:#fff;transform:translateY(-1px);}
+  .acc-avatar{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;}
+  .btn-account:hover .acc-avatar{background:#fff;color:var(--blue);}
+
+  .breadcrumb-bar{background:#fff;border-bottom:1px solid var(--line);}
+  .breadcrumb{max-width:1440px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--slate-2);}
+  .breadcrumb a:hover{color:var(--blue);}
+  .breadcrumb .sep{opacity:.5;}
+  .breadcrumb .cur{color:var(--ink);font-weight:500;}
+
+  /* ============================================================ HERO — pure white, generous whitespace */
+  .hero{background:var(--white);position:relative;overflow:hidden;padding:76px 28px 0;}
+  .hero-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(60px);opacity:.5;transition:transform .3s var(--ease);}
+  .hero-orb.o1{width:420px;height:420px;top:-160px;right:-80px;background:radial-gradient(circle,var(--blue-mist),transparent 70%);animation:floatSlow 10s ease-in-out infinite;}
+  .hero-orb.o2{width:280px;height:280px;bottom:-120px;left:6%;background:radial-gradient(circle,var(--blue-soft),transparent 70%);animation:floatSlow2 12s ease-in-out infinite;}
+
+  .hero-inner{max-width:1180px;margin:0 auto;position:relative;z-index:1;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--blue-deep);font-size:11.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:22px;opacity:0;animation:fadeUp .7s var(--ease) .05s forwards;}
+  .hero-eyebrow::before{content:'';width:5px;height:5px;background:var(--blue);border-radius:50%;}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:52px;line-height:1.08;letter-spacing:-.5px;margin-bottom:16px;color:var(--ink);opacity:0;animation:fadeUp .75s var(--ease) .12s forwards;}
+  .hero h1 em{font-style:italic;color:var(--blue);}
+  .hero p.lead{color:var(--slate);font-size:16px;max-width:480px;line-height:1.75;margin-bottom:44px;opacity:0;animation:fadeUp .75s var(--ease) .2s forwards;}
+
+  /* stat panel — signature element */
+  .stat-panel{
+    display:grid; grid-template-columns:auto 1px repeat(2,auto) 1px 1.4fr;
+    align-items:center; gap:0;
+    border:1px solid var(--line); border-radius:var(--r-lg);
+    background:var(--white); box-shadow:var(--shadow-2);
+    padding:30px 36px; margin-bottom:0;
+    opacity:0; animation:fadeScaleBlur .8s var(--ease) .3s forwards;
+  }
+  .stat-divider{width:1px; align-self:stretch; background:var(--line); margin:0 32px;}
+  .stat-block{padding-right:8px;}
+  .stat-num-row{display:flex; align-items:baseline; gap:4px;}
+  .stat-num{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:44px; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .stat-num.blue{color:var(--blue);}
+  .stat-star-ico{width:22px;height:22px;fill:var(--gold);margin-bottom:6px;}
+  .stat-label{font-size:11.5px; color:var(--slate-2); text-transform:uppercase; letter-spacing:.8px; font-weight:600; margin-top:6px;}
+  .stat-sub{font-size:12px; color:var(--green); font-weight:600; margin-top:4px; display:flex; align-items:center; gap:4px;}
+
+  /* rating distribution ribbon */
+  .dist-wrap{display:flex; flex-direction:column; gap:8px; padding-left:8px;}
+  .dist-row{display:flex; align-items:center; gap:10px;}
+  .dist-label{font-size:11.5px; font-weight:700; color:var(--slate); width:34px; flex-shrink:0; display:flex; align-items:center; gap:3px;}
+  .dist-label svg{width:10px;height:10px;fill:var(--gold);}
+  .dist-track{flex:1; height:6px; background:var(--blue-soft); border-radius:100px; overflow:hidden;}
+  .dist-fill{height:100%; background:var(--blue); border-radius:100px; width:0; animation:barGrow 1.1s var(--spring) .6s forwards;}
+  .dist-count{font-size:11px; color:var(--slate-2); width:26px; text-align:right; font-variant-numeric:tabular-nums;}
+
+  /* ============================================================ TOOLBAR */
+  .toolbar-wrap{background:var(--white); border-bottom:1px solid var(--line); position:sticky; top:65px; z-index:200;}
+  .toolbar{max-width:1180px; margin:0 auto; padding:18px 28px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+
+  .search-box{display:flex; align-items:center; gap:9px; background:var(--page-bg); border:1px solid var(--line); border-radius:100px; padding:0 16px; flex:1; min-width:220px; transition:all .25s var(--ease);}
+  .search-box:focus-within{border-color:var(--blue); background:#fff; box-shadow:0 0 0 4px var(--blue-soft);}
+  .search-box svg{width:15px;height:15px;fill:none;stroke:var(--slate-2);stroke-width:2;flex-shrink:0;}
+  .search-box input{flex:1; background:none; border:none; outline:none; padding:11px 0; font-size:13.5px; color:var(--ink);}
+  .search-box input::placeholder{color:var(--slate-2);}
+
+  .star-filters{display:flex; align-items:center; gap:3px; background:var(--page-bg); border:1px solid var(--line); border-radius:100px; padding:4px; position:relative;}
+  .sf-pill-bg{position:absolute; top:4px; bottom:4px; background:var(--blue); border-radius:100px; transition:left .35s var(--spring), width .35s var(--spring); z-index:0;}
+  .sf-btn{position:relative; z-index:1; display:flex; align-items:center; gap:5px; padding:8px 14px; border-radius:100px; font-size:12.5px; font-weight:600; color:var(--slate); transition:color .25s var(--ease); white-space:nowrap;}
+  .sf-btn.active{color:#fff;}
+  .sf-btn svg{width:11px;height:11px;fill:currentColor;}
+  .sf-btn .cnt{font-size:10.5px; opacity:.75;}
+
+  .sort-sel{background:var(--page-bg); border:1px solid var(--line); color:var(--ink); padding:10px 34px 10px 15px; border-radius:100px; font-size:12.5px; font-weight:500; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A97AC'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 15px center; transition:border-color .2s;}
+  .sort-sel:focus{border-color:var(--blue);}
+
+  /* ============================================================ MAIN CONTENT */
+  .content-wrap{max-width:1180px; margin:0 auto; padding:36px 28px 100px;}
+  .results-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+  .results-count{font-size:13px; color:var(--slate-2);}
+  .results-count strong{color:var(--ink);}
+
+  .reviews-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+
+  /* ---------- SKELETON ---------- */
+  .skel-card{background:#fff; border:1px solid var(--line); border-radius:var(--r-md); padding:22px; display:flex; gap:16px;}
+  .skel-thumb{width:64px; height:64px; border-radius:14px; flex-shrink:0; background:linear-gradient(90deg,var(--blue-soft) 25%,#fff 50%,var(--blue-soft) 75%); background-size:360px 100%; animation:shimmer 1.4s infinite linear;}
+  .skel-lines{flex:1; display:flex; flex-direction:column; gap:10px; padding-top:4px;}
+  .skel-line{height:11px; border-radius:6px; background:linear-gradient(90deg,var(--blue-soft) 25%,#fff 50%,var(--blue-soft) 75%); background-size:360px 100%; animation:shimmer 1.4s infinite linear;}
+  .skel-line.w40{width:40%;} .skel-line.w70{width:70%;} .skel-line.w90{width:90%;} .skel-line.w60{width:60%;}
+
+  /* ---------- REVIEW CARD ---------- */
+  .rcard{
+    background:#fff; border:1px solid var(--line); border-radius:var(--r-md);
+    padding:24px; display:flex; flex-direction:column; gap:14px;
+    transition:transform .35s var(--spring), box-shadow .35s var(--ease), border-color .3s;
+    opacity:0; animation:fadeScaleBlur .55s var(--ease) forwards;
+  }
+  .rcard:hover{transform:translateY(-4px); box-shadow:var(--shadow-3); border-color:var(--blue-mist);}
+  .rcard.removing{animation:cardCollapse .4s var(--ease) forwards; overflow:hidden;}
+
+  .rc-top{display:flex; gap:14px; align-items:flex-start;}
+  .rc-thumb{width:60px; height:60px; border-radius:14px; background:linear-gradient(150deg,var(--blue-soft),var(--blue-mist)); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; transition:transform .3s var(--spring);}
+  .rcard:hover .rc-thumb{transform:scale(1.06) rotate(-2deg);}
+  .rc-head{flex:1; min-width:0;}
+  .rc-name{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--ink); margin-bottom:3px; line-height:1.25;}
+  .rc-cat{display:inline-flex; font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--blue-deep); background:var(--blue-soft); padding:2px 9px; border-radius:100px;}
+  .rc-date{font-size:11.5px; color:var(--slate-2); margin-left:auto; flex-shrink:0; white-space:nowrap; padding-top:2px;}
+
+  .rc-stars{display:flex; gap:2px;}
+  .rc-stars svg{width:15px; height:15px;}
+  .rc-stars svg.on{fill:var(--gold);}
+  .rc-stars svg.off{fill:var(--gold-dim);}
+
+  .rc-comment{font-size:13.5px; color:var(--slate); line-height:1.75;}
+  .rc-comment .more-btn{color:var(--blue); font-weight:600; cursor:pointer; margin-left:4px; white-space:nowrap;}
+  .rc-comment .more-btn:hover{text-decoration:underline;}
+
+  .rc-photos{display:flex; gap:8px;}
+  .rc-photo{
+    width:48px; height:48px; border-radius:10px; flex-shrink:0; cursor:zoom-in;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); transition:transform .25s var(--spring), box-shadow .25s;
+    background-size:cover; background-position:center;
+  }
+  .rc-photo:hover{transform:translateY(-3px) scale(1.05); box-shadow:0 8px 18px rgba(66,135,245,.18); z-index:2;}
+  .rc-photo svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;opacity:.9;}
+
+  .rc-divider{border:none; border-top:1px solid var(--line-2); margin-top:2px;}
+
+  .rc-foot{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .rc-view-link{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--blue); transition:gap .25s var(--ease);}
+  .rc-view-link:hover{gap:9px;}
+  .rc-view-link svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;}
+
+  .rc-actions{display:flex; gap:6px;}
+  .rc-act-btn{width:34px; height:34px; border-radius:10px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--slate-2); transition:all .25s var(--spring);}
+  .rc-act-btn:hover{transform:translateY(-2px);}
+  .rc-act-btn.edit:hover{border-color:var(--blue); color:var(--blue); background:var(--blue-soft);}
+  .rc-act-btn.del:hover{border-color:var(--red); color:var(--red); background:#FDEDED;}
+  .rc-act-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;}
+
+  /* ---------- EMPTY STATES ---------- */
+  .empty-state{grid-column:1/-1; text-align:center; padding:90px 20px; display:flex; flex-direction:column; align-items:center; animation:fadeUp .6s var(--ease);}
+  .empty-badge{width:88px; height:88px; border-radius:50%; background:var(--blue-soft); display:flex; align-items:center; justify-content:center; margin-bottom:26px; position:relative;}
+  .empty-badge svg{width:36px; height:36px; fill:none; stroke:var(--blue); stroke-width:1.6;}
+  .empty-badge::after{content:''; position:absolute; inset:-8px; border:1.5px dashed var(--blue-mist); border-radius:50%; animation:floatSlow 6s ease-in-out infinite;}
+  .empty-state h3{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:26px; margin-bottom:10px; color:var(--ink);}
+  .empty-state p{color:var(--slate); font-size:14px; max-width:340px; margin-bottom:26px; line-height:1.7;}
+  .btn-empty-cta{background:var(--blue); color:#fff; padding:12px 26px; border-radius:100px; font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:8px; transition:all .3s var(--spring); box-shadow:0 8px 22px rgba(66,135,245,.28);}
+  .btn-empty-cta:hover{background:var(--blue-deep); transform:translateY(-2px); box-shadow:0 14px 30px rgba(66,135,245,.36);}
+  .btn-empty-cta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;}
+  .btn-empty-secondary{color:var(--slate); font-size:12.5px; font-weight:600; margin-top:14px; text-decoration:underline; text-underline-offset:3px;}
+  .btn-empty-secondary:hover{color:var(--blue);}
+
+  /* ============================================================ MODALS */
+  .modal-ov{position:fixed; inset:0; background:rgba(15,23,41,.5); z-index:2500; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s var(--ease); backdrop-filter:blur(6px);}
+  .modal-ov.on{opacity:1; pointer-events:all;}
+  .modal-card{background:#fff; border-radius:var(--r-lg); width:100%; max-width:480px; box-shadow:var(--shadow-3); transform:scale(.92); opacity:0; transition:all .35s var(--spring);}
+  .modal-ov.on .modal-card{transform:scale(1); opacity:1;}
+  .modal-pad{padding:32px;}
+  .modal-eyebrow{font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--blue-deep); margin-bottom:10px;}
+  .modal-title{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; margin-bottom:20px; color:var(--ink);}
+
+  /* edit modal star picker */
+  .picker-label{font-size:12px; font-weight:600; color:var(--slate); margin-bottom:10px;}
+  .star-picker{display:flex; gap:6px; margin-bottom:22px;}
+  .sp-star{width:34px; height:34px; display:flex; align-items:center; justify-content:center; transition:transform .2s var(--spring);}
+  .sp-star svg{width:28px; height:28px; fill:var(--gold-dim); transition:fill .2s;}
+  .sp-star.on svg{fill:var(--gold);}
+  .sp-star:hover{transform:scale(1.15);}
+
+  .modal-textarea{width:100%; background:var(--page-bg); border:1.5px solid var(--line); border-radius:var(--r-sm); padding:14px 16px; font-size:13.5px; color:var(--ink); outline:none; resize:vertical; min-height:110px; transition:border-color .2s, box-shadow .2s; line-height:1.7; margin-bottom:24px;}
+  .modal-textarea:focus{border-color:var(--blue); box-shadow:0 0 0 4px var(--blue-soft); background:#fff;}
+
+  .modal-btns{display:flex; gap:10px;}
+  .btn-modal-cancel{flex:1; background:var(--page-bg); border:1px solid var(--line); color:var(--slate); padding:12px; border-radius:100px; font-weight:600; font-size:13px; transition:all .2s;}
+  .btn-modal-cancel:hover{border-color:var(--slate-2); color:var(--ink);}
+  .btn-modal-save{flex:1; background:var(--blue); color:#fff; padding:12px; border-radius:100px; font-weight:700; font-size:13px; transition:all .25s var(--spring); box-shadow:0 6px 18px rgba(66,135,245,.25);}
+  .btn-modal-save:hover{background:var(--blue-deep); transform:translateY(-1px);}
+
+  /* delete confirm */
+  .confirm-ico{width:56px; height:56px; border-radius:50%; background:#FDEDED; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;}
+  .confirm-ico svg{width:24px; height:24px; fill:none; stroke:var(--red); stroke-width:2;}
+  .confirm-text{text-align:center; color:var(--slate); font-size:13.5px; line-height:1.7; margin-bottom:26px;}
+  .confirm-text strong{color:var(--ink);}
+  .btn-modal-delete{flex:1; background:var(--red); color:#fff; padding:12px; border-radius:100px; font-weight:700; font-size:13px; transition:all .25s var(--spring); box-shadow:0 6px 18px rgba(230,72,72,.25);}
+  .btn-modal-delete:hover{background:#D13A3A; transform:translateY(-1px);}
+
+  /* lightbox */
+  .lightbox-ov{position:fixed; inset:0; background:rgba(15,23,41,.85); z-index:2600; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(10px);}
+  .lightbox-ov.on{opacity:1; pointer-events:all;}
+  .lightbox-box{width:340px; height:340px; border-radius:var(--r-lg); display:flex; align-items:center; justify-content:center; transform:scale(.85); transition:transform .35s var(--spring); box-shadow:0 30px 80px rgba(0,0,0,.4);}
+  .lightbox-ov.on .lightbox-box{transform:scale(1);}
+  .lightbox-close{position:fixed; top:28px; right:28px; width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; color:#fff; transition:all .2s;}
+  .lightbox-close:hover{background:rgba(255,255,255,.2);}
+  .lightbox-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
+
+  /* ============================================================ TOAST */
+  .toast-stack{position:fixed; bottom:28px; left:50%; z-index:3000; display:flex; flex-direction:column; gap:10px; align-items:center;}
+  .toast{
+    position:relative; overflow:hidden; min-width:280px; max-width:380px;
+    background:var(--ink); color:#fff; padding:14px 20px 14px 16px; border-radius:14px;
+    font-size:13px; font-weight:500; display:flex; align-items:center; gap:12px;
+    box-shadow:0 20px 44px rgba(15,23,41,.28);
+    animation:toastIn .45s var(--spring) forwards;
+  }
+  .toast.error{background:#3D1414;}
+  .toast .t-ico{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .toast.success .t-ico{background:rgba(31,170,110,.18); color:var(--green);}
+  .toast.error .t-ico{background:rgba(230,72,72,.18); color:#FF8080;}
+  .toast .t-ico svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;}
+  .toast .t-bar{position:absolute; bottom:0; left:0; height:2.5px; background:rgba(255,255,255,.25); animation:toastBar 3.2s linear forwards;}
+
+  /* ============================================================ BACK TO TOP */
+  .btt{position:fixed; bottom:28px; right:28px; width:44px; height:44px; background:var(--blue); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; transform:translateY(20px) scale(.8); transition:all .35s var(--spring); box-shadow:0 10px 26px rgba(66,135,245,.3);}
+  .btt.on{opacity:1; transform:translateY(0) scale(1);}
+  .btt:hover{background:var(--blue-deep); transform:translateY(-3px);}
+  .btt svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;}
+
+  /* ============================================================ FOOTER */
+  footer{background:#fff; border-top:1px solid var(--line); padding:32px 28px;}
+  .ft-inner{max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+  .ft-logo{font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:var(--blue);}
+  .ft-links{display:flex; gap:20px; flex-wrap:wrap;}
+  .ft-links a{font-size:12px; color:var(--slate-2); transition:color .2s;}
+  .ft-links a:hover{color:var(--blue);}
+  .ft-copy{font-size:12px; color:var(--slate-2);}
+
+  /* ============================================================ RESPONSIVE */
+  @media (max-width:1024px){
+    .reviews-grid{grid-template-columns:1fr;}
+    .stat-panel{grid-template-columns:1fr; gap:22px; text-align:left;}
+    .stat-divider{display:none;}
+    .stat-block{padding-right:0;}
+    .dist-wrap{padding-left:0;}
+  }
+  @media (max-width:768px){
+    .nav-main{display:none;}
+    .hero{padding:44px 20px 0;}
+    .hero h1{font-size:36px;}
+    .stat-panel{padding:22px;}
+    .stat-num{font-size:34px;}
+    .toolbar{padding:14px 20px;}
+    .toolbar-wrap{top:65px;}
+    .content-wrap{padding:26px 20px 80px;}
+    .rc-top{flex-wrap:wrap;}
+    .rc-date{margin-left:0; padding-top:0; order:3; width:100%;}
+    .ft-inner{flex-direction:column; text-align:center;}
+    .ft-links{justify-content:center;}
+    .lightbox-box{width:82vw; height:82vw; max-width:320px; max-height:320px;}
+  }
+  @media (max-width:480px){
+    .star-filters{width:100%; overflow-x:auto;}
+    .sort-sel{flex:1;}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
+  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
+    <nav class="nav-main">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/categories">Categorias</a>
+      <a href="/offers">Ofertas</a>
+      <a href="/about">Sobre</a>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showToast('success','Nenhuma notificação nova')">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="hd-badge">2</span>
+      </button>
+      <button class="icon-btn" onclick="showToast('success','Seu carrinho está vazio')">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </button>
+      <button class="btn-account">
+        <span class="acc-avatar">MF</span>Mariana Ferreira
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="sep">/</span>
+    <a href="#">Minha Conta</a><span class="sep">/</span>
+    <span class="cur">Minhas Avaliações</span>
+  </div>
+</div>
+
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
+<section class="hero" id="heroSection">
+  <div class="hero-orb o1" id="orb1"></div>
+  <div class="hero-orb o2" id="orb2"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Minha Conta · Avaliações</div>
+    <h1>Suas <em>avaliações</em>,<br>no seu ritmo.</h1>
+    <p class="lead">Reúna tudo o que você já avaliou em um só lugar — edite, revise fotos ou volte ao produto sempre que quiser.</p>
+
+    <!-- STAT PANEL — signature element -->
+    <div class="stat-panel" id="statPanel">
+      <div class="stat-block">
+        <div class="stat-num-row"><span class="stat-num blue" id="statTotal">0</span></div>
+        <div class="stat-label">Avaliações feitas</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <svg class="stat-star-ico" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div class="stat-num-row"><span class="stat-num" id="statAvg">0.0</span></div>
+        <div class="stat-label">Média das suas notas</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num-row"><span class="stat-num" id="statMonth">0</span></div>
+        <div class="stat-label">Nos últimos 30 dias</div>
+        <div class="stat-sub">
+          <svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Em dia com suas compras
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="dist-wrap" id="distWrap"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TOOLBAR ═══════════════════════════════════════════════ -->
+<div class="toolbar-wrap">
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar por produto avaliado..." oninput="renderReviews()">
+    </div>
+    <div class="star-filters" id="starFilters">
+      <span class="sf-pill-bg" id="sfPillBg"></span>
+      <!-- populated by JS -->
+    </div>
+    <select class="sort-sel" id="sortSelect" onchange="renderReviews()">
+      <option value="recent">Mais recentes</option>
+      <option value="oldest">Mais antigas</option>
+      <option value="highest">Maior nota</option>
+      <option value="lowest">Menor nota</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══ CONTENT ═══════════════════════════════════════════════ -->
+<div class="content-wrap">
+  <div class="results-row">
+    <span class="results-count" id="resultsCount"></span>
+  </div>
+  <div class="reviews-grid" id="reviewsGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:6px;vertical-align:super">●</span></a>
+    <div class="ft-links">
+      <a href="/">Início</a>
+      <a href="/products">Produtos</a>
+      <a href="/my-orders">Meus Pedidos</a>
+      <a href="/support">Suporte</a>
+      <a href="/reviews">Minhas Avaliações</a>
+    </div>
+    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<!-- ══ EDIT MODAL ════════════════════════════════════════════ -->
+<div class="modal-ov" id="editModal" onclick="if(event.target===this) closeEditModal()">
+  <div class="modal-card">
+    <div class="modal-pad">
+      <div class="modal-eyebrow">Editar Avaliação</div>
+      <div class="modal-title" id="editModalTitle">Produto</div>
+      <div class="picker-label">Sua nota</div>
+      <div class="star-picker" id="starPicker"></div>
+      <div class="picker-label">Seu comentário</div>
+      <textarea class="modal-textarea" id="editTextarea" placeholder="Conte como foi sua experiência com este produto..."></textarea>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeEditModal()">Cancelar</button>
+        <button class="btn-modal-save" onclick="saveEdit()">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DELETE CONFIRM MODAL ══════════════════════════════════ -->
+<div class="modal-ov" id="deleteModal" onclick="if(event.target===this) closeDeleteModal()">
+  <div class="modal-card" style="max-width:400px">
+    <div class="modal-pad">
+      <div class="confirm-ico">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </div>
+      <div class="modal-title" style="text-align:center">Excluir avaliação?</div>
+      <p class="confirm-text">Você está prestes a excluir sua avaliação de <strong id="deleteProductName">—</strong>. Essa ação não pode ser desfeita.</p>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn-modal-delete" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX ══════════════════════════════════════════════ -->
+<div class="lightbox-ov" id="lightboxOv" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <div class="lightbox-box" id="lightboxBox"></div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- BACK TO TOP -->
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ============================================================ DATA */
+let reviews = [
+  { id:1, product:'Smartwatch Pro X7', category:'Eletrônicos', emoji:'⌚', rating:5, dateISO:'2026-06-20',
+    comment:'Superou minhas expectativas! A bateria realmente dura quase 2 semanas e o GPS é bem preciso nas corridas. Tela linda e muito fácil de configurar pelo aplicativo — recomendo sem dúvidas para quem treina ao ar livre.',
+    photos:2, link:'product-example.html' },
+  { id:2, product:'Fone Bluetooth ANC Pro', category:'Eletrônicos', emoji:'🎧', rating:4, dateISO:'2026-06-15',
+    comment:'Cancelamento de ruído impressionante para o preço. Só achei um pouco apertado nas primeiras horas de uso, mas depois de um tempo acostuma bem.',
+    photos:0, link:'products.html' },
+  { id:3, product:'Kit Skincare Vitamina C', category:'Beleza', emoji:'✨', rating:5, dateISO:'2026-06-10',
+    comment:'Minha pele ficou visivelmente mais uniforme em duas semanas de uso. Textura leve, não pesa e não deixa oleosidade — virou parte fixa da minha rotina.',
+    photos:3, link:'products.html' },
+  { id:4, product:'Tênis Running Ultralight', category:'Moda', emoji:'👟', rating:3, dateISO:'2026-06-05',
+    comment:'Muito confortável no início, mas o solado começou a desgastar mais rápido do que eu esperava depois de algumas semanas de corrida na rua.',
+    photos:0, link:'products.html' },
+  { id:5, product:'Mochila Anti-Furto Executiva', category:'Moda', emoji:'🎒', rating:5, dateISO:'2026-05-28',
+    comment:'Uso todos os dias para o trabalho. O compartimento para notebook é perfeito e a proteção RFID me deixa bem mais tranquila no transporte público.',
+    photos:1, link:'products.html' },
+  { id:6, product:'Garrafa Térmica 1L Inox', category:'Fitness', emoji:'🍶', rating:4, dateISO:'2026-05-22',
+    comment:'Mantém a água gelada o dia inteiro sem problema. Só acho que poderia ser um pouco mais leve para levar na academia todos os dias.',
+    photos:0, link:'products.html' },
+  { id:7, product:'Kit Luzes LED Smart RGB', category:'Casa', emoji:'💡', rating:2, dateISO:'2026-05-14',
+    comment:'As cores são bonitas, mas o aplicativo trava com frequência ao tentar conectar via Wi-Fi. Já reinstalei duas vezes e o problema persiste.',
+    photos:2, link:'products.html' },
+  { id:8, product:'Câmera de Segurança WiFi', category:'Eletrônicos', emoji:'📷', rating:5, dateISO:'2026-05-02',
+    comment:'A visão noturna colorida é impressionante e a instalação foi bem mais simples do que eu imaginava. Recomendo muito para quem quer monitorar a casa.',
+    photos:0, link:'products.html' },
+];
+
+const photoGradients = [
+  'linear-gradient(135deg,#4287F5,#7BA8F7)',
+  'linear-gradient(135deg,#F0A93A,#F5C878)',
+  'linear-gradient(135deg,#1FAA6E,#5FCB9A)',
+  'linear-gradient(135deg,#8B6BF2,#B39BF7)',
+  'linear-gradient(135deg,#E64848,#F08080)',
+];
+
+let currentStarFilter = 0; /* 0 = all */
+let editingId = null;
+let editingRatingValue = 0;
+let deletingId = null;
+let expandedComments = new Set();
+
+const monthNames = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+function formatDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return `${d.getDate()} de ${monthNames[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+/* ============================================================ STAR RENDER */
+function starsSVG(rating, size=15) {
+  let html = '';
+  for (let i=1;i<=5;i++){
+    const on = i<=rating;
+    html += `<svg class="${on?'on':'off'}" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  }
+  return html;
+}
+
+/* ============================================================ HERO STATS (count-up + distribution) */
+function computeStats() {
+  const total = reviews.length;
+  const avg = total ? (reviews.reduce((s,r)=>s+r.rating,0)/total) : 0;
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-30);
+  const recentCount = reviews.filter(r => new Date(r.dateISO+'T12:00:00') >= cutoff).length;
+  const dist = [0,0,0,0,0]; /* index 0 = 5-star ... index 4 = 1-star */
+  reviews.forEach(r => dist[5-r.rating]++);
+  return { total, avg, recentCount, dist };
+}
+
+function countUp(el, target, decimals=0, duration=900) {
+  const start = performance.now();
+  const from = 0;
+  function tick(now) {
+    const p = Math.min(1, (now-start)/duration);
+    const eased = 1 - Math.pow(1-p, 3);
+    const val = from + (target-from)*eased;
+    el.textContent = decimals ? val.toFixed(decimals).replace('.', ',') : Math.round(val);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = decimals ? target.toFixed(decimals).replace('.', ',') : target;
+  }
+  requestAnimationFrame(tick);
+}
+
+function renderHeroStats() {
+  const s = computeStats();
+  countUp($('statTotal'), s.total, 0, 1000);
+  countUp($('statAvg'), s.avg, 1, 1200);
+  countUp($('statMonth'), s.recentCount, 0, 900);
+
+  const maxCount = Math.max(...s.dist, 1);
+  $('distWrap').innerHTML = [5,4,3,2,1].map((star,i) => {
+    const count = s.dist[i];
+    const pct = s.total ? Math.round((count/s.total)*100) : 0;
+    return `
+      <div class="dist-row">
+        <span class="dist-label">${star} <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+        <div class="dist-track"><div class="dist-fill" style="--w:${pct}%; animation-delay:${.6+i*.08}s"></div></div>
+        <span class="dist-count">${count}</span>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================ STAR FILTER PILLS */
+function renderStarFilters() {
+  const s = computeStats();
+  const counts = { 0: s.total, 5: s.dist[0], 4: s.dist[1], 3: s.dist[2], 2: s.dist[3], 1: s.dist[4] };
+  const defs = [
+    { v:0, label:'Todas' },
+    { v:5, label:'5' }, { v:4, label:'4' }, { v:3, label:'3' }, { v:2, label:'2' }, { v:1, label:'1' },
+  ];
+  const wrap = $('starFilters');
+  const pill = $('sfPillBg');
+  wrap.querySelectorAll('.sf-btn').forEach(b=>b.remove());
+  defs.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'sf-btn' + (currentStarFilter===d.v ? ' active' : '');
+    btn.dataset.v = d.v;
+    btn.innerHTML = d.v===0
+      ? `Todas <span class="cnt">(${counts[0]})</span>`
+      : `${d.label}<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="cnt">${counts[d.v]}</span>`;
+    btn.onclick = () => { currentStarFilter = d.v; renderStarFilters(); renderReviews(); };
+    wrap.appendChild(btn);
+  });
+  requestAnimationFrame(() => {
+    const active = wrap.querySelector('.sf-btn.active');
+    if (active) {
+      const wrapRect = wrap.getBoundingClientRect();
+      const r = active.getBoundingClientRect();
+      pill.style.left = (r.left - wrapRect.left) + 'px';
+      pill.style.width = r.width + 'px';
+    }
+  });
+}
+window.addEventListener('resize', () => {
+  const wrap = $('starFilters');
+  const active = wrap.querySelector('.sf-btn.active');
+  const pill = $('sfPillBg');
+  if (active) {
+    const wrapRect = wrap.getBoundingClientRect();
+    const r = active.getBoundingClientRect();
+    pill.style.left = (r.left - wrapRect.left) + 'px';
+    pill.style.width = r.width + 'px';
+  }
+});
+
+/* ============================================================ RENDER REVIEWS GRID */
+function getFilteredSorted() {
+  const q = $('searchInput').value.toLowerCase().trim();
+  const sort = $('sortSelect').value;
+  let list = reviews.filter(r => {
+    const matchQ = !q || r.product.toLowerCase().includes(q) || r.comment.toLowerCase().includes(q);
+    const matchStar = currentStarFilter===0 || r.rating===currentStarFilter;
+    return matchQ && matchStar;
+  });
+  if (sort==='recent') list.sort((a,b)=> b.dateISO.localeCompare(a.dateISO));
+  else if (sort==='oldest') list.sort((a,b)=> a.dateISO.localeCompare(b.dateISO));
+  else if (sort==='highest') list.sort((a,b)=> b.rating-a.rating || b.dateISO.localeCompare(a.dateISO));
+  else if (sort==='lowest') list.sort((a,b)=> a.rating-b.rating || b.dateISO.localeCompare(a.dateISO));
+  return list;
+}
+
+function photoTile(reviewId, idx) {
+  const grad = photoGradients[(reviewId+idx) % photoGradients.length];
+  return `<div class="rc-photo" style="background:${grad}" onclick="event.stopPropagation();openLightbox('${grad}')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+  </div>`;
+}
+
+function renderReviews() {
+  const list = getFilteredSorted();
+  $('resultsCount').innerHTML = `<strong>${list.length}</strong> avaliaç${list.length===1?'ão':'ões'} encontrada${list.length===1?'':'s'}`;
+
+  const grid = $('reviewsGrid');
+
+  if (!reviews.length) {
+    grid.innerHTML = emptyStateNoReviews();
+    return;
+  }
+  if (!list.length) {
+    grid.innerHTML = emptyStateNoResults();
+    return;
+  }
+
+  grid.innerHTML = list.map((r, i) => {
+    const isLong = r.comment.length > 160;
+    const expanded = expandedComments.has(r.id);
+    const shownComment = (isLong && !expanded) ? r.comment.slice(0,160).trim() + '…' : r.comment;
+    const moreBtn = isLong
+      ? `<span class="more-btn" onclick="toggleComment(${r.id})">${expanded ? 'ver menos' : 'ver mais'}</span>`
+      : '';
+    const photosHtml = r.photos > 0
+      ? `<div class="rc-photos">${Array.from({length:r.photos}).map((_,pi)=>photoTile(r.id,pi)).join('')}</div>`
+      : '';
+
+    return `
+      <div class="rcard" id="rcard-${r.id}" style="animation-delay:${i*0.06}s">
+        <div class="rc-top">
+          <div class="rc-thumb">${r.emoji}</div>
+          <div class="rc-head">
+            <div class="rc-name">${r.product}</div>
+            <span class="rc-cat">${r.category}</span>
+          </div>
+          <span class="rc-date">${formatDate(r.dateISO)}</span>
+        </div>
+        <div class="rc-stars">${starsSVG(r.rating)}</div>
+        <div class="rc-comment">${shownComment}${moreBtn}</div>
+        ${photosHtml}
+        <hr class="rc-divider">
+        <div class="rc-foot">
+          <a class="rc-view-link" href="${r.link}">
+            Ver produto
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+          </a>
+          <div class="rc-actions">
+            <button class="rc-act-btn edit" title="Editar avaliação" onclick="openEditModal(${r.id})">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="rc-act-btn del" title="Excluir avaliação" onclick="openDeleteModal(${r.id})">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleComment(id) {
+  if (expandedComments.has(id)) expandedComments.delete(id);
+  else expandedComments.add(id);
+  renderReviews();
+}
+
+/* ============================================================ EMPTY STATES */
+function emptyStateNoReviews() {
+  return `
+    <div class="empty-state">
+      <div class="empty-badge">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <h3>Você ainda não avaliou nada</h3>
+      <p>Suas opiniões ajudam outros clientes a decidir melhor. Avalie um produto que você já comprou e ele aparece aqui.</p>
+      <a class="btn-empty-cta" href="/my-orders">
+        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Ver meus pedidos
+      </a>
+    </div>`;
+}
+function emptyStateNoResults() {
+  return `
+    <div class="empty-state">
+      <div class="empty-badge">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <h3>Nenhuma avaliação encontrada</h3>
+      <p>Não encontramos avaliações com esses filtros. Tente ajustar a busca ou o filtro de estrelas.</p>
+      <button class="btn-empty-cta" onclick="clearAllFilters()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Limpar filtros
+      </button>
+    </div>`;
+}
+function clearAllFilters() {
+  $('searchInput').value = '';
+  currentStarFilter = 0;
+  $('sortSelect').value = 'recent';
+  renderStarFilters();
+  renderReviews();
+}
+
+/* ============================================================ SKELETON → REAL CONTENT */
+function renderSkeleton() {
+  const grid = $('reviewsGrid');
+  grid.innerHTML = Array.from({length:6}).map(() => `
+    <div class="skel-card">
+      <div class="skel-thumb"></div>
+      <div class="skel-lines">
+        <div class="skel-line w40"></div>
+        <div class="skel-line w90"></div>
+        <div class="skel-line w70"></div>
+        <div class="skel-line w60"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================ EDIT MODAL */
+function openEditModal(id) {
+  const r = reviews.find(x=>x.id===id);
+  if (!r) return;
+  editingId = id;
+  editingRatingValue = r.rating;
+  $('editModalTitle').textContent = r.product;
+  $('editTextarea').value = r.comment;
+  renderStarPicker();
+  $('editModal').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function closeEditModal() {
+  $('editModal').classList.remove('on');
+  document.body.style.overflow = '';
+}
+function renderStarPicker() {
+  const wrap = $('starPicker');
+  wrap.innerHTML = '';
+  for (let i=1;i<=5;i++){
+    const btn = document.createElement('button');
+    btn.className = 'sp-star' + (i<=editingRatingValue ? ' on' : '');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    btn.onclick = () => { editingRatingValue = i; btn.style.animation='starPop .35s var(--spring)'; renderStarPicker(); };
+    wrap.appendChild(btn);
+  }
+}
+function saveEdit() {
+  const text = $('editTextarea').value.trim();
+  if (!text) { showToast('error', 'Escreva um comentário antes de salvar.'); return; }
+  if (editingRatingValue < 1) { showToast('error', 'Selecione ao menos 1 estrela.'); return; }
+  const r = reviews.find(x=>x.id===editingId);
+  if (r) {
+    r.comment = text;
+    r.rating = editingRatingValue;
+  }
+  closeEditModal();
+  renderHeroStats();
+  renderStarFilters();
+  renderReviews();
+  showToast('success', 'Avaliação atualizada com sucesso!');
+}
+
+/* ============================================================ DELETE MODAL */
+function openDeleteModal(id) {
+  const r = reviews.find(x=>x.id===id);
+  if (!r) return;
+  deletingId = id;
+  $('deleteProductName').textContent = r.product;
+  $('deleteModal').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function closeDeleteModal() {
+  $('deleteModal').classList.remove('on');
+  document.body.style.overflow = '';
+}
+function confirmDelete() {
+  const card = $('rcard-' + deletingId);
+  closeDeleteModal();
+  if (card) {
+    card.classList.add('removing');
+    setTimeout(() => {
+      reviews = reviews.filter(x => x.id !== deletingId);
+      renderHeroStats();
+      renderStarFilters();
+      renderReviews();
+      showToast('success', 'Avaliação removida.');
+    }, 380);
+  } else {
+    reviews = reviews.filter(x => x.id !== deletingId);
+    renderHeroStats(); renderStarFilters(); renderReviews();
+    showToast('success', 'Avaliação removida.');
+  }
+}
+
+/* ============================================================ LIGHTBOX */
+function openLightbox(grad) {
+  $('lightboxBox').style.background = grad;
+  $('lightboxOv').classList.add('on');
+}
+function closeLightbox() { $('lightboxOv').classList.remove('on'); }
+
+/* ============================================================ TOAST */
+function showToast(type, msg) {
+  const stack = $('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type === 'success'
+    ? `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  el.innerHTML = `<div class="t-ico">${icon}</div><span>${msg}</span><div class="t-bar"></div>`;
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s, transform .3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px) scale(.95)';
+    setTimeout(() => el.remove(), 320);
+  }, 3200);
+}
+
+/* ============================================================ PARALLAX (discreet) */
+const heroSection = $('heroSection');
+heroSection.addEventListener('mousemove', e => {
+  const rect = heroSection.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width - 0.5;
+  const y = (e.clientY - rect.top) / rect.height - 0.5;
+  $('orb1').style.transform = `translate(${x*18}px, ${y*14}px)`;
+  $('orb2').style.transform = `translate(${x*-14}px, ${y*-10}px)`;
+});
+heroSection.addEventListener('mouseleave', () => {
+  $('orb1').style.transform = '';
+  $('orb2').style.transform = '';
+});
+
+/* ============================================================ MISC */
+window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 320); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeEditModal(); closeDeleteModal(); closeLightbox(); }
+});
+
+/* ============================================================ INIT SEQUENCE */
+renderSkeleton();
+renderHeroStats();
+renderStarFilters();
+setTimeout(() => {
+  renderReviews();
+}, 850);
+</script>
+</body>
+</html>
