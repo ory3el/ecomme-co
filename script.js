@@ -935,5 +935,5 @@ window.addEventListener('load', () => {
       preloader.style.display = 'none';
     }, 800);
     
-  }, 99600);
+  }, 600);
 });
