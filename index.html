@@ -718,6 +718,35 @@
   </div>
 </div>
 
+<!-- PERFORMANCE MODAL -->
+<div id="performanceModal" class="perf-modal-overlay">
+  <div class="perf-modal-content">
+    <div class="perf-modal-header">
+      <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+      <h3>Aviso de Desempenho</h3>
+    </div>
+    
+    <div class="perf-modal-body">
+      <p>Detectamos que o site está apresentando lentidão ou travamentos no seu dispositivo. 
+		 Para melhorar o desempenho do site, você pode ativar a otimização do sistema reduzindo animações e efeitos gráficos.
+	  </p>
+    </div>
+    
+    <div class="perf-modal-actions">
+      <button id="btnOptimize" class="btn-primary" onclick="window.location.href='/settings'">Ativar Otimização do Site</button>
+      <button id="btnCloseModal" class="btn-secondary">Fechar</button>
+    </div>
+    
+    <div class="perf-modal-footer">
+      <label class="checkbox-container">
+        <input type="checkbox" id="chkNeverShowAgain">
+        <span class="checkmark"></span>
+        Não mostrar esse aviso novamente
+      </label>
+    </div>
+  </div>
+</div>
+	
 <!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-icon">✓</div>
