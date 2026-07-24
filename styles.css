@@ -145,7 +145,7 @@ body.loading {
 
   animation: bounce;
   animation-duration: 2s;
-  --animate-repeat: infinite;
+  --animate-repeat: 100;
 }
 
 @keyframes pulse {
