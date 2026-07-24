@@ -104,17 +104,11 @@ body.loading {
 }
 
 .loader-content {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 15px;
-
-  display: inline-block;
-  margin: 0 0.5rem;
-
-  animation: bounce;
-  animation-duration: 2s;
-  --animate-repeat: 100;
 }
 
 .loader-content p {
@@ -143,8 +137,15 @@ body.loading {
   height: auto;
   border-radius: 0%;
   filter: brightness(0) invert(1) drop-shadow(0px 0px 0px #fff);
-  animation: pulse 1.8s ease-in-out infinite;
+  /*animation: pulse 1.8s ease-in-out infinite;*/
   margin-bottom: 20px;
+
+  display: inline-block;
+  margin: 0 0.5rem;
+
+  animation: bounce;
+  animation-duration: 2s;
+  --animate-repeat: infinite;
 }
 
 @keyframes pulse {
