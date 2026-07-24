@@ -22,8 +22,8 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById('performanceModal');
-  const btnClose = document.getElementById('btnCloseModal');
+  const modalPerfo = document.getElementById('performanceModal');
+  const btnClosePerfo = document.getElementById('btnCloseModal');
   const chkNeverShow = document.getElementById('chkNeverShowAgain');
   
   const hideWarning = localStorage.getItem('hidePerformanceWarning');
@@ -32,17 +32,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  function showModal() {
-    modal.classList.add('show');
+  function showModalPerfo() {
+    modalPerfo.classList.add('show');
   }
 
-  function closeModal() {
-    modal.classList.remove('show');
+  function closeModalPerfo() {
+    modalPerfo.classList.remove('show');
     if (chkNeverShow.checked) {
       localStorage.setItem('hidePerformanceWarning', 'true');
     }
   }
-  btnClose.addEventListener('click', closeModal);
+  btnClosePerfo.addEventListener('click', closeModalPerfo);
 
   let lastTick = performance.now();
   let lagCount = 0;
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lagCount++;
       
       if (lagCount >= 2) {
-        showModal();
+        showModalPerfo();
         clearInterval(performanceMonitor); 
       }
     }
@@ -1030,7 +1030,7 @@ const performanceMonitor = setInterval(() => {
     }
       
     if (lagCount >= 2) {
-      showModal();
+      showModalPerfo();
       clearInterval(performanceMonitor); 
     }
   }
