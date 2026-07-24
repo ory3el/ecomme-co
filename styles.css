@@ -142,14 +142,9 @@ body.loading {
   display: inline-block;
   margin: 0 0.5rem;
 
-  animation: jackInTheBox;
-  animation-delay: 2s;
-  animation-duration: var(--fa-animation-duration,1.2s);
-  animation-iteration-count: var(--fa-animation-iteration-count,1);
-  animation-timing-function: var(--fa-animation-timing,ease-out);
-  transform-origin: top center;
-
-  animation: pulse 1.8s ease-in-out infinite;
+  animation: 
+  jackInTheBox 1.2s ease-out 2s 1,
+  pulse 1.8s ease-in-out 3.2s infinite;
 }
 
 @keyframes pulse {
