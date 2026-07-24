@@ -58,10 +58,34 @@
   img { max-width: 100%; display: block; }
   input { font-family: inherit; }
 
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #e8edf0; }
-  ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+/* BADGE - LAG COUNT */
+#lagCounterBadge {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 35px;
+  height: 35px;
+  background-color: #ef4444;
+  color: #ffffff;
+  border-radius: 50%;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 16px;
+  z-index: 99999;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+  
+  pointer-events: none; 
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #e8edf0; }
+::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
 /* NOSCROLL */
 .noscroll {
