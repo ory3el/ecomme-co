@@ -144,11 +144,6 @@
     background:linear-gradient(165deg,var(--blue-soft) 0%, #fff 65%); 
     border-left:1px solid var(--line); display:flex; flex-direction:column; 
     justify-content:center; padding:clamp(24px,4vh,48px);
-
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
   }
 
