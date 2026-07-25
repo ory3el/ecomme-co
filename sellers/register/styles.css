@@ -58,6 +58,7 @@
   @keyframes ringSpin{to{transform:rotate(360deg)}}
 
   body {
+    margin: 7px;
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
