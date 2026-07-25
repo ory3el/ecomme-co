@@ -56,6 +56,14 @@
   @keyframes shimmerSweep{0%{background-position:-360px 0}100%{background-position:360px 0}}
   @keyframes ringSpin{to{transform:rotate(360deg)}}
 
+  body {
+    background-image: url("images/background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
   /* ============================================================ AMBIENT BACKGROUND */
   .bg-ambient{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
   .blob{position:absolute; border-radius:50%; filter:blur(70px);}
