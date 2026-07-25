@@ -110,10 +110,10 @@
     justify-content:space-between; padding:0 clamp(20px,4vw,48px); 
     border-bottom:1px solid var(--line);
 
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 20px;
   }
   .brand{display:flex; align-items:center; gap:6px; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:22px; color:var(--blue);}
@@ -158,10 +158,10 @@
   }
 
   .side-col .trust-panel {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
   }
 
@@ -182,17 +182,22 @@
   .input-wrap{position:relative;}
   .input,.select,.textarea{
     width:100%; height:42px; padding:0 14px; border-radius:11px; border:1.5px solid var(--line);
-    background:#fff; font-size:13px; color:var(--ink); outline:none;
-    transition:border-color .25s var(--ease), box-shadow .25s var(--ease), background .25s;
+    font-size:13px; color:var(--ink); outline:none; transition:border-color .25s var(--ease), box-shadow .25s var(--ease), background .25s;
+
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
   }
   .input:focus,.select:focus,.textarea:focus{border-color:var(--blue); box-shadow:0 0 0 4px var(--blue-soft);}
   .input:disabled{background:var(--line-2); color:var(--slate-2); cursor:not-allowed;}
   .input.has-status {
     padding-right:38px;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
   }
   .textarea{height:auto; min-height:74px; padding:10px 14px; resize:none; line-height:1.6;}
@@ -216,10 +221,10 @@
     position:relative; display:flex; /*background: var(--blue-soft);*/ 
     border-radius:100px; padding:4px; gap:2px;
 
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
   }
   .seg-pill-bg {
@@ -294,17 +299,26 @@
   .actions-block{margin-top:18px; opacity:0; animation:fadeUp .5s var(--ease) forwards;}
 
   /* trust panel (step 1 side) */
-  .trust-list{display:flex; flex-direction:column; gap:14px; margin-bottom:26px;}
+  .trust-list {
+    display:flex; flex-direction:column; 
+    gap:14px; margin-bottom:26px;
+
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+  }
   .trust-item{display:flex; align-items:flex-start; gap:12px; opacity:0; animation:fadeUp .5s var(--ease) forwards;}
   .trust-ico {
     width:34px; height:34px; border-radius:10px; 
     border:1px solid var(--line); display:flex; align-items:center; 
     justify-content:center; flex-shrink:0; box-shadow:var(--shadow-1);
     
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
   }
   .trust-ico svg{width:15px; height:15px; fill:none; stroke:var(--blue); stroke-width:2;}
