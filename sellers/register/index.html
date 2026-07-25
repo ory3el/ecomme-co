@@ -373,8 +373,8 @@
           <div class="form-grid g1" style="margin-top:14px">
             <div class="field full" style="animation-delay:.14s">
               <div class="switch-row">
-                <div class="switch-text"><strong>Frete grátis</strong><span>Ofereça frete grátis acima de um valor mínimo</span></div>
-                <div class="switch" id="swFrete" onclick="toggleFrete()"></div>
+                <div class="switch-text"><strong>Frete grátis</strong><span>Ofereça frete grátis acima do valor mínimo da Ecomme</span></div>
+                <div class="switch" id="swFrete" style="cursor: pointer;" onclick="toggleFrete()"></div>
               </div>
             </div>
           </div>
@@ -388,7 +388,7 @@
           <div class="form-grid g1" style="margin-top:14px">
             <div class="field full" style="animation-delay:.17s">
               <label style="display:flex; align-items:flex-start; gap:9px; font-weight:500; color:var(--slate); cursor:pointer">
-                <input type="checkbox" id="chkPrivacy" style="margin-top:2px; width:15px; height:15px; accent-color:var(--blue)" onchange="validateStep2()">
+                <input type="checkbox" id="chkPrivacy" style="cursor: pointer; margin-top:2px; width:15px; height:15px; accent-color:var(--blue)" onchange="validateStep2()">
                 Concordo em utilizar a Política de Privacidade padrão da Ecomme
                 <a href="/terms" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue); font-weight:700; white-space:nowrap">(ver política)</a>
               </label>
