@@ -56,7 +56,7 @@
       Entrar e continuar cadastro
     </button>
     <div class="login-foot">Ainda não tem conta? 
-      <a href="/login" onclick="event.preventDefault();showToast('success','Redirecionando para o cadastro...')">
+      <a href="/login" onclick="event.preventDefault(); showToast('success','Redirecionando para o cadastro...'); window.location.href='/login'">
         Criar conta grátis
       </a>
     </div>
@@ -271,10 +271,10 @@
             <div class="field full" style="animation-delay:.08s">
               <label>URL da sua loja <span class="req">*</span></label>
               <div class="input-wrap">
-                <input class="input has-status" id="fldSlug" placeholder="techprime-store" oninput="onSlugInput(true)">
+                <input class="input has-status" id="fldSlug" placeholder="tech-store" oninput="onSlugInput(true)">
                 <span class="input-status" id="statSlug"></span>
               </div>
-              <div class="field-hint">ecomme.com/loja/<strong id="slugPreviewText">sua-loja</strong></div>
+              <div class="field-hint">ecomme.com/seller/<strong id="slugPreviewText">sua-loja</strong></div>
               <div class="field-msg" id="msgSlug">Esse endereço já está em uso</div>
             </div>
           </div>
