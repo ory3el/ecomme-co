@@ -35,14 +35,14 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <button onclick="buttonLink('../')" style="background: rgba(255, 255, 255, 0.12); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 0px solid #000; border-radius: 100px; cursor: pointer;">
-        <img src="../images/back-0.png" style="width: 25px; height: auto; display: block; opacity: 100%;" alt="Back"/>
+    <button onclick="buttonLink('/')" style="background: rgba(255, 255, 255, 0.12); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 0px solid #000; border-radius: 100px; cursor: pointer;">
+        <img src="/images/back-0.png" style="width: 25px; height: auto; display: block; opacity: 100%;" alt="Back"/>
     </button>
-    <button onclick="window.location.href = '../'">
-    	<img src="../images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+    <button onclick="window.location.href = '/'">
+    	<img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
     </button>
     <nav class="nav-main">
-      <a href="../">Voltar ao Início</a>
+      <a href="/">Voltar ao Início</a>
       <a href="#beneficios">Benefícios</a>
       <a href="#como-funciona">Como Funciona</a>
       <a href="#tarifas">Tarifas</a>
@@ -58,7 +58,11 @@
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="hd-badge" id="cartBadge">0</span>
       </button>
-      <button class="icon-btn" title="Login" onclick="window.location.href = '../login'">
+      <button id="registerBtn" class="btn-register" onclick="window.location.href = '/register'">
+    	<i class="fa-regular fa-square-plus"></i>
+    	Criar Loja Virtual
+  	  </button>
+      <button class="icon-btn" title="Login" onclick="window.location.href = '/login'">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </button>
     </div>
