@@ -63,6 +63,13 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
   }
+  .container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+  }
 
   /* ============================================================ AMBIENT BACKGROUND */
   .bg-ambient{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
