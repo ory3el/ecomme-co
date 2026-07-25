@@ -57,7 +57,6 @@
   @keyframes ringSpin{to{transform:rotate(360deg)}}
 
   body {
-    margin: 0
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
@@ -152,7 +151,7 @@
   .side-col {
     height:100%; overflow:hidden; position:relative; display:flex; flex-direction:column; 
     justify-content:center; padding:clamp(24px,4vh,48px);
-    border-radius: 20px;
+    border-radius: 20px; align-items: center;
 
     background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
@@ -347,6 +346,7 @@
 
   /* ============================================================ STORE PREVIEW (step 2 side) */
   .preview-frame{
+    max-width: 70%; border-radius: 25px
     flex:1; background:#fff; border:1px solid var(--line); border-radius:18px; overflow:hidden;
     box-shadow:var(--shadow-3); display:flex; flex-direction:column; max-height:100%;
   }
@@ -359,7 +359,11 @@
     flex-shrink:0; background:var(--blue); z-index: 90;
   }
   .pf-cover img{width:100%; height:100%; object-fit:cover; position:absolute; inset:0;}
-  .pf-content{flex:1; padding:0 18px 16px; position:relative; overflow:hidden; display:flex; flex-direction:column;}
+  .pf-content {
+    align-items: baseline;
+    flex:1; padding:0 18px 16px; position:relative; 
+    overflow:hidden; display:flex; flex-direction:column;
+  }
   .pf-avatar-wrap {
     position: relative; z-index: 99;
     margin-top:-26px; margin-bottom:8px;
