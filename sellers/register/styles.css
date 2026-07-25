@@ -57,7 +57,7 @@
   @keyframes ringSpin{to{transform:rotate(360deg)}}
 
   body {
-    background-image: url("images/background.png");
+    background-image: url("/images/background.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
