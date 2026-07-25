@@ -102,7 +102,17 @@
   .bg-grid{position:absolute; inset:0; background-image:radial-gradient(circle,rgba(66,135,245,.16) 1px,transparent 1px); background-size:34px 34px; opacity:.05;}
 
   /* ============================================================ APP SHELL */
-  .app-shell{position:relative; z-index:1; height:100vh; height:100dvh; display:flex; flex-direction:column; transition:filter .5s var(--ease), opacity .5s var(--ease);}
+  .app-shell {
+    position:relative; z-index:1; height:100vh;
+    height:100dvh; display:flex; flex-direction:column;
+    transition:filter .5s var(--ease), opacity .5s var(--ease);
+
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    border-radius: 20px;
+  }
   .app-shell.inert{filter:blur(14px); opacity:.6; pointer-events:none;}
 
   /* ---- top bar ---- */
@@ -407,7 +417,23 @@
   .preview-sheet-ov.on{opacity:1; pointer-events:all;}
 
   /* ============================================================ AUTH GATE */
-  .auth-gate{position:fixed; inset:0; z-index:5000; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.5); backdrop-filter:blur(16px); transition:opacity .5s var(--ease); padding:20px;}
+  .auth-gate {
+    position:fixed; inset:0; z-index:5000; display:flex;
+    align-items:center; justify-content:center; margin: 10px;
+    transition:opacity .5s var(--ease); padding:20px;
+    background: rgba(0, 0, 0, 0);
+  }
+  .auth-back-gate {
+    position:fixed; inset:0; z-index:4999; display:flex;
+    align-items:center; justify-content:center; margin: 10px;
+    transition:opacity .5s var(--ease);
+    
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+  }
   .auth-gate.hidden{opacity:0; pointer-events:none;}
   .gate-checking{display:flex; flex-direction:column; align-items:center; gap:16px; animation:fadeIn .4s var(--ease);}
   .gate-ring{width:44px; height:44px; border:3px solid var(--blue-mist); border-top-color:var(--blue); border-radius:50%; animation:spin .8s linear infinite;}
