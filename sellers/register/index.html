@@ -2,16 +2,26 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Cadastro de Vendedor | Ecomme</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro Seller | Ecomme Sellers</title>
 
+<link rel="prefetch" href="/sellers">
+<link rel="prefetch" href="/login">
+	
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<link rel="icon" id="favicon" type="image/png" sizes="144x144" href="/images/favicon-light.png">
+	
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
 </head>
 <body>
-
+  
 <!-- ============================================================ AMBIENT BACKGROUND -->
 <div class="bg-ambient">
   <div class="blob b1"></div>
@@ -45,7 +55,11 @@
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       Entrar e continuar cadastro
     </button>
-    <div class="login-foot">Ainda não tem conta? <a href="#" onclick="event.preventDefault();showToast('success','Redirecionando para o cadastro...')">Criar conta grátis</a></div>
+    <div class="login-foot">Ainda não tem conta? 
+      <a href="/login" onclick="event.preventDefault();showToast('success','Redirecionando para o cadastro...')">
+        Criar conta grátis
+      </a>
+    </div>
   </div>
 </div>
 
@@ -76,7 +90,7 @@
       <div class="form-col">
         <div class="panel-eyebrow">Etapa 1 de 2</div>
         <div class="panel-title">Vamos confirmar<br><em>quem é você</em></div>
-        <div class="panel-sub">Esses dados aparecem apenas para verificação e não ficam visíveis na sua loja pública.</div>
+        <div class="panel-sub">Esses dados aparecem apenas para verificação portanto não ficarão visíveis na sua loja pública.</div>
 
         <!-- mobile substep dots -->
         <div class="substep-dots" id="s1Dots">
@@ -289,8 +303,8 @@
           <div class="form-grid g1" style="margin-top:12px">
             <div class="field full" style="animation-delay:.17s">
               <label>Descrição da loja <span class="req">*</span></label>
-              <textarea class="textarea" id="fldDescricao" placeholder="Conte em poucas linhas o que sua loja vende..." maxlength="140" oninput="onDescInput()"></textarea>
-              <div class="field-hint" id="descCount">0/140</div>
+              <textarea class="textarea" id="fldDescricao" placeholder="Conte em poucas linhas o que sua loja vende..." maxlength="240" oninput="onDescInput()"></textarea>
+              <div class="field-hint" id="descCount">0/240</div>
             </div>
           </div>
 
@@ -340,7 +354,7 @@
               <select class="select" id="fldPolitica">
                 <option>7 dias (mínimo legal)</option>
                 <option selected>30 dias (recomendado)</option>
-                <option>45 dias (premium)</option>
+                <option disabled>45 dias (premium)</option>
               </select>
             </div>
           </div>
@@ -376,7 +390,7 @@
               <label style="display:flex; align-items:flex-start; gap:9px; font-weight:500; color:var(--slate); cursor:pointer">
                 <input type="checkbox" id="chkPrivacy" style="margin-top:2px; width:15px; height:15px; accent-color:var(--blue)" onchange="validateStep2()">
                 Concordo em utilizar a Política de Privacidade padrão da Ecomme
-                <a href="#" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue); font-weight:700; white-space:nowrap">(ver política)</a>
+                <a href="/terms" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue); font-weight:700; white-space:nowrap">(ver política)</a>
               </label>
             </div>
           </div>
@@ -406,7 +420,7 @@
         <div class="preview-frame" style="animation:fadeUp .55s var(--ease) .2s backwards">
           <div class="pf-browser-bar">
             <div class="pf-dot"></div><div class="pf-dot"></div><div class="pf-dot"></div>
-            <div class="pf-url">ecomme.com/loja/<span id="pfUrlSlug">sua-loja</span></div>
+            <div class="pf-url">ecomme.com/seller/<span id="pfUrlSlug">sua-loja</span></div>
           </div>
           <div class="pf-body">
             <div class="pf-cover" id="pfCover"></div>
@@ -444,7 +458,7 @@
     <p>Seu progresso não é salvo automaticamente. Se sair agora, você precisará preencher tudo novamente.</p>
     <div class="btn-row">
       <button class="btn-ghost-sm" onclick="closeExitConfirm()">Continuar aqui</button>
-      <button class="btn-primary" onclick="window.location.href='/'">Sair mesmo assim</button>
+      <button class="btn-primary" onclick="window.location.href='/sellers'">Sair mesmo assim</button>
     </div>
   </div>
 </div>
@@ -456,10 +470,10 @@
       <svg viewBox="0 0 24 24"><path d="M20 6 9 17 4 12"/></svg>
     </div>
     <h2>Sua loja está pronta! 🎉</h2>
-    <p>Parabéns! <strong id="successStoreName">Sua loja</strong> já foi criada na Ecomme. Você já pode adicionar produtos e começar a vender.</p>
+    <p>Parabéns! Sua loja <strong id="successStoreName">N/A</strong> já foi criada na Ecomme. Você já pode adicionar os primeiros produtos e começar a vender.</p>
     <div class="success-btns">
-      <a class="btn-ghost-sm" href="/">Ir para o início</a>
-      <a class="btn-primary" href="seller-profile.html" style="width:auto">
+      <a class="btn-ghost-sm" href="/sellers">Ir para o início</a>
+      <a class="btn-primary" href="/sellers/dashboard" style="width:auto">
         Ver meu painel de vendedor
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
       </a>
