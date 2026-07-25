@@ -75,19 +75,19 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
 
-    opacity: 0.3;
-    filter: blur(8px);
+    opacity: 1;
+    filter: blur(1px);
     transform: scale(1.1);
     z-index: -1;
   }
 
-  .container {
+  /*.container {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
-  }
+  }*/
 
   /* ============================================================ AMBIENT BACKGROUND */
   .bg-ambient{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
@@ -422,17 +422,12 @@
     align-items:center; justify-content:center; margin: 10px;
     transition:opacity .5s var(--ease); padding:20px;
     background: rgba(0, 0, 0, 0);
-  }
-  .auth-back-gate {
-    position:fixed; inset:0; z-index:4999; display:flex;
-    align-items:center; justify-content:center; margin: 10px;
-    transition:opacity .5s var(--ease);
     
-    background: rgba(255, 255, 255, 0.2);
+    /*background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
+    border-radius: 20px;*/
   }
   .auth-gate.hidden{opacity:0; pointer-events:none;}
   .gate-checking{display:flex; flex-direction:column; align-items:center; gap:16px; animation:fadeIn .4s var(--ease);}
