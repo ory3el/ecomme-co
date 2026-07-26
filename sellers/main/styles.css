@@ -147,7 +147,9 @@
   font-size:12px;font-weight:500;width:100%;text-align:left;border:none;
   background:none;position:relative
 }
-.nav-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.nav-btn:hover {
+  background:rgba(0,0,0,.5);color:rgba(255,255,255,1)
+}
 .nav-btn.on {
   background:rgba(0,0,0,0.9);color:#fff
 }
