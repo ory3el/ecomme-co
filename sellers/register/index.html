@@ -400,8 +400,11 @@
             <div class="field full" style="animation-delay:.17s">
               <label style="display:flex; align-items:flex-start; gap:9px; font-weight:500; color:var(--slate); cursor:pointer">
                 <input type="checkbox" id="chkPrivacy" style="cursor: pointer; margin-top:2px; width:15px; height:15px; accent-color:var(--blue)" onchange="validateStep2()">
-                Concordo em utilizar a Política de Privacidade padrão da Ecomme
-                <a href="/terms" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue); font-weight:700; white-space:nowrap">(ver política)</a>
+                Concordo em utilizar a 
+				  <a href="/terms" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue)">
+					  Política de Privacidade
+				  </a>
+				 padrão da Ecomme
               </label>
             </div>
           </div>
@@ -487,7 +490,7 @@
     <div class="success-btns">
       <a class="btn-ghost-sm" href="/sellers">Ir para o início</a>
       <a class="btn-primary" href="/sellers/dashboard" style="width:auto">
-        Ver meu painel de vendedor
+        Ver minha loja
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
       </a>
     </div>
