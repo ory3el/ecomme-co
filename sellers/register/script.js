@@ -317,7 +317,7 @@ function initials(name){
 }
 function updatePreview(){
   const name = $('fldStoreName').value.trim() || 'Sua Loja';
-  const desc = $('fldDescricao').value.trim() || 'A descrição da sua loja vai aparecer aqui assim que você escrever.';
+  const desc = $('fldDescricao').value.trim() || 'Sua descrição aparecerá aqui.';
   const cat = $('fldCategoria').value || 'Eletrônicos';
   const slug = $('fldSlug').value.trim() || 'sua-loja';
   const prazo = $('fldPrazo').value;
