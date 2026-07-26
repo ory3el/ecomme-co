@@ -479,6 +479,7 @@
   .success-inner{text-align:center; max-width:420px; padding:20px; position:relative;}
   .success-check{width:84px; height:84px; border-radius:50%; background:var(--blue-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 26px; position:relative;}
   .success-check svg{width:38px; height:38px;}
+  .success-check i{width:38px; height:38px;}
   .success-check path{fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:40; stroke-dashoffset:40; animation:checkDraw .6s var(--ease) .3s forwards;}
   .confetti-piece{position:absolute; width:7px; height:7px; border-radius:2px; top:50%; left:50%; animation:confettiBurst 1s var(--ease) forwards;}
   .success-inner h2{font-family:'Outfit',serif; font-weight:400; font-size:30px; margin-bottom:12px; opacity:0; animation:fadeUp .5s var(--ease) .4s forwards;}
