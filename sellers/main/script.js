@@ -310,9 +310,11 @@ window.addEventListener('hashchange',()=>{
 let scrollTimer;
 window.addEventListener('scroll', () => {
   document.body.classList.remove('no-scrollbars');
+  document.body.classlist.add('custom-scrollbar');
   
   clearTimeout(scrollTimer);
   scrollTimer = setTimeout(() => {
     document.body.classList.add('no-scrollbars');
+    document.body.classlist.remove('custom-scrollbar');
   }, 1500);
 });
