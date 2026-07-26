@@ -33,9 +33,14 @@
   <header class="app-hdr">
     <div class="app-hdr-in">
       <div class="fac gap16">
-        <div class="app-logo">Ecomme<span class="app-logo-badge">Sellers</span></div>
+        <div class="app-logo">
+		  <button onclick="window.location.href = '/sellers'">
+    	    <img src="/images/ecomme-sellers.png" style="position: relative; top: 0px; width: 150px; height: auto; display: block;" alt="Ecomme Sellers"/>
+    	  </button>
+		</div>
         <div class="app-breadcrumb" id="appBC">
-          <a href="#" onclick="showLanding()">Marketplace</a>
+          <a href="/" onclick="window.location.href = '/'">Início</a>
+		  <a href="/sellers" onclick="window.location.href = '/sellers'">Ecomme Sellers</a>
           <span>›</span><span id="bcText">Dashboard</span>
         </div>
       </div>
