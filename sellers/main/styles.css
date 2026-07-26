@@ -142,13 +142,30 @@
   padding:8px 10px 4px
 }
 .nav-btn {
-  display:flex;align-items:center;gap:9px;padding:9px 12px;
-  border-radius:10px;cursor:pointer;transition:.18s;color:rgba(0,0,0,1);
-  font-size:12px;font-weight:500;width:100%;text-align:left;border:none;
-  background:none;position:relative
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.18s;
+  color:rgba(0,0,0,1);
+  font-size:12px;
+  font-weight:500;
+  width:100%;
+  text-align:left;
+  border:none;
+  background:rgba(255, 255, 255, 0);
+  border: 1px solid rgba(255, 255, 255, 0);
+  position:relative;
+  transition: all 0.4s;
 }
 .nav-btn:hover {
-  background:rgba(0,0,0,.5);color:rgba(255,255,255,1)
+  background:rgba(0,0,0,0);
+  border: 1px solid var(--blue);
+  color:rgba(0,0,0,1);
+  transition: all 0.4;
+  transform: translateY(-4px);
 }
 .nav-btn.on {
   background:rgba(0,0,0,0.9);color:#fff
