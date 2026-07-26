@@ -1,1 +1,587 @@
+<!-- ════════════════════════════════════════════════════════
+     APP SHELL — Seller Panel
+═════════════════════════════════════════════════════════ -->
+<div id="appShell">
+  <header class="app-hdr">
+    <div class="app-hdr-in">
+      <div class="fac gap16">
+        <div class="app-logo">Ecomme<span class="app-logo-badge">Sellers</span></div>
+        <div class="app-breadcrumb" id="appBC">
+          <a href="#" onclick="showLanding()">Marketplace</a>
+          <span>›</span><span id="bcText">Dashboard</span>
+        </div>
+      </div>
+      <div class="app-hdr-right">
+        <div class="store-badge">TechLab Store</div>
+        <div class="hdr-ico" title="Notificações" onclick="toast('3 novas notificações 🔔','info')">🔔<div class="bdg">3</div></div>
+        <div class="hdr-ico" title="Ajuda" onclick="toast('Central de ajuda','info')">❓</div>
+        <div class="seller-av" title="Perfil" onclick="navigate('config')">RL</div>
+      </div>
+    </div>
+  </header>
 
+  <div class="app-body">
+    <!-- ── SIDEBAR ── -->
+    <nav class="app-sb">
+      <div class="sb-seller-info">
+        <div class="sb-av">RL</div>
+        <div class="sb-name">Ricardo Lima</div>
+        <div class="sb-store">TechLab Store</div>
+        <div class="sb-plan">⭐ Plano Pro+</div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-sec-label">Principal</div>
+        <button class="nav-btn on" data-page="dashboard" onclick="navigate('dashboard',this)"><span class="nav-ico">📊</span><span class="nav-lbl">Dashboard</span></button>
+
+        <div class="sb-sec-label" style="margin-top:8px">Produtos</div>
+        <button class="nav-btn" data-page="produtos" onclick="navigate('produtos',this)"><span class="nav-ico">📦</span><span class="nav-lbl">Meus Produtos</span><span class="nav-bdg" id="sbProdBdg">48</span></button>
+        <button class="nav-btn" data-page="novo-produto" onclick="navigate('novo-produto',this)"><span class="nav-ico">➕</span><span class="nav-lbl">Novo Produto</span><span class="nav-new-bdg">Novo</span></button>
+
+        <div class="sb-sec-label" style="margin-top:8px">Vendas</div>
+        <button class="nav-btn" data-page="pedidos" onclick="navigate('pedidos',this)"><span class="nav-ico">🛒</span><span class="nav-lbl">Pedidos</span><span class="nav-bdg" id="sbOrdBdg">7</span></button>
+        <button class="nav-btn" data-page="financas" onclick="navigate('financas',this)"><span class="nav-ico">💰</span><span class="nav-lbl">Financeiro</span></button>
+
+        <div class="sb-sec-label" style="margin-top:8px">Loja</div>
+        <button class="nav-btn" data-page="config" onclick="navigate('config',this)"><span class="nav-ico">⚙️</span><span class="nav-lbl">Configurações</span></button>
+      </div>
+      <div class="sb-footer">
+        <button class="nav-btn" onclick="showLanding()"><span class="nav-ico">🏪</span><span class="nav-lbl">Ver minha loja</span></button>
+        <button class="nav-btn danger" onclick="toast('Saindo da conta...','info');setTimeout(showLanding,1200)" style="color:rgba(239,68,68,.7)"><span class="nav-ico">🚪</span><span class="nav-lbl">Sair</span></button>
+      </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main class="app-main">
+
+      <!-- ═════ DASHBOARD ═════ -->
+      <div class="page on" id="page-dashboard">
+        <div class="page-hd">
+          <div><h2>Dashboard</h2><p>Visão geral da TechLab Store · Hoje, <span id="dashDate"></span></p></div>
+          <div class="fac gap8">
+            <select class="sel" style="width:auto;padding:7px 28px 7px 11px;font-size:12px" onchange="toast('Período atualizado')"><option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Este mês</option><option>Este ano</option></select>
+            <button class="btn btn-o btn-sm" onclick="toast('Relatório exportado! 📄')">📄 Exportar</button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid mb16">
+          <div class="kpi kpi-blue">
+            <div class="kpi-ico blue">💰</div>
+            <div class="kpi-label">Faturamento Bruto</div>
+            <div class="kpi-val sora">R$ 38.840</div>
+            <div class="kpi-trend trend-up">↑ 24.3% vs mês anterior</div>
+            <div class="sparkline" id="spark1"></div>
+          </div>
+          <div class="kpi kpi-green">
+            <div class="kpi-ico green">📦</div>
+            <div class="kpi-label">Pedidos Recebidos</div>
+            <div class="kpi-val sora">284</div>
+            <div class="kpi-trend trend-up">↑ 18.7% vs mês anterior</div>
+            <div class="sparkline" id="spark2"></div>
+          </div>
+          <div class="kpi kpi-orange">
+            <div class="kpi-ico orange">🛒</div>
+            <div class="kpi-label">Ticket Médio</div>
+            <div class="kpi-val sora">R$ 136,76</div>
+            <div class="kpi-trend trend-up">↑ 4.6% vs mês anterior</div>
+            <div class="sparkline" id="spark3"></div>
+          </div>
+          <div class="kpi kpi-purple">
+            <div class="kpi-ico purple">⭐</div>
+            <div class="kpi-label">Avaliação Média</div>
+            <div class="kpi-val sora">4.9</div>
+            <div class="kpi-trend trend-up" style="color:var(--yellow)">★★★★★ 182 avaliações</div>
+            <div class="sparkline" id="spark4"></div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
+          <!-- Revenue chart -->
+          <div class="card">
+            <div class="card-hd">
+              <h4>📈 Faturamento Mensal (2025)</h4>
+              <div class="fac gap8">
+                <span class="tag tag-green">+ R$7.640 este mês</span>
+              </div>
+            </div>
+            <div class="card-pad">
+              <div class="rev-chart-container">
+                <div class="rev-grid">
+                  <div class="rev-grid-line"><span>40K</span></div>
+                  <div class="rev-grid-line"><span>30K</span></div>
+                  <div class="rev-grid-line"><span>20K</span></div>
+                  <div class="rev-grid-line"><span>10K</span></div>
+                  <div class="rev-grid-line"><span>0</span></div>
+                </div>
+                <div class="rev-chart" id="revChart"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Category donut -->
+          <div class="card">
+            <div class="card-hd"><h4>📂 Vendas por Categoria</h4></div>
+            <div class="card-pad">
+              <div class="donut-wrap mb16">
+                <div class="donut" style="background:conic-gradient(var(--blue) 0% 42%,var(--orange) 42% 70%,var(--green) 70% 88%,var(--purple) 88% 100%)"></div>
+                <div class="donut-legend">
+                  <div class="dl-row"><div class="dl-dot" style="background:var(--blue)"></div><span class="fs11">Eletrônicos <strong>42%</strong></span></div>
+                  <div class="dl-row"><div class="dl-dot" style="background:var(--orange)"></div><span class="fs11">Moda <strong>28%</strong></span></div>
+                  <div class="dl-row"><div class="dl-dot" style="background:var(--green)"></div><span class="fs11">Casa <strong>18%</strong></span></div>
+                  <div class="dl-row"><div class="dl-dot" style="background:var(--purple)"></div><span class="fs11">Fitness <strong>12%</strong></span></div>
+                </div>
+              </div>
+              <div class="cat-chart">
+                <div class="cat-row"><span class="cat-lbl fs11">Eletrônicos</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:42%;background:var(--blue)"></div></div><span class="cat-pct" style="color:var(--blue)">42%</span></div>
+                <div class="cat-row"><span class="cat-lbl fs11">Moda</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:28%;background:var(--orange)"></div></div><span class="cat-pct" style="color:var(--orange)">28%</span></div>
+                <div class="cat-row"><span class="cat-lbl fs11">Casa</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:18%;background:var(--green)"></div></div><span class="cat-pct" style="color:var(--green)">18%</span></div>
+                <div class="cat-row"><span class="cat-lbl fs11">Fitness</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:12%;background:var(--purple)"></div></div><span class="cat-pct" style="color:var(--purple)">12%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom row -->
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:16px">
+          <!-- Recent orders -->
+          <div class="card">
+            <div class="card-hd">
+              <h4>🛒 Pedidos Recentes</h4>
+              <button class="btn btn-ghost btn-xs" onclick="navigate('pedidos')">Ver todos →</button>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0042</td><td>Ana Carolina</td><td>Smartwatch Pro X7</td><td class="sora fw7 blue">R$ 189,90</td><td><span class="tag tag-orange">⏳ Despachar</span></td><td class="muted fs11">Hoje 14:32</td></tr>
+                  <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0041</td><td>Pedro Martins</td><td>Kit LED Smart + Fone</td><td class="sora fw7 blue">R$ 199,80</td><td><span class="tag tag-blue">🚚 Em trânsito</span></td><td class="muted fs11">Hoje 11:18</td></tr>
+                  <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0040</td><td>Carla Souza</td><td>Tênis Running XL</td><td class="sora fw7 blue">R$ 199,90</td><td><span class="tag tag-green">✅ Entregue</span></td><td class="muted fs11">Ontem</td></tr>
+                  <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0039</td><td>Lucas Ferreira</td><td>Mochila Executiva</td><td class="sora fw7 blue">R$ 159,90</td><td><span class="tag tag-green">✅ Entregue</span></td><td class="muted fs11">Ontem</td></tr>
+                  <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0038</td><td>Marina Costa</td><td>Kit Skincare Vit. C</td><td class="sora fw7 blue">R$ 99,90</td><td><span class="tag tag-yellow">⚠ Devolução</span></td><td class="muted fs11">12/01</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Top products -->
+          <div class="card">
+            <div class="card-hd"><h4>🏆 Top Produtos</h4></div>
+            <div class="card-pad">
+              <div class="top-prod"><div class="top-rank r1">1</div><div class="top-prod-em">⌚</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Smartwatch Pro X7</div><div class="top-prod-sales muted fs10">94 vendas</div></div><div class="top-prod-rev">R$ 17.860</div></div>
+              <div class="top-prod"><div class="top-rank r2">2</div><div class="top-prod-em">🎧</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Fone BT ANC Pro</div><div class="top-prod-sales muted fs10">72 vendas</div></div><div class="top-prod-rev">R$ 8.630</div></div>
+              <div class="top-prod"><div class="top-rank r3">3</div><div class="top-prod-em">💡</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Kit LED Smart RGB</div><div class="top-prod-sales muted fs10">64 vendas</div></div><div class="top-prod-rev">R$ 5.113</div></div>
+              <div class="top-prod"><div class="top-rank">4</div><div class="top-prod-em">📷</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Câmera WiFi 2K</div><div class="top-prod-sales muted fs10">31 vendas</div></div><div class="top-prod-rev">R$ 4.647</div></div>
+              <div class="top-prod" style="border:none"><div class="top-rank">5</div><div class="top-prod-em">🍶</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Garrafa Térmica 1L</div><div class="top-prod-sales muted fs10">23 vendas</div></div><div class="top-prod-rev">R$ 1.607</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card card-pad">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px">Ações Rápidas</div>
+          <div class="quick-grid">
+            <div class="quick-card" onclick="navigate('novo-produto')"><div class="quick-ico">➕</div><div class="quick-lbl">Novo Produto</div></div>
+            <div class="quick-card" onclick="navigate('pedidos')"><div class="quick-ico">🚚</div><div class="quick-lbl">Despachar Pedidos</div></div>
+            <div class="quick-card" onclick="navigate('financas')"><div class="quick-ico">💸</div><div class="quick-lbl">Solicitar Saque</div></div>
+            <div class="quick-card" onclick="toast('Relatório CSV exportado! 📊','info')"><div class="quick-ico">📊</div><div class="quick-lbl">Exportar Relatório</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ PRODUTOS ═════ -->
+      <div class="page" id="page-produtos">
+        <div class="page-hd">
+          <div><h2>Meus Produtos</h2><p>48 produtos cadastrados · 2 com estoque baixo</p></div>
+          <div class="fac gap8">
+            <button class="btn btn-o btn-sm" onclick="toast('Importando planilha...','info')">📥 Importar CSV</button>
+            <button class="btn btn-p btn-sm" onclick="navigate('novo-produto')">+ Novo Produto</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <input class="inp" style="flex:1;max-width:240px" type="search" placeholder="🔍  Buscar produto...">
+          <div class="status-tabs">
+            <div class="stab on" onclick="filterProds(this,'all')">Todos (48)</div>
+            <div class="stab" onclick="filterProds(this,'active')">Ativos (44)</div>
+            <div class="stab" onclick="filterProds(this,'paused')">Pausados (3)</div>
+            <div class="stab" onclick="filterProds(this,'low')">⚠ Estoque Baixo (2)</div>
+          </div>
+          <select class="sel" style="width:auto;font-size:12px;padding:7px 26px 7px 10px">
+            <option>Todos os categorias</option><option>Eletrônicos</option><option>Moda</option><option>Casa</option>
+          </select>
+          <button class="btn btn-ghost btn-xs" onclick="toast('Ações em massa','info')">⚡ Ações em massa</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table id="prodTable">
+              <thead><tr><td class="chk-col"><input type="checkbox" class="chk" onchange="toggleAll(this)"></td><th>Produto</th><th>SKU</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Vendas</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="prodTbody"></tbody>
+            </table>
+          </div>
+          <div style="padding:14px 16px;border-top:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between" class="fs11 muted">
+            <span>Mostrando 1–8 de 48 produtos</span>
+            <div class="fac gap4">
+              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">← Ant</button>
+              <button class="btn btn-xs" style="background:var(--blue);color:#fff;border-radius:var(--r);padding:5px 10px">1</button>
+              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">2</button>
+              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">3</button>
+              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">Próx →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ NOVO PRODUTO ═════ -->
+      <div class="page" id="page-novo-produto">
+        <div class="page-hd">
+          <div><h2>Cadastrar Novo Produto</h2><p>Preencha as informações do produto para publicar</p></div>
+          <div class="fac gap8">
+            <button class="btn btn-ghost btn-sm" onclick="toast('Rascunho salvo ✓')">💾 Salvar rascunho</button>
+            <button class="btn btn-p btn-sm" onclick="publishProduct()">🚀 Publicar Produto</button>
+          </div>
+        </div>
+        <div class="np-layout">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <!-- basic info -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">1</span> Informações Básicas</div>
+              <div style="display:flex;flex-direction:column;gap:13px">
+                <div class="fgrp"><label>Nome do Produto *</label><input class="inp" id="npName" placeholder="Ex: Smartwatch Pro X8 Ultra" oninput="updatePreview()"></div>
+                <div class="fgrid2">
+                  <div class="fgrp"><label>Categoria *</label><select class="sel" id="npCat" onchange="updatePreview()"><option>Selecionar...</option><option>📱 Eletrônicos</option><option>👗 Moda</option><option>🏠 Casa</option><option>💪 Fitness</option><option>💄 Beleza</option><option>🐾 Pets</option></select></div>
+                  <div class="fgrp"><label>Marca</label><input class="inp" placeholder="Ex: Samsung, Nike, própria"></div>
+                </div>
+                <div class="fgrp"><label>Descrição Curta *</label><textarea class="inp ta" placeholder="Descrição que aparece na listagem (máx 200 caracteres)" id="npDesc" oninput="updatePreview()"></textarea></div>
+                <div class="fgrp"><label>Descrição Completa</label><textarea class="inp" style="min-height:120px;resize:vertical" placeholder="Descrição detalhada com especificações, diferenciais e cuidados..."></textarea></div>
+              </div>
+            </div>
+            <!-- images -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">2</span> Imagens do Produto</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                <div class="upload-area" onclick="toast('Selecionar imagem...','info')">
+                  <div class="icon">📸</div>
+                  <h4>Foto Principal</h4>
+                  <p>PNG, JPG · Mín 800×800px</p>
+                </div>
+                <div class="upload-area" onclick="toast('Selecionar imagem...','info')">
+                  <div class="icon">🖼️</div>
+                  <h4>Foto 2</h4>
+                  <p>Adicionar imagem</p>
+                </div>
+                <div class="upload-area" onclick="toast('Selecionar imagem...','info')">
+                  <div class="icon">🖼️</div>
+                  <h4>Foto 3</h4>
+                  <p>Adicionar imagem</p>
+                </div>
+              </div>
+            </div>
+            <!-- pricing -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">3</span> Preço e Estoque</div>
+              <div class="fgrid3" style="margin-bottom:12px">
+                <div class="fgrp"><label>Preço de Custo</label><input class="inp mono" placeholder="R$ 0,00" oninput="calcMargin()"></div>
+                <div class="fgrp"><label>Preço de Venda *</label><input class="inp mono" id="npPrice" placeholder="R$ 0,00" oninput="calcMargin();updatePreview()"></div>
+                <div class="fgrp"><label>Preço Promocional</label><input class="inp mono" placeholder="R$ 0,00"></div>
+              </div>
+              <div class="fgrid3" style="margin-bottom:12px">
+                <div class="fgrp"><label>SKU / Cód. Interno</label><input class="inp mono" placeholder="TL-SKU-001"></div>
+                <div class="fgrp"><label>Estoque Inicial *</label><input class="inp" type="number" placeholder="0" min="0"></div>
+                <div class="fgrp"><label>Estoque Mínimo (Alerta)</label><input class="inp" type="number" placeholder="5" min="0"></div>
+              </div>
+              <div class="fgrid2">
+                <div class="fgrp"><label>Peso (g)</label><input class="inp" type="number" placeholder="Ex: 350"></div>
+                <div class="fgrp"><label>Dimensões (cm) LxAxP</label><input class="inp" placeholder="Ex: 20 x 15 x 8"></div>
+              </div>
+              <div id="marginCalc" style="display:none;margin-top:12px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:10px 14px;font-size:12px" class="fac gap16">
+                <span>💡 Margem estimada: <strong id="marginVal" class="blue">—</strong></span>
+                <span class="muted">Após comissão de 9%: <strong id="netVal" class="green">—</strong></span>
+              </div>
+            </div>
+            <!-- variations -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">4</span> Variações</div>
+              <div class="fgrid2" style="margin-bottom:12px">
+                <div class="fgrp"><label>Tipo de Variação 1</label><select class="sel"><option>Selecionar...</option><option>Tamanho</option><option>Cor</option><option>Voltagem</option><option>Material</option></select></div>
+                <div class="fgrp"><label>Valores</label><input class="inp" placeholder="Ex: P, M, G, GG (separado por vírgula)"></div>
+              </div>
+              <div id="varList">
+                <div class="var-item"><span class="fs12">🔵 Azul — P · R$ 189,90 · Est: 10</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div></div>
+                <div class="var-item"><span class="fs12">🔴 Vermelho — M · R$ 189,90 · Est: 8</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div></div>
+              </div>
+              <button class="btn btn-ghost btn-xs mt8" onclick="addVariation()" style="border:1.5px dashed var(--b2);border-radius:var(--r)">+ Adicionar variação</button>
+            </div>
+            <!-- shipping -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">5</span> Frete e Logística</div>
+              <div class="fgrid2">
+                <div class="fgrp"><label>Prazo de Despacho</label><select class="sel"><option>Até 1 dia útil</option><option>Até 2 dias úteis</option><option>Até 3 dias úteis</option></select></div>
+                <div class="fgrp"><label>Frete Grátis?</label>
+                  <div class="fac gap10" style="margin-top:6px"><label class="tog-wrap"><input type="checkbox" class="tog-inp" id="freeShip"><div class="tog-lbl"></div></label><span class="fs12 muted">Oferecer frete grátis</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- seo -->
+            <div class="card card-pad">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">6</span> SEO e Visibilidade</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="fgrp"><label>Tags de Busca</label><input class="inp" placeholder="Ex: smartwatch, relógio inteligente, fitness (separado por vírgula)"></div>
+                <div class="fgrp"><label>Título SEO</label><input class="inp" placeholder="Título para mecanismos de busca"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Preview sidebar -->
+          <div class="np-preview">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Preview do Produto</div>
+            <div class="preview-card">
+              <div class="preview-img" id="previewImg">📦</div>
+              <div class="preview-info">
+                <div class="tag tag-blue fs10 mb8" id="previewCat">Categoria</div>
+                <div class="preview-name" id="previewName">Nome do produto</div>
+                <div class="muted fs11 mt4 mb8" id="previewDesc">Descrição curta aqui...</div>
+                <div class="preview-price" id="previewPrice">R$ 0,00</div>
+                <div class="muted fs10 mt4">por TechLab Store</div>
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--b2);display:flex;flex-direction:column;gap:6px">
+                  <div class="fs11 muted fac gap6">✅ Frete grátis acima R$199</div>
+                  <div class="fs11 muted fac gap6">⭐ Loja verificada</div>
+                  <div class="fs11 muted fac gap6">🔒 Compra 100% segura</div>
+                </div>
+              </div>
+            </div>
+            <div class="card card-pad mt12" style="background:var(--bg3)">
+              <div class="fs11 fw7 mb8">📋 Checklist</div>
+              <div style="display:flex;flex-direction:column;gap:6px" id="publishChecklist">
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name">○ Nome do produto</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-cat">○ Categoria selecionada</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-price">○ Preço de venda</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-desc">○ Descrição curta</div>
+                <div class="fs11 fac gap6" style="color:var(--green)">✓ Loja verificada</div>
+              </div>
+              <button class="btn btn-p mt12" style="width:100%" onclick="publishProduct()">🚀 Publicar Produto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ PEDIDOS ═════ -->
+      <div class="page" id="page-pedidos">
+        <div class="page-hd">
+          <div><h2>Pedidos Recebidos</h2><p>7 pedidos aguardando despacho</p></div>
+          <div class="fac gap8">
+            <button class="btn btn-ghost btn-sm" onclick="toast('Exportando pedidos...','info')">📥 Exportar</button>
+            <button class="btn btn-p btn-sm" onclick="toast('Gerando notas fiscais em lote...','info')">🧾 Emitir NF em lote</button>
+          </div>
+        </div>
+        <div class="order-filter-tabs">
+          <div class="stab on" onclick="filterOrds(this)">Todos (24)</div>
+          <div class="stab" onclick="filterOrds(this)">⏳ Despachar (7)</div>
+          <div class="stab" onclick="filterOrds(this)">🚚 Em trânsito (9)</div>
+          <div class="stab" onclick="filterOrds(this)">✅ Entregues (6)</div>
+          <div class="stab" onclick="filterOrds(this)">↩ Devoluções (2)</div>
+        </div>
+        <div class="order-card-wrap" id="ordersWrap"></div>
+      </div>
+
+      <!-- ═════ FINANCAS ═════ -->
+      <div class="page" id="page-financas">
+        <div class="page-hd">
+          <div><h2>Financeiro & Saques</h2><p>Saldo atualizado em <span id="finDate"></span></p></div>
+          <div class="fac gap8">
+            <button class="btn btn-ghost btn-sm" onclick="toast('Exportando extrato...','info')">📄 Extrato completo</button>
+          </div>
+        </div>
+
+        <div class="bal-grid">
+          <div class="bal-card bc-main">
+            <div class="bal-ico bi-blue">💰</div>
+            <div class="bal-lbl">Disponível para Saque</div>
+            <div class="bal-val bv-blue">R$ 12.480,00</div>
+            <div class="bal-note">Atualizado há 2 horas</div>
+          </div>
+          <div class="bal-card bc-pend">
+            <div class="bal-ico bi-orange">⏳</div>
+            <div class="bal-lbl">Saldo Pendente</div>
+            <div class="bal-val bv-orange">R$ 8.920,50</div>
+            <div class="bal-note">Liberação em 2–7 dias úteis</div>
+          </div>
+          <div class="bal-card bc-total">
+            <div class="bal-ico bi-green">📊</div>
+            <div class="bal-lbl">Faturamento Total (Mês)</div>
+            <div class="bal-val bv-green">R$ 38.840,00</div>
+            <div class="bal-note">Janeiro 2025 · +24.3%</div>
+          </div>
+        </div>
+
+        <div class="withdraw-card">
+          <div class="wc-title">💸 Solicitar Saque</div>
+          <div class="wc-sub">Disponível: R$ 12.480,00 · Saque mínimo: R$ 50,00 · Processamento em até 1 dia útil</div>
+          <div class="wc-row">
+            <input class="wc-inp" id="sacqueVal" placeholder="R$ 0,00" type="text" oninput="formatSaque(this)">
+            <select style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);color:#fff;padding:11px 14px;border-radius:var(--r);font-size:12px;outline:none;cursor:pointer">
+              <option>PIX — CPF 123.XXX</option>
+              <option>TED — Banco do Brasil</option>
+            </select>
+            <button class="btn-withdraw" onclick="doSaque()">Solicitar Saque</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <h4>📋 Extrato de Transações</h4>
+            <div class="fac gap8">
+              <select class="sel" style="width:auto;font-size:11px;padding:6px 22px 6px 9px">
+                <option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Este mês</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table id="extractTable">
+              <thead><tr><th>Transação</th><th>Tipo</th><th>Pedido</th><th>Bruto</th><th>Comissão</th><th>Líquido</th><th>Status</th><th>Data</th></tr></thead>
+              <tbody id="extractBody"></tbody>
+            </table>
+          </div>
+          <div style="padding:12px 16px;border-top:1px solid var(--b2);font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
+            <span>Mostrando 8 de 284 transações</span>
+            <span>Total líquido no período: <strong class="green">R$ 31.480,00</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ CONFIGURAÇÕES ═════ -->
+      <div class="page" id="page-config">
+        <div class="page-hd">
+          <div><h2>Configurações da Loja</h2><p>Gerencie informações, frete e preferências da TechLab Store</p></div>
+          <button class="btn btn-p btn-sm" onclick="saveConfig()">💾 Salvar alterações</button>
+        </div>
+        <div class="cfg-grid">
+          <div class="cfg-sb">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--b2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--light)">Seções</div>
+            <div class="cfg-nav-item on" onclick="showCfg('identidade',this)">🏪 Identidade da Loja</div>
+            <div class="cfg-nav-item" onclick="showCfg('fiscal',this)">📋 Dados Fiscais</div>
+            <div class="cfg-nav-item" onclick="showCfg('frete',this)">🚚 Configurações de Frete</div>
+            <div class="cfg-nav-item" onclick="showCfg('pagamentos',this)">💳 Recebimentos</div>
+            <div class="cfg-nav-item" onclick="showCfg('notificacoes',this)">🔔 Notificações</div>
+            <div class="cfg-nav-item" onclick="showCfg('politicas',this)">📜 Políticas da Loja</div>
+            <div class="cfg-nav-item" style="color:var(--red)" onclick="showCfg('danger',this)">⚠ Zona de Perigo</div>
+          </div>
+          <div>
+            <!-- Identidade -->
+            <div class="cfg-panel on" id="cfg-identidade">
+              <div class="card card-pad mb16">
+                <div class="card-title mb16">Logotipo e Visual</div>
+                <div class="logo-upload" onclick="toast('Selecionar logotipo...','info')">
+                  <div class="logo-preview">TL</div>
+                  <h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
+                  <p class="fs11 muted mt4">PNG, SVG · Fundo transparente · Mín 200×200px</p>
+                </div>
+              </div>
+              <div class="card card-pad mb16">
+                <div class="card-title mb16">Informações da Loja</div>
+                <div style="display:flex;flex-direction:column;gap:13px">
+                  <div class="fgrid2"><div class="fgrp"><label>Nome da Loja *</label><input class="inp" value="TechLab Store"></div><div class="fgrp"><label>Slogan</label><input class="inp" value="Tecnologia que transforma seu dia"></div></div>
+                  <div class="fgrp"><label>Descrição da Loja</label><textarea class="inp ta">Loja especializada em eletrônicos de qualidade com entrega rápida para todo o Brasil. Garantia em todos os produtos e suporte pós-venda.</textarea></div>
+                  <div class="fgrid2"><div class="fgrp"><label>E-mail de Contato</label><input class="inp" type="email" value="contato@techlabstore.com.br"></div><div class="fgrp"><label>WhatsApp</label><input class="inp" value="(11) 99999-0000"></div></div>
+                  <div class="fgrp"><label>Horário de Atendimento</label><input class="inp" value="Segunda a Sexta, 9h às 18h"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Fiscal -->
+            <div class="cfg-panel" id="cfg-fiscal">
+              <div class="card card-pad">
+                <div class="card-title mb16">Dados Fiscais e Legais</div>
+                <div style="display:flex;flex-direction:column;gap:13px">
+                  <div class="fgrid2"><div class="fgrp"><label>CNPJ *</label><input class="inp mono" value="12.345.678/0001-90"></div><div class="fgrp"><label>Razão Social</label><input class="inp" value="TechLab Comércio LTDA"></div></div>
+                  <div class="fgrid2"><div class="fgrp"><label>Nome Fantasia</label><input class="inp" value="TechLab Store"></div><div class="fgrp"><label>Inscrição Estadual</label><input class="inp" value="123.456.789.000"></div></div>
+                  <div class="fgrid2"><div class="fgrp"><label>Regime Tributário</label><select class="sel"><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div><div class="fgrp"><label>CNAE Principal</label><input class="inp" value="47.63-6-00 - Comércio varejista de artigos eletrônicos"></div></div>
+                  <div class="fgrp"><label>Endereço Fiscal</label><input class="inp" value="Rua das Flores, 142 - Vila Madalena, São Paulo/SP - CEP 05433-000"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Frete -->
+            <div class="cfg-panel" id="cfg-frete">
+              <div class="card card-pad mb16">
+                <div class="card-title mb16">Regras de Frete</div>
+                <div class="ship-rule fac gap12">
+                  <span style="font-size:20px">🎁</span>
+                  <div style="flex:1"><div class="fs12 fw6">Frete Grátis acima de R$ 199</div><div class="fs11 muted">Para todo o Brasil · Válido para todos os produtos</div></div>
+                  <span class="tag tag-green">Ativo</span>
+                  <button class="btn btn-ghost btn-xs" onclick="toast('Editando regra','info')">✏️</button>
+                </div>
+                <div class="ship-rule fac gap12">
+                  <span style="font-size:20px">📦</span>
+                  <div style="flex:1"><div class="fs12 fw6">PAC Econômico — R$ 15,90</div><div class="fs11 muted">Entrega em 7–10 dias úteis</div></div>
+                  <span class="tag tag-green">Ativo</span>
+                  <button class="btn btn-ghost btn-xs" onclick="toast('Editando regra','info')">✏️</button>
+                </div>
+                <div class="ship-rule fac gap12">
+                  <span style="font-size:20px">⚡</span>
+                  <div style="flex:1"><div class="fs12 fw6">SEDEX Express — R$ 29,90</div><div class="fs11 muted">Entrega em 2–4 dias úteis</div></div>
+                  <span class="tag tag-green">Ativo</span>
+                  <button class="btn btn-ghost btn-xs" onclick="toast('Editando regra','info')">✏️</button>
+                </div>
+                <button class="btn btn-o btn-xs mt12" onclick="toast('Adicionando nova regra...','info')">+ Nova regra de frete</button>
+              </div>
+              <div class="card card-pad">
+                <div class="card-title mb16">CEP de Origem</div>
+                <div class="fgrid2"><div class="fgrp"><label>CEP de Despacho</label><input class="inp mono" value="05433-000"></div><div class="fgrp"><label>Prazo Padrão de Despacho</label><select class="sel"><option>Até 1 dia útil</option><option>Até 2 dias úteis</option></select></div></div>
+              </div>
+            </div>
+            <!-- Pagamentos -->
+            <div class="cfg-panel" id="cfg-pagamentos">
+              <div class="card card-pad">
+                <div class="card-title mb16">Dados para Recebimento</div>
+                <div style="display:flex;flex-direction:column;gap:13px">
+                  <div class="fgrid2"><div class="fgrp"><label>Banco</label><select class="sel"><option>Banco do Brasil</option><option>Bradesco</option><option>Itaú</option><option>Nubank</option><option>Inter</option></select></div><div class="fgrp"><label>Tipo de Conta</label><select class="sel"><option>Conta Corrente</option><option>Conta Poupança</option></select></div></div>
+                  <div class="fgrid3"><div class="fgrp"><label>Agência</label><input class="inp mono" value="1234-5"></div><div class="fgrp"><label>Conta</label><input class="inp mono" value="56789-0"></div><div class="fgrp"><label>Chave PIX</label><input class="inp mono" value="contato@techlabstore.com.br"></div></div>
+                  <div class="fgrp"><label>Titular da Conta</label><input class="inp" value="TechLab Comércio LTDA"></div>
+                  <div class="fgrp"><label>CNPJ/CPF do Titular</label><input class="inp mono" value="12.345.678/0001-90"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Notificações -->
+            <div class="cfg-panel" id="cfg-notificacoes">
+              <div class="card card-pad">
+                <div class="card-title mb16">Notificações da Loja</div>
+                <div style="display:flex;flex-direction:column;gap:0">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Novo pedido recebido</div><div class="fs11 muted">E-mail + Push imediato</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Estoque abaixo do mínimo</div><div class="fs11 muted">Alerta quando produto < mín</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Avaliação recebida</div><div class="fs11 muted">Notificar quando cliente avalia</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Saldo disponível para saque</div><div class="fs11 muted">Lembrete quando saldo ≥ R$100</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp"><div class="tog-lbl"></div></label></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0"><div><div class="fs13 fw6">Relatório semanal de vendas</div><div class="fs11 muted">Resumo às segundas-feiras</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                </div>
+              </div>
+            </div>
+            <!-- Políticas -->
+            <div class="cfg-panel" id="cfg-politicas">
+              <div class="card card-pad mb16"><div class="card-title mb16">Política de Troca e Devolução</div><textarea class="inp" style="min-height:140px;resize:vertical">Aceitamos devoluções em até 30 dias após o recebimento. O produto deve estar sem uso, na embalagem original. O frete de retorno é por conta do vendedor em caso de defeito.</textarea></div>
+              <div class="card card-pad mb16"><div class="card-title mb16">Política de Privacidade</div><textarea class="inp" style="min-height:100px;resize:vertical">Os dados dos clientes são utilizados exclusivamente para processamento dos pedidos e nunca serão compartilhados com terceiros.</textarea></div>
+              <div class="card card-pad"><div class="card-title mb16">Termos de Garantia</div><textarea class="inp" style="min-height:100px;resize:vertical">Todos os produtos eletrônicos possuem garantia de 12 meses contra defeitos de fabricação, conforme o Código de Defesa do Consumidor.</textarea></div>
+            </div>
+            <!-- Danger -->
+            <div class="cfg-panel" id="cfg-danger">
+              <div class="danger-zone">
+                <div class="fs13 fw7" style="color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px">⚠️ Zona de Perigo</div>
+                <p class="fs12 muted mb16" style="line-height:1.7">Estas ações são permanentes e irreversíveis. Proceda com extremo cuidado.</p>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#fff;border:1px solid #fecaca;border-radius:var(--r)"><div><div class="fs13 fw6">Pausar Loja</div><div class="fs11 muted">Seus produtos serão ocultados temporariamente</div></div><button class="btn btn-danger btn-sm" onclick="toast('Loja pausada temporariamente','info')">Pausar Loja</button></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#fff;border:1px solid #fecaca;border-radius:var(--r)"><div><div class="fs13 fw6">Excluir todos os produtos</div><div class="fs11 muted">Remove todos os 48 produtos cadastrados</div></div><button class="btn btn-danger btn-sm" onclick="toast('Ação muito grave! Confirme por e-mail.','err')">Excluir Produtos</button></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:var(--r)"><div><div class="fs13 fw7" style="color:#991b1b">Encerrar conta de vendedor</div><div class="fs11" style="color:#9f1239">Todos os dados serão excluídos permanentemente</div></div><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:7px 16px;border-radius:100px;font-size:12px" onclick="toast('Enviamos um e-mail de confirmação','info')">Encerrar Conta</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /app-main -->
+  </div><!-- /app-body -->
+</div><!-- /appShell -->
+
+<!-- QUICKLINK -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
+<script>
+  // Start the Quicklink
+  window.addEventListener('load', () => {
+    quicklink.listen();
+  });
+</script>
+  
+<script src="script.js"></script>
