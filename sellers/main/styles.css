@@ -60,6 +60,14 @@ body.nobodyscroll {
   border:1px solid rgba(255,255,255,.0);
   box-shadow: 0 2px 12px rgba(0,0,0,.0), inset 0 1px rgba(255,255,255,.0);
   border-radius: 200px; padding: 5px 10px;
+  position: relative; right: 10px
+}
+
+.logo-spacer {
+  margin: 0px 5px;
+  height: 5px;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* ══ UTILITÁRIOS AUSENTES RECRIADOS ══════════════════════ */
