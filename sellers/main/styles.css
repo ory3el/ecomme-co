@@ -106,9 +106,18 @@ body {
   cursor: grab;
 }
 
+.scrollbar-track {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 100%;
+  z-index: 99998;
+}
+
 .custom-scrollbar.is-dragging {
   cursor: grabbing;
-  background-color: hsl(from var(--blue) h s calc(l - 20));
+  background-color: var(--blue);
   opacity: 1 !important;
 }
 
