@@ -7,9 +7,9 @@ const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
   if (e.matches) {
-    favicon.href = '../images/favicon-light.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
-    favicon.href = '../images/favicon-blue.png';
+    favicon.href = '/images/favicon-blue.png';
   }
 }
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -113,7 +113,7 @@ function buildProdTable(filter='all'){
       <td>${stTag}</td>
       <td><div class="fac gap4">
         <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" onclick="toast('Editando ${p.name}','info')">✏️</button>
-        <div class="action-dots" onclick="toggleMenu(this)">⋯
+        <div class="action-dots" onclick="toggleMenu(event, this)">⋯
           <div class="action-menu">
             <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
             <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
@@ -128,7 +128,14 @@ function buildProdTable(filter='all'){
 
 function toggleAll(cb){ document.querySelectorAll('.chk').forEach(c=>c.checked=cb.checked); }
 function filterProds(btn, f){ document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); buildProdTable(f); }
-function toggleMenu(el){ const m=el.querySelector('.action-menu'); document.querySelectorAll('.action-menu.on').forEach(x=>{if(x!==m)x.classList.remove('on')}); m.classList.toggle('on'); event.stopPropagation(); }
+
+function toggleMenu(e, el){
+  e.stopPropagation();
+  const m = el.querySelector('.action-menu'); 
+  document.querySelectorAll('.action-menu.on').forEach(x=>{if(x!==m)x.classList.remove('on')}); 
+  m.classList.toggle('on'); 
+}
+
 document.addEventListener('click',()=>document.querySelectorAll('.action-menu.on').forEach(m=>m.classList.remove('on')));
 
 // ══ ORDERS ══════════════════════════════════════════════
@@ -175,7 +182,7 @@ function buildOrders(filter='all'){
         <div class="ord-actions">
           ${o.status==='pending'?`
             <input class="tracking-inp" placeholder="Cód. rastreamento (ex: BR123)" id="track-${o.id}">
-            <button class="btn btn-green btn-xs" onclick="dispatch('${o.id}')">🚚 Marcar como Despachado</button>
+            <button class="btn btn-p btn-xs" onclick="dispatch('${o.id}')">🚚 Marcar como Despachado</button>
           `:''}
           ${o.status==='transit'?`<span class="tag tag-blue">Rastreando envio...</span>`:''}
           ${o.status==='returned'?`<button class="btn btn-danger btn-xs" onclick="toast('Aprovando devolução...','info')">Aprovar Devolução</button>`:''}
@@ -259,7 +266,7 @@ function doSellerRegister(){ const v=document.getElementById('ctaEmail')?.value;
 
 // ══ FINANCES ════════════════════════════════════════════
 function formatSaque(inp){ let v=inp.value.replace(/\D/g,''); if(v) inp.value='R$ '+parseInt(v).toLocaleString('pt-BR'); }
-function doSaque(){ const v=document.getElementById('sacqueVal')?.value; if(!v||v==='R$ 0,00'){toast('Digite o valor do saque','err');return;} toast(`Saque de ${v} solicitado! Processamento em 1 dia útil 💸`); if(document.getElementById('sacqueVal'))document.getElementById('sacqueVal').value=''; }
+function doSaque(){ const v=document.getElementById('saqueVal')?.value; if(!v||v==='R$ 0,00'){toast('Digite o valor do saque','err');return;} toast(`Saque de ${v} solicitado! Processamento em 1 dia útil 💸`); if(document.getElementById('saqueVal'))document.getElementById('saqueVal').value=''; }
 
 // ══ TOAST ════════════════════════════════════════════════
 function toast(msg,type='ok'){
