@@ -306,10 +306,35 @@ window.addEventListener('hashchange',()=>{
 });
 
 /* SCROLLBAR */
+const scrollTrack = document.createElement('div');
+scrollTrack.className = 'scrollbar-track';
+document.body.appendChild(scrollTrack);
+
 const scrollbar = document.createElement('div');
 scrollbar.className = 'custom-scrollbar hide-scrollbar';
-document.body.appendChild(scrollbar);
+scrollTrack.appendChild(scrollbar);
+
 let scrollTimeout;
+let isDragging = false;
+let isHovering = false;
+
+let startY;
+let startScrollTop;
+
+scrollTrack.addEventListener('mouseenter', () => {
+  isHovering = true;
+  scrollbar.classList.remove('hide-scrollbar');
+  clearTimeout(scrollTimeout);
+});
+scrollTrack.addEventListener('mouseleave', () => {
+  isHovering = false;
+  
+  if (!isDragging) {
+    scrollTimeout = setTimeout(() => {
+      scrollbar.classList.add('hide-scrollbar');
+    }, 1500);
+  }
+});
 
 window.addEventListener('scroll', () => {
   const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
