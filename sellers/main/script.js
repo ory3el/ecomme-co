@@ -325,3 +325,40 @@ window.addEventListener('scroll', () => {
     scrollbar.classList.add('hide-scrollbar');
   }, 1500); 
 });
+
+/* SCROLLBAR DRAGGING */
+let isDragging = false;
+let startY;
+let startScrollTop;
+
+scrollbar.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  scrollbar.classList.add('is-dragging');
+  startY = e.clientY;
+  startScrollTop = window.scrollY;
+  document.body.style.userSelect = 'none'; 
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const deltaY = e.clientY - startY;
+  
+  const maxScrollbarTravel = window.innerHeight - scrollbar.offsetHeight;
+  const movePercentage = deltaY / maxScrollbarTravel;
+  
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrollAmount = movePercentage * scrollableHeight;
+  window.scrollTo(0, startScrollTop + scrollAmount);
+});
+
+document.addEventListener('mouseup', () => {
+  if (isDragging) {
+    isDragging = false;
+    scrollbar.classList.remove('is-dragging');
+    document.body.style.userSelect = ''; 
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      scrollbar.classList.add('hide-scrollbar');
+    }, 1500);
+  }
+});
