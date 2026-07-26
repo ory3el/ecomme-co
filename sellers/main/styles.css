@@ -1,5 +1,28 @@
+  :root {
+    --white: #ffffff
+    --bg: #f2f4f7;
+    --bg2: #ffffff;
+    --bg3: #e8ebf0;
+    --blue: #4287f5;
+    --blue2: #5ea8f2;
+    --blue-dim: rgba(42, 95, 160, 0.10);
+    
+    --gold: #a0732a;
+    --gold2: #c9943e;
+    --gold-dim: rgba(160,115,42,0.10);
+    
+    --text: #10161a;
+    --muted: #707c8a;
+    --border: rgba(42, 97, 160,0.25);
+    --border2: rgba(0,0,0,0.08);
+    --red: #c0392b;
+    --green: #27855a;
+    --radius: 6px;
+    --rad-lg: 12px;
+  }
+
 /* ══ APP SHELL ════════════════════════════════════════════ */
-#appShell{display:none;min-height:100vh;background:var(--bg)}
+#appShell{min-height:100vh;background:var(--bg)}
 
 /* top header */
 .app-hdr{background:#fff;border-bottom:1px solid var(--b2);position:sticky;top:0;z-index:200;box-shadow:var(--sh2)}
