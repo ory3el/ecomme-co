@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Seller | Ecomme Sellers</title>
@@ -18,8 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   
@@ -30,9 +28,13 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════
-     APP SHELL — Seller Panel
-═════════════════════════════════════════════════════════ -->
+<!-- Landing Page Oculta -->
+<div id="landing" style="display:none; padding: 50px; text-align: center;">
+  <h2>Bem-vindo ao Ecomme Sellers</h2>
+  <button class="btn btn-p" onclick="enterPanel()">Entrar no Painel</button>
+</div>
+
+<!-- APP SHELL — Seller Panel -->
 <div id="appShell">
   <header class="app-hdr">
     <div class="app-hdr-in">
@@ -446,7 +448,7 @@
           <div class="wc-title">💸 Solicitar Saque</div>
           <div class="wc-sub">Disponível: R$ 12.480,00 · Saque mínimo: R$ 50,00 · Processamento em até 1 dia útil</div>
           <div class="wc-row">
-            <input class="wc-inp" id="sacqueVal" placeholder="R$ 0,00" type="text" oninput="formatSaque(this)">
+            <input class="wc-inp" id="saqueVal" placeholder="R$ 0,00" type="text" oninput="formatSaque(this)">
             <select style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);color:#fff;padding:11px 14px;border-radius:var(--r);font-size:12px;outline:none;cursor:pointer">
               <option>PIX — CPF 123.XXX</option>
               <option>TED — Banco do Brasil</option>
