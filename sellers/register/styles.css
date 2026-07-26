@@ -314,8 +314,16 @@
   .btn-primary:disabled{background:#E4E9F1; color:#AEB8C6; box-shadow:none; cursor:not-allowed;}
   .btn-primary svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.5;}
   .btn-row{display:flex; gap:10px;}
-  .btn-ghost-sm{height:46px; padding:0 18px; border-radius:100px; border:1.5px solid var(--line); color:var(--slate); font-weight:600; font-size:13px; transition:all .25s; flex-shrink:0;}
-  .btn-ghost-sm:hover{border-color:var(--slate-2); color:var(--ink);}
+  .btn-ghost-sm {
+    height:46px; padding:0 18px; border-radius:100px; 
+    border:1.5px solid var(--line); color:var(--slate); 
+    font-weight:600; font-size:13px; transition:all .25s; 
+    flex-shrink:0; display: flex; align-items: center;
+  }
+  .btn-ghost-sm:hover {
+    border-color:var(--slate-2); color:var(--ink);
+    display: flex; align-items: center;
+  }
 
   .actions-block{margin-top:18px; opacity:0; animation:fadeUp .5s var(--ease) forwards;}
 
@@ -468,7 +476,7 @@
   .success-check svg{width:38px; height:38px;}
   .success-check path{fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:40; stroke-dashoffset:40; animation:checkDraw .6s var(--ease) .3s forwards;}
   .confetti-piece{position:absolute; width:7px; height:7px; border-radius:2px; top:50%; left:50%; animation:confettiBurst 1s var(--ease) forwards;}
-  .success-inner h2{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:32px; margin-bottom:12px; opacity:0; animation:fadeUp .5s var(--ease) .4s forwards;}
+  .success-inner h2{font-family:'Outfit',serif; font-weight:400; font-size:30px; margin-bottom:12px; opacity:0; animation:fadeUp .5s var(--ease) .4s forwards;}
   .success-inner p{color:var(--slate); font-size:13.5px; line-height:1.7; margin-bottom:30px; opacity:0; animation:fadeUp .5s var(--ease) .48s forwards;}
   .success-btns{display:flex; gap:10px; justify-content:center; opacity:0; animation:fadeUp .5s var(--ease) .56s forwards;}
 
