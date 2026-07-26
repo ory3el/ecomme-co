@@ -291,17 +291,16 @@ window.addEventListener('DOMContentLoaded',()=>{
   buildOrders();
   buildExtract();
 
-  // hash routing
-  const hash = location.hash.replace('#/seller/','') || 'cadastro';
-  if(hash==='cadastro'||hash==='') showLanding();
-  else { enterPanel(); const pageMap={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'}; navigate(pageMap[hash]||'dashboard'); }
+  document.getElementById('appShell').style.display='flex'; 
+  document.getElementById('appShell').style.flexDirection='column';
+
+  const hash = location.hash.replace('/seller/main','');
+  const pageMap={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'}; 
+  navigate(pageMap[hash]||'dashboard'); 
 });
 
-// hash change listener
 window.addEventListener('hashchange',()=>{
-  const hash=location.hash.replace('#/seller/','');
-  if(hash==='cadastro'){showLanding();return;}
-  if(document.getElementById('appShell').style.display==='none') enterPanel();
+  const hash=location.hash.replace('/seller/main','');
   const pm={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'};
   navigate(pm[hash]||'dashboard');
 });
