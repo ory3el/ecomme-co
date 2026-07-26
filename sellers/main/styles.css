@@ -38,18 +38,33 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 
 /* SCROLLBAR */
+body::-webkit-scrollbar {
+  width: 6px;
+}
+/*body::-webkit-scrollbar-track {
+  background: #e8edf0;
+}*/
+body::-webkit-scrollbar-thumb {
+  background-color: var(--blue);
+  border-radius: 3px;
+}
+
+body.hide-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+/*body.hide-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}*/
+body.hide-scrollbar {
+  scrollbar-color: transparent transparent; 
+}
+
+/* SCROLLBAR */
+/*
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: #e8edf0; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
-
-/* SCROLLBAR */
-.no-scrollbars::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-.no-scrollbars {
-  scrollbar-width: none;
-}
+*/
 
 /* NOSCROLL */
 .noscroll {
