@@ -1,5 +1,6 @@
 :root {
-  --white: #ffffff;
+  --white: #fff;
+  --black: #000;
   --bg: #f2f4f7;
   --bg2: #ffffff;
   --bg3: #e8ebf0;
@@ -35,6 +36,20 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #e8edf0; }
+::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+/* NOSCROLL */
+.noscroll {
+   overflow: hidden; scrollbar-gutter: stable;
+}
+
+body.nobodyscroll {
+  overflow: hidden;
+}
 
 /* ══ UTILITÁRIOS AUSENTES RECRIADOS ══════════════════════ */
 .fac { display: flex; align-items: center; }
