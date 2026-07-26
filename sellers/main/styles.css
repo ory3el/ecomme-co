@@ -38,9 +38,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 
 /* SCROLLBAR */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #e8edf0; }
-::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #e8edf0; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 
 /* SCROLLBAR */
 .no-scrollbars::-webkit-scrollbar {
