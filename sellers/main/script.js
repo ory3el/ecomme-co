@@ -2,6 +2,7 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+
 // FAVICON
 const favicon = document.getElementById('favicon');
     
@@ -303,4 +304,15 @@ window.addEventListener('hashchange',()=>{
   const hash=location.hash.replace('/seller/main','');
   const pm={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'};
   navigate(pm[hash]||'dashboard');
+});
+
+/* SCROLLBAR */
+let scrollTimer;
+window.addEventListener('scroll', () => {
+  document.body.classList.remove('no-scrollbars');
+  
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    document.body.classList.add('no-scrollbars');
+  }, 1500);
 });
