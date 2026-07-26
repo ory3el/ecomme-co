@@ -38,26 +38,34 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 
 /* SCROLLBAR */
+/*
 body::-webkit-scrollbar {
   width: 6px;
 }
+*/
 /*body::-webkit-scrollbar-track {
   background: #e8edf0;
 }*/
+/*
 body::-webkit-scrollbar-thumb {
   background-color: var(--blue);
   border-radius: 3px;
 }
+*/
 
+/*
 body.hide-scrollbar::-webkit-scrollbar-thumb {
   background-color: transparent;
 }
+*/
 /*body.hide-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }*/
+/*
 body.hide-scrollbar {
   scrollbar-color: transparent transparent; 
 }
+*/
 
 /* SCROLLBAR */
 /*
@@ -74,6 +82,33 @@ body.nobodyscroll {
   overflow: hidden;
 }
 
+/* SCROLLBAR */
+body::-webkit-scrollbar {
+  display: none;
+}
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar {
+  position: fixed;
+  top: 0;
+  right: 2px;
+  width: 6px;
+  height: 20%;
+  background-color: var(--blue);
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out; 
+}
+.hide-scrollbar {
+  opacity: 0;
+}
+
+/* LOGO */
 .logo {
   flex-shrink: 0; display: flex; align-items: center; gap: 5px;
   box-shadow: none;
@@ -86,6 +121,7 @@ body.nobodyscroll {
   position: relative; right: 10px
 }
 
+/* LOGO SPACER */
 .logo-spacer {
   position: relative;
   margin: 0px 5px;
