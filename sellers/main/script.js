@@ -2,7 +2,6 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
-
 // FAVICON
 const favicon = document.getElementById('favicon');
     
@@ -307,14 +306,15 @@ window.addEventListener('hashchange',()=>{
 });
 
 /* SCROLLBAR */
-let scrollTimer;
+let scrollTimeout;
+const body = document.body;
+body.classList.add('hide-scrollbar');
+
 window.addEventListener('scroll', () => {
-  document.body.classList.remove('no-scrollbars');
-  document.body.classlist.add('custom-scrollbar');
-  
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(() => {
-    document.body.classList.add('no-scrollbars');
-    document.body.classlist.remove('custom-scrollbar');
-  }, 1500);
+  body.classList.remove('hide-scrollbar');
+  clearTimeout(scrollTimeout);
+
+  scrollTimeout = setTimeout(() => {
+    body.classList.add('hide-scrollbar');
+  }, 1500); 
 });
