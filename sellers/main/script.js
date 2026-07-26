@@ -306,15 +306,22 @@ window.addEventListener('hashchange',()=>{
 });
 
 /* SCROLLBAR */
+const scrollbar = document.createElement('div');
+scrollbar.className = 'custom-scrollbar hide-scrollbar';
+document.body.appendChild(scrollbar);
 let scrollTimeout;
-const body = document.body;
-body.classList.add('hide-scrollbar');
 
 window.addEventListener('scroll', () => {
-  body.classList.remove('hide-scrollbar');
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  if (scrollableHeight <= 0) return; 
+  const scrollPercentage = window.scrollY / scrollableHeight;
+  
+  const maxScrollTop = window.innerHeight - scrollbar.offsetHeight;
+  scrollbar.style.top = `${scrollPercentage * maxScrollTop}px`;
+  scrollbar.classList.remove('hide-scrollbar');
   clearTimeout(scrollTimeout);
 
   scrollTimeout = setTimeout(() => {
-    body.classList.add('hide-scrollbar');
+    scrollbar.classList.add('hide-scrollbar');
   }, 1500); 
 });
