@@ -450,6 +450,7 @@ function createStore(){
   }, 1200);
 }
 function launchSuccess(){
+  if(!validateStep2()) { showToast('error','Preencha os campos obrigatórios antes de continuar.'); return; }
   const screen=$('successScreen');
   screen.classList.add('on');
   const colors=['#4287F5','#1FAA6E','#F0A93A','#F2637B','#8B5CF6'];
