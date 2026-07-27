@@ -340,15 +340,17 @@ window.addEventListener('scroll', () => {
   const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
   if (scrollableHeight <= 0) return; 
   const scrollPercentage = window.scrollY / scrollableHeight;
-  
   const maxScrollTop = window.innerHeight - scrollbar.offsetHeight;
+  
   scrollbar.style.top = `${scrollPercentage * maxScrollTop}px`;
   scrollbar.classList.remove('hide-scrollbar');
   clearTimeout(scrollTimeout);
 
-  scrollTimeout = setTimeout(() => {
-    scrollbar.classList.add('hide-scrollbar');
-  }, 1500); 
+  if (!isHovering && !isDragging) {
+    scrollTimeout = setTimeout(() => {
+      scrollbar.classList.add('hide-scrollbar');
+    }, 1500); 
+  }
 });
 
 /* SCROLLBAR DRAGGING */
