@@ -55,7 +55,10 @@ function handleLogin(){
   }, 1000);
 }
 function closeAuthGate(){
+  const email=$('loginEmail').value.trim();
+  const pass=$('loginPassword').value.trim();
   if(!email || !pass){ showToast('error','Preencha e-mail e senha para continuar.'); return; }
+  
   $('fldEmail').value = ACCOUNT_EMAIL;
   $('authGate').classList.add('hidden');
   $('appShell').classList.remove('inert');
