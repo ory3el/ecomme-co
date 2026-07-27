@@ -91,6 +91,15 @@ body {
   scrollbar-width: none;
 }
 
+/* SIDEBAR SCROLLBAR */
+.app-sb::-webkit-scrollbar {
+  display: none;
+}
+.app-sb {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .custom-scrollbar {
   position: fixed;
   top: 0;
