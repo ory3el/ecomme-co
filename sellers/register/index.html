@@ -119,6 +119,81 @@
             </div>
           </div>
 
+		  <!-- Seletor de Tipo de Conta (Pessoa Física ou Jurídica) -->
+<div class="fgrid2" style="margin-bottom: 16px;">
+  <div class="fgrp">
+    <label>Tipo de Conta *</label>
+    <select class="sel" id="tipoPessoa" onchange="togglePessoaJuridica()">
+      <option value="PF">Pessoa Física (CPF)</option>
+      <option value="PJ">Pessoa Jurídica (CNPJ)</option>
+    </select>
+  </div>
+</div>
+
+<!-- CONTAINER PESSOA FÍSICA -->
+<div id="camposPF" style="display: flex; flex-direction: column; gap: 13px;">
+  <div class="fgrid2">
+    <div class="fgrp">
+      <label>CPF *</label>
+      <input class="inp mono" placeholder="000.000.000-00">
+    </div>
+    <div class="fgrp">
+      <label>Nome Completo *</label>
+      <input class="inp" placeholder="Seu nome completo">
+    </div>
+  </div>
+</div>
+
+<!-- CONTAINER PESSOA JURÍDICA (Oculto por padrão, exibido via JS) -->
+<div id="camposPJ" style="display: none; flex-direction: column; gap: 13px;">
+  
+  <!-- Campos padrões de PJ -->
+  <div class="fgrid2">
+    <div class="fgrp">
+      <label>CNPJ *</label>
+      <input class="inp mono" placeholder="00.000.000/0001-00">
+    </div>
+    <div class="fgrp">
+      <label>Razão Social *</label>
+      <input class="inp" placeholder="Razão Social da Empresa">
+    </div>
+  </div>
+
+  <!-- NOVOS CAMPOS: Importados da aba "Dados Fiscais" do Dashboard -->
+  <div class="fgrid2">
+    <div class="fgrp">
+      <label>Nome Fantasia</label>
+      <input class="inp" placeholder="Nome Fantasia">
+    </div>
+    <div class="fgrp">
+      <label>Inscrição Estadual</label>
+      <input class="inp" placeholder="Ex: 123.456.789.000">
+    </div>
+  </div>
+
+  <div class="fgrid2">
+    <div class="fgrp">
+      <label>Regime Tributário</label>
+      <select class="sel">
+        <option value="" disabled selected>Selecione...</option>
+        <option>Simples Nacional</option>
+        <option>Lucro Presumido</option>
+        <option>Lucro Real</option>
+      </select>
+    </div>
+    <div class="fgrp">
+      <label>CNAE Principal</label>
+      <input class="inp" placeholder="Ex: 47.63-6-00">
+    </div>
+  </div>
+
+  <div class="fgrp">
+    <label>Endereço Fiscal</label>
+    <input class="inp" placeholder="Endereço completo (Rua, Nº, Bairro, Cidade/UF, CEP)">
+  </div>
+
+</div>
+			
           <!--<div class="form-grid g1" style="margin-top:12px">
             <div class="field full" style="animation-delay:.08s">
               <label id="lblNome">Nome completo <span class="req">*</span></label>
@@ -128,37 +203,6 @@
               </div>
             </div>
           </div>-->
-
-		  <div class="form-grid" style="margin-top:12px">
-            <div class="field" style="animation-delay:.11s">
-              <label id="lblNome">Nome completo <span class="req">*</span></label>
-              <div class="input-wrap">
-                <input class="input has-status" id="fldNome" placeholder="Como você se chama?" oninput="validateStep1()">
-                <span class="input-status" id="statNome"></span>
-              </div>
-            </div>
-            <label id="lblDoc">CPF <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input class="input has-status" id="fldDoc" placeholder="000.000.000-00" oninput="onDocInput(this)">
-              <span class="input-status" id="statDoc"></span>
-            </div>
-          </div>
-
-		  <div class="field" id="wrapFantasia" style="animation-delay:.14s; display:none">
-  		    <div class="input-wrap" id="wrapFantasia">
-    			<label>Nome fantasia</label>
-    			<input type="text" id="fldFantasia" placeholder="Sua Empresa" />
-    			<span class="status-icon" id="statFantasia"></span>
-		    </div>
-		  </div>
-
-		  <div class="field" id="wrapInscricao" style="animation-delay:.14s; display:none">
-  			<div class="input-wrap" id="wrapIE">
-    			<label>Inscrição Estadual</label>
-    			<input type="text" id="fldIE" placeholder="000.000.000.000" />
-    			<span class="status-icon" id="statIE"></span>
-			</div>
-		  </div>
 			
           <!--<div class="form-grid" style="margin-top:12px">
             <div class="field" id="wrapDoc" style="animation-delay:.11s">
