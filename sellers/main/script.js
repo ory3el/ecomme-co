@@ -339,19 +339,8 @@ function createCustomScrollbar(scrollElement, isMainBody = false) {
       scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
     }
   });
-
+  
   const eventTarget = isMainBody ? window : scrollElement;
-    
-    // CORREÇÃO: Como a barra está dentro da trilha, o cálculo dela é sempre 
-    // apenas a porcentagem, seja na tela inteira ou dentro da Sidebar!
-    scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
-
-    scrollbar.classList.remove('hide-scrollbar');
-    clearTimeout(scrollTimeout);
-
-    if (!isHovering && !isDragging) {
-      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-    }
   
   eventTarget.addEventListener('scroll', () => {
     const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
@@ -367,6 +356,7 @@ function createCustomScrollbar(scrollElement, isMainBody = false) {
     if (!isMainBody) {
       scrollTrack.style.top = `${scrollTop}px`;
     }
+    
     scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
 
     scrollbar.classList.remove('hide-scrollbar');
