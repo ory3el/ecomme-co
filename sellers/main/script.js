@@ -354,9 +354,6 @@ window.addEventListener('scroll', () => {
 });
 
 /* SCROLLBAR DRAGGING */
-let startY;
-let startScrollTop;
-
 scrollbar.addEventListener('mousedown', (e) => {
   isDragging = true;
   scrollbar.classList.add('is-dragging');
