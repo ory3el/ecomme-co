@@ -212,13 +212,13 @@
 
 		<div class="form-grid" id="wrapPJExtra" style="margin-top:12px; display:none; animation-delay:.16s">
             <div class="field">
-              <label>Inscrição Estadual</label>
+              <label>Inscrição Estadual <span class="req">*</span></label>
               <input class="input" id="fldIE" placeholder="Ex: 123.456.789.000">
             </div>
             <div class="field">
-              <label>Regime Tributário</label>
+              <label>Regime Tributário <span class="req">*</span></label>
               <select class="select" id="fldRegime">
-                <option value="" disabled selected>Selecione...</option>
+                <option value="" disabled selected>Selecione..</option>
                 <option>Simples Nacional</option>
                 <option>Lucro Presumido</option>
                 <option>Lucro Real</option>
@@ -278,7 +278,7 @@
             <div class="field" style="animation-delay:.38s">
               <label>Estado <span class="req">*</span></label>
               <select class="select" id="fldEstado" onchange="validateStep1()">
-                <option value="">UF</option>
+				<option value="" disabled selected>UF</option>
                 <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
                 <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
                 <option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option>
