@@ -354,7 +354,6 @@ window.addEventListener('scroll', () => {
 });
 
 /* SCROLLBAR DRAGGING */
-let isDragging = false;
 let startY;
 let startScrollTop;
 
