@@ -144,43 +144,21 @@
             </div>
           </div>
 
-		  <div class="form-grid g1" style="margin-top:12px">
-            <div class="field full" style="animation-delay:.08s">
-              <div class="field" id="wrapFantasia" style="animation-delay:.14s; display:none">
-              	<label>Nome fantasia <span class="req">*</span></label>
-              	<input class="input" id="fldFantasia" placeholder="Ex.: TechLab Store" oninput="validateStep1()">
-              </div>
-            </div>
-          </div>
-			
-		  <div class="form-grid" style="margin-top:12px">
-            <div class="field" style="animation-delay:.11s">
-              <div class="field" id="wrapFantasia" style="animation-delay:.14s; display:none">
-              	<label>Nome fantasia <span class="req">*</span></label>
-              	<input class="input" id="fldFantasia" placeholder="Ex.: TechLab Store" oninput="validateStep1()">
-              </div>
-            </div>
-            <label id="lblIE">Inscrição Estadual <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input class="input has-status" id="fldNome" placeholder="000.000.000.000" oninput="validateStep1()">
-              <span class="input-status" id="statNome"></span>
-            </div>
-          </div>
+		  <div class="field" id="wrapFantasia" style="animation-delay:.14s; display:none">
+  		    <div class="input-wrap" id="wrapFantasia">
+    			<label>Nome fantasia</label>
+    			<input type="text" id="fldFantasia" placeholder="Sua Empresa" />
+    			<span class="status-icon" id="statFantasia"></span>
+		    </div>
+		  </div>
 
-		  <div class="form-grid" style="margin-top:12px">
-            <div class="field" style="animation-delay:.11s">
-              <label id="lblIE">Inscrição Estadual <span class="req">*</span></label>
-              <div class="input-wrap">
-              	<input class="input has-status" id="fldNome" placeholder="000.000.000.000" oninput="validateStep1()">
-              	<span class="input-status" id="statNome"></span>
-              </div>
-            </div>
-            <label id="lblIE">Inscrição Estadual <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input class="input has-status" id="fldNome" placeholder="000.000.000.000" oninput="validateStep1()">
-              <span class="input-status" id="statNome"></span>
-            </div>
-          </div>
+		  <div class="field" id="wrapInscricao" style="animation-delay:.14s; display:none">
+  			<div class="input-wrap" id="wrapIE">
+    			<label>Inscrição Estadual</label>
+    			<input type="text" id="fldIE" placeholder="000.000.000.000" />
+    			<span class="status-icon" id="statIE"></span>
+			</div>
+		  </div>
 			
           <!--<div class="form-grid" style="margin-top:12px">
             <div class="field" id="wrapDoc" style="animation-delay:.11s">
