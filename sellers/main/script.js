@@ -306,82 +306,110 @@ window.addEventListener('hashchange',()=>{
 });
 
 /* SCROLLBAR */
-const scrollTrack = document.createElement('div');
-scrollTrack.className = 'scrollbar-track';
-document.body.appendChild(scrollTrack);
-
-const scrollbar = document.createElement('div');
-scrollbar.className = 'custom-scrollbar hide-scrollbar';
-scrollTrack.appendChild(scrollbar);
-
-let scrollTimeout;
-let isDragging = false;
-let isHovering = false;
-
-let startY;
-let startScrollTop;
-
-scrollTrack.addEventListener('mouseenter', () => {
-  isHovering = true;
-  scrollbar.classList.remove('hide-scrollbar');
-  clearTimeout(scrollTimeout);
-});
-scrollTrack.addEventListener('mouseleave', () => {
-  isHovering = false;
+function createCustomScrollbar(scrollElement, isMainBody = false) {
+  const scrollTrack = document.createElement('div');
+  scrollTrack.className = 'scrollbar-track';
   
-  if (!isDragging) {
-    scrollTimeout = setTimeout(() => {
-      scrollbar.classList.add('hide-scrollbar');
-    }, 1500);
+  const scrollbar = document.createElement('div');
+  scrollbar.className = 'custom-scrollbar hide-scrollbar';
+  scrollTrack.appendChild(scrollbar);
+  const container = isMainBody ? document.body : scrollElement;
+  container.appendChild(scrollTrack);
+
+  if (!isMainBody) {
+    scrollTrack.style.position = 'absolute';
+    scrollbar.style.position = 'absolute';
   }
-});
 
-window.addEventListener('scroll', () => {
-  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-  if (scrollableHeight <= 0) return; 
-  const scrollPercentage = window.scrollY / scrollableHeight;
-  const maxScrollTop = window.innerHeight - scrollbar.offsetHeight;
-  
-  scrollbar.style.top = `${scrollPercentage * maxScrollTop}px`;
-  scrollbar.classList.remove('hide-scrollbar');
-  clearTimeout(scrollTimeout);
+  let scrollTimeout;
+  let isDragging = false;
+  let isHovering = false;
+  let startY;
+  let startScrollTop;
 
-  if (!isHovering && !isDragging) {
-    scrollTimeout = setTimeout(() => {
-      scrollbar.classList.add('hide-scrollbar');
-    }, 1500); 
-  }
-});
-
-/* SCROLLBAR DRAGGING */
-scrollbar.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  scrollbar.classList.add('is-dragging');
-  startY = e.clientY;
-  startScrollTop = window.scrollY;
-  document.body.style.userSelect = 'none'; 
-});
-
-document.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
-  const deltaY = e.clientY - startY;
-  
-  const maxScrollbarTravel = window.innerHeight - scrollbar.offsetHeight;
-  const movePercentage = deltaY / maxScrollbarTravel;
-  
-  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const scrollAmount = movePercentage * scrollableHeight;
-  window.scrollTo(0, startScrollTop + scrollAmount);
-});
-
-document.addEventListener('mouseup', () => {
-  if (isDragging) {
-    isDragging = false;
-    scrollbar.classList.remove('is-dragging');
-    document.body.style.userSelect = ''; 
+  scrollTrack.addEventListener('mouseenter', () => {
+    isHovering = true;
+    scrollbar.classList.remove('hide-scrollbar');
     clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      scrollbar.classList.add('hide-scrollbar');
-    }, 1500);
-  }
-});
+  });
+
+  scrollTrack.addEventListener('mouseleave', () => {
+    isHovering = false;
+    if (!isDragging) {
+      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+    }
+  });
+
+  const eventTarget = isMainBody ? window : scrollElement;
+  
+  eventTarget.addEventListener('scroll', () => {
+    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
+    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
+    const scrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
+    
+    const scrollableHeight = scrollHeight - clientHeight;
+    if (scrollableHeight <= 0) return;
+
+    const scrollPercentage = scrollTop / scrollableHeight;
+    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
+
+    if (!isMainBody) {
+      scrollTrack.style.top = `${scrollTop}px`;
+      scrollbar.style.top = `${scrollTop + (scrollPercentage * maxScrollbarTravel)}px`;
+    } else {
+      scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
+    }
+
+    scrollbar.classList.remove('hide-scrollbar');
+    clearTimeout(scrollTimeout);
+
+    if (!isHovering && !isDragging) {
+      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+    }
+  });
+
+  scrollbar.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    scrollbar.classList.add('is-dragging');
+    startY = e.clientY;
+    startScrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    
+    const deltaY = e.clientY - startY;
+    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
+    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
+    const movePercentage = deltaY / maxScrollbarTravel;
+    
+    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
+    const scrollableHeight = scrollHeight - clientHeight;
+    const scrollAmount = movePercentage * scrollableHeight;
+
+    if (isMainBody) {
+      window.scrollTo(0, startScrollTop + scrollAmount);
+    } else {
+      scrollElement.scrollTop = startScrollTop + scrollAmount;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      scrollbar.classList.remove('is-dragging');
+      document.body.style.userSelect = '';
+      clearTimeout(scrollTimeout);
+      
+      if (!isHovering) {
+        scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+      }
+    }
+  });
+}
+createCustomScrollbar(window, true);
+const sidebarElement = document.querySelector('.app-sb');
+if (sidebarElement) {
+  createCustomScrollbar(sidebarElement, false);
+}
