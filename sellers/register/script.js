@@ -124,9 +124,12 @@ function setPersonType(type){
   $('fldDoc').placeholder = type==='pf' ? '000.000.000-00' : '00.000.000/0000-00';
   $('fldDoc').value='';
   setStatus($('statDoc'),''); $('msgDoc').classList.remove('show');
+  
   $('wrapFantasia').style.display = type==='pj' ? 'flex' : 'none';
+  $('wrapPJExtra').style.display = type==='pj' ? 'grid' : 'none';
   validateStep1();
 }
+
 function onDocInput(input){
   input.value = personType==='pf' ? maskCPF(input.value) : maskCNPJ(input.value);
   validateStep1();
