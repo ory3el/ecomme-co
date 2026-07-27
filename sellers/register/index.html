@@ -119,18 +119,8 @@
             </div>
           </div>
 
-		  <!-- Seletor de Tipo de Conta (Pessoa Física ou Jurídica) -->
-<div class="fgrid2" style="margin-bottom: 16px;">
-  <div class="fgrp">
-    <label>Tipo de Conta *</label>
-    <select class="sel" id="tipoPessoa" onchange="togglePessoaJuridica()">
-      <option value="PF">Pessoa Física (CPF)</option>
-      <option value="PJ">Pessoa Jurídica (CNPJ)</option>
-    </select>
-  </div>
-</div>
-
 <!-- CONTAINER PESSOA FÍSICA -->
+<!--
 <div id="camposPF" style="display: flex; flex-direction: column; gap: 13px;">
   <div class="fgrid2">
     <div class="fgrp">
@@ -144,10 +134,10 @@
   </div>
 </div>
 
-<!-- CONTAINER PESSOA JURÍDICA (Oculto por padrão, exibido via JS) -->
+<!-- CONTAINER PESSOA JURÍDICA (Oculto por padrão, exibido via JS) 
 <div id="camposPJ" style="display: none; flex-direction: column; gap: 13px;">
   
-  <!-- Campos padrões de PJ -->
+  <!-- Campos padrões de PJ 
   <div class="fgrid2">
     <div class="fgrp">
       <label>CNPJ *</label>
@@ -159,7 +149,7 @@
     </div>
   </div>
 
-  <!-- NOVOS CAMPOS: Importados da aba "Dados Fiscais" do Dashboard -->
+  <!-- NOVOS CAMPOS: Importados da aba "Dados Fiscais" do Dashboard 
   <div class="fgrid2">
     <div class="fgrp">
       <label>Nome Fantasia</label>
@@ -192,9 +182,9 @@
     <input class="inp" placeholder="Endereço completo (Rua, Nº, Bairro, Cidade/UF, CEP)">
   </div>
 
-</div>
+</div>-->
 			
-          <!--<div class="form-grid g1" style="margin-top:12px">
+          <div class="form-grid g1" style="margin-top:12px">
             <div class="field full" style="animation-delay:.08s">
               <label id="lblNome">Nome completo <span class="req">*</span></label>
               <div class="input-wrap">
@@ -202,9 +192,9 @@
                 <span class="input-status" id="statNome"></span>
               </div>
             </div>
-          </div>-->
+          </div>
 			
-          <!--<div class="form-grid" style="margin-top:12px">
+          <div class="form-grid" style="margin-top:12px">
             <div class="field" id="wrapDoc" style="animation-delay:.11s">
               <label id="lblDoc">CPF <span class="req">*</span></label>
               <div class="input-wrap">
@@ -218,7 +208,7 @@
               <input class="input" id="fldFantasia" placeholder="Ex.: TechLab Store" oninput="validateStep1()">
             </div>
           </div>
-        </div>-->
+        </div>
 
         <!-- SUBGROUP: CONTACT + ADDRESS -->
         <div class="subgroup" id="sg1-address">
