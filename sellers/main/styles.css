@@ -98,6 +98,8 @@ body {
 .app-sb {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  position: relative;
+  overflow-y: auto;
 }
 
 .custom-scrollbar {
