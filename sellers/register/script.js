@@ -31,8 +31,8 @@ function showToast(type,msg){
 
 /* ============================================================ AUTH GATE FLOW */
 let isLoggedIn = false;
-const ACCOUNT_EMAIL = 'mariana.ferreira@exemplo.com';
-const ACCOUNT_NAME = 'Mariana Ferreira';
+const ACCOUNT_EMAIL = 'myemail@example.com';
+const ACCOUNT_NAME = 'User';
 
 function bootAuth(){
   setTimeout(()=>{
@@ -55,6 +55,7 @@ function handleLogin(){
   }, 1000);
 }
 function closeAuthGate(){
+  if(!email || !pass){ showToast('error','Preencha e-mail e senha para continuar.'); return; }
   $('fldEmail').value = ACCOUNT_EMAIL;
   $('authGate').classList.add('hidden');
   $('appShell').classList.remove('inert');
