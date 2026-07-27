@@ -472,6 +472,24 @@ function launchSuccess(){
   }
 }
 
+function togglePessoaJuridica() {
+  const tipoPessoa = document.getElementById('tipoPessoa').value;
+  const camposPJ = document.getElementById('camposPJ');
+  const camposPF = document.getElementById('camposPF');
+
+  if (tipoPessoa === 'PJ') {
+    camposPJ.style.display = 'flex'; 
+    camposPF.style.display = 'none';
+  } else {
+    camposPJ.style.display = 'none';
+    camposPF.style.display = 'flex'; 
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  togglePessoaJuridica();
+});
+
 /* ============================================================ KEYBOARD */
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){ closeExitConfirm(); togglePreviewSheet(false); }
