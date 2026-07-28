@@ -84,6 +84,36 @@ function maskCNPJ(v){
   v=v.replace(/(\d{4})(\d{1,2})$/,'$1-$2');
   return v;
 }
+
+function maskIE(v) {
+  v = v.replace(/\D/g, ''); 
+  v = v.substring(0, 12); 
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1.$2');
+  return v;
+}
+function onIEInput(input) {
+  input.value = maskIE(input.value);
+  validateStep1(); 
+}
+
+/* VALIDAÇÃO DA INSCRIÇÃO ESTADUAL (UF) */
+function checkUfForIE() {
+  const uf = $('fldEstado').value;
+  const msgIE = $('msgIE');
+  const inputIE = $('fldIE');
+  
+  if (!uf) {
+    msgIE.classList.add('show');
+    inputIE.blur(); 
+    $('fldEstado').classList.add('invalid');
+  } else {
+    msgIE.classList.remove('show');
+    $('fldEstado').classList.remove('invalid');
+  }
+}
+
 function maskPhone(v){
   v=onlyDigits(v).slice(0,11);
   if(v.length>10) v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
@@ -190,8 +220,13 @@ function validateStep1(){
   const enderecoOk = $('fldEndereco').value.trim().length>=3;
   const numeroOk = $('fldNumero').value.trim().length>=1;
   const cidadeOk = $('fldCidade').value.trim().length>=2;
-  const estadoOk = $('fldEstado').value!=='';
 
+  const estadoOk = $('fldEstado').value!=='';
+  if (estadoOk) {
+    $('fldEstado').classList.remove('invalid');
+    if ($('msgIE')) $('msgIE').classList.remove('show');
+  }
+  
   const identityDone = nomeOk && docOk && fantasiaOk;
   const addressDone = phoneOk && emailOk && cepOk && enderecoOk && numeroOk && cidadeOk && estadoOk;
 
