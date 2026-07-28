@@ -201,7 +201,14 @@ function validateStep1(){
   $('msgDoc').classList.toggle('show', docDigits.length>0 && !docOk);
 
   let fantasiaOk = true;
-  if(personType==='pj'){ fantasiaOk = $('fldFantasia').value.trim().length>=2; }
+  let ieOk = true;
+  let regimeOk = true;
+
+  if (personType === 'pj') { 
+    fantasiaOk = $('fldFantasia').value.trim().length >= 2; 
+    ieOk = $('fldIE').value.trim().length >= 14; 
+    regimeOk = $('fldRegime').value !== ''; 
+  }
 
   const phoneDigits = onlyDigits($('fldTelefone').value);
   const phoneOk = phoneDigits.length>=10;
