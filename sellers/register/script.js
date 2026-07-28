@@ -69,30 +69,55 @@ bootAuth();
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
 
-function maskCPF(v){
-  v=onlyDigits(v).slice(0,11);
-  v=v.replace(/(\d{3})(\d)/,'$1.$2');
-  v=v.replace(/(\d{3})(\d)/,'$1.$2');
-  v=v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-  return v;
-}
-function maskCNPJ(v){
-  v=onlyDigits(v).slice(0,14);
-  v=v.replace(/(\d{2})(\d)/,'$1.$2');
-  v=v.replace(/(\d{3})(\d)/,'$1.$2');
-  v=v.replace(/(\d{3})(\d)/,'$1/$2');
-  v=v.replace(/(\d{4})(\d{1,2})$/,'$1-$2');
-  return v;
-}
+const maskDoc = IMask($('fldDoc'), {
+  mask: [
+    { mask: '000.000.000-00', maxLength: 11 },
+    { mask: '00.000.000/0000-00', maxLength: 14 }
+  ],
+  dispatch: function (appended, dynamicMasked) {
+    return personType === 'pf' ? dynamicMasked.compiledMasks[0] : dynamicMasked.compiledMasks[1];
+  }
+});
+maskDoc.on('accept', () => validateStep1());
 
-function maskIE(v) {
-  v = v.replace(/\D/g, ''); 
-  v = v.substring(0, 12); 
-  v = v.replace(/(\d{3})(\d)/, '$1.$2');
-  v = v.replace(/(\d{3})(\d)/, '$1.$2');
-  v = v.replace(/(\d{3})(\d)/, '$1.$2');
-  return v;
-}
+const maskPhone = IMask($('fldTelefone'), {
+  mask: [
+    { mask: '(00) 0000-0000' }, 
+    { mask: '(00) 00000-0000' }
+  ]
+});
+maskPhone.on('accept', () => validateStep1());
+
+const maskIEMask = IMask($('fldIE'), {
+  mask: '000.000.000.000'
+});
+maskIEMask.on('accept', () => validateStep1());
+
+const maskCep = IMask($('fldCep'), {
+  mask: '00000-000'
+});
+
+maskCep.on('accept', () => {
+  clearTimeout(cepTimer);
+  const digits = maskCep.unmaskedValue; 
+  
+  if(digits.length < 8){ 
+    setStatus($('statCep'), ''); 
+    validateStep1(); 
+    return; 
+  }
+  
+  setStatus($('statCep'), 'loading');
+  cepTimer = setTimeout(()=>{
+    const data = CEP_DB[digits] || { logradouro:'Avenida Brasil', bairro:'Centro', cidade:'São Paulo', uf:'SP' };
+    $('fldEndereco').value = data.logradouro + ', ' + data.bairro;
+    $('fldCidade').value = data.cidade;
+    $('fldEstado').value = data.uf;
+    setStatus($('statCep'),'ok');
+    validateStep1();
+    document.getElementById('fldNumero').focus();
+  }, 650);
+});
 
 /* VALIDAÇÃO DA INSCRIÇÃO ESTADUAL (UF) */
 function checkUfForIE() {
@@ -110,19 +135,6 @@ function checkUfForIE() {
   }
 }
 
-function maskPhone(v){
-  v=onlyDigits(v).slice(0,11);
-  if(v.length>10) v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
-  else if(v.length>6) v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
-  else if(v.length>2) v=v.replace(/(\d{2})(\d{0,5})/,'($1) $2');
-  else if(v.length>0) v=v.replace(/(\d{0,2})/,'($1');
-  return v.trim();
-}
-function maskCEP(v){
-  v=onlyDigits(v).slice(0,8);
-  v=v.replace(/(\d{5})(\d{1,3})/,'$1-$2');
-  return v;
-}
 const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 /* ============================================================ STATUS ICON HELPERS */
@@ -141,14 +153,17 @@ function setFieldClass(input, ok){
 
 /* ============================================================ STEP 1 — PERSON TYPE TOGGLE */
 let personType='pf';
+
 function setPersonType(type){
-  personType=type;
+  personType = type;
   document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
   $('segPillBg').style.left = type==='pf' ? '4px' : 'calc(50% + 2px)';
   $('lblNome').innerHTML = type==='pf' ? 'Nome completo <span class="req">*</span>' : 'Razão social <span class="req">*</span>';
   $('lblDoc').innerHTML = type==='pf' ? 'CPF <span class="req">*</span>' : 'CNPJ <span class="req">*</span>';
   $('fldDoc').placeholder = type==='pf' ? '000.000.000-00' : '00.000.000/0000-00';
-  $('fldDoc').value='';
+  
+  $('fldDoc').value = '';
+  maskDoc.updateValue();
   setStatus($('statDoc'),''); $('msgDoc').classList.remove('show');
   
   $('wrapFantasia').style.display = type==='pj' ? 'flex' : 'none';
