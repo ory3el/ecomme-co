@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+let personType = 'pf';
 
 /* ============================================================ AMBIENT DOTS */
 (function spawnDots(){
