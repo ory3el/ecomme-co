@@ -230,7 +230,7 @@ function validateStep1(){
     if ($('msgIE')) $('msgIE').classList.remove('show');
   }
   
-  const identityDone = nomeOk && docOk && fantasiaOk;
+  const identityDone = nomeOk && docOk && fantasiaOk && ieOk && regimeOk;
   const addressDone = phoneOk && emailOk && cepOk && enderecoOk && numeroOk && cidadeOk && estadoOk;
 
   $('checkIdentity').classList.toggle('done', identityDone);
