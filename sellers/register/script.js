@@ -93,10 +93,6 @@ function maskIE(v) {
   v = v.replace(/(\d{3})(\d{1,2})$/, '$1.$2');
   return v;
 }
-function onIEInput(input) {
-  input.value = maskIE(input.value);
-  validateStep1(); 
-}
 
 /* VALIDAÇÃO DA INSCRIÇÃO ESTADUAL (UF) */
 function checkUfForIE() {
