@@ -152,7 +152,7 @@ function setFieldClass(input, ok){
 }
 
 /* ============================================================ STEP 1 — PERSON TYPE TOGGLE */
-let personType='pf';
+/*let personType='pf';*/
 
 function setPersonType(type){
   personType = type;
