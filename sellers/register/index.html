@@ -209,11 +209,12 @@
             </div>
           </div>
         </div>
-
+		  
 		<div class="form-grid" id="wrapPJExtra" style="margin-top:12px; display:none; animation-delay:.16s">
             <div class="field">
               <label>Inscrição Estadual <span class="req">*</span></label>
-              <input class="input" id="fldIE" placeholder="Ex: 123.456.789.000">
+              <input class="input" id="fldIE" placeholder="Ex: 123.456.789.000" oninput="onIEInput(this)" onfocus="checkUfForIE()">
+              <div class="field-msg" id="msgIE">Selecione o Estado (UF) primeiro</div>
             </div>
             <div class="field">
               <label>Regime Tributário <span class="req">*</span></label>
