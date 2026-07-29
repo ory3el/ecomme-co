@@ -543,4 +543,3 @@ updatePreview();
 
 validateStep1();
 validateStep2();
-validateStep3();
