@@ -1,5 +1,6 @@
 const $ = id => document.getElementById(id);
 let personType = 'pf';
+let cepTimer = null;
 
 /* ============================================================ AMBIENT DOTS */
 (function spawnDots(){
