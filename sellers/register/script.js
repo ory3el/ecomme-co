@@ -439,15 +439,25 @@ function validateStep2(){
 window.__anyShipping = true;
 window.__slugAvailable = true;
 
-/* ============================================================ STEP NAVIGATION (main 1↔2) */
+/* ============================================================ STEP NAVIGATION (main 1↔2↔3) */
 function goToStep(step){
   if(step===2 && $('btnStep1Continue').disabled) return;
+  if(step===3 && $('btnStep2Continue').disabled) return;
+
   $('stepsViewport').setAttribute('data-step', String(step));
+  
+  // Pills
   $('pill1').classList.toggle('active', step===1);
-  $('pill1').classList.toggle('done', step===2);
+  $('pill1').classList.toggle('done', step>=2);
   $('pill2').classList.toggle('active', step===2);
-  $('connector1').classList.toggle('done', step===2);
-  if(step===2){ updatePreview(); }
+  $('pill2').classList.toggle('done', step===3);
+  $('pill3').classList.toggle('active', step===3);
+
+  // Connectors
+  $('connector1').classList.toggle('done', step>=2);
+  $('connector2').classList.toggle('done', step===3);
+
+  if(step===3){ updatePreview(); }
 }
 
 /* ============================================================ MOBILE SUBSTEPS — STEP 1 */
