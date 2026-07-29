@@ -360,13 +360,6 @@
             </div>
           </div>
 
-		  <div class="form-grid g1">
-            <div class="field full" style="animation-delay:.05s">
-              <label>Slogan <span class="opt">Opcional</span></label>
-              <input class="input" id="fldStoreSlogan" placeholder="Ex: Tecnologia que transforma seu dia" oninput="onStoreSloganInput()">
-            </div>
-          </div>
-
           <div class="form-grid g1" style="margin-top:12px">
             <div class="field full" style="animation-delay:.08s">
               <label>URL da sua loja <span class="req">*</span></label>
@@ -379,6 +372,14 @@
             </div>
           </div>
 
+		  <div class="form-grid g1" style="margin-top:12px">
+            <div class="field full" style="animation-delay:.17s">
+              <label>Slogan <span class="opt">Opcional</span></label>
+			  <textarea class="textarea" id="fldStoreSlogan" placeholder="Ex: Tecnologia que transforma seu dia" maxlength="50" oninput="onStoreSloganInput()"></textarea>
+              <div class="field-hint" id="sloganCount">0/50</div>
+			</div>
+          </div>
+			
           <div class="form-grid" style="margin-top:12px">
             <div class="field" style="animation-delay:.11s">
               <label>Logotipo <span class="opt">Recomendado</span></label>
