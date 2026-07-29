@@ -172,35 +172,12 @@ function setPersonType(type){
   validateStep1();
 }
 
-function onDocInput(input){
-  input.value = personType==='pf' ? maskCPF(input.value) : maskCNPJ(input.value);
-  validateStep1();
-}
-function onPhoneInput(input){ input.value = maskPhone(input.value); validateStep1(); }
-
 /* ============================================================ CEP LOOKUP (simulated) */
 const CEP_DB = {
   '80530000': { logradouro:'Rua das Araucárias', bairro:'Centro Cívico', cidade:'Curitiba', uf:'PR' },
   '01310000': { logradouro:'Avenida Paulista', bairro:'Bela Vista', cidade:'São Paulo', uf:'SP' },
   '20040000': { logradouro:'Avenida Rio Branco', bairro:'Centro', cidade:'Rio de Janeiro', uf:'RJ' },
 };
-let cepTimer=null;
-function onCepInput(input){
-  input.value = maskCEP(input.value);
-  clearTimeout(cepTimer);
-  const digits = onlyDigits(input.value);
-  if(digits.length < 8){ setStatus($('statCep'),''); validateStep1(); return; }
-  setStatus($('statCep'),'loading');
-  cepTimer = setTimeout(()=>{
-    const data = CEP_DB[digits] || { logradouro:'Avenida Brasil', bairro:'Centro', cidade:'São Paulo', uf:'SP' };
-    $('fldEndereco').value = data.logradouro + ', ' + data.bairro;
-    $('fldCidade').value = data.cidade;
-    $('fldEstado').value = data.uf;
-    setStatus($('statCep'),'ok');
-    validateStep1();
-    document.getElementById('fldNumero').focus();
-  }, 650);
-}
 
 /* ============================================================ STEP 1 VALIDATION */
 function validateStep1(){
