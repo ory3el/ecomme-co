@@ -48,23 +48,15 @@
 	</div>
     <h2>Entre para continuar</h2>
     <p class="sub">Você precisa estar logado para cadastrar sua loja. Assim que você entrar, <strong>voltamos automaticamente</strong> para o cadastro de vendedor.</p>
-    <div class="login-field">
-      <label>E-mail</label>
-      <input class="input" type="email" id="loginEmail" placeholder="seu@email.com">
-    </div>
-    <div class="login-field">
-      <label>Senha</label>
-      <input class="input" type="password" id="loginPassword" placeholder="••••••••">
-    </div>
-    <button class="btn-login" id="btnLogin" onclick="handleLogin()">
+    <button class="btn-login" id="btnLogin" onclick="event.preventDefault(); showToast('success','Redirecionando para o cadastro...'); window.location.href = '/login'">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      Entrar e continuar cadastro
+      Ir para login
     </button>
-    <div class="login-foot">Ainda não tem conta? 
+    <!--<div class="login-foot">Ainda não tem conta? 
       <a href="/login" onclick="event.preventDefault(); showToast('success','Redirecionando para o cadastro...'); window.location.href='/login'">
         Criar conta grátis
       </a>
-    </div>
+    </div>-->
   </div>
 </div>
 
