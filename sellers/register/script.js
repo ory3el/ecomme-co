@@ -293,6 +293,13 @@ function onStoreSloganInput(){
   validateStep2();
 }
 
+/* ============================================================ STEP 2 — SLOGAN */
+function onStoreSloganInput(){
+  const v=$('fldStoreSlogan').value;
+  $('sloganCount').textContent = v.length+'/50';
+  updatePreview();
+}
+
 /* ============================================================ STEP 2 — DESCRIPTION */
 function onDescInput(){
   const v=$('fldDescricao').value;
@@ -373,6 +380,7 @@ function initials(name){
 function updatePreview(){
   const name = $('fldStoreName').value.trim() || 'Sua Loja';
   const desc = $('fldDescricao').value.trim() || 'Sua descrição aparecerá aqui.';
+  const slogan = $('fldStoreSlogan').value.trim() || 'Seu slogan aparecerá aqui.';
   const cat = $('fldCategoria').value || 'Eletrônicos';
   const slug = $('fldSlug').value.trim() || 'sua-loja';
   const prazo = $('fldPrazo').value;
@@ -381,6 +389,7 @@ function updatePreview(){
 
   $('pfName').textContent = name;
   $('pfDesc').textContent = desc;
+  $('pfSlogan').textContent = slogan;
   $('pfCat').textContent = cat;
   $('pfUrlSlug').textContent = slug;
   $('successStoreName').textContent = name;
