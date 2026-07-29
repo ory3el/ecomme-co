@@ -98,27 +98,46 @@ maskIEMask.on('accept', () => validateStep1());
 const maskCep = IMask($('fldCep'), {
   mask: '00000-000'
 });
-
 maskCep.on('accept', () => {
-  clearTimeout(cepTimer);
   const digits = maskCep.unmaskedValue; 
-  
   if(digits.length < 8){ 
     setStatus($('statCep'), ''); 
     validateStep1(); 
     return; 
   }
   
+  $('cepLoaderOv').classList.add('on');
   setStatus($('statCep'), 'loading');
-  cepTimer = setTimeout(()=>{
-    const data = CEP_DB[digits] || { logradouro:'Avenida Brasil', bairro:'Centro', cidade:'São Paulo', uf:'SP' };
-    $('fldEndereco').value = data.logradouro + ', ' + data.bairro;
-    $('fldCidade').value = data.cidade;
-    $('fldEstado').value = data.uf;
-    setStatus($('statCep'),'ok');
-    validateStep1();
-    document.getElementById('fldNumero').focus();
-  }, 650);
+  
+  fetch(`https://viacep.com.br/ws/${digits}/json/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.erro) {
+        showToast('error', 'CEP não encontrado. Verifique o número.');
+        setStatus($('statCep'), 'bad');
+        
+        $('fldEndereco').value = '';
+        $('fldCidade').value = '';
+        $('fldEstado').value = '';
+      } else {
+        const bairroStr = data.bairro ? ', ' + data.bairro : '';
+        $('fldEndereco').value = data.logradouro + bairroStr;
+        $('fldCidade').value = data.localidade;
+        $('fldEstado').value = data.uf;
+        
+        setStatus($('statCep'), 'ok');
+        
+        document.getElementById('fldNumero').focus();
+      }
+    })
+    .catch(error => {
+      showToast('error', 'Erro ao conectar. Tente novamente mais tarde.');
+      setStatus($('statCep'), 'bad');
+    })
+    .finally(() => {
+      validateStep1();
+      $('cepLoaderOv').classList.remove('on');
+    });
 });
 
 /* VALIDAÇÃO DA INSCRIÇÃO ESTADUAL (UF) */
@@ -154,8 +173,6 @@ function setFieldClass(input, ok){
 }
 
 /* ============================================================ STEP 1 — PERSON TYPE TOGGLE */
-/*let personType='pf';*/
-
 function setPersonType(type){
   personType = type;
   document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
@@ -172,13 +189,6 @@ function setPersonType(type){
   $('wrapPJExtra').style.display = type==='pj' ? 'grid' : 'none';
   validateStep1();
 }
-
-/* ============================================================ CEP LOOKUP (simulated) */
-const CEP_DB = {
-  '80530000': { logradouro:'Rua das Araucárias', bairro:'Centro Cívico', cidade:'Curitiba', uf:'PR' },
-  '01310000': { logradouro:'Avenida Paulista', bairro:'Bela Vista', cidade:'São Paulo', uf:'SP' },
-  '20040000': { logradouro:'Avenida Rio Branco', bairro:'Centro', cidade:'Rio de Janeiro', uf:'RJ' },
-};
 
 /* ============================================================ STEP 1 VALIDATION */
 function validateStep1(){
