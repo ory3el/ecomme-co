@@ -155,27 +155,46 @@
   .btn-exit svg{width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2;}
 
   /* ---- steps viewport ---- */
+/*
   .steps-viewport{position:relative; flex:1 1 auto; overflow:hidden;}
   .step-panel{
     position:absolute; inset:0; display:grid; grid-template-columns:1.25fr 1fr;
     transition:transform .6s var(--spring), opacity .5s var(--ease), filter .5s var(--ease);
+  }*/
+
+  /* ---- steps viewport ---- */
+  .steps-viewport {
+    position: relative; 
+    flex: 1 1 auto; 
+    overflow: hidden;
+    min-height: 400px; 
+  }
+  
+  .step-panel {
+    position: absolute; 
+    inset: 0; 
+    display: grid; 
+    grid-template-columns: 1.25fr 1fr;
+    opacity: 0; 
+    pointer-events: none;
+    transition: transform .6s var(--spring), opacity .5s var(--ease), filter .5s var(--ease);
   }
 
-  /* ===================== 3 STEPS VIEWPORT LOGIC */
-  /* STEP 1 */
-  #stepsViewport[data-step="1"] .panel-1{transform:translateX(0); opacity:1; filter:blur(0); pointer-events:all; z-index:2;}
+  /* ============================================================ 3 STEPS LOGIC */
+  /* ETAPA 1 ATIVA */
+  #stepsViewport[data-step="1"] .panel-1 { transform: translateX(0); opacity: 1; filter: blur(0); pointer-events: all; z-index: 2; }
   #stepsViewport[data-step="1"] .panel-2,
-  #stepsViewport[data-step="1"] .panel-3{transform:translateX(3%); opacity:0; filter:blur(6px); pointer-events:none; z-index:1;}
+  #stepsViewport[data-step="1"] .panel-3 { transform: translateX(3%); opacity: 0; filter: blur(6px); pointer-events: none; z-index: 1; }
 
-  /* STEP 2 */
-  #stepsViewport[data-step="2"] .panel-1{transform:translateX(-3%); opacity:0; filter:blur(6px); pointer-events:none; z-index:1;}
-  #stepsViewport[data-step="2"] .panel-2{transform:translateX(0); opacity:1; filter:blur(0); pointer-events:all; z-index:2;}
-  #stepsViewport[data-step="2"] .panel-3{transform:translateX(3%); opacity:0; filter:blur(6px); pointer-events:none; z-index:1;}
+  /* ETAPA 2 ATIVA */
+  #stepsViewport[data-step="2"] .panel-1 { transform: translateX(-3%); opacity: 0; filter: blur(6px); pointer-events: none; z-index: 1; }
+  #stepsViewport[data-step="2"] .panel-2 { transform: translateX(0); opacity: 1; filter: blur(0); pointer-events: all; z-index: 2; }
+  #stepsViewport[data-step="2"] .panel-3 { transform: translateX(3%); opacity: 0; filter: blur(6px); pointer-events: none; z-index: 1; }
 
-  /* STEP 3 */
+  /* ETAPA 3 ATIVA */
   #stepsViewport[data-step="3"] .panel-1,
-  #stepsViewport[data-step="3"] .panel-2{transform:translateX(-3%); opacity:0; filter:blur(6px); pointer-events:none; z-index:1;}
-  #stepsViewport[data-step="3"] .panel-3{transform:translateX(0); opacity:1; filter:blur(0); pointer-events:all; z-index:2; margin-top: 10px;}
+  #stepsViewport[data-step="3"] .panel-2 { transform: translateX(-3%); opacity: 0; filter: blur(6px); pointer-events: none; z-index: 1; }
+  #stepsViewport[data-step="3"] .panel-3 { transform: translateX(0); opacity: 1; filter: blur(0); pointer-events: all; z-index: 2; margin-top: 10px; }
 
   .form-col{height:100%; overflow-y:auto; padding:clamp(22px,3.6vh,44px) clamp(24px,4.4vw,64px);}
   .side-col {
