@@ -360,6 +360,13 @@
             </div>
           </div>
 
+		  <div class="form-grid g1">
+            <div class="field full" style="animation-delay:.05s">
+              <label>Slogan <span class="opt">Opcional</span></label>
+              <input class="input" id="fldStoreSlogan" placeholder="Ex: Tecnologia que transforma seu dia" oninput="onStoreSloganInput()">
+            </div>
+          </div>
+
           <div class="form-grid g1" style="margin-top:12px">
             <div class="field full" style="animation-delay:.08s">
               <label>URL da sua loja <span class="req">*</span></label>
@@ -397,7 +404,8 @@
             <div class="field full" style="animation-delay:.17s">
               <label>Descrição da loja <span class="req">*</span></label>
               <textarea class="textarea" id="fldDescricao" placeholder="Conte em poucas linhas o que sua loja vende..." maxlength="240" oninput="onDescInput()"></textarea>
-              <div class="field-hint" id="descCount">0/240</div>
+              <div class="field-hint">Mínimo: 10 caracteres.</div>
+			  <div class="field-hint" id="descCount">0/240</div>
             </div>
           </div>
 
