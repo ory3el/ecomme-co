@@ -140,7 +140,7 @@ maskCep.on('accept', () => {
     });
 });
 
-/* VALIDAÇÃO DA INSCRIÇÃO ESTADUAL (UF) */
+/* VALIDAÇÃO INSCRIÇÃO ESTADUAL (UF) */
 function checkUfForIE() {
   const uf = $('fldEstado').value;
   const msgIE = $('msgIE');
@@ -285,6 +285,12 @@ function checkSlugAvailability(){
     window.__slugAvailable = !taken;
     validateStep2();
   }, 550);
+}
+
+function onStoreSloganInput(){
+  const name=$('fldStoreSlogan').value;
+  updatePreview();
+  validateStep2();
 }
 
 /* ============================================================ STEP 2 — DESCRIPTION */
