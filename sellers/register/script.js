@@ -290,7 +290,7 @@ function checkSlugAvailability(){
 /* ============================================================ STEP 2 — DESCRIPTION */
 function onDescInput(){
   const v=$('fldDescricao').value;
-  $('descCount').textContent = v.length+'/140';
+  $('descCount').textContent = v.length+'/240';
   updatePreview();
   validateStep2();
 }
