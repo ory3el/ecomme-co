@@ -423,7 +423,32 @@ function updatePreview(){
 }
 
 /* ============================================================ STEP 2 VALIDATION */
-function validateStep2(){
+function validateStep2() {
+  const banco = $('fldBanco').value;
+  const tipoConta = $('fldTipoConta').value;
+  const agencia = $('fldAgencia').value.trim();
+  const conta = $('fldConta').value.trim();
+  const tipoPix = $('fldTipoPix').value;
+  const chavePix = $('fldChavePix').value.trim();
+
+  const allOk = (banco !== '') && 
+                (tipoConta !== '') && 
+                (agencia.length >= 3) && 
+                (conta.length >= 4) && 
+                (tipoPix !== '') && 
+                (chavePix.length >= 3);
+
+  $('btnStep2Continue').disabled = !allOk;
+  return allOk;
+}
+
+function onChangeTipoPix() {
+  $('fldChavePix').value = '';
+  validateStep2();
+}
+
+/* ============================================================ STEP 2 VALIDATION */
+function validateStep3(){
   const nameOk = $('fldStoreName').value.trim().length>=3;
   const slugOk = $('fldSlug').value.trim().length>=3 && window.__slugAvailable!==false;
   const descOk = $('fldDescricao').value.trim().length>=10;
@@ -550,5 +575,7 @@ document.addEventListener('keydown', e=>{
 /* ============================================================ INIT */
 setPersonType('pf');
 updatePreview();
+
 validateStep1();
 validateStep2();
+validateStep3();
