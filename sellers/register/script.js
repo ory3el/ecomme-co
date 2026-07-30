@@ -1,3 +1,8 @@
+function goToLogin() {
+  const atualPage = window.location.pathname + window.location.search;
+  window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
+}
+
 const $ = id => document.getElementById(id);
 let personType = 'pf';
 let cepTimer = null;
