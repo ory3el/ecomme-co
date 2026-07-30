@@ -136,6 +136,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
+  showToast(`Olá, ${profileFirstName}!`);
 });
 
 // HEADER
