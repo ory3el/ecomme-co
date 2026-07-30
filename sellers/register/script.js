@@ -32,40 +32,68 @@ function showToast(type,msg){
 }
 
 /* ============================================================ AUTH GATE FLOW */
-let isLoggedIn = false;
-const ACCOUNT_EMAIL = 'myemail@example.com';
-const ACCOUNT_NAME = 'User';
 
-function bootAuth(){
-  setTimeout(()=>{
-    if(isLoggedIn){ closeAuthGate(); return; }
-    $('gateChecking').style.display='none';
-    $('gateLogin').style.display='block';
-  }, 750);
+const supabaseUrl = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
+const supabaseKey = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function bootAuth() {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    if (session) {
+      liberarAcesso(session.user.email);
+    } else {
+      $('gateChecking').style.display = 'none';
+      $('gateLogin').style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Erro ao verificar sessão do Supabase:', err);
+    $('gateChecking').style.display = 'none';
+    $('gateLogin').style.display = 'block';
+  }
 }
-function handleLogin(){
-  const email=$('loginEmail').value.trim();
-  const pass=$('loginPassword').value.trim();
-  if(!email || !pass){ showToast('error','Preencha e-mail e senha para continuar.'); return; }
-  const btn=$('btnLogin');
-  btn.classList.add('loading');
-  btn.innerHTML='<div class="spinner-sm" style="border-color:rgba(255,255,255,.35);border-top-color:#fff"></div> Entrando...';
-  setTimeout(()=>{
-    isLoggedIn = true;
-    closeAuthGate();
-    showToast('success', `Bem-vinda de volta, ${ACCOUNT_NAME.split(' ')[0]}! Retomando seu cadastro...`);
-  }, 1000);
-}
-function closeAuthGate(){
-  const email=$('loginEmail').value.trim();
-  const pass=$('loginPassword').value.trim();
-  if(!email || !pass){ showToast('error','Preencha e-mail e senha para continuar.'); return; }
-  
-  $('fldEmail').value = ACCOUNT_EMAIL;
+
+function liberarAcesso(userEmail) {
+  if (userEmail) {
+    $('fldEmail').value = userEmail;
+  }
   $('authGate').classList.add('hidden');
   $('appShell').classList.remove('inert');
-  setTimeout(()=>{ $('authGate').style.display='none'; }, 550);
+  setTimeout(() => { $('authGate').style.display = 'none'; }, 550);
 }
+
+async function handleLogin(){
+  const email = $('loginEmail').value.trim();
+  const pass = $('loginPassword').value.trim();
+  
+  if(!email || !pass){ 
+    showToast('error', 'Preencha e-mail e senha para continuar.'); 
+    return; 
+  }
+  
+  const btn = $('btnLogin');
+  btn.classList.add('loading');
+  btn.innerHTML = '<div class="spinner-sm" style="border-color:rgba(255,255,255,.35);border-top-color:#fff"></div> Entrando...';
+  
+  // Exemplo de como ficará o seu login real com Supabase futuramente:
+  /*
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+     showToast('error', error.message);
+     btn.classList.remove('loading');
+     btn.innerHTML = 'Ir para login';
+     return;
+  }
+  liberarAcesso(data.user.email);
+  showToast('success', 'Bem-vindo de volta!');
+  */
+}
+
 bootAuth();
 
 /* ============================================================ MASK HELPERS */
