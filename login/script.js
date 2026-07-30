@@ -144,9 +144,14 @@ async function doRegister(){
   }
 }
 
+// ── LOCK VARIABLE ──
+let redirectionInProgress = false;
+
 // ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (session) {
+  if (session && !redirectionInProgress) {
+    redirectionInProgress = true;
+
     const finalDestination = getTargetUrl();
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -154,7 +159,9 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     localStorage.removeItem('ecomme_redirect_url');
     if (document.getElementById('formLogin')) {
       toast('Sessão ativa! Redirecionando... 🎉');
-      setTimeout(() => window.location.href = finalDestination, 1200);
+      setTimeout(() => {
+        window.location.href = finalDestination;
+      }, 1200);
     }
   }
 });
