@@ -99,6 +99,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
     if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
+    showToast(`Olá, ${fullName}!`);
     if (profile.avatar_url && $('accSidebarAvatar')) {
       $('accSidebarAvatar').src = profile.avatar_url;
     }
@@ -137,7 +138,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-  showToast(`Olá, ${firstname}!`);
 });
 
 // HEADER
