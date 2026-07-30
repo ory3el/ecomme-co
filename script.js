@@ -1,3 +1,4 @@
+const $    = id  => document.getElementById(id);
 document.body.style.cursor = "default";
 
 function buttonLink(url) {
@@ -136,7 +137,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-  showToast(`Olá, ${profileFirstName}!`);
+  showToast(`Olá, ${firstname}!`);
 });
 
 // HEADER
@@ -189,7 +190,6 @@ let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
 
 function starsHtml(r) {
   let s = '';
