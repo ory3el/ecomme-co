@@ -40,7 +40,7 @@ async function socialLogin(provider) {
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
-      redirectTo: window.location.origin + window.location.pathname 
+      redirectTo: window.location.origin + window.location.pathname + window.location.search 
     }
   });
   if (error) {
@@ -77,7 +77,7 @@ async function doLogin(){
     toast('E-mail ou senha incorretos.', 'err');
   } else {
     toast('Login realizado com sucesso! 🎉');
-    setTimeout(() => window.location.href = '../', 1200);
+    setTimeout(() => window.location.href = getTargetUrl(), 1200);
   }
 }
 
@@ -139,12 +139,13 @@ async function doRegister(){
 // ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session) {
+    const finalDestination = getTargetUrl();
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     if (document.getElementById('formLogin')) {
       toast('Sessão ativa! Redirecionando... 🎉');
-      setTimeout(() => window.location.href = '../', 1200);
+      setTimeout(() => window.location.href = finalDestination, 1200);
     }
   }
 });
@@ -263,3 +264,10 @@ document.addEventListener('keydown', e => {
   if(document.getElementById('formLogin').classList.contains('hidden')) doRegister();
   else doLogin();
 });
+
+// ── REDIRECT FUNCTION ──
+function getTargetUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirect = urlParams.get('redirect');
+  return redirect ? redirect : '/';
+}
