@@ -948,7 +948,7 @@ loadShuffleAndRender();
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
-  buttonLink('/login')
+  toast('Você não está mais logado na conta', 'info'); 
 }
 
 // FAVICON
