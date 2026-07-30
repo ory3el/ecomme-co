@@ -1,3 +1,12 @@
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectParam = urlParams.get('redirect');
+  
+  if (redirectParam) {
+    localStorage.setItem('ecomme_redirect_url', redirectParam);
+  }
+});
+
 // ── 1. SUPABASE STARTER ──
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
@@ -135,7 +144,6 @@ async function doRegister(){
   }
 }
 
-
 // ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session) {
@@ -143,13 +151,13 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (window.location.search || window.location.hash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    localStorage.removeItem('ecomme_redirect_url');
     if (document.getElementById('formLogin')) {
       toast('Sessão ativa! Redirecionando... 🎉');
       setTimeout(() => window.location.href = finalDestination, 1200);
     }
   }
 });
-
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
 function toggleForgot(show){
@@ -267,7 +275,14 @@ document.addEventListener('keydown', e => {
 
 // ── REDIRECT FUNCTION ──
 function getTargetUrl() {
+  const storedRedirect = localStorage.getItem('ecomme_redirect_url');
+  if (storedRedirect) {
+    return storedRedirect;
+  }
   const urlParams = new URLSearchParams(window.location.search);
-  const redirect = urlParams.get('redirect');
-  return redirect ? redirect : '/';
+  const urlRedirect = urlParams.get('redirect');
+  if (urlRedirect) {
+    return urlRedirect;
+  }
+  return '/';
 }
