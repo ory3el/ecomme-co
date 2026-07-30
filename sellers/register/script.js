@@ -32,69 +32,93 @@ function showToast(type,msg){
 }
 
 /* ============================================================ AUTH GATE FLOW */
+/* ─── SUPABASE ──────────────────────────────────────────────────────── */
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
 
-const supabaseUrl = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
-const supabaseKey = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+  const authGate = document.getElementById('authGate');
+  const gateChecking = document.getElementById('gateChecking');
+  const gateLogin = document.getElementById('gateLogin');
+  const appShell = document.getElementById('appShell');
 
-async function bootAuth() {
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
-    if (error) {
-      throw error;
+  if (!user || userError) {
+    console.warn("User session not active. Exibindo pop-up de login.");
+    
+    if (gateChecking) gateChecking.style.display = 'none';
+    if (gateLogin) gateLogin.style.display = 'block';
+    
+    if (authGate) {
+      authGate.style.display = 'flex';
+      authGate.classList.remove('hidden');
     }
+    
+    return;
+  }
 
-    if (session) {
-      liberarAcesso(session.user.email);
-    } else {
-      $('gateChecking').style.display = 'none';
-      $('gateLogin').style.display = 'block';
+  if (authGate) {
+    authGate.classList.add('hidden');
+    if (appShell) appShell.classList.remove('inert');
+    setTimeout(() => { authGate.style.display = 'none'; }, 550);
+  }
+
+  userId = user.id; 
+  
+  if (typeof loadFromSupabase === 'function') {
+    await loadFromSupabase();
+  }
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!profileError && profile) {
+    const fullName = profile.full_name || "Cliente";
+    const email = user.email || "";
+    
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const photoUrl = profile.avatar_url || "";
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+
+    if (photoUrl) {
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      const headerImage = document.getElementById('headerAvatar');
+      
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
     }
-  } catch (err) {
-    console.error('Erro ao verificar sessão do Supabase:', err);
-    $('gateChecking').style.display = 'none';
-    $('gateLogin').style.display = 'block';
   }
-}
-
-function liberarAcesso(userEmail) {
-  if (userEmail) {
-    $('fldEmail').value = userEmail;
-  }
-  $('authGate').classList.add('hidden');
-  $('appShell').classList.remove('inert');
-  setTimeout(() => { $('authGate').style.display = 'none'; }, 550);
-}
-
-async function handleLogin(){
-  const email = $('loginEmail').value.trim();
-  const pass = $('loginPassword').value.trim();
-  
-  if(!email || !pass){ 
-    showToast('error', 'Preencha e-mail e senha para continuar.'); 
-    return; 
-  }
-  
-  const btn = $('btnLogin');
-  btn.classList.add('loading');
-  btn.innerHTML = '<div class="spinner-sm" style="border-color:rgba(255,255,255,.35);border-top-color:#fff"></div> Entrando...';
-  
-  // Exemplo de como ficará o seu login real com Supabase futuramente:
-  /*
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  if (error) {
-     showToast('error', error.message);
-     btn.classList.remove('loading');
-     btn.innerHTML = 'Ir para login';
-     return;
-  }
-  liberarAcesso(data.user.email);
-  showToast('success', 'Bem-vindo de volta!');
-  */
-}
-
-bootAuth();
+});
 
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
