@@ -74,6 +74,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   userId = user.id; 
   
+  // ============================================================
+  const fldNome = document.getElementById('fldNome');
+  const fldEmail = document.getElementById('fldEmail');
+  const fldTelefone = document.getElementById('fldTelefone');
+
+  const fullName = profile.full_name || "Cliente";
+  const emailUser = user.email || '';
+  const telefoneUser = user.phone || '';
+
+  if (fldNome && fullName) {
+    fldNome.value = fullName;
+  }
+  
+  if (fldEmail && emailUser) {
+    fldEmail.value = emailUser;
+  }
+  
+  if (fldTelefone && telefoneUser) {
+    fldTelefone.value = telefoneUser;
+    if (typeof maskPhone !== 'undefined') maskPhone.updateValue(); 
+  }
+
+  if (typeof validateStep1 === 'function') validateStep1();
   if (typeof loadFromSupabase === 'function') {
     await loadFromSupabase();
   }
