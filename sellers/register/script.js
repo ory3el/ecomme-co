@@ -81,25 +81,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     .eq('id', user.id)
     .single();
   
-  const fldName = document.getElementById('fldNome');
-  const fldEmail = document.getElementById('fldEmail');
-
-  const fullName = profile.full_name || "Cliente";
-  const emailUser = user.email || '';
-
-  if (fldName && fullName) {
-    fldName.value = fullName;
-  }
-  
-  if (fldEmail && emailUser) {
-    fldEmail.value = emailUser;
-  }
-
-  if (typeof validateStep1 === 'function') validateStep1();
-  if (typeof loadFromSupabase === 'function') {
-    await loadFromSupabase();
-  }
-  
   if (!profileError && profile) {
     const fullName = profile.full_name || "Cliente";
     const email = user.email || "";
@@ -118,21 +99,33 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputEmail) inputEmail.value = email;
 
     /* ------------------------------------------------------------------------ */
+    const fldName = document.getElementById('fldNome');
+    const fldEmail = document.getElementById('fldEmail');
+
+    const fullName = profile.full_name || "Cliente";
+    const emailUser = user.email || '';
+
+    if (fldName && fullName) {
+      fldName.value = fullName;
+    }
+  
+    if (fldEmail && emailUser) {
+      fldEmail.value = emailUser;
+    }
+
+    if (typeof validateStep1 === 'function') validateStep1();
+    if (typeof loadFromSupabase === 'function') {
+      await loadFromSupabase();
+    }
+    
     const fldPhone = document.getElementById('fldTelefone');
     const fldCpf = document.getElementById('fldDoc');
 
     const phone = profile.phone || "";
     const cpf = profile.cpf || "";
 
-    if (fldPhone && phone) {
-      fldPhone.value = phone;
-      if (typeof maskPhone !== 'undefined') maskPhone.updateValue(); 
-    }
-  
-    if (fldCpf && cpf) {
-      fldCpf.value = cpf;
-      if (typeof maskDoc !== 'undefined') maskDoc.updateValue(); 
-    }
+    if (fldPhone) { fldPhone.value = phone; if (typeof maskPhone !== 'undefined') maskPhone.updateValue();
+    if (fldCpf) { fldCpf.value = cpf; if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
     
     if (photoUrl) {
       const sidebarImage = document.getElementById('sidebarAvatar');
