@@ -121,8 +121,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const phone = profile.phone || "";
     const cpf = profile.cpf || "";
 
-    if (fldPhone) { fldPhone.value = phone; if (typeof maskPhone !== 'undefined') maskPhone.updateValue();
-    if (fldCpf) { fldCpf.value = cpf; if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
+    if (fldPhone) { 
+      fldPhone.value = phone; 
+      if (typeof maskPhone !== 'undefined') maskPhone.updateValue();
+    } 
+
+    if (fldCpf) { 
+      fldCpf.value = cpf; 
+      if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
+    }
     
     if (photoUrl) {
       const sidebarImage = document.getElementById('sidebarAvatar');
