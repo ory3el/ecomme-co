@@ -113,13 +113,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (typeof loadFromSupabase === 'function') {
     await loadFromSupabase();
   }
-
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
+  
   if (!profileError && profile) {
     const fullName = profile.full_name || "Cliente";
     const email = user.email || "";
