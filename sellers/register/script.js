@@ -591,15 +591,85 @@ function openExitConfirm(){ $('exitConfirm').classList.add('on'); }
 function closeExitConfirm(){ $('exitConfirm').classList.remove('on'); }
 
 /* ============================================================ FINAL SUBMIT */
-function createStore(){
-  if(!validateStep2()) { showToast('error','Preencha os campos obrigatórios antes de continuar.'); return; }
-  const btn=$('btnCreateStore');
-  btn.disabled=true;
-  btn.innerHTML='<div class="spinner-sm" style="border-color:rgba(255,255,255,.35);border-top-color:#fff"></div> Criando sua loja...';
-  setTimeout(()=>{
+async function createStore() {
+  if(!validateStep2()) { 
+    showToast('error','Preencha os campos obrigatórios antes de continuar.'); 
+    return; 
+  }
+  
+  const btn = $('btnCreateStore');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner-sm" style="border-color:rgba(255,255,255,.35);border-top-color:#fff"></div> Criando sua loja...';
+  
+  try {
+    const chipsAtivos = document.querySelectorAll('.chip-opt.on');
+    const arrayEnvios = Array.from(chipsAtivos).map(chip => chip.getAttribute('data-v'));
+
+    // 1. CAPTURAR OS DADOS DO PASSO 1
+    const dadosPasso1 = {
+      tipo_pessoa: personType, 
+      nome_razao: $('fldNome').value.trim(),
+      documento: $('fldDoc').value.trim(),
+      telefone: $('fldTelefone').value.trim(),
+      email: $('fldEmail').value.trim(),
+      cep: $('fldCep').value.trim(),
+      endereco: $('fldEndereco').value.trim(),
+      numero: $('fldNumero').value.trim(),
+      complemento: $('fldComplemento') ? $('fldComplemento').value.trim() : '', // ✨ Adicionado
+      cidade: $('fldCidade').value.trim(),
+      estado: $('fldEstado').value.trim(),
+      nome_fantasia: $('fldFantasia') ? $('fldFantasia').value.trim() : '',
+      inscricao_estadual: $('fldIE') ? $('fldIE').value.trim() : '',
+      regime_tributario: $('fldRegime') ? $('fldRegime').value : ''
+    };
+
+    // 2. CAPTURAR OS DADOS DO PASSO 2
+    const dadosPasso2 = {
+      nome_loja: $('fldStoreName').value.trim(),
+      slug_url: $('fldSlug').value.trim(),
+      slogan: $('fldStoreSlogan').value.trim(),
+      descricao: $('fldDescricao').value.trim(),
+      categoria: $('fldCategoria').value,
+      prazo_envio: $('fldPrazo').value,
+      politica_devolucao: $('fldPolitica') ? $('fldPolitica').value : '',
+      formas_envio: arrayEnvios,
+      frete_gratis_ativo: $('swFrete').classList.contains('on'),
+      frete_valor_minimo: $('fldValorMinimo').value.trim(),
+      cor_destaque: currentAccent,
+      logo_base64: window.__logoData || null,
+      capa_base64: window.__coverData || null
+    };
+
+    // 3. ALL IN ONE
+    const novaLojaPayload = {
+      user_id: userId,
+      status: 'pendente',
+      ...dadosPasso1,
+      ...dadosPasso2,
+      criado_em: new Date().toISOString()
+    };
+
+    // 4. SEND TO SUPABASE
+    const { data, error } = await supabaseClient
+      .from('lojas') 
+      .insert([novaLojaPayload]);
+
+    if (error) {
+      throw error; 
+    }
+
+    // 5. SUCCESS!
     launchSuccess();
-  }, 1200);
+
+  } catch (erro) {
+    console.error("Erro ao salvar loja no banco:", erro);
+    showToast('error', 'Ocorreu um erro ao criar sua loja. Tente novamente.');
+    
+    btn.disabled = false;
+    btn.innerHTML = 'Criar minha loja <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  }
 }
+    
 function launchSuccess(){
   if(!validateStep2()) { showToast('error','Preencha os campos obrigatórios antes de continuar.'); return; }
   const screen=$('successScreen');
