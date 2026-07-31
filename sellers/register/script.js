@@ -144,7 +144,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         headerImage.style.borderRadius = "100%";
         headerImage.style.objectFit = "cover";
       }
-    }
 });
 
 /* ============================================================ MASK HELPERS */
