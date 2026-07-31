@@ -145,7 +145,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         headerImage.style.objectFit = "cover";
       }
     }
-);
 
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
