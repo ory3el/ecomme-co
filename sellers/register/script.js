@@ -144,7 +144,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         headerImage.style.borderRadius = "100%";
         headerImage.style.objectFit = "cover";
       }
-});
+    }
+);
 
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
