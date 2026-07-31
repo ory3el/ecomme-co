@@ -75,6 +75,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   userId = user.id; 
   
   // ============================================================
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  
   const fldName = document.getElementById('fldNome');
   const fldEmail = document.getElementById('fldEmail');
   const fldPhone = document.getElementById('fldTelefone');
