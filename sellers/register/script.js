@@ -102,15 +102,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const fldName = document.getElementById('fldNome');
     const fldEmail = document.getElementById('fldEmail');
 
-    const fullName = profile.full_name || "Cliente";
-    const emailUser = user.email || '';
-
     if (fldName && fullName) {
       fldName.value = fullName;
     }
   
-    if (fldEmail && emailUser) {
-      fldEmail.value = emailUser;
+    if (fldEmail && email) {
+      fldEmail.value = email;
     }
 
     if (typeof validateStep1 === 'function') validateStep1();
