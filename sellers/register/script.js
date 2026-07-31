@@ -83,13 +83,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   const fldName = document.getElementById('fldNome');
   const fldEmail = document.getElementById('fldEmail');
-  const fldPhone = document.getElementById('fldTelefone');
-  const fldCpf = document.getElementById('fldDoc');
 
   const fullName = profile.full_name || "Cliente";
   const emailUser = user.email || '';
-  const phone = profile.phone || "";
-  const cpf = profile.cpf || "";
 
   if (fldName && fullName) {
     fldName.value = fullName;
@@ -97,16 +93,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   if (fldEmail && emailUser) {
     fldEmail.value = emailUser;
-  }
-  
-  if (fldPhone && phone) {
-    fldPhone.value = phone;
-    if (typeof maskPhone !== 'undefined') maskPhone.updateValue(); 
-  }
-  
-  if (fldCpf && cpf) {
-    fldCpf.value = cpf;
-    if (typeof maskDoc !== 'undefined') maskDoc.updateValue(); 
   }
 
   if (typeof validateStep1 === 'function') validateStep1();
@@ -131,6 +117,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputLastName) inputLastName.value = lastName;
     if (inputEmail) inputEmail.value = email;
 
+    /* ------------------------------------------------------------------------ */
+    const fldPhone = document.getElementById('fldTelefone');
+    const fldCpf = document.getElementById('fldDoc');
+
+    const phone = profile.phone || "";
+    const cpf = profile.cpf || "";
+
+    if (fldPhone && phone) {
+      fldPhone.value = phone;
+      if (typeof maskPhone !== 'undefined') maskPhone.updateValue(); 
+    }
+  
+    if (fldCpf && cpf) {
+      fldCpf.value = cpf;
+      if (typeof maskDoc !== 'undefined') maskDoc.updateValue(); 
+    }
+    
     if (photoUrl) {
       const sidebarImage = document.getElementById('sidebarAvatar');
       const headerImage = document.getElementById('headerAvatar');
