@@ -75,25 +75,32 @@ window.addEventListener('DOMContentLoaded', async () => {
   userId = user.id; 
   
   // ============================================================
-  const fldNome = document.getElementById('fldNome');
+  const fldName = document.getElementById('fldNome');
   const fldEmail = document.getElementById('fldEmail');
-  const fldTelefone = document.getElementById('fldTelefone');
+  const fldPhone = document.getElementById('fldTelefone');
+  const fldCpf = document.getElementById('fldDoc');
 
   const fullName = profile.full_name || "Cliente";
   const emailUser = user.email || '';
-  const telefoneUser = user.phone || '';
+  const phone = profile.phone || "";
+  const cpf = profile.cpf || "";
 
-  if (fldNome && fullName) {
-    fldNome.value = fullName;
+  if (fldName && fullName) {
+    fldName.value = fullName;
   }
   
   if (fldEmail && emailUser) {
     fldEmail.value = emailUser;
   }
   
-  if (fldTelefone && telefoneUser) {
-    fldTelefone.value = telefoneUser;
+  if (fldPhone && phone) {
+    fldPhone.value = phone;
     if (typeof maskPhone !== 'undefined') maskPhone.updateValue(); 
+  }
+  
+  if (fldCpf && cpf) {
+    fldCpf.value = cpf;
+    if (typeof maskDoc !== 'undefined') maskDoc.updateValue(); 
   }
 
   if (typeof validateStep1 === 'function') validateStep1();
