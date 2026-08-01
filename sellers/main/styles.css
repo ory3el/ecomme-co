@@ -599,7 +599,7 @@ tbody tr:hover td{background:var(--bg3)}
 .btn-acc-option {
   width: 100%; padding: 12px 15px; border-radius: 12px;
   display: flex; align-items: center; gap: 12px;
-  background: transparent; color: var(--text);
+  background: transparent; color: var(--text); border: none;
   font-size: 14px; font-weight: 500; transition: all 0.2s;
 }
 .btn-acc-option i { font-size: 16px; color: var(--blue); width: 20px; text-align: center; }
