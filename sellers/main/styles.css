@@ -555,9 +555,9 @@ tbody tr:hover td{background:var(--bg3)}
 /* ── SIDEBAR OVERLAY ── */
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.2); z-index: 1999;
+  background: none; z-index: 1999;
   opacity: 0; pointer-events: none;
-  transition: opacity .3s; backdrop-filter: blur(5px);
+  transition: opacity .3s; backdrop-filter: blur(4px);
 }
 .overlay.on { opacity: 1; pointer-events: all; }
 
