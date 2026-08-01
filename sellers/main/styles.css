@@ -3,6 +3,7 @@
     --blue2:     #3B82F6;
     --blue3:     #60A5FA;
     --blue-dim:  rgba(37,99,235,0.07);
+    --blueDim:   rgba(37,99,235,0.07);
     --blue-mid:  rgba(37,99,235,0.14);
     --white:     #FFFFFF;
     --bg:        #F3F7FF;
@@ -21,9 +22,9 @@
     --rad-lg:    16px;
     --shadow:    0 4px 24px rgba(37,99,235,0.07);
     --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
-  }
-
-:root {
+    
+/* ----------------------------------------------------- */
+    
   --black: #000;
   --blueL: #60a5fa;
   --b2: #e2e8f0;
@@ -354,7 +355,7 @@ body {
   background:rgba(0,0,0,0);
   border: 1px solid var(--blue);
   color:rgba(0,0,0,1);
-  transition: all 0.4;
+  transition: all 0.4s;
   transform: translateY(-4px);
 }
 .nav-btn.on {
