@@ -93,6 +93,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   userId = user.id; 
   
+  await fetchInitialStoreStatus();
+  subscribeToStoreStatus();
+  
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
@@ -659,11 +662,3 @@ function subscribeToStoreStatus() {
     )
     .subscribe();
 }
-
-window.addEventListener('DOMContentLoaded', async () => {
-  
-  if (user.id) {
-    await fetchInitialStoreStatus();
-    subscribeToStoreStatus();
-  }
-});
