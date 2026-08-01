@@ -17,9 +17,10 @@ checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
 // ══ DATA ════════════════════════════════════════════════
-const revData = [12.4,18.2,15.6,21.8,19.2,23.4,26.8,22.1,28.4,24.6,31.2,38.8];
+const revData = [ /* 12.4,18.2,15.6,21.8,19.2,23.4,26.8,22.1,28.4,24.6,31.2,38.8 */ ];
 const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const PRODS = [
+  /*
   {em:'⌚',name:'Smartwatch Pro X7',sku:'TL-001',cat:'Eletrônicos',price:'R$ 189,90',stock:42,sold:94,status:'active'},
   {em:'🎧',name:'Fone BT ANC Pro',sku:'TL-002',cat:'Eletrônicos',price:'R$ 119,90',stock:28,sold:72,status:'active'},
   {em:'📷',name:'Câmera Segurança WiFi 2K',sku:'TL-003',cat:'Eletrônicos',price:'R$ 149,90',stock:4,sold:31,status:'active'},
@@ -28,15 +29,19 @@ const PRODS = [
   {em:'🎒',name:'Mochila Anti-Furto Exec.',sku:'TL-006',cat:'Moda',price:'R$ 159,90',stock:2,sold:18,status:'active'},
   {em:'💆',name:'Pistola Massagem Percuss.',sku:'TL-007',cat:'Fitness',price:'R$ 129,90',stock:15,sold:41,status:'paused'},
   {em:'✨',name:'Kit Skincare Vitamina C',sku:'TL-008',cat:'Beleza',price:'R$ 99,90',stock:31,sold:55,status:'active'},
+  */
 ];
 const ORDERS = [
+  /*
   {id:'DS-0042',client:'Ana Carolina',items:[{em:'⌚',name:'Smartwatch Pro X7',var:'Preto P',qty:1}],total:'R$ 189,90',status:'pending',date:'Hoje 14:32',city:'São Paulo, SP'},
   {id:'DS-0041',client:'Pedro Martins',items:[{em:'💡',name:'Kit LED Smart RGB',var:'10m',qty:2},{em:'🎧',name:'Fone BT ANC',var:'Azul',qty:1}],total:'R$ 319,70',status:'pending',date:'Hoje 11:18',city:'Rio de Janeiro, RJ'},
   {id:'DS-0040',client:'Carla Souza',items:[{em:'👟',name:'Tênis Running UltraLight',var:'Azul 38',qty:1}],total:'R$ 199,90',status:'transit',date:'Ontem 09:45',city:'Belo Horizonte, MG'},
   {id:'DS-0039',client:'Lucas Ferreira',items:[{em:'🎒',name:'Mochila Executiva',var:'Preta',qty:1}],total:'R$ 159,90',status:'delivered',date:'10/01',city:'Curitiba, PR'},
   {id:'DS-0038',client:'Marina Costa',items:[{em:'✨',name:'Kit Skincare Vit. C',var:'Kit completo',qty:1}],total:'R$ 99,90',status:'returned',date:'08/01',city:'Porto Alegre, RS'},
+  */
 ];
 const EXTRACT = [
+  /*
   {ico:'💰',type:'Venda',order:'DS-0042',gross:'R$ 189,90',comm:'R$ 17,09',net:'R$ 172,81',status:'pending',date:'Hoje'},
   {ico:'💰',type:'Venda',order:'DS-0041',gross:'R$ 319,70',comm:'R$ 28,77',net:'R$ 290,93',status:'pending',date:'Hoje'},
   {ico:'💰',type:'Venda',order:'DS-0040',gross:'R$ 199,90',comm:'R$ 17,99',net:'R$ 181,91',status:'available',date:'Ontem'},
@@ -45,7 +50,165 @@ const EXTRACT = [
   {ico:'↩️',type:'Devolução',order:'DS-0038',gross:'R$ 99,90',comm:'R$ 0,00',net:'- R$ 99,90',status:'done',date:'09/01'},
   {ico:'💰',type:'Venda',order:'DS-0037',gross:'R$ 389,80',comm:'R$ 35,08',net:'R$ 354,72',status:'available',date:'08/01'},
   {ico:'💸',type:'Saque',order:'—',gross:'R$ 5.000,00',comm:'—',net:'- R$ 5.000,00',status:'done',date:'05/01'},
+  */
 ];
+
+/* ============================================================ AUTH GATE FLOW */
+/* ─── SUPABASE ──────────────────────────────────────────────────────── */
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
+
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+  const authGate = document.getElementById('authGate');
+  const gateChecking = document.getElementById('gateChecking');
+  const gateLogin = document.getElementById('gateLogin');
+  const appShell = document.getElementById('appShell');
+
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  if (!user || userError) {
+    console.warn("User session not active. Exibindo pop-up de login.");
+    
+    if (gateChecking) gateChecking.style.display = 'none';
+    if (gateLogin) gateLogin.style.display = 'block';
+    
+    if (authGate) {
+      authGate.style.display = 'flex';
+      authGate.classList.remove('hidden');
+    }
+    
+    return;
+  }
+
+  if (authGate) {
+    authGate.classList.add('hidden');
+    if (appShell) appShell.classList.remove('inert');
+    setTimeout(() => { authGate.style.display = 'none'; }, 550);
+  }
+
+  userId = user.id; 
+  
+  // ============================================================
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  
+  if (!profileError && profile) {
+    const fullName = profile.full_name || "Cliente";
+    const email = user.email || "";
+    
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+
+    const inputFirstName = document.getElementById('profileFirstName');
+    const inputLastName = document.getElementById('profileLastName');
+    const inputEmail = document.getElementById('profileEmail');
+    const photoUrl = profile.avatar_url || "";
+
+    if (inputFirstName) inputFirstName.value = firstName;
+    if (inputLastName) inputLastName.value = lastName;
+    if (inputEmail) inputEmail.value = email;
+
+    /* ------------------------------------------------------------------------ */
+    const fldName = document.getElementById('fldNome');
+    const fldEmail = document.getElementById('fldEmail');
+
+    if (fldName && fullName) {
+      fldName.value = fullName;
+    }
+  
+    if (fldEmail && email) {
+      fldEmail.value = email;
+    }
+
+    if (typeof validateStep1 === 'function') validateStep1();
+    if (typeof loadFromSupabase === 'function') {
+      await loadFromSupabase();
+    }
+    
+    const fldPhone = document.getElementById('fldTelefone');
+    const fldCpf = document.getElementById('fldDoc');
+
+    const phone = profile.phone || "";
+    const cpf = profile.cpf || "";
+
+    if (fldPhone) { 
+      fldPhone.value = phone; 
+      if (typeof maskPhone !== 'undefined') maskPhone.updateValue();
+    } 
+
+    if (fldCpf) { 
+      fldCpf.value = cpf; 
+      if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
+    }
+    
+    if (photoUrl) {
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      const headerImage = document.getElementById('headerAvatar');
+      
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
+    }
+  }
+});
+
+/* ============================================================ MASK HELPERS */
+const onlyDigits = v => v.replace(/\D/g,'');
+
+const maskDoc = IMask($('fldDoc'), {
+  mask: [
+    { mask: '000.000.000-00', maxLength: 11 },
+    { mask: '00.000.000/0000-00', maxLength: 14 }
+  ],
+  dispatch: function (appended, dynamicMasked) {
+    return personType === 'pf' ? dynamicMasked.compiledMasks[0] : dynamicMasked.compiledMasks[1];
+  }
+});
+maskDoc.on('accept', () => validateStep1());
+
+const maskPhone = IMask($('fldTelefone'), {
+  mask: [
+    { mask: '(00) 0000-0000' }, 
+    { mask: '(00) 00000-0000' }
+  ]
+});
+maskPhone.on('accept', () => validateStep1());
+
+const maskIEMask = IMask($('fldIE'), {
+  mask: '000.000.000.000'
+});
+maskIEMask.on('accept', () => validateStep1());
+
+const maskCep = IMask($('fldCep'), {
+  mask: '00000-000'
+});
+maskCep.on('accept', () => {
+  const digits = maskCep.unmaskedValue; 
+  if(digits.length < 8){ 
+    setStatus($('statCep'), ''); 
+    validateStep1(); 
+    return; 
+  }
 
 // ══ NAVIGATION ══════════════════════════════════════════
 function showLanding(){ document.getElementById('landing').style.display='block'; document.getElementById('appShell').style.display='none'; window.scrollTo(0,0); }
