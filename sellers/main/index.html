@@ -648,6 +648,64 @@
   </div><!-- /app-body -->
 </div><!-- /appShell -->
 
+  <!-- ACC SIDEBAR -->
+  <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+  <div class="acc-sb" id="accSidebar">
+    <div class="acc-hd">
+      <h3>Minha Conta</h3>
+      <button class="acc-cls" onclick="closeAcc()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="acc-body">
+      <div class="acc-profile-summary">
+        <div class="acc-avatar-large">
+          <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
+        </div>
+        <div class="acc-info">
+          <strong id="accSidebarName"></strong>
+          <span id="accSidebarEmail"></span>
+        </div>
+      </div>
+      <div class="acc-menu-group">
+        <p class="acc-label">Atalhos</p>
+        <button class="btn-acc-option" onclick="buttonLink('/settings')">
+          <i class="fa-solid fa-user-pen"></i>
+          <span>Editar Perfil</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/my-orders')">
+          <i class="fa-solid fa-box-open"></i>
+          <span>Minhas Compras</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/reviews')">
+          <i class="fa-solid fa-star"></i>
+          <span>Minhas Avaliações</span>
+        </button>
+        <button class="btn-acc-option" onclick="openFav(); closeAcc();">
+          <i class="fa-solid fa-heart"></i>
+          <span>Lista de Desejos</span>
+        </button>
+      </div>
+      <div class="acc-menu-group">
+        <p class="acc-label">Suporte</p>
+        <button class="btn-acc-option" onclick="buttonLink('/support')">
+          <i class="fa-solid fa-circle-question"></i>
+          <span>Ajuda & FAQ</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')">
+          <i class="fa-solid fa-file-contract"></i>
+          <span>Termos de Uso</span>
+        </button>
+      </div>
+      <div class="acc-ft">
+        <button class="btn-logout-sb" onclick="doLogout()">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          Sair da Conta
+        </button>
+      </div>
+    </div>
+  </div>
+	
 <!-- QUICKLINK -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
 <script>
