@@ -575,3 +575,75 @@ const sidebarElement = document.querySelector('.app-sb');
 if (sidebarElement) {
   createCustomScrollbar(sidebarElement, false);
 }
+  
+/* -------------------------------------------------------------- */
+function renderStoreState(status, slug) {
+  const pendingUI = document.getElementById('store-pending-state');
+  const activeUI = document.getElementById('store-active-state');
+  const iframe = document.getElementById('store-preview-frame');
+  const urlDisplay = document.getElementById('store-url-display');
+
+  if (status === 'pendente' || status === 'pending') {
+    pendingUI.style.display = 'block';
+    activeUI.style.display = 'none';
+  } else if (status === 'ativa' || status === 'active') {
+    pendingUI.style.display = 'none';
+    activeUI.style.display = 'block';
+
+    const publicStoreUrl = `https://seusite.com.br/store/${slug}`;
+    urlDisplay.textContent = publicStoreUrl;
+    
+    if (iframe.src !== publicStoreUrl) {
+      iframe.src = publicStoreUrl;
+    }
+  }
+}
+
+async function fetchInitialStoreStatus() {
+  if (!userId) return;
+
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('store_status, store_slug')
+    .eq('id', userId)
+    .single();
+
+  if (data && !error) {
+    renderStoreState(data.store_status, data.store_slug);
+  }
+}
+
+function subscribeToStoreStatus() {
+  if (!userId) return;
+
+  supabaseClient
+    .channel('store-status-channel')
+    .on(
+      'postgres_changes',
+      { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'profiles',
+        filter: `id=eq.${userId}` 
+      },
+      (payload) => {
+        const novoStatus = payload.new.store_status;
+        const slug = payload.new.store_slug;
+        
+        renderStoreState(novoStatus, slug);
+        
+        if (novoStatus === 'ativa' || novoStatus === 'active') {
+          toast('Sua loja foi ativada e já está no ar! 🎉', 'ok');
+        }
+      }
+    )
+    .subscribe();
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  
+  if (user) {
+    await fetchInitialStoreStatus();
+    subscribeToStoreStatus();
+  }
+});
