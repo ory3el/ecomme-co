@@ -161,7 +161,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     
     if (photoUrl) {
-      const sidebarImage = document.getElementById('sidebarAvatar');
+      const sidebarImage = document.getElementById('sb-av');
       const headerImage = document.getElementById('headerAvatar');
       
       if (sidebarImage) {
