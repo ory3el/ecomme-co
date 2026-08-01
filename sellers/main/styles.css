@@ -84,6 +84,24 @@ body.hide-scrollbar {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 */
 
+#content {
+    /*Safari e Chrome antigos*/
+    -webkit-transform: scale(0.8);
+    -webkit-transform-origin: 0 0;
+
+    /*Firefox mais antigo*/
+    -moz-transform: scale(0.8);
+    -moz-transform-origin: 0 0;
+
+    /*IE 9*/
+    -ms-transform: scale(0.8);
+    -ms-transform-origin: 0 0;
+
+    /*navegadores atualizados*/
+    transform: scale(0.8);
+    transform-origin: 0 0;
+}
+
 /* NOSCROLL */
 .noscroll {
    overflow: hidden; scrollbar-gutter: stable;
