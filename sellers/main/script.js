@@ -106,6 +106,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!profileError && profile) {
     const fullName = profile.full_name || "Cliente";
     const email = user.email || "";
+
+    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
+    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
+    if (profile.avatar_url && $('accSidebarAvatar')) {
+      $('accSidebarAvatar').src = profile.avatar_url;
+    }
     
     const nameParts = fullName.trim().split(' ');
     const firstName = nameParts[0] || "";
