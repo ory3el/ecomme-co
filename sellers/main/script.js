@@ -95,7 +95,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
-});
   
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
