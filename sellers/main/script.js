@@ -121,6 +121,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputEmail) inputEmail.value = email;
 
     /* ------------------------------------------------------------------------ */
+    const sbName = document.getElementById('sb-name')
+
+    if (sbName && fullName) {
+      sbName.value = fullName;
+    }
+    
+    /* ------------------------------------------------------------------------ */
     const fldName = document.getElementById('fldNome');
     const fldEmail = document.getElementById('fldEmail');
 
