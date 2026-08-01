@@ -97,6 +97,7 @@ body::-webkit-scrollbar {
   display: none;
 }
 body {
+  zoom: 80%
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
