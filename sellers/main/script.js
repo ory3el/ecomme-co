@@ -662,7 +662,7 @@ function subscribeToStoreStatus() {
 
 window.addEventListener('DOMContentLoaded', async () => {
   
-  if (user) {
+  if (user.id) {
     await fetchInitialStoreStatus();
     subscribeToStoreStatus();
   }
