@@ -176,42 +176,59 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
+const getEl = id => document.getElementById(id);
 
-const maskDoc = IMask($('fldDoc'), {
-  mask: [
-    { mask: '000.000.000-00', maxLength: 11 },
-    { mask: '00.000.000/0000-00', maxLength: 14 }
-  ],
-  dispatch: function (appended, dynamicMasked) {
-    return personType === 'pf' ? dynamicMasked.compiledMasks[0] : dynamicMasked.compiledMasks[1];
-  }
-});
-maskDoc.on('accept', () => validateStep1());
+const elDoc = getEl('fldDoc');
+if (elDoc) {
+  const maskDoc = IMask(elDoc, {
+    mask: [
+      { mask: '000.000.000-00', maxLength: 11 },
+      { mask: '00.000.000/0000-00', maxLength: 14 }
+    ],
+    dispatch: function (appended, dynamicMasked) {
+      return typeof personType !== 'undefined' && personType === 'pf' 
+        ? dynamicMasked.compiledMasks[0] 
+        : dynamicMasked.compiledMasks[1];
+    }
+  });
+  maskDoc.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
+}
 
-const maskPhone = IMask($('fldTelefone'), {
-  mask: [
-    { mask: '(00) 0000-0000' }, 
-    { mask: '(00) 00000-0000' }
-  ]
-});
-maskPhone.on('accept', () => validateStep1());
+const elPhone = getEl('fldTelefone');
+if (elPhone) {
+  const maskPhone = IMask(elPhone, {
+    mask: [
+      { mask: '(00) 0000-0000' }, 
+      { mask: '(00) 00000-0000' }
+    ]
+  });
+  maskPhone.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
+}
 
-const maskIEMask = IMask($('fldIE'), {
-  mask: '000.000.000.000'
-});
-maskIEMask.on('accept', () => validateStep1());
+const elIE = getEl('fldIE');
+if (elIE) {
+  const maskIEMask = IMask(elIE, {
+    mask: '000.000.000.000'
+  });
+  maskIEMask.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
+}
 
-const maskCep = IMask($('fldCep'), {
-  mask: '00000-000'
-});
-maskCep.on('accept', () => {
-  const digits = maskCep.unmaskedValue; 
-  if(digits.length < 8){ 
-    setStatus($('statCep'), ''); 
-    validateStep1(); 
-    return; 
-  }
-});
+const elCep = getEl('fldCep');
+if (elCep) {
+  const maskCep = IMask(elCep, {
+    mask: '00000-000'
+  });
+  maskCep.on('accept', () => {
+    const digits = maskCep.unmaskedValue; 
+    if(digits.length < 8){ 
+      const statCep = getEl('statCep');
+      // Confirme se a função setStatus existe
+      if (statCep && typeof setStatus === 'function') setStatus(statCep, ''); 
+      if (typeof validateStep1 === 'function') validateStep1(); 
+      return; 
+    }
+  });
+}
   
 // ══ NAVIGATION ══════════════════════════════════════════
 function showLanding(){ document.getElementById('landing').style.display='block'; document.getElementById('appShell').style.display='none'; window.scrollTo(0,0); }
