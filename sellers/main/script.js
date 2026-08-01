@@ -68,8 +68,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const gateChecking = document.getElementById('gateChecking');
   const gateLogin = document.getElementById('gateLogin');
   const appShell = document.getElementById('appShell');
-});
-  
+
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
@@ -96,7 +95,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
-
+});
+  
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
