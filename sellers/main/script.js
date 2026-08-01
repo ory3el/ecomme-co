@@ -95,7 +95,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
-});
   
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
@@ -195,6 +194,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.borderRadius = "100%";
       headerImage.style.objectFit = "cover";
     }
+  }
   }
 });
 
