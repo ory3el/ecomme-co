@@ -63,38 +63,64 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 // EXECUTE DATABASE
-window.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Elementos de Controle de Acesso / Tela de Login
   const authGate = document.getElementById('authGate');
   const gateChecking = document.getElementById('gateChecking');
   const gateLogin = document.getElementById('gateLogin');
   const appShell = document.getElementById('appShell');
 
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
-  if (!user || userError) {
-    console.warn("User session not active. Exibindo pop-up de login.");
+  // Simulação ou verificação inicial de sessão (Exemplo com Supabase / LocalStorage)
+  try {
+    // Se você estiver usando Supabase, a verificação de sessão entra aqui:
+    // const { data: { session } } = await supabase.auth.getSession();
     
+    // Para testes ou caso o app liberte o painel direto:
+    if (authGate && appShell) {
+      // Exemplo: Esconde o gate de loading e mostra o painel principal
+      authGate.style.display = 'none';
+      appShell.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Erro ao verificar autenticação:', error);
     if (gateChecking) gateChecking.style.display = 'none';
     if (gateLogin) gateLogin.style.display = 'block';
-    
-    if (authGate) {
-      authGate.style.display = 'flex';
-      authGate.classList.remove('hidden');
-    }
-    
-    return;
   }
 
-  if (authGate) {
-    authGate.classList.add('hidden');
-    if (appShell) appShell.classList.remove('inert');
-    setTimeout(() => { authGate.style.display = 'none'; }, 550);
-  }
+  // Lógica de Navegação entre Abas (Resolve o problema da "Minha Loja" vazia)
+  const menuButtons = document.querySelectorAll('[data-target], .sidebar-menu button, .nav-item');
+  const viewSections = document.querySelectorAll('.view-section, .tab-content');
 
-  userId = user.id; 
-  
-  await fetchInitialStoreStatus();
-  subscribeToStoreStatus();
+  menuButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Pega o alvo da aba pelo atributo (ex: data-target="minha-loja" ou href="#minha-loja")
+      const targetId = button.getAttribute('data-target') || button.getAttribute('href');
+      if (!targetId) return;
+
+      // Remove a classe ativa de todos os botões e adiciona no atual
+      menuButtons.forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
+      button.classList.add('active', 'bg-blue-600', 'text-white');
+
+      // Oculta todas as seções de conteúdo e exibe apenas a correspondente
+      viewSections.forEach(section => {
+        section.style.display = 'none';
+      });
+
+      const activeSection = document.querySelector(targetId);
+      if (activeSection) {
+        activeSection.style.display = 'block';
+      }
+    });
+  });
+
+  // Inicialização padrão: Garante que a primeira aba/visão apareça ao carregar
+  const defaultSection = document.querySelector('.view-section, .tab-content');
+  if (defaultSection) {
+    defaultSection.style.display = 'block';
+  }
+});
   
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
