@@ -124,7 +124,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const sbName = document.getElementById('sb-name')
 
     if (sbName && fullName) {
-      sbName.value = fullName;
+      sbName.textContent = fullName;
     }
     
     /* ------------------------------------------------------------------------ */
