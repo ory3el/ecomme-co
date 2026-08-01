@@ -1,7 +1,3 @@
-body{
-  zoom: 80%
-}
-
 function buttonLink(url) {
   window.location.href = url;
 }
