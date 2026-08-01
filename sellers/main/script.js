@@ -209,7 +209,8 @@ maskCep.on('accept', () => {
     validateStep1(); 
     return; 
   }
-
+});
+  
 // ══ NAVIGATION ══════════════════════════════════════════
 function showLanding(){ document.getElementById('landing').style.display='block'; document.getElementById('appShell').style.display='none'; window.scrollTo(0,0); }
 function enterPanel(){ document.getElementById('landing').style.display='none'; document.getElementById('appShell').style.display='flex'; document.getElementById('appShell').style.flexDirection='column'; navigate('dashboard'); }
