@@ -84,10 +84,6 @@ body.hide-scrollbar {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
 */
 
-#content {
-   zoom: 80%;
-}
-
 /* NOSCROLL */
 .noscroll {
    overflow: hidden; scrollbar-gutter: stable;
