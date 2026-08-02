@@ -627,19 +627,27 @@ function renderStoreState(status, slug) {
   const iframe = document.getElementById('store-preview-frame');
   const urlDisplay = document.getElementById('store-url-display');
 
-  if (status === 'pendente' || status === 'pending') {
-    pendingUI.style.display = 'block';
-    activeUI.style.display = 'none';
-  } else if (status === 'ativa' || status === 'active') {
+  if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
+    console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
+    return;
+  }
+
+  const safeStatus = (status || 'pendente').toLowerCase().trim();
+  const safeSlug = slug || 'loja-em-configuracao';
+
+  if (safeStatus === 'ativa' || safeStatus === 'active') {
     pendingUI.style.display = 'none';
     activeUI.style.display = 'block';
 
-    const publicStoreUrl = `https://seusite.com.br/store/${slug}`;
+    const publicStoreUrl = `/seller/${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
     }
+  } else {
+    pendingUI.style.display = 'block';
+    activeUI.style.display = 'none';
   }
 }
 
