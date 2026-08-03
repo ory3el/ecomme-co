@@ -1,1 +1,2 @@
 /store/:slug /store/index.html 200
+/store/:slug/ /store/index.html 200
