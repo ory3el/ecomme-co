@@ -614,13 +614,13 @@
         </div>
       </div>
 
-	  <!-- ═════ MINHA LOJA (STATUS & PREVIEW) ═════ -->
+	  <!-- ═════ MY STORE (STATUS & PREVIEW) ═════ -->
 	  <div class="page" id="page-minha-loja">
   		<div class="page-hd">
-    		<div><h2>Visão da Loja</h2><p>Acompanhe o status e visualize sua loja como o cliente vê</p></div>
+    		<div><h2>Visão Geral da Loja</h2><p>Acompanhe o status e visualize sua loja como o cliente vê</p></div>
   		</div>
 
-  		<!-- ESTADO: PENDENTE -->
+  		<!-- STATE: PENDING -->
   		<div id="store-pending-state" class="card card-pad" style="display: none; text-align: center; padding: 60px 20px;">
     		<div style="font-size: 48px; margin-bottom: 16px; animation: pulse 2s infinite;">⏳</div>
     		<h3 style="font-family: 'Sora', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px;">Loja em Análise</h3>
@@ -629,19 +629,18 @@
     		</p>
   		</div>
 
-  		<!-- ESTADO: ATIVA (VISÃO DO CLIENTE) -->
+  		<!-- STATE: ACTIVE -->
   		<div id="store-active-state" class="card" style="display: none; height: calc(100vh - 160px); overflow: hidden;">
     		<div style="background: var(--bg3); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--b2);">
       		<div class="fac gap8">
         		<span class="tag tag-green">Loja Online</span>
-        		<span class="fs11 muted" id="store-url-display">techlabstore.ecomme.com.br</span>
+        		<span class="fs11 muted" id="store-url-display">ecomme.com.br/store/</span>
       		</div>
       		<button class="btn btn-o btn-xs" onclick="window.open(document.getElementById('store-preview-frame').src, '_blank')">
         		Abrir em nova guia ↗
       		</button>
     		</div>
     
-    		<!-- Iframe carrega a rota pública da loja -->
     		<iframe id="store-preview-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
   		</div>
 	  </div>		  
