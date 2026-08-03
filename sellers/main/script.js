@@ -264,7 +264,7 @@ function navigate(page, btn){
   if(panel) panel.classList.add('on');
   if(btn) btn.classList.add('on');
   else { const nb = document.querySelector(`[data-page="${page}"]`); if(nb) nb.classList.add('on'); }
-  const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações'};
+  const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações',loja:'Minha Loja'};
   document.getElementById('bcText').textContent = labels[page]||page;
   window.scrollTo({top:0,behavior:'smooth'});
 }
