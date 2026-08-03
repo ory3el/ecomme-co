@@ -654,14 +654,27 @@ function renderStoreState(status, slug) {
 async function fetchInitialStoreStatus() {
   if (!userId) return;
 
-  const { data, error } = await supabaseClient
-    .from('lojas')
-    .select('status, slug_url')
-    .eq('user_id', userId)
-    .single();
+  try {
+    const { data, error } = await supabaseClient
+      .from('lojas')
+      .select('status, slug_url')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-  if (data && !error) {
-    renderStoreState(data.status, data.slug_url); 
+    if (error) {
+      console.error("Erro ao buscar status da loja:", error);
+      renderStoreState('pendente', '');
+      return;
+    }
+
+    if (data) {
+      renderStoreState(data.status, data.slug_url);
+    } else {
+      renderStoreState('pendente', '');
+    }
+  } catch (err) {
+    console.error("Erro inesperado ao carregar loja:", err);
+    renderStoreState('pendente', '');
   }
 }
 
