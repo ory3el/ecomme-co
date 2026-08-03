@@ -655,13 +655,13 @@ async function fetchInitialStoreStatus() {
   if (!userId) return;
 
   const { data, error } = await supabaseClient
-    .from('profiles')
-    .select('store_status, store_slug')
-    .eq('id', userId)
+    .from('lojas')
+    .select('status, slug_url')
+    .eq('user_id', userId)
     .single();
 
   if (data && !error) {
-    renderStoreState(data.store_status, data.store_slug);
+    renderStoreState(data.status, data.slug_url); 
   }
 }
 
@@ -675,12 +675,12 @@ function subscribeToStoreStatus() {
       { 
         event: 'UPDATE', 
         schema: 'public', 
-        table: 'profiles',
-        filter: `id=eq.${userId}` 
+        table: 'lojas',
+        filter: `user_id=eq.${userId}`
       },
       (payload) => {
-        const novoStatus = payload.new.store_status;
-        const slug = payload.new.store_slug;
+        const novoStatus = payload.new.status;
+        const slug = payload.new.slug_url;
         
         renderStoreState(novoStatus, slug);
         
