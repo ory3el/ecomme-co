@@ -1,4 +1,3 @@
-const $ = id => document.getElementById(id);
 const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
 
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
