@@ -167,8 +167,8 @@ body.loading {
   margin: 0 0.5rem;
 
   animation: 
-  jackInTheBox 1.2s ease-out 0s 1,
-  pulse 1.8s ease-in-out 1.2s infinite;
+  jackInTheBox 1s ease-out 0s 1,
+  pulse 1.8s ease-in-out 1s infinite;
 }
 
 @keyframes pulse {
