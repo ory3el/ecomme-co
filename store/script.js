@@ -1,11 +1,3 @@
-/* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart = [];
-let fav = [];
-let curId = null;
-let mQtyVal = 1;
-let view = 'grid';
-let shuffled = [...products];
-
 const $ = id => document.getElementById(id);
 const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
 
@@ -84,6 +76,14 @@ const products = [
   { id:7, name:'Teclado Mecânico RGB', emoji:'⌨️', price:179.90, old:280, discount:35, rating:4.8, reviews:987, badge:'sale', shipping:true },
   { id:8, name:'Mouse Gamer 16K DPI', emoji:'🖱️', price:139.90, old:210, discount:33, rating:4.7, reviews:654, badge:'hot', shipping:true },
 ];
+
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let shuffled = [...products];
 
 function renderProds(list) {
   const grid = $('prodGrid');
