@@ -72,7 +72,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
-    console.warn("User session not active. Exibindo pop-up de login.");
+    console.warn("User session not active.");
     
     if (gateChecking) gateChecking.style.display = 'none';
     if (gateLogin) gateLogin.style.display = 'block';
@@ -639,7 +639,7 @@ function renderStoreState(status, slug) {
     pendingUI.style.display = 'none';
     activeUI.style.display = 'block';
 
-    const publicStoreUrl = `/seller/${safeSlug}`;
+    const publicStoreUrl = `/store/${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
     
     if (iframe.src !== publicStoreUrl) {
@@ -709,4 +709,4 @@ function closeAcc() {
   document.body.classList.remove("nobodyscroll");
 }
 
-renderStoreState(status, slug)
+fetchInitialStoreStatus()
