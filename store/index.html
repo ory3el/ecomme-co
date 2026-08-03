@@ -322,12 +322,12 @@
       document.getElementById('index-footer').innerHTML = footerHTML;
       document.getElementById('index-sidebars').innerHTML = sidebarsHTML;
 
-      const sidebarScript = document.createElement('script');
-      /*sidebarScript.src = '/files/no-login/scripts/script.js';
+      /*const sidebarScript = document.createElement('script');
+      sidebarScript.src = '/files/no-login/scripts/script.js';
       document.body.appendChild(sidebarScript);*/
 
       const mainScript = document.createElement('script');
-      mainScript.src = 'script.js';
+      mainScript.src = '/store/script.js';
       document.body.appendChild(mainScript);
 
     } catch (error) {
