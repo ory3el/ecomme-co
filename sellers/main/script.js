@@ -708,3 +708,5 @@ function closeAcc() {
   if (ov) ov.classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
+
+renderStoreState(status, slug)
