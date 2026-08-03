@@ -1,6 +1,51 @@
 const $ = id => document.getElementById(id);
 const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
 
+/* ─── SUPABASE ──────────────────────────────────────────────────────── */
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
+
+// EXECUTE DATABASE
+document.addEventListener('DOMContentLoaded', async () => {
+  const pathname = window.location.pathname; 
+  
+  const pathParts = pathname.split('/');
+  let storeSlug = pathParts[pathParts.length - 1];
+  
+  storeSlug = storeSlug.replace('@', '');
+
+  if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
+    console.error("Nenhuma loja especificada na URL.");
+    return;
+  }
+
+  await loadStoreData(storeSlug);
+});
+
+async function loadStoreData(slug) {
+  try {
+    const { data: loja, error } = await supabaseClient
+      .from('lojas')
+      .select('*')
+      .eq('slug_url', slug)
+      .single();
+
+    if (error || !loja) {
+      console.error("Loja não encontrada!", error);
+      document.body.innerHTML = '<h1>Loja não encontrada</h1>';
+      return;
+    }
+
+    console.log("Loja carregada:", loja);
+    document.title = `${loja.nome} | Ecomme`;
+
+  } catch (err) {
+    console.error("Erro inesperado:", err);
+  }
+}
+
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
 (function spawnParticles() {
   const wrap = $('particles');
