@@ -257,6 +257,24 @@ inset 0 1px rgba(255,255,255,.55);
     }
     .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
+    .btn-register {
+      width: auto; min-height: 40px;
+      background: var(--blue); color: #fff;
+      padding: 8px 20px; border-radius: 100px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px; transition: all .2s;
+    }
+    .btn-register:hover { background: var(--blue2); transform: translateY(-1px); }
+
+    .btn-dashboard {
+      width: auto; min-height: 40px;
+      background: var(--blue); color: #fff;
+      padding: 8px 20px; border-radius: 100px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px; transition: all .2s;
+    }
+    .btn-dashboard:hover { background: var(--blue2); transform: translateY(-1px); }
+
     .header-profile { 
       width: 40px;
       height: 40px;
