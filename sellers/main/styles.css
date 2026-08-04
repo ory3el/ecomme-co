@@ -280,7 +280,7 @@ body {
   .gate-checking p{font-size:13px; color:var(--slate); font-weight:500;}
 
   .login-card{
-    width:100%; max-width:400px; background:#fff; border-radius:var(--r-xl); border:1px solid var(--line);
+    width:100%; max-width:400px; background:#fff; border-radius: 50px; border:1px solid var(--line);
     box-shadow:var(--shadow-3); padding:40px 36px; animation:scaleSpring .5s var(--spring);
   }
   .login-brand{display:flex; align-items:center; gap:6px; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:22px; color:var(--blue); margin-bottom:26px;}
