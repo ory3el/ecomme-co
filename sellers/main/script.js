@@ -491,6 +491,17 @@ function toast(msg,type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast2');
+  document.getElementById('toastMsg2').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function toast2(msg) {
+  showToast(msg);
+}
+
 // ══ INIT ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
   const now = new Date();
