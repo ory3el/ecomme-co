@@ -8,7 +8,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 // EXECUTE DATABASE
-document.addEventListener('DOMContentLoaded', async () => {
+(async function initStore() {
   let pathname = window.location.pathname;
 
   if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const segments = pathname.split('/').filter(Boolean);
   let storeSlug = segments[segments.length - 1];
   
-  storeSlug = storeSlug.replace('@', '');
+  if (storeSlug) {
+    storeSlug = storeSlug.replace('@', '');
+  }
 
   if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await loadStoreData(storeSlug);
-});
+})();
 
 async function loadStoreData(slug) {
   try {
