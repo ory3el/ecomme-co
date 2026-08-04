@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   const segments = pathname.split('/').filter(Boolean);
-  let storeSlug = pathParts[pathParts.length - 1];
+  let storeSlug = segments[segments.length - 1];
   
   storeSlug = storeSlug.replace('@', '');
 
