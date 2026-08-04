@@ -734,4 +734,5 @@ async function doLogout() {
   toast('Saindo da conta... 👋', 'info');
   await supabaseClient.auth.signOut();
   closeAcc();
+  location.reload();
 }
