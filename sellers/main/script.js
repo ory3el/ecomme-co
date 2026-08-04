@@ -742,7 +742,7 @@ fetchInitialStoreStatus()
 
 // LOGOUT
 async function doLogout() {
-  toast('Saindo da conta... 👋', 'info');
+  toast2('Saindo da conta... 👋', 'info');
   await supabaseClient.auth.signOut();
   closeAcc();
   location.reload();
