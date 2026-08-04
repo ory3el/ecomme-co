@@ -354,6 +354,11 @@ body {
 .t-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--white); }
 .t-ok { background: var(--green); } .t-err { background: var(--red); } .t-inf { background: var(--blue); }
 
+/* TOAST 2 */
+.toast2 { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 11000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+.toast2.show { transform: translateX(-50%) translateY(0); }
+.toast2-icon { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; }
+
 /* ══ APP SHELL ════════════════════════════════════════════ */
 #appShell{min-height:100vh;background:var(--bg)}
 
