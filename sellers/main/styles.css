@@ -46,6 +46,20 @@
   --sh2: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
+:root{
+  --blue:#2563eb;--blue2:#1d4ed8;--blueL:#3b82f6;
+  --blueDim:#eff6ff;--blueSoft:#dbeafe;
+  --navy:#0f1a2e;--navy2:#1e293b;--navy3:#334155;
+  --text:#0f1a2e;--muted:#64748b;--light:#94a3b8;
+  --bg:#f0f6ff;--bg2:#fff;--bg3:#f8fafd;
+  --border:rgba(37,99,235,.14);--b2:rgba(15,26,46,.08);
+  --green:#16a34a;--red:#ef4444;--orange:#f97316;
+  --yellow:#eab308;--purple:#7c3aed;--teal:#0d9488;
+  --r:8px;--rl:14px;--rxl:20px;
+  --sh:0 4px 20px rgba(37,99,235,.08);
+  --sh2:0 2px 8px rgba(15,26,46,.07);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 
 /* SCROLLBAR */
