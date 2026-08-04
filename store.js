@@ -7,7 +7,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-  // Se a URL termina com barra (e não é apenas /store/), limpa a barra silenciosamente no navegador
   if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
     pathname = pathname.slice(0, -1);
     window.history.replaceState(null, '', pathname + window.location.search);
@@ -29,7 +28,7 @@ let userId = null;
 
 // EXECUTE DATABASE
 document.addEventListener('DOMContentLoaded', async () => {
-  const pathname = window.location.pathname; 
+  let pathname = window.location.pathname;
 
   if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
     pathname = pathname.slice(0, -1);
