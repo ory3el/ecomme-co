@@ -158,3 +158,28 @@ function initHeaderAuthListener() {
   });
 }
 initHeaderAuthListener();
+
+/* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
+function openAcc() {
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if (sb) sb.classList.add('on');
+  if (ov) ov.classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeAcc() {
+  const sb = document.getElementById('accSidebar');
+  const ov = document.getElementById('accOverlay');
+  if (sb) sb.classList.remove('on');
+  if (ov) ov.classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
+// LOGOUT
+async function doLogout() {
+  toast2('Saindo da conta... 👋', 'info');
+  await supabaseClient.auth.signOut();
+  closeAcc();
+  location.reload();
+}
