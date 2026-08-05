@@ -42,13 +42,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const headerImage = document.getElementById('headerAvatar');
 
   //updateHeaderContrast();
-  await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
     console.warn("User session not active.");
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (profileContainer) profileContainer.classList.add('hidden');
+    if (registerBtn) registerBtn.classList.add('hidden');
+    if (dashboardBtn) dashboardBtn.classList.add('hidden');
     injectPrefetch('/login');
     return;
   }
