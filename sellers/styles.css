@@ -169,7 +169,7 @@ inset 0 1px rgba(255,255,255,.55);
     }
 
     .header-spacer { flex: 1; }
-    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .header-actions { display: flex; align-items: center; position: relative; margin-left: auto; gap: 6px; }
     .search-bar { flex: 1; max-width: 420px; display: flex; align-items: center;
                  background:
 linear-gradient(
