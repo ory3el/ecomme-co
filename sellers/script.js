@@ -54,7 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   userId = user.id;
-  await loadFromSupabase();
+  /*await loadFromSupabase();*/
 
   if (loginBtn) loginBtn.classList.add('hidden');
   if (registerBtn) registerBtn.classList.remove('hidden');
