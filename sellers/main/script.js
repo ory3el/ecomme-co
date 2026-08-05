@@ -655,7 +655,7 @@ function renderStoreState(status, slug) {
     pendingUI.style.display = 'none';
     activeUI.style.display = 'block';
 
-    const publicStoreUrl = `/store/${safeSlug}`;
+    const publicStoreUrl = `/store/@${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
     
     if (iframe.src !== publicStoreUrl) {
