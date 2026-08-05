@@ -1,3 +1,113 @@
+/* SCROLLBAR */
+function createCustomScrollbar(scrollElement, isMainBody = false) {
+  const scrollTrack = document.createElement('div');
+  scrollTrack.className = 'scrollbar-track';
+  
+  const scrollbar = document.createElement('div');
+  scrollbar.className = 'custom-scrollbar hide-scrollbar';
+  scrollTrack.appendChild(scrollbar);
+  const container = isMainBody ? document.body : scrollElement;
+  container.appendChild(scrollTrack);
+
+  if (!isMainBody) {
+    scrollTrack.style.position = 'absolute';
+    scrollbar.style.position = 'absolute';
+  }
+
+  let scrollTimeout;
+  let isDragging = false;
+  let isHovering = false;
+  let startY;
+  let startScrollTop;
+
+  scrollTrack.addEventListener('mouseenter', () => {
+    isHovering = true;
+    scrollbar.classList.remove('hide-scrollbar');
+    clearTimeout(scrollTimeout);
+  });
+
+  scrollTrack.addEventListener('mouseleave', () => {
+    isHovering = false;
+    if (!isDragging) {
+      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+    }
+  });
+  
+  const eventTarget = isMainBody ? window : scrollElement;
+  
+  eventTarget.addEventListener('scroll', () => {
+    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
+    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
+    const scrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
+    
+    const scrollableHeight = scrollHeight - clientHeight;
+    if (scrollableHeight <= 0) return;
+
+    const scrollPercentage = scrollTop / scrollableHeight;
+    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
+
+    if (!isMainBody) {
+      scrollTrack.style.top = `${scrollTop}px`;
+    }
+    
+    scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
+
+    scrollbar.classList.remove('hide-scrollbar');
+    clearTimeout(scrollTimeout);
+
+    if (!isHovering && !isDragging) {
+      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+    }
+  });
+
+  scrollbar.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    scrollbar.classList.add('is-dragging');
+    startY = e.clientY;
+    startScrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    
+    const deltaY = e.clientY - startY;
+    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
+    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
+    const movePercentage = deltaY / maxScrollbarTravel;
+    
+    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
+    const scrollableHeight = scrollHeight - clientHeight;
+    const scrollAmount = movePercentage * scrollableHeight;
+
+    if (isMainBody) {
+      window.scrollTo(0, startScrollTop + scrollAmount);
+    } else {
+      scrollElement.scrollTop = startScrollTop + scrollAmount;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      scrollbar.classList.remove('is-dragging');
+      document.body.style.userSelect = '';
+      clearTimeout(scrollTimeout);
+      
+      if (!isHovering) {
+        scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
+      }
+    }
+  });
+}
+createCustomScrollbar(window, true);
+const sidebarElement = document.querySelector('.app-sb');
+if (sidebarElement) {
+  createCustomScrollbar(sidebarElement, false);
+}
+
+/* --------------------------------------------------------- */
+
 function goToLogin() {
   const atualPage = window.location.pathname + window.location.search;
   window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
@@ -527,114 +637,6 @@ window.addEventListener('hashchange',()=>{
   const pm={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'};
   navigate(pm[hash]||'dashboard');
 });
-
-/* SCROLLBAR */
-function createCustomScrollbar(scrollElement, isMainBody = false) {
-  const scrollTrack = document.createElement('div');
-  scrollTrack.className = 'scrollbar-track';
-  
-  const scrollbar = document.createElement('div');
-  scrollbar.className = 'custom-scrollbar hide-scrollbar';
-  scrollTrack.appendChild(scrollbar);
-  const container = isMainBody ? document.body : scrollElement;
-  container.appendChild(scrollTrack);
-
-  if (!isMainBody) {
-    scrollTrack.style.position = 'absolute';
-    scrollbar.style.position = 'absolute';
-  }
-
-  let scrollTimeout;
-  let isDragging = false;
-  let isHovering = false;
-  let startY;
-  let startScrollTop;
-
-  scrollTrack.addEventListener('mouseenter', () => {
-    isHovering = true;
-    scrollbar.classList.remove('hide-scrollbar');
-    clearTimeout(scrollTimeout);
-  });
-
-  scrollTrack.addEventListener('mouseleave', () => {
-    isHovering = false;
-    if (!isDragging) {
-      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-    }
-  });
-  
-  const eventTarget = isMainBody ? window : scrollElement;
-  
-  eventTarget.addEventListener('scroll', () => {
-    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
-    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
-    const scrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
-    
-    const scrollableHeight = scrollHeight - clientHeight;
-    if (scrollableHeight <= 0) return;
-
-    const scrollPercentage = scrollTop / scrollableHeight;
-    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
-
-    if (!isMainBody) {
-      scrollTrack.style.top = `${scrollTop}px`;
-    }
-    
-    scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
-
-    scrollbar.classList.remove('hide-scrollbar');
-    clearTimeout(scrollTimeout);
-
-    if (!isHovering && !isDragging) {
-      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-    }
-  });
-
-  scrollbar.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    scrollbar.classList.add('is-dragging');
-    startY = e.clientY;
-    startScrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    
-    const deltaY = e.clientY - startY;
-    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
-    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
-    const movePercentage = deltaY / maxScrollbarTravel;
-    
-    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
-    const scrollableHeight = scrollHeight - clientHeight;
-    const scrollAmount = movePercentage * scrollableHeight;
-
-    if (isMainBody) {
-      window.scrollTo(0, startScrollTop + scrollAmount);
-    } else {
-      scrollElement.scrollTop = startScrollTop + scrollAmount;
-    }
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (isDragging) {
-      isDragging = false;
-      scrollbar.classList.remove('is-dragging');
-      document.body.style.userSelect = '';
-      clearTimeout(scrollTimeout);
-      
-      if (!isHovering) {
-        scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-      }
-    }
-  });
-}
-createCustomScrollbar(window, true);
-const sidebarElement = document.querySelector('.app-sb');
-if (sidebarElement) {
-  createCustomScrollbar(sidebarElement, false);
-}
   
 /* -------------------------------------------------------------- */
 function renderStoreState(status, slug) {
