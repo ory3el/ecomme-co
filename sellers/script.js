@@ -1,3 +1,10 @@
+const $ = id  => document.getElementById(id);
+
+function goToLogin() {
+  const atualPage = window.location.pathname + window.location.search;
+  window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
+}
+
 function buttonLink(url) {
   window.location.href = url;
 }
