@@ -500,6 +500,7 @@ function updatePreview(){
   $('pfCat').style.background = currentAccent;
   $('pfSlogan').style.color = currentAccent;
   $('pfBadgePrazo').style.color = currentAccent;
+  $('pfBadgeFrete').style.color = currentAccent;
   $('pfFollowBtn').style.background = currentAccent;
   $('pfCover').style.background = currentAccent;
 
