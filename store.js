@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const slug = parts[1];
 
-  if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
+  if (!slug || slug === 'store' || slug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
     document.body.innerHTML = '<h1 style="text-align:center; margin-top:100px;">Loja não especificada na URL.</h1>';
     return;
