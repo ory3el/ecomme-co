@@ -794,14 +794,146 @@ tbody tr:hover td{background:var(--bg3)}
 /* danger zone */
 .danger-zone{background:#fef2f2;border:1.5px solid #fecaca;border-radius:var(--rl);padding:20px 22px}
 
+    /* ── NOTIFICATION SIDEBAR ────────────────────────────────── */
+    .notif-sb {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
+      background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+      border-left: 0px solid var(--border2); padding: 10px;
+      border-top-left-radius: 25px; border-bottom-left-radius: 25px;
+      z-index: 2000; transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .notif-sb.on { transform: translateX(0); }
+
+    .notif-hd {
+      padding-bottom: 20px; margin-bottom: 16px;
+      padding: 10px; border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .notif-hd h3 { font-family: 'Outfit'; font-size: 18px; font-weight: 500; }
+    .notif-cls {
+      width: 34px; height: 34px; border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .notif-cls:hover { border-color: var(--red); color: var(--red); }
+    .notif-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .notif-body { 
+      flex: 1; overflow-y: auto; padding: 8px; 
+      display: flex; flex-direction: column; 
+      gap: 12px;
+    }
+    .notif-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .notif-empty-st span { font-size: 48px; }
+    .notif-ft { padding: 20px 0px; border-top: 1px solid rgba(0, 0, 0, 0.2); position: absolute; bottom: 0; width: 90%; }
+
+    /* ── MENU SIDEBAR ────────────────────────────────────────── */
+    .more-sb {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
+      background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+      border-left: 0px solid var(--border2); padding: 10px;
+      border-top-left-radius: 25px; border-bottom-left-radius: 25px;
+      z-index: 2000; transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .more-sb.on { transform: translateX(0); }
+
+    .more-hd {
+      padding-bottom: 20px; margin-bottom: 16px;
+      padding: 10px; border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .more-hd h3 { font-family: 'Outfit'; font-size: 18px; font-weight: 500; }
+    .more-cls {
+      width: 34px; height: 34px; border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .more-cls:hover { border-color: var(--red); color: var(--red); }
+    .more-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .more-body { 
+      flex: 1; overflow-y: auto; padding: 8px; 
+      display: flex; flex-direction: column; 
+      gap: 0px; min-height: 0;
+    }
+    .more-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
+    .more-empty-st span { font-size: 48px; }
+
+.btn-menu3 {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 95%; 
+  background: transparent; 
+  color: rgba(0, 0, 0, 0.7); 
+  border: 1px solid rgba(0, 0, 0, 0);
+  padding: 14px; 
+  border-radius: 16px; 
+  transition: all .3s; 
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  left: 5px;
+  gap: 12px;
+}
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex: 1;
+}
+.btn-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-txt {
+  font-weight: 400; 
+  font-size: 11px; 
+  color: rgba(0, 0, 0, 0.5); 
+  margin: 0; 
+  text-align: left;
+}
+.btn-arrow {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, color 0.3s;
+}
+/* ─────────────────────────────────────────────────── */
+.btn-menu3:hover { 
+  box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); 
+  transform: scale(1.02); 
+  background: rgba(255, 255, 255, 0.2); 
+  border: 1px solid var(--blue); 
+  color: var(--blue); 
+}
+.btn-menu3:hover .btn-txt {
+  color: var(--blue);
+  opacity: 0.8;
+}
+.btn-menu3:hover .btn-arrow {
+  color: var(--blue);
+  transform: translateX(4px); 
+}
+
+  .more-sb, 
+  .cart-sb, 
+  .notif-sb {
+    z-index: 9999;
+  }
+
 /* ── ACC SIDEBAR ── */
 .acc-sb {
   position: fixed; right: 0; top: 0; bottom: 0; width: 360px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
-  border: solid 2px rgba(255, 255, 255, 1);
-  border-radius: 35px 0px 0px 35px;
   z-index: 9999;
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -815,7 +947,7 @@ tbody tr:hover td{background:var(--bg3)}
 }
 .acc-hd h3 { font-family: 'Outfit'; font-size: 20px; font-weight: 600; color: var(--text); }
 .acc-cls {
-  width: 34px; height: 34px; border-radius: 50%; background: none;
+  width: 34px; height: 34px; border-radius: 50%;
   border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center;
   color: var(--muted); transition: all 0.2s;
 }
@@ -826,7 +958,7 @@ tbody tr:hover td{background:var(--bg3)}
 
 .acc-profile-summary {
   background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  padding: 24px; border-radius: 100px; display: flex; align-items: center; gap: 15px; color: #fff;
+  padding: 24px; border-radius: 20px; display: flex; align-items: center; gap: 15px; color: #fff;
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
 }
 .acc-avatar-large {
@@ -843,7 +975,7 @@ tbody tr:hover td{background:var(--bg3)}
 .btn-acc-option {
   width: 100%; padding: 12px 15px; border-radius: 12px;
   display: flex; align-items: center; gap: 12px;
-  background: transparent; color: var(--text); border: none;
+  background: transparent; color: var(--text);
   font-size: 14px; font-weight: 500; transition: all 0.2s;
 }
 .btn-acc-option i { font-size: 16px; color: var(--blue); width: 20px; text-align: center; }
