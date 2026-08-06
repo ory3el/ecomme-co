@@ -148,7 +148,7 @@ function filterProds() {
   else if (sort==='new') list.sort((a,b)=>b.id-a.id);
   renderProds(list);
 }
-filterProds();
+//filterProds();
 
 /* ─── FOLLOW ─────────────────────────────────────────────────────────── */
 let isFollowing = false;
