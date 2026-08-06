@@ -66,6 +66,7 @@ async function loadStoreData(slug) {
   }
 }
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
+/*
 (function spawnParticles() {
   const wrap = $('particles');
   for (let i = 0; i < 22; i++) {
@@ -75,6 +76,7 @@ async function loadStoreData(slug) {
     wrap.appendChild(p);
   }
 })();
+*/
 
 /* ─── LIVE VIEWERS ANIMATION ─────────────────────────────────────────── */
 let viewers = 148;
