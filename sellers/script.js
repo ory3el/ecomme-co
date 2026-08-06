@@ -159,21 +159,46 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
+/* ─── NOTIFICATION ───────────────────────────────────────────────── */
+function openNotif() { 
+  closeAcc();
+  closeMore();
+  if (typeof closeMore === 'function') closeMore();
+  $('notifSidebar').classList.add('on'); 
+  $('notifOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
+function closeNotif() { $('notifSidebar').classList.remove('on'); $('notifOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
+/* ─── MORE ───────────────────────────────────────────────────────── */
+function openMore() { 
+  closeAcc();
+  closeNotif();
+  if (typeof closeMore === 'function') closeNotif();
+  $('moreSidebar').classList.add('on'); 
+  $('moreOverlay').classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
+}
+function closeMore() { $('moreSidebar').classList.remove('on'); $('moreOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
+
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
-function openAcc() {
+function openAcc() { 
+  closeNotif();
+  closeMore();
+  
   const sb = document.getElementById('accSidebar');
   const ov = document.getElementById('accOverlay');
-  if (sb) sb.classList.add('on');
-  if (ov) ov.classList.add('on');
-  document.body.classList.add("nobodyscroll");
+  if(sb) sb.classList.add('on'); 
+  if(ov) ov.classList.add('on'); 
+  document.body.classList.add("nobodyscroll"); 
 }
 
-function closeAcc() {
+function closeAcc() { 
   const sb = document.getElementById('accSidebar');
   const ov = document.getElementById('accOverlay');
-  if (sb) sb.classList.remove('on');
-  if (ov) ov.classList.remove('on');
-  document.body.classList.remove("nobodyscroll");
+  if(sb) sb.classList.remove('on'); 
+  if(ov) ov.classList.remove('on'); 
+  document.body.classList.remove("nobodyscroll"); 
 }
 
 // LOGOUT
