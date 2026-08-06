@@ -9,7 +9,11 @@ let userId = null;
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-  const storeSlug = location.pathname.split("/")[2];
+  const parts = location.pathname
+    .split("/")
+    .filter(Boolean);
+
+  const slug = parts[1];
 
   if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
@@ -17,7 +21,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  await loadStoreData(storeSlug);
+  await loadStoreData(slug);
 });
 
 async function loadStoreData(slug) {
