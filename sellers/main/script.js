@@ -170,7 +170,6 @@ const EXTRACT = [
   */
 ];
 
-/* ============================================================ AUTH GATE FLOW */
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
@@ -182,13 +181,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const authGate = document.getElementById('authGate');
   const gateChecking = document.getElementById('gateChecking');
   const gateLogin = document.getElementById('gateLogin');
+  const gateNoStore = document.getElementById('gateNoStore');
   const appShell = document.getElementById('appShell');
 
+  // 1. Verifica a Sessão de Autenticação
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
     console.warn("User session not active.");
-    
     if (gateChecking) gateChecking.style.display = 'none';
     if (gateLogin) gateLogin.style.display = 'block';
     
@@ -196,7 +196,25 @@ window.addEventListener('DOMContentLoaded', async () => {
       authGate.style.display = 'flex';
       authGate.classList.remove('hidden');
     }
+    return;
+  }
+  userId = user.id; 
+  
+  const { data: lojaCheck, error: lojaError } = await supabaseClient
+    .from('lojas')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (!lojaCheck) {
+    console.warn("Usuário autenticado, mas não possui loja.");
+    if (gateChecking) gateChecking.style.display = 'none';
+    if (gateNoStore) gateNoStore.style.display = 'block';
     
+    if (authGate) {
+      authGate.style.display = 'flex';
+      authGate.classList.remove('hidden');
+    }
     return;
   }
 
@@ -206,8 +224,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { authGate.style.display = 'none'; }, 550);
   }
 
-  userId = user.id; 
-  
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
   
@@ -281,35 +297,35 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
     }
 
-  if (photoUrl) {
-    const avatarImage = document.getElementById('profileAvatar');
-    const sidebarImage = document.getElementById('sidebarAvatar');
-    const headerImage = document.getElementById('headerAvatar');
-    if (avatarImage) {
-      avatarImage.src = photoUrl;
-      avatarImage.style.filter = "none";
-      avatarImage.style.width = "100%";
-      avatarImage.style.height = "100%";
-      avatarImage.style.borderRadius = "100%";
-      avatarImage.style.objectFit = "cover";
+    if (photoUrl) {
+      const avatarImage = document.getElementById('profileAvatar');
+      const sidebarImage = document.getElementById('sidebarAvatar');
+      const headerImage = document.getElementById('headerAvatar');
+      if (avatarImage) {
+        avatarImage.src = photoUrl;
+        avatarImage.style.filter = "none";
+        avatarImage.style.width = "100%";
+        avatarImage.style.height = "100%";
+        avatarImage.style.borderRadius = "100%";
+        avatarImage.style.objectFit = "cover";
+      }
+      if (sidebarImage) {
+        sidebarImage.src = photoUrl;
+        sidebarImage.style.filter = "none";
+        sidebarImage.style.width = "100%";
+        sidebarImage.style.height = "100%";
+        sidebarImage.style.borderRadius = "100%";
+        sidebarImage.style.objectFit = "cover";
+      }
+      if (headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
     }
-    if (sidebarImage) {
-      sidebarImage.src = photoUrl;
-      sidebarImage.style.filter = "none";
-      sidebarImage.style.width = "100%";
-      sidebarImage.style.height = "100%";
-      sidebarImage.style.borderRadius = "100%";
-      sidebarImage.style.objectFit = "cover";
-    }
-    if (headerImage) {
-      headerImage.src = photoUrl;
-      headerImage.style.filter = "none";
-      headerImage.style.width = "100%";
-      headerImage.style.height = "100%";
-      headerImage.style.borderRadius = "100%";
-      headerImage.style.objectFit = "cover";
-    }
-  }
   }
 });
 
