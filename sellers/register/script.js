@@ -498,6 +498,8 @@ function updatePreview(){
   $('successStoreName').textContent = name;
 
   $('pfCat').style.background = currentAccent;
+  $('pfSlogan').style.color = currentAccent;
+  $('pfBadgePrazo').style.color = currentAccent;
   $('pfFollowBtn').style.background = currentAccent;
   $('pfCover').style.background = currentAccent;
 
