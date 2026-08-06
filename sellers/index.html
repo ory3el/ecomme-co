@@ -218,6 +218,113 @@
   </footer>
 </div>
 
+<!-- NOTIFICATION SIDEBAR -->
+<div class="overlay" id="notifOverlay" onclick="closeNotif()"></div>
+<div class="notif-sb" id="notifSidebar">
+	<div class="notif-hd">
+    <h3>Notificações <span style="color:var(--muted);font-size:15px" id="notifCount">(0)</span></h3>
+    <button class="notif-cls" onclick="closeNotif()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+	<div class="notif-body">
+		
+    </div>
+	
+	<div class="notif-ft">
+		<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+			<div class="btn-content">
+    			<span class="btn-title">Ver Mais Notificações</span>
+			</div>
+			<span class="btn-arrow">&gt;</span>
+    	</button>
+	    <button class="btn-menu3" onclick="closeNotif()">
+			<div class="btn-content">
+				<span class="btn-title">Fechar Notificações</span>
+			</div>
+		</button>
+    </div>
+</div>
+
+<!-- MORE SIDEBAR -->
+<div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+<div class="more-sb" id="moreSidebar">
+	<div class="more-hd">
+    <h3>Mais Opções</h3>
+    <button class="more-cls" onclick="closeMore()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  	</div>
+
+	<div class="more-body">
+	<button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/user.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Meu Perfil</span>
+			<p class="btn-txt">Gerencie suas informações, preferências e configurações em um só lugar.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="window.location.href = '/settings'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/setting.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Configurações</span>
+			<p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/my-orders'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/box.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Histórico de Compras</span>
+			<p class="btn-txt">Seu registro completo de todos os produtos adquiridos e transações realizadas.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/track-order'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/check.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Acompanhar Pedido</span>
+			<p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/notifications'">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/bell.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Notificações</span>
+			<p class="btn-txt">Fique por dentro de tudo o que importa: alertas, mensagens e atualizações essenciais entregues em tempo real.</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.open('/sellers')">
+		<div class="btn-content">
+			<img class="iconIMG" src="/images/icons/full/dashboard.webp" style="width: 15px; height: auto; display: block; stroke: currentColor; stroke-width: 2;"/>
+    		<span class="btn-title">Página do Vendedor</span>
+			<p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes</p>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/terms'">
+		<div class="btn-content">
+    		<span class="btn-title">Termos e Condições de Uso</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+	<button class="btn-menu3" onclick="window.location.href = '/support'">
+		<div class="btn-content">
+    		<span class="btn-title">Suporte</span>
+		</div>
+		<span class="btn-arrow">&gt;</span>
+    </button>
+    <button class="btn-menu3" onclick="closeMore()">
+		<div class="btn-content">
+			<span class="btn-title">Fechar Menu</span>
+		</div>
+	</button>
+  </div>
+</div>
+	
 <!-- ACC SIDEBAR -->
 <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
 <div class="acc-sb" id="accSidebar">
