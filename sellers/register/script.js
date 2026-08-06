@@ -36,7 +36,6 @@ function showToast(type,msg){
   setTimeout(()=>{ el.style.transition='opacity .3s,transform .3s'; el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),300); },3000);
 }
 
-/* ============================================================ AUTH GATE FLOW */
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
@@ -48,10 +47,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const authGate = document.getElementById('authGate');
   const gateChecking = document.getElementById('gateChecking');
   const gateLogin = document.getElementById('gateLogin');
+  const gateHasStore = document.getElementById('gateHasStore');
   const appShell = document.getElementById('appShell');
 
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
   if (!user || userError) {
     console.warn("User session not active. Exibindo pop-up de login.");
     
@@ -62,7 +61,26 @@ window.addEventListener('DOMContentLoaded', async () => {
       authGate.style.display = 'flex';
       authGate.classList.remove('hidden');
     }
+    return;
+  }
+  userId = user.id; 
+
+  const { data: lojaCheck, error: lojaError } = await supabaseClient
+    .from('lojas')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (lojaCheck) {
+    console.warn("Usuário já possui loja cadastrada. Bloqueando acesso ao formulário.");
     
+    if (gateChecking) gateChecking.style.display = 'none';
+    if (gateHasStore) gateHasStore.style.display = 'block';
+    
+    if (authGate) {
+      authGate.style.display = 'flex';
+      authGate.classList.remove('hidden');
+    }
     return;
   }
 
@@ -72,8 +90,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { authGate.style.display = 'none'; }, 550);
   }
 
-  userId = user.id; 
-  
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
@@ -468,7 +484,7 @@ function updatePreview(){
   const name = $('fldStoreName').value.trim() || 'Sua Loja';
   const desc = $('fldDescricao').value.trim() || 'Sua descrição aparecerá aqui.';
   const slogan = $('fldStoreSlogan').value.trim() || 'Seu slogan aparecerá aqui.';
-  const cat = $('fldCategoria').value || 'Eletrônicos';
+  const cat = $('fldCategoria').value || 'Categoria';
   const slug = $('fldSlug').value.trim() || 'sua-loja';
   const prazo = $('fldPrazo').value;
   const freteOn = $('swFrete').classList.contains('on');
