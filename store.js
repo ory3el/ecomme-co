@@ -9,16 +9,7 @@ let userId = null;
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-  let pathname = window.location.pathname; 
-  
-  if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
-    pathname = pathname.slice(0, -1);
-    window.history.replaceState(null, '', pathname + window.location.search);
-  }
-  
-  const segments = pathname.split('/').filter(Boolean);
-  let storeSlug = segments[segments.length - 1] || '';
-  storeSlug = storeSlug.replace('@', '');
+  const storeSlug = location.pathname.split("/")[2];
 
   if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
