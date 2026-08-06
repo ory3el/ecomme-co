@@ -8,29 +8,26 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 // EXECUTE DATABASE
-(async function initStore() {
-  let pathname = window.location.pathname;
-
+window.addEventListener('DOMContentLoaded', async () => {
+  let pathname = window.location.pathname; 
+  
   if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
     pathname = pathname.slice(0, -1);
     window.history.replaceState(null, '', pathname + window.location.search);
   }
   
   const segments = pathname.split('/').filter(Boolean);
-  let storeSlug = segments[segments.length - 1];
-  
-  if (storeSlug) {
-    storeSlug = storeSlug.replace('@', '');
-  }
+  let storeSlug = segments[segments.length - 1] || '';
+  storeSlug = storeSlug.replace('@', '');
 
   if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
-    document.body.innerHTML = '<h1>Loja não especificada na URL.</h1>';
+    document.body.innerHTML = '<h1 style="text-align:center; margin-top:100px;">Loja não especificada na URL.</h1>';
     return;
   }
 
   await loadStoreData(storeSlug);
-})();
+});
 
 async function loadStoreData(slug) {
   try {
@@ -38,33 +35,80 @@ async function loadStoreData(slug) {
       .from('lojas')
       .select('*')
       .eq('slug_url', slug)
-      .single();
+      .maybeSingle();
 
     if (error || !loja) {
       console.error("Loja não encontrada!", error);
-      document.body.innerHTML = '<h1>Loja não encontrada</h1>';
+      document.body.innerHTML = `
+        <div style="text-align: center; padding: 100px 20px; font-family: sans-serif;">
+          <h1>Loja não encontrada 😕</h1>
+          <p>O endereço que você digitou não corresponde a nenhuma loja ativa.</p>
+        </div>`;
       return;
     }
-    
+
     const statusDaLoja = loja.status ? loja.status.toLowerCase().trim() : '';
     if (statusDaLoja !== 'ativa' && statusDaLoja !== 'active') {
       console.warn("Acesso negado: A loja ainda não foi ativada.");
       document.body.innerHTML = `
-        <div style="text-align: center; padding: 50px; font-family: sans-serif;">
+        <div style="text-align: center; padding: 100px 20px; font-family: sans-serif;">
           <h1>Loja em Configuração 🛠️</h1>
-          <p>Esta loja está sendo preparada e em breve estará no ar!</p>
+          <p>Esta loja está sendo preparada ou está em análise. Em breve estará no ar!</p>
         </div>
       `;
       return;
     }
 
     console.log("Loja carregada com sucesso:", loja);
-    document.title = `${loja.nome} | Ecomme`;
+    document.title = `${loja.nome_loja || loja.nome_fantasia} | Ecomme`;
+
+    const nameEl = document.querySelector('.pi-name');
+    if (nameEl) nameEl.textContent = loja.nome_loja || loja.nome_fantasia;
+    
+    const handleEl = document.querySelector('.pi-handle');
+    if (handleEl) handleEl.textContent = `@${loja.slug_url} · Membro desde 2024`;
+
+    const descEl = document.querySelector('.pi-desc');
+    if (descEl) descEl.textContent = loja.descricao || 'Bem-vindo à nossa loja!';
+
+    const corDestaque = loja.cor_destaque || 'var(--blue)';
+    document.documentElement.style.setProperty('--blue', corDestaque);
+
+    if (loja.logo_base64) {
+      const avatarWrap = document.querySelector('.pi-avatar');
+      if (avatarWrap) {
+        avatarWrap.innerHTML = `<img src="${loja.logo_base64}" style="width:100%; height:100%; object-fit:cover; border-radius:14px;">`;
+        avatarWrap.style.background = 'transparent';
+      }
+    } else {
+      const avatarWrap = document.querySelector('.pi-avatar');
+      if (avatarWrap) {
+        const iniciais = (loja.nome_loja || loja.nome_fantasia || 'SL').substring(0,2).toUpperCase();
+        avatarWrap.textContent = iniciais;
+        avatarWrap.style.background = corDestaque;
+      }
+    }
+
+    if (loja.capa_base64) {
+      const bannerWrap = document.querySelector('.seller-banner');
+      if (bannerWrap) {
+        bannerWrap.style.backgroundImage = `url(${loja.capa_base64})`;
+        bannerWrap.style.backgroundSize = 'cover';
+        bannerWrap.style.backgroundPosition = 'center';
+      }
+    }
+
+    const aboutText = document.querySelector('#panel-about p');
+    if (aboutText) aboutText.textContent = loja.descricao || 'Informações em breve.';
+
+    // Aqui você também pode chamar uma função para buscar e renderizar os PRODUTOS dessa loja:
+    // buscarProdutosDaLoja(loja.id);
 
   } catch (err) {
     console.error("Erro inesperado:", err);
   }
 }
+
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
 /*
 (function spawnParticles() {
