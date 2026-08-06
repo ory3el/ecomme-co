@@ -45,15 +45,26 @@ async function loadStoreData(slug) {
       document.body.innerHTML = '<h1>Loja não encontrada</h1>';
       return;
     }
+    
+    const statusDaLoja = loja.status ? loja.status.toLowerCase().trim() : '';
+    if (statusDaLoja !== 'ativa' && statusDaLoja !== 'active') {
+      console.warn("Acesso negado: A loja ainda não foi ativada.");
+      document.body.innerHTML = `
+        <div style="text-align: center; padding: 50px; font-family: sans-serif;">
+          <h1>Loja em Configuração 🛠️</h1>
+          <p>Esta loja está sendo preparada e em breve estará no ar!</p>
+        </div>
+      `;
+      return;
+    }
 
-    console.log("Loja carregada:", loja);
+    console.log("Loja carregada com sucesso:", loja);
     document.title = `${loja.nome} | Ecomme`;
 
   } catch (err) {
     console.error("Erro inesperado:", err);
   }
 }
-
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
 (function spawnParticles() {
   const wrap = $('particles');
