@@ -652,5 +652,6 @@ async function submitNewAddress() {
     if (formDiv) formDiv.classList.remove('on');
     
     fetchAddresses(); 
+    closeAddressModal()
   }
 }
