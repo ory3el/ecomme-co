@@ -661,6 +661,7 @@ function renderStoreState(status, slug) {
   const iframe = document.getElementById('store-preview-frame');
   const urlDisplay = document.getElementById('store-url-display');
   const headerStore = document.getElementById('header-store');
+  const sbStoreName = document.getElementById('sb-storename');
   const sbStore = document.getElementById('sb-store');
   
   if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
@@ -680,6 +681,7 @@ function renderStoreState(status, slug) {
     headerStore.textContent = `${safeSlug}`;
     headerStore.style.display = 'flex';
     sbStore.textContent = `${safeSlug}`;
+    sbStoreName.textContent = `@${safeSlug}`;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
@@ -689,6 +691,7 @@ function renderStoreState(status, slug) {
     pendingUI.style.display = 'block';
     activeUI.style.display = 'none';
     sbStore.textContent = '';
+    sbStoreName.textContent = ``;
   }
 }
 
