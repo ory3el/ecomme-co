@@ -28,8 +28,8 @@
    in client-side code by design — it only grants what your Row Level
    Security (RLS) policies allow.
    ============================================================================ */
-const SUPABASE_URL = 'https://YOUR-PROJECT-ref.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-PUBLIC-ANON-KEY';
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 
 // DEMO MODE: true while the placeholders above haven't been replaced.
 // This is what lets this exact file render a working preview right now,
