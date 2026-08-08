@@ -660,6 +660,7 @@ function renderStoreState(status, slug) {
   const activeUI = document.getElementById('store-active-state');
   const iframe = document.getElementById('store-preview-frame');
   const urlDisplay = document.getElementById('store-url-display');
+  const headerStore = document.getElementById('header-store');
   const sbStore = document.getElementById('sb-store');
   
   if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
@@ -676,14 +677,18 @@ function renderStoreState(status, slug) {
 
     const publicStoreUrl = `/store/@${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
+    headerStore.textContent = `${safeSlug}`;
+    headerStore.style.display = 'flex';
     sbStore.textContent = `${safeSlug}`;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
     }
   } else {
+    headerStore.style.display = 'none';
     pendingUI.style.display = 'block';
     activeUI.style.display = 'none';
+    sbStore.textContent = '';
   }
 }
 
