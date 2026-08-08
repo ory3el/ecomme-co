@@ -675,6 +675,7 @@ function renderStoreState(status, slug) {
 
     const publicStoreUrl = `/store/@${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
+    sb-store.textContent = `${safeSlug}`;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
