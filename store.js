@@ -7,101 +7,74 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-// EXECUTE DATABASE
+//EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-  const parts = location.pathname
-    .split("/")
-    .filter(Boolean);
+  let pathname = window.location.pathname; 
+  
+  // 1. Limpa a barra do final discretamente sem recarregar a página
+  if (pathname.endsWith('/') && pathname !== '/store/' && pathname !== '/store') {
+    pathname = pathname.slice(0, -1);
+    window.history.replaceState(null, '', pathname + window.location.search);
+  }
+  
+  // 2. Extrai o nome da loja (slug) da URL
+  const segments = pathname.split('/').filter(Boolean);
+  let storeSlug = segments[segments.length - 1] || '';
+  storeSlug = storeSlug.replace('@', '');
 
-  const slug = parts[1];
-
-  if (!slug || slug === 'store' || slug === 'seller') {
+  if (!storeSlug || storeSlug === 'store' || storeSlug === 'seller') {
     console.error("Nenhuma loja especificada na URL.");
     document.body.innerHTML = '<h1 style="text-align:center; margin-top:100px;">Loja não especificada na URL.</h1>';
     return;
   }
 
-  await loadStoreData(slug);
+  // 3. Em vez de ir no banco, carrega uma loja falsa de teste
+  loadDummyStoreData(storeSlug);
 });
 
-async function loadStoreData(slug) {
-  try {
-    const { data: loja, error } = await supabaseClient
-      .from('lojas')
-      .select('*')
-      .eq('slug_url', slug)
-      .maybeSingle();
+// Função que simula os dados vindo do banco
+function loadDummyStoreData(slug) {
+  console.log("Modo de Teste Ativado: Carregando loja fictícia para ->", slug);
 
-    if (error || !loja) {
-      console.error("Loja não encontrada!", error);
-      document.body.innerHTML = `
-        <div style="text-align: center; padding: 100px 20px; font-family: sans-serif;">
-          <h1>Loja não encontrada 😕</h1>
-          <p>O endereço que você digitou não corresponde a nenhuma loja ativa.</p>
-        </div>`;
-      return;
-    }
+  // Cria os dados falsos usando o que foi digitado na URL
+  const lojaFake = {
+    nome_loja: "Loja " + slug.charAt(0).toUpperCase() + slug.slice(1),
+    slug_url: slug,
+    descricao: "Esta é uma loja de teste. Se você está vendo isso, o roteamento dinâmico da URL está funcionando 100%!",
+    cor_destaque: "#8B5CF6", // Um roxo bonito para o teste
+  };
 
-    const statusDaLoja = loja.status ? loja.status.toLowerCase().trim() : '';
-    if (statusDaLoja !== 'ativa' && statusDaLoja !== 'active') {
-      console.warn("Acesso negado: A loja ainda não foi ativada.");
-      document.body.innerHTML = `
-        <div style="text-align: center; padding: 100px 20px; font-family: sans-serif;">
-          <h1>Loja em Configuração 🛠️</h1>
-          <p>Esta loja está sendo preparada ou está em análise. Em breve estará no ar!</p>
-        </div>
-      `;
-      return;
-    }
+  // Preenche o HTML
+  document.title = `${lojaFake.nome_loja} | Ecomme Teste`;
 
-    console.log("Loja carregada com sucesso:", loja);
-    document.title = `${loja.nome_loja || loja.nome_fantasia} | Ecomme`;
+  const nameEl = document.querySelector('.pi-name');
+  if (nameEl) nameEl.textContent = lojaFake.nome_loja;
+  
+  const handleEl = document.querySelector('.pi-handle');
+  if (handleEl) handleEl.textContent = `@${lojaFake.slug_url} · Modo de Teste`;
 
-    const nameEl = document.querySelector('.pi-name');
-    if (nameEl) nameEl.textContent = loja.nome_loja || loja.nome_fantasia;
-    
-    const handleEl = document.querySelector('.pi-handle');
-    if (handleEl) handleEl.textContent = `@${loja.slug_url} · Membro desde 2024`;
+  const descEl = document.querySelector('.pi-desc');
+  if (descEl) descEl.textContent = lojaFake.descricao;
 
-    const descEl = document.querySelector('.pi-desc');
-    if (descEl) descEl.textContent = loja.descricao || 'Bem-vindo à nossa loja!';
+  // Muda a cor principal
+  document.documentElement.style.setProperty('--blue', lojaFake.cor_destaque);
 
-    const corDestaque = loja.cor_destaque || 'var(--blue)';
-    document.documentElement.style.setProperty('--blue', corDestaque);
-
-    if (loja.logo_base64) {
-      const avatarWrap = document.querySelector('.pi-avatar');
-      if (avatarWrap) {
-        avatarWrap.innerHTML = `<img src="${loja.logo_base64}" style="width:100%; height:100%; object-fit:cover; border-radius:14px;">`;
-        avatarWrap.style.background = 'transparent';
-      }
-    } else {
-      const avatarWrap = document.querySelector('.pi-avatar');
-      if (avatarWrap) {
-        const iniciais = (loja.nome_loja || loja.nome_fantasia || 'SL').substring(0,2).toUpperCase();
-        avatarWrap.textContent = iniciais;
-        avatarWrap.style.background = corDestaque;
-      }
-    }
-
-    if (loja.capa_base64) {
-      const bannerWrap = document.querySelector('.seller-banner');
-      if (bannerWrap) {
-        bannerWrap.style.backgroundImage = `url(${loja.capa_base64})`;
-        bannerWrap.style.backgroundSize = 'cover';
-        bannerWrap.style.backgroundPosition = 'center';
-      }
-    }
-
-    const aboutText = document.querySelector('#panel-about p');
-    if (aboutText) aboutText.textContent = loja.descricao || 'Informações em breve.';
-
-    // Aqui você também pode chamar uma função para buscar e renderizar os PRODUTOS dessa loja:
-    // buscarProdutosDaLoja(loja.id);
-
-  } catch (err) {
-    console.error("Erro inesperado:", err);
+  // Iniciais do Avatar
+  const avatarWrap = document.querySelector('.pi-avatar');
+  if (avatarWrap) {
+    const iniciais = slug.substring(0, 2).toUpperCase();
+    avatarWrap.textContent = iniciais;
+    avatarWrap.style.background = lojaFake.cor_destaque;
+    // Remove a imagem se houver no HTML puro
+    const img = avatarWrap.querySelector('img');
+    if (img) img.remove();
   }
+
+  const aboutText = document.querySelector('#panel-about p');
+  if (aboutText) aboutText.textContent = lojaFake.descricao;
+  
+  // Retira o loader/blur inicial caso haja algum na sua tela
+  document.body.style.display = 'block'; 
 }
 
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
