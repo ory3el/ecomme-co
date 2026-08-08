@@ -390,7 +390,7 @@ body {
 /* sidebar */
 .app-sb {
   width:220px;background:var(--white);flex-shrink:0;display:flex;
-  flex-direction:column;position:sticky;top:58px;
+  flex-direction:column;position:sticky;
   height:calc(100vh - 58px);overflow-y:auto
 }
 .sb-seller-info{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
@@ -464,10 +464,15 @@ body {
   padding: 24px;
   min-width: 0;
   overflow-x: hidden;
-  
   box-sizing: border-box; 
   height: calc(100vh - 58px); 
   overflow-y: auto;
+  
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+.app-main::-webkit-scrollbar {
+  display: none;
 }
 .page{display:none;animation:pgIn .25s ease both}
 .page.on{display:block}
