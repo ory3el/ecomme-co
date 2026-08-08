@@ -660,7 +660,8 @@ function renderStoreState(status, slug) {
   const activeUI = document.getElementById('store-active-state');
   const iframe = document.getElementById('store-preview-frame');
   const urlDisplay = document.getElementById('store-url-display');
-
+  const sbStore = document.getElementById('sb-store');
+  
   if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
     console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
     return;
@@ -675,7 +676,7 @@ function renderStoreState(status, slug) {
 
     const publicStoreUrl = `/store/@${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
-    sb-store.textContent = `${safeSlug}`;
+    sbStore.textContent = `${safeSlug}`;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
