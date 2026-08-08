@@ -100,9 +100,16 @@ function createCustomScrollbar(scrollElement, isMainBody = false) {
     }
   });
 }
-createCustomScrollbar(window, true);
+
+const mainElement = document.querySelector('.app-main');
+if (mainElement) {
+  mainElement.style.position = 'relative'; 
+  createCustomScrollbar(mainElement, false);
+}
+
 const sidebarElement = document.querySelector('.app-sb');
 if (sidebarElement) {
+  sidebarElement.style.position = 'relative';
   createCustomScrollbar(sidebarElement, false);
 }
 
