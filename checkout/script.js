@@ -653,8 +653,6 @@ function onCardName(inp){ document.getElementById('cardNameDisp').textContent=in
 function onCardExp(inp){ let v=inp.value.replace(/\D/g,'').slice(0,4); if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2); inp.value=v; document.getElementById('cardExpDisp').textContent=v||'MM/AA'; }
 function onCvv(inp){ document.getElementById('cvvDisp').textContent=inp.value||'•••'; }
 
-const sumTotal = document.getElementById('sumTotal');
-
 function buildInstallOpts(){
   const total=cartItems.reduce((s,i)=>s+i.price*i.qty,0);
   const opts=[1,2,3,4,5,6];
