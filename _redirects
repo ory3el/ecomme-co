@@ -1,5 +1,6 @@
 /store   /store/index.html 200
 /store/* /store/index.html 200
+/store/@* /store/index.html 200
 
 /user            /user/index.html   200
 /user/*          /user/index.html   200
