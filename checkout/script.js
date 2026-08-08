@@ -313,7 +313,7 @@ let discount = 0;
 let couponCode = '';
 let shipping = 0;
 let currentStep = 1;
-let payMethod = 'pix';
+let payMethod = '';
 let installSel = 1;
 let pixInterval;
 let pixSeconds = 1799;
@@ -653,13 +653,15 @@ function onCardName(inp){ document.getElementById('cardNameDisp').textContent=in
 function onCardExp(inp){ let v=inp.value.replace(/\D/g,'').slice(0,4); if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2); inp.value=v; document.getElementById('cardExpDisp').textContent=v||'MM/AA'; }
 function onCvv(inp){ document.getElementById('cvvDisp').textContent=inp.value||'•••'; }
 
+const sumTotal = document.getElementById('sumTotal').value
+
 function buildInstallOpts(){
   const total=cartItems.reduce((s,i)=>s+i.price*i.qty,0);
   const opts=[1,2,3,4,5,6];
   document.getElementById('installOpts').innerHTML=opts.map(n=>`
     <div class="inst-btn ${n===1?'on':''}" onclick="selInstall(this,${n})">
       <span class="inst-n">${n}×</span>
-      <div class="inst-val">${fp(total)}</div>
+      <div class="inst-val">${sumTotal}</div>
       ${n===1?'<span class="inst-badge">À vista</span>':n<=3?'<span class="inst-badge">Sem juros</span>':''}
     </div>`).join('');
 }
