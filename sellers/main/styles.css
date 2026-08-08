@@ -459,7 +459,15 @@ body {
 .sb-footer{padding:12px 8px;border-top:1px solid rgba(255,255,255,.07)}
 
 /* main content */
-.app-main{flex:1;padding:24px;min-width:0;overflow-x:hidden}
+.app-main {
+  flex: 1;
+  padding: 24px;
+  min-width: 0;
+  overflow-x: hidden;
+  
+  height: calc(100vh - 58px); 
+  overflow-y: auto;
+}
 .page{display:none;animation:pgIn .25s ease both}
 .page.on{display:block}
 @keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
