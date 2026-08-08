@@ -103,19 +103,6 @@ function createCustomScrollbar(scrollElement, isMainBody = false) {
 
 const mainElement = document.querySelector('.app-main');
 if (mainElement) {
-  // Garante que o container esteja preparado para o scroll customizado
-  mainElement.style.overflowY = 'auto';
-  createCustomScrollbar(mainElement, false);
-}
-
-const sidebarElement = document.querySelector('.app-sb');
-if (sidebarElement) {
-  sidebarElement.style.overflowY = 'auto';
-  createCustomScrollbar(sidebarElement, false);
-}
-
-/*const mainElement = document.querySelector('.app-main');
-if (mainElement) {
   mainElement.style.position = 'relative'; 
   createCustomScrollbar(mainElement, false);
 }
@@ -124,7 +111,7 @@ const sidebarElement = document.querySelector('.app-sb');
 if (sidebarElement) {
   sidebarElement.style.position = 'relative';
   createCustomScrollbar(sidebarElement, false);
-}*/
+}
 
 /* --------------------------------------------------------- */
 
