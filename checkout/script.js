@@ -660,7 +660,7 @@ function buildInstallOpts(){
   const opts=[1,2,3,4,5,6];
   document.getElementById('installOpts').innerHTML=opts.map(n=>`
     <div class="inst-btn ${n===1?'on':''}" onclick="selInstall(this,${n})">
-      <span class="inst-n">${n}×</span>
+      <span class="inst-n">`${n}`×</span>
       <div class="inst-val">`${sumTotal}`</div>
       ${n===1?'<span class="inst-badge">À vista</span>':n<=3?'<span class="inst-badge">Sem juros</span>':''}
     </div>`).join('');
