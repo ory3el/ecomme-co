@@ -719,7 +719,7 @@ async function fetchInitialStoreStatus() {
   try {
     const { data, error } = await supabaseClient
       .from('lojas')
-      .select('status, slug_url')
+      .select('status, slug_url, nome_loja, slogan, descricao, email, telefone')
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -730,7 +730,7 @@ async function fetchInitialStoreStatus() {
     }
 
     if (data) {
-      renderStoreState(data.status, data.slug_url, data.nome_loja, data.slogan, data.descricao, data.email, data.telefone);
+      renderStoreState(data.status, data.slug_url, data);
     } else {
       renderStoreState('pendente', '');
     }
