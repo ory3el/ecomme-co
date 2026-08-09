@@ -807,10 +807,8 @@ async function carregarConfiguracoesLoja() {
         // Se encontrou dados, preenche os inputs pelo ID
         if (data) {
             document.getElementById('cfgStoreName').value = data.nome_loja || '';
-            document.getElementById('cfgSlogan').value = data.slogan || '';
-            document.getElementById('cfgDescricao').value = data.descricao || '';
-            document.getElementById('cfgCnpj').value = data.cnpj || '';
-            document.getElementById('cfgRazaoSocial').value = data.razao_social || '';
+            document.getElementById('cfgStoreSlogan').value = data.slogan || '';
+            document.getElementById('cfgStoreDesc').value = data.descricao || '';
             // Continue replicando para os demais campos...
         }
 
@@ -830,11 +828,9 @@ async function saveConfig() {
 
         // Captura os valores atuais dos inputs
         const updates = {
-            nome_loja: document.getElementById('cfgNomeLoja').value,
-            slogan: document.getElementById('cfgSlogan').value,
-            descricao: document.getElementById('cfgDescricao').value,
-            cnpj: document.getElementById('cfgCnpj').value,
-            razao_social: document.getElementById('cfgRazaoSocial').value,
+            nome_loja: document.getElementById('cfgStoreName').value,
+            slogan: document.getElementById('cfgStoreSlogan').value,
+            descricao: document.getElementById('cfgStoreDesc').value,
             updated_at: new Date()
         };
 
