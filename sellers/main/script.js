@@ -602,7 +602,6 @@ function showCfg(id, el){
   if(panel) panel.classList.add('on');
   if(el) el.classList.add('on');
 }
-function saveConfig(){ toast('Configurações salvas com sucesso! ✓'); }
 
 // ══ LANDING ══════════════════════════════════════════════
 function toggleFAQ(el){ el.closest('.faq-item').classList.toggle('open'); }
@@ -756,8 +755,7 @@ function subscribeToStoreStatus() {
       (payload) => {
         const novoStatus = payload.new.status;
         const slug = payload.new.slug_url;
-        
-        renderStoreState(novoStatus, slug);
+        renderStoreState(novoStatus, slug, payload.new);
         
         if (novoStatus === 'ativa' || novoStatus === 'active') {
           toast('Sua loja foi ativada e já está no ar! 🎉', 'ok');
@@ -765,6 +763,62 @@ function subscribeToStoreStatus() {
       }
     )
     .subscribe();
+}
+
+function saveConfig(/*event*/) {
+  // if (event) event.preventDefault();
+
+  if (!userId) {
+    console.error("Usuário não autenticado.");
+    return;
+  }
+
+  const btnSalvar = document.getElementById('btn-save-config');
+  const textoOriginal = btnSalvar.innerText;
+  
+  if (btnSalvar) {
+    btnSalvar.innerText = 'Salvando...';
+    btnSalvar.disabled = true;
+  }
+
+  try {
+    const dadosParaSalvar = {
+      nome_loja: document.getElementById('input-nome-loja').value,
+      slogan: document.getElementById('input-slogan').value,
+      descricao: document.getElementById('input-descricao').value,
+      email: document.getElementById('input-email').value,
+      telefone: document.getElementById('input-telefone').value,
+      
+      // Exemplos de campos que você pode adicionar futuramente:
+      // cor_primaria: document.getElementById('input-cor-tema').value,
+      // cnpj: document.getElementById('input-cnpj').value,
+      // cep_origem: document.getElementById('input-cep').value
+    };
+
+    const { data, error } = await supabaseClient
+      .from('lojas')
+      .update(dadosParaSalvar)
+      .eq('user_id', userId)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+    console.log("Configurações salvas com sucesso!", data);
+    toast("As configurações foram salvas com sucesso!");
+    
+    renderStoreState(data[0].status, data[0].slug_url, data[0]);
+
+  } catch (err) {
+    console.error("Erro ao salvar configurações:", err.message);
+    toast("Ocorreu um erro ao salvar. Verifique sua conexão e tente novamente.");
+  } finally {
+
+    if (btnSalvar) {
+      btnSalvar.innerText = textoOriginal;
+      btnSalvar.disabled = false;
+    }
+  }
 }
 
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
