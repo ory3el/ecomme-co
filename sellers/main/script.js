@@ -191,7 +191,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const gateNoStore = document.getElementById('gateNoStore');
   const appShell = document.getElementById('appShell');
 
-  // 1. Verifica a Sessão de Autenticação
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
@@ -233,7 +232,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
-  carregarConfiguracoesLoja();
   
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
@@ -663,7 +661,7 @@ window.addEventListener('hashchange',()=>{
 });
   
 /* -------------------------------------------------------------- */
-function renderStoreState(status, slug) {
+function renderStoreState(status, slug, data) {
   const pendingUI = document.getElementById('store-pending-state');
   const activeUI = document.getElementById('store-active-state');
   const iframe = document.getElementById('store-preview-frame');
@@ -671,6 +669,12 @@ function renderStoreState(status, slug) {
   const headerStore = document.getElementById('header-store');
   const sbStoreName = document.getElementById('sb-storename');
   const sbStore = document.getElementById('sb-store');
+
+  const cfgStoreName = document.getElementById('cfgStoreName');
+  const cfgStoreSlogan = document.getElementById('cfgStoreSlogan');
+  const cfgStoreDesc = document.getElementById('cfgStoreDesc');
+  const cfgStoreEmail = document.getElementById('cfgStoreEmail');
+  const cfgStorePhone = document.getElementById('cfgStorePhone');
   
   if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
     console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
@@ -690,6 +694,12 @@ function renderStoreState(status, slug) {
     headerStore.style.display = 'flex';
     sbStore.textContent = `${safeSlug}`;
     sbStoreName.textContent = `@${safeSlug}`;
+
+    cfgStoreName.value = data.nome_loja;
+    cfgStoreSlogan.value = data.slogan;
+    cfgStoreDesc.value = data.descricao;
+    cfgStoreEmail.value = data.email;
+    cfgStorePhone.value = data.telefone;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
@@ -782,70 +792,4 @@ async function doLogout() {
   await supabaseClient.auth.signOut();
   closeAcc();
   location.reload();
-}
-
-// Função para carregar os dados do Supabase e preencher os inputs
-async function carregarConfiguracoesLoja() {
-    try {
-        // Pega o usuário autenticado atualmente
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-            console.error("Usuário não autenticado.");
-            return;
-        }
-
-        // Busca os dados da loja vinculada ao ID do usuário
-        const { data, error } = await supabase
-            .from('lojas') // Substitua pelo nome da sua tabela
-            .select('*')
-            .eq('user_id', user.id) // Substitua pela sua chave estrangeira
-            .single();
-
-        if (error) throw error;
-
-        // Se encontrou dados, preenche os inputs pelo ID
-        if (data) {
-            document.getElementById('cfgStoreName').value = data.nome_loja || '';
-            document.getElementById('cfgStoreSlogan').value = data.slogan || '';
-            document.getElementById('cfgStoreDesc').value = data.descricao || '';
-            // Continue replicando para os demais campos...
-        }
-
-    } catch (err) {
-        console.error("Erro ao carregar dados da loja:", err.message);
-        toast('Erro ao carregar configurações', 'err'); // Usa sua notificação visual
-    }
-}
-
-// Função acionada pelo botão "💾 Salvar alterações" do HTML
-async function saveConfig() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        toast('Salvando configurações...', 'info');
-
-        // Captura os valores atuais dos inputs
-        const updates = {
-            nome_loja: document.getElementById('cfgStoreName').value,
-            slogan: document.getElementById('cfgStoreSlogan').value,
-            descricao: document.getElementById('cfgStoreDesc').value,
-            updated_at: new Date()
-        };
-
-        // Faz o update no Supabase
-        const { error } = await supabase
-            .from('lojas')
-            .update(updates)
-            .eq('user_id', user.id);
-
-        if (error) throw error;
-
-        toast('Configurações salvas com sucesso! ✓', 'ok');
-
-    } catch (err) {
-        console.error("Erro ao salvar:", err.message);
-        toast('Erro ao salvar dados', 'err');
-    }
 }
