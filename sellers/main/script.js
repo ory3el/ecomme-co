@@ -783,11 +783,11 @@ function saveConfig(/*event*/) {
 
   try {
     const dadosParaSalvar = {
-      nome_loja: document.getElementById('input-nome-loja').value,
-      slogan: document.getElementById('input-slogan').value,
-      descricao: document.getElementById('input-descricao').value,
-      email: document.getElementById('input-email').value,
-      telefone: document.getElementById('input-telefone').value,
+      nome_loja: cfgStoreName.value,
+      slogan: cfgStoreSlogan.value,
+      descricao: cfgStoreDesc.value,
+      email: cfgStoreEmail.value,
+      telefone: cfgStorePhone.value,
       
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
