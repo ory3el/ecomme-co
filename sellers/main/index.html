@@ -536,7 +536,7 @@
       <div class="page" id="page-config">
         <div class="page-hd">
           <div><h2>Configurações da Loja</h2><p>Gerencie informações, frete e preferências da TechLab Store</p></div>
-          <button class="btn btn-p btn-sm" onclick="saveConfig()">💾 Salvar alterações</button>
+          <button class="btn btn-p btn-sm" id="btn-save-config" onclick="saveConfig()">💾 Salvar alterações</button>
         </div>
         <div class="cfg-grid">
           <div class="cfg-sb">
@@ -550,31 +550,31 @@
             <div class="cfg-nav-item" style="color:var(--red)" onclick="showCfg('danger',this)">⚠ Zona de Perigo</div>
           </div>
           <div>
-<!-- Identidade -->
-<div class="cfg-panel on" id="cfg-identidade">
-  <div class="card card-pad mb16">
-    <div class="card-title mb16">Logotipo e Visual</div>
-    <div class="logo-upload" onclick="toast('Selecionar logotipo...','info')">
-      <div class="logo-preview" id="cfgLogoPreview">TL</div>
-      <h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
-      <p class="fs11 muted mt4">PNG, SVG · Fundo transparente · Mín 200×200px</p>
-    </div>
-  </div>
-  <div class="card card-pad mb16">
-    <div class="card-title mb16">Informações da Loja</div>
-    <div style="display:flex;flex-direction:column;gap:13px">
-      <div class="fgrid2">
-        <div class="fgrp"><label>Nome da Loja *</label><input class="inp" id="cfgStoreName" value=""></div>
-        <div class="fgrp"><label>Slogan</label><input class="inp" id="cfgStoreSlogan" value=""></div>
-      </div>
-      <div class="fgrp"><label>Descrição da Loja</label><textarea class="inp ta" id="cfgStoreDesc"></textarea></div>
-      <div class="fgrid2">
-        <div class="fgrp"><label>E-mail de Contato</label><input class="inp" type="email" id="cfgStoreEmail" value=""></div>
-        <div class="fgrp"><label>WhatsApp / Telefone</label><input class="inp" id="cfgStorePhone" value=""></div>
-      </div>
-    </div>
-  </div>
-</div>
+			<!-- Identidade -->
+			<div class="cfg-panel on" id="cfg-identidade">
+  			<div class="card card-pad mb16">
+    			<div class="card-title mb16">Logotipo e Visual</div>
+    			<div class="logo-upload" onclick="toast('Selecionar logotipo...','info')">
+      			<div class="logo-preview" id="cfgLogoPreview">TL</div>
+      			<h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
+      			<p class="fs11 muted mt4">PNG, SVG · Fundo transparente · Mín 200×200px</p>
+    			</div>
+  			</div>
+  			<div class="card card-pad mb16">
+    			<div class="card-title mb16">Informações da Loja</div>
+    			<div style="display:flex;flex-direction:column;gap:13px">
+      			<div class="fgrid2">
+        			<div class="fgrp"><label>Nome da Loja *</label><input class="inp" id="cfgStoreName" value=""></div>
+        			<div class="fgrp"><label>Slogan</label><input class="inp" id="cfgStoreSlogan" value=""></div>
+      			</div>
+      			<div class="fgrp"><label>Descrição da Loja</label><textarea class="inp ta" id="cfgStoreDesc"></textarea></div>
+      			<div class="fgrid2">
+        			<div class="fgrp"><label>E-mail de Contato</label><input class="inp" type="email" id="cfgStoreEmail" value=""></div>
+        			<div class="fgrp"><label>WhatsApp / Telefone</label><input class="inp" id="cfgStorePhone" value=""></div>
+      			</div>
+    			</div>
+  			</div>
+			</div>
             <!-- Fiscal -->
             <div class="cfg-panel" id="cfg-fiscal">
               <div class="card card-pad">
