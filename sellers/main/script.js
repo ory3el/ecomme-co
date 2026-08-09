@@ -765,7 +765,7 @@ function subscribeToStoreStatus() {
     .subscribe();
 }
 
-function saveConfig(/*event*/) {
+async function saveConfig(/*event*/) {
   // if (event) event.preventDefault();
 
   if (!userId) {
