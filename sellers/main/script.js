@@ -224,8 +224,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     return;
   }
-
-  populateConfig(lojaCheck);
   
   if (authGate) {
     authGate.classList.add('hidden');
@@ -235,6 +233,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await fetchInitialStoreStatus();
   subscribeToStoreStatus();
+  carregarConfiguracoesLoja();
   
   // ============================================================
   const { data: profile, error: profileError } = await supabaseClient
@@ -785,90 +784,72 @@ async function doLogout() {
   location.reload();
 }
 
-// ── PREENCHER CONFIGURAÇÕES COM DADOS DO BANCO ──────────────────────
-function populateConfig(loja) {
-  if (!loja) return;
+// Função para carregar os dados do Supabase e preencher os inputs
+async function carregarConfiguracoesLoja() {
+    try {
+        // Pega o usuário autenticado atualmente
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+            console.error("Usuário não autenticado.");
+            return;
+        }
 
-  const setVal = (id, val) => {
-    const el = document.getElementById(id);
-    if (el && val !== undefined && val !== null) el.value = val;
-  };
+        // Busca os dados da loja vinculada ao ID do usuário
+        const { data, error } = await supabase
+            .from('lojas') // Substitua pelo nome da sua tabela
+            .select('*')
+            .eq('user_id', user.id) // Substitua pela sua chave estrangeira
+            .single();
 
-  setVal('cfgStoreName', loja.nome_loja || loja.store_name);
-  setVal('cfgStoreSlogan', loja.slogan);
-  setVal('cfgStoreDesc', loja.descricao || loja.description);
-  setVal('cfgStoreEmail', loja.email_contato || loja.email);
-  setVal('cfgStorePhone', loja.telefone || loja.phone);
+        if (error) throw error;
 
-  const logoPrev = document.getElementById('cfgLogoPreview');
-  if (logoPrev) {
-    if (loja.logo_url) {
-      logoPrev.innerHTML = `<img src="${loja.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
-    } else {
-      const nome = loja.nome_loja || loja.store_name || "Loja";
-      const iniciais = (nome.split(' ')[0][0] + (nome.split(' ')[1] ? nome.split(' ')[1][0] : '')).toUpperCase();
-      logoPrev.textContent = iniciais;
+        // Se encontrou dados, preenche os inputs pelo ID
+        if (data) {
+            document.getElementById('cfgNomeLoja').value = data.nome_loja || '';
+            document.getElementById('cfgSlogan').value = data.slogan || '';
+            document.getElementById('cfgDescricao').value = data.descricao || '';
+            document.getElementById('cfgCnpj').value = data.cnpj || '';
+            document.getElementById('cfgRazaoSocial').value = data.razao_social || '';
+            // Continue replicando para os demais campos...
+        }
+
+    } catch (err) {
+        console.error("Erro ao carregar dados da loja:", err.message);
+        toast('Erro ao carregar configurações', 'err'); // Usa sua notificação visual
     }
-  }
-
-  setVal('cfgFiscalDoc', loja.documento || loja.cpf_cnpj);
-  setVal('cfgFiscalName', loja.razao_social || loja.nome_completo);
-  setVal('cfgFiscalFantasia', loja.nome_fantasia || loja.fantasy_name);
-  setVal('cfgFiscalIE', loja.inscricao_estadual || loja.ie);
-  setVal('cfgFiscalRegime', loja.regime_tributario || loja.tax_regime);
-  
-  let endCompleto = [];
-  if (loja.endereco) endCompleto.push(loja.endereco);
-  if (loja.numero) endCompleto.push("Nº " + loja.numero);
-  if (loja.complemento) endCompleto.push(loja.complemento);
-  if (loja.bairro) endCompleto.push(loja.bairro);
-  if (loja.cidade && loja.estado) endCompleto.push(`${loja.cidade}/${loja.estado}`);
-  
-  setVal('cfgFiscalEnd', endCompleto.join(', ') || "Endereço não cadastrado");
-
-  setVal('cfgShipCep', loja.cep);
-  setVal('cfgShipPrazo', loja.prazo_envio || loja.shipping_time);
 }
 
+// Função acionada pelo botão "💾 Salvar alterações" do HTML
 async function saveConfig() {
-  if (!userId) return toast('Sessão expirada. Faça login novamente.', 'err');
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-  const btn = document.querySelector('#page-config .btn-p');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = 'Salvando...';
-  btn.disabled = true;
+        toast('Salvando configurações...', 'info');
 
-  const updates = {
-    nome_loja: document.getElementById('cfgStoreName').value,
-    slogan: document.getElementById('cfgStoreSlogan').value,
-    descricao: document.getElementById('cfgStoreDesc').value,
-    email_contato: document.getElementById('cfgStoreEmail').value,
-    telefone: document.getElementById('cfgStorePhone').value,
-    nome_fantasia: document.getElementById('cfgFiscalFantasia').value,
-    razao_social: document.getElementById('cfgFiscalName').value,
-    inscricao_estadual: document.getElementById('cfgFiscalIE').value,
-    regime_tributario: document.getElementById('cfgFiscalRegime').value,
-    cep: document.getElementById('cfgShipCep').value,
-    prazo_envio: document.getElementById('cfgShipPrazo').value
-  };
+        // Captura os valores atuais dos inputs
+        const updates = {
+            nome_loja: document.getElementById('cfgNomeLoja').value,
+            slogan: document.getElementById('cfgSlogan').value,
+            descricao: document.getElementById('cfgDescricao').value,
+            cnpj: document.getElementById('cfgCnpj').value,
+            razao_social: document.getElementById('cfgRazaoSocial').value,
+            updated_at: new Date()
+        };
 
-  try {
-    const { error } = await supabaseClient
-      .from('lojas')
-      .update(updates)
-      .eq('user_id', userId);
+        // Faz o update no Supabase
+        const { error } = await supabase
+            .from('lojas')
+            .update(updates)
+            .eq('user_id', user.id);
 
-    if (error) throw error;
+        if (error) throw error;
 
-    toast('Configurações salvas com sucesso! ✓', 'ok');
-    
-    if (sbStore) sbStore.textContent = updates.nome_loja;
+        toast('Configurações salvas com sucesso! ✓', 'ok');
 
-  } catch (err) {
-    console.error(err);
-    toast('Erro ao salvar as configurações.', 'err');
-  } finally {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }
+    } catch (err) {
+        console.error("Erro ao salvar:", err.message);
+        toast('Erro ao salvar dados', 'err');
+    }
 }
