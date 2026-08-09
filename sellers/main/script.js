@@ -806,7 +806,7 @@ async function carregarConfiguracoesLoja() {
 
         // Se encontrou dados, preenche os inputs pelo ID
         if (data) {
-            document.getElementById('cfgNomeLoja').value = data.nome_loja || '';
+            document.getElementById('cfgStoreName').value = data.nome_loja || '';
             document.getElementById('cfgSlogan').value = data.slogan || '';
             document.getElementById('cfgDescricao').value = data.descricao || '';
             document.getElementById('cfgCnpj').value = data.cnpj || '';
