@@ -68,7 +68,7 @@
     --ease:cubic-bezier(.4,0,.2,1);
   }
 
-  *,*::before,*::after{box-sizing:border-box; margin:0; padding:0;}
+  *,*::before,*::after{box-sizing:border-box; margin:0; padding:0; justify-content: center;}
   html,body{height:100%; overflow:hidden;}
   body{
     background:var(--white); color:var(--ink); font-family:'DM Sans',sans-serif;
@@ -570,7 +570,7 @@ tbody tr:hover td{background:var(--bg3)}
 .stab:hover{background:var(--bg3)}
 .stab.on{background:var(--blueDim);color:var(--blue);border-color:var(--border)}
 /* checkbox col */
-.chk-col{width:32px}
+.chk-col{width:32px; display: flex; position: relative; top: 11px;}
 .chk{accent-color:var(--blue);width:14px;height:14px;cursor:pointer}
 .prod-thumb{width:36px;height:36px;border-radius:7px;background:var(--blueDim);display:flex;align-items:center;justify-content:center;font-size:18px}
 .stock-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
