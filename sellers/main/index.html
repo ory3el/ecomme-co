@@ -177,7 +177,7 @@
             <div class="kpi-ico purple">⭐</div>
             <div class="kpi-label">Avaliação Média</div>
             <div class="kpi-val sora">--<!--4.9--></div>
-            <div class="kpi-trend trend-up" style="color:var(--yellow)"><!--★★★★★ -->0<!--182--> avaliações</div>
+            <div class="kpi-trend trend-up" style="color:var(--yellow)"><!--★★★★★ 182 avaliações--></div>
             <!--<div class="sparkline" id="spark4"></div>-->
           </div>
         </div>
@@ -187,7 +187,7 @@
           <!-- Revenue chart -->
           <div class="card">
             <div class="card-hd">
-              <h4>📈 Faturamento Mensal (2025)</h4>
+              <h4>📈 Faturamento Mensal (2026)</h4>
               <div class="fac gap8">
                 <span class="tag tag-green">R$ 0,00<!--7.640--> este mês</span>
               </div>
@@ -195,11 +195,13 @@
             <div class="card-pad">
               <div class="rev-chart-container">
                 <div class="rev-grid">
+				  <!--
                   <div class="rev-grid-line"><span>40K</span></div>
                   <div class="rev-grid-line"><span>30K</span></div>
                   <div class="rev-grid-line"><span>20K</span></div>
                   <div class="rev-grid-line"><span>10K</span></div>
                   <div class="rev-grid-line"><span>0</span></div>
+				  -->
                 </div>
                 <div class="rev-chart" id="revChart"></div>
               </div>
@@ -210,20 +212,24 @@
             <div class="card-hd"><h4>📂 Vendas por Categoria</h4></div>
             <div class="card-pad">
               <div class="donut-wrap mb16">
-                <div class="donut" style="background:conic-gradient(var(--blue) 0% 42%,var(--orange) 42% 70%,var(--green) 70% 88%,var(--purple) 88% 100%)"></div>
+                <div class="donut" style="background: rgba(50, 50, 50, 1);/*background:conic-gradient(var(--blue) 0% 42%,var(--orange) 42% 70%,var(--green) 70% 88%,var(--purple) 88% 100%)*/"></div>
                 <div class="donut-legend">
+				  <!--
                   <div class="dl-row"><div class="dl-dot" style="background:var(--blue)"></div><span class="fs11">Eletrônicos <strong>42%</strong></span></div>
                   <div class="dl-row"><div class="dl-dot" style="background:var(--orange)"></div><span class="fs11">Moda <strong>28%</strong></span></div>
                   <div class="dl-row"><div class="dl-dot" style="background:var(--green)"></div><span class="fs11">Casa <strong>18%</strong></span></div>
                   <div class="dl-row"><div class="dl-dot" style="background:var(--purple)"></div><span class="fs11">Fitness <strong>12%</strong></span></div>
+				  -->
                 </div>
               </div>
               <div class="cat-chart">
+				<!--
                 <div class="cat-row"><span class="cat-lbl fs11">Eletrônicos</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:42%;background:var(--blue)"></div></div><span class="cat-pct" style="color:var(--blue)">42%</span></div>
                 <div class="cat-row"><span class="cat-lbl fs11">Moda</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:28%;background:var(--orange)"></div></div><span class="cat-pct" style="color:var(--orange)">28%</span></div>
                 <div class="cat-row"><span class="cat-lbl fs11">Casa</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:18%;background:var(--green)"></div></div><span class="cat-pct" style="color:var(--green)">18%</span></div>
                 <div class="cat-row"><span class="cat-lbl fs11">Fitness</span><div class="cat-bar-bg"><div class="cat-bar-fg" style="width:12%;background:var(--purple)"></div></div><span class="cat-pct" style="color:var(--purple)">12%</span></div>
-              </div>
+                -->
+			  </div>
             </div>
           </div>
         </div>
@@ -240,25 +246,29 @@
               <table>
                 <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
                 <tbody>
+				  <!--
                   <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0042</td><td>Ana Carolina</td><td>Smartwatch Pro X7</td><td class="sora fw7 blue">R$ 189,90</td><td><span class="tag tag-orange">⏳ Despachar</span></td><td class="muted fs11">Hoje 14:32</td></tr>
                   <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0041</td><td>Pedro Martins</td><td>Kit LED Smart + Fone</td><td class="sora fw7 blue">R$ 199,80</td><td><span class="tag tag-blue">🚚 Em trânsito</span></td><td class="muted fs11">Hoje 11:18</td></tr>
                   <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0040</td><td>Carla Souza</td><td>Tênis Running XL</td><td class="sora fw7 blue">R$ 199,90</td><td><span class="tag tag-green">✅ Entregue</span></td><td class="muted fs11">Ontem</td></tr>
                   <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0039</td><td>Lucas Ferreira</td><td>Mochila Executiva</td><td class="sora fw7 blue">R$ 159,90</td><td><span class="tag tag-green">✅ Entregue</span></td><td class="muted fs11">Ontem</td></tr>
                   <tr><td class="td-link" onclick="navigate('pedidos')">#DS-0038</td><td>Marina Costa</td><td>Kit Skincare Vit. C</td><td class="sora fw7 blue">R$ 99,90</td><td><span class="tag tag-yellow">⚠ Devolução</span></td><td class="muted fs11">12/01</td></tr>
-                </tbody>
+                  -->
+				</tbody>
               </table>
             </div>
           </div>
           <!-- Top products -->
           <div class="card">
             <div class="card-hd"><h4>🏆 Top Produtos</h4></div>
-            <div class="card-pad">
+            <div class="card-pad" style="min-height: 400px;">
+			  <!--
               <div class="top-prod"><div class="top-rank r1">1</div><div class="top-prod-em">⌚</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Smartwatch Pro X7</div><div class="top-prod-sales muted fs10">94 vendas</div></div><div class="top-prod-rev">R$ 17.860</div></div>
               <div class="top-prod"><div class="top-rank r2">2</div><div class="top-prod-em">🎧</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Fone BT ANC Pro</div><div class="top-prod-sales muted fs10">72 vendas</div></div><div class="top-prod-rev">R$ 8.630</div></div>
               <div class="top-prod"><div class="top-rank r3">3</div><div class="top-prod-em">💡</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Kit LED Smart RGB</div><div class="top-prod-sales muted fs10">64 vendas</div></div><div class="top-prod-rev">R$ 5.113</div></div>
               <div class="top-prod"><div class="top-rank">4</div><div class="top-prod-em">📷</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Câmera WiFi 2K</div><div class="top-prod-sales muted fs10">31 vendas</div></div><div class="top-prod-rev">R$ 4.647</div></div>
               <div class="top-prod" style="border:none"><div class="top-rank">5</div><div class="top-prod-em">🍶</div><div style="flex:1;min-width:0"><div class="top-prod-name fs12">Garrafa Térmica 1L</div><div class="top-prod-sales muted fs10">23 vendas</div></div><div class="top-prod-rev">R$ 1.607</div></div>
-            </div>
+              -->
+			</div>
           </div>
         </div>
 
