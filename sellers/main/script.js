@@ -730,7 +730,7 @@ async function fetchInitialStoreStatus() {
     }
 
     if (data) {
-      renderStoreState(data.status, data.slug_url);
+      renderStoreState(data.status, data.slug_url, data.nome_loja, data.slogan, data.descricao, data.email, data.telefone);
     } else {
       renderStoreState('pendente', '');
     }
