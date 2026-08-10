@@ -857,7 +857,8 @@ function injectModalStyles() {
     .modal-alert-container {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      /*background: rgba(0, 0, 0, 0.6);*/
+      backdrop-filter: blur(12px);
       display: flex; align-items: center; justify-content: center;
       z-index: 10000;
       opacity: 0; pointer-events: none;
@@ -867,10 +868,11 @@ function injectModalStyles() {
       opacity: 1; pointer-events: auto;
     }
     .modal-alert-content {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
       padding: 30px;
-      border-radius: 16px;
-      max-width: 400px;
+      border-radius: 36px;
+      max-width: 440px;
       width: 90%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -907,7 +909,7 @@ function injectModalStyles() {
       color: #fff;
       border: none;
       padding: 11px 24px;
-      border-radius: 8px;
+      border-radius: 250px;
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
@@ -964,6 +966,13 @@ async function showAlert(message, title, icon) {
   
   alertModal.offsetHeight;
   alertModal.classList.add('active');
+}
+
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('active');
+  }
 }
 
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
