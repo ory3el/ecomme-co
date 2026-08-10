@@ -789,18 +789,18 @@ async function saveConfig(/*event*/) {
     return;
   }
 
+  if (!cfgStoreName.value || !cfgStoreDesc.value || !cfgStoreEmail.value || !cfgStorePhone.value) {
+    toast('Complete todos os campos obrigatórios.');
+    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    return;
+  }
+  
   const btnSalvar = document.getElementById('btn-save-config');
   const textoOriginal = btnSalvar.innerText;
   
   if (btnSalvar) {
     btnSalvar.innerText = 'Salvando...';
     btnSalvar.disabled = true;
-  }
-
-  if (!cfgStoreName.value/*, !cfgStoreDesc.value, !cfgStoreEmail.value, !cfgStorePhone.value*/) {
-    toast('Complete todos os campos obrigatórios.');
-    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
-    return;
   }
   
   try {
