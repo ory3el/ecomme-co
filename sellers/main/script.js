@@ -674,6 +674,14 @@ function renderStoreState(status, slug, data) {
   const cfgStoreDesc = document.getElementById('cfgStoreDesc');
   const cfgStoreEmail = document.getElementById('cfgStoreEmail');
   const cfgStorePhone = document.getElementById('cfgStorePhone');
+
+  const storeCnpjCpf = document.getElementById('store-cnpj-cpf');
+  const storeLegalName = document.getElementById('store-legal-name');
+  const storeTradeName = document.getElementById('store-trade-name');
+  const storeTaxRegime = document.getElementById('store-tax-regime');
+  const storeAddress = document.getElementById('store-address');
+  const storeCNAE = document.getElementById('store-cnae');
+  const storeIE = document.getElementById('store-ie');
   
   if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
     console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
@@ -699,6 +707,14 @@ function renderStoreState(status, slug, data) {
     cfgStoreDesc.value = data.descricao;
     cfgStoreEmail.value = data.email;
     cfgStorePhone.value = data.telefone;
+
+    storeCnpjCpf.value = data.documento;
+    storeLegalName.value = data.nome_razao;
+    storeTradeName.value = data.nome_fantasia;
+    storeTaxRegime.value = data.regime_tributario;
+    storeAddress.value = `${data.complemento}, ${data.numero} - ${data.endereco}, ${data.cidade}/${data.estado} - CEP ${data.cep}`;
+    //storeCNAE.value = data.?;
+    storeIE.value = data.inscricao_estadual;
     
     if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
@@ -718,7 +734,7 @@ async function fetchInitialStoreStatus() {
   try {
     const { data, error } = await supabaseClient
       .from('lojas')
-      .select('status, slug_url, nome_loja, slogan, descricao, email, telefone')
+      .select('status, slug_url, nome_loja, slogan, descricao, email, telefone, nome_razao, nome_fantasia, inscricao_estadual, documento, regime_tributario, complemento, endereco, numero, cidade, estado, cep')
       .eq('user_id', userId)
       .maybeSingle();
 
