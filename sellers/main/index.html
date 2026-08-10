@@ -287,7 +287,7 @@
       <!-- ═════ PRODUTOS ═════ -->
       <div class="page" id="page-produtos">
         <div class="page-hd">
-          <div><h2>Meus Produtos</h2><p>48 produtos cadastrados · 2 com estoque baixo</p></div>
+          <div><h2>Meus Produtos</h2><p>Nenhum produto cadastrado<!-- · 2 com estoque baixo--></p></div>
           <div class="fac gap8">
             <button class="btn btn-o btn-sm" onclick="toast('Importando planilha...','info')">📥 Importar CSV</button>
             <button class="btn btn-p btn-sm" onclick="navigate('novo-produto')">+ Novo Produto</button>
@@ -296,10 +296,10 @@
         <div class="filter-bar">
           <input class="inp" style="flex:1;max-width:240px" type="search" placeholder="🔍  Buscar produto...">
           <div class="status-tabs">
-            <div class="stab on" onclick="filterProds(this,'all')">Todos (48)</div>
-            <div class="stab" onclick="filterProds(this,'active')">Ativos (44)</div>
-            <div class="stab" onclick="filterProds(this,'paused')">Pausados (3)</div>
-            <div class="stab" onclick="filterProds(this,'low')">⚠ Estoque Baixo (2)</div>
+            <div class="stab on" onclick="filterProds(this,'all')">Todos (0)</div>
+            <div class="stab" onclick="filterProds(this,'active')">Ativos (0)</div>
+            <div class="stab" onclick="filterProds(this,'paused')">Pausados (0)</div>
+            <div class="stab" onclick="filterProds(this,'low')">⚠ Estoque Baixo (0)</div>
           </div>
           <select class="sel" style="width:auto;font-size:12px;padding:7px 26px 7px 10px">
             <option>Todos os categorias</option><option>Eletrônicos</option><option>Moda</option><option>Casa</option>
@@ -314,12 +314,12 @@
             </table>
           </div>
           <div style="padding:14px 16px;border-top:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between" class="fs11 muted">
-            <span>Mostrando 1–8 de 48 produtos</span>
+            <span>Mostrando 0 de 0 produtos</span>
             <div class="fac gap4">
               <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">← Ant</button>
               <button class="btn btn-xs" style="background:var(--blue);color:#fff;border-radius:var(--r);padding:5px 10px">1</button>
-              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">2</button>
-              <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">3</button>
+              <!--<button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">2</button>-->
+              <!--<button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">3</button>-->
               <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)">Próx →</button>
             </div>
           </div>
@@ -401,9 +401,11 @@
                 <div class="fgrp"><label>Valores</label><input class="inp" placeholder="Ex: P, M, G, GG (separado por vírgula)"></div>
               </div>
               <div id="varList">
+				<!--
                 <div class="var-item"><span class="fs12">🔵 Azul — P · R$ 189,90 · Est: 10</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div></div>
                 <div class="var-item"><span class="fs12">🔴 Vermelho — M · R$ 189,90 · Est: 8</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div></div>
-              </div>
+              	-->
+			  </div>
               <button class="btn btn-ghost btn-xs mt8" onclick="addVariation()" style="border:1.5px dashed var(--b2);border-radius:var(--r)">+ Adicionar variação</button>
             </div>
             <!-- shipping -->
@@ -461,18 +463,18 @@
       <!-- ═════ PEDIDOS ═════ -->
       <div class="page" id="page-pedidos">
         <div class="page-hd">
-          <div><h2>Pedidos Recebidos</h2><p>7 pedidos aguardando despacho</p></div>
+          <div><h2>Pedidos Recebidos</h2><p>0 pedidos aguardando despacho</p></div>
           <div class="fac gap8">
             <button class="btn btn-ghost btn-sm" onclick="toast('Exportando pedidos...','info')">📥 Exportar</button>
             <button class="btn btn-p btn-sm" onclick="toast('Gerando notas fiscais em lote...','info')">🧾 Emitir NF em lote</button>
           </div>
         </div>
         <div class="order-filter-tabs">
-          <div class="stab on" onclick="filterOrds(this)">Todos (24)</div>
-          <div class="stab" onclick="filterOrds(this)">⏳ Despachar (7)</div>
-          <div class="stab" onclick="filterOrds(this)">🚚 Em trânsito (9)</div>
-          <div class="stab" onclick="filterOrds(this)">✅ Entregues (6)</div>
-          <div class="stab" onclick="filterOrds(this)">↩ Devoluções (2)</div>
+          <div class="stab on" onclick="filterOrds(this)">Todos (0)</div>
+          <div class="stab" onclick="filterOrds(this)">⏳ Despachar (0)</div>
+          <div class="stab" onclick="filterOrds(this)">🚚 Em trânsito (0)</div>
+          <div class="stab" onclick="filterOrds(this)">✅ Entregues (0)</div>
+          <div class="stab" onclick="filterOrds(this)">↩ Devoluções (0)</div>
         </div>
         <div class="order-card-wrap" id="ordersWrap"></div>
       </div>
@@ -480,7 +482,12 @@
       <!-- ═════ FINANCAS ═════ -->
       <div class="page" id="page-financas">
         <div class="page-hd">
-          <div><h2>Financeiro & Saques</h2><p>Saldo atualizado em <span id="finDate"></span></p></div>
+          <div><h2>Financeiro & Saques</h2><p style="font-style: italic;">Saldo atualizado em <span id="finDate">10 de ago. 15:17</span> 
+			  <br style="position: relative; top: 5px"><span style="color: var(--blue);cursor: pointer;position: relative;font-style: initial;/* top: 7px; */">
+				  <!--<input class="chk" style="margin-right: 5px;position: relative;top: 2px;" type="checkbox">-->
+				  Atualizar automaticamente?
+			</span>
+		  </p></div>
           <div class="fac gap8">
             <button class="btn btn-ghost btn-sm" onclick="toast('Exportando extrato...','info')">📄 Extrato completo</button>
           </div>
