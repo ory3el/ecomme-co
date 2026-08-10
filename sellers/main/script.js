@@ -790,7 +790,7 @@ async function saveConfig(/*event*/) {
   }
 
   if (!cfgStoreName.value || !cfgStoreDesc.value || !cfgStoreEmail.value || !cfgStorePhone.value) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete todos os campos obrigatórios.', '⚠️')
+    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
   }
