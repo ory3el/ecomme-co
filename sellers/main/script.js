@@ -797,6 +797,12 @@ async function saveConfig(/*event*/) {
     btnSalvar.disabled = true;
   }
 
+  if (!cfgStoreName.value, !cfgStoreDesc.value, !cfgStoreEmail.value, !cfgStorePhone.value) {
+    toast('Complete todos os campos obrigatórios.');
+    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    return;
+  }
+  
   try {
     const dadosParaSalvar = {
       nome_loja: cfgStoreName.value,
@@ -804,13 +810,17 @@ async function saveConfig(/*event*/) {
       descricao: cfgStoreDesc.value,
       email: cfgStoreEmail.value,
       telefone: cfgStorePhone.value,
-      
+
+      //documento: storeCnpjCpf.value,
+      //nome_razao: storeLegalName.value,
+      //nome_fantasia: storeTradeName.value,
+      //regime_tributario: storeTaxRegime.value,
+
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
-      // cnpj: document.getElementById('input-cnpj').value,
       // cep_origem: document.getElementById('input-cep').value
     };
-
+    
     const { data, error } = await supabaseClient
       .from('lojas')
       .update(dadosParaSalvar)
