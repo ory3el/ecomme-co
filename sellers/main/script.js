@@ -797,7 +797,7 @@ async function saveConfig(/*event*/) {
     btnSalvar.disabled = true;
   }
 
-  if (!cfgStoreName.value, !cfgStoreDesc.value, !cfgStoreEmail.value, !cfgStorePhone.value) {
+  if (!cfgStoreName.value/*, !cfgStoreDesc.value, !cfgStoreEmail.value, !cfgStorePhone.value*/) {
     toast('Complete todos os campos obrigatórios.');
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
