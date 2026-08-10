@@ -712,7 +712,7 @@ function renderStoreState(status, slug, data) {
     storeLegalName.value = data.nome_razao;
     storeTradeName.value = data.nome_fantasia;
     storeTaxRegime.value = data.regime_tributario;
-    storeAddress.value = `${data.complemento}, ${data.numero} - ${data.endereco}, ${data.cidade}/${data.estado} - CEP ${data.cep}`;
+    storeAddress.value = `${data.endereco}, ${data.numero} - ${data.complemento} ${data.cidade}/${data.estado} - CEP ${data.cep}`;
     //storeCNAE.value = data.?;
     storeIE.value = data.inscricao_estadual;
     
