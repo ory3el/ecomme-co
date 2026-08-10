@@ -789,7 +789,7 @@ async function saveConfig(/*event*/) {
     return;
   }
 
-  if (!cfgStoreName.value || !cfgStoreDesc.value || !cfgStoreEmail.value || !cfgStorePhone.value) {
+  if (!cfgStoreName.value or !cfgStoreDesc.value or !cfgStoreEmail.value or !cfgStorePhone.value) {
     toast('Complete todos os campos obrigatórios.');
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
