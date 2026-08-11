@@ -800,15 +800,15 @@ async function saveConfig() {
   const safeTradeName = sanitizeInput(document.getElementById('store-trade-name').value);
   const safeIE = sanitizeInput(document.getElementById('store-ie').value);
   
-  const cfgStoreNameOK = safeStoreName.value.length >= 3;
-  const cfgStoreDescOK = safeStoreDesc.value.length >= 10;
-  const cfgStoreEmailOK = safeStoreEmail.value.length >= 3;
-  const cfgStorePhoneOK = safeStorePhone.value.length >= 10;
+  const cfgStoreNameOK = safeStoreName.value >= 3;
+  const cfgStoreDescOK = safeStoreDesc.value >= 10;
+  const cfgStoreEmailOK = safeStoreEmail.value >= 3;
+  const cfgStorePhoneOK = safeStorePhone.value >= 10;
 
-  const storeCnpjCpfOK = safeCnpjCpf.value.length >= 11;
-  const storeLegalNameOK = safeLegalName.value.length >= 3;
-  const storeTradeNameOK = safeTradeName.value.length >= 3;
-  const storeIEOK = safeIE.value.length >= 8;
+  const storeCnpjCpfOK = safeCnpjCpf.value >= 11;
+  const storeLegalNameOK = safeLegalName.value >= 3;
+  const storeTradeNameOK = safeTradeName.value >= 3;
+  const storeIEOK = safeIE.value >= 8;
   
   if (!cfgStoreNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
