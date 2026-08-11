@@ -501,7 +501,10 @@ body.loading {
       font-size: 12px; font-weight: 600;
       border: 1px solid var(--border);
     }
-    .tb-right { display: flex; align-items: center; gap: 10px; }
+    .tb-right { 
+        display: flex; align-items: center; justify-content: right; 
+        position: relative; bottom: 34px; gap: 10px; 
+    }
     .btn-shuffle {
       display: flex; align-items: center; gap: 6px;
       background: var(--blue-dim); border: 1px solid var(--border);
