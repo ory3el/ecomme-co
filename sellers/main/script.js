@@ -789,15 +789,26 @@ async function saveConfig() {
     return;
   }
 
-  const cfgStoreNameOK = cfgStoreName.value.length >= 3;
-  const cfgStoreDescOK = cfgStoreDesc.value.length >= 10;
-  const cfgStoreEmailOK = cfgStoreEmail.value.length >= 3;
-  const cfgStorePhoneOK = cfgStorePhone.value.length >= 10;
+  const safeStoreName = sanitizeInput(cfgStoreName.value);
+  const safeStoreSlogan = sanitizeInput(cfgStoreSlogan.value);
+  const safeStoreDesc = sanitizeInput(cfgStoreDesc.value);
+  const safeStoreEmail = sanitizeInput(cfgStoreEmail.value);
+  const safeStorePhone = sanitizeInput(cfgStorePhone.value);
 
-  const storeCnpjCpfOK = document.getElementById('store-cnpj-cpf').value.length >= 11;
-  const storeLegalNameOK = document.getElementById('store-legal-name').value.length >= 3;
-  const storeTradeNameOK = document.getElementById('store-trade-name').value.length >= 3;
-  const storeIEOK = document.getElementById('store-ie').value.length >= 8;
+  const safeCnpjCpf = sanitizeInput(document.getElementById('store-cnpj-cpf').value);
+  const safeLegalName = sanitizeInput(document.getElementById('store-legal-name').value);
+  const safeTradeName = sanitizeInput(document.getElementById('store-trade-name').value);
+  const safeIE = sanitizeInput(document.getElementById('store-ie').value);
+  
+  const cfgStoreNameOK = safeStoreName.value.length >= 3;
+  const cfgStoreDescOK = safeStoreDesc.value.length >= 10;
+  const cfgStoreEmailOK = safeStoreEmail.value.length >= 3;
+  const cfgStorePhoneOK = safeStorePhone.value.length >= 10;
+
+  const storeCnpjCpfOK = safeCnpjCpf.value.length >= 11;
+  const storeLegalNameOK = safeLegalName.value.length >= 3;
+  const storeTradeNameOK = safeTradeName.value.length >= 3;
+  const storeIEOK = safeIE.value.length >= 8;
   
   if (!cfgStoreNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
@@ -848,6 +859,17 @@ async function saveConfig() {
     console.error("Erro ao salvar.");
     return;
   }
+
+  const documentRegex = /^[\d\.\-\/]+$/;
+  if (!documentRegex.test(safeCnpjCpf)) {
+    showAlert('Formato de documento inválido.', 'Revise o CNPJ/CPF.', '🚫');
+    return;
+  }
+
+  if (!documentRegex.test(safeStorePhone)) {
+    showAlert('Formato de documento inválido.', 'Revise o Número de Telefone.', '🚫');
+    return;
+  }
   
   const btnSalvar = document.getElementById('btn-save-config');
   const textoOriginal = btnSalvar.innerText;
@@ -865,11 +887,11 @@ async function saveConfig() {
       email: cfgStoreEmail.value,
       telefone: cfgStorePhone.value,
 
-      documento: document.getElementById('store-cnpj-cpf').value,
-      nome_razao: document.getElementById('store-legal-name').value,
-      nome_fantasia: document.getElementById('store-trade-name').value,
+      documento: safeCnpjCpf.value,
+      nome_razao: safeLegalName.value,
+      nome_fantasia: safeTradeName.value,
       regime_tributario: document.getElementById('store-tax-regime').value,
-      inscricao_estadual: document.getElementById('store-ie').value,
+      inscricao_estadual: safeIE.value,
       
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
@@ -1055,4 +1077,17 @@ async function doLogout() {
   await supabaseClient.auth.signOut();
   closeAcc();
   location.reload();
+}
+
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return input.replace(/[&<>"']/g, function(m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    }[m];
+  });
 }
