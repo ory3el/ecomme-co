@@ -789,7 +789,7 @@ async function saveConfig(/*event*/) {
     return;
   }
 
-  if (cfgStoreName.value.trim().length>=3 || cfgStoreDesc.value.trim().length>=10 || !cfgStoreEmail.value || cfgStorePhone.value.trim().length>=10) {
+  if (cfgStoreName.value.trim().length>=3 || cfgStoreDesc.value.trim().length>=10 || cfgStoreEmail.value.trim().length>=3 || cfgStorePhone.value.trim().length>=10) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
