@@ -881,17 +881,17 @@ async function saveConfig() {
   
   try {
     const dadosParaSalvar = {
-      nome_loja: cfgStoreName.value,
-      slogan: cfgStoreSlogan.value,
-      descricao: cfgStoreDesc.value,
-      email: cfgStoreEmail.value,
-      telefone: cfgStorePhone.value,
+      nome_loja: cfgStoreName,
+      slogan: cfgStoreSlogan,
+      descricao: cfgStoreDesc,
+      email: cfgStoreEmail,
+      telefone: cfgStorePhone,
 
-      documento: safeCnpjCpf.value,
-      nome_razao: safeLegalName.value,
-      nome_fantasia: safeTradeName.value,
+      documento: safeCnpjCpf,
+      nome_razao: safeLegalName,
+      nome_fantasia: safeTradeName,
       regime_tributario: document.getElementById('store-tax-regime').value,
-      inscricao_estadual: safeIE.value,
+      inscricao_estadual: safeIE,
       
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
