@@ -683,7 +683,7 @@ function renderStoreState(status, slug, data) {
   const storeCNAE = document.getElementById('store-cnae');
   const storeIE = document.getElementById('store-ie');
   
-  if (!pendingUI || !activeUI || !iframe || !urlDisplay) {
+  if (!pendingUI || !activeUI) {
     console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
     return;
   }
@@ -697,9 +697,9 @@ function renderStoreState(status, slug, data) {
 
     const publicStoreUrl = `/store/@${safeSlug}`;
     urlDisplay.textContent = publicStoreUrl;
-    headerStore.textContent = `${safeSlug}`;
+    headerStore.textContent = `${cfgStoreName.value}`;
     headerStore.style.display = 'flex';
-    sbStore.textContent = `${safeSlug}`;
+    sbStore.textContent = `${cfgStoreName.value}`;
     sbStoreName.textContent = `@${safeSlug}`;
 
     cfgStoreName.value = data.nome_loja;
