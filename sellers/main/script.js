@@ -794,7 +794,7 @@ async function saveConfig() {
   const cfgStoreEmailOK = cfgStoreEmail.value.length >= 3;
   const cfgStorePhoneOK = cfgStorePhone.value.length >= 10;
 
-  const storeCnpjCpfOK = storeCnpjCpf.value.length >= 11;
+  const storeCnpjCpfOK = document.getElementById('store-cnpj-cpf').value.length >= 11;
   const storeLegalNameOK = storeLegalName.value.length >= 3;
   const storeTradeNameOK = storeTradeName.value.length >= 3;
   const storeTaxRegimeOK = storeTaxRegime.value.length >= 8;
