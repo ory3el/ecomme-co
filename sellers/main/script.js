@@ -315,14 +315,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         avatarImage.style.borderRadius = "100%";
         avatarImage.style.objectFit = "cover";
       }
-      if (sidebarImage) {
+      /*if (sidebarImage) {
         sidebarImage.src = photoUrl;
         sidebarImage.style.filter = "none";
         sidebarImage.style.width = "100%";
         sidebarImage.style.height = "100%";
         sidebarImage.style.borderRadius = "100%";
         sidebarImage.style.objectFit = "cover";
-      }
+      }*/
       if (headerImage) {
         headerImage.src = photoUrl;
         headerImage.style.filter = "none";
