@@ -697,9 +697,9 @@ function renderStoreState(status, slug, data) {
 
     //const publicStoreUrl = `/store/@${safeSlug}`;
     //urlDisplay.textContent = publicStoreUrl;
-    headerStore.textContent = `${cfgStoreName.value}`;
+    //headerStore.textContent = `${cfgStoreName}`;
     headerStore.style.display = 'flex';
-    sbStore.textContent = `${cfgStoreName.value}`;
+    //sbStore.textContent = `${cfgStoreName}`;
     sbStoreName.textContent = `@${safeSlug}`;
 
     cfgStoreName.value = data.nome_loja;
@@ -744,6 +744,9 @@ async function fetchInitialStoreStatus() {
       return;
     }
 
+    headerStore.textContent = `${data.nome_loja}`;
+    sbStore.textContent = `${data.nome_loja}`;
+    
     if (data) {
       renderStoreState(data.status, data.slug_url, data);
     } else {
