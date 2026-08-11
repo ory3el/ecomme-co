@@ -865,10 +865,11 @@ async function saveConfig() {
       email: cfgStoreEmail.value,
       telefone: cfgStorePhone.value,
 
-      documento: storeCnpjCpf.value,
-      nome_razao: storeLegalName.value,
-      nome_fantasia: storeTradeName.value,
-      regime_tributario: storeTaxRegime.value,
+      documento: document.getElementById('store-cnpj-cpf').value,
+      nome_razao: document.getElementById('store-legal-name').value,
+      nome_fantasia: document.getElementById('store-trade-name').value,
+      regime_tributario: document.getElementById('store-tax-regime').value,
+      inscricao_estadual: document.getElementById('store-ie').value,
       
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
