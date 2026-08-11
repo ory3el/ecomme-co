@@ -695,8 +695,8 @@ function renderStoreState(status, slug, data) {
     pendingUI.style.display = 'none';
     activeUI.style.display = 'block';
 
-    const publicStoreUrl = `/store/@${safeSlug}`;
-    urlDisplay.textContent = publicStoreUrl;
+    //const publicStoreUrl = `/store/@${safeSlug}`;
+    //urlDisplay.textContent = publicStoreUrl;
     headerStore.textContent = `${cfgStoreName.value}`;
     headerStore.style.display = 'flex';
     sbStore.textContent = `${cfgStoreName.value}`;
@@ -724,7 +724,7 @@ function renderStoreState(status, slug, data) {
     pendingUI.style.display = 'block';
     activeUI.style.display = 'none';
     sbStore.textContent = 'Loja em Análise..';
-    sbStoreName.textContent = `N/A`;
+    sbStoreName.textContent = `Aguarde um momento.`;
   }
 }
 
