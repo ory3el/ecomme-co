@@ -795,9 +795,9 @@ async function saveConfig() {
   const cfgStorePhoneOK = cfgStorePhone.value.length >= 10;
 
   const storeCnpjCpfOK = document.getElementById('store-cnpj-cpf').value.length >= 11;
-  const storeLegalNameOK = storeLegalName.value.length >= 3;
-  const storeTradeNameOK = storeTradeName.value.length >= 3;
-  const storeTaxRegimeOK = storeTaxRegime.value.length >= 8;
+  const storeLegalNameOK = document.getElementById('store-legal-name').value.length >= 3;
+  const storeTradeNameOK = document.getElementById('store-trade-name').value.length >= 3;
+  const storeIEOK = document.getElementById('store-ie').value.length >= 8;
   
   if (!cfgStoreNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
@@ -827,25 +827,25 @@ async function saveConfig() {
       
   if (!storeCnpjCpfOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo Nome da Loja.");
+    console.error("Erro ao salvar.");
     return;
   }
 
   if (!storeLegalNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo Descrição da Loja.");
+    console.error("Erro ao salvar.");
     return;
   }
 
   if (!storeTradeNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo E-mail de Contato.");
+    console.error("Erro ao salvar.");
     return;
   }
 
-  if (!storeTaxRegimeOK) {
+  if (!storeIEOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo WhatsApp / Telefone.");
+    console.error("Erro ao salvar.");
     return;
   }
   
