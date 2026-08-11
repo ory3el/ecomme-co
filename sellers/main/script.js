@@ -723,8 +723,8 @@ function renderStoreState(status, slug, data) {
     headerStore.style.display = 'none';
     pendingUI.style.display = 'block';
     activeUI.style.display = 'none';
-    sbStore.textContent = '';
-    sbStoreName.textContent = ``;
+    sbStore.textContent = 'Loja em Análise..';
+    sbStoreName.textContent = `N/A`;
   }
 }
 
