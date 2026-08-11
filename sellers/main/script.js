@@ -789,27 +789,27 @@ async function saveConfig(/*event*/) {
     return;
   }
 
-  if (cfgStoreName.value.length>=3) {
+  if (!cfgStoreName.value.length>=3) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    console.error("Erro ao salvar. Complete o campo Nome da Loja.");
     return;
   }
 
-  if (cfgStoreDesc.value.length>=10) {
+  if (!cfgStoreDesc.value.length>=10) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    console.error("Erro ao salvar. Complete o campo Descrição da Loja.");
     return;
   }
 
-  if (cfgStoreEmail.value.length>=3) {
+  if (!cfgStoreEmail.value.length>=3) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    console.error("Erro ao salvar. Complete o campo E-mail de Contato.");
     return;
   }
 
-  if (cfgStorePhone.value.length>=10) {
+  if (!cfgStorePhone.value.length>=10) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
+    console.error("Erro ao salvar. Complete o campo WhatsApp / Telefone.");
     return;
   }
   
