@@ -781,8 +781,8 @@ function subscribeToStoreStatus() {
     .subscribe();
 }
 
-async function saveConfig(/*event*/) {
-  // if (event) event.preventDefault();
+async function saveConfig(loja) {
+  if (loja) event.preventDefault();
 
   if (!userId) {
     console.error("Usuário não autenticado.");
@@ -834,11 +834,6 @@ async function saveConfig(/*event*/) {
       email: cfgStoreEmail.value,
       telefone: cfgStorePhone.value,
 
-      //documento: storeCnpjCpf.value,
-      //nome_razao: storeLegalName.value,
-      //nome_fantasia: storeTradeName.value,
-      //regime_tributario: storeTaxRegime.value,
-
       // Exemplos de campos que você pode adicionar futuramente:
       // cor_primaria: document.getElementById('input-cor-tema').value,
       // cep_origem: document.getElementById('input-cep').value
@@ -870,6 +865,91 @@ async function saveConfig(/*event*/) {
   }
 }
 
+/* ------------------------------------ */
+
+async function saveConfig(dadosLegais) {
+  if (dadosLegais) event.preventDefault();
+
+  if (!userId) {
+    console.error("Usuário não autenticado.");
+    return;
+  }
+
+  const storeCnpjCpfOK = storeCnpjCpf.value.length >= 3;
+  const storeLegalNameOK = storeLegalName.value.length >= 10;
+  const storeTradeNameOK = storeTradeName.value.length >= 3;
+  const storeTaxRegimeOK = storeTaxRegime.value.length >= 10;
+      
+  if (!storeCnpjCpfOK) {
+    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
+    console.error("Erro ao salvar. Complete o campo Nome da Loja.");
+    return;
+  }
+
+  if (!storeLegalNameOK) {
+    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
+    console.error("Erro ao salvar. Complete o campo Descrição da Loja.");
+    return;
+  }
+
+  if (!storeTradeNameOK) {
+    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
+    console.error("Erro ao salvar. Complete o campo E-mail de Contato.");
+    return;
+  }
+
+  if (!storeTaxRegimeOK) {
+    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
+    console.error("Erro ao salvar. Complete o campo WhatsApp / Telefone.");
+    return;
+  }
+  
+  const btnSalvar = document.getElementById('btn-save-config');
+  const textoOriginal = btnSalvar.innerText;
+  
+  if (btnSalvar) {
+    btnSalvar.innerText = 'Salvando...';
+    btnSalvar.disabled = true;
+  }
+  
+  try {
+    const dadosParaSalvar = {
+      documento: storeCnpjCpf.value,
+      nome_razao: storeLegalName.value,
+      nome_fantasia: storeTradeName.value,
+      regime_tributario: storeTaxRegime.value,
+
+      // Exemplos de campos que você pode adicionar futuramente:
+      // cor_primaria: document.getElementById('input-cor-tema').value,
+      // cep_origem: document.getElementById('input-cep').value
+    };
+    
+    const { data, error } = await supabaseClient
+      .from('lojas')
+      .update(dadosParaSalvar)
+      .eq('user_id', userId)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+    console.log("Configurações salvas com sucesso!", data);
+    toast("As configurações foram salvas com sucesso!");
+    
+    renderStoreState(data[0].status, data[0].slug_url, data[0]);
+
+  } catch (err) {
+    console.error("Erro ao salvar configurações:", err.message);
+    toast("Ocorreu um erro ao salvar. Verifique sua conexão e tente novamente.");
+  } finally {
+
+    if (btnSalvar) {
+      btnSalvar.innerText = textoOriginal;
+      btnSalvar.disabled = false;
+    }
+  }
+}
+    
 // ── STYLES INJECTOR ──
 function injectModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
