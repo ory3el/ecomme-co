@@ -789,25 +789,25 @@ async function saveConfig(/*event*/) {
     return;
   }
 
-  if (cfgStoreName.value.trim().length>=3) {
+  if (cfgStoreName.value.length>=3) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
   }
 
-  if (cfgStoreDesc.value.trim().length>=10) {
+  if (cfgStoreDesc.value.length>=10) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
   }
 
-  if (cfgStoreEmail.value.trim().length>=3) {
+  if (cfgStoreEmail.value.length>=3) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
   }
 
-  if (cfgStorePhone.value.trim().length>=10) {
+  if (cfgStorePhone.value.length>=10) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete todos os campos obrigatórios.");
     return;
