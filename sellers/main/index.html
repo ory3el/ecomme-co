@@ -598,7 +598,7 @@
                 <div class="card-title mb16">Dados Fiscais e Legais</div>
                 <div style="display:flex;flex-direction:column;gap:13px">
                   <div class="fgrid2"><div class="fgrp"><label>CNPJ / CPF *</label><input class="inp mono" id="store-cnpj-cpf" value=""></div>
-					  <div class="fgrp"><label>Razão Social *</label><input class="inp" id="store-legal-name" value="TechLab Comércio LTDA"></div></div>
+					  <div class="fgrp"><label>Razão Social *</label><input class="inp" id="store-legal-name" value=""></div></div>
                   <div class="fgrid2"><div class="fgrp"><label>Nome Fantasia *</label><input class="inp" id="store-trade-name" value=""></div>
 					  <div class="fgrp"><label>Inscrição Estadual *</label><input class="inp" id="store-ie" value=""></div></div>
                   <div class="fgrid2"><div class="fgrp"><label>Regime Tributário *</label><select class="sel" id="store-tax-regime"><option disabled>Selecione..</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div>
@@ -641,10 +641,48 @@
               <div class="card card-pad">
                 <div class="card-title mb16">Dados para Recebimento</div>
                 <div style="display:flex;flex-direction:column;gap:13px">
-                  <div class="fgrid2"><div class="fgrp"><label>Banco</label><select class="sel"><option>Banco do Brasil</option><option>Bradesco</option><option>Itaú</option><option>Nubank</option><option>Inter</option></select></div><div class="fgrp"><label>Tipo de Conta</label><select class="sel"><option>Conta Corrente</option><option>Conta Poupança</option></select></div></div>
-                  <div class="fgrid3"><div class="fgrp"><label>Agência</label><input class="inp mono" value="1234-5"></div><div class="fgrp"><label>Conta</label><input class="inp mono" value="56789-0"></div><div class="fgrp"><label>Chave PIX</label><input class="inp mono" value="contato@techlabstore.com.br"></div></div>
-                  <div class="fgrp"><label>Titular da Conta</label><input class="inp" value="TechLab Comércio LTDA"></div>
-                  <div class="fgrp"><label>CNPJ/CPF do Titular</label><input class="inp mono" value="12.345.678/0001-90"></div>
+                  <div class="fgrid2">
+					  <div class="fgrp">
+						  <label>Banco</label>
+						  <select class="sel" id="dataBanco">
+							  <option>Banco do Brasil</option>
+							  <option>Bradesco</option>
+							  <option>Itaú</option>
+							  <option>Nubank</option>
+							  <option>Inter</option>
+							  <option>Outro</option>
+						  </select>
+					  </div>
+					  <div class="fgrp">
+						  <label>Tipo de Conta</label>
+						  <select class="sel" id="dataTipoConta">
+							  <option>Conta Corrente</option>
+							  <option>Conta Poupança</option>
+						  </select>
+					  </div>
+				  </div>
+                  <div class="fgrid3">
+					  <div class="fgrp">
+						  <label>Agência</label>
+						  <input class="inp mono" id="dataAgencia" placeholder="1234-5" value="">
+					  </div>
+					  <div class="fgrp">
+						  <label>Conta</label>
+						  <input class="inp mono" id="dataConta" placeholder="56789-0" value="">
+					  </div>
+					  <div class="fgrp">
+						  <label>Chave PIX</label>
+						  <input class="inp mono" id="dataPix" placeholder="meuemail@email.com" value="">
+					  </div>
+				  </div>
+                  <div class="fgrp">
+					  <label>Titular da Conta</label>
+					  <input class="inp" id="dataTitular" placeholder="TechLab Comércio LTDA" value="">
+				  </div>
+                  <div class="fgrp">
+					  <label>CNPJ/CPF do Titular</label>
+					  <input class="inp mono" id="store-cnpj-cpf" placeholder="00.000.000/0000-00" value="">
+				  </div>
                 </div>
               </div>
             </div>
