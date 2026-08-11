@@ -789,6 +789,11 @@ async function saveConfig(/*event*/) {
     return;
   }
 
+  const cfgStoreNameOK = cfgStoreName.value.length >= 3;
+  const cfgStoreDescOK = cfgStoreDesc.value.length >= 10;
+  const cfgStoreEmailOK = cfgStoreEmail.value.length >= 3;
+  const cfgStorePhoneOK = cfgStorePhone.value.length >= 10;
+      
   if (!cfgStoreName.value.length>=3) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete o campo Nome da Loja.");
