@@ -794,25 +794,25 @@ async function saveConfig(/*event*/) {
   const cfgStoreEmailOK = cfgStoreEmail.value.length >= 3;
   const cfgStorePhoneOK = cfgStorePhone.value.length >= 10;
       
-  if (!cfgStoreName.value.length>=3) {
+  if (!cfgStoreNameOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete o campo Nome da Loja.");
     return;
   }
 
-  if (!cfgStoreDesc.value.length>=10) {
+  if (!cfgStoreDescOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete o campo Descrição da Loja.");
     return;
   }
 
-  if (!cfgStoreEmail.value.length>=3) {
+  if (!cfgStoreEmailOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete o campo E-mail de Contato.");
     return;
   }
 
-  if (!cfgStorePhone.value.length>=10) {
+  if (!cfgStorePhoneOK) {
     showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
     console.error("Erro ao salvar. Complete o campo WhatsApp / Telefone.");
     return;
