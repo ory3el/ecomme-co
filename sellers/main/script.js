@@ -716,9 +716,9 @@ function renderStoreState(status, slug, data) {
     //storeCNAE.value = data.?;
     storeIE.value = data.inscricao_estadual;
     
-    if (iframe.src !== publicStoreUrl) {
+    /*if (iframe.src !== publicStoreUrl) {
       iframe.src = publicStoreUrl;
-    }
+    }*/
   } else {
     headerStore.style.display = 'none';
     pendingUI.style.display = 'block';
