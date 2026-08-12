@@ -399,6 +399,7 @@ function navigate(page, btn){
   if (hasUnsavedChanges) {
     event.preventDefault(); 
     event.stopPropagation();
+    return;
   }
   
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -1104,7 +1105,7 @@ async function showConfirm(message, title, icon) {
     
     document.body.appendChild(confirmModal); 
   } else {
-    document.getElementById('confirmMsg').textContent = message;
+    document.getElementById('confirmMsg').innerHTML = message;
     document.getElementById('confirmTitle').textContent = title;
     document.getElementById('confirmIcon').innerHTML = icon; 
   }
@@ -1227,7 +1228,7 @@ navButtons.forEach(button => {
             event.stopPropagation();
 
             pendingDestination = button; 
-            showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
+            showConfirm('Você tem alterações não salvas. <br>Deseja sair sem salvar?', 'Atenção', '⚠️');
         }
     });
 });
