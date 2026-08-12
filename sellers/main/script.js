@@ -397,10 +397,13 @@ function enterPanel(){ document.getElementById('landing').style.display='none'; 
 
 function navigate(page, btn){
   if (hasUnsavedChanges) {
+    event.preventDefault(); 
+    event.stopPropagation();
     pendingDestination = button; 
     showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
     return;
   }
+  
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
   const panel = document.getElementById('page-'+page);
@@ -410,8 +413,6 @@ function navigate(page, btn){
   const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações',loja:'Minha Loja'};
   document.getElementById('bcText').textContent = labels[page]||page;
   window.scrollTo({top:0,behavior:'smooth'});
-
-  hasUnsavedChanges = false;
 }
 
 const sidebarLinks = document.querySelectorAll('.nav-btn');
@@ -1221,7 +1222,7 @@ configurationInputs.forEach(input => {
     });
 });
 
-/*const navButtons = document.querySelectorAll('.nav-link, .sidebar-item, .config-tab');
+const navButtons = document.querySelectorAll('.nav-btn, .sidebar-item, .config-tab');
 
 navButtons.forEach(button => {
     button.addEventListener('click', (event) => {
