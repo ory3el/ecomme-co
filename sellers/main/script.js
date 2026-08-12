@@ -1234,4 +1234,4 @@ navButtons.forEach(button => {
             showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
         }
     });
-});*/
+});
