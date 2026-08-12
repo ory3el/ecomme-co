@@ -822,16 +822,16 @@ async function saveConfig() {
     return;
   }
 
-  const safeStoreName = sanitizeInput(cfgStoreName.value);
-  const safeStoreSlogan = sanitizeInput(cfgStoreSlogan.value);
-  const safeStoreDesc = sanitizeInput(cfgStoreDesc.value);
-  const safeStoreEmail = sanitizeInput(cfgStoreEmail.value);
-  const safeStorePhone = sanitizeInput(cfgStorePhone.value);
+  const safeStoreName = sanitizeInputAbc123(cfgStoreName.value);
+  const safeStoreSlogan = sanitizeInputAbc123(cfgStoreSlogan.value);
+  const safeStoreDesc = sanitizeInputAbc123(cfgStoreDesc.value);
+  const safeStoreEmail = sanitizeInputAbc123(cfgStoreEmail.value);
+  const safeStorePhone = sanitizeInput123(cfgStorePhone.value);
 
-  const safeCnpjCpf = sanitizeInput(document.getElementById('store-cnpj-cpf').value);
-  const safeLegalName = sanitizeInput(document.getElementById('store-legal-name').value);
-  const safeTradeName = sanitizeInput(document.getElementById('store-trade-name').value);
-  const safeIE = sanitizeInput(document.getElementById('store-ie').value);
+  const safeCnpjCpf = sanitizeInput123(document.getElementById('store-cnpj-cpf').value);
+  const safeLegalName = sanitizeInputAbc123(document.getElementById('store-legal-name').value);
+  const safeTradeName = sanitizeInputAbc123(document.getElementById('store-trade-name').value);
+  const safeIE = sanitizeInput123(document.getElementById('store-ie').value);
   
   const cfgStoreNameOK = safeStoreName.length >= 3;
   const cfgStoreDescOK = safeStoreDesc.length >= 10;
@@ -1197,6 +1197,34 @@ async function doLogout() {
 }
 
 function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return input.replace(/[&<>"']/g, function(m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    }[m];
+  });
+}
+
+function sanitizeInputAbc123(input) {
+  /* Only Numbers, Dots, '@', '(' and ')' */
+  if (typeof input !== 'string') return input;
+  return input.replace(/[&<>"']/g, function(m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    }[m];
+  });
+}
+
+function sanitizeInput123(input) {
+  /* Only Numbers and Dots */
   if (typeof input !== 'string') return input;
   return input.replace(/[&<>"']/g, function(m) {
     return {
