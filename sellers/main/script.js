@@ -914,11 +914,11 @@ async function saveConfig() {
   
   try {
     const dadosParaSalvar = {
-      nome_loja: cfgStoreName,
-      slogan: cfgStoreSlogan,
-      descricao: cfgStoreDesc,
-      email: cfgStoreEmail,
-      telefone: cfgStorePhone,
+      nome_loja: safeStoreName,
+      slogan: safeStoreSlogan,
+      descricao: safeStoreDesc,
+      email: safeStoreEmail,
+      telefone: safeStorePhone,
 
       documento: safeCnpjCpf,
       nome_razao: safeLegalName,
