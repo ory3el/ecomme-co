@@ -394,6 +394,7 @@ if (elCep) {
 // ══ NAVIGATION ══════════════════════════════════════════
 function showLanding(){ document.getElementById('landing').style.display='block'; document.getElementById('appShell').style.display='none'; window.scrollTo(0,0); }
 function enterPanel(){ document.getElementById('landing').style.display='none'; document.getElementById('appShell').style.display='flex'; document.getElementById('appShell').style.flexDirection='column'; navigate('dashboard'); }
+
 function navigate(page, btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
@@ -405,6 +406,32 @@ function navigate(page, btn){
   document.getElementById('bcText').textContent = labels[page]||page;
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+const sidebarLinks = document.querySelectorAll('.nav-btn');
+
+sidebarLinks.forEach(link => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    
+    const targetId = event.currentTarget.id;
+    
+    if (targetId === 'nav-dashboard') {
+      navigate('dashboard', event.currentTarget);
+    } else if (targetId === 'nav-novo-produto') {
+      navigate('novo-produto', event.currentTarget);
+    } else if (targetId === 'nav-produtos') {
+      navigate('produtos', event.currentTarget);
+    } else if (targetId === 'nav-pedidos') {
+      navigate('pedidos', event.currentTarget);
+    } else if (targetId === 'nav-financas') {
+      navigate('financas', event.currentTarget);
+    } else if (targetId === 'nav-config') {
+      navigate('config', event.currentTarget);
+    } else if (targetId === 'nav-loja') {
+      navigate('loja', event.currentTarget);
+    }
+  });
+});
 
 // ══ CHART ══════════════════════════════════════════════
 function buildRevChart(){
