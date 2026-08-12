@@ -1036,7 +1036,7 @@ function injectModalStyles() {
       color: #10161a;
       border: none;
       padding: 11px 24px;
-      border-radius: 8px;
+      border-radius: 250px;
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
@@ -1150,6 +1150,7 @@ function closeAlert() {
 
 function confirmUnsave() {
   const confirmModal = document.getElementById('confirmModal');
+  renderStoreState(data.status, data.slug_url, data
   hasUnsavedChanges = false; 
   
   if (confirmModal) {
@@ -1220,7 +1221,7 @@ document.querySelectorAll('.inp, .ta, .sel').forEach(elemento => {
   });
 });
 
-const navButtons = document.querySelectorAll('.nav-btn, .sidebar-item, .config-tab');
+const navButtons = document.querySelectorAll('.nav-btn, .cfg-nav-item, .config-tab');
 
 navButtons.forEach(button => {
     button.addEventListener('click', (event) => {
