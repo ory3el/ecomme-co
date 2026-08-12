@@ -907,6 +907,7 @@ async function saveConfig() {
     if (error) {
       throw error;
     }
+    hasUnsavedChanges = false;
     console.log("Configurações salvas com sucesso!", data);
     toast("As configurações foram salvas com sucesso!");
     
@@ -1045,11 +1046,93 @@ async function showAlert(message, title, icon) {
   alertModal.classList.add('active');
 }
 
+// ── POP-UP CONFIRM ──
+let confirmTimerId = null;
+
+async function showConfirm(message, title, icon) { 
+  injectModalStyles();
+  
+  let confirmModal = document.getElementById('confirmModal');
+  
+  if (!confirmModal) {
+    confirmModal = document.createElement('div');
+    confirmModal.id = 'confirmModal';
+    confirmModal.className = 'modal-alert-container';
+    confirmModal.innerHTML = `
+      <div class="modal-alert-content">
+        <div class="modal-alert-icon" id="confirmIcon">${icon}</div>
+        <h3 id="confirmTitle">${title}</h3>
+        <p id="confirmMsg">${message}</p>
+        <div class="modal-alert-buttons">
+          <button class="btn-alert-cancel" onclick="closeConfirm()">Voltar</button>
+          <button class="btn-alert-confirm" id="btnConfirmUnsave" onclick="confirmUnsave()">Sair sem salvar</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(confirmModal); 
+  } else {
+    document.getElementById('confirmMsg').textContent = message;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmIcon').innerHTML = icon; 
+  }
+  
+  // ── LOGIC 3s ──
+  const confirmBtn = document.getElementById('btnConfirmUnsave');
+  let timeLeft = 3;
+  
+  confirmBtn.disabled = true;
+  confirmBtn.style.opacity = '0.5';
+  confirmBtn.style.cursor = 'not-allowed';
+  confirmBtn.style.transition = 'all 0.3s ease';
+  confirmBtn.textContent = `Sair sem salvar (${timeLeft}s)`;
+  
+  if (confirmTimerId) clearInterval(confirmTimerId);
+  
+  confirmTimerId = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      confirmBtn.textContent = `Sair sem salvar (${timeLeft}s)`;
+    } else {
+      clearInterval(confirmTimerId);
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = '1';
+      confirmBtn.style.cursor = 'pointer';
+      confirmBtn.textContent = 'Sair sem salvar';
+    }
+  }, 1000);
+  
+  confirmModal.offsetHeight;
+  confirmModal.classList.add('active');
+}
+  
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
     alertModal.classList.remove('active');
   }
+}
+
+function confirmUnsave() {
+  const confirmModal = document.getElementById('confirmModal');
+  hasUnsavedChanges = false; 
+  
+  if (confirmModal) {
+    confirmModal.classList.remove('active');
+  }
+  
+  if (pendingDestination) {
+    pendingDestination.click(); 
+    pendingDestination = null;
+  }
+}
+
+function closeConfirm() {
+  const confirmModal = document.getElementById('confirmModal');
+  if (confirmModal) {
+    confirmModal.classList.remove('active');
+  }
+  if (confirmTimerId) clearInterval(confirmTimerId);
 }
 
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
@@ -1091,3 +1174,29 @@ function sanitizeInput(input) {
     }[m];
   });
 }
+
+/* ----------------------------------------------------- */
+let hasUnsavedChanges = false;
+let pendingDestination = null;
+
+const configurationInputs = document.querySelectorAll('.secao-configuracoes input, .secao-configuracoes select');
+
+configurationInputs.forEach(input => {
+    input.addEventListener('input', () => {
+        hasUnsavedChanges = true;
+    });
+});
+
+const navButtons = document.querySelectorAll('.nav-link, .sidebar-item, .config-tab');
+
+navButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+        if (hasUnsavedChanges) {
+            event.preventDefault(); 
+            event.stopPropagation();
+
+            pendingDestination = button; 
+            showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
+        }
+    });
+});
