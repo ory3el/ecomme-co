@@ -1150,7 +1150,7 @@ function closeAlert() {
 
 function confirmUnsave() {
   const confirmModal = document.getElementById('confirmModal');
-  renderStoreState(data.status, data.slug_url, data
+  renderStoreState(data.status, data.slug_url, data);
   hasUnsavedChanges = false; 
   
   if (confirmModal) {
