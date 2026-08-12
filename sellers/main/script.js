@@ -1210,31 +1210,15 @@ function sanitizeInput(input) {
 }
 
 function sanitizeInputAbc123(input) {
-  /* Only Numbers, Dots, '@', '(' and ')' */
+  /* Letters (including accents), Numbers, Spaces, Dots, '@', '(', ')' and '-' */
   if (typeof input !== 'string') return input;
-  return input.replace(/[&<>"']/g, function(m) {
-    return {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    }[m];
-  });
+  return input.replace(/[^a-zA-ZÀ-ÿ0-9\.@()\s\-]/g, '');
 }
 
 function sanitizeInput123(input) {
-  /* Only Numbers and Dots */
+  /* Numbers, Dots, Hyphens, Slashes and Parentheses (For Docs and Phones) */
   if (typeof input !== 'string') return input;
-  return input.replace(/[&<>"']/g, function(m) {
-    return {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    }[m];
-  });
+  return input.replace(/[^0-9\.\-\/\(\)\s]/g, '');
 }
 
 /* ----------------------------------------------------- */
