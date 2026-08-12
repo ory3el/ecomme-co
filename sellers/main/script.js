@@ -399,9 +399,6 @@ function navigate(page, btn){
   if (hasUnsavedChanges) {
     event.preventDefault(); 
     event.stopPropagation();
-    pendingDestination = button; 
-    showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
-    return;
   }
   
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -1150,8 +1147,8 @@ function closeAlert() {
 
 function confirmUnsave() {
   const confirmModal = document.getElementById('confirmModal');
-  renderStoreState(data.status, data.slug_url, data);
   hasUnsavedChanges = false; 
+  fetchInitialStoreStatus();
   
   if (confirmModal) {
     confirmModal.classList.remove('active');
