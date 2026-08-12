@@ -1214,12 +1214,10 @@ function sanitizeInput(input) {
 let hasUnsavedChanges = false;
 let pendingDestination = null;
 
-const configurationInputs = document.querySelectorAll('.secao-configuracoes input, .secao-configuracoes select');
-
-configurationInputs.forEach(input => {
-    input.addEventListener('input', () => {
-        hasUnsavedChanges = true;
-    });
+document.querySelectorAll('.inp, .ta, .sel').forEach(elemento => {
+  elemento.addEventListener('input', () => {
+    hasUnsavedChanges = true;
+  });
 });
 
 const navButtons = document.querySelectorAll('.nav-btn, .sidebar-item, .config-tab');
@@ -1234,4 +1232,11 @@ navButtons.forEach(button => {
             showConfirm('Você tem alterações não salvas. Deseja sair sem salvar?', 'Atenção', '⚠️');
         }
     });
+});
+
+window.addEventListener('beforeunload', (event) => {
+  if (hasUnsavedChanges) {
+    event.preventDefault();
+    event.returnValue = ''; 
+  }
 });
