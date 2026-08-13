@@ -143,7 +143,7 @@
       <!-- ═════ DASHBOARD ═════ -->
       <div class="page on" id="page-dashboard">
         <div class="page-hd">
-          <div><h2>Dashboard</h2><p>Visão geral da TechLab Store · Hoje, <span id="dashDate"></span></p></div>
+          <div><h2>Dashboard</h2><p>Visão geral da <span id="sb-store"></span> · Hoje, <span id="dashDate"></span></p></div>
           <div class="fac gap8">
             <select class="sel" style="width:auto;padding:7px 28px 7px 11px;font-size:12px" onchange="toast('Período atualizado')"><option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Este mês</option><option>Este ano</option></select>
             <button class="btn btn-o btn-sm" onclick="toast('Relatório exportado! 📄')">📄 Exportar</button>
@@ -437,10 +437,13 @@
                 <div class="preview-name" id="previewName">Nome do produto</div>
                 <div class="muted fs11 mt4 mb8" id="previewDesc">Descrição curta aqui...</div>
                 <div class="preview-price" id="previewPrice">R$ 0,00</div>
-                <div class="muted fs10 mt4">por TechLab Store</div>
+                <div class="muted fs10 mt4">por <span id="sb-store"></span></div>
                 <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--b2);display:flex;flex-direction:column;gap:6px">
-                  <div class="fs11 muted fac gap6">✅ Frete grátis acima R$199</div>
-                  <div class="fs11 muted fac gap6">⭐ Loja verificada</div>
+                  <div class="fs11 muted fac gap6">
+					  <i class="fa-solid fa-check"></i> 
+					  Frete grátis acima de R$199
+				  </div>
+                  <div class="fs11 muted fac gap6" style="display: none">⭐ Loja verificada</div>
                   <div class="fs11 muted fac gap6">🔒 Compra 100% segura</div>
                 </div>
               </div>
@@ -469,7 +472,7 @@
 					Loja verificada
 				</div>
               </div>
-              <button class="btn btn-p mt12 btn-checklist" style="width:100%" onclick="publishProduct()">
+              <button class="btn mt12 btn-checklist" style="width:100%" onclick="publishProduct()">
 				  <i class="fa-solid fa-rocket"></i> 
 				  Publicar Produto
 			  </button>
