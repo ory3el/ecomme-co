@@ -492,7 +492,7 @@ body {
     letter-spacing:-.3px;
 }
 .page-hd p {
-    font-size:12px;color:var(--muted);margin-top:2px;
+    font-size:14px;color:var(--muted);margin-top:2px;
     font-family: 'Outfit'; font-weight: 300;
 }
 
