@@ -856,20 +856,20 @@ tbody tr:hover td{background:var(--bg3)}
 @media (max-width: 768px), (orientation: portrait) {
     #content {
       /*Safari e Chrome antigos*/
-      -webkit-transform: scale(0.6);
-      -webkit-transform-origin: 0 0;
+      -webkit-transform: scale(0.6) !important;
+      -webkit-transform-origin: 0 0 !important;
 
       /*Firefox mais antigo*/
-      -moz-transform: scale(0.6);
-      -moz-transform-origin: 0 0;
+      -moz-transform: scale(0.6) !important;
+      -moz-transform-origin: 0 0 !important;
 
       /*IE 9*/
-      -ms-transform: scale(0.6);
-      -ms-transform-origin: 0 0;
+      -ms-transform: scale(0.6) !important;
+      -ms-transform-origin: 0 0 !important;
 
       /*navegadores atualizados*/
-      transform: scale(0.6);
-      transform-origin: 0 0;
+      transform: scale(0.6) !important;
+      transform-origin: 0 0 !important;
     }
     
   .app-sb {
