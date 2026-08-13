@@ -421,7 +421,7 @@ function navigate(page, btn){
   }
 }
 
-const sidebarLinks = document.querySelectorAll('.nav-btn');
+const sidebarLinks = document.querySelectorAll('.nav-btn, .mob-btn');
 
 sidebarLinks.forEach(link => {
   link.addEventListener('click', (event) => {
@@ -1245,8 +1245,8 @@ document.querySelectorAll('.inp, .ta, .sel').forEach(elemento => {
   });
 });
 
-// const navButtons = document.querySelectorAll('.nav-btn, mob-btn, .cfg-nav-item, .config-tab');
-const navButtons = document.querySelectorAll('.nav-btn, mob-btn');
+// const navButtons = document.querySelectorAll('.nav-btn, .mob-btn, .cfg-nav-item, .config-tab');
+const navButtons = document.querySelectorAll('.nav-btn, .mob-btn');
 
 navButtons.forEach(button => {
     button.addEventListener('click', (event) => {
