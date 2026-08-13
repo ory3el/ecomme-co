@@ -405,7 +405,7 @@ function navigate(page, btn){
   }
 
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.nav-btn, .mob-btn').forEach(b=>b.classList.remove('on'));
   const panel = document.getElementById('page-'+page);
   if(panel) panel.classList.add('on');
   if(btn) btn.classList.add('on');
