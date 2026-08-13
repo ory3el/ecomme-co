@@ -448,13 +448,31 @@
             <div class="card card-pad mt12" style="background:var(--bg3)">
               <div class="fs11 fw7 mb8">📋 Checklist</div>
               <div style="display:flex;flex-direction:column;gap:6px" id="publishChecklist">
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name">○ Nome do produto</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-cat">○ Categoria selecionada</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-price">○ Preço de venda</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-desc">○ Descrição curta</div>
-                <div class="fs11 fac gap6" style="color:var(--green)">✓ Loja verificada</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name">
+					<i class="fa-solid fa-xmark"></i> 
+					Nome do produto
+				</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-cat">
+					<i class="fa-solid fa-xmark"></i> 
+					Categoria selecionada
+				</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-price">
+					<i class="fa-solid fa-xmark"></i> 
+					Preço de venda
+				</div>
+                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-desc">
+					<i class="fa-solid fa-xmark"></i> 
+					Descrição curta
+				</div>
+                <div class="fs11 fac gap6" style="color:var(--green); display: none">
+					<i class="fa-solid fa-check"></i> 
+					Loja verificada
+				</div>
               </div>
-              <button class="btn btn-p mt12" style="width:100%" onclick="publishProduct()">🚀 Publicar Produto</button>
+              <button class="btn btn-p mt12 btn-checklist" style="width:100%" onclick="publishProduct()">
+				  <i class="fa-solid fa-rocket"></i> 
+				  Publicar Produto
+			  </button>
             </div>
           </div>
         </div>
