@@ -401,7 +401,7 @@ function navigate(page, btn){
     event.stopPropagation();
     return;
   }
-  
+
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
   const panel = document.getElementById('page-'+page);
@@ -410,7 +410,11 @@ function navigate(page, btn){
   else { const nb = document.querySelector(`[data-page="${page}"]`); if(nb) nb.classList.add('on'); }
   const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações',loja:'Minha Loja'};
   document.getElementById('bcText').textContent = labels[page]||page;
-  window.scrollTo({top:0,behavior:'smooth'});
+
+  const mainEl = document.querySelector('.app-main');
+  if (mainEl) {
+    mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 const sidebarLinks = document.querySelectorAll('.nav-btn');
