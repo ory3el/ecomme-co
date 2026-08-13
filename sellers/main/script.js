@@ -1212,7 +1212,7 @@ function sanitizeInput(input) {
 function sanitizeInputAbc123(input) {
   /* Letters (including accents), Numbers, Spaces, Dots, '@', '(', ')' and '-' */
   if (typeof input !== 'string') return input;
-  return input.replace(/[^a-zA-ZÀ-ÿ0-9\.@()\s\-]/g, '');
+  return input.replace(/[^a-zA-ZÀ-ÿ0-9\.'"@()\s\-]/g, '');
 }
 
 function sanitizeInput123(input) {
