@@ -719,6 +719,8 @@ function renderStoreState(status, slug, data) {
   const storeAddress = document.getElementById('store-address');
   const storeCNAE = document.getElementById('store-cnae');
   const storeIE = document.getElementById('store-ie');
+
+  const storeName = document.getElementById('storeName');
   
   if (!pendingUI || !activeUI) {
     console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
@@ -737,6 +739,7 @@ function renderStoreState(status, slug, data) {
     headerStore.textContent = `${data.nome_loja}`;
     headerStore.style.display = 'flex';
     sbStore.textContent = `${data.nome_loja}`;
+    storeName.textContent = `${data.nome_loja}`;
     sbStoreName.textContent = `@${safeSlug}`;
 
     cfgStoreName.value = data.nome_loja;
