@@ -1245,8 +1245,8 @@ document.querySelectorAll('.inp, .ta, .sel').forEach(elemento => {
   });
 });
 
-// const navButtons = document.querySelectorAll('.nav-btn, .cfg-nav-item, .config-tab');
-const navButtons = document.querySelectorAll('.nav-btn');
+// const navButtons = document.querySelectorAll('.nav-btn, mob-btn, .cfg-nav-item, .config-tab');
+const navButtons = document.querySelectorAll('.nav-btn, mob-btn');
 
 navButtons.forEach(button => {
     button.addEventListener('click', (event) => {
