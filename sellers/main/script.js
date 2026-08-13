@@ -192,6 +192,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const gateNoStore = document.getElementById('gateNoStore');
   const appShell = document.getElementById('appShell');
 
+  navigate(savedPage);
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
@@ -206,7 +207,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   userId = user.id; 
-  navigate(savedPage);
   
   const { data: lojaCheck, error: lojaError } = await supabaseClient
     .from('lojas')
