@@ -185,6 +185,7 @@ let userId = null;
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+  const savedPage = localStorage.getItem('activePage') || 'dashboard';
   const authGate = document.getElementById('authGate');
   const gateChecking = document.getElementById('gateChecking');
   const gateLogin = document.getElementById('gateLogin');
@@ -205,6 +206,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   userId = user.id; 
+  navigate(savedPage);
   
   const { data: lojaCheck, error: lojaError } = await supabaseClient
     .from('lojas')
@@ -411,6 +413,8 @@ function navigate(page, btn){
   const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações',loja:'Minha Loja'};
   document.getElementById('bcText').textContent = labels[page]||page;
 
+  localStorage.setItem('activePage', page);
+  
   const mainEl = document.querySelector('.app-main');
   if (mainEl) {
     mainEl.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1202,6 +1206,7 @@ async function doLogout() {
   toast2('Saindo da conta... 👋', 'info');
   await supabaseClient.auth.signOut();
   closeAcc();
+  localStorage.removeItem('activePage');
   location.reload();
 }
 
