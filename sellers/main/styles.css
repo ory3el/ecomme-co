@@ -305,7 +305,12 @@ body {
 .gap4 { gap: 4px; } .gap6 { gap: 6px; } .gap8 { gap: 8px; } .gap10 { gap: 10px; } .gap12 { gap: 12px; } .gap16 { gap: 16px; }
 .mb4 { margin-bottom: 4px; } .mb8 { margin-bottom: 8px; } .mb16 { margin-bottom: 16px; } 
 .mt4 { margin-top: 4px; } .mt8 { margin-top: 8px; } .mt12 { margin-top: 12px; }
-.fs10 { font-size: 10px; } .fs11 { font-size: 11px; } .fs12 { font-size: 12px; } .fs13 { font-size: 13px; }
+.fs10 { font-size: 10px; } 
+.fs11 {
+    font-size: 13px; 
+    justify-content: flex-start;
+} 
+.fs12 { font-size: 12px; } .fs13 { font-size: 13px; }
 .fw6 { font-weight: 600; } .fw7 { font-weight: 700; }
 .muted { color: var(--muted); }
 .blue { color: var(--blue); } .red { color: var(--red); } .green { color: var(--green); } .orange { color: var(--orange); }
