@@ -250,11 +250,11 @@ function checkUfForIE() {
   const inputIE = $('fldIE');
   
   if (!uf) {
-    msgIE.classList.add('show');
-    inputIE.blur(); 
+    //msgIE.classList.add('show');
+    //inputIE.blur(); 
     $('fldEstado').classList.add('invalid');
   } else {
-    msgIE.classList.remove('show');
+    //msgIE.classList.remove('show');
     $('fldEstado').classList.remove('invalid');
   }
 }
