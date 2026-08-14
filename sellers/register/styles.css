@@ -574,6 +574,6 @@
     .form-grid{grid-template-columns:1fr;}
     .form-grid .field:not(.full){grid-column:1/-1;}
     .btn-row{flex-direction:column-reverse;}
-    .btn-ghost-sm{width:100%;}
+    .btn-ghost-sm{width:0%;}
     .login-card{padding:30px 24px;}
   }
