@@ -563,7 +563,7 @@ function s1GoTo(i){
   $('sg1-identity').classList.toggle('hide-mobile', i!==0);
   $('sg1-address').classList.toggle('hide-mobile', i!==1);
   document.querySelectorAll('#s1Dots .d').forEach((d,idx)=>d.classList.toggle('on', idx===i));
-  $('s1Back').style.visibility = i===0 ? 'hidden' : 'visible';
+  $('s1Back').style.display = i===0 ? 'none' : 'flex';
   $('s1Next').style.display = i===0 ? 'flex' : 'none';
   document.getElementById('step1Actions').style.display = i===1 ? 'block' : 'none';
   if(window.innerWidth>820){ document.getElementById('step1Actions').style.display='block'; }
