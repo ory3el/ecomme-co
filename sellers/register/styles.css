@@ -321,6 +321,7 @@
     border:1.5px solid var(--line); color:var(--slate); 
     font-weight:600; font-size:13px; transition:all .25s; 
     flex-shrink:0; display: flex; align-items: center;
+    justify-content: center;
   }
   .btn-ghost-sm:hover {
     border-color:var(--slate-2); color:var(--ink);
