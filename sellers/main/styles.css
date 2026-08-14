@@ -638,7 +638,10 @@ tbody tr:hover td{background:var(--bg3)}
 
 /* ══ NEW PRODUCT ═════════════════════════════════════════ */
 .np-layout{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
-.np-preview{position:sticky;top:-15px}
+.np-preview {
+    position:sticky;top:-15px;
+    margin-bottom: 100px;
+}
 .preview-card{background:#fff;border:1px solid var(--b2);border-radius:var(--rl);overflow:hidden;box-shadow:var(--sh)}
 .preview-img{background:var(--blueDim);height:180px;display:flex;align-items:center;justify-content:center;font-size:72px;border-bottom:1px solid var(--b2)}
 .preview-info{padding:14px}
@@ -826,7 +829,14 @@ tbody tr:hover td{background:var(--bg3)}
 }
 .btn-logout-sb:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
-@media (max-width: 480px) { .acc-sb { width: 100%; } }
+@media (min-width: 962px) {
+    .np-layout { grid-template-columns: 1fr 360px }
+}
+    
+@media (max-width: 480px) {
+    .acc-sb { width: 100%; } 
+    .np-layout { grid-template-columns: auto }
+}
 
 /* MOBILE NAV */
 .mobile-nav {
@@ -880,7 +890,7 @@ tbody tr:hover td{background:var(--bg3)}
     display: flex !important;
   }
   .app-main {
-    height: calc(100vh + 0px) !important; 
+    height: calc(100vh + 120px) !important; 
     padding-bottom: 20px !important; 
     
     zoom: 0.8;
