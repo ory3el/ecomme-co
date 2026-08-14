@@ -260,7 +260,7 @@ body {
   .auth-gate {
     position: fixed;
     inset: 0;
-    z-index: 10000;
+    z-index: 110000;
     display: flex;
     backdrop-filter: blur(10px) 
       saturate(0.7) brightness(0.9);
@@ -286,7 +286,10 @@ body {
     width:100%; max-width:400px; background:#fff; border-radius: 50px; border:1px solid var(--line);
     box-shadow:var(--shadow-3); padding:40px 36px; animation:scaleSpring .5s var(--spring);
   }
-  .login-brand{display:flex; align-items:center; gap:6px; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:22px; color:var(--blue); margin-bottom:26px;}
+  .login-brand {
+      display:flex; align-items:center; gap:6px; font-family:'Cormorant Garamond',serif; 
+      font-weight:700; font-size:22px; color:var(--blue); margin-bottom:26px; justify-content: left;
+  }
   .login-brand .dot{opacity: 0; width:6px; height:6px; background:var(--blue); border-radius:50%; margin-top:1px;}
   .login-card h2{font-family:'Outfit',serif; font-weight:500; font-size:25px; margin-bottom:8px;}
   .login-card p.sub{font-size:15px; color:var(--slate); line-height:1.65; margin-bottom:24px;}
@@ -818,12 +821,14 @@ tbody tr:hover td{background:var(--bg3)}
   position: fixed;
   bottom: 0;
   left: 0;
+  border-radius: 30px 30px 0px 0px;
   width: 100%;
-  background: var(--white);
-  border-top: 1px solid var(--b2);
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(5px);
+  border-top: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 -4px 10px rgb(0 0 0 / 5%);
   z-index: 1000;
-  height: 60px;
+  height: 55px;
   justify-content: space-around;
   align-items: center;
   padding: 0 10px;
@@ -831,14 +836,14 @@ tbody tr:hover td{background:var(--bg3)}
 .mob-btn {
   background: transparent;
   border: none;
-  color: var(--muted);
+  color: var(--black);
   font-size: 20px;
   width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 50%;
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -846,8 +851,9 @@ tbody tr:hover td{background:var(--bg3)}
   background: var(--bg3);
 }
 .mob-btn.on {
-  color: var(--blue);
+  color: var(--blue-deep);
   background: var(--blueDim);
+  border-bottom: 1px solid;
 }
 .mob-btn.danger {
   color: var(--red);
@@ -861,22 +867,22 @@ tbody tr:hover td{background:var(--bg3)}
     display: flex !important;
   }
   .app-main {
-    height: calc(100vh - 58px - 60px) !important; 
+    height: calc(100vh + 0px) !important; 
     padding-bottom: 20px !important; 
     
-    zoom: 0.85;
+    zoom: 0.8;
   }
   
   @-moz-document url-prefix() {
     .app-main {
-      transform: scale(0.85);
+      transform: scale(0.8);
       transform-origin: top center;
       width: 117.64%;
     }
   }
     
   .login-card {
-      max-width: 90%;
+      max-width: 350;
       padding: 30px 20px;
   }
 }
