@@ -836,7 +836,7 @@ function renderProducts() {
     return;
   }
 
-  /* render cards */
+/* render cards */
   grid.innerHTML = list.map(p => {
     const inW = fav.some(x => x.id === p.id);
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
@@ -853,7 +853,10 @@ function renderProducts() {
       return `
         <div class="pcard" onclick="openProduct(${p.id})">
           <div class="pimg-wrap">
-            <div class="pimg">${p.emoji}</div>
+            <div class="pimg" style="position: relative;">
+              ${p.emoji}
+              ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+            </div>
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
@@ -869,8 +872,8 @@ function renderProducts() {
             </div>
             <div class="price-row">
               <span class="pprice">${fmt(p.price)}</span>
-              ${p.old ? `<span class="pold">${fmt(p.old)}</span>` : ''}
-              ${p.discount ? `<span class="pdisc">-${p.discount}%</span>` : ''}
+              <span class="pold">${fmt(p.old)}</span>
+              <span class="pdisc">-${p.discount}%</span>
             </div>
             ${shipH}
             <div class="pactions">
@@ -886,7 +889,10 @@ function renderProducts() {
     return `
       <div class="pcard" onclick="openProduct(${p.id})">
         <div class="pimg-wrap">
-          <div class="pimg">${p.emoji}</div>
+          <div class="pimg" style="position: relative;">
+            ${p.emoji}
+            ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+          </div>
           <div class="pbadges">${badgeH}</div>
           <button class="pwish-btn ${inW ? 'on' : ''}"
                   onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
