@@ -659,9 +659,8 @@ function toast(msg,type='ok'){
   ic.className='t-dot '+(type==='ok'?'t-ok':type==='err'?'t-err':'t-inf');
   ic.textContent=type==='ok'?'✓':type==='err'?'!':'ℹ';
   t.classList.add('on');
-  t.style.display = "flex";
   clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('on'), t.style.display = "none",3000);
+  t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
 // TOAST
