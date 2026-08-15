@@ -948,6 +948,10 @@ tbody tr:hover td{background:var(--bg3)}
 }
 @media (max-width: 360px) {
     .logo-div { display: none !important; }
+    .mob-btn { font-size: 15px !important; }
+}
+@media (max-width: 200px) {
+    .mob-btn { font-size: 12px !important; }
 }
 
 /* MOBILE NAV */
