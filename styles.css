@@ -1149,8 +1149,8 @@ body.loading {
     .mcls:hover { border-color: var(--red); color: var(--red); }
     .mcls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
     .modal-info {background: rgba(255,255,255,0);min-height: 574px;padding: 36px;display: flex;flex-direction: column;}
-    .m-cat { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
-    .m-name { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+    .m-cat {font-size: 10px;font-weight: 600;letter-spacing: 1.5px;text-transform: uppercase;color: var(--blue);margin-bottom: 8px;}
+    .m-name {font-size: 28px;font-weight: 500;margin-bottom: 12px;line-height: 1.2;}
     .m-desc { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
     .m-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
     .m-price {font-family: 'outfit';font-size: 36px;font-weight: 500;color: var(--blue);}
@@ -1164,8 +1164,8 @@ body.loading {
       display: flex; align-items: center; justify-content: center;
       font-size: 10px; font-weight: 700; flex-shrink: 0;
     }
-    .m-div { border: none; border-top: 1px solid var(--border2); margin: 16px 0; }
-    .m-qty-row {display: flex;margin-top: 42%;align-items: center;gap: 14px;/* margin-bottom: 20px; */}
+    .m-div {border: none;/* border-top: 1px solid var(--border2); */margin: auto;/* margin: 16px 0; */}
+    .m-qty-row {display: flex;/* margin-top: 42%; */align-items: center;gap: 14px;margin-bottom: 20px;}
     .m-qty-lbl { font-size: 12px; color: var(--muted); font-weight: 500; }
     .m-qty-ctrl {
       display: flex;
