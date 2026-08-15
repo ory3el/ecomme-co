@@ -600,9 +600,9 @@ body.loading {
     .pwish-btn {
       position: absolute; top: 12px; right: 12px;
       width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(255,255,255,.92); border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.3); border: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: center;
-      transition: all .2s; backdrop-filter: blur(4px);
+      transition: all .2s; backdrop-filter: blur(10px);
     }
     .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
     .pwish-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
