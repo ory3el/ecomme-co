@@ -651,7 +651,7 @@ async function publishProduct() {
 
   const { data: uploadData, error: uploadError } = await supabaseClient
     .storage
-    .from('produtos')
+    .from('products')
     .upload(fileName, imageFile);
 
   if (uploadError) {
@@ -662,7 +662,7 @@ async function publishProduct() {
 
   const { data: publicUrlData } = supabaseClient
     .storage
-    .from('produtos')
+    .from('products')
     .getPublicUrl(fileName);
 
   const imageUrl = publicUrlData.publicUrl;
