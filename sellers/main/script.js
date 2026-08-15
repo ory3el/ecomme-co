@@ -636,16 +636,40 @@ async function publishProduct() {
   const priceRaw = document.getElementById('npPrice')?.value;
   const descRaw = document.getElementById('npDesc')?.value;
   const shippingRaw = document.getElementById('freeShip')?.checked || false;
+  
+  const imageInput = document.getElementById('npImage');
+  const imageFile = imageInput?.files[0]; 
 
-  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...') {
-    toast('Preencha os campos obrigatórios (Nome, Categoria e Preço)', 'err');
+  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...' || !imageFile) {
+    toast('Preencha os campos obrigatórios e selecione uma imagem!', 'err');
     return;
   }
-  toast('Publicando produto...', 'info');
+  toast('Enviando imagem...', 'info');
 
-  const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();
-  const emojiStr = catRaw.replace(/[a-zA-ZÀ-ÿ\s]/g, '').trim() || '📦';
-  const catArray = [catText];
+  const fileExt = imageFile.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+  const { data: uploadData, error: uploadError } = await supabaseClient
+    .storage
+    .from('produtos')
+    .upload(fileName, imageFile);
+
+  if (uploadError) {
+    console.error("Erro no upload da imagem:", uploadError);
+    toast('Erro ao enviar a imagem: ' + uploadError.message, 'err');
+    return;
+  }
+
+  const { data: publicUrlData } = supabaseClient
+    .storage
+    .from('produtos')
+    .getPublicUrl(fileName);
+
+  const imageUrl = publicUrlData.publicUrl;
+  toast('Salvando produto no banco...', 'info');
+
+  const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
+  const catArray = [catText]; 
   const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
 
   const { data, error } = await supabaseClient
@@ -653,20 +677,20 @@ async function publishProduct() {
     .insert([
       {
         name: nameRaw,
-        cat: catArray,
-        price: priceNum,
-        "desc": descRaw,
+        cat: catArray, 
+        price: priceNum, 
+        "desc": descRaw, 
         shipping: shippingRaw,
-        emoji: emojiStr,
-        badge: 'new',
-        rating: 0,
-        reviews: 0,
-        features: []
+        image_url: imageUrl,
+        badge: 'new', 
+        rating: 0, 
+        reviews: 0, 
+        features: [] 
       }
     ]);
 
   if (error) {
-    console.error("Erro:", error);
+    console.error("Erro ao salvar produto:", error);
     toast('Erro ao publicar: ' + error.message, 'err');
   } else {
     toast('Produto publicado com sucesso! 🚀', 'ok');
@@ -676,9 +700,10 @@ async function publishProduct() {
     if(document.getElementById('npDesc')) document.getElementById('npDesc').value = '';
     if(document.getElementById('npCat')) document.getElementById('npCat').selectedIndex = 0;
     if(document.getElementById('freeShip')) document.getElementById('freeShip').checked = false;
-    updatePreview();
+    if(imageInput) imageInput.value = '';
     
-    navigate('produtos');
+    updatePreview(); 
+    navigate('produtos'); 
   }
 }
 
