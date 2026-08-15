@@ -935,18 +935,19 @@ tbody tr:hover td{background:var(--bg3)}
     .np-layout { grid-template-columns: auto !important; }
 }
 @media (max-width: 660px), (orientation: portrait){
+    .app-hdr { display: flex !important; }
+    .app-hdr { justify-content: center !important; }
     .app-breadcrumb { display: none !important; }
+    .logo-div { margin-right: 50px }
 }
 @media (max-width: 480px){
     /* .acc-sb { width: 100%; } */
-    .app-hdr { display: flex !important; }
 }
 @media (max-width: 440px) {
     .store-badge { display: none !important; }
 }
 @media (max-width: 360px) {
     .logo-div { display: none !important; }
-    .app-hdr { justify-content: center !important; }
 }
 
 /* MOBILE NAV */
