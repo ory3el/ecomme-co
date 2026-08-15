@@ -628,11 +628,58 @@ function calcMargin(){
   const nv = document.getElementById('netVal'); if(nv) nv.textContent=netV;
 }
 function addVariation(){ const l=document.getElementById('varList'); if(l){const d=document.createElement('div');d.className='var-item';d.innerHTML=`<span class="fs12">⚫ Preto — G · R$ 189,90 · Est: 5</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div>`;l.appendChild(d);}}
-function publishProduct(){
-  const n=document.getElementById('npName')?.value;
-  if(!n){toast('Preencha o nome do produto','err');return;}
-  toast('Produto publicado com sucesso! 🚀');
-  navigate('produtos');
+
+/* ---------------------------------------------- */
+async function publishProduct() {
+  const nameRaw = document.getElementById('npName')?.value;
+  const catRaw = document.getElementById('npCat')?.value;
+  const priceRaw = document.getElementById('npPrice')?.value;
+  const descRaw = document.getElementById('npDesc')?.value;
+  const shippingRaw = document.getElementById('freeShip')?.checked || false;
+
+  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...') {
+    toast('Preencha os campos obrigatórios (Nome, Categoria e Preço)', 'err');
+    return;
+  }
+  toast('Publicando produto...', 'info');
+
+  const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();
+  const emojiStr = catRaw.replace(/[a-zA-ZÀ-ÿ\s]/g, '').trim() || '📦';
+  const catArray = [catText];
+  const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .insert([
+      {
+        name: nameRaw,
+        cat: catArray,
+        price: priceNum,
+        "desc": descRaw,
+        shipping: shippingRaw,
+        emoji: emojiStr,
+        badge: 'new',
+        rating: 0,
+        reviews: 0,
+        features: []
+      }
+    ]);
+
+  if (error) {
+    console.error("Erro:", error);
+    toast('Erro ao publicar: ' + error.message, 'err');
+  } else {
+    toast('Produto publicado com sucesso! 🚀', 'ok');
+    
+    if(document.getElementById('npName')) document.getElementById('npName').value = '';
+    if(document.getElementById('npPrice')) document.getElementById('npPrice').value = '';
+    if(document.getElementById('npDesc')) document.getElementById('npDesc').value = '';
+    if(document.getElementById('npCat')) document.getElementById('npCat').selectedIndex = 0;
+    if(document.getElementById('freeShip')) document.getElementById('freeShip').checked = false;
+    updatePreview();
+    
+    navigate('produtos');
+  }
 }
 
 // ══ CONFIG ══════════════════════════════════════════════
