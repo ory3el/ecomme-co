@@ -661,7 +661,7 @@ function toast(msg,type='ok'){
   t.classList.add('on');
   t.style.display = "flex";
   clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('on'); t.style.display = "none",3000);
+  t._t=setTimeout(()=>t.classList.remove('on'), t.style.display = "none",3000);
 }
 
 // TOAST
