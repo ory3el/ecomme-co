@@ -653,6 +653,7 @@ function formatSaque(inp){ let v=inp.value.replace(/\D/g,''); if(v) inp.value='R
 function doSaque(){ const v=document.getElementById('saqueVal')?.value; if(!v||v==='R$ 0,00'){toast('Digite o valor do saque','err');return;} toast(`Saque de ${v} solicitado! Processamento em 1 dia útil 💸`); if(document.getElementById('saqueVal'))document.getElementById('saqueVal').value=''; }
 
 // ══ TOAST ════════════════════════════════════════════════
+/*
 function toast(msg,type='ok'){
   const t=document.getElementById('toast'),ic=document.getElementById('tIco'),tx=document.getElementById('tMsg');
   tx.textContent=msg;
@@ -661,6 +662,10 @@ function toast(msg,type='ok'){
   t.classList.add('on');
   clearTimeout(t._t);
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
+} */
+
+function toast(msg,type='ok') {
+  showToast(msg);
 }
 
 // TOAST
