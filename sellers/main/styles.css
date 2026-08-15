@@ -735,7 +735,7 @@ tbody tr:hover td{background:var(--bg3)}
 .var-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--b2);margin-bottom:6px}
 .var-remove{width:22px;height:22px;border-radius:50%;background:#fee2e2;color:var(--red);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-weight:700}
 
-.prating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+.prating { display: flex; align-items: center; justify-content: left; gap: 5px; margin-bottom: 10px; }
 .pstars { color: #29a0ff; font-size: 15px; letter-spacing: 1px; }
 .prcnt  { font-size: 11px; color: var(--muted); }
 
