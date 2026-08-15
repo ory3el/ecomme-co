@@ -921,16 +921,16 @@ tbody tr:hover td{background:var(--bg3)}
 }
 
 @media (max-width: 660px), (orientation: portrait){
-    .app-hdr { display: flex; }
     .app-breadcrumb { display: none; }
+}
+
+@media (max-width: 480px){
+    /* .acc-sb { width: 100%; } */
+    .app-hdr { display: flex; }
 }
 
 @media (max-width: 440px) {
     .store-badge { display: none; }
-}
-
-@media (max-width: 480px){
-    .acc-sb { width: 100%; } 
 }
 
 /* MOBILE NAV */
