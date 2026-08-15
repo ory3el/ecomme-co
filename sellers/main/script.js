@@ -1272,7 +1272,7 @@ function confirmLogout() {
   }
 }
 
-function closeRedConfirm() {
+function closeConfirmRed() {
   const confirmRedModal = document.getElementById('confirmRedModal');
   if (confirmRedModal) {
     confirmRedModal.classList.remove('active');
@@ -1335,7 +1335,7 @@ function sanitizeInput123(input) {
 
 /* ----------------------------------------------------- */
 function openConfirmLogout() {
-  showConfirmRed('Tem certeza que quer sair? Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
+  showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
 
 /* ----------------------------------------------------- */
