@@ -711,7 +711,19 @@ tbody tr:hover td{background:var(--bg3)}
 .preview-name{font-size:14px;font-weight:700;margin-bottom:4px}
 .preview-price{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--blue)}
 /* upload area */
-.upload-area{border:2px dashed var(--b2);border-radius:var(--rl);padding:32px 20px;aspect-ratio: 1 / 1;text-align:center;cursor:pointer;transition:.2s;background:var(--bg3)}
+.upload-area {
+    border: 2px dashed var(--b2);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    border-radius: var(--rl);
+    padding: 32px 20px;
+    aspect-ratio: 1 / 1;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s;
+    background: var(--bg3);
+}
 .upload-area:hover{border-color:var(--blue);background:var(--blueDim)}
 .upload-area .icon{font-size:36px;margin-bottom:8px;opacity:.4}
 .upload-area h4{font-size:13px;font-weight:600;margin-bottom:4px}
