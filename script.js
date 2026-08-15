@@ -189,7 +189,7 @@ let view        = 'grid';
 let shuffled    = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
 
 function starsHtml(r) {
   let s = '';
@@ -869,8 +869,8 @@ function renderProducts() {
             </div>
             <div class="price-row">
               <span class="pprice">${fmt(p.price)}</span>
-              <span class="pold">${fmt(p.old)}</span>
-              <span class="pdisc">-${p.discount}%</span>
+              ${p.old ? `<span class="pold">${fmt(p.old)}</span>` : ''}
+              ${p.discount ? `<span class="pdisc">-${p.discount}%</span>` : ''}
             </div>
             ${shipH}
             <div class="pactions">
