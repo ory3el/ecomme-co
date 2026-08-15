@@ -265,7 +265,10 @@ function updateCart() {
   }
   el.innerHTML = cart.map(item => `
     <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-img" style="position: relative;">
+        ${item.emoji}
+        ${item.image_url ? `<img src="${item.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${item.name}">` : ''}
+      </div>
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
@@ -371,7 +374,10 @@ function updateFav() {
   }
  el.innerHTML = fav.map(item => `
     <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-img" style="position: relative;">
+        ${item.emoji}
+        ${item.image_url ? `<img src="${item.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${item.name}">` : ''}
+      </div>
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
@@ -482,7 +488,10 @@ function openProduct(id) {
   curId   = id;
   mQtyVal = 1;
   $('mQty').textContent    = 1;
-  $('mEmoji').textContent  = p.emoji;
+  
+  $('mEmoji').innerHTML = `${p.emoji}${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}`;
+  $('mEmoji').style.position = 'relative';
+  
   $('mCat').textContent    = p.cat;
   $('mName').textContent   = p.name;
   $('mDesc').textContent   = p.desc;
