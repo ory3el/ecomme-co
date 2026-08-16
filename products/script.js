@@ -193,7 +193,7 @@ let view = 'grid';
 let shuffled = [...products];
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
 const $ = id => document.getElementById(id);
 
 function starsHtml(r) {
