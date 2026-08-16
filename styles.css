@@ -1126,6 +1126,15 @@ body.loading {
       display: grid;
       grid-template-columns: 1fr 1fr;
     }
+    .imgModal {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .modal-img {
       /* background: var(--bg3); */
       box-shadow: 0 0px 20px rgb(0 0 0 / 10%);
