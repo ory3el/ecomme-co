@@ -846,7 +846,7 @@ function renderProducts() {
   }
 
 /* render cards */
-  grid.innerHTML = list.map(p => {
+grid.innerHTML = list.slice(0, 10).map(p => {
     const inW = fav.some(x => x.id === p.id);
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
