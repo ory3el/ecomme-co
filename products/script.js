@@ -777,26 +777,30 @@ function renderProducts() {
   /* render cards */
   grid.innerHTML = list.map(p => {
     const inW = fav.some(x => x.id === p.id);
-    const badgeH = p.badge === 'hot' ? `<span class="bpill bhot">🔥 Hot</span>`
-                 : p.badge === 'new' ? `<span class="bpill bnew">Novo</span>`
-                 : `<span class="bpill bsale">-${p.discount}%</span>`;
-                 
-    const shipH = p.shipping ? `
-      <div class="pfship">
-        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        Frete Grátis
-      </div>` : '';
+    const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
+                  : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
+                  :                     `<span class="bpill bsale">-${p.discount}%</span>`;
+    const shipH   = p.shipping
+      ? `<div class="pfship">
+           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+           Frete Grátis
+         </div>`
+      : '';
 
     if (view === 'list') {
       return `
         <div class="pcard" onclick="openProduct(${p.id})">
           <div class="pimg-wrap">
-            <div class="pimg">${p.emoji}</div>
+            <div class="pimg" style="position: relative;">
+              ${p.emoji}
+              ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+            </div>
             <div class="pbadges">${badgeH}</div>
           </div>
           <div class="pinfo">
-            <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
-            <div class="pname">${p.name}</div>
+            <div class="pinfo">
+              <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+              <div class="pname">${p.name}</div>
             <div class="prating">
               <span class="pstars">${starsHtml(p.rating)}</span>
               <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
@@ -823,10 +827,13 @@ function renderProducts() {
     return `
       <div class="pcard" onclick="openProduct(${p.id})">
         <div class="pimg-wrap">
-          <div class="pimg">${p.emoji}</div>
+          <div class="pimg" style="position: relative;">
+            ${p.emoji}
+            ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+          </div>
           <div class="pbadges">${badgeH}</div>
-          <button class="pwish-btn ${inW ? 'on' : ''}" 
-                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();" 
+          <button class="pwish-btn ${inW ? 'on' : ''}"
+                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
                   title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
