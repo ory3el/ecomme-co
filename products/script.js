@@ -497,27 +497,30 @@ function closeAcc() {
 function openProduct(id) {
   document.body.classList.add("noscroll");
   const p = products.find(x => x.id === id);
-  curId = id;
+  curId   = id;
   mQtyVal = 1;
-  $('mQty').textContent = 1;
-  $('mEmoji').textContent = p.emoji;
-  $('mCat').textContent = p.cat;
-  $('mName').textContent = p.name;
-  $('mDesc').textContent = p.desc;
-  $('mPrice').textContent = fmt(p.price);
-  $('mOld').textContent = fmt(p.old);
-  $('mDisc').textContent = `-${p.discount}% OFF`;
-  $('mFeats').innerHTML = p.features.map(f =>
+  $('mQty').textContent    = 1;
+  
+  $('mEmoji').innerHTML = `${p.emoji}${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}`;
+  $('mEmoji').style.position = 'relative';
+  
+  $('mCat').textContent    = p.cat;
+  $('mName').textContent   = p.name;
+  $('mDesc').textContent   = p.desc;
+  $('mPrice').textContent  = fmt(p.price);
+  $('mOld').textContent    = fmt(p.old);
+  $('mDisc').textContent   = `-${p.discount}% OFF`;
+  $('mFeats').innerHTML    = p.features.map(f =>
     `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
   $('mWish').classList.toggle('on', fav.some(x => x.id === id));
   $('modalOverlay').classList.add('on');
 }
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal() { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
-function chgQty(d) { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
-function addFromModal() { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2() { addToFav(curId, mQtyVal); closeModal(); openFav(); }
+function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
+function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
+function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
+function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
 function showToast(msg) {
