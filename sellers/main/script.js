@@ -735,7 +735,7 @@ async function publishProduct() {
     .from('products')
     .insert([
       {
-        loja_id: minhaLojaId,
+        loja_id: myStoreId,
         name: nameRaw,
         cat: catArray, 
         price: priceNum, 
