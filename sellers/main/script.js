@@ -206,6 +206,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   userId = user.id; 
+  let myStoreId = null;
   
   const { data: lojaCheck, error: lojaError } = await supabaseClient
     .from('lojas')
@@ -233,7 +234,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   navigate(savedPage);
   await fetchInitialStoreStatus();
-  await loadMyProducts();
   subscribeToStoreStatus();
   
   // ============================================================
@@ -339,12 +339,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadMyProducts() {
-  if (!userId) return;
+  if (!myStoreId) return;
 
   const { data, error } = await supabaseClient
     .from('products')
     .select('*')
-    .eq('user_id', userId)
+    .eq('loja_id', myStoreId)
     .order('id', { ascending: false });
 
   if (error) {
@@ -353,7 +353,7 @@ async function loadMyProducts() {
   }
 
   PRODS = data || [];
-  buildProdTable('all');
+  buildProdTable('all'); 
 
   const bdg = document.getElementById('sbProdBdg');
   if(bdg) {
@@ -918,7 +918,7 @@ async function fetchInitialStoreStatus() {
   try {
     const { data, error } = await supabaseClient
       .from('lojas')
-      .select('status, slug_url, nome_loja, slogan, descricao, email, telefone, nome_razao, nome_fantasia, inscricao_estadual, documento, regime_tributario, complemento, endereco, numero, cidade, estado, cep')
+      .select('id, status, slug_url, nome_loja, slogan, descricao, email, telefone, nome_razao, nome_fantasia, inscricao_estadual, documento, regime_tributario, complemento, endereco, numero, cidade, estado, cep')
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -929,7 +929,9 @@ async function fetchInitialStoreStatus() {
     }
     
     if (data) {
+      myStoreId = data.id;
       renderStoreState(data.status, data.slug_url, data);
+      await loadMyProducts();
     } else {
       renderStoreState('pendente', '');
     }
