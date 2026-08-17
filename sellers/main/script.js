@@ -143,7 +143,7 @@ mqDark.addEventListener('change', checkTheme);
 // ══ DATA ════════════════════════════════════════════════
 const revData = [ /* 12.4,18.2,15.6,21.8,19.2,23.4,26.8,22.1,28.4,24.6,31.2,38.8 */ ];
 const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const PRODS = [
+let PRODS = [
   /*
   {em:'⌚',name:'Smartwatch Pro X7',sku:'TL-001',cat:'Eletrônicos',price:'R$ 189,90',stock:42,sold:94,status:'active'},
   {em:'🎧',name:'Fone BT ANC Pro',sku:'TL-002',cat:'Eletrônicos',price:'R$ 119,90',stock:28,sold:72,status:'active'},
@@ -233,6 +233,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   navigate(savedPage);
   await fetchInitialStoreStatus();
+  await loadMyProducts();
   subscribeToStoreStatus();
   
   // ============================================================
@@ -336,6 +337,30 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 });
+
+async function loadMyProducts() {
+  if (!userId) return;
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .eq('user_id', userId)
+    .order('id', { ascending: false });
+
+  if (error) {
+    console.error("Erro ao carregar produtos:", error);
+    return;
+  }
+
+  PRODS = data || [];
+  buildProdTable('all');
+
+  const bdg = document.getElementById('sbProdBdg');
+  if(bdg) {
+    bdg.textContent = PRODS.length;
+    bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none';
+  }
+}
 
 /* ============================================================ MASK HELPERS */
 const onlyDigits = v => v.replace(/\D/g,'');
@@ -481,34 +506,68 @@ function buildSparklines(){
 
 // ══ PRODUCTS TABLE ══════════════════════════════════════
 function buildProdTable(filter='all'){
-  const data = filter==='low' ? PRODS.filter(p=>p.stock<5) : filter==='paused' ? PRODS.filter(p=>p.status==='paused') : PRODS;
+  const data = filter==='low' ? PRODS.filter(p=> (p.stock||0) < 5) : filter==='paused' ? PRODS.filter(p=> p.badge==='paused') : PRODS;
   const body = document.getElementById('prodTbody');
   if(!body) return;
+  
   body.innerHTML = data.map(p => {
-    const stClass = p.stock<5?'stock-low':p.stock<15?'stock-med':'stock-ok';
-    const stTag = p.status==='active'?'<span class="tag tag-green">● Ativo</span>':'<span class="tag tag-gray">⏸ Pausado</span>';
+    const stock = p.stock || 0; 
+    const sold = p.reviews || 0; 
+    
+    const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
+    const stTag = p.badge !== 'paused' ? '<span class="tag tag-green">● Ativo</span>' : '<span class="tag tag-gray">⏸ Pausado</span>';
+    const fmtPrice = 'R$ ' + Number(p.price).toFixed(2).replace('.', ',');
+    const categoria = Array.isArray(p.cat) ? p.cat[0] : (p.cat || 'Sem categoria');
+
+    const mediaHtml = p.image_url 
+      ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` 
+      : '';
+
     return `<tr>
       <td class="chk-col"><input type="checkbox" class="chk"></td>
-      <td><div class="fac gap10"><div class="prod-thumb">${p.em}</div><div><div class="fs12 fw6">${p.name}</div><div class="fs10 muted">${p.sku}</div></div></div></td>
-      <td class="fs11 muted">${p.sku}</td>
-      <td><span class="tag tag-blue fs10">${p.cat}</span></td>
-      <td class="sora fw7 blue fs13">${p.price}</td>
-      <td><span class="stock-val ${stClass}">${p.stock} un.</span></td>
-      <td class="fs11 muted">${p.sold} vendas</td>
-      <td>${stTag}</td>
-      <td><div class="fac gap4">
-        <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" onclick="toast('Editando ${p.name}','info')">✏️</button>
-        <div class="action-dots" onclick="toggleMenu(event, this)">⋯
-          <div class="action-menu">
-            <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
-            <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
-            <div class="am-item" onclick="toast('Exportando dados','info')">📤 Exportar</div>
-            <div class="am-item red" onclick="toast('Produto removido')">🗑 Excluir</div>
+      <td>
+        <div class="fac gap10">
+          <div class="prod-thumb" style="position: relative;">
+            ${p.emoji || '📦'}
+            ${mediaHtml}
+          </div>
+          <div>
+            <div class="fs12 fw6">${p.name}</div>
+            <div class="fs10 muted">ID: ${p.id}</div>
           </div>
         </div>
-      </div></td>
+      </td>
+      <td class="fs11 muted">TL-00${p.id}</td>
+      <td><span class="tag tag-blue fs10">${categoria}</span></td>
+      <td class="sora fw7 blue fs13">${fmtPrice}</td>
+      <td><span class="stock-val ${stClass}">${stock} un.</span></td>
+      <td class="fs11 muted">${sold} vendas</td>
+      <td>${stTag}</td>
+      <td>
+        <div class="fac gap4">
+          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" onclick="editProduct(${p.id})">
+            <i class="fa-solid fa-pen"></i> Editar
+          </button>
+          
+          <div class="action-dots" onclick="toggleMenu(event, this)">⋯
+            <div class="action-menu">
+              <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
+              <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
+              <div class="am-item" onclick="toast('Exportando dados','info')">📤 Exportar</div>
+              <div class="am-item red" onclick="toast('Produto removido')">🗑 Excluir</div>
+            </div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
+}
+
+function editProduct(id) {
+  const produto = PRODS.find(p => p.id === id);
+  if(produto) {
+    toast(`Abrindo ${produto.name} para edição...`, 'info');
+  }
 }
 
 function toggleAll(cb){ document.querySelectorAll('.chk').forEach(c=>c.checked=cb.checked); }
@@ -676,6 +735,7 @@ async function publishProduct() {
     .from('products')
     .insert([
       {
+        user_id: userId,
         name: nameRaw,
         cat: catArray, 
         price: priceNum, 
@@ -703,6 +763,7 @@ async function publishProduct() {
     if(imageInput) imageInput.value = '';
     
     updatePreview(); 
+    loadMyProducts();
     navigate('produtos'); 
   }
 }
