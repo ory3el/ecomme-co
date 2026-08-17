@@ -904,7 +904,7 @@ tbody tr:hover td{background:var(--bg3)}
   color: #fff;
 }
 .acc-avatar-large {
-  width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);
+  width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
   overflow: hidden; background: #fff; flex-shrink: 0;
 }
 .acc-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
