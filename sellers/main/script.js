@@ -207,6 +207,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   userId = user.id; 
   let myStoreId = null;
+  let editingProductId = null;
   
   const { data: lojaCheck, error: lojaError } = await supabaseClient
     .from('lojas')
@@ -458,6 +459,7 @@ sidebarLinks.forEach(link => {
       navigate('dashboard', event.currentTarget);
     } else if (targetId === 'nav-novo-produto') {
       navigate('novo-produto', event.currentTarget);
+      clearProductForm();
     } else if (targetId === 'nav-produtos') {
       navigate('produtos', event.currentTarget);
     } else if (targetId === 'nav-pedidos') {
@@ -564,10 +566,36 @@ function buildProdTable(filter='all'){
 }
 
 function editProduct(id) {
-  const produto = PRODS.find(p => p.id === id);
-  if(produto) {
-    toast(`Abrindo ${produto.name} para edição...`, 'info');
+  const p = PRODS.find(x => x.id === id);
+  if (!p) return;
+  editingProductId = p.id;
+
+  if($('npName')) $('npName').value = p.name;
+  if($('npDesc')) $('npDesc').value = p.desc || '';
+  if($('npPrice')) {
+    $('npPrice').value = 'R$ ' + Number(p.price).toFixed(2).replace('.', ',');
   }
+  if($('freeShip')) $('freeShip').checked = p.shipping || false;
+  
+  if($('npCat')) {
+    const catSelect = $('npCat');
+    const catValue = Array.isArray(p.cat) ? p.cat[0] : p.cat;
+    for(let i=0; i < catSelect.options.length; i++) {
+      if(catSelect.options[i].text.includes(catValue)) {
+        catSelect.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
+    btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
+  });
+
+  updatePreview();
+  hasUnsavedChanges = false;
+  navigate('novo-produto');
+  toast('Modo edição ativado', 'info');
 }
 
 function toggleAll(cb){ document.querySelectorAll('.chk').forEach(c=>c.checked=cb.checked); }
@@ -699,75 +727,112 @@ async function publishProduct() {
   const imageInput = document.getElementById('npImage');
   const imageFile = imageInput?.files[0]; 
 
-  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...' || !imageFile) {
-    toast('Preencha os campos obrigatórios e selecione uma imagem!', 'err');
-    return;
-  }
-  toast('Enviando imagem...', 'info');
-
-  const fileExt = imageFile.name.split('.').pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-  const { data: uploadData, error: uploadError } = await supabaseClient
-    .storage
-    .from('products')
-    .upload(fileName, imageFile);
-
-  if (uploadError) {
-    console.error("Erro no upload da imagem:", uploadError);
-    toast('Erro ao enviar a imagem: ' + uploadError.message, 'err');
+  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...') {
+    toast('Preencha os campos obrigatórios!', 'err');
     return;
   }
 
-  const { data: publicUrlData } = supabaseClient
-    .storage
-    .from('products')
-    .getPublicUrl(fileName);
+  if (!editingProductId && !imageFile) {
+    toast('Selecione uma imagem para o novo produto!', 'err');
+    return;
+  }
 
-  const imageUrl = publicUrlData.publicUrl;
-  toast('Salvando produto no banco...', 'info');
+  toast('Processando...', 'info');
+  let imageUrl = null;
+
+  if (imageFile) {
+    const fileExt = imageFile.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from('products')
+      .upload(fileName, imageFile);
+
+    if (uploadError) {
+      console.error("Erro no upload da imagem:", uploadError);
+      toast('Erro ao enviar a imagem: ' + uploadError.message, 'err');
+      return;
+    }
+
+    const { data: publicUrlData } = supabaseClient
+      .storage
+      .from('products')
+      .getPublicUrl(fileName);
+
+    imageUrl = publicUrlData.publicUrl;
+  } else if (editingProductId) {
+    const p = PRODS.find(x => x.id === editingProductId);
+    imageUrl = p ? p.image_url : null;
+  }
 
   const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
   const catArray = [catText]; 
   const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
 
-  const { data, error } = await supabaseClient
-    .from('products')
-    .insert([
-      {
-        loja_id: myStoreId,
-        name: nameRaw,
-        cat: catArray, 
-        price: priceNum, 
-        "desc": descRaw, 
-        shipping: shippingRaw,
-        image_url: imageUrl,
-        badge: 'new', 
-        rating: 0, 
-        reviews: 0, 
-        features: [] 
-      }
-    ]);
+  const productData = {
+    name: nameRaw,
+    cat: catArray, 
+    price: priceNum, 
+    "desc": descRaw, 
+    shipping: shippingRaw,
+    image_url: imageUrl
+  };
+
+  let error;
+
+  if (editingProductId) {
+    const response = await supabaseClient
+      .from('products')
+      .update(productData)
+      .eq('id', editingProductId)
+      .eq('loja_id', myStoreId);
+
+    error = response.error;
+  } else {
+    productData.loja_id = myStoreId;
+    productData.badge = 'new'; 
+    productData.rating = 0; 
+    productData.reviews = 0; 
+    productData.features = [];
+
+    const response = await supabaseClient
+      .from('products')
+      .insert([productData]);
+
+    error = response.error;
+  }
 
   if (error) {
     console.error("Erro ao salvar produto:", error);
-    toast('Erro ao publicar: ' + error.message, 'err');
+    toast('Erro ao processar: ' + error.message, 'err');
   } else {
-    toast('Produto publicado com sucesso! 🚀', 'ok');
+    toast(editingProductId ? 'Produto atualizado com sucesso! 💾' : 'Produto publicado com sucesso! 🚀', 'ok');
     
-    if(document.getElementById('npName')) document.getElementById('npName').value = '';
-    if(document.getElementById('npPrice')) document.getElementById('npPrice').value = '';
-    if(document.getElementById('npDesc')) document.getElementById('npDesc').value = '';
-    if(document.getElementById('npCat')) document.getElementById('npCat').selectedIndex = 0;
-    if(document.getElementById('freeShip')) document.getElementById('freeShip').checked = false;
-    if(imageInput) imageInput.value = '';
-    
-    updatePreview(); 
-    loadMyProducts();
+    clearProductForm();
+    await loadMyProducts();
 
     hasUnsavedChanges = false;
-    navigate('produtos'); 
+    navigate('produtos');
   }
+}
+// --------------------------------------------------------
+function clearProductForm() {
+  editingProductId = null;
+
+  if($('npName')) $('npName').value = '';
+  if($('npPrice')) $('npPrice').value = '';
+  if($('npDesc')) $('npDesc').value = '';
+  if($('npCat')) $('npCat').selectedIndex = 0;
+  if($('freeShip')) $('freeShip').checked = false;
+  if($('npImage')) $('npImage').value = '';
+
+  document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
+    if(btn.innerHTML.includes('Salvar')) {
+       btn.innerHTML = btn.innerHTML.replace('Salvar Produto', 'Publicar Produto').replace('💾', '🚀');
+    }
+  });
+  updatePreview();
 }
 
 // ══ CONFIG ══════════════════════════════════════════════
