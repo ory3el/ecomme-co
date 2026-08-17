@@ -764,6 +764,8 @@ async function publishProduct() {
     
     updatePreview(); 
     loadMyProducts();
+
+    hasUnsavedChanges = false;
     navigate('produtos'); 
   }
 }
