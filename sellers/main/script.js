@@ -547,7 +547,7 @@ function buildProdTable(filter='all'){
       <td>${stTag}</td>
       <td>
         <div class="fac gap4">
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" onclick="editProduct(${p.id})">
+          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" onclick="editProduct('${p.id}')">
             <i class="fa-solid fa-pen"></i> Editar
           </button>
           
@@ -556,7 +556,7 @@ function buildProdTable(filter='all'){
               <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
               <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
               <div class="am-item" onclick="toast('Exportando dados','info')">📤 Exportar</div>
-              <div class="am-item red" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">🗑 Excluir</div>
+              <div class="am-item red" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑 Excluir</div>
             </div>
           </div>
         </div>
@@ -626,7 +626,6 @@ async function deleteProduct(id, productName) {
     }
   }
 
-  // 3. Deleta o produto do banco de dados
   const { error } = await supabaseClient
     .from('products')
     .delete()
@@ -818,11 +817,15 @@ async function publishProduct() {
     const response = await supabaseClient
       .from('products')
       .update(productData)
-      .eq('id', editingProductId)
+      .eq('id', editingProductId) 
       .eq('loja_id', myStoreId);
 
     error = response.error;
   } else {
+    toast('Gerando ID do produto...', 'info');
+    const finalId = await getUniqueProductId();
+    
+    productData.id = finalId;
     productData.loja_id = myStoreId;
     productData.badge = 'new'; 
     productData.rating = 0; 
@@ -866,6 +869,34 @@ function clearProductForm() {
     }
   });
   updatePreview();
+}
+
+// --------------------------------------------------------
+const rnd4 = () => Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
+function generateCustomId() {
+  return `${rnd4()}-${rnd4()}-${rnd4()}`;
+}
+
+async function getUniqueProductId() {
+  let isUnique = false;
+  let newId = '';
+  
+  while (!isUnique) {
+    newId = generateCustomId();
+    
+    const { data } = await supabaseClient
+      .from('products')
+      .select('id')
+      .eq('id', newId)
+      .maybeSingle();
+      
+    if (!data) {
+      isUnique = true;
+    }
+  }
+  
+  return newId;
 }
 
 // ══ CONFIG ══════════════════════════════════════════════
