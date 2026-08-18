@@ -556,7 +556,7 @@ function buildProdTable(filter='all'){
               <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
               <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
               <div class="am-item" onclick="toast('Exportando dados','info')">📤 Exportar</div>
-              <div class="am-item red" onclick="toast('Produto removido')">🗑 Excluir</div>
+              <div class="am-item red" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">🗑 Excluir</div>
             </div>
           </div>
         </div>
@@ -598,6 +598,7 @@ function editProduct(id) {
   toast('Modo edição ativado', 'info');
 }
 
+// --------------------------------------------------------
 function toggleAll(cb){ document.querySelectorAll('.chk').forEach(c=>c.checked=cb.checked); }
 function filterProds(btn, f){ document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); buildProdTable(f); }
 
@@ -609,6 +610,38 @@ function toggleMenu(e, el){
 }
 
 document.addEventListener('click',()=>document.querySelectorAll('.action-menu.on').forEach(m=>m.classList.remove('on')));
+
+// --------------------------------------------------------
+async function deleteProduct(id, productName) {
+  if (!confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o produto "${productName}"?\nEssa ação não pode ser desfeita.`)) {
+    return;
+  }
+  toast('Excluindo produto...', 'info');
+
+  const p = PRODS.find(x => x.id === id);
+  if (p && p.image_url) {
+    const fileName = p.image_url.split('/').pop();
+    if (fileName) {
+      await supabaseClient.storage.from('products').remove([fileName]);
+    }
+  }
+
+  // 3. Deleta o produto do banco de dados
+  const { error } = await supabaseClient
+    .from('products')
+    .delete()
+    .eq('id', id)
+    .eq('loja_id', myStoreId);
+
+  if (error) {
+    console.error("Erro ao excluir produto:", error);
+    toast('Erro ao excluir: ' + error.message, 'err');
+  } else {
+    toast('Produto excluído permanentemente! 🗑️', 'ok');
+    
+    await loadMyProducts(); 
+  }
+}
 
 // ══ ORDERS ══════════════════════════════════════════════
 function buildOrders(filter='all'){
