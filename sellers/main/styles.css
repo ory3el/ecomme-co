@@ -778,6 +778,43 @@ tbody tr:hover td{background:var(--bg3)}
   font-size: 16px;
 }
 
+/* IMG Delete Button */
+.btn-delete-main-img {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: rgba(235, 37, 37, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.btn-delete-main-img:hover {
+  background: #d81d1d;
+  transform: scale(1.1);
+}
+.img-block.main-block.has-image:hover .btn-delete-main-img {
+  opacity: 1;
+}
+.modal-alert-buttons-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+.modal-alert-buttons-vertical button {
+  width: 100%;
+}
+
 /* upload area */
 .upload-area {
     border: 2px dashed var(--b2);
