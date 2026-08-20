@@ -337,15 +337,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-  document.getElementById('npImage')?.addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  const previewEl = document.getElementById('previewImg');
-  
-  if (file && previewEl) {
-    const tempUrl = URL.createObjectURL(file);
-    previewEl.src = tempUrl;
-  }
-});
 });
 
 async function loadMyProducts() {
@@ -772,6 +763,19 @@ function calcMargin(){
   const nv = document.getElementById('netVal'); if(nv) nv.textContent=netV;
 }
 function addVariation(){ const l=document.getElementById('varList'); if(l){const d=document.createElement('div');d.className='var-item';d.innerHTML=`<span class="fs12">⚫ Preto — G · R$ 189,90 · Est: 5</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div>`;l.appendChild(d);}}
+
+/* -----------------------------------------------*/
+function handleImagePreview(event) {
+  const file = event.target.files[0];
+  const previewEl = document.getElementById('previewImg');
+  
+  if (file && previewEl) {
+    const tempUrl = URL.createObjectURL(file);
+    previewEl.textContent = ''; 
+    previewEl.src = tempUrl;
+    previewEl.style.objectFit = 'cover';
+  }
+}
 
 /* ---------------------------------------------- */
 async function publishProduct() {
