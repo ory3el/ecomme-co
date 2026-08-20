@@ -306,11 +306,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       fldCpf.value = cpf; 
       if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
     }
-
-    const npImageInput = document.getElementById('npImage');
-      if (npImageInput) {
-        npImageInput.addEventListener('change', updatePreview);
-      }
     
     if (photoUrl) {
       const avatarImage = document.getElementById('profileAvatar');
@@ -593,6 +588,15 @@ function editProduct(id) {
     }
   }
 
+  const previewEl = document.getElementById('previewImg');
+  if (previewEl) {
+    if (p.image_url) {
+      previewEl.src = p.image_url;
+    } else {
+      previewEl.src = 'caminho/para/imagem-padrao.jpg'; 
+    }
+  }
+
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
   });
@@ -739,39 +743,6 @@ function updatePreview(){
   if(document.getElementById('previewDesc'))document.getElementById('previewDesc').textContent=d.slice(0,80);
   const em = emos[c]||'📦';
   if(document.getElementById('previewImg'))document.getElementById('previewImg').textContent=em;
-
-  const imageInput = document.getElementById('npImage');
-  const previewThumb = document.querySelector('previewImg') || document.getElementById('previewThumb'); 
-  
-  if (!previewThumb) return;
-
-  const file = imageInput?.files[0];
-  let imageUrlToDisplay = null;
-
-  if (file) {
-    imageUrlToDisplay = URL.createObjectURL(file);
-  } else if (editingProductId) {
-    const product = PRODS.find(p => p.id === editingProductId);
-    if (product && product.image_url) {
-      imageUrlToDisplay = product.image_url;
-    }
-  }
-
-  let imgTag = previewThumb.querySelector('img');
-  if (imageUrlToDisplay) {
-    if (!imgTag) {
-      imgTag = document.createElement('img');
-      imgTag.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;";
-      previewThumb.appendChild(imgTag);
-    }
-    imgTag.src = imageUrlToDisplay;
-    imgTag.style.display = 'block';
-  } else {
-    if (imgTag) {
-      imgTag.style.display = 'none';
-      imgTag.src = '';
-    }
-  }
   
   // checklist
   const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
@@ -905,6 +876,11 @@ function clearProductForm() {
   if($('freeShip')) $('freeShip').checked = false;
   if($('npImage')) $('npImage').value = '';
 
+  const previewEl = document.getElementById('previewImg');
+  if (previewEl) {
+    previewEl.src = 'caminho/para/imagem-padrao.jpg'; 
+  }
+  
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     if(btn.innerHTML.includes('Salvar')) {
        btn.innerHTML = btn.innerHTML.replace('Salvar Produto', 'Publicar Produto').replace('💾', '🚀');
@@ -1680,5 +1656,15 @@ window.addEventListener('beforeunload', (event) => {
   if (hasUnsavedChanges) {
     event.preventDefault();
     event.returnValue = ''; 
+  }
+});
+
+document.getElementById('npImage')?.addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  const previewEl = document.getElementById('previewImg');
+  
+  if (file && previewEl) {
+    const tempUrl = URL.createObjectURL(file);
+    previewEl.src = tempUrl;
   }
 });
