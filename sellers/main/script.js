@@ -798,12 +798,8 @@ let cropperInstance = null;
 let originalFileName = "";
 
 function openCropModal(event) {
-  console.log("1. Input acionado, verificando arquivo...");
   const file = event.target.files[0];
-  if (!file) {
-    console.log("Nenhum arquivo encontrado no input.");
-    return;
-  }
+  if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
     toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
@@ -813,20 +809,54 @@ function openCropModal(event) {
 
   originalFileName = file.name;
 
-  const modal = document.getElementById('cropModal');
-  const imgElement = document.getElementById('imageToCrop');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imgElement = document.getElementById('imageToCrop');
+    imgElement.src = e.target.result;
+    document.getElementById('cropModal').classList.add('active');
 
-  if (!modal) {
-    console.error("ERRO CRÍTICO: O elemento com id='cropModal' não existe no seu HTML!");
-    toast('Erro: Modal de corte não encontrado no HTML ⚠️', 'err');
+    if (cropperInstance) cropperInstance.destroy();
+    cropperInstance = new Cropper(imgElement, {
+      aspectRatio: 1,
+      viewMode: 2,
+      dragMode: 'move',
+      autoCropArea: 0.9,
+      background: false,
+    });
+  };
+  
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').classList.remove('active');
+  
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+}
+
+async function executeCrop() {
+  if (!cropperInstance) {
+    toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
     return;
   }
+  toast('Carregando imagem... ⏳', 'info');
 
-  if (!imgElement) {
-    console.error("ERRO CRÍTICO: O elemento com id='imageToCrop' não existe no seu HTML!");
-    toast('Erro: Tag de imagem para corte não encontrada no HTML ⚠️', 'err');
-    return;
-  }
+  cropperInstance.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingQuality: 'high'
+  }).toBlob(async (blob) => {
+    
+    if (!blob) {
+      toast('Erro ao processar o recorte da imagem.', 'err');
+      closeCropModal();
+      return;
+    }
+    closeCropModal();
 
   const reader = new FileReader();
   reader.onload = function(e) {
