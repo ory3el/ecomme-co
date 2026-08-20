@@ -850,6 +850,7 @@ async function executeCrop() {
   cropperInstance.getCroppedCanvas({
     width: 400,
     height: 400,
+    fillColor: '#ffffff',
     imageSmoothingQuality: 'high'
   }).toBlob(async (blob) => {
     
