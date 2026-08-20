@@ -813,6 +813,8 @@ function openCropModal(event) {
   reader.onload = function(e) {
     const imgElement = document.getElementById('imageToCrop');
     imgElement.src = e.target.result;
+    
+    document.getElementById('cropModal').style.display = 'flex';
     document.getElementById('cropModal').classList.add('active');
 
     if (cropperInstance) cropperInstance.destroy();
@@ -826,16 +828,17 @@ function openCropModal(event) {
   };
   
   reader.readAsDataURL(file);
-  event.target.value = '';
 }
 
 function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
   document.getElementById('cropModal').classList.remove('active');
   
   if (cropperInstance) {
     cropperInstance.destroy();
     cropperInstance = null;
   }
+  document.getElementById('npImage').value = '';
 }
 
 async function executeCrop() {
@@ -843,8 +846,7 @@ async function executeCrop() {
     toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
     return;
   }
-  toast('Carregando imagem... ⏳', 'info');
-
+  
   cropperInstance.getCroppedCanvas({
     width: 400,
     height: 400,
@@ -856,31 +858,17 @@ async function executeCrop() {
       closeCropModal();
       return;
     }
+    
+    const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedFile);
+    document.getElementById('npImage').files = dataTransfer.files;
+
+    const fakeEvent = { target: { files: [croppedFile] } };
+    handleImagePreview(fakeEvent);
+
     closeCropModal();
-
-    try {
-      /*const { data: currentProfile, error: fetchError } = await supabaseClient
-        .from('profiles').select('avatar_url').eq('id', userId).single();
-
-      let oldUrl = (!fetchError && currentProfile) ? currentProfile.avatar_url : null;
-
-      const fileExt = originalFileName.split('.').pop() || 'jpg';
-      const fileName = `${userId}-${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabaseClient.storage
-        .from('avatars')
-        .upload(fileName, blob, { contentType: 'image/jpeg' });*/
-
-      if (uploadError) throw uploadError;
-      
-      toast('Foto atualizada com sucesso! 🎉', 'ok');
-
-    } catch (error) {
-      console.error('Erro no upload:', error.message);
-      toast('Erro ao enviar a foto.', 'err');
-    }
-
-  }, 'image/jpeg', 0.85);
+  }, 'image/jpeg', 0.9);
 }
 
 /* ---------------------------------------------- */
