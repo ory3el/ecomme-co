@@ -782,7 +782,9 @@ let productImagesFiles = [null, null, null, null, null];
 let activeImageSlot = 0;
 
 function triggerImageUpload(slotIndex) {
-  if (!productImagesFiles[0] && !editingProductId) {
+  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
+
+  if (!productImagesFiles[0] && !isEditing) {
     activeImageSlot = 0;
   } else {
     activeImageSlot = slotIndex;
@@ -872,6 +874,9 @@ async function executeCrop() {
 }
 
 function updateGalleryUI() {
+  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
+  const hasProds = typeof PRODS !== 'undefined';
+
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (!block) continue;
@@ -884,10 +889,15 @@ function updateGalleryUI() {
       const url = URL.createObjectURL(file);
       previewContainer.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}">`;
       block.classList.add('has-image');
-    } else if (i === 0 && editingProductId && PRODS.find(p => p.id === editingProductId)?.image_url) {
+    } else if (i === 0 && isEditing && hasProds) {
         const p = PRODS.find(x => x.id === editingProductId);
-        previewContainer.innerHTML = `<img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto">`;
-        block.classList.add('has-image');
+        if (p && p.image_url) {
+            previewContainer.innerHTML = `<img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto">`;
+            block.classList.add('has-image');
+        } else {
+            previewContainer.innerHTML = '<div class="fs24">📦</div>';
+            block.classList.remove('has-image');
+        }
     } else {
       previewContainer.innerHTML = i === 0 ? '<div class="fs24">📦</div>' : '<i class="fa-solid fa-plus fs20 muted"></i>';
       block.classList.remove('has-image');
