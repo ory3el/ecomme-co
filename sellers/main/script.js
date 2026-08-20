@@ -898,7 +898,11 @@ function clearProductForm() {
 
   const previewEl = document.getElementById('previewImg');
   if (previewEl) {
-    previewEl.src = 'caminho/para/imagem-padrao.jpg'; 
+    if (previewEl.tagName.toLowerCase() !== 'img') {
+       previewEl.innerHTML = '📦';
+    } else {
+       previewEl.src = ''; 
+    }
   }
   
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
