@@ -753,10 +753,9 @@ function updatePreview(){
   const previewEl = document.getElementById('previewImg');
   const fileInput = document.getElementById('npImage');
   
-  if (previewEl && (!fileInput || !fileInput.files[0]) && !editingProductId) {
-    if (previewEl.tagName.toLowerCase() !== 'img') {
-      previewEl.textContent = em;
-    }
+  if(document.getElementById('previewImg') && !document.getElementById('npImage').files[0]) {
+    document.getElementById('previewImg').textContent = em;
+    document.getElementById('previewImg').src = "";
   }
   
   // checklist
