@@ -790,11 +790,19 @@ function triggerImageUpload(slotIndex) {
     return;
   }
 
-  if (!productImagesFiles[0] && !isEditing && slotIndex > 0) {
-    activeImageSlot = 0;
-  } else {
-    activeImageSlot = slotIndex;
+  let targetSlot = slotIndex;
+  let isClickedSlot0OccupiedByDB = (slotIndex === 0 && isEditing);
+  if (!productImagesFiles[slotIndex] && !isClickedSlot0OccupiedByDB) {
+    for (let i = 0; i < slotIndex; i++) {
+      let isLoopSlot0OccupiedByDB = (i === 0 && isEditing);
+      
+      if (!productImagesFiles[i] && !isLoopSlot0OccupiedByDB) {
+        targetSlot = i;
+        break; 
+      }
+    }
   }
+  activeImageSlot = targetSlot;
   
   const fileInput = document.getElementById('npImage');
   if(fileInput) {
