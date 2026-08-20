@@ -591,12 +591,20 @@ function editProduct(id) {
   const previewEl = document.getElementById('previewImg');
   if (previewEl) {
     if (p.image_url) {
-      previewEl.src = p.image_url;
+      if (previewEl.tagName.toLowerCase() !== 'img') {
+        previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
+      } else {
+        previewEl.src = p.image_url;
+      }
     } else {
-      previewEl.src = 'caminho/para/imagem-padrao.jpg'; 
+      if (previewEl.tagName.toLowerCase() !== 'img') {
+        previewEl.innerHTML = '📦';
+      } else {
+        previewEl.src = ''; 
+      }
     }
   }
-
+  
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
   });
@@ -773,7 +781,7 @@ function handleImagePreview(event) {
     const tempUrl = URL.createObjectURL(file);
     
     if (previewEl.tagName.toLowerCase() !== 'img') {
-      previewEl.innerHTML = `<img src="${tempUrl}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+      previewEl.innerHTML = `<img src="${tempUrl}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="Preview">`;
     } else {
       previewEl.src = tempUrl;
       previewEl.style.objectFit = 'cover';
