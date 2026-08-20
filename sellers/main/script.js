@@ -741,7 +741,7 @@ function updatePreview(){
   if(document.getElementById('previewImg'))document.getElementById('previewImg').textContent=em;
 
   const imageInput = document.getElementById('npImage');
-  const previewThumb = document.querySelector('.modal-preview .prod-thumb') || document.getElementById('previewThumb'); 
+  const previewThumb = document.querySelector('previewImg') || document.getElementById('previewThumb'); 
   
   if (!previewThumb) return;
 
