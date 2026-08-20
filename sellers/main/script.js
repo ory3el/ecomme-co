@@ -592,6 +592,9 @@ function editProduct(id) {
     btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
   });
 
+  const labelNewProduct = document.getElementById('labelNewProduct');
+  labelNewProduct.textContent = "Editar Produto";
+  
   updatePreview();
   hasUnsavedChanges = false;
   navigate('novo-produto');
