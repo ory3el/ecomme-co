@@ -749,13 +749,15 @@ function updatePreview(){
   if(document.getElementById('previewPrice'))document.getElementById('previewPrice').textContent=p||'R$ 0,00';
   if(document.getElementById('previewCat'))document.getElementById('previewCat').textContent=c;
   if(document.getElementById('previewDesc'))document.getElementById('previewDesc').textContent=d.slice(0,80);
+  const em = emos[c]||'📦';
   
   const previewEl = document.getElementById('previewImg');
   const fileInput = document.getElementById('npImage');
   
-  if(document.getElementById('previewImg') && !document.getElementById('npImage').files[0]) {
-    document.getElementById('previewImg').textContent = em;
-    document.getElementById('previewImg').src = "";
+  if (previewEl && (!fileInput || !fileInput.files[0]) && !editingProductId) {
+    if (previewEl.tagName.toLowerCase() !== 'img') {
+      previewEl.textContent = em;
+    }
   }
   
   // checklist
