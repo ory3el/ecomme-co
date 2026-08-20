@@ -751,7 +751,10 @@ function updatePreview(){
   if(document.getElementById('previewCat'))document.getElementById('previewCat').textContent=c;
   if(document.getElementById('previewDesc'))document.getElementById('previewDesc').textContent=d.slice(0,80);
   const em = emos[c]||'📦';
-  if(document.getElementById('previewImg'))document.getElementById('previewImg').textContent=em;
+  if(document.getElementById('previewImg') && !document.getElementById('npImage').files[0]) {
+    document.getElementById('previewImg').textContent = em;
+    document.getElementById('previewImg').src = "";
+  }
   
   // checklist
   const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
