@@ -592,7 +592,7 @@ function editProduct(id) {
   if (previewEl) {
     if (p.image_url) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
+        previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
       } else {
         previewEl.src = p.image_url;
       }
