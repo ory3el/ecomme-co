@@ -858,37 +858,29 @@ async function executeCrop() {
     }
     closeCropModal();
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    console.log("2. Arquivo lido com sucesso, injetando no modal...");
-    imgElement.src = e.target.result;
-    
-    modal.style.display = 'flex';
-    modal.classList.add('active');
-
     try {
-      if (typeof Cropper === 'undefined') {
-        console.error("ERRO CRÍTICO: A biblioteca Cropper.js não foi carregada no <head> da página!");
-        toast('Erro: Biblioteca Cropper não carregada ⚠️', 'err');
-        return;
-      }
+      /*const { data: currentProfile, error: fetchError } = await supabaseClient
+        .from('profiles').select('avatar_url').eq('id', userId).single();
 
-      if (cropperInstance) cropperInstance.destroy();
+      let oldUrl = (!fetchError && currentProfile) ? currentProfile.avatar_url : null;
+
+      const fileExt = originalFileName.split('.').pop() || 'jpg';
+      const fileName = `${userId}-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(fileName, blob, { contentType: 'image/jpeg' });*/
+
+      if (uploadError) throw uploadError;
       
-      cropperInstance = new Cropper(imgElement, {
-        aspectRatio: 1,
-        viewMode: 2,
-        dragMode: 'move',
-        autoCropArea: 0.9,
-        background: false,
-      });
-      console.log("3. Cropper inicializado com sucesso!");
-    } catch (err) {
-      console.error("Erro ao instanciar o Cropper:", err);
+      toast('Foto atualizada com sucesso! 🎉', 'ok');
+
+    } catch (error) {
+      console.error('Erro no upload:', error.message);
+      toast('Erro ao enviar a foto.', 'err');
     }
-  };
-  
-  reader.readAsDataURL(file);
+
+  }, 'image/jpeg', 0.85);
 }
 
 /* ---------------------------------------------- */
