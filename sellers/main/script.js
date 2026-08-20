@@ -771,9 +771,13 @@ function handleImagePreview(event) {
   
   if (file && previewEl) {
     const tempUrl = URL.createObjectURL(file);
-    previewEl.textContent = ''; 
-    previewEl.src = tempUrl;
-    previewEl.style.objectFit = 'cover';
+    
+    if (previewEl.tagName.toLowerCase() !== 'img') {
+      previewEl.innerHTML = `<img src="${tempUrl}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+    } else {
+      previewEl.src = tempUrl;
+      previewEl.style.objectFit = 'cover';
+    }
   }
 }
 
