@@ -593,7 +593,7 @@ function editProduct(id) {
   });
 
   const labelNewProduct = document.getElementById('labelNewProduct');
-  labelNewProduct.textContent = "Editar Produto";
+  labelNewProduct.textContent = `Editar Produto | ${p.name}`;
   
   updatePreview();
   hasUnsavedChanges = false;
