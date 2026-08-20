@@ -307,6 +307,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
     }
 
+    const npImageInput = document.getElementById('npImage');
+      if (npImageInput) {
+        npImageInput.addEventListener('change', updatePreview);
+      }
+    
     if (photoUrl) {
       const avatarImage = document.getElementById('profileAvatar');
       const sidebarImage = document.getElementById('sidebarAvatar');
@@ -734,6 +739,40 @@ function updatePreview(){
   if(document.getElementById('previewDesc'))document.getElementById('previewDesc').textContent=d.slice(0,80);
   const em = emos[c]||'📦';
   if(document.getElementById('previewImg'))document.getElementById('previewImg').textContent=em;
+
+  const imageInput = document.getElementById('npImage');
+  const previewThumb = document.querySelector('.modal-preview .prod-thumb') || document.getElementById('previewThumb'); 
+  
+  if (!previewThumb) return;
+
+  const file = imageInput?.files[0];
+  let imageUrlToDisplay = null;
+
+  if (file) {
+    imageUrlToDisplay = URL.createObjectURL(file);
+  } else if (editingProductId) {
+    const product = PRODS.find(p => p.id === editingProductId);
+    if (product && product.image_url) {
+      imageUrlToDisplay = product.image_url;
+    }
+  }
+
+  let imgTag = previewThumb.querySelector('img');
+  if (imageUrlToDisplay) {
+    if (!imgTag) {
+      imgTag = document.createElement('img');
+      imgTag.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;";
+      previewThumb.appendChild(imgTag);
+    }
+    imgTag.src = imageUrlToDisplay;
+    imgTag.style.display = 'block';
+  } else {
+    if (imgTag) {
+      imgTag.style.display = 'none';
+      imgTag.src = '';
+    }
+  }
+  
   // checklist
   const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
   set('chk-name',n&&n!=='Nome do produto');
