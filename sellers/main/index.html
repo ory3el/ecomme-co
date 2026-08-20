@@ -910,15 +910,22 @@
   </div>
 
 <!-- Crop Modal -->
-<div id="cropModal" class="modal-overlay" style="display:none;">
-  <div class="modal-content" style="max-width: 500px;">
-    <h3>Ajustar Imagem do Produto</h3>
-    <div style="width: 100%; max-height: 400px; background: #333;">
-      <img id="imageToCrop" src="" style="display: block; max-width: 100%;">
+<div id="cropModal" class="crop-modal">
+  <div class="crop-modal-content">
+    <div class="crop-hd">
+      <h3>Ajustar Foto</h3>
+      <button class="cart-cls" onclick="closeCropModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div class="modal-actions">
-      <button type="button" onclick="executeCrop()" class="btn-confirm">Cortar e Salvar</button>
-      <button type="button" onclick="closeCropModal()" class="btn-cancel">Cancelar</button>
+    
+    <div class="img-container">
+      <img id="imageToCrop" src="" alt="Imagem para recortar">
+    </div>
+    
+    <div class="av-btns" style="justify-content: flex-end; margin-top: 15px;">
+      <button class="btn-xs gray" onclick="closeCropModal()">Cancelar</button>
+      <button class="btn-xs blue" onclick="executeCrop()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
     </div>
   </div>
 </div>
