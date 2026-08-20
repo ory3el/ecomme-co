@@ -944,6 +944,20 @@
     </div>
   </div>
 </div>
+
+<!-- IMG Action Modal -->
+<div id="imageActionModal" class="modal-alert-container">
+  <div class="modal-alert-content" style="max-width: 320px;">
+    <div class="modal-alert-icon"><i class="fa-solid fa-image"></i></div>
+    <h3>Opções da Imagem</h3>
+    <p>O que você deseja fazer com esta foto?</p>
+    <div class="modal-alert-buttons-vertical">
+      <button class="btn-alert-confirm" onclick="actionChangeImage()">Alterar Imagem</button>
+      <button class="btn-alert-confirm-red" onclick="actionDeleteImage()">Excluir Imagem</button>
+      <button class="btn-alert-cancel" style="margin-top: 6px;" onclick="closeImageActionModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
 	
 <!-- QUICKLINK -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
