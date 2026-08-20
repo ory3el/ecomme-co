@@ -337,6 +337,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
+  document.getElementById('npImage')?.addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  const previewEl = document.getElementById('previewImg');
+  
+  if (file && previewEl) {
+    const tempUrl = URL.createObjectURL(file);
+    previewEl.src = tempUrl;
+  }
+});
 });
 
 async function loadMyProducts() {
@@ -1656,15 +1665,5 @@ window.addEventListener('beforeunload', (event) => {
   if (hasUnsavedChanges) {
     event.preventDefault();
     event.returnValue = ''; 
-  }
-});
-
-document.getElementById('npImage')?.addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  const previewEl = document.getElementById('previewImg');
-  
-  if (file && previewEl) {
-    const tempUrl = URL.createObjectURL(file);
-    previewEl.src = tempUrl;
   }
 });
