@@ -793,6 +793,83 @@ function handleImagePreview(event) {
   }
 }
 
+/* ---------------- Crop Modal ------------------ */
+let cropperInstance = null;
+let originalFileName = "";
+
+function openCropModal(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
+    event.target.value = '';
+    return;
+  }
+
+  originalFileName = file.name;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imgElement = document.getElementById('imageToCrop');
+    imgElement.src = e.target.result;
+    
+    document.getElementById('cropModal').style.display = 'flex';
+    document.getElementById('cropModal').classList.add('active');
+
+    if (cropperInstance) cropperInstance.destroy();
+    cropperInstance = new Cropper(imgElement, {
+      aspectRatio: 1,
+      viewMode: 2,
+      dragMode: 'move',
+      autoCropArea: 0.9,
+      background: false,
+    });
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  document.getElementById('cropModal').classList.remove('active');
+  
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+  document.getElementById('npImage').value = '';
+}
+
+async function executeCrop() {
+  if (!cropperInstance) {
+    toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
+    return;
+  }
+  
+  cropperInstance.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingQuality: 'high'
+  }).toBlob(async (blob) => {
+    
+    if (!blob) {
+      toast('Erro ao processar o recorte da imagem.', 'err');
+      closeCropModal();
+      return;
+    }
+    const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedFile);
+    document.getElementById('npImage').files = dataTransfer.files;
+
+    const fakeEvent = { target: { files: [croppedFile] } };
+    handleImagePreview(fakeEvent);
+
+    closeCropModal();
+  }, 'image/jpeg', 0.9);
+}
+
 /* ---------------------------------------------- */
 async function publishProduct() {
   const nameRaw = document.getElementById('npName')?.value;
