@@ -779,12 +779,18 @@ function addVariation(){ const l=document.getElementById('varList'); if(l){const
 
 /* ---------------- GALERIA DE IMAGENS DO PRODUTO ---------------- */
 let productImagesFiles = [null, null, null, null, null]; 
+let targetSecondarySlot = null;
 let activeImageSlot = 0;
 
 function triggerImageUpload(slotIndex) {
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
 
-  if (!productImagesFiles[0] && !isEditing) {
+  if (slotIndex > 0 && productImagesFiles[slotIndex]) {
+    openImageActionModal(slotIndex);
+    return;
+  }
+
+  if (!productImagesFiles[0] && !isEditing && slotIndex > 0) {
     activeImageSlot = 0;
   } else {
     activeImageSlot = slotIndex;
@@ -794,6 +800,99 @@ function triggerImageUpload(slotIndex) {
   if(fileInput) {
     fileInput.value = '';
     fileInput.click();
+  }
+}
+
+/* ---------------- Image Action Modal ------------------ */
+function openImageActionModal(slotIndex) {
+  targetSecondarySlot = slotIndex;
+  const modal = document.getElementById('imageActionModal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeImageActionModal() {
+  const modal = document.getElementById('imageActionModal');
+  if (modal) modal.classList.remove('active');
+  targetSecondarySlot = null;
+}
+
+function actionChangeImage() {
+  const slot = targetSecondarySlot;
+  closeImageActionModal();
+  
+  if (slot !== null) {
+    activeImageSlot = slot;
+    const fileInput = document.getElementById('npImage');
+    if(fileInput) {
+      fileInput.value = '';
+      fileInput.click();
+    }
+  }
+}
+
+function actionDeleteImage() {
+  if (targetSecondarySlot !== null) {
+    deleteImageSlot(targetSecondarySlot);
+    closeImageActionModal();
+  }
+}
+
+/* ---------------- EXCLUSÃO E ATUALIZAÇÃO VISUAL ---------------- */
+function deleteImageSlot(slotIndex, event) {
+  if (event) {
+    event.stopPropagation(); 
+  }
+  
+  productImagesFiles[slotIndex] = null;
+  updateGalleryUI();
+}
+
+function updateGalleryUI() {
+  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
+  const hasProds = typeof PRODS !== 'undefined';
+
+  for (let i = 0; i < 5; i++) {
+    const block = document.getElementById(`img-block-${i}`);
+    if (!block) continue;
+
+    const file = productImagesFiles[i];
+    let innerHtmlContent = '';
+    const deleteBtnHTML = i === 0 ? `<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
+
+    if (file) {
+      const url = URL.createObjectURL(file);
+      innerHtmlContent = `
+        <div class="img-preview-container"><img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
+        <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+        ${deleteBtnHTML}
+      `;
+      block.classList.add('has-image');
+      
+    } else if (i === 0 && isEditing && hasProds) {
+        const p = PRODS.find(x => x.id === editingProductId);
+        if (p && p.image_url) {
+            innerHtmlContent = `
+                <div class="img-preview-container"><img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto"></div>
+                <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                ${deleteBtnHTML}
+            `;
+            block.classList.add('has-image');
+        } else {
+            innerHtmlContent = `
+                <div class="img-preview-container"><div class="fs24">📦</div></div>
+                <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+            `;
+            block.classList.remove('has-image');
+        }
+        
+    } else {
+      innerHtmlContent = `
+          <div class="img-preview-container">${i === 0 ? '<div class="fs24">📦</div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
+          <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+      `;
+      block.classList.remove('has-image');
+    }
+    block.innerHTML = innerHtmlContent;
   }
 }
 
@@ -871,38 +970,6 @@ async function executeCrop() {
 
     closeCropModal();
   }, 'image/jpeg', 0.9);
-}
-
-function updateGalleryUI() {
-  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
-  const hasProds = typeof PRODS !== 'undefined';
-
-  for (let i = 0; i < 5; i++) {
-    const block = document.getElementById(`img-block-${i}`);
-    if (!block) continue;
-
-    const previewContainer = block.querySelector('.img-preview-container');
-    const overlay = block.querySelector('.img-edit-overlay');
-    const file = productImagesFiles[i];
-
-    if (file) {
-      const url = URL.createObjectURL(file);
-      previewContainer.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}">`;
-      block.classList.add('has-image');
-    } else if (i === 0 && isEditing && hasProds) {
-        const p = PRODS.find(x => x.id === editingProductId);
-        if (p && p.image_url) {
-            previewContainer.innerHTML = `<img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto">`;
-            block.classList.add('has-image');
-        } else {
-            previewContainer.innerHTML = '<div class="fs24">📦</div>';
-            block.classList.remove('has-image');
-        }
-    } else {
-      previewContainer.innerHTML = i === 0 ? '<div class="fs24">📦</div>' : '<i class="fa-solid fa-plus fs20 muted"></i>';
-      block.classList.remove('has-image');
-    }
-  }
 }
 
 // Lembre-se de atualizar a função clearProductForm() para limpar esse array quando sair
