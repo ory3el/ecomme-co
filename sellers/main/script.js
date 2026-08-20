@@ -777,24 +777,24 @@ function calcMargin(){
 }
 function addVariation(){ const l=document.getElementById('varList'); if(l){const d=document.createElement('div');d.className='var-item';d.innerHTML=`<span class="fs12">⚫ Preto — G · R$ 189,90 · Est: 5</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div>`;l.appendChild(d);}}
 
-/* -----------------------------------------------*/
-function handleImagePreview(event) {
-  const file = event.target.files[0];
-  const previewEl = document.getElementById('previewImg');
+/* ---------------- GALERIA DE IMAGENS DO PRODUTO ---------------- */
+let productImagesFiles = [null, null, null, null, null]; 
+let activeImageSlot = 0;
+
+function triggerImageUpload(slotIndex) {
+  if (!productImagesFiles[0] && !editingProductId) {
+    activeImageSlot = 0;
+  } else {
+    activeImageSlot = slotIndex;
+  }
   
-  if (file && previewEl) {
-    const tempUrl = URL.createObjectURL(file);
-    
-    if (previewEl.tagName.toLowerCase() !== 'img') {
-      previewEl.innerHTML = `<img src="${tempUrl}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="Preview">`;
-    } else {
-      previewEl.src = tempUrl;
-      previewEl.style.objectFit = 'cover';
-    }
+  const fileInput = document.getElementById('npImage');
+  if(fileInput) {
+    fileInput.value = '';
+    fileInput.click();
   }
 }
 
-/* ---------------- Crop Modal ------------------ */
 let cropperInstance = null;
 let originalFileName = "";
 
@@ -844,13 +844,13 @@ function closeCropModal() {
 
 async function executeCrop() {
   if (!cropperInstance) {
-    toast('Erro: O recortador de imagem não foi inicializado corretamente. ⚠️', 'err');
+    toast('Erro: O recortador não foi inicializado corretamente. ⚠️', 'err');
     return;
   }
   
   cropperInstance.getCroppedCanvas({
-    width: 400,
-    height: 400,
+    width: 600,
+    height: 600,
     fillColor: '#ffffff',
     imageSmoothingQuality: 'high'
   }).toBlob(async (blob) => {
@@ -862,16 +862,43 @@ async function executeCrop() {
     }
     
     const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' });
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(croppedFile);
-    document.getElementById('npImage').files = dataTransfer.files;
-
-    const fakeEvent = { target: { files: [croppedFile] } };
-    handleImagePreview(fakeEvent);
+    productImagesFiles[activeImageSlot] = croppedFile;
+    
+    updateGalleryUI();
+    updatePreview();
 
     closeCropModal();
   }, 'image/jpeg', 0.9);
 }
+
+function updateGalleryUI() {
+  for (let i = 0; i < 5; i++) {
+    const block = document.getElementById(`img-block-${i}`);
+    if (!block) continue;
+
+    const previewContainer = block.querySelector('.img-preview-container');
+    const overlay = block.querySelector('.img-edit-overlay');
+    const file = productImagesFiles[i];
+
+    if (file) {
+      const url = URL.createObjectURL(file);
+      previewContainer.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}">`;
+      block.classList.add('has-image');
+    } else if (i === 0 && editingProductId && PRODS.find(p => p.id === editingProductId)?.image_url) {
+        const p = PRODS.find(x => x.id === editingProductId);
+        previewContainer.innerHTML = `<img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto">`;
+        block.classList.add('has-image');
+    } else {
+      previewContainer.innerHTML = i === 0 ? '<div class="fs24">📦</div>' : '<i class="fa-solid fa-plus fs20 muted"></i>';
+      block.classList.remove('has-image');
+    }
+  }
+}
+
+// Lembre-se de atualizar a função clearProductForm() para limpar esse array quando sair
+// Adicione isso dentro da sua função clearProductForm() existente:
+// productImagesFiles = [null, null, null, null, null];
+// updateGalleryUI();
 
 /* ---------------------------------------------- */
 async function publishProduct() {
