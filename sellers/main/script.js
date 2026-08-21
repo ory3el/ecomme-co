@@ -755,20 +755,29 @@ function updatePreview() {
   const em = emos[c] || '📦';
   const previewEl = document.getElementById('previewImg');
   const mainImageFile = productImagesFiles[0];
+  const isEditing = typeof editingProductId !== 'undefined' && editingProductId;
 
   if (previewEl) {
     if (mainImageFile) {
       const url = URL.createObjectURL(mainImageFile);
       previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
-    } else if (!editingProductId) {
+    } else if (!isEditing) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
+    } else {
+       previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
     }
   }
   
   // checklist
-  const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
+  const set=(id,ok)=>{
+    const el=document.getElementById(id);
+    if(el){
+      el.style.color=ok?'var(--green)':'var(--red)';
+      el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);
+    }
+  };
   set('chk-name',n&&n!=='Nome do produto');
   set('chk-cat',c&&c!=='Selecionar...'&&c!=='Categoria');
   set('chk-price',p&&p!=='R$ 0,00'&&p!=``);
