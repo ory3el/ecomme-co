@@ -851,7 +851,8 @@ function deleteImageSlot(slotIndex, event) {
     event.stopPropagation(); 
   }
   
-  productImagesFiles[slotIndex] = null;
+  productImagesFiles.splice(slotIndex, 1);
+  productImagesFiles.push(null);
   updateGalleryUI();
 }
 
