@@ -972,10 +972,10 @@ function openCropModal(event) {
 
     if (cropperInstance) cropperInstance.destroy();
     cropperInstance = new Cropper(imgElement, {
+      autoCropArea: 1,
       aspectRatio: 1,
-      viewMode: 2,
+      viewMode: 1,
       dragMode: 'move',
-      autoCropArea: 0.9,
       background: false,
     });
   };
