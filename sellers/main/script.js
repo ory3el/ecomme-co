@@ -740,25 +740,40 @@ function buildExtract(){
 
 // ══ NEW PRODUCT ══════════════════════════════════════════
 const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾'};
-function updatePreview(){
-  const n=document.getElementById('npName')?.value||'Nome do produto';
-  const p=document.getElementById('npPrice')?.value||'R$ 0,00';
-  const c=document.getElementById('npCat')?.value||'Categoria';
-  const d=document.getElementById('npDesc')?.value||'Descrição curta aqui...';
-  if(document.getElementById('previewName'))document.getElementById('previewName').textContent=n;
-  if(document.getElementById('previewPrice'))document.getElementById('previewPrice').textContent=p||'R$ 0,00';
-  if(document.getElementById('previewCat'))document.getElementById('previewCat').textContent=c;
-  if(document.getElementById('previewDesc'))document.getElementById('previewDesc').textContent=d.slice(0,80);
-  const em = emos[c]||'📦';
+
+function updatePreview() {
+  const n = document.getElementById('npName')?.value || 'Nome do produto';
+  const p = document.getElementById('npPrice')?.value || 'R$ 0,00';
+  const c = document.getElementById('npCat')?.value || 'Categoria';
+  const d = document.getElementById('npDesc')?.value || 'Descrição curta aqui...';
   
+  if(document.getElementById('previewName')) document.getElementById('previewName').textContent = n;
+  if(document.getElementById('previewPrice')) document.getElementById('previewPrice').textContent = p || 'R$ 0,00';
+  if(document.getElementById('previewCat')) document.getElementById('previewCat').textContent = c;
+  if(document.getElementById('previewDesc')) document.getElementById('previewDesc').textContent = d.slice(0,80);
+  
+  const em = emos[c] || '📦';
   const previewEl = document.getElementById('previewImg');
-  const fileInput = document.getElementById('npImage');
-  
-  if (previewEl && (!fileInput || !fileInput.files[0]) && !editingProductId) {
-    if (previewEl.tagName.toLowerCase() !== 'img') {
-      previewEl.textContent = em;
+  const mainImageFile = productImagesFiles[0];
+
+  if (previewEl) {
+    if (mainImageFile) {
+      const url = URL.createObjectURL(mainImageFile);
+      previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+    } else if (!editingProductId) {
+      if (previewEl.tagName.toLowerCase() !== 'img') {
+        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+      }
     }
   }
+  
+  // checklist
+  const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
+  set('chk-name',n&&n!=='Nome do produto');
+  set('chk-cat',c&&c!=='Selecionar...'&&c!=='Categoria');
+  set('chk-price',p&&p!=='R$ 0,00'&&p!=``);
+  set('chk-desc',d&&d.length>10);
+}
   
   // checklist
   const set=(id,ok)=>{const el=document.getElementById(id);if(el){el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);}};
