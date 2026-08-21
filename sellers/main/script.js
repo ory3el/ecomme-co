@@ -766,7 +766,7 @@ function updatePreview() {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
     } else {
-       previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+       previewEl.innerHTML = `<div class="fs24" style="font-size: 50px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
     }
   }
   
