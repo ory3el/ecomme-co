@@ -754,16 +754,18 @@ function updatePreview() {
   
   const em = emos[c] || '📦';
   const previewEl = document.getElementById('previewImg');
+  const previewEl2 = document.getElementById('imgPreviewContainer');
   const mainImageFile = productImagesFiles[0];
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId;
 
   if (previewEl) {
     if (mainImageFile) {
       const url = URL.createObjectURL(mainImageFile);
-      previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+      previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="Preview">`;
     } else if (!isEditing) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = `<div class="fs24" style="font-size: 50px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+        previewEl2.innerHTML = `<div class="fs24" style="display:flex; font-size: 50px; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
     } else {
        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
