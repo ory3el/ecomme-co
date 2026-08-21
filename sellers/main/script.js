@@ -763,10 +763,10 @@ function updatePreview() {
       previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
     } else if (!isEditing) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+        previewEl.innerHTML = `<div class="fs24" style="font-size: 50px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
     } else {
-       previewEl.innerHTML = `<div class="fs24" style="font-size: 50px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+       previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
     }
   }
   
