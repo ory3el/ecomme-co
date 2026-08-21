@@ -740,10 +740,13 @@ tbody tr:hover td{background:var(--bg3)}
   aspect-ratio: 1;
   width: 100%;
   max-width: 300px;
+  border-radius: 36px;
 }
 .img-block.small-block {
   aspect-ratio: 1;
   width: 100%;
+  max-width: 66px;
+  border-radius: 16px;
 }
 .img-block:hover {
   border-color: var(--blue, #2563eb);
@@ -761,14 +764,14 @@ tbody tr:hover td{background:var(--bg3)}
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.4s ease;
   pointer-events: none;
 }
 .img-block.has-image:hover .img-edit-overlay {
