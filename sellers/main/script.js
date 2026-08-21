@@ -846,40 +846,38 @@ function actionDeleteImage() {
 }
 
 /* ---------------- EXCLUSÃO E ATUALIZAÇÃO VISUAL ---------------- */
-function deleteImageSlot(slotIndex, event) {
+async function deleteImageSlot(slotIndex, event) {
   if (event) {
     event.stopPropagation(); 
   }
-  
+
+  const affectedBlocks = [];
+  for (let i = slotIndex; i < 5; i++) {
+    const block = document.getElementById(`img-block-${i}`);
+    if (block && block.classList.contains('has-image')) {
+      affectedBlocks.push(block.querySelector('.img-preview-container'));
+    }
+  }
+
+  affectedBlocks.forEach(preview => {
+    if (preview) preview.classList.add('img-animate-out');
+  });
+
+  await new Promise(resolve => setTimeout(resolve, 300));
+  productImagesFiles.splice(slotIndex, 1);
+  productImagesFiles.push(null);
+  updateGalleryUI();
+
   for (let i = slotIndex; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (block && block.classList.contains('has-image')) {
       const preview = block.querySelector('.img-preview-container');
       if (preview) {
-        preview.classList.add('animate-out');
+        preview.classList.add('img-animate-in');
+        setTimeout(() => preview.classList.remove('img-animate-in'), 300);
       }
     }
   }
-
-  setTimeout(() => {
-    productImagesFiles.splice(slotIndex, 1);
-    productImagesFiles.push(null);
-    updateGalleryUI();
-    
-    for (let i = slotIndex; i < 5; i++) {
-      const block = document.getElementById(`img-block-${i}`);
-      
-      if (block && block.classList.contains('has-image')) {
-        const preview = block.querySelector('.img-preview-container');
-        if (preview) {
-          preview.classList.add('animate-in');
-          setTimeout(() => {
-            if (preview) preview.classList.remove('animate-in');
-          }, 300);
-        }
-      }
-    }
-  }, 300);
 }
 
 function updateGalleryUI() {
