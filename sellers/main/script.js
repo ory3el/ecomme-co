@@ -938,7 +938,7 @@ function updateGalleryUI() {
         
     } else {
       innerHtmlContent = `
-          <div class="img-preview-container">${i === 0 ? '<div class="fs24">📦</div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
+          <div class="img-preview-container">${i === 0 ? '<div class="fs24" style="font-size: 50px"><i class="fa-solid fa-image"></i></div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
           <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
       `;
       block.classList.remove('has-image');
