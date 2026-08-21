@@ -739,7 +739,7 @@ function buildExtract(){
 }
 
 // ══ NEW PRODUCT ══════════════════════════════════════════
-const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾'};
+const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾','📦 Diversos':'📦'};
 
 function updatePreview() {
   const n = document.getElementById('npName')?.value || 'Nome do produto';
