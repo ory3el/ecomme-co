@@ -881,6 +881,7 @@ async function deleteImageSlot(slotIndex, event) {
   await new Promise(resolve => setTimeout(resolve, 300));
   productImagesFiles.splice(slotIndex, 1);
   productImagesFiles.push(null);
+  updatePreview();
   updateGalleryUI();
 
   for (let i = slotIndex; i < 5; i++) {
