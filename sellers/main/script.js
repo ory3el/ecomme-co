@@ -754,7 +754,6 @@ function updatePreview() {
   
   const em = emos[c] || '📦';
   const previewEl = document.getElementById('previewImg');
-  const previewEl2 = document.getElementById('imgPreviewContainer');
   const mainImageFile = productImagesFiles[0];
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId;
 
@@ -765,7 +764,6 @@ function updatePreview() {
     } else if (!isEditing) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
-        previewEl2.innerHTML = `<div class="fs24" style="display:flex; font-size: 50px; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
     } else {
        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
@@ -932,7 +930,7 @@ function updateGalleryUI() {
             block.classList.add('has-image');
         } else {
             innerHtmlContent = `
-                <div class="img-preview-container"><div class="fs24">📦</div></div>
+                <div class="img-preview-container" style="font-size: 50px"><div class="fs24"><i class="fa-solid fa-image"></i></div></div>
                 <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
             `;
             block.classList.remove('has-image');
