@@ -1054,30 +1054,22 @@ tbody tr:hover td{background:var(--bg3)}
 }
 
 /* --------------------------------------------------- */
-.animate-in {
-  animation: popIn 0.3s forwards cubic-bezier(0.4, 0, 0.2, 1);
+.img-animate-out {
+  animation: popOutScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes popOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.6);
-  }
+.img-animate-in {
+  animation: popInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+@keyframes popOutScale {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.5); opacity: 0; }
+}
+
+@keyframes popInScale {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ── ACC SIDEBAR ── */
