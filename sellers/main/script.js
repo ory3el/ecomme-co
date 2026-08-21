@@ -1033,47 +1033,53 @@ async function publishProduct() {
   const priceRaw = document.getElementById('npPrice')?.value;
   const descRaw = document.getElementById('npDesc')?.value;
   const shippingRaw = document.getElementById('freeShip')?.checked || false;
-  
-  const imageInput = document.getElementById('npImage');
-  const imageFile = imageInput?.files[0]; 
+  const hasMainImage = productImagesFiles[0] !== null;
 
   if (!nameRaw || !priceRaw || catRaw === 'Selecionar...') {
     toast('Preencha os campos obrigatórios!', 'err');
     return;
   }
 
-  if (!editingProductId && !imageFile) {
-    toast('Selecione uma imagem para o novo produto!', 'err');
+  if (!editingProductId && !hasMainImage) {
+    toast('Adicione pelo menos uma imagem principal (bloco maior) para o produto!', 'err');
     return;
   }
 
-  toast('Processando...', 'info');
-  let imageUrl = null;
+  toast('Enviando imagens e processando...', 'info');
+  let uploadedUrls = [];
 
-  if (imageFile) {
-    const fileExt = imageFile.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+  const uploadPromises = productImagesFiles.map(async (file, index) => {
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-slot${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    const { error: uploadError } = await supabaseClient
-      .storage
-      .from('products')
-      .upload(fileName, imageFile);
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from('products')
+        .upload(fileName, file);
 
-    if (uploadError) {
-      console.error("Erro no upload da imagem:", uploadError);
-      toast('Erro ao enviar a imagem: ' + uploadError.message, 'err');
-      return;
+      if (uploadError) {
+        console.error(`Erro no upload da imagem ${index}:`, uploadError);
+        return null;
+      }
+
+      const { data: publicUrlData } = supabaseClient
+        .storage
+        .from('products')
+        .getPublicUrl(fileName);
+
+      return publicUrlData.publicUrl;
     }
+    return null;
+  });
 
-    const { data: publicUrlData } = supabaseClient
-      .storage
-      .from('products')
-      .getPublicUrl(fileName);
+  const results = await Promise.all(uploadPromises);
+  uploadedUrls = results.filter(url => url !== null);
 
-    imageUrl = publicUrlData.publicUrl;
-  } else if (editingProductId) {
+  let finalMainImageUrl = uploadedUrls[0] || null;
+  if (editingProductId && uploadedUrls.length === 0) {
     const p = PRODS.find(x => x.id === editingProductId);
-    imageUrl = p ? p.image_url : null;
+    finalMainImageUrl = p ? p.image_url : null;
   }
 
   const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
@@ -1086,7 +1092,8 @@ async function publishProduct() {
     price: priceNum, 
     "desc": descRaw, 
     shipping: shippingRaw,
-    image_url: imageUrl
+    image_url: finalMainImageUrl, 
+    gallery_urls: uploadedUrls 
   };
 
   let error;
@@ -1097,7 +1104,6 @@ async function publishProduct() {
       .update(productData)
       .eq('id', editingProductId) 
       .eq('loja_id', myStoreId);
-
     error = response.error;
   } else {
     toast('Gerando ID do produto...', 'info');
@@ -1113,7 +1119,6 @@ async function publishProduct() {
     const response = await supabaseClient
       .from('products')
       .insert([productData]);
-
     error = response.error;
   }
 
@@ -1130,6 +1135,7 @@ async function publishProduct() {
     navigate('produtos');
   }
 }
+
 // --------------------------------------------------------
 function clearProductForm() {
   editingProductId = null;
