@@ -476,6 +476,8 @@ sidebarLinks.forEach(link => {
 
 // ══ CHART ══════════════════════════════════════════════
 function buildRevChart(){
+  if (!revData || revData.length === 0) return;
+  
   const max = Math.max(...revData);
   const html = revData.map((v,i) => {
     const h = Math.round((v/max)*140);
@@ -921,9 +923,12 @@ function updateGalleryUI() {
     const deleteBtnHTML = i === 0 ? `<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
 
     if (file) {
-      const url = URL.createObjectURL(file);
+      if (!file.previewUrl) {
+        file.previewUrl = URL.createObjectURL(file);
+      }
+
       innerHtmlContent = `
-        <div class="img-preview-container"><img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
+        <div class="img-preview-container"><img src="${file.previewUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
         ${deleteBtnHTML}
       `;
