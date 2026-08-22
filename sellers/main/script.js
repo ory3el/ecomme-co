@@ -1143,7 +1143,7 @@ async function publishProduct() {
     
     if (typeof clearProductForm === 'function') clearProductForm();
     if (typeof loadMyProducts === 'function') await loadMyProducts();
-    window.hasUnsavedChanges = false;
+    hasUnsavedChanges = false;
     
     if (typeof navigate === 'function') navigate('produtos');
   }
