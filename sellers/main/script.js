@@ -1184,9 +1184,7 @@ function clearProductForm() {
   }
 
   currentPreviewFile = null;
-  const fileInputs = document.querySelectorAll('input[type="file"]');
-
-  fileInputs.forEach(input => {
+  document.querySelectorAll('input[type="file"]').forEach(input => {
     input.value = '';
   });
 
@@ -1194,12 +1192,7 @@ function clearProductForm() {
     updateGalleryUI();
   }
 
-  const imagePreviews = document.querySelectorAll('.img-preview-container');
-  imagePreviews.forEach(img => {
-    img.src = '';
-    img.style.display = 'none';
-  });
-
+  // Campos
   if ($('npName')) $('npName').value = '';
   if ($('npPrice')) $('npPrice').value = '';
   if ($('npDesc')) $('npDesc').value = '';
@@ -1211,6 +1204,7 @@ function clearProductForm() {
   if (previewEl) {
     previewEl.innerHTML = '📦';
   }
+
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     if (btn.innerHTML.includes('Salvar')) {
       btn.innerHTML = btn.innerHTML
@@ -1218,6 +1212,7 @@ function clearProductForm() {
         .replace('💾', '🚀');
     }
   });
+
   updatePreview();
 }
 
