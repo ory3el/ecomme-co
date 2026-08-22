@@ -1178,6 +1178,17 @@ function clearProductForm() {
   }
   editingProductId = null;
 
+  const fileInputs = document.querySelectorAll('input[type="file"]');
+  fileInputs.forEach(input => {
+    input.value = ''; 
+  });
+
+  const imagePreviews = document.querySelectorAll('.img-preview-container');
+  imagePreviews.forEach(img => {
+    img.src = '';
+    img.style.display = 'none';
+  });
+  
   if($('npName')) $('npName').value = '';
   if($('npPrice')) $('npPrice').value = '';
   if($('npDesc')) $('npDesc').value = '';
