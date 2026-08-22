@@ -1173,41 +1173,49 @@ function clearProductForm() {
         URL.revokeObjectURL(file.previewUrl);
       }
     });
-    productImagesFiles = [null, null, null, null, null];
-    if (typeof updateGalleryUI === 'function') updateGalleryUI();
-  }
-  editingProductId = null;
 
+    productImagesFiles = [null, null, null, null, null];
+  }
+
+  editingProductId = null;
+  if (currentPreviewBlobUrl) {
+    URL.revokeObjectURL(currentPreviewBlobUrl);
+    currentPreviewBlobUrl = null;
+  }
+
+  currentPreviewFile = null;
   const fileInputs = document.querySelectorAll('input[type="file"]');
+
   fileInputs.forEach(input => {
-    input.value = ''; 
+    input.value = '';
   });
+
+  if (typeof updateGalleryUI === 'function') {
+    updateGalleryUI();
+  }
 
   const imagePreviews = document.querySelectorAll('.img-preview-container');
   imagePreviews.forEach(img => {
     img.src = '';
     img.style.display = 'none';
   });
-  
-  if($('npName')) $('npName').value = '';
-  if($('npPrice')) $('npPrice').value = '';
-  if($('npDesc')) $('npDesc').value = '';
-  if($('npCat')) $('npCat').selectedIndex = 0;
-  if($('freeShip')) $('freeShip').checked = false;
-  if($('npImage')) $('npImage').value = '';
+
+  if ($('npName')) $('npName').value = '';
+  if ($('npPrice')) $('npPrice').value = '';
+  if ($('npDesc')) $('npDesc').value = '';
+  if ($('npCat')) $('npCat').selectedIndex = 0;
+  if ($('freeShip')) $('freeShip').checked = false;
+  if ($('npImage')) $('npImage').value = '';
 
   const previewEl = document.getElementById('previewImg');
   if (previewEl) {
-    if (previewEl.tagName.toLowerCase() !== 'img') {
-       previewEl.innerHTML = '📦';
-    } else {
-       previewEl.src = ''; 
-    }
+    previewEl.innerHTML = '📦';
   }
-  
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
-    if(btn.innerHTML.includes('Salvar')) {
-       btn.innerHTML = btn.innerHTML.replace('Salvar Produto', 'Publicar Produto').replace('💾', '🚀');
+    if (btn.innerHTML.includes('Salvar')) {
+      btn.innerHTML = btn.innerHTML
+        .replace('Salvar Produto', 'Publicar Produto')
+        .replace('💾', '🚀');
     }
   });
   updatePreview();
