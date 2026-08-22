@@ -708,7 +708,7 @@ async function loadProductsFromSupabase() {
   }
 
   if (data) {
-    products = data;
+    products = (data || []).map(normalizeProduct);
     shuffled = [...products];
     loadShuffleAndRender();
   }
@@ -880,6 +880,37 @@ function filterByCategory(event, category) {
     renderProducts();
     document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
   }
+}
+
+function normalizeProduct(p) {
+  return {
+    ...p,
+
+    id: String(p.id),
+    name: p.name || 'Produto sem nome',
+    desc: p.desc || '',
+    price: Number(p.price) || 0,
+    old: Number(p.old) || 0,
+    discount: Number(p.discount) || 0,
+    rating: Number(p.rating) || 0,
+    reviews: Number(p.reviews) || 0,
+    emoji: p.emoji || '📦',
+    shipping: Boolean(p.shipping),
+    badge: p.badge || 'new',
+    
+    features: Array.isArray(p.features)
+      ? p.features
+      : [],
+
+    cat: Array.isArray(p.cat)
+      ? p.cat
+      : (p.cat ? [p.cat] : []),
+
+    image_url: p.image_url || null,
+    gallery_urls: Array.isArray(p.gallery_urls)
+      ? p.gallery_urls.filter(Boolean).slice(0, 5)
+      : []
+  };
 }
 
 // INIT
