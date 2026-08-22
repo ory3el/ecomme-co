@@ -715,7 +715,8 @@ tbody tr:hover td{background:var(--bg3)}
     top: -18px;
     padding:14px;
     border-radius: 20px 20px 0px 0px;
-    background: var(--white);
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(16px);
     border-top: 1px solid rgba(0,0,0,0.1);
 }
 .preview-name{font-size:14px;font-weight:700;margin-bottom:4px}
