@@ -1192,7 +1192,6 @@ function clearProductForm() {
     updateGalleryUI();
   }
 
-  // Campos
   if ($('npName')) $('npName').value = '';
   if ($('npPrice')) $('npPrice').value = '';
   if ($('npDesc')) $('npDesc').value = '';
@@ -1200,6 +1199,9 @@ function clearProductForm() {
   if ($('freeShip')) $('freeShip').checked = false;
   if ($('npImage')) $('npImage').value = '';
 
+  const labelNewProduct = document.getElementById('labelNewProduct');
+  labelNewProduct.textContent = 'Cadastrar Novo Produto';
+  
   const previewEl = document.getElementById('previewImg');
   if (previewEl) {
     previewEl.innerHTML = '📦';
