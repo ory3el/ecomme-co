@@ -783,13 +783,20 @@ function updatePreview() {
     }
   }
   
-  const set=(id,ok)=>{
-    const el=document.getElementById(id);
-    if(el){
-      el.style.color=ok?'var(--green)':'var(--red)';
-      el.textContent=(ok?'✓ ':'○ ')+el.textContent.slice(2);
-    }
+  const set = (id, ok) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+    
+  el.style.color = ok ? 'var(--green)' : 'var(--red)';
+  const icon = el.querySelector('i');
+
+  if (icon) {
+    icon.className = ok
+      ? 'fa-solid fa-check'
+      : 'fa-solid fa-xmark';
+  }
   };
+  
   set('chk-name',n&&n!=='Nome do produto');
   set('chk-cat',c&&c!=='Selecionar...'&&c!=='Categoria');
   set('chk-price',p&&p!=='R$ 0,00'&&p!=``);
@@ -1216,6 +1223,28 @@ function clearProductForm() {
   });
 
   updatePreview();
+  resetPublishChecklist();
+}
+
+/* ---------------------------------------- */
+function resetPublishChecklist() {
+  const checklist = {
+    'chk-name': 'Nome do produto',
+    'chk-cat': 'Categoria selecionada',
+    'chk-price': 'Preço de venda',
+    'chk-desc': 'Descrição curta'
+  };
+
+  Object.entries(checklist).forEach(([id, text]) => {
+    const el = document.getElementById(id);
+
+    if (!el) return;
+    el.style.color = 'var(--red)';
+    const icon = el.querySelector('i');
+    if (icon) {
+      icon.className = 'fa-solid fa-xmark';
+    }
+  });
 }
 
 // --------------------------------------------------------
