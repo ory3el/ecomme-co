@@ -742,7 +742,7 @@ function buildExtract(){
 let currentPreviewBlobUrl = null;
 let currentPreviewFile = null;
 
-const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾''📦 Diversos':'📦'};
+const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾','📦 Diversos':'📦'};
 function updatePreview() {
   const n = document.getElementById('npName')?.value || 'Nome do produto';
   const p = document.getElementById('npPrice')?.value || 'R$ 0,00';
