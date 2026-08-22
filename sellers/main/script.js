@@ -739,8 +739,10 @@ function buildExtract(){
 }
 
 // ══ NEW PRODUCT ══════════════════════════════════════════
-const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾','📦 Diversos':'📦'};
+let currentPreviewBlobUrl = null;
+let currentPreviewFile = null;
 
+const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾''📦 Diversos':'📦'};
 function updatePreview() {
   const n = document.getElementById('npName')?.value || 'Nome do produto';
   const p = document.getElementById('npPrice')?.value || 'R$ 0,00';
@@ -754,13 +756,22 @@ function updatePreview() {
   
   const em = emos[c] || '📦';
   const previewEl = document.getElementById('previewImg');
+  
   const mainImageFile = productImagesFiles[0];
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId;
 
   if (previewEl) {
     if (mainImageFile) {
-      const url = URL.createObjectURL(mainImageFile);
-      previewEl.innerHTML = `<img src="${url}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="Preview">`;
+      
+      if (currentPreviewFile !== mainImageFile) {
+        if (currentPreviewBlobUrl) {
+          URL.revokeObjectURL(currentPreviewBlobUrl);
+        }
+        currentPreviewBlobUrl = URL.createObjectURL(mainImageFile);
+        currentPreviewFile = mainImageFile;
+      }
+
+      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
     } else if (!isEditing) {
       if (previewEl.tagName.toLowerCase() !== 'img') {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
@@ -770,7 +781,6 @@ function updatePreview() {
     }
   }
   
-  // checklist
   const set=(id,ok)=>{
     const el=document.getElementById(id);
     if(el){
