@@ -589,23 +589,6 @@ function editProduct(id) {
       }
     }
   }
-
-  const previewEl = document.getElementById('previewImg');
-  if (previewEl) {
-    if (p.image_url) {
-      if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
-      } else {
-        previewEl.src = p.image_url;
-      }
-    } else {
-      if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = '📦';
-      } else {
-        previewEl.src = ''; 
-      }
-    }
-  }
   
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
@@ -614,7 +597,13 @@ function editProduct(id) {
   const labelNewProduct = document.getElementById('labelNewProduct');
   labelNewProduct.textContent = `Editar Produto | ${p.name}`;
   
+  productImagesFiles = [null, null, null, null, null];
+  currentPreviewFile = null;
+  currentPreviewBlobUrl = null;
+  
   updatePreview();
+  updateGalleryUI();
+  
   hasUnsavedChanges = false;
   navigate('novo-produto');
   toast('Modo edição ativado', 'info');
@@ -764,7 +753,6 @@ function updatePreview() {
 
   if (previewEl) {
     if (mainImageFile) {
-      
       if (currentPreviewFile !== mainImageFile) {
         if (currentPreviewBlobUrl) {
           URL.revokeObjectURL(currentPreviewBlobUrl);
@@ -772,14 +760,26 @@ function updatePreview() {
         currentPreviewBlobUrl = URL.createObjectURL(mainImageFile);
         currentPreviewFile = mainImageFile;
       }
-
-      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" style="position:absolute; top:0; left:0; width:100%; /*height:100%;*/ object-fit:cover; border-radius:inherit;" alt="Preview">`;
-    } else if (!isEditing) {
-      if (previewEl.tagName.toLowerCase() !== 'img') {
+      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+      
+    } else if (isEditing) {
+      const p = PRODS.find(x => x.id === editingProductId);
+      if (p && p.image_url) {
+        if (previewEl.tagName.toLowerCase() !== 'img') {
+          previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
+        } else {
+          previewEl.src = p.image_url;
+        }
+      } else {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
       }
+      
     } else {
-       previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+      if (previewEl.tagName.toLowerCase() !== 'img') {
+        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+      } else {
+        previewEl.src = ''; 
+      }
     }
   }
   
