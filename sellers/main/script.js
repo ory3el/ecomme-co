@@ -1030,6 +1030,9 @@ async function executeCrop() {
 
 /* ---------------------------------------------- */
 async function publishProduct() {
+  const editId = typeof editingProductId !== 'undefined' ? editingProductId : null;
+  const isEditing = Boolean(editId);
+
   const nameRaw = document.getElementById('npName')?.value;
   const catRaw = document.getElementById('npCat')?.value;
   const priceRaw = document.getElementById('npPrice')?.value;
@@ -1042,7 +1045,7 @@ async function publishProduct() {
     return;
   }
 
-  if (!editingProductId && !hasMainImage) {
+  if (!isEditing && !hasMainImage) {
     toast('Adicione pelo menos uma imagem principal (bloco maior) para o produto!', 'err');
     return;
   }
@@ -1079,15 +1082,14 @@ async function publishProduct() {
   uploadedUrls = results.filter(url => url !== null);
 
   let finalMainImageUrl = uploadedUrls[0] || null;
-  if (editingProductId && uploadedUrls.length === 0) {
-    const p = PRODS.find(x => x.id === editingProductId);
+  if (isEditing && uploadedUrls.length === 0) {
+    const p = typeof PRODS !== 'undefined' ? PRODS.find(x => x.id === editId) : null;
     finalMainImageUrl = p ? p.image_url : null;
   }
 
   const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
   const catArray = [catText]; 
   const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
-
   const productData = {
     name: nameRaw,
     cat: catArray, 
@@ -1097,22 +1099,21 @@ async function publishProduct() {
     image_url: finalMainImageUrl, 
     gallery_urls: uploadedUrls 
   };
-
   let error;
 
-  if (editingProductId) {
+  if (isEditing) {
     const response = await supabaseClient
       .from('products')
       .update(productData)
-      .eq('id', editingProductId) 
-      .eq('loja_id', myStoreId);
+      .eq('id', editId) 
+      .eq('loja_id', typeof myStoreId !== 'undefined' ? myStoreId : '');
     error = response.error;
   } else {
     toast('Gerando ID do produto...', 'info');
     const finalId = await getUniqueProductId();
     
     productData.id = finalId;
-    productData.loja_id = myStoreId;
+    productData.loja_id = typeof myStoreId !== 'undefined' ? myStoreId : ''; 
     productData.badge = 'new'; 
     productData.rating = 0; 
     productData.reviews = 0; 
@@ -1128,13 +1129,13 @@ async function publishProduct() {
     console.error("Erro ao salvar produto:", error);
     toast('Erro ao processar: ' + error.message, 'err');
   } else {
-    toast(editingProductId ? 'Produto atualizado com sucesso! 💾' : 'Produto publicado com sucesso! 🚀', 'ok');
+    toast(isEditing ? 'Produto atualizado com sucesso! 💾' : 'Produto publicado com sucesso! 🚀', 'ok');
     
-    clearProductForm();
-    await loadMyProducts();
-
-    hasUnsavedChanges = false;
-    navigate('produtos');
+    if (typeof clearProductForm === 'function') clearProductForm();
+    if (typeof loadMyProducts === 'function') await loadMyProducts();
+    window.hasUnsavedChanges = false;
+    
+    if (typeof navigate === 'function') navigate('produtos');
   }
 }
 
