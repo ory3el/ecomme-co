@@ -920,6 +920,7 @@ async function deleteImageSlot(slotIndex, event) {
 function updateGalleryUI() {
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
   const hasProds = typeof PRODS !== 'undefined';
+  const p = (isEditing && hasProds) ? PRODS.find(x => x.id === editingProductId) : null;
 
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
@@ -929,35 +930,33 @@ function updateGalleryUI() {
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
 
-    if (file) {
-      if (!file.previewUrl) {
-        file.previewUrl = URL.createObjectURL(file);
+    let dbImageUrl = null;
+    if (p) {
+      if (i === 0 && p.image_url) {
+        dbImageUrl = p.image_url;
+      } else if (i > 0 && p.gallery_urls && p.gallery_urls[i]) {
+        dbImageUrl = p.gallery_urls[i];
       }
+    }
 
+    if (file) {
+      const url = URL.createObjectURL(file);
       innerHtmlContent = `
-        <div class="img-preview-container"><img src="${file.previewUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
+        <div class="img-preview-container"><img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
         ${deleteBtnHTML}
       `;
       block.classList.add('has-image');
       
-    } else if (i === 0 && isEditing && hasProds) {
-        const p = PRODS.find(x => x.id === editingProductId);
-        if (p && p.image_url) {
-            innerHtmlContent = `
-                <div class="img-preview-container"><img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem do Produto"></div>
-                <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-                ${deleteBtnHTML}
-            `;
-            block.classList.add('has-image');
-        } else {
-            innerHtmlContent = `
-                <div class="img-preview-container" style="font-size: 50px"><div class="fs24"><i class="fa-solid fa-image"></i></div></div>
-                <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-            `;
-            block.classList.remove('has-image');
-        }
-        
+    } else if (dbImageUrl) {
+      const altText = i === 0 ? "Imagem do Produto" : `Imagem ${i}`;
+      innerHtmlContent = `
+        <div class="img-preview-container"><img src="${dbImageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${altText}"></div>
+        <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+        ${deleteBtnHTML}
+      `;
+      block.classList.add('has-image');
+      
     } else {
       innerHtmlContent = `
           <div class="img-preview-container">${i === 0 ? '<div class="fs24" style="font-size: 50px"><i class="fa-solid fa-image"></i></div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
@@ -965,6 +964,7 @@ function updateGalleryUI() {
       `;
       block.classList.remove('has-image');
     }
+    
     block.innerHTML = innerHtmlContent;
   }
 }
