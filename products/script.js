@@ -776,6 +776,8 @@ function renderProducts() {
 
   /* render cards */
   grid.innerHTML = list.map(p => {
+    const images = getProductImages(p);
+    const mainImage = images[0] || null;
     const inW = fav.some(x => x.id === p.id);
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
@@ -792,8 +794,15 @@ function renderProducts() {
         <div class="pcard" onclick="openProduct(${p.id})">
           <div class="pimg-wrap">
             <div class="pimg" style="position: relative;">
-              ${p.emoji}
-              ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+              ${!mainImage ? p.emoji : ''}
+              ${mainImage ? `
+                <img
+                  src="${mainImage}"
+                  style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
+                  alt="${p.name}"
+                  loading="lazy"
+                >
+              ` : ''}
             </div>
             <div class="pbadges">${badgeH}</div>
           </div>
@@ -828,8 +837,15 @@ function renderProducts() {
       <div class="pcard" onclick="openProduct(${p.id})">
         <div class="pimg-wrap">
           <div class="pimg" style="position: relative;">
-            ${p.emoji}
-            ${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}
+            ${!mainImage ? p.emoji : ''}
+            ${mainImage ? `
+              <img
+                src="${mainImage}"
+                style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
+                alt="${p.name}"
+                loading="lazy"
+              >
+            ` : ''}
           </div>
           <div class="pbadges">${badgeH}</div>
           <button class="pwish-btn ${inW ? 'on' : ''}"
@@ -911,6 +927,21 @@ function normalizeProduct(p) {
       ? p.gallery_urls.filter(Boolean).slice(0, 5)
       : []
   };
+}
+
+function getProductImages(product) {
+  const images = [];
+  if (product.image_url) {
+    images.push(product.image_url);
+  }
+  if (Array.isArray(product.gallery_urls)) {
+    product.gallery_urls.forEach(url => {
+      if (url && !images.includes(url)) {
+        images.push(url);
+      }
+    });
+  }
+  return images.slice(0, 5);
 }
 
 // INIT
