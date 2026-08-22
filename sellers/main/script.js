@@ -891,10 +891,17 @@ async function deleteImageSlot(slotIndex, event) {
   affectedBlocks.forEach(preview => {
     if (preview) preview.classList.add('img-animate-out');
   });
+  
+  const fileToRemove = productImagesFiles[slotIndex];
+  if (fileToRemove && fileToRemove.previewUrl) {
+    URL.revokeObjectURL(fileToRemove.previewUrl);
+  }
 
   await new Promise(resolve => setTimeout(resolve, 300));
+  
   productImagesFiles.splice(slotIndex, 1);
   productImagesFiles.push(null);
+  
   updatePreview();
   updateGalleryUI();
 
@@ -1027,8 +1034,12 @@ async function executeCrop() {
       closeCropModal();
       return;
     }
-    
+
     const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' });
+    const oldFile = productImagesFiles[activeImageSlot];
+    if (oldFile && oldFile.previewUrl) {
+      URL.revokeObjectURL(oldFile.previewUrl);
+    }
     productImagesFiles[activeImageSlot] = croppedFile;
     
     updateGalleryUI();
@@ -1156,6 +1167,15 @@ async function publishProduct() {
 
 // --------------------------------------------------------
 function clearProductForm() {
+  if (typeof productImagesFiles !== 'undefined') {
+    productImagesFiles.forEach(file => {
+      if (file && file.previewUrl) {
+        URL.revokeObjectURL(file.previewUrl);
+      }
+    });
+    productImagesFiles = [null, null, null, null, null];
+    if (typeof updateGalleryUI === 'function') updateGalleryUI();
+  }
   editingProductId = null;
 
   if($('npName')) $('npName').value = '';
