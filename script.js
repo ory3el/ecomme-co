@@ -222,30 +222,61 @@ function fishYates(arr) {
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
-    showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const p  = products.find(x => x.id === id);
-  const ex = cart.find(x => x.id === id);
-  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
+  const normalizedId = String(id);
+  const p = products.find(
+    x => String(x.id) === normalizedId
+  );
+  if (!p) {
+    console.error("Produto não encontrado para o carrinho:", normalizedId);
+    return;
+  }
+  const ex = cart.find(
+    x => String(x.id) === normalizedId
+  );
+  if (ex) {
+    ex.qty += qty;
+  } else {
+    cart.push({
+      ...p,
+      id: normalizedId,
+      qty
+    });
+  }
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
   syncToSupabase();
 }
 
 function removeFromCart(id) {
-  cart = cart.filter(x => x.id !== id);
+  const normalizedId = String(id);
+  cart = cart.filter(
+    x => String(x.id) !== normalizedId
+  );
   updateCart();
   syncToSupabase();
 }
 
 function changeCartQty(id, d) {
-  const item = cart.find(x => x.id === id);
+  const normalizedId = String(id);
+  const item = cart.find(
+    x => String(x.id) === normalizedId
+  );
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromCart(id); else updateCart();
+    if (item.qty <= 0) {
+      removeFromCart(normalizedId);
+    } else {
+      updateCart();
+      syncToSupabase();
+    }
   }
-  syncToSupabase();
 }
 
 function updateCart() {
@@ -273,18 +304,18 @@ function updateCart() {
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         <div class="ci-qty">
-          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <button class="qb" onclick="changeCartQty('${item.id}',-1)">−</button>
           <span class="qn">${item.qty}</span>
-          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+          <button class="qb" onclick="changeCartQty('${item.id}',1)">+</button>
         </div>
       </div>
-      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
+      <button class="del" onclick="removeFromCart('${item.id}')" title="Remover do Carrinho">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </button>
-      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
+      <button class="cart-item-towish" onclick="moveFromCartToFav('${item.id}')" title="Adicionar à Lista de Desejos">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>`).join('');
@@ -314,49 +345,89 @@ function checkout() {
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   if (!userId) {
-    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const ex = fav.find(x => x.id === id);
+  const normalizedId = String(id);
+  const ex = fav.find(
+    x => String(x.id) === normalizedId
+  );
   if (ex) {
-    removeFromFav(id);
+    removeFromFav(normalizedId);
     showToast('Removido da Lista de Desejos! 💔');
   } else {
-    addToFav(id, 1);
+    addToFav(normalizedId, 1);
   }
-  
   if ($('mWish')) {
-    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+    $('mWish').classList.toggle(
+      'on',
+      fav.some(x => String(x.id) === normalizedId)
+    );
   }
   syncToSupabase();
 }
 
 function addToFav(id, qty = 1) {
   if (!userId) {
-    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const p  = products.find(x => x.id === id);
-  const ex = fav.find(x => x.id === id);
-  if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  const normalizedId = String(id);
+  const p = products.find(
+    x => String(x.id) === normalizedId
+  );
+  if (!p) {
+    console.error("Produto não encontrado para favoritos:", normalizedId);
+    return;
+  }
+  const ex = fav.find(
+    x => String(x.id) === normalizedId
+  );
+  if (ex) {
+    ex.qty += qty;
+  } else {
+    fav.push({
+      ...p,
+      id: normalizedId,
+      qty
+    });
+  }
   updateFav();
-  showToast(`${p.name} salvo nos favoritos! 🛒`);
+  showToast(`${p.name} salvo nos favoritos! ❤️`);
   syncToSupabase();
 }
 
 function removeFromFav(id) {
-  fav = fav.filter(x => x.id !== id);
+  const normalizedId = String(id);
+  fav = fav.filter(
+    x => String(x.id) !== normalizedId
+  );
   updateFav();
   syncToSupabase();
 }
 
 function changeFavQty(id, d) {
-  const item = fav.find(x => x.id === id);
+  const normalizedId = String(id);
+  const item = fav.find(
+    x => String(x.id) === normalizedId
+  );
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromFav(id); else updateFav();
+    if (item.qty <= 0) {
+      removeFromFav(normalizedId);
+    } else {
+      updateFav();
+      syncToSupabase();
+    }
   }
-  syncToSupabase();
 }
 
 function updateFav() {
@@ -382,7 +453,7 @@ function updateFav() {
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         
-        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+        <button class="btn-madd" onclick="addToCart('${item.id}', 1); removeFromFav('${item.id}'); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -391,7 +462,7 @@ function updateFav() {
         </button>
         
       </div>
-      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+      <button class="del" onclick="removeFromFav('${item.id}'); renderProducts();">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
@@ -414,22 +485,23 @@ function openFav() {
 function closeFav() { $('favSidebar').classList.remove('on'); $('favOverlay').classList.remove('on'); document.body.classList.remove("nobodyscroll"); }
 
 function addAllFavToCart() {
-  if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
-  
+  if (!fav.length) {
+    showToast('Adicione produtos primeiro! 😊');
+    return;
+  }
   fav.forEach(produto => {
-    addToCart(produto.id, 1);
+    addToCart(String(produto.id), 1);
   });
-  fav = []; 
-  updateFav(); 
+  fav = [];
+  updateFav();
   renderProducts();
-  // saveFav(); 
   closeFav();
   openCart();
   showToast('Todos os itens foram para o carrinho! 🛒');
 }
 
 function moveFromCartToFav(id) {
-  addToFav(id, 1);
+  addToFav(String(id), 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
 }
 
@@ -484,11 +556,19 @@ function closeAcc() {
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
-  const p = products.find(x => x.id === id);
-  curId   = id;
+  const normalizedId = String(id);
+  const p = products.find(
+    x => String(x.id) === normalizedId
+  );
+  if (!p) {
+    console.error("Produto não encontrado:", normalizedId);
+    document.body.classList.remove("noscroll");
+    return;
+  }
+  curId = normalizedId;
   mQtyVal = 1;
-  $('mQty').textContent    = 1;
   
+  $('mQty').textContent = 1;
   $('mEmoji').innerHTML = `${p.emoji}${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}`;
   $('mEmoji').style.position = 'relative';
   
@@ -507,8 +587,17 @@ function openProduct(id) {
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
-function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
+
+function addFromModal() {
+  addToCart(String(curId), mQtyVal);
+  closeModal();
+  openCart();
+}
+function addFromModal2() {
+  addToFav(String(curId), mQtyVal);
+  closeModal();
+  openFav();
+}
 
 // TOAST
 function showToast(msg) {
@@ -847,7 +936,9 @@ function renderProducts() {
 
 /* render cards */
 grid.innerHTML = list.slice(0, 10).map(p => {
-    const inW = fav.some(x => x.id === p.id);
+    const inW = fav.some(
+      x => String(x.id) === String(p.id)
+    );
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
                   :                     `<span class="bpill bsale">-${p.discount}%</span>`;
@@ -860,7 +951,7 @@ grid.innerHTML = list.slice(0, 10).map(p => {
 
     if (view === 'list') {
       return `
-        <div class="pcard" onclick="openProduct(${p.id})">
+        <div class="pcard" onclick="openProduct('${p.id}')">
           <div class="pimg-wrap">
             <div class="pimg" style="position: relative;">
               ${p.emoji}
@@ -886,7 +977,7 @@ grid.innerHTML = list.slice(0, 10).map(p => {
             </div>
             ${shipH}
             <div class="pactions">
-              <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+              <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
                 <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                 Adicionar ao Carrinho
               </button>
@@ -896,7 +987,7 @@ grid.innerHTML = list.slice(0, 10).map(p => {
     }
 
     return `
-      <div class="pcard" onclick="openProduct(${p.id})">
+      <div class="pcard" onclick="openProduct('${p.id}')">
         <div class="pimg-wrap">
           <div class="pimg" style="position: relative;">
             ${p.emoji}
@@ -904,16 +995,16 @@ grid.innerHTML = list.slice(0, 10).map(p => {
           </div>
           <div class="pbadges">${badgeH}</div>
           <button class="pwish-btn ${inW ? 'on' : ''}"
-                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
+                  onclick="event.stopPropagation();toggleFav('${p.id}'); renderProducts();"
                   title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
           <div class="pactions">
-            <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+            <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
               <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Carrinho
             </button>
-            <button class="btn-qv" onclick="event.stopPropagation();openProduct(${p.id})" title="Ver detalhes">
+            <button class="btn-qv" onclick="event.stopPropagation();openProduct('${p.id}')" title="Ver detalhes">
               <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
