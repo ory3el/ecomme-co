@@ -697,6 +697,7 @@ function openProduct(id) {
   const p = products.find(
     x => String(x.id) === normalizedId
   );
+
   if (!p) {
     console.error("Produto não encontrado:", normalizedId);
     document.body.classList.remove("noscroll");
@@ -705,27 +706,65 @@ function openProduct(id) {
   curId = normalizedId;
   mQtyVal = 1;
   $('mQty').textContent = 1;
-
+  
   const images = getProductImages(p);
-  const mainImage = images[0];
-  $('mEmoji').innerHTML = mainImage
-    ? `
-      <img
-        src="${mainImage}"
-        style="
-          position:absolute;
-          inset:0;
-          width:100%;
-          height:100%;
-          object-fit:cover;
-          border-radius:inherit;
-        "
-        alt="${p.name}"
-      >
-    `
-    : p.emoji;
+  const mainImage = images[0] || null;
+  const mEmoji = $('mEmoji');
+
+  if (mEmoji) {
+    mEmoji.innerHTML = mainImage
+      ? `
+        <img
+          src="${mainImage}"
+          alt="${p.name}"
+        >
+      `
+      : p.emoji;
+  }
+
+  const modalGallery = $('modalGallery');
+  if (modalGallery) {
+    modalGallery.innerHTML = '';
+    images.forEach((image, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className =
+        'modal-gallery-thumb' +
+        (index === 0 ? ' on' : '');
+
+      button.innerHTML = `
+        <img
+          src="${image}"
+          alt="${p.name} - imagem ${index + 1}"
+        >
+      `;
+      button.addEventListener('click', () => {
+        if (mEmoji) {
+          mEmoji.innerHTML = `
+            <img
+              src="${image}"
+              alt="${p.name}"
+            >
+          `;
+        }
+        modalGallery
+          .querySelectorAll('.modal-gallery-thumb')
+          .forEach(btn => {
+            btn.classList.remove('on');
+          });
+
+        button.classList.add('on');
+      });
+
+      modalGallery.appendChild(button);
+    });
+
+    modalGallery.style.display =
+      images.length > 1 ? 'flex' : 'none';
+  }
 
   $('mEmoji').style.position = 'relative';
+
   $('mCat').textContent =
     Array.isArray(p.cat)
       ? p.cat.join(', ')
@@ -742,16 +781,20 @@ function openProduct(id) {
     p.discount > 0
       ? `-${p.discount}% OFF`
       : '';
+
   $('mFeats').innerHTML =
     p.features.map(f =>
       `<div class="m-feat">
-         <div class="fchk">✓</div>
-         ${f}
-       </div>`
+        <div class="fchk">✓</div>
+        ${f}
+      </div>`
     ).join('');
+
   $('mWish').classList.toggle(
     'on',
-    fav.some(x => String(x.id) === String(id))
+    fav.some(
+      x => String(x.id) === normalizedId
+    )
   );
   $('modalOverlay').classList.add('on');
 }
