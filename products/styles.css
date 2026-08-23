@@ -578,7 +578,10 @@ header.dark-glass input::placeholder{
     .pcard {
       background: #fff; border: 1px solid var(--border2);
       border-radius: var(--rad-lg); overflow: hidden;
-      transition: all .3s cubic-bezier(.4,0,.2,1);
+      transition: transform .3s cubic-bezier(.4,0,.2,1),
+                  box-shadow .3s cubic-bezier(.4,0,.2,1),
+                  border-color .3s cubic-bezier(.4,0,.2,1);
+      }
       cursor: pointer; position: relative;
       display: flex; flex-direction: column;
 
