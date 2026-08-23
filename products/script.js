@@ -827,9 +827,19 @@ function toast(msg) {
 }
 
 // BACK TO TOP
+const backTop = document.getElementById('backTop');
+let scrollTicking = false;
 window.addEventListener('scroll', () => {
-  document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
-});
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    backTop.classList.toggle(
+      'visible',
+      window.scrollY > 400
+    );
+    scrollTicking = false;
+  });
+}, { passive: true });
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
