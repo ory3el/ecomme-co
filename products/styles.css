@@ -1092,15 +1092,15 @@ header.dark-glass input::placeholder{
     .more-empty-st span { font-size: 48px; }
 
 .btn-menu3 {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /*box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);*/
   width: 95%; 
   background: transparent; 
   color: rgba(0, 0, 0, 0.7); 
-  border: 1px solid rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   padding: 14px; 
   border-radius: 16px; 
-  transition: all .3s; 
-  margin-bottom: 10px;
+  transition: transform 0.3s, background 0.3s, border 0.2s; 
+  margin-bottom: 5px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1135,7 +1135,7 @@ header.dark-glass input::placeholder{
 }
 /* ─────────────────────────────────────────────────── */
 .btn-menu3:hover { 
-  box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); 
+  /*box-shadow: 0 4px 15px rgba(0, 0, 120, 0.2); */
   transform: scale(1.02); 
   background: rgba(255, 255, 255, 0.2); 
   border: 1px solid var(--blue); 
@@ -1177,7 +1177,7 @@ header.dark-glass input::placeholder{
 .acc-cls {
   width: 34px; height: 34px; border-radius: 50%;
   border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center;
-  color: var(--muted); transition: all 0.2s;
+  color: var(--muted); transition: background 0.2s;
 }
 .acc-cls:hover { background: var(--red); color: #fff; border-color: var(--red); }
 .acc-cls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; }
@@ -1204,7 +1204,7 @@ header.dark-glass input::placeholder{
   width: 100%; padding: 12px 15px; border-radius: 12px;
   display: flex; align-items: center; gap: 12px;
   background: transparent; color: var(--text);
-  font-size: 14px; font-weight: 500; transition: all 0.2s;
+  font-size: 14px; font-weight: 500; transition: background 0.2s, transform 0.2s;
 }
 .btn-acc-option i { font-size: 16px; color: var(--blue); width: 20px; text-align: center; }
 .btn-acc-option:hover { background: var(--blue-dim); color: var(--blue); transform: translateX(5px); }
@@ -1214,7 +1214,7 @@ header.dark-glass input::placeholder{
   width: 100%; padding: 14px; border-radius: 12px;
   background: #fff; color: var(--red); border: 1.5px solid #fee2e2;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-weight: 600; font-size: 14px; transition: all 0.2s;
+  font-weight: 600; font-size: 14px; transition: background 0.2s;
 }
 .btn-logout-sb:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
@@ -1477,8 +1477,22 @@ header.dark-glass input::placeholder{
   .footer-brand .logo { font-size: 24px; margin-bottom: 14px; }
   .footer-brand p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 240px; margin-bottom: 20px; }
   .social-links { display: flex; gap: 8px; }
-  .social-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; transition: all 0.2s; }
-  .social-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .social-btn {
+      width: 36px; height: 36px; 
+      border-radius: 50%; 
+      border: 1px solid var(--border2); 
+      display: flex; align-items: center; 
+      justify-content: center; 
+      color: var(--muted); 
+      font-size: 14px; 
+      transition: border-color 0.2s, transform 0.2s; 
+  }
+  .social-btn:hover { 
+      border-color: var(--blue);
+      transform: scale(1.1);
+      /*color: var(--blue);*/
+      /*background: var(--blue-dim);*/
+  }
   .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text); margin-bottom: 18px; }
   .footer-links { display: flex; flex-direction: column; gap: 10px; }
   .footer-links a { font-size: 13px; color: var(--muted); transition: color 0.2s; }
