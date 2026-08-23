@@ -1221,20 +1221,6 @@ function getProductImages(product) {
   return images.slice(0, 5);
 }
 
-// INIT
-window.addEventListener('DOMContentLoaded', async () => {
-  await loadProductsFromSupabase();
-  const {
-    data: { user },
-    error
-  } = await supabaseClient.auth.getUser();
-  if (user && !error) {
-    userId = user.id;
-    await loadFromSupabase();
-  }
-  loadShuffleAndRender();
-});
-
 // LOGOUT
 async function doLogout() {
   toast('Saindo da conta... 👋', 'info');
