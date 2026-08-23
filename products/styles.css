@@ -556,6 +556,7 @@ header.dark-glass input::placeholder{
    .products-grid {
        display: grid;
        grid-template-columns: repeat(5, 1fr);
+       contain: layout paint;
        gap: 16px;
    }
    @media (max-width: 1200px) {
