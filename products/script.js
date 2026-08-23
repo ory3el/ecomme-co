@@ -219,9 +219,17 @@ function addToCart(id, qty = 1) {
     showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p = products.find(x => x.id === id);
-  const ex = cart.find(x => x.id === id);
-  if (ex) ex.qty += qty; else cart.push({ ...p, qty });
+  const p = products.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const ex = cart.find(x => String(x.id) === String(id));
+  if (ex) {
+    ex.qty += qty;
+  } else {
+    cart.push({
+      id: String(p.id),
+      qty
+    });
+  }
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
   syncToSupabase();
@@ -242,45 +250,108 @@ function changeCartQty(id, d) {
   syncToSupabase();
 }
 
+// UPDATE CART -------------------------- //
 function updateCart() {
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const validCart = cart
+    .map(item => {
+      const product = products.find(
+        p => String(p.id) === String(item.id)
+      );
+
+      if (!product) return null;
+
+      return {
+        ...product,
+        qty: item.qty
+      };
+    })
+    .filter(Boolean);
+
+  cart = validCart;
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  const count = cart.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
 
   $('cartBadge').textContent = count;
   $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+
   $('cartCount').textContent = `(${count})`;
   $('cartSub').textContent = fmt(total);
   $('cartTotal').textContent = fmt(total);
 
   const el = $('cartItems');
+
   if (!cart.length) {
-    el.innerHTML = `<div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio</p></div>`;
+    el.innerHTML = `
+      <div class="cart-empty-st">
+        <span>🛒</span>
+        <p>Seu carrinho está vazio</p>
+      </div>
+    `;
     return;
   }
-  
-  el.innerHTML = cart.map(item => `
-    <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-price">${fmt(item.price)}</div>
-        <div class="ci-qty">
-          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
-          <span class="qn">${item.qty}</span>
-          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+
+  el.innerHTML = cart.map(item => {
+    const images = getProductImages(item);
+    const image = images[0];
+
+    return `
+      <div class="ci">
+        <div class="ci-img">
+          ${
+            image
+              ? `<img
+                   src="${image}"
+                   alt="${item.name}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+                 >`
+              : item.emoji
+          }
         </div>
+        <div class="ci-info">
+          <div class="ci-name">${item.name}</div>
+          <div class="ci-price">
+            ${fmt(item.price)}
+          </div>
+          <div class="ci-qty">
+            <button
+              class="qb"
+              onclick="changeCartQty('${item.id}', -1)"
+            >
+              −
+            </button>
+            <span class="qn">${item.qty}</span>
+            <button
+              class="qb"
+              onclick="changeCartQty('${item.id}', 1)"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <button
+          class="del"
+          onclick="removeFromCart('${item.id}')"
+          title="Remover do Carrinho"
+        >
+          🗑️
+        </button>
+        <button
+          class="cart-item-towish"
+          onclick="moveFromCartToFav('${item.id}')"
+        >
+          ❤️
+        </button>
       </div>
-      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
-        <svg viewBox="0 0 24 24">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
-      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
-        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </button>
-    </div>`).join('');
-    
+    `;
+  }).join('');
   renderProducts();
   syncToSupabase();
 }
@@ -317,7 +388,7 @@ function toggleFav(id) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const ex = fav.find(x => x.id === id);
+  const ex = fav.find(x => String(x.id) === String(id));
   if (ex) {
     removeFromFav(id);
     showToast('Removido da Lista de Desejos! 💔');
@@ -336,9 +407,17 @@ function addToFav(id, qty = 1) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
   }
-  const p = products.find(x => x.id === id);
-  const ex = fav.find(x => x.id === id);
-  if (ex) ex.qty += qty; else fav.push({ ...p, qty });
+  const p = products.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const ex = fav.find(x => String(x.id) === String(id));
+  if (ex) {
+    ex.qty += qty;
+  } else {
+    fav.push({
+      id: String(p.id),
+      qty
+    });
+  }
   updateFav();
   showToast(`${p.name} salvo nos favoritos! 🛒`);
   syncToSupabase();
@@ -359,45 +438,106 @@ function changeFavQty(id, d) {
   syncToSupabase();
 }
 
+// UPDATE FAV ------------------------- //
 function updateFav() {
-  const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
-  const count = fav.reduce((s, i) => s + i.qty, 0);
-  
+  const validFav = fav
+    .map(item => {
+      const product = products.find(
+        p => String(p.id) === String(item.id)
+      );
+
+      if (!product) return null;
+
+      return {
+        ...product,
+        qty: item.qty
+      };
+    })
+    .filter(Boolean);
+
+  fav = validFav;
+
+  const total = fav.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  const count = fav.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
+
   $('wishBadge').textContent = count;
   $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+
   $('favCount').textContent = `(${count})`;
   $('favTotal').textContent = fmt(total);
 
   const el = $('favItems');
+
   if (!fav.length) {
-    el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    el.innerHTML = `
+      <div class="fav-empty-st">
+        <span>❤️</span>
+        <p>Nenhum produto salvo no momento</p>
+      </div>
+    `;
     return;
   }
-  
-  el.innerHTML = fav.map(item => `
-    <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-price">${fmt(item.price)}</div>
-        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
-          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          Adicionar ao Carrinho
+
+  el.innerHTML = fav.map(item => {
+    const images = getProductImages(item);
+    const image = images[0];
+
+    return `
+      <div class="ci">
+
+        <div class="ci-img">
+          ${
+            image
+              ? `<img
+                   src="${image}"
+                   alt="${item.name}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+                 >`
+              : item.emoji
+          }
+        </div>
+
+        <div class="ci-info">
+
+          <div class="ci-name">
+            ${item.name}
+          </div>
+
+          <div class="ci-price">
+            ${fmt(item.price)}
+          </div>
+
+          <button
+            class="btn-madd"
+            onclick="
+              addToCart('${item.id}', 1);
+              removeFromFav('${item.id}');
+              closeFav();
+              openCart();
+            "
+          >
+            Adicionar ao Carrinho
+          </button>
+
+        </div>
+
+        <button
+          class="del"
+          onclick="removeFromFav('${item.id}')"
+        >
+          🗑️
         </button>
+
       </div>
-      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
-        <svg viewBox="0 0 24 24">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
-    </div>`).join('');
-    
-  renderProducts();
-  syncToSupabase();
+    `;
+  }).join('');
 }
 
 function openFav() {
@@ -544,23 +684,50 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); closeAcc(); }
 });
 
+// ── HYDRATE USER SAVED ITEMS ──
+function hydrateUserItems(savedItems) {
+  if (!Array.isArray(savedItems)) return [];
+  return savedItems
+    .map(item => {
+      const product = products.find(
+        p => String(p.id) === String(item.id)
+      );
+      if (!product) return null;
+      return {
+        ...product,
+        qty: Math.max(1, Number(item.qty) || 1)
+      };
+    })
+    .filter(Boolean);
+}
+
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
   if (!userId) return;
 
-  const currentFav = fav;
-  const currentCart = cart;
+  const cartToSave = cart.map(item => ({
+    id: String(item.id),
+    qty: Number(item.qty) || 1
+  }));
+
+  const favToSave = fav.map(item => ({
+    id: String(item.id),
+    qty: Number(item.qty) || 1
+  }));
 
   const { error } = await supabaseClient
-    .from("profiles")
+    .from('profiles')
     .update({
-      cart: currentCart,
-      fav: currentFav
+      cart: cartToSave,
+      fav: favToSave
     })
-    .eq("id", userId);
+    .eq('id', userId);
 
   if (error) {
-    console.error("Erro ao sincronizar dados com o Supabase:", error);
+    console.error(
+      'Erro ao sincronizar carrinho/favoritos:',
+      error
+    );
   }
 }
 
@@ -574,18 +741,17 @@ async function loadFromSupabase() {
     .eq('id', userId)
     .single();
 
-  if (!error && data) {
-    if (data.cart) {
-      cart = data.cart;
-    }
-
-    if (data.fav) {
-      fav = data.fav;
-    }
-
-    if (typeof updateCart === 'function') updateCart();
-    if (typeof updateFav === 'function') updateFav();
+  if (error) {
+    console.error('Erro ao carregar carrinho/favoritos:', error);
+    return;
   }
+
+  cart = hydrateUserItems(data?.cart);
+  fav = hydrateUserItems(data?.fav);
+
+  updateCart();
+  updateFav();
+  renderProducts();
 }
 
 // ── STYLES INJECTOR ──
