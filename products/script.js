@@ -54,7 +54,7 @@ window.addEventListener(
       );
     
     const productsLoaded =
-      await loadProductsFromSupabase();
+      await loadFromSupabase();
 
     if (!productsLoaded) {
       return;
