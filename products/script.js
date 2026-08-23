@@ -375,7 +375,6 @@ function updateCart() {
       </div>
     `;
   }).join('');
-  renderProducts();
   syncToSupabase();
 }
 
@@ -913,7 +912,6 @@ async function loadFromSupabase() {
 
   updateCart();
   updateFav();
-  renderProducts();
 }
 
 // ── STYLES INJECTOR ──
