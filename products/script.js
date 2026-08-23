@@ -1132,6 +1132,7 @@ function renderProducts() {
                   style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
                   alt="${p.name}"
                   loading="lazy"
+                  decoding="async"
                 >
               ` : ''}
             </div>
@@ -1175,6 +1176,7 @@ function renderProducts() {
                 style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
                 alt="${p.name}"
                 loading="lazy"
+                decoding="async"
               >
             ` : ''}
           </div>
