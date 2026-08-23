@@ -581,6 +581,10 @@ header.dark-glass input::placeholder{
       transition: all .3s cubic-bezier(.4,0,.2,1);
       cursor: pointer; position: relative;
       display: flex; flex-direction: column;
+
+      content-visibility: auto;
+      contain: layout paint style;
+      contain-intrinsic-size: 380px;
     }
     .pcard:hover {
       border-color: var(--border);
