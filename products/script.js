@@ -54,7 +54,7 @@ window.addEventListener(
       );
     
     const productsLoaded =
-      await loadFromSupabase();
+      await loadProductsFromSupabase();
 
     if (!productsLoaded) {
       return;
@@ -656,6 +656,29 @@ function addAllFavToCart() {
 function moveFromCartToFav(id) {
   addToFav(String(id), 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
+}
+
+/* ---------------------------------------- */
+async function loadProductsFromSupabase() {
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('id', { ascending: true });
+  if (error) {
+    console.error(
+      'Erro ao carregar produtos do Supabase:',
+      error
+    );
+    products = [];
+    shuffled = [];
+    return false;
+  }
+  products = (data || []).map(normalizeProduct);
+  shuffled = fishYates(products);
+  console.log(
+    `Produtos carregados: ${products.length}`
+  );
+  return true;
 }
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
