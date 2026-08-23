@@ -588,7 +588,7 @@ header.dark-glass input::placeholder{
       contain-intrinsic-size: 380px;
       isolation: isolate;
     }
-    .pcard::after {
+     .pcard::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -596,7 +596,6 @@ header.dark-glass input::placeholder{
       box-shadow: var(--shadow-hv);
       opacity: 0;
       pointer-events: none;
-      z-index: -1;
       transition: opacity .3s cubic-bezier(.4,0,.2,1);
     }
     .pcard:hover::after {
@@ -619,7 +618,13 @@ header.dark-glass input::placeholder{
       font-size: 72px;
       transition: transform 0.4s cubic-bezier(.4,0,.2,1);
     }
-
+    .pimg img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      decoding: auto;
+    }
     .pbadges {
       position: absolute; top: 12px; left: 12px;
       display: flex; flex-direction: column; gap: 5px;
