@@ -635,24 +635,62 @@ function closeAcc() {
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
-  document.body.classList.add("noscroll");
-  const p = products.find(x => x.id === id);
-  curId   = id;
+  document.body.classList.add('noscroll');
+
+  const p = products.find(
+    x => String(x.id) === String(id)
+  );
+  if (!p) return;
+  curId = String(id);
   mQtyVal = 1;
-  $('mQty').textContent    = 1;
-  
-  $('mEmoji').innerHTML = `${p.emoji}${p.image_url ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` : ''}`;
+  $('mQty').textContent = '1';
+  const images = getProductImages(p);
+  const mainImage = images[0];
+  $('mEmoji').innerHTML = mainImage
+    ? `
+      <img
+        src="${mainImage}"
+        style="
+          position:absolute;
+          inset:0;
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          border-radius:inherit;
+        "
+        alt="${p.name}"
+      >
+    `
+    : p.emoji;
+
   $('mEmoji').style.position = 'relative';
-  
-  $('mCat').textContent    = p.cat;
-  $('mName').textContent   = p.name;
-  $('mDesc').textContent   = p.desc;
-  $('mPrice').textContent  = fmt(p.price);
-  $('mOld').textContent    = fmt(p.old);
-  $('mDisc').textContent   = `-${p.discount}% OFF`;
-  $('mFeats').innerHTML    = p.features.map(f =>
-    `<div class="m-feat"><div class="fchk">✓</div>${f}</div>`).join('');
-  $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+  $('mCat').textContent =
+    Array.isArray(p.cat)
+      ? p.cat.join(', ')
+      : p.cat;
+
+  $('mName').textContent = p.name;
+  $('mDesc').textContent = p.desc;
+  $('mPrice').textContent = fmt(p.price);
+
+  $('mOld').textContent =
+    p.old > 0 ? fmt(p.old) : '';
+
+  $('mDisc').textContent =
+    p.discount > 0
+      ? `-${p.discount}% OFF`
+      : '';
+  $('mFeats').innerHTML =
+    p.features.map(f =>
+      `<div class="m-feat">
+         <div class="fchk">✓</div>
+         ${f}
+       </div>`
+    ).join('');
+  $('mWish').classList.toggle(
+    'on',
+    fav.some(x => String(x.id) === String(id))
+  );
   $('modalOverlay').classList.add('on');
 }
 
@@ -957,7 +995,7 @@ function renderProducts() {
 
     if (view === 'list') {
       return `
-        <div class="pcard" onclick="openProduct(${p.id})">
+        <div class="pcard" onclick="openProduct('${p.id}')">
           <div class="pimg-wrap">
             <div class="pimg" style="position: relative;">
               ${!mainImage ? p.emoji : ''}
@@ -990,7 +1028,7 @@ function renderProducts() {
             </div>
             ${shipH}
             <div class="pactions">
-              <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+              <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
                 <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                 Adicionar ao Carrinho
               </button>
@@ -1000,7 +1038,7 @@ function renderProducts() {
     }
 
     return `
-      <div class="pcard" onclick="openProduct(${p.id})">
+      <div class="pcard" onclick="openProduct('${p.id}')">
         <div class="pimg-wrap">
           <div class="pimg" style="position: relative;">
             ${!mainImage ? p.emoji : ''}
@@ -1015,16 +1053,16 @@ function renderProducts() {
           </div>
           <div class="pbadges">${badgeH}</div>
           <button class="pwish-btn ${inW ? 'on' : ''}"
-                  onclick="event.stopPropagation();toggleFav(${p.id}); renderProducts();"
+                  onclick="event.stopPropagation();toggleFav('${p.id}'); renderProducts();"
                   title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
           <div class="pactions">
-            <button class="btn-ac" onclick="event.stopPropagation();addToCart(${p.id})">
+            <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
               <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Carrinho
             </button>
-            <button class="btn-qv" onclick="event.stopPropagation();openProduct(${p.id})" title="Ver detalhes">
+            <button class="btn-qv" onclick="event.stopPropagation();openProduct('${p.id}')" title="Ver detalhes">
               <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -1111,11 +1149,18 @@ function getProductImages(product) {
 }
 
 // INIT
-updateFav();
-updateCart();
-syncToSupabase();
-renderProducts();
-loadShuffleAndRender();
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadProductsFromSupabase();
+  const {
+    data: { user },
+    error
+  } = await supabaseClient.auth.getUser();
+  if (user && !error) {
+    userId = user.id;
+    await loadFromSupabase();
+  }
+  loadShuffleAndRender();
+});
 
 // LOGOUT
 async function doLogout() {
