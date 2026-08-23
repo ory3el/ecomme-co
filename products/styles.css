@@ -1542,48 +1542,42 @@ header.dark-glass input::placeholder{
 
 @media (max-width: 768px) {
   
-  /* 1. HEADER (CABEÇALHO) */
   .header-inner {
     height: auto;
     display: flex;
     flex-wrap: wrap;
     padding: 16px;
     gap: 16px;
-    /* Alinha o logo na esquerda e os ícones na direita: */
     justify-content: space-between; 
     align-items: center;
   }
 
-  /* 2. LOGO */
-  .logo { /* Substitua '.logo' pela classe real do seu logo */
-    order: 1; /* Garante que seja o primeiro item */
+  .logo {
+    order: 1;
   }
 
-  /* 3. BOTÕES (Coração, Carrinho, Entrar, Menu) */
-  .header-actions { /* Substitua pela classe real da div que agrupa esses botões */
-    order: 2; /* Coloca os ícones logo após o logo, na mesma linha */
-    display: flex; /* Mantém os ícones alinhados entre si */
-    gap: 10px; /* Ajuste o espaçamento entre os ícones se necessário */
+  .header-actions {
+    order: 2;
+    display: flex;
+    gap: 10px;
   }
 
-  /* 4. LINKS DE NAVEGAÇÃO (Início, Produtos...) */
   .nav-main {
-    order: 3; /* Joga os links para a linha de baixo do logo/ícones */
+    order: 3;
     overflow-x: auto;
-    width: 100%; /* Força a quebra de linha */
+    width: 100%;
     padding-bottom: 5px;
   }
 
-  /* 5. BARRA DE PESQUISA */
   .search-bar {
-    order: 4; /* Mantém na última linha */
+    order: 4;
     max-width: 100%;
+    margin: auto;
     width: 100%;
   }
 
-  /* 2. HERO (BANNER PRINCIPAL) */
   .hero-inner {
-    grid-template-columns: 1fr; /* CORREÇÃO: Transforma 2 colunas em 1 */
+    grid-template-columns: 1fr;
     text-align: center;
     padding: 40px 20px;
   }
@@ -1599,17 +1593,15 @@ header.dark-glass input::placeholder{
     gap: 20px;
   }
 
-  /* 3. TRUST BADGES & CATEGORIAS */
   .trust-inner {
-    grid-template-columns: 1fr 1fr; /* 2 itens por linha no tablet/mobile */
+    grid-template-columns: 1fr 1fr;
   }
   .categories-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  /* 4. MAIN LAYOUT & SIDEBAR */
   .main-layout {
-    grid-template-columns: 1fr; /* CORREÇÃO: Empilha sidebar e produtos */
+    grid-template-columns: 1fr;
   }
   .sidebar {
     position: static;
@@ -1624,9 +1616,8 @@ header.dark-glass input::placeholder{
     width: auto;
   }
 
-  /* 5. PRODUTOS */
   .products-grid {
-    grid-template-columns: repeat(2, 1fr); /* Vitrine com 2 produtos por linha */
+    grid-template-columns: repeat(3, 1fr);
   }
   .deal-banner {
     flex-direction: column;
@@ -1638,25 +1629,23 @@ header.dark-glass input::placeholder{
     justify-content: center;
   }
 
-  /* 6. MODAL DO PRODUTO (A Janela Pop-up) */
   .modal {
-    grid-template-columns: 1fr; /* CORREÇÃO: Imagem em cima, texto em baixo */
+    grid-template-columns: 1fr;
     max-height: 85vh;
   }
   .modal-img-side {
     min-height: 300px;
-    border-radius: 16px 16px 0 0; /* Arredonda apenas o topo */
+    border-radius: 16px 16px 0 0;
   }
   .modal-info-side {
     padding: 24px;
   }
 
-  /* 7. BANNERS & FOOTER */
   .banner-row {
-    grid-template-columns: 1fr; /* CORREÇÃO: Empilha os banners */
+    grid-template-columns: 1fr;
   }
   .footer-grid {
-    grid-template-columns: 1fr; /* CORREÇÃO: Empilha as colunas do rodapé */
+    grid-template-columns: 1fr;
     gap: 30px;
     text-align: center;
     align-items: center;
@@ -1680,7 +1669,6 @@ header.dark-glass input::placeholder{
     grid-template-columns: repeat(4, 1fr);
 }
 
-  /* 8. NEWSLETTER & CARRINHO */
   .newsletter-form {
     flex-direction: column;
     border-radius: 16px;
@@ -1693,7 +1681,6 @@ header.dark-glass input::placeholder{
   }
 }
 
-/* Ajustes extras para celulares muito pequenos (iPhone SE, etc) */
 @media (max-width: 480px) {
   .cart-sidebar {
     width: 100%;
@@ -1702,13 +1689,13 @@ header.dark-glass input::placeholder{
     width: 100%;
   }
   .products-grid {
-    grid-template-columns: 1fr; /* Muda para 1 produto por linha */
+    grid-template-columns: 1fr;
   }
   .trust-inner {
-    grid-template-columns: 1fr; /* 1 badge por linha */
+    grid-template-columns: 1fr;
   }
   .categories-grid {
-    grid-template-columns: repeat(2, 1fr); /* Categorias: 2 por linha */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1732,7 +1719,6 @@ header.dark-glass input::placeholder{
     display: none;
   }
 
-  /* Garante que nenhuma seção principal estoure a largura da tela */
   #categorias, 
   .main-layout, 
   .products-area {
@@ -1743,21 +1729,18 @@ header.dark-glass input::placeholder{
     padding-right: 12px !important;
   }
 
-  /* 1. SEÇÃO DE CATEGORIAS (Cards de Ícones)
-     Transforma em grade de 2 colunas perfeitamente alinhadas e seguras */
   .categories-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* minmax(0) impede o estouro */
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 10px !important;
     width: 100% !important;
   }
 
   .cat-card {
     max-width: 200px !important;
-    min-width: 0 !important; /* Permite que o card encolha se necessário */
+    min-width: 0 !important;
     padding: 50px 10px !important;
   }
 
-  /* 2. ESTRUTURA DO PRODUTO + BARRA LATERAL */
   .main-layout {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
@@ -1771,7 +1754,6 @@ header.dark-glass input::placeholder{
     display: block !important;
   }
 
-  /* Transforma os botões de filtro da sidebar em um carrossel lateral elegante */
   .category-list {
     display: flex !important;
     flex-direction: row !important;
@@ -1788,22 +1770,19 @@ header.dark-glass input::placeholder{
     flex-shrink: 0 !important;
   }
 
-  /* Esconde os filtros pesados (Preço, Estrelas, Tags) no mobile para limpar o visual,
-     ou os força a ocupar 100% de largura se você quiser mantê-los */
   .sidebar-section:not(:first-child) {
     display: none !important; 
   }
 
-  /* 3. VITRINE DE PRODUTOS (Garante 2 por linha sem quebrar margem) */
   .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* CORREÇÃO CHAVE: minmax(0) */
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 3px !important;
     /* width: 100% !important; */
   }
 
   .product-card {
     width: 100% !important;
-    min-width: 0 !important; /* Impede o card de empurrar a grade para fora */
+    min-width: 0 !important;
     background: var(--bg2);
   }
 
@@ -1818,7 +1797,6 @@ header.dark-glass input::placeholder{
     object-fit: cover !important;
   }
 
-  /* Ajustes de textos e preços internos para não empurrarem as bordas */
   .product-info {
     padding: 10px !important;
   }
@@ -1827,7 +1805,7 @@ header.dark-glass input::placeholder{
     font-size: 13px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
-    text-overflow: ellipsis !important; /* Adiciona "..." em nomes longos para não quebrar o layout */
+    text-overflow: ellipsis !important;
   }
 
   .product-price {
@@ -1861,8 +1839,6 @@ header.dark-glass input::placeholder{
    ========================================================================== */
 @media (max-width: 768px) {
 
-  /* 1. DESLIGA COMPLETAMENTE RECALCULOS DINÂMICOS NA VITRINE
-     Isso impede que qualquer regra do desktop interfira no scroll do celular */
   .products-grid *, 
   .categories-grid *,
   .product-card,
@@ -1870,16 +1846,14 @@ header.dark-glass input::placeholder{
     transition: none !important;
     transform: none !important;
     animation: none !important;
-    will-change: unset !important; /* Desativa cache de animação que gera fantasmas visuais */
+    will-change: unset !important;
   }
 
-  /* 2. TRAVA DE PROPORÇÃO DE IMAGEM INFALÍVEL
-     Substitui o aspect-ratio moderno por padding-bottom técnico (técnica mais estável para mobile antigos) */
   .product-img-wrapper {
     position: relative !important;
     width: 100% !important;
     height: 0 !important;
-    padding-top: 100% !important; /* Força um quadrado 1:1 perfeito que nunca deforma ou pisca */
+    padding-top: 100% !important;
     overflow: hidden !important;
     background-color: #fff !important;
   }
@@ -1893,8 +1867,6 @@ header.dark-glass input::placeholder{
     object-fit: cover !important;
   }
 
-  /* 3. SOLIDIFICAÇÃO DOS BOTÕES DE AÇÃO
-     O botão passa a fazer parte do bloco de texto, sem flutuar por cima da imagem */
   .product-actions {
     position: relative !important;
     opacity: 1 !important;
@@ -1907,20 +1879,18 @@ header.dark-glass input::placeholder{
     transform: none !important;
   }
 
-  /* 4. ISOLAMENTO DE CAMADA (GPU DETACH)
-     Diz ao celular que os cards são blocos independentes e estáticos */
   .product-card, 
   .cat-card {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    height: 100% !important; /* Obriga todos os cards da mesma linha a terem o mesmo tamanho físico */
+    height: 100% !important;
     isolation: isolate !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
   }
 
-  /* Neutraliza estados de toque falsos (evita que o card mude de cor ou suba ao arrastar o dedo) */
+  .products-grid:hover,
   .product-card:hover, 
   .product-card:active,
   .product-card:focus,
