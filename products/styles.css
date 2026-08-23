@@ -595,7 +595,6 @@ header.dark-glass input::placeholder{
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      /*box-shadow: var(--shadow-hv);*/
       opacity: 0;
       pointer-events: none;
       transition: opacity .3s cubic-bezier(.4,0,.2,1);
@@ -604,6 +603,7 @@ header.dark-glass input::placeholder{
       opacity: 1;
     }
     .pcard:hover {
+      box-shadow: var(--shadow-hv);
       border-color: var(--border);
       transform: translateY(-5px);
     }
@@ -618,12 +618,14 @@ header.dark-glass input::placeholder{
       flex-shrink: 0;
     }
     .pimg {
+      content-visibility: auto;
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
       font-size: 72px;
       transition: transform 0.4s cubic-bezier(.4,0,.2,1);
     }
     .pimg img {
+      content-visibility: auto;
       display: block;
       width: 100%;
       height: 100%;
@@ -647,7 +649,7 @@ header.dark-glass input::placeholder{
       width: 34px; height: 34px; border-radius: 50%;
       background: rgba(255,255,255,.92); border: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: center;
-      transition: all .2s; backdrop-filter: blur(4px);
+      transition: background .2s; /*backdrop-filter: blur(4px);*/
     }
     .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
     .pwish-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
@@ -662,7 +664,7 @@ header.dark-glass input::placeholder{
       /* background: linear-gradient(transparent, rgba(235,242,255,.97)); */
       opacity: 0;
       transform: translateY(8px);
-      transition: all .3s;
+      transition: transform .3s;
       display: flex;
       gap: 8px;
     }
@@ -671,7 +673,7 @@ header.dark-glass input::placeholder{
       padding: 10px; border-radius: var(--radius);
       font-weight: 600; font-size: 12px;
       display: flex; align-items: center; justify-content: center; gap: 6px;
-      transition: all .15s;
+      transition: background .15s;
     }
     .btn-ac:hover { background: var(--blue2); }
     .btn-ac svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
@@ -683,6 +685,17 @@ header.dark-glass input::placeholder{
     }
     .btn-qv:hover { background: #fff; border-color: var(--blue); color: var(--blue); }
     .btn-qv svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .is-scrolling .pcard:hover {
+      box-shadow: none;
+    }
+    .is-scrolling .pcard:hover .pimg {
+      transform: none;
+    }
+    .is-scrolling .pcard:hover .pactions {
+      opacity: 0;
+      transform: translateY(8px);
+    }
 
     .pinfo { padding: 16px; flex: 1; display: flex; flex-direction: column; }
     .pcat  { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; }
