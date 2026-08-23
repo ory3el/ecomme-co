@@ -381,42 +381,42 @@
               <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">2</span> Imagens do Produto</div>
               <div style="display:grid;/*grid-template-columns:1fr 1fr 1fr;*/gap:10px">
                 <div class="product-gallery">
-  <input type="file" id="npImage" accept="image/*" style="display: none;" onchange="openCropModal(event)">
+ 				 <input type="file" id="npImage" accept="image/*" style="display: none;" onchange="openCropModal(event)">
   
-  <div class="img-block main-block" id="img-block-0" onclick="triggerImageUpload(0)">
-    <div class="img-preview-container" id="imgPreviewContainer">
-      <div class="fs24" style="font-size: 50px;">
-		  <i class="fa-solid fa-image"></i>
-	  </div>
-    </div>
-    <div class="img-edit-overlay">
-      <i class="fa-solid fa-pen"></i>
-    </div>
-    <button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-  </div>
+ 				 <div class="img-block main-block" id="img-block-0" onclick="triggerImageUpload(0)">
+ 				   <div class="img-preview-container" id="imgPreviewContainer">
+   				   		<div class="fs24" style="font-size: 50px;">
+					  		<i class="fa-solid fa-image"></i>
+				   		</div>
+    				</div>
+    				<div class="img-edit-overlay">
+      					<i class="fa-solid fa-pen"></i>
+    				</div>
+    				<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem">
+      					<i class="fa-solid fa-trash"></i>
+    				</button>
+  				</div>
 
-  <div class="secondary-blocks">
-    <div class="img-block small-block" id="img-block-1" onclick="triggerImageUpload(1)">
-      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    </div>
-    <div class="img-block small-block" id="img-block-2" onclick="triggerImageUpload(2)">
-      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    </div>
-    <div class="img-block small-block" id="img-block-3" onclick="triggerImageUpload(3)">
-      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    </div>
-    <div class="img-block small-block" id="img-block-4" onclick="triggerImageUpload(4)">
-      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    </div>
-  </div>
-</div>
-              </div>
+  				<div class="secondary-blocks">
+    				<div class="img-block small-block" id="img-block-1" onclick="triggerImageUpload(1)">
+      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+    			</div>
+    			<div class="img-block small-block" id="img-block-2" onclick="triggerImageUpload(2)">
+      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+    			</div>
+    			<div class="img-block small-block" id="img-block-3" onclick="triggerImageUpload(3)">
+      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+    			</div>
+    			<div class="img-block small-block" id="img-block-4" onclick="triggerImageUpload(4)">
+      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+    			</div>
+  			</div>
+			</div>
+            </div>
             </div>
             <!-- pricing -->
             <div class="card card-pad">
@@ -476,7 +476,7 @@
           </div>
           <!-- Preview sidebar -->
           <div class="np-preview">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Preview do Produto</div>
+            <div style="font-size:11px;font-weight:700;margin-left: 20px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Preview do Produto</div>
             <div class="preview-card">
               <div class="preview-img" id="previewImg">📦</div>
               <div class="preview-info">
@@ -499,7 +499,7 @@
                 </div>
               </div>
             </div>
-            <div class="card card-pad mt12" style="max-width: 250px;">
+            <div class="card card-pad mt12" style="max-width: 250px;margin-left: 20px">
               <div class="fs11 fw7 mb8">📋 Checklist</div>
               <div style="display:flex;flex-direction:column;gap:6px" id="publishChecklist">
                 <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name">
