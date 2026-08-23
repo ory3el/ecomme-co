@@ -1089,7 +1089,16 @@ function renderProducts() {
   const list = getFilteredList();
 
   if (!list.length) {
-    grid.innerHTML = `...empty...`;
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">🔍</div>
+        <h3>Nenhum resultado encontrado</h3>
+        <p>Tente outro termo ou
+          <button class="btn-clear" onclick="$('headerSearch').value='';renderProducts()">
+            Limpar busca
+          </button>
+        </p>
+      </div>`;
     return;
   }
 
@@ -1124,27 +1133,6 @@ function searchFor(term) {
   renderProducts();
 }
 /* ------------------------------------------------------------ */
-
-  /* sort */
-  if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
-  else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
-  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
-  else if (sort === 'discount') list.sort((a, b) => b.discount - a.discount);
-
-  /* empty state */
-  if (!list.length) {
-    grid.innerHTML = `
-      <div class="empty">
-        <div class="empty-ico">🔍</div>
-        <h3>Nenhum resultado encontrado</h3>
-        <p>Tente outro termo ou
-          <button class="btn-clear" onclick="$('headerSearch').value='';renderProducts()">
-            Limpar busca
-          </button>
-        </p>
-      </div>`;
-    return;
-  }
 
   /* render cards */
   grid.innerHTML = list.map(p => {
