@@ -1493,16 +1493,493 @@ header.dark-glass input::placeholder{
 }
 
 @media (max-width: 768px) {
-  .modal {
-    width: calc(100% - 24px);
-    max-width: none;
-    border-radius: 24px;
+  
+  /* 1. HEADER (CABEÇALHO) */
+  .header-inner {
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 16px;
+    gap: 16px;
+    /* Alinha o logo na esquerda e os ícones na direita: */
+    justify-content: space-between; 
+    align-items: center;
   }
-  .modal-info {
+
+  /* 2. LOGO */
+  .logo { /* Substitua '.logo' pela classe real do seu logo */
+    order: 1; /* Garante que seja o primeiro item */
+  }
+
+  /* 3. BOTÕES (Coração, Carrinho, Entrar, Menu) */
+  .header-actions { /* Substitua pela classe real da div que agrupa esses botões */
+    order: 2; /* Coloca os ícones logo após o logo, na mesma linha */
+    display: flex; /* Mantém os ícones alinhados entre si */
+    gap: 10px; /* Ajuste o espaçamento entre os ícones se necessário */
+  }
+
+  /* 4. LINKS DE NAVEGAÇÃO (Início, Produtos...) */
+  .nav-main {
+    order: 3; /* Joga os links para a linha de baixo do logo/ícones */
+    overflow-x: auto;
+    width: 100%; /* Força a quebra de linha */
+    padding-bottom: 5px;
+  }
+
+  /* 5. BARRA DE PESQUISA */
+  .search-bar {
+    order: 4; /* Mantém na última linha */
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* 2. HERO (BANNER PRINCIPAL) */
+  .hero-inner {
+    grid-template-columns: 1fr; /* CORREÇÃO: Transforma 2 colunas em 1 */
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .hero p {
+    margin: 0 auto 30px;
+  }
+  .hero-btns {
+    justify-content: center;
+  }
+  .hero-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  /* 3. TRUST BADGES & CATEGORIAS */
+  .trust-inner {
+    grid-template-columns: 1fr 1fr; /* 2 itens por linha no tablet/mobile */
+  }
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* 4. MAIN LAYOUT & SIDEBAR */
+  .main-layout {
+    grid-template-columns: 1fr; /* CORREÇÃO: Empilha sidebar e produtos */
+  }
+  .sidebar {
+    position: static;
+  }
+  .category-list {
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+  }
+  .category-btn {
+    width: auto;
+  }
+
+  /* 5. PRODUTOS */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr); /* Vitrine com 2 produtos por linha */
+  }
+  .deal-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+  }
+  .deal-countdown {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 6. MODAL DO PRODUTO (A Janela Pop-up) */
+  .modal {
+    grid-template-columns: 1fr; /* CORREÇÃO: Imagem em cima, texto em baixo */
+    max-height: 85vh;
+  }
+  .modal-img-side {
+    min-height: 300px;
+    border-radius: 16px 16px 0 0; /* Arredonda apenas o topo */
+  }
+  .modal-info-side {
     padding: 24px;
   }
-  .modal-img {
-    min-height: 240px;
-    border-radius: 24px 24px 0 0;
+
+  /* 7. BANNERS & FOOTER */
+  .banner-row {
+    grid-template-columns: 1fr; /* CORREÇÃO: Empilha os banners */
+  }
+  .footer-grid {
+    grid-template-columns: 1fr; /* CORREÇÃO: Empilha as colunas do rodapé */
+    gap: 30px;
+    text-align: center;
+    align-items: center;
+  }
+  .footerLogo {
+    justify-content: center;
+  }
+  .footer-brand p {
+    margin: 0 auto 20px;
+  }
+  .social-links {
+    justify-content: center;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  .payment-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+  /* 8. NEWSLETTER & CARRINHO */
+  .newsletter-form {
+    flex-direction: column;
+    border-radius: 16px;
+  }
+  .newsletter-input {
+    border-bottom: 1px solid var(--border2);
+  }
+  .btn-subscribe {
+    border-radius: 0 0 16px 16px;
+  }
+  .cart-sidebar {
+    width: 100%; /* Carrinho ocupa 100% da tela no mobile */
+  }
+}
+
+/* Ajustes extras para celulares muito pequenos (iPhone SE, etc) */
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: 1fr; /* Muda para 1 produto por linha */
+  }
+  .trust-inner {
+    grid-template-columns: 1fr; /* 1 badge por linha */
+  }
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr); /* Categorias: 2 por linha */
+  }
+}
+
+/* ==========================================================================
+   FAIXA DE CORREÇÃO CRÍTICA: CATEGORIAS E VITRINE (MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .pactions {
+    display: none;
+  }
+
+  /* Garante que nenhuma seção principal estoure a largura da tela */
+  #categorias, 
+  .main-layout, 
+  .products-area {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow: hidden !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* 1. SEÇÃO DE CATEGORIAS (Cards de Ícones)
+     Transforma em grade de 2 colunas perfeitamente alinhadas e seguras */
+  .categories-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* minmax(0) impede o estouro */
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .cat-card {
+    max-width: 200px !important;
+    min-width: 0 !important; /* Permite que o card encolha se necessário */
+    padding: 50px 10px !important;
+  }
+
+  /* 2. ESTRUTURA DO PRODUTO + BARRA LATERAL */
+  .main-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  /* Transforma os botões de filtro da sidebar em um carrossel lateral elegante */
+  .category-list {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 8px !important;
+    padding-bottom: 10px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-btn {
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Esconde os filtros pesados (Preço, Estrelas, Tags) no mobile para limpar o visual,
+     ou os força a ocupar 100% de largura se você quiser mantê-los */
+  .sidebar-section:not(:first-child) {
+    display: none !important; 
+  }
+
+  /* 3. VITRINE DE PRODUTOS (Garante 2 por linha sem quebrar margem) */
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* CORREÇÃO CHAVE: minmax(0) */
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .product-card {
+    width: 100% !important;
+    min-width: 0 !important; /* Impede o card de empurrar a grade para fora */
+    background: var(--bg2);
+  }
+
+  /* Força a imagem do produto a se conter perfeitamente dentro do card */
+  .product-img-wrapper {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important; /* Mantém a imagem perfeitamente quadrada */
+  }
+
+  .product-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Ajustes de textos e preços internos para não empurrarem as bordas */
+  .product-info {
+    padding: 10px !important;
+  }
+
+  .product-name {
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important; /* Adiciona "..." em nomes longos para não quebrar o layout */
+  }
+
+  .product-price {
+    font-size: 16px !important;
+  }
+
+  .product-old-price {
+    font-size: 12px !important;
+  }
+
+  /* Exibe os botões de ação fixos na parte inferior do card (melhor usabilidade mobile) */
+  .product-actions {
+    opacity: 1 !important;
+    transform: none !important;
+    position: static !important;
+    padding: 8px 0 0 0 !important;
+    background: transparent !important;
+    display: flex !important;
+    gap: 6px !important;
+  }
+
+  .btn-cart {
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    padding: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   TRAVA ANTIFLICKER E ANTI-LAG ULTRA-ESTABILIZADA (MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* 1. DESLIGA COMPLETAMENTE RECALCULOS DINÂMICOS NA VITRINE
+     Isso impede que qualquer regra do desktop interfira no scroll do celular */
+  .products-grid *, 
+  .categories-grid *,
+  .product-card,
+  .cat-card {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+    will-change: unset !important; /* Desativa cache de animação que gera fantasmas visuais */
+  }
+
+  /* 2. TRAVA DE PROPORÇÃO DE IMAGEM INFALÍVEL
+     Substitui o aspect-ratio moderno por padding-bottom técnico (técnica mais estável para mobile antigos) */
+  .product-img-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    height: 0 !important;
+    padding-top: 100% !important; /* Força um quadrado 1:1 perfeito que nunca deforma ou pisca */
+    overflow: hidden !important;
+    background-color: #fff !important;
+  }
+
+  .product-img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* 3. SOLIDIFICAÇÃO DOS BOTÕES DE AÇÃO
+     O botão passa a fazer parte do bloco de texto, sem flutuar por cima da imagem */
+  .product-actions {
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    width: 100% !important;
+    padding: 10px 0 0 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* 4. ISOLAMENTO DE CAMADA (GPU DETACH)
+     Diz ao celular que os cards são blocos independentes e estáticos */
+  .product-card, 
+  .cat-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    height: 100% !important; /* Obriga todos os cards da mesma linha a terem o mesmo tamanho físico */
+    isolation: isolate !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+
+  /* Neutraliza estados de toque falsos (evita que o card mude de cor ou suba ao arrastar o dedo) */
+  .product-card:hover, 
+  .product-card:active,
+  .product-card:focus,
+  .cat-card:hover,
+  .cat-card:active {
+    transform: none !important;
+    background: var(--bg2) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  }
+}
+
+/* ==========================================================================
+   TRAVA SÉRIE OURO: DETECÇÃO DE TELA DE TOQUE (Mesmo em Modo Desktop)
+   ========================================================================== */
+@media (pointer: coarse) {
+
+  /* Impede que os cards tentem flutuar, dar zoom ou criar sombras pesadas ao toque */
+  .product-card:hover,
+  .product-card:active,
+  .product-card:focus,
+  .cat-card:hover {
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .product-card:hover .product-img {
+    transform: none !important;
+  }
+
+  /* Garante que os botões de ação fiquem sólidos, visíveis e jogados para a base do card */
+  .product-actions {
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    transform: none !important;
+    padding: 10px 0 0 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-top: auto !important;
+  }
+
+  /* Aplica estabilização de hardware nas imagens para não piscarem no motor WebKit */
+  .product-img-wrapper {
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .product-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+
+  /* ── PRODUCTS FOOTER ACTIONS ── */
+  .products-footer-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top:1px solid var(--border2);
+}
+
+.products-footer-btn {
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    color:var(--muted);
+    font-size:12px;
+    font-weight:500;
+    transition:all .2s ease;
+    text-decoration:none;
+}
+
+.products-footer-btn:hover{
+    border-color:var(--blue);
+    color:var(--blue);
+    transform:translateY(-2px);
+}
+
+.products-footer-primary{
+    background:var(--blue);
+    color:white;
+}
+
+.products-footer-primary:hover{
+    background:var(--blue-dim);
+    color:var(--blue);
+    border-color:var(--border);
+}
+
+@media (max-width: 672px) {
+  .view-btns {
+    display: none;
+  }
+}
+@media (max-width: 630px) {
+  .categories-grid {
+    justify-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* minmax(0) impede o estouro */
+    gap: 10px !important;
+    width: 100% !important;
+  }
+}
+@media (max-width: 592px) {
+  .sort-sel {
+    display: none;
+  }
+}
+@media (max-width: 442px) {
+  .btn-shuffle {
+    display: none;
+  }
+  .tb-left {
+    margin-bottom: 20px;
   }
 }
