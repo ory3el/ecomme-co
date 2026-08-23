@@ -344,7 +344,7 @@ body {
 
 .card { background: var(--white); border: 1px solid var(--b2); border-radius: 20px; box-shadow: var(--sh2); overflow: hidden; }
 .card-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--b2); }
-.card-pad { padding: 20px; }
+.card-pad {padding: 20px;}
 .card-title { font-size: 14px; font-weight: 700; color: var(--text); }
 
 .btn {
@@ -694,12 +694,20 @@ tbody tr:hover td{background:var(--bg3)}
 /* ══ NEW PRODUCT ═════════════════════════════════════════ */
 .np-layout{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
 .np-preview {
-    position:sticky;top:-15px;
+    position:sticky;
+    top:-15px;
     margin-bottom: 100px;
+    background: var(--white);
+    border: 1px solid var(--b2);
+    box-shadow: var(--sh2);
+    border-radius: 20px;
+    padding: 20px 0px;
+    padding-bottom: 50px;
 }
 .preview-card {
     box-shadow: 0px 0px 25px rgba(0,0,0,0.1);
     max-width: 250px;
+    margin-left: 20px;
     background: var(--white);
     /* border: 1px solid var(--border2); */
     border-radius: var(--rad-lg);
