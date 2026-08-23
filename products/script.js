@@ -1029,17 +1029,18 @@ async function loadProductsFromSupabase() {
     .from('products')
     .select('*')
     .order('id', { ascending: true });
-
+  
   if (error) {
-    console.error("Erro ao carregar produtos do banco:", error);
-    return;
+    console.error(
+      "Erro ao carregar produtos do banco:",
+      error
+    );
+    return false;
   }
-
-  if (data) {
-    products = (data || []).map(normalizeProduct);
-    shuffled = [...products];
-    loadShuffleAndRender();
-  }
+  
+  products = (data || []).map(normalizeProduct);
+  shuffled = fishYates(products);
+  return true;
 }
 
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
