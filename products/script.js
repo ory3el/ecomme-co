@@ -912,6 +912,7 @@ async function loadFromSupabase() {
 
   updateCart();
   updateFav();
+  renderProducts();
 }
 
 // ── STYLES INJECTOR ──
@@ -1058,27 +1059,71 @@ function loadShuffleAndRender() {
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
-function renderProducts() {
-  const grid = $('productsGrid');
-  const q = (
-    $('heroSearch')?.value ||
-    $('headerSearch')?.value ||
-    ''
-  ).toLowerCase().trim();
+const PAGE_SIZE = 24;
+let visibleCount = PAGE_SIZE;
 
-  const sort = $('sortSelect').value;
-  let list = [...shuffled];
+function getFilteredList() {
+  const q = ($('heroSearch')?.value || $('headerSearch')?.value || '')
+    .toLowerCase().trim();
+  const sort = $('sortSelect')?.value || 'random';
+  let list = shuffled;
 
-  /* search filter */
   if (q) {
     list = list.filter(p =>
       p.name.toLowerCase().includes(q) ||
       p.desc.toLowerCase().includes(q) ||
-      (Array.isArray(p.cat)
-        ? p.cat.some(c => c.toLowerCase().includes(q))
-        : p.cat.toLowerCase().includes(q))
+      p.cat.some(c => c.toLowerCase().includes(q))
     );
   }
+
+  if (sort === 'price_asc') list = [...list].sort((a, b) => a.price - b.price);
+  else if (sort === 'price_desc') list = [...list].sort((a, b) => b.price - a.price);
+  else if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
+  else if (sort === 'discount') list = [...list].sort((a, b) => b.discount - a.discount);
+
+  return list;
+}
+
+function renderProducts() {
+  const grid = $('productsGrid');
+  const list = getFilteredList();
+
+  if (!list.length) {
+    grid.innerHTML = `...empty...`;
+    return;
+  }
+
+  const slice = list.slice(0, visibleCount);
+  grid.innerHTML = slice.map(productCardHtml).join('');
+
+  if (slice.length < list.length) {
+    const more = document.createElement('div');
+    more.id = 'gridSentinel';
+    more.style.cssText = 'grid-column:1/-1;height:1px';
+    grid.appendChild(more);
+    observeSentinel();
+  }
+}
+
+function observeSentinel() {
+  const el = $('gridSentinel');
+  if (!el) return;
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    visibleCount += PAGE_SIZE;
+    renderProducts();
+  });
+  io.observe(el);
+}
+
+function searchFor(term) {
+  visibleCount = PAGE_SIZE;
+  if ($('heroSearch')) $('heroSearch').value = term;
+  if ($('headerSearch')) $('headerSearch').value = term;
+  renderProducts();
+}
+/* ------------------------------------------------------------ */
 
   /* sort */
   if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
