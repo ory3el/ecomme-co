@@ -29,13 +29,6 @@ function injectPrefetch(url) {
 
 let products = [];
 
-/* ─── SEARCH ─────────────────────────────────────────────────────────── */
-function searchFor(term) {
-  if ($('heroSearch')) $('heroSearch').value = term;
-  if ($('headerSearch')) $('headerSearch').value = term;
-  renderProducts();
-}
-
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
@@ -43,80 +36,108 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
 // EXECUTE DATABASE
-window.addEventListener('DOMContentLoaded', async () => {
-  const loginBtn = document.getElementById('authLoginBtn');
-  const profileContainer = document.getElementById('headerProfileContainer');
-  const headerImage = document.getElementById('headerAvatar');
+window.addEventListener(
+  'DOMContentLoaded',
+  async () => {
 
-  //updateHeaderContrast();
-  await loadProductsFromSupabase();
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-  let shuffled = [...products];
+    const loginBtn =
+      document.getElementById('authLoginBtn');
 
-  if (!user || userError) {
-    console.warn("User session not active.");
-    if (loginBtn) loginBtn.classList.remove('hidden');
-    if (profileContainer) profileContainer.classList.add('hidden');
-    injectPrefetch('/login');
-    return;
-  }
-  userId = user.id;
-  await loadFromSupabase();
+    const profileContainer =
+      document.getElementById(
+        'headerProfileContainer'
+      );
 
-  if (loginBtn) loginBtn.classList.add('hidden');
-  if (profileContainer) profileContainer.classList.remove('hidden');
+    const headerImage =
+      document.getElementById(
+        'headerAvatar'
+      );
+    
+    const productsLoaded =
+      await loadProductsFromSupabase();
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (!profileError && profile) {
-    const fullName = profile.full_name || "Cliente";
-    const email = user.email || "";
-
-    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
-    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
-    if (profile.avatar_url && $('accSidebarAvatar')) {
-      $('accSidebarAvatar').src = profile.avatar_url;
+    if (!productsLoaded) {
+      return;
     }
 
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(' ') || "";
-
-    const inputFirstName = document.getElementById('profileFirstName');
-    const inputLastName = document.getElementById('profileLastName');
-    const inputEmail = document.getElementById('profileEmail');
-    const photoUrl = profile.avatar_url || "";
-
-    if (inputFirstName) inputFirstName.value = firstName;
-    if (inputLastName) inputLastName.value = lastName;
-    if (inputEmail) inputEmail.value = email;
-
-    if (photoUrl) {
-      const sidebarImage = document.getElementById('sidebarAvatar');
-
-      if (sidebarImage) {
-        sidebarImage.src = photoUrl;
-        sidebarImage.style.filter = "none";
-        sidebarImage.style.width = "100%";
-        sidebarImage.style.height = "100%";
-        sidebarImage.style.borderRadius = "100%";
-        sidebarImage.style.objectFit = "cover";
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+    
+    if (!user || userError) {
+      userId = null;
+      if (loginBtn) {
+        loginBtn.classList.remove(
+          'hidden'
+        );
       }
-      if (headerImage) {
+      if (profileContainer) {
+        profileContainer.classList.add(
+          'hidden'
+        );
+      }
+      injectPrefetch('/login');
+      renderProducts();
+      return;
+    }
+
+    userId = user.id;
+    await loadFromSupabase();
+    if (loginBtn) {
+      loginBtn.classList.add('hidden');
+    }
+    if (profileContainer) {
+      profileContainer.classList.remove(
+        'hidden'
+      );
+    }
+
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (!profileError && profile) {
+      const fullName =
+        profile.full_name ||
+        'Cliente';
+      const email =
+        user.email || '';
+      if ($('accSidebarName')) {
+        $('accSidebarName').textContent =
+          fullName;
+      }
+      if ($('accSidebarEmail')) {
+        $('accSidebarEmail').textContent =
+          email;
+      }
+      if (
+        profile.avatar_url &&
+        $('accSidebarAvatar')
+      ) {
+        $('accSidebarAvatar').src =
+          profile.avatar_url;
+      }
+      
+      const photoUrl =
+        profile.avatar_url || '';
+      if (photoUrl && headerImage) {
         headerImage.src = photoUrl;
-        headerImage.style.filter = "none";
-        headerImage.style.width = "100%";
-        headerImage.style.height = "100%";
-        headerImage.style.borderRadius = "100%";
-        headerImage.style.objectFit = "cover";
+        headerImage.style.filter = 'none';
+        headerImage.style.width = '100%';
+        headerImage.style.height = '100%';
+        headerImage.style.borderRadius = '100%';
+        headerImage.style.objectFit = 'cover';
       }
     }
+    renderProducts();
   }
-});
+);
 
 // HEADER
 function initHeaderAuthListener() {
@@ -375,7 +396,6 @@ function updateCart() {
       </div>
     `;
   }).join('');
-  syncToSupabase();
 }
 
 function openCart() {
@@ -414,23 +434,30 @@ function toggleFav(id) {
     );
     return;
   }
+
   const normalizedId = String(id);
+
   const ex = fav.find(
     x => String(x.id) === normalizedId
   );
+
   if (ex) {
     removeFromFav(normalizedId);
-    showToast('Removido da Lista de Desejos! 💔');
+    showToast(
+      'Removido da Lista de Desejos! 💔'
+    );
   } else {
     addToFav(normalizedId, 1);
   }
+
   if ($('mWish')) {
     $('mWish').classList.toggle(
       'on',
-      fav.some(x => String(x.id) === normalizedId)
+      fav.some(
+        x => String(x.id) === normalizedId
+      )
     );
   }
-  syncToSupabase();
 }
 
 function addToFav(id, qty = 1) {
@@ -754,10 +781,8 @@ function openProduct(id) {
 
         button.classList.add('on');
       });
-
       modalGallery.appendChild(button);
     });
-
     modalGallery.style.display =
       images.length > 1 ? 'flex' : 'none';
   }
@@ -1023,35 +1048,56 @@ function closeAuth() {
 }
 
 //--------------------------------------------------------
-async function loadProductsFromSupabase() {
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', { ascending: true });
-  
+async function loadFromSupabase() {
+  if (!userId) return;
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from('profiles')
+    .select('cart, fav')
+    .eq('id', userId)
+    .single();
+
   if (error) {
     console.error(
-      "Erro ao carregar produtos do banco:",
+      'Erro ao carregar carrinho/favoritos:',
       error
     );
-    return false;
+    return;
   }
-  
-  products = (data || []).map(normalizeProduct);
-  shuffled = fishYates(products);
-  return true;
+
+  cart = hydrateUserItems(
+    data?.cart
+  );
+
+  fav = hydrateUserItems(
+    data?.fav
+  );
+
+  updateCart();
+  updateFav();
 }
 
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
 function shuffleAndRender() {
   shuffled = fishYates(products);
-  $('sortSelect').value = 'random';
+  visibleCount = PAGE_SIZE;
+  lastRenderState = '';
+  if ($('sortSelect')) {
+    $('sortSelect').value = 'random';
+  }
   renderProducts();
-  showToast('Produtos embaralhados! 🔀');
+  showToast(
+    'Produtos embaralhados! 🔀'
+  );
 }
 
+/* ---------------------------------- */
 function loadShuffleAndRender() {
   shuffled = fishYates(products);
+  visibleCount = PAGE_SIZE;
+  lastRenderState = '';
   if ($('sortSelect')) {
     $('sortSelect').value = 'random';
   }
@@ -1059,197 +1105,445 @@ function loadShuffleAndRender() {
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
+function productCardHtml(p) {
+
+  const images = getProductImages(p);
+  const mainImage = images[0] || null;
+
+  const inW = fav.some(
+    x => String(x.id) === String(p.id)
+  );
+
+  const category = Array.isArray(p.cat)
+    ? p.cat.join(', ')
+    : String(p.cat || '');
+
+  let badgeH = '';
+  if (p.badge === 'hot') {
+    badgeH = `
+      <span class="bpill bhot">
+        🔥 Hot
+      </span>
+    `;
+  } else if (p.badge === 'new') {
+    badgeH = `
+      <span class="bpill bnew">
+        Novo
+      </span>
+    `;
+  } else if (p.discount > 0) {
+    badgeH = `
+      <span class="bpill bsale">
+        -${p.discount}%
+      </span>
+    `;
+  }
+
+  const shipH = p.shipping
+    ? `
+      <div class="pfship">
+        <svg viewBox="0 0 24 24">
+          <rect x="1" y="3" width="15" height="13"/>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        Frete Grátis
+      </div>
+    `
+    : '';
+  
+  const oldPrice = p.old > 0
+    ? `<span class="pold">${fmt(p.old)}</span>`
+    : '';
+
+  const discount = p.discount > 0
+    ? `<span class="pdisc">-${p.discount}%</span>`
+    : '';
+
+  const imageHtml = mainImage
+    ? `
+      <img
+        src="${mainImage}"
+        alt="${p.name}"
+        loading="lazy"
+        decoding="async"
+        style="
+          position:absolute;
+          inset:0;
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          border-radius:inherit;
+        "
+      >
+    `
+    : '';
+
+  if (view === 'list') {
+    return `
+      <div
+        class="pcard"
+        onclick="openProduct('${p.id}')"
+      >
+        <div class="pimg-wrap">
+          <div
+            class="pimg"
+            style="position:relative;"
+          >
+            ${!mainImage ? p.emoji : ''}
+            ${imageHtml}
+          </div>
+          <div class="pbadges">
+            ${badgeH}
+          </div>
+        </div>
+        <div class="pinfo">
+          <div class="pcat">
+            ${category}
+          </div>
+          <div class="pname">
+            ${p.name}
+          </div>
+          <div class="prating">
+            <span class="pstars">
+              ${starsHtml(p.rating)}
+            </span>
+            <span class="prcnt">
+              ${p.rating}
+              (${p.reviews.toLocaleString('pt-BR')} avaliações)
+            </span>
+          </div>
+          <div
+            style="
+              color:var(--muted);
+              font-size:13px;
+              margin-bottom:12px;
+              line-height:1.6;
+            "
+          >
+            ${p.desc.substring(0, 130)}
+            ${p.desc.length > 130 ? '…' : ''}
+          </div>
+          <div class="price-row">
+            <span class="pprice">
+              ${fmt(p.price)}
+            </span>
+            ${oldPrice}
+            ${discount}
+          </div>
+          ${shipH}
+          <div class="pactions">
+            <button
+              class="btn-ac"
+              onclick="
+                event.stopPropagation();
+                addToCart('${p.id}');
+              "
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              Adicionar ao Carrinho
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div
+      class="pcard"
+      onclick="openProduct('${p.id}')"
+    >
+      <div class="pimg-wrap">
+        <div
+          class="pimg"
+          style="position:relative;"
+        >
+          ${!mainImage ? p.emoji : ''}
+          ${imageHtml}
+        </div>
+        <div class="pbadges">
+          ${badgeH}
+        </div>
+        <button
+          class="pwish-btn ${inW ? 'on' : ''}"
+          onclick="
+            event.stopPropagation();
+            toggleFav('${p.id}');
+          "
+          title="${
+            inW
+              ? 'Remover dos favoritos'
+              : 'Adicionar aos favoritos'
+          }"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+        <div class="pactions">
+          <button
+            class="btn-ac"
+            onclick="
+              event.stopPropagation();
+              addToCart('${p.id}');
+            "
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Carrinho
+          </button>
+          <button
+            class="btn-qv"
+            onclick="
+              event.stopPropagation();
+              openProduct('${p.id}');
+            "
+            title="Ver detalhes"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcat">
+          ${category}
+        </div>
+        <div class="pname">
+          ${p.name}
+        </div>
+        <div class="prating">
+          <span class="pstars">
+            ${starsHtml(p.rating)}
+          </span>
+          <span class="prcnt">
+            (${p.reviews.toLocaleString('pt-BR')})
+          </span>
+        </div>
+        <div class="price-row">
+          <span class="pprice">
+            ${fmt(p.price)}
+          </span>
+          ${oldPrice}
+          ${discount}
+        </div>
+        ${shipH}
+      </div>
+    </div>
+  `;
+}
+
+/* ------------------------------- */
 const PAGE_SIZE = 24;
 let visibleCount = PAGE_SIZE;
+let productsObserver = null;
+let loadingMoreProducts = false;
+let lastRenderState = '';
 
+/* ------------------------------- */
 function getFilteredList() {
-  const q = ($('heroSearch')?.value || $('headerSearch')?.value || '')
-    .toLowerCase().trim();
+  const q = (
+    $('heroSearch')?.value ||
+    $('headerSearch')?.value ||
+    ''
+  ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
   let list = shuffled;
 
   if (q) {
-    list = list.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.desc.toLowerCase().includes(q) ||
-      p.cat.some(c => c.toLowerCase().includes(q))
-    );
+    list = list.filter(p => {
+      const name = String(p.name || '').toLowerCase();
+      const desc = String(p.desc || '').toLowerCase();
+      const categories = Array.isArray(p.cat)
+        ? p.cat
+        : [p.cat];
+      const categoryMatch = categories.some(cat =>
+        String(cat || '').toLowerCase().includes(q)
+      );
+      return (
+        name.includes(q) ||
+        desc.includes(q) ||
+        categoryMatch
+      );
+    });
   }
 
-  if (sort === 'price_asc') list = [...list].sort((a, b) => a.price - b.price);
-  else if (sort === 'price_desc') list = [...list].sort((a, b) => b.price - a.price);
-  else if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
-  else if (sort === 'discount') list = [...list].sort((a, b) => b.discount - a.discount);
-
+  if (sort === 'price_asc') {
+    return [...list].sort(
+      (a, b) => a.price - b.price
+    );
+  }
+  if (sort === 'price_desc') {
+    return [...list].sort(
+      (a, b) => b.price - a.price
+    );
+  }
+  if (sort === 'rating') {
+    return [...list].sort(
+      (a, b) => b.rating - a.rating
+    );
+  }
+  if (sort === 'discount') {
+    return [...list].sort(
+      (a, b) => b.discount - a.discount
+    );
+  }
   return list;
 }
 
+/* ------------------------------- */
 function renderProducts() {
   const grid = $('productsGrid');
+  if (!grid) return;
+  const q = (
+    $('heroSearch')?.value ||
+    $('headerSearch')?.value ||
+    ''
+  ).toLowerCase().trim();
+  const sort = $('sortSelect')?.value || 'random';
+  const renderState =
+    `${view}|${q}|${sort}`;
+  if (renderState !== lastRenderState) {
+    visibleCount = PAGE_SIZE;
+    lastRenderState = renderState;
+  }
+  if (productsObserver) {
+    productsObserver.disconnect();
+    productsObserver = null;
+  }
+  loadingMoreProducts = false;
   const list = getFilteredList();
 
   if (!list.length) {
     grid.innerHTML = `
       <div class="empty">
-        <div class="empty-ico">🔍</div>
-        <h3>Nenhum resultado encontrado</h3>
-        <p>Tente outro termo ou
-          <button class="btn-clear" onclick="$('headerSearch').value='';renderProducts()">
+        <div class="empty-ico">
+          🔍
+        </div>
+        <h3>
+          Nenhum resultado encontrado
+        </h3>
+        <p>
+          Tente outro termo ou
+          <button
+            class="btn-clear"
+            onclick="
+              $('headerSearch').value='';
+              $('heroSearch').value='';
+              renderProducts();
+            "
+          >
             Limpar busca
           </button>
         </p>
-      </div>`;
+      </div>
+    `;
     return;
   }
 
-  const slice = list.slice(0, visibleCount);
-  grid.innerHTML = slice.map(productCardHtml).join('');
+  const slice = list.slice(
+    0,
+    visibleCount
+  );
+  grid.innerHTML = slice
+    .map(productCardHtml)
+    .join('');
 
   if (slice.length < list.length) {
-    const more = document.createElement('div');
-    more.id = 'gridSentinel';
-    more.style.cssText = 'grid-column:1/-1;height:1px';
-    grid.appendChild(more);
+    const sentinel =
+      document.createElement('div');
+    sentinel.id = 'gridSentinel';
+    sentinel.style.cssText = `
+      grid-column: 1 / -1;
+      height: 1px;
+      width: 100%;
+      pointer-events: none;
+    `;
+    grid.appendChild(sentinel);
     observeSentinel();
   }
 }
 
+/* ------------------------------- */
 function observeSentinel() {
-  const el = $('gridSentinel');
-  if (!el) return;
-  const io = new IntersectionObserver(([entry]) => {
-    if (!entry.isIntersecting) return;
-    io.disconnect();
-    visibleCount += PAGE_SIZE;
-    renderProducts();
-  });
-  io.observe(el);
+  const sentinel = $('gridSentinel');
+  if (!sentinel) return;
+  if (productsObserver) {
+    productsObserver.disconnect();
+    productsObserver = null;
+  }
+
+  productsObserver =
+    new IntersectionObserver(
+      entries => {
+        const entry = entries[0];
+        if (!entry || !entry.isIntersecting) {
+          return;
+        }
+        if (loadingMoreProducts) {
+          return;
+        }
+        
+        loadingMoreProducts = true;
+        productsObserver.disconnect();
+        productsObserver = null;
+        visibleCount += PAGE_SIZE;
+        requestAnimationFrame(() => {
+          renderProducts();
+          loadingMoreProducts = false;
+        });
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px 500px 0px',
+        threshold: 0
+      }
+    );
+  productsObserver.observe(sentinel);
 }
 
+/* ------------------------------- */
 function searchFor(term) {
+  if ($('heroSearch')) {
+    $('heroSearch').value = term;
+  }
+  if ($('headerSearch')) {
+    $('headerSearch').value = term;
+  }
   visibleCount = PAGE_SIZE;
-  if ($('heroSearch')) $('heroSearch').value = term;
-  if ($('headerSearch')) $('headerSearch').value = term;
+  lastRenderState = '';
   renderProducts();
 }
+
 /* ------------------------------------------------------------ */
 
-  /* render cards */
-  grid.innerHTML = list.map(p => {
-    const images = getProductImages(p);
-    const mainImage = images[0] || null;
-    const inW = fav.some(
-      x => String(x.id) === String(p.id)
-    );
-    const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
-                  : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
-                  :                     `<span class="bpill bsale">-${p.discount}%</span>`;
-    const shipH   = p.shipping
-      ? `<div class="pfship">
-           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-           Frete Grátis
-         </div>`
-      : '';
-
-    if (view === 'list') {
-      return `
-        <div class="pcard" onclick="openProduct('${p.id}')">
-          <div class="pimg-wrap">
-            <div class="pimg" style="position: relative;">
-              ${!mainImage ? p.emoji : ''}
-              ${mainImage ? `
-                <img
-                  src="${mainImage}"
-                  style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
-                  alt="${p.name}"
-                  loading="lazy"
-                  decoding="async"
-                >
-              ` : ''}
-            </div>
-            <div class="pbadges">${badgeH}</div>
-          </div>
-          <div class="pinfo">
-            <div class="pinfo">
-              <div class="pcat">${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
-              <div class="pname">${p.name}</div>
-            <div class="prating">
-              <span class="pstars">${starsHtml(p.rating)}</span>
-              <span class="prcnt">${p.rating} (${p.reviews.toLocaleString('pt-BR')} avaliações)</span>
-            </div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6">
-              ${p.desc.substring(0, 130)}…
-            </div>
-            <div class="price-row">
-              <span class="pprice">${fmt(p.price)}</span>
-              <span class="pold">${fmt(p.old)}</span>
-              <span class="pdisc">-${p.discount}%</span>
-            </div>
-            ${shipH}
-            <div class="pactions">
-              <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
-                <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                Adicionar ao Carrinho
-              </button>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    return `
-      <div class="pcard" onclick="openProduct('${p.id}')">
-        <div class="pimg-wrap">
-          <div class="pimg" style="position: relative;">
-            ${!mainImage ? p.emoji : ''}
-            ${mainImage ? `
-              <img
-                src="${mainImage}"
-                style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;"
-                alt="${p.name}"
-                loading="lazy"
-                decoding="async"
-              >
-            ` : ''}
-          </div>
-          <div class="pbadges">${badgeH}</div>
-          <button class="pwish-btn ${inW ? 'on' : ''}"
-                  onclick="event.stopPropagation();toggleFav('${p.id}'); renderProducts();"
-                  title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
-            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-          <div class="pactions">
-            <button class="btn-ac" onclick="event.stopPropagation();addToCart('${p.id}')">
-              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              Carrinho
-            </button>
-            <button class="btn-qv" onclick="event.stopPropagation();openProduct('${p.id}')" title="Ver detalhes">
-              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="pinfo">
-          <div class="pcat">${p.cat}</div>
-          <div class="pname">${p.name}</div>
-          <div class="prating">
-            <span class="pstars">${starsHtml(p.rating)}</span>
-            <span class="prcnt">(${p.reviews.toLocaleString('pt-BR')})</span>
-          </div>
-          <div class="price-row">
-            <span class="pprice">${fmt(p.price)}</span>
-            <span class="pold">${fmt(p.old)}</span>
-            <span class="pdisc">-${p.discount}%</span>
-          </div>
-          ${shipH}
-        </div>
-      </div>`;
-  }).join('');
-}
-
 function setView(v) {
+  if (v !== 'grid' && v !== 'list') {
+    return;
+  }
   view = v;
-  $('productsGrid').className = 'products-grid' + (v === 'list' ? ' lv' : '');
-  $('gridBtn').classList.toggle('on', v === 'grid');
-  $('listBtn').classList.toggle('on', v === 'list');
+  $('productsGrid').className =
+    'products-grid' +
+    (v === 'list' ? ' lv' : '');
+  $('gridBtn').classList.toggle(
+    'on',
+    v === 'grid'
+  );
+  $('listBtn').classList.toggle(
+    'on',
+    v === 'list'
+  );
   renderProducts();
 }
 
