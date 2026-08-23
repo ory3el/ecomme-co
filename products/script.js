@@ -29,6 +29,20 @@ function injectPrefetch(url) {
 
 let products = [];
 
+/* --------------------------- */
+let isScrolling = false;
+let scrollTimer;
+
+window.addEventListener('scroll', () => {
+  isScrolling = true;
+  document.documentElement.classList.add('is-scrolling');
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    isScrolling = false;
+    document.documentElement.classList.remove('is-scrolling');
+  }, 120);
+}, { passive: true });
+
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
