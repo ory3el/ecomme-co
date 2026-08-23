@@ -178,18 +178,19 @@ rgba(255,255,255,.32),
 rgba(255,255,255,.16)
 );
 
-backdrop-filter:blur(18px) saturate(170%);
+/*backdrop-filter:blur(18px) saturate(170%);*/
 
--webkit-backdrop-filter:blur(18px) saturate(170%);
+/*-webkit-backdrop-filter:blur(18px) saturate(170%);*/
 
-border:1px solid rgba(255,255,255,.25);
+/*border:1px solid rgba(255,255,255,.25);*/
+/*border: 1px solid rgba(0,0,0,0.05);*/
 
 box-shadow:
 0 2px 12px rgba(0,0,0,.08),
 inset 0 1px rgba(255,255,255,.55);
         
       padding: 7px 14px; font-size: 13px; font-weight: 500;
-      color: var(--muted); border-radius: 911px; transition: all .2s;
+      color: var(--muted); border-radius: 911px; transition: color 0.2s, background 0.2s;
     }
     .nav-main a:hover { color: var(--text); background: var(--bg3); }
     .nav-main a.active {
@@ -281,7 +282,7 @@ inset 0 1px rgba(255,255,255,.55);
       background: var(--blue); color: #fff;
       padding: 8px 20px; border-radius: 100px;
       font-size: 12px; font-weight: 600;
-      display: flex; align-items: center; gap: 6px; transition: all .2s;
+      display: flex; align-items: center; gap: 6px; transition: background 0.2s, transform 0.2s;
     }
     .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
@@ -430,7 +431,7 @@ header.dark-glass input::placeholder{
       background: #fff;
       border: 2px solid var(--border); border-radius: 100px;
       padding: 0 8px 0 24px; gap: 10px;
-      transition: all .25s;
+      transition: border-color 0.25s, box-shadow 0.25s;
       box-shadow: 0 6px 28px rgba(37,99,235,.09);
     }
     .search-box:focus-within {
@@ -452,7 +453,7 @@ header.dark-glass input::placeholder{
       background: var(--blue); color: #fff;
       padding: 10px 26px; border-radius: 100px;
       font-weight: 600; font-size: 13px; white-space: nowrap;
-      transition: all .2s; flex-shrink: 0;
+      transition: background 0.2s; flex-shrink: 0;
     }
     .btn-search:hover { background: var(--blue2); }
 
@@ -464,7 +465,7 @@ header.dark-glass input::placeholder{
     .qt {
       background: var(--bg3); border: 1px solid var(--border);
       color: var(--blue); padding: 4px 13px; border-radius: 100px;
-      font-size: 11px; font-weight: 500; cursor: pointer; transition: all .2s;
+      font-size: 11px; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s;
     }
     .qt:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
 
@@ -523,7 +524,7 @@ header.dark-glass input::placeholder{
       display: flex; align-items: center; gap: 6px;
       background: var(--blue-dim); border: 1px solid var(--border);
       color: var(--blue); padding: 7px 16px; border-radius: var(--radius);
-      font-size: 12px; font-weight: 600; transition: all .2s;
+      font-size: 12px; font-weight: 600; transition: background 0.2s, color 0.2s, border-color 0.2s;
     }
     .btn-shuffle:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
     .btn-shuffle svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; transition: transform .4s; }
@@ -545,7 +546,7 @@ header.dark-glass input::placeholder{
       width: 34px; height: 34px; border-radius: var(--radius);
       border: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: center;
-      color: var(--muted); transition: all .2s;
+      color: var(--muted); transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
     .vbtn:hover, .vbtn.on { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
     .vbtn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -652,7 +653,11 @@ header.dark-glass input::placeholder{
       transition: background .2s; /*backdrop-filter: blur(4px);*/
     }
     .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
-    .pwish-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
+    .pwish-btn svg { 
+        width: 14px; height: 14px; fill: none; 
+        stroke: var(--muted); stroke-width: 2; 
+        transition: stroke 0.2s, fill 0.2s; 
+    }
     .pwish-btn.on svg { stroke: var(--red); fill: var(--red); }
 
     .pactions {
@@ -681,7 +686,7 @@ header.dark-glass input::placeholder{
       width: 38px; height: 38px; border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(0, 0, 0, 0.5);
       display: flex; align-items: center; justify-content: center;
-      color: #000; transition: all .15s;
+      color: #000; transition: background 0.15s, border-color 0.15, color 0.15s;
     }
     .btn-qv:hover { background: #fff; border-color: var(--blue); color: var(--blue); }
     .btn-qv svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
@@ -787,7 +792,7 @@ header.dark-glass input::placeholder{
     align-items: center;
     justify-content: center;
     color: #000;
-    transition: all 0.3s;
+    transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
     .cart-cls:hover {
       border-color: var(--red);
@@ -823,7 +828,7 @@ header.dark-glass input::placeholder{
       cursor: pointer;
       font-size: 26px;
       flex-shrink: 0;
-      transition: all 0.25s;
+      transition: transform 0.25s, box-shadow 0.25s;
     }
     .ci-img img {
       width: 100%;
