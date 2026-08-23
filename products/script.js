@@ -216,17 +216,30 @@ function fishYates(arr) {
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
-    showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const p = products.find(x => String(x.id) === String(id));
-  if (!p) return;
-  const ex = cart.find(x => String(x.id) === String(id));
+  const normalizedId = String(id);
+  const p = products.find(
+    x => String(x.id) === normalizedId
+  );
+  if (!p) {
+    console.error("Produto não encontrado para o carrinho:", normalizedId);
+    return;
+  }
+  const ex = cart.find(
+    x => String(x.id) === normalizedId
+  );
   if (ex) {
     ex.qty += qty;
   } else {
     cart.push({
-      id: String(p.id),
+      ...p,
+      id: normalizedId,
       qty
     });
   }
@@ -236,18 +249,28 @@ function addToCart(id, qty = 1) {
 }
 
 function removeFromCart(id) {
-  cart = cart.filter(x => x.id !== id);
+  const normalizedId = String(id);
+  cart = cart.filter(
+    x => String(x.id) !== normalizedId
+  );
   updateCart();
   syncToSupabase();
 }
 
 function changeCartQty(id, d) {
-  const item = cart.find(x => x.id === id);
+  const normalizedId = String(id);
+  const item = cart.find(
+    x => String(x.id) === normalizedId
+  );
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromCart(id); else updateCart();
+    if (item.qty <= 0) {
+      removeFromCart(normalizedId);
+    } else {
+      updateCart();
+      syncToSupabase();
+    }
   }
-  syncToSupabase();
 }
 
 // UPDATE CART -------------------------- //
@@ -385,57 +408,89 @@ function checkout() {
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
   if (!userId) {
-    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const ex = fav.find(x => String(x.id) === String(id));
+  const normalizedId = String(id);
+  const ex = fav.find(
+    x => String(x.id) === normalizedId
+  );
   if (ex) {
-    removeFromFav(id);
+    removeFromFav(normalizedId);
     showToast('Removido da Lista de Desejos! 💔');
   } else {
-    addToFav(id, 1);
+    addToFav(normalizedId, 1);
   }
-
   if ($('mWish')) {
-    $('mWish').classList.toggle('on', fav.some(x => x.id === id));
+    $('mWish').classList.toggle(
+      'on',
+      fav.some(x => String(x.id) === normalizedId)
+    );
   }
   syncToSupabase();
 }
 
 function addToFav(id, qty = 1) {
   if (!userId) {
-    showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
+    showAuth(
+      "Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.",
+      "Conta Necessária",
+      "🔒"
+    );
     return;
   }
-  const p = products.find(x => String(x.id) === String(id));
-  if (!p) return;
-  const ex = fav.find(x => String(x.id) === String(id));
+  const normalizedId = String(id);
+  const p = products.find(
+    x => String(x.id) === normalizedId
+  );
+  if (!p) {
+    console.error("Produto não encontrado para favoritos:", normalizedId);
+    return;
+  }
+  const ex = fav.find(
+    x => String(x.id) === normalizedId
+  );
   if (ex) {
     ex.qty += qty;
   } else {
     fav.push({
-      id: String(p.id),
+      ...p,
+      id: normalizedId,
       qty
     });
   }
   updateFav();
-  showToast(`${p.name} salvo nos favoritos! 🛒`);
+  showToast(`${p.name} salvo nos favoritos! ❤️`);
   syncToSupabase();
 }
 
 function removeFromFav(id) {
-  fav = fav.filter(x => x.id !== id);
+  const normalizedId = String(id);
+  fav = fav.filter(
+    x => String(x.id) !== normalizedId
+  );
   updateFav();
   syncToSupabase();
 }
 
 function changeFavQty(id, d) {
-  const item = fav.find(x => x.id === id);
+  const normalizedId = String(id);
+  const item = fav.find(
+    x => String(x.id) === normalizedId
+  );
   if (item) {
     item.qty += d;
-    if (item.qty <= 0) removeFromFav(id); else updateFav();
+    if (item.qty <= 0) {
+      removeFromFav(normalizedId);
+    } else {
+      updateFav();
+      syncToSupabase();
+    }
   }
-  syncToSupabase();
 }
 
 // UPDATE FAV ------------------------- //
@@ -557,10 +612,12 @@ function closeFav() {
 }
 
 function addAllFavToCart() {
-  if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
-
+  if (!fav.length) {
+    showToast('Adicione produtos primeiro! 😊');
+    return;
+  }
   fav.forEach(produto => {
-    addToCart(produto.id, 1);
+    addToCart(String(produto.id), 1);
   });
   fav = [];
   updateFav();
@@ -571,7 +628,7 @@ function addAllFavToCart() {
 }
 
 function moveFromCartToFav(id) {
-  addToFav(id, 1);
+  addToFav(String(id), 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
 }
 
@@ -635,15 +692,20 @@ function closeAcc() {
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
-  document.body.classList.add('noscroll');
-
+  document.body.classList.add("noscroll");
+  const normalizedId = String(id);
   const p = products.find(
-    x => String(x.id) === String(id)
+    x => String(x.id) === normalizedId
   );
-  if (!p) return;
-  curId = String(id);
+  if (!p) {
+    console.error("Produto não encontrado:", normalizedId);
+    document.body.classList.remove("noscroll");
+    return;
+  }
+  curId = normalizedId;
   mQtyVal = 1;
-  $('mQty').textContent = '1';
+  $('mQty').textContent = 1;
+
   const images = getProductImages(p);
   const mainImage = images[0];
   $('mEmoji').innerHTML = mainImage
@@ -697,8 +759,17 @@ function openProduct(id) {
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
-function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart(); }
-function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
+
+function addFromModal() {
+  addToCart(String(curId), mQtyVal);
+  closeModal();
+  openCart();
+}
+function addFromModal2() {
+  addToFav(String(curId), mQtyVal);
+  closeModal();
+  openFav();
+}
 
 // TOAST
 function showToast(msg) {
@@ -982,7 +1053,9 @@ function renderProducts() {
   grid.innerHTML = list.map(p => {
     const images = getProductImages(p);
     const mainImage = images[0] || null;
-    const inW = fav.some(x => x.id === p.id);
+    const inW = fav.some(
+      x => String(x.id) === String(p.id)
+    );
     const badgeH  = p.badge === 'hot'  ? `<span class="bpill bhot">🔥 Hot</span>`
                   : p.badge === 'new'  ? `<span class="bpill bnew">Novo</span>`
                   :                     `<span class="bpill bsale">-${p.discount}%</span>`;
