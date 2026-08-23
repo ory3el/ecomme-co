@@ -777,6 +777,12 @@ header.dark-glass input::placeholder{
       flex-shrink: 0;
       transition: all 0.25s;
     }
+    .ci-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: inherit;
+    }
     .ci-img:hover {
       transform: rotate(-5deg) scale(1.05);
       box-shadow: 0 4px 15px rgba(25, 100, 255, 0.5);
@@ -1206,17 +1212,21 @@ header.dark-glass input::placeholder{
       justify-content: center;
     }
     .modal-img {
-      /* background: var(--bg3); */
-      box-shadow: 0 0px 20px rgb(0 0 0 / 10%);
-      border-radius: 36px;
-      display: flex;
+      width: 100%;
       aspect-ratio: 1 / 1;
+      min-height: 400px;
+      max-height: 70vh;
+      position: relative;
+      display: flex;
       align-items: center;
       justify-content: center;
-      margin: auto;
-      min-height: 400px;
-      position: relative;
-      font-size: 100px;
+      overflow: hidden;
+      border-radius: 36px;
+    }
+    .modal-img > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .mcls {
       position: absolute;
@@ -1315,6 +1325,42 @@ header.dark-glass input::placeholder{
     .btn-mwish.on { border-color: var(--red); color: var(--red); }
     .btn-mwish svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
     .btn-mwish.on svg { fill: var(--red); }
+
+/* Modal Gallery */
+.modal-gallery {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px 14px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.modal-gallery button {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--bg3);
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+
+.modal-gallery button:hover {
+  transform: scale(1.04);
+}
+
+.modal-gallery button.on {
+  border-color: var(--blue);
+}
+
+.modal-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
  /* BACK TO TOP */
   .back-top { position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px; background: var(--blue); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 500; cursor: pointer; opacity: 0; transform: translateY(20px); transition: all 0.3s; border: none; }
@@ -1415,4 +1461,19 @@ header.dark-glass input::placeholder{
     background:var(--blue-dim);
     color:var(--blue);
     border-color:var(--border);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: calc(100% - 24px);
+    max-width: none;
+    border-radius: 24px;
+  }
+  .modal-info {
+    padding: 24px;
+  }
+  .modal-img {
+    min-height: 240px;
+    border-radius: 24px 24px 0 0;
+  }
 }
