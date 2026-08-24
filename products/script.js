@@ -1069,7 +1069,6 @@ async function showAlert(message, title, icon) {
   injectModalStyles();
 
   let alertModal = document.getElementById('alertModal');
-
   if (!alertModal) {
     alertModal = document.createElement('div');
     alertModal.id = 'alertModal';
@@ -1200,45 +1199,129 @@ function loadShuffleAndRender() {
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function productCardHtml(p) {
+  const images = getProductImages(p);
+  const mainImage =
+    images[0] || null;
 
-const images =
-  getProductImages(p);
+  const inW =
+    fav.some(
+      x =>
+        String(x.id) ===
+        String(p.id)
+    );
 
-const mainImage =
-  images[0] || null;
+  const category =
+    Array.isArray(p.cat)
+      ? p.cat.join(', ')
+      : String(p.cat || '');
 
-const imagePreset =
-  view === 'list'
-    ? EDGE_IMAGE_PRESETS.list
-    : EDGE_IMAGE_PRESETS.grid;
-
-const optimizedMainImage =
-  mainImage
-    ? getOptimizedImageUrl(
-        mainImage,
-        imagePreset
-      )
-    : null;
-
-const imageHtml =
-  optimizedMainImage
+  let badgeH = '';
+  if (p.badge === 'hot') {
+    badgeH = `
+      <span class="bpill bhot">
+        🔥 Hot
+      </span>
+    `;
+  } else if (p.badge === 'new') {
+    badgeH = `
+      <span class="bpill bnew">
+        Novo
+      </span>
+    `;
+  } else if (p.discount > 0) {
+    badgeH = `
+      <span class="bpill bsale">
+        -${p.discount}%
+      </span>
+    `;
+  }
+  
+  const shipH = p.shipping
     ? `
-      <img
-        src="${optimizedMainImage}"
-        alt="${p.name}"
-        loading="lazy"
-        decoding="async"
-        style="
-          position:absolute;
-          inset:0;
-          width:100%;
-          height:100%;
-          object-fit:cover;
-          border-radius:inherit;
-        "
-      >
+      <div class="pfship">
+        <svg viewBox="0 0 24 24">
+          <rect
+            x="1"
+            y="3"
+            width="15"
+            height="13"
+          />
+          <polygon
+            points="
+              16 8
+              20 8
+              23 11
+              23 16
+              16 16
+              16 8
+            "
+          />
+          <circle
+            cx="5.5"
+            cy="18.5"
+            r="2.5"
+          />
+          <circle
+            cx="18.5"
+            cy="18.5"
+            r="2.5"
+          />
+        </svg>
+
+        Frete Grátis
+      </div>
     `
     : '';
+
+  const oldPrice =
+    p.old > 0
+      ? `
+        <span class="pold">
+          ${fmt(p.old)}
+        </span>
+      `
+      : '';
+  const discount =
+    p.discount > 0
+      ? `
+        <span class="pdisc">
+          -${p.discount}%
+        </span>
+      `
+      : '';
+  
+  const imagePreset =
+    view === 'list'
+      ? EDGE_IMAGE_PRESETS.list
+      : EDGE_IMAGE_PRESETS.grid;
+
+  const optimizedMainImage =
+    mainImage
+      ? getOptimizedImageUrl(
+          mainImage,
+          imagePreset
+        )
+      : null;
+
+  const imageHtml =
+    optimizedMainImage
+      ? `
+        <img
+          src="${optimizedMainImage}"
+          alt="${p.name}"
+          loading="lazy"
+          decoding="async"
+          style="
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            border-radius:inherit;
+          "
+        >
+      `
+      : '';
 
   if (view === 'list') {
     return `
