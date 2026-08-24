@@ -2159,3 +2159,34 @@ header.dark-glass input::placeholder{
 .products-grid.lv .pcard:hover .pimg {
   transform: none;
 }
+
+/* ============================================================ */
+
+.product-image-reveal {
+  opacity: 0;
+  transform: scale(1.025);
+  filter: blur(8px);
+  transition:
+    opacity .45s cubic-bezier(.22,1,.36,1),
+    transform .6s cubic-bezier(.22,1,.36,1),
+    filter .6s cubic-bezier(.22,1,.36,1);
+}
+.product-image-reveal.is-loaded {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+.product-image-reveal.is-cached {
+  transition:
+    opacity .2s ease,
+    transform .25s ease,
+    filter .25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-image-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
