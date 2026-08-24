@@ -400,7 +400,8 @@ function updateCart() {
 
   el.innerHTML = cart.map(item => {
     const images = getProductImages(item);
-    const image = images[0];
+    const image = images[0] || null;
+    const optimizedImage = image ? getOptimizedImageUrl( image, EDGE_IMAGE_PRESETS.thumbnail ) : null;
 
     return `
       <div class="ci">
@@ -408,7 +409,7 @@ function updateCart() {
           ${
             image
               ? `<img
-                   src="${image}"
+                   src="${optimizedImage}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
@@ -624,33 +625,29 @@ function updateFav() {
 
   el.innerHTML = fav.map(item => {
     const images = getProductImages(item);
-    const image = images[0];
+    const image = images[0] || null;
+    const optimizedImage = image ? getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail) : null;
 
     return `
       <div class="ci">
-
         <div class="ci-img">
           ${
             image
               ? `<img
-                   src="${image}"
+                   src="${optimizedImage}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
               : item.emoji
           }
         </div>
-
         <div class="ci-info">
-
           <div class="ci-name">
             ${item.name}
           </div>
-
           <div class="ci-price">
             ${fmt(item.price)}
           </div>
-
           <button
             class="btn-madd"
             onclick="
@@ -662,19 +659,17 @@ function updateFav() {
           >
             Adicionar ao Carrinho
           </button>
-
         </div>
-
         <button
           class="del"
           onclick="removeFromFav('${item.id}')"
         >
           🗑️
         </button>
-
       </div>
     `;
   }).join('');
+  renderProducts();
 }
 
 function openFav() {
@@ -814,17 +809,19 @@ function openProduct(id) {
   
   const images = getProductImages(p);
   const mainImage = images[0] || null;
+  const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.modal) : null;
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    mEmoji.innerHTML = mainImage
-      ? `
-        <img
-          src="${mainImage}"
-          alt="${p.name}"
-        >
-      `
-      : p.emoji;
+    mEmoji.innerHTML =
+      optimizedMainImage
+        ? `<img
+            src="${optimizedMainImage}"
+            alt="${p.name}"
+            decoding="async"
+            fetchpriority="high"
+          >`
+        : p.emoji;
   }
 
   const modalGallery = $('modalGallery');
@@ -837,29 +834,47 @@ function openProduct(id) {
         'modal-gallery-thumb' +
         (index === 0 ? ' on' : '');
 
+      const thumbnail = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail);
       button.innerHTML = `
         <img
-          src="${image}"
+          src="${thumbnail}"
           alt="${p.name} - imagem ${index + 1}"
+          loading="lazy"
+          decoding="async"
         >
       `;
+      
       button.addEventListener('click', () => {
+        const selectedImage =
+          getOptimizedImageUrl(
+            image,
+            EDGE_IMAGE_PRESETS.modal
+          );
         if (mEmoji) {
           mEmoji.innerHTML = `
             <img
-              src="${image}"
+              src="${selectedImage}"
               alt="${p.name}"
+              decoding="async"
             >
           `;
         }
         modalGallery
-          .querySelectorAll('.modal-gallery-thumb')
-          .forEach(btn => {
-            btn.classList.remove('on');
-          });
-
-        button.classList.add('on');
+          .querySelectorAll(
+            '.modal-gallery-thumb'
+          )
+          .forEach(
+            btn => {
+              btn.classList.remove(
+                'on'
+              );
+            }
+          );
+        button.classList.add(
+          'on'
+        );
       });
+      
       modalGallery.appendChild(button);
     });
     modalGallery.style.display =
@@ -1186,64 +1201,30 @@ function loadShuffleAndRender() {
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function productCardHtml(p) {
 
-  const images = getProductImages(p);
-  const mainImage = images[0] || null;
+const images =
+  getProductImages(p);
 
-  const inW = fav.some(
-    x => String(x.id) === String(p.id)
-  );
+const mainImage =
+  images[0] || null;
 
-  const category = Array.isArray(p.cat)
-    ? p.cat.join(', ')
-    : String(p.cat || '');
+const imagePreset =
+  view === 'list'
+    ? EDGE_IMAGE_PRESETS.list
+    : EDGE_IMAGE_PRESETS.grid;
 
-  let badgeH = '';
-  if (p.badge === 'hot') {
-    badgeH = `
-      <span class="bpill bhot">
-        🔥 Hot
-      </span>
-    `;
-  } else if (p.badge === 'new') {
-    badgeH = `
-      <span class="bpill bnew">
-        Novo
-      </span>
-    `;
-  } else if (p.discount > 0) {
-    badgeH = `
-      <span class="bpill bsale">
-        -${p.discount}%
-      </span>
-    `;
-  }
+const optimizedMainImage =
+  mainImage
+    ? getOptimizedImageUrl(
+        mainImage,
+        imagePreset
+      )
+    : null;
 
-  const shipH = p.shipping
-    ? `
-      <div class="pfship">
-        <svg viewBox="0 0 24 24">
-          <rect x="1" y="3" width="15" height="13"/>
-          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-          <circle cx="5.5" cy="18.5" r="2.5"/>
-          <circle cx="18.5" cy="18.5" r="2.5"/>
-        </svg>
-        Frete Grátis
-      </div>
-    `
-    : '';
-  
-  const oldPrice = p.old > 0
-    ? `<span class="pold">${fmt(p.old)}</span>`
-    : '';
-
-  const discount = p.discount > 0
-    ? `<span class="pdisc">-${p.discount}%</span>`
-    : '';
-
-  const imageHtml = mainImage
+const imageHtml =
+  optimizedMainImage
     ? `
       <img
-        src="${mainImage}"
+        src="${optimizedMainImage}"
         alt="${p.name}"
         loading="lazy"
         decoding="async"
