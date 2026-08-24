@@ -2182,3 +2182,48 @@ header.dark-glass input::placeholder{
 .products-grid.lv .pcard:hover .pimg {
   transform: none;
 }
+
+@media (max-width: 768px) {
+  .pcard,
+  .pimg,
+  .pimg img,
+  .pactions {
+    animation: none;
+  }
+
+  .pcard {
+    transition:
+      border-color .2s ease,
+      box-shadow .2s ease;
+  }
+
+  .pcard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .pcard:hover .pimg {
+    transform: none;
+  }
+
+  .pcard:hover .pactions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .pimg {
+    transform: none;
+  }
+
+  .pactions {
+    opacity: 1;
+    transform: none;
+    position: static;
+    padding: 10px 0 0;
+  }
+
+  .products-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
