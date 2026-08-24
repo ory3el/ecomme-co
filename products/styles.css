@@ -1991,6 +1991,29 @@ header.dark-glass input::placeholder{
   }
 }
 
+@media (pointer: coarse) {
+  .pcard {
+    transform: none !important;
+    box-shadow: none;
+  }
+
+  .pcard:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .pcard:hover .pimg {
+    transform: none !important;
+  }
+
+  .pactions {
+    opacity: 1;
+    transform: none;
+    position: static;
+    padding: 10px 0 0;
+  }
+}
+
   /* ── PRODUCTS FOOTER ACTIONS ── */
   .products-footer-actions {
     display: flex;
