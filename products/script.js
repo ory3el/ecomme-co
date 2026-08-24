@@ -227,6 +227,48 @@ let mQtyVal = 1;
 let view = 'grid';
 let shuffled = [...products];
 
+// ============================================================
+const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
+const EDGE_IMAGE_PRESETS = {
+  grid: 'grid',
+  list: 'list',
+  thumbnail: 'thumbnail',
+  modal: 'modal'
+};
+// ============================================================
+
+// ============================================================
+function getOptimizedImageUrl(
+  sourceUrl,
+  preset = 'grid'
+) {
+  if (!sourceUrl) {
+    return '';
+  }
+  try {
+    const workerUrl =
+      new URL(
+        EDGE_IMAGE_ZONE
+      );
+    workerUrl.searchParams.set(
+      'preset',
+      preset
+    );
+    workerUrl.searchParams.set(
+      'src',
+      sourceUrl
+    );
+    return workerUrl.toString();
+  } catch (error) {
+    console.error(
+      'Erro ao gerar URL otimizada:',
+      error
+    );
+    return sourceUrl;
+  }
+}
+// ============================================================
+
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
 const $ = id => document.getElementById(id);
