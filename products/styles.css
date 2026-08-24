@@ -553,25 +553,25 @@ header.dark-glass input::placeholder{
 
     /* grid */
    .products-grid {
-      margin: 10px;
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
+       margin: 10px;
+       display: grid;
+       grid-template-columns: repeat(5, 1fr);
+       contain: layout paint;
+       gap: 10px;
    }
-
    @media (max-width: 1200px) {
        .products-grid {
-           grid-template-columns: repeat(4, minmax(0, 1fr));
+           grid-template-columns: repeat(4, 1fr);
        }
    }
    @media (max-width: 900px) {
        .products-grid {
-           grid-template-columns: repeat(3, minmax(0, 1fr));
+           grid-template-columns: repeat(3, 1fr);
        }
    }
    @media (max-width: 600px) {
        .products-grid {
-           grid-template-columns: repeat(2, minmax(0, 1fr));
+           grid-template-columns: repeat(2, 1fr);
        }
    }
 
@@ -587,11 +587,11 @@ header.dark-glass input::placeholder{
       display: flex;
       flex-direction: column;
       content-visibility: auto;
-      /*contain: layout paint style;*/
+      contain: layout paint style;
       contain-intrinsic-size: 380px;
-      /*isolation: isolate;*/
+      isolation: isolate;
     }
-     /*.pcard::after {
+     .pcard::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -602,13 +602,13 @@ header.dark-glass input::placeholder{
     }
     .pcard:hover::after {
       opacity: 1;
-    }*/
+    }
     .pcard:hover {
       box-shadow: var(--shadow-hv);
       border-color: var(--border);
       transform: translateY(-5px);
     }
-    .pcard:hover .pimg { will-change: transform; transform: scale(1.1) /*translateZ(0);*/ }
+    .pcard:hover .pimg { will-change: transform; transform: scale(1.1) translateZ(0); }
     .pcard:hover .pactions { opacity: 1; transform: translateY(0); }
 
     .pimg-wrap {
@@ -619,14 +619,14 @@ header.dark-glass input::placeholder{
       flex-shrink: 0;
     }
     .pimg {
-      /*content-visibility: auto;*/
+      content-visibility: auto;
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
       font-size: 72px;
       transition: transform 0.4s cubic-bezier(.4,0,.2,1);
     }
     .pimg img {
-      /*content-visibility: auto;*/
+      content-visibility: auto;
       display: block;
       width: 100%;
       height: 100%;
@@ -1518,7 +1518,7 @@ header.dark-glass input::placeholder{
       .page-hero { padding: 48px 20px 40px; }
       .page-hero h1 { font-size: 38px; }
       .products-section {/* padding: 28px 16px 60px; */}
-      .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .products-grid.lv .pcard { flex-direction: column; }
       .products-grid.lv .pimg-wrap { width: 100%; aspect-ratio: 1; }
       .products-grid.lv .pactions { position: absolute; bottom: 0; left: 0; right: 0; opacity: 1; transform: none; }
@@ -1661,7 +1661,7 @@ header.dark-glass input::placeholder{
   }
 
   .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   }
   .deal-banner {
     flex-direction: column;
@@ -1745,7 +1745,7 @@ header.dark-glass input::placeholder{
 
 @media (max-width: 320px) {
   .products-grid {
-    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(1, minmax(1, 1fr)) !important;
   }
   .trust-inner {
     grid-template-columns: 1fr;
@@ -1991,29 +1991,6 @@ header.dark-glass input::placeholder{
   }
 }
 
-@media (pointer: coarse) {
-  .pcard {
-    transform: none !important;
-    box-shadow: none;
-  }
-
-  .pcard:hover {
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .pcard:hover .pimg {
-    transform: none !important;
-  }
-
-  .pactions {
-    opacity: 1;
-    transform: none;
-    position: static;
-    padding: 10px 0 0;
-  }
-}
-
   /* ── PRODUCTS FOOTER ACTIONS ── */
   .products-footer-actions {
     display: flex;
@@ -2181,49 +2158,4 @@ header.dark-glass input::placeholder{
 
 .products-grid.lv .pcard:hover .pimg {
   transform: none;
-}
-
-@media (max-width: 768px) {
-  .pcard,
-  .pimg,
-  .pimg img,
-  .pactions {
-    animation: none;
-  }
-
-  .pcard {
-    transition:
-      border-color .2s ease,
-      box-shadow .2s ease;
-  }
-
-  .pcard:hover {
-    transform: none;
-    box-shadow: none;
-  }
-
-  .pcard:hover .pimg {
-    transform: none;
-  }
-
-  .pcard:hover .pactions {
-    opacity: 1;
-    transform: none;
-  }
-
-  .pimg {
-    transform: none;
-  }
-
-  .pactions {
-    opacity: 1;
-    transform: none;
-    position: static;
-    padding: 10px 0 0;
-  }
-
-  .products-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
 }
