@@ -2182,7 +2182,7 @@ header.dark-glass input::placeholder{
     transform .25s ease,
     filter .25s ease;
 }
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 768px) {
   .product-image-reveal {
     opacity: 1;
     transform: none;
