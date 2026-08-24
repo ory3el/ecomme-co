@@ -237,6 +237,48 @@ const EDGE_IMAGE_PRESETS = {
 };
 // ============================================================
 
+function prepareProductImageAnimations(
+  container = document
+) {
+  const images =
+    container.querySelectorAll(
+      'img.product-image-reveal'
+    );
+  images.forEach(
+    img => {
+      const markLoaded = () => {
+        img.classList.add(
+          'is-loaded'
+        );
+      };
+      if (img.complete) {
+        requestAnimationFrame(
+          markLoaded
+        );
+      } else {
+        img.addEventListener(
+          'load',
+          markLoaded,
+          {
+            once: true
+          }
+        );
+        img.addEventListener(
+          'error',
+          () => {
+            img.classList.add(
+              'is-loaded'
+            );
+          },
+          {
+            once: true
+          }
+        );
+      }
+    }
+  );
+}
+
 // ============================================================
 function getOptimizedImageUrl(
   sourceUrl,
@@ -1157,15 +1199,12 @@ async function loadFromSupabase() {
     );
     return;
   }
-
   cart = hydrateUserItems(
     data?.cart
   );
-
   fav = hydrateUserItems(
     data?.fav
   );
-
   updateCart();
   updateFav();
 }
@@ -1305,8 +1344,9 @@ function productCardHtml(p) {
     optimizedMainImage
       ? `
         <img
+          class="product-image-reveal"
           src="${optimizedMainImage}"
-          alt="${p.name}"
+          alt="${escapeHtml(p.name)}"
           loading="lazy"
           decoding="async"
           style="
@@ -1316,9 +1356,7 @@ function productCardHtml(p) {
             height:100%;
             object-fit:cover;
             border-radius:inherit;
-          "
-        >
-      `
+          ">`
       : '';
 
   if (view === 'list') {
@@ -1601,6 +1639,7 @@ function renderProducts() {
     .map(productCardHtml)
     .join('');
 
+  prepareProductImageAnimations(grid);
   if (slice.length < list.length) {
     const sentinel =
       document.createElement('div');
