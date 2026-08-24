@@ -28,6 +28,7 @@ function injectPrefetch(url) {
 }
 
 let products = [];
+let shuffled = [];
 
 /* --------------------------- */
 let isScrolling = false;
@@ -341,7 +342,9 @@ function startProductsRealtime() {
 
 // ============================================================
 
+const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
 let userIsSearching = false;
+
 input.addEventListener('input', () => {
     userIsSearching = true;
     clearTimeout(
