@@ -1346,7 +1346,7 @@ function productCardHtml(p) {
         <img
           class="product-image-reveal"
           src="${optimizedMainImage}"
-          alt="${escapeHtml(p.name)}"
+          alt="${p.name}"
           loading="lazy"
           decoding="async"
           style="
