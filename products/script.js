@@ -726,9 +726,7 @@ async function loadProductsFromSupabase() {
   }
   products = (data || []).map(normalizeProduct);
   shuffled = fishYates(products);
-  console.log(
-    `Produtos carregados: ${products.length}`
-  );
+  /*console.log(`Produtos carregados: ${products.length}`);*/
   return true;
 }
 
