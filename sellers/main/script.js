@@ -1078,6 +1078,17 @@ async function publishProduct() {
     return;
   }
 
+  let existingMainUrl = null;
+  let existingGalleryUrls = [];
+
+  if (isEditing) {
+    const p = typeof PRODS !== 'undefined' ? PRODS.find(x => x.id === editId) : null;
+    if (p) {
+      existingMainUrl = p.image_url;
+      existingGalleryUrls = p.gallery_urls || [];
+    }
+  }
+
   if (!isEditing && !hasMainImage) {
     toast('Adicione pelo menos uma imagem principal (bloco maior) para o produto!', 'err');
     return;
@@ -1108,30 +1119,35 @@ async function publishProduct() {
 
       return publicUrlData.publicUrl;
     }
+
+    if (isEditing) {
+      if (index === 0 && existingMainUrl) {
+        return existingMainUrl;
+      }
+      if (index > 0 && existingGalleryUrls[index]) {
+        return existingGalleryUrls[index];
+      }
+    }
     return null;
   });
 
   const results = await Promise.all(uploadPromises);
-  uploadedUrls = results.filter(url => url !== null);
-
+  uploadedUrls = results;
   let finalMainImageUrl = uploadedUrls[0] || null;
-  if (isEditing && uploadedUrls.length === 0) {
-    const p = typeof PRODS !== 'undefined' ? PRODS.find(x => x.id === editId) : null;
-    finalMainImageUrl = p ? p.image_url : null;
-  }
-
   const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
   const catArray = [catText]; 
   const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
+  
   const productData = {
     name: nameRaw,
     cat: catArray, 
     price: priceNum, 
-    "desc": descRaw, 
+    desc: descRaw, 
     shipping: shippingRaw,
     image_url: finalMainImageUrl, 
     gallery_urls: uploadedUrls 
   };
+  
   let error;
 
   if (isEditing) {
