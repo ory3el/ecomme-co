@@ -820,26 +820,31 @@ let activeImageSlot = 0;
 
 function triggerImageUpload(slotIndex) {
   const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
+  const p = (isEditing && typeof PRODS !== 'undefined') ? PRODS.find(x => x.id === editingProductId) : null;
 
-  if (slotIndex > 0 && productImagesFiles[slotIndex]) {
+  const isSlotOccupied = (index) => {
+    if (productImagesFiles[index] !== null) return true;
+    if (p) {
+      if (index === 0 && p.image_url) return true;
+      if (index > 0 && p.gallery_urls && p.gallery_urls[index]) return true;
+    }
+    return false;
+  };
+
+  if (slotIndex > 0 && isSlotOccupied(slotIndex)) {
     openImageActionModal(slotIndex);
     return;
   }
 
   let targetSlot = slotIndex;
-  let isClickedSlot0OccupiedByDB = (slotIndex === 0 && isEditing);
-  if (!productImagesFiles[slotIndex] && !isClickedSlot0OccupiedByDB) {
-    for (let i = 0; i < slotIndex; i++) {
-      let isLoopSlot0OccupiedByDB = (i === 0 && isEditing);
-      
-      if (!productImagesFiles[i] && !isLoopSlot0OccupiedByDB) {
-        targetSlot = i;
-        break; 
-      }
+  for (let i = 0; i < slotIndex; i++) {
+    if (!isSlotOccupied(i)) {
+      targetSlot = i;
+      break; 
     }
   }
-  activeImageSlot = targetSlot;
   
+  activeImageSlot = targetSlot;
   const fileInput = document.getElementById('npImage');
   if(fileInput) {
     fileInput.value = '';
