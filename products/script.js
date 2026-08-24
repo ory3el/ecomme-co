@@ -79,30 +79,15 @@ window.addEventListener(
   'DOMContentLoaded',
   async () => {
 
-    const loginBtn =
-      document.getElementById('authLoginBtn');
-
-    const profileContainer =
-      document.getElementById(
-        'headerProfileContainer'
-      );
-
-    const headerImage =
-      document.getElementById(
-        'headerAvatar'
-      );
-    
-    const productsLoaded =
-      await loadProductsFromSupabase();
-
+    const loginBtn = document.getElementById('authLoginBtn');
+    const profileContainer = document.getElementById('headerProfileContainer');
+    const headerImage = document.getElementById('headerAvatar');
+    const productsLoaded = await loadProductsFromSupabase();
     if (!productsLoaded) {
       return;
     }
 
-    const {
-      data: { user },
-      error: userError
-    } = await supabaseClient.auth.getUser();
+    const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
     
     if (!user || userError) {
       userId = null;
@@ -132,10 +117,7 @@ window.addEventListener(
       );
     }
 
-    const {
-      data: profile,
-      error: profileError
-    } = await supabaseClient
+    const {data: profile, error: profileError} = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -175,6 +157,8 @@ window.addEventListener(
       }
     }
     renderProducts();
+    startProductsRealtime();
+    startProductRefresh();
   }
 );
 
@@ -318,6 +302,63 @@ async function refreshProductsIfNeeded() {
 }
 
 // ============================================================
+
+function startProductRefresh() {
+  if (productRefreshTimer) {
+    clearInterval(productRefreshTimer);
+  }
+
+  productRefreshTimer = setInterval( () => {
+    refreshProductsIfNeeded();},
+    PRODUCT_REFRESH_INTERVAL
+    );
+}
+
+// ============================================================
+
+function startProductsRealtime() {
+  if (
+    productRealtimeChannel
+  ) {
+    supabaseClient.removeChannel(
+      productRealtimeChannel
+    );
+  }
+
+  productRealtimeChannel = supabaseClient.channel('products-live')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'products'
+    },
+        
+        payload => { if (!pageIsVisible) {return;}
+          refreshProductsIfNeeded();
+        }
+      )
+      .subscribe(status => {console.log('Products Realtime:',status);});
+}
+
+// ============================================================
+
+let userIsSearching = false;
+input.addEventListener('input', () => {
+    userIsSearching = true;
+    clearTimeout(
+      catalogSearchDebounce
+    );
+    catalogSearchDebounce =
+      setTimeout(
+        () => {
+          userIsSearching = false;
+          if (userIsSearching) {
+            return;
+          }
+          resetCatalogAndLoad();
+        }, 400
+      );
+  }
+);
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
@@ -867,6 +908,7 @@ async function loadProductsFromSupabase() {
     return false;
   }
   products = (data || []).map(normalizeProduct);
+  productDataSignature = createProductsSignature(products);
   shuffled = fishYates(products);
   /*console.log(`Produtos carregados: ${products.length}`);*/
   return true;
