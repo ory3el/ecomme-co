@@ -608,7 +608,7 @@ header.dark-glass input::placeholder{
       border-color: var(--border);
       transform: translateY(-5px);
     }
-    .pcard:hover .pimg { will-change: transform; transform: scale(1.1) translateZ(0); }
+    .pcard:hover .pimg { will-change: transform; transform: scale(1.1) /*translateZ(0);*/ }
     .pcard:hover .pactions { opacity: 1; transform: translateY(0); }
 
     .pimg-wrap {
