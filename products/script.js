@@ -49,6 +49,31 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
+// ============================================================
+
+const PRODUCT_REFRESH_INTERVAL = 10000;
+let productRefreshTimer = null;
+let productRealtimeChannel = null;
+let productRefreshRunning = false;
+let productDataSignature = '';
+let pageIsVisible = true;
+
+// ============================================================
+
+document.addEventListener(
+  'visibilitychange',
+  () => {
+    pageIsVisible =
+      document.visibilityState === 'visible';
+
+    if (pageIsVisible) {
+      refreshProductsIfNeeded();
+    }
+  }
+);
+
+// ============================================================
+
 // EXECUTE DATABASE
 window.addEventListener(
   'DOMContentLoaded',
@@ -218,6 +243,81 @@ initHeaderAuthListener();
 }
 window.addEventListener("scroll", updateHeaderContrast);
 window.addEventListener("resize", updateHeaderContrast);*/
+
+// ============================================================
+
+function createProductsSignature(
+  productList
+) {
+  return productList
+    .map(product => ({
+      id: String(product.id),
+      name: product.name,
+      price: product.price,
+      old: product.old,
+      discount: product.discount,
+      rating: product.rating,
+      reviews: product.reviews,
+      shipping: product.shipping,
+      badge: product.badge,
+      desc: product.desc,
+      cat: product.cat,
+      image_url: product.image_url,
+      gallery_urls: product.gallery_urls,
+      features: product.features
+    })) .map(product => JSON.stringify(product)) .join('|');
+}
+
+// ============================================================
+
+async function refreshProductsIfNeeded() {
+  if (
+    !pageIsVisible ||
+    productRefreshRunning
+  ) {return;}
+  
+  productRefreshRunning = true;
+  
+  try {
+    const {data, error} = await supabaseClient
+      .from('products')
+      .select('*')
+      .order(
+        'id',
+        {ascending: true}
+      );
+
+    if (error) {
+      console.error('Erro na atualização automática dos produtos:',error);
+      return;
+    }
+
+    const updatedProducts = (data || []).map(normalizeProduct);
+    const newSignature = createProductsSignature(updatedProducts);
+    if (newSignature === productDataSignature) {
+      return;
+    }
+
+    productDataSignature = newSignature;
+    updatedProducts.forEach(
+      product => {
+        productCache.set(
+          String(product.id),
+          product
+        );
+      }
+    );
+    
+    products = updatedProducts;
+    shuffled = [...products];
+    virtualStartIndex = -1;
+    virtualEndIndex = -1;
+    virtualColumns = 0;
+    renderProducts();
+  } finally {productRefreshRunning = false;}
+}
+
+// ============================================================
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
