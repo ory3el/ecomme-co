@@ -2165,7 +2165,7 @@ header.dark-glass input::placeholder{
 .product-image-reveal {
   opacity: 0;
   transform: scale(1.025);
-  filter: blur(8px);
+  filter: blur(16px);
   transition:
     opacity .45s cubic-bezier(.22,1,.36,1),
     transform .6s cubic-bezier(.22,1,.36,1),
