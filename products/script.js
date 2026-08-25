@@ -58,6 +58,11 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+function goToLogin() {
+  const atualPage = window.location.pathname + window.location.search;
+  window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
+}
+
 function injectPrefetch(url) {
   if (!document.querySelector(`link[href="${url}"]`)) {
     const link = document.createElement('link');
