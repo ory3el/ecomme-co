@@ -468,7 +468,7 @@ async function doLogout() {
   toast('Você saiu da conta, recarregando a página.', 'info');
   
   await waitt(1000);
-  window.location.reload()
+  window.location.reload();
 }
 
 // ── SUPABASE: ADDRESSES ───────────────────────────
