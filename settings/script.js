@@ -3,6 +3,11 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+function goToLogin() {
+  const atualPage = window.location.pathname + window.location.search;
+  window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
+}
+
 // FAVICON
 const favicon = document.getElementById('favicon');
     
