@@ -460,24 +460,6 @@ async function removePhoto(event) {
   }
 }
 
-// LOGOUT
-const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut({scope: 'local'});
-  toast('Você saiu da conta, recarregando a página.', 'info');
-  
-  await waitt(1000);
-  window.location.reload();
-}
-
-// LOGOUT OTHERS DEVICES
-async function doOthersLogout() { 
-  toast('Saindo da conta em outros dispositivos...', 'info'); 
-  await supabaseClient.auth.signOut({scope: 'others'});
-  toast('Logout em outros dispositivos realizado com sucesso!', 'info');
-}
-
 // ── SUPABASE: ADDRESSES ───────────────────────────
 let currentAddressCount = 0;
 
@@ -672,4 +654,159 @@ async function submitNewAddress() {
     fetchAddresses(); 
     closeAddressModal()
   }
+}
+
+// SECURITY SECTION
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let browser = "Desconhecido";
+  let os = "Desconhecido";
+
+  if (ua.includes("Firefox")) browser = "Firefox";
+  else if (ua.includes("Edg")) browser = "Edge";
+  else if (ua.includes("Chrome")) browser = "Chrome";
+  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+
+  if (ua.includes("Win")) os = "Windows";
+  else if (ua.includes("Mac")) os = "macOS";
+  else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("Android")) os = "Android";
+  else if (ua.includes("like Mac")) os = "iOS";
+
+  return { browser, os };
+}
+
+async function registerCurrentSession() {
+  if (!userId) return;
+  
+  let localSessionId = localStorage.getItem('local_session_id');
+  if (!localSessionId) {
+    const { browser, os } = getDeviceInfo();
+    let ip = "Desconhecido";
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      ip = data.ip;
+    } catch(e) { console.log("Não foi possível capturar o IP"); }
+
+    const { data, error } = await supabaseClient
+      .from('user_sessions')
+      .insert([{ user_id: userId, browser, os, ip_address: ip }])
+      .select()
+      .single();
+        
+    if (data && !error) {
+      localStorage.setItem('local_session_id', data.id);
+    }
+  }
+}
+
+async function fetchSessions() {
+  if (!userId) return;
+  
+  const { data: sessions, error } = await supabaseClient
+    .from('user_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar sessões:", error);
+    return;
+  }
+
+  const container = document.getElementById('sessionsList');
+  if (!container) return;
+  
+  const localSessionId = localStorage.getItem('local_session_id');
+  let html = '';
+
+  sessions.forEach(session => {
+    const isCurrent = session.id === localSessionId;
+    let icon = '💻'; 
+    if (session.os.includes('Android') || session.os.includes('iOS')) icon = '📱';
+    else if (session.os.includes('macOS')) icon = '🖥️';
+    const dateObj = new Date(session.created_at);
+    const dateStr = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+    if (isCurrent) {
+      html += `
+        <div class="session-card">
+          <div class="session-device">${icon}</div>
+          <div class="session-info">
+            <strong>${session.browser} · ${session.os}</strong>
+            <small>Logado em: ${dateStr} · IP ${session.ip_address || 'Desconhecido'}</small>
+          </div>
+          <span class="session-curr">Sessão atual</span>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="session-card">
+          <div class="session-device">${icon}</div>
+          <div class="session-info">
+            <strong>${session.browser} · ${session.os}</strong>
+            <small>Logado em: ${dateStr} · IP ${session.ip_address || 'Desconhecido'}</small>
+          </div>
+          <button class="btn-xs gray" onclick="removeSession('${session.id}')">Encerrar</button>
+        </div>
+      `;
+    }
+  });
+
+  if(sessions.length === 0) {
+      html = '<div style="font-size: 13px; color: #64748b;">Nenhuma sessão ativa encontrada.</div>';
+  }
+  container.innerHTML = html;
+}
+
+async function removeSession(sessionId) {
+  toast('Encerrando sessão...', 'info');
+  
+  const { error } = await supabaseClient
+    .from('user_sessions')
+    .delete()
+    .eq('id', sessionId);
+    
+  if (error) {
+    toast('Erro ao encerrar sessão.', 'err');
+  } else {
+    toast('Sessão encerrada com sucesso.', 'ok');
+    fetchSessions();
+  }
+}
+
+// LOGOUT
+const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut({scope: 'local'});
+  toast('Você saiu da conta, recarregando a página.', 'info');
+  
+  await waitt(1000);
+  window.location.reload();
+}
+
+// LOGOUT OTHERS DEVICES
+async function doOthersLogout() { 
+  toast('Saindo da conta em outros dispositivos...', 'info'); 
+  const { error } = await supabaseClient.auth.signOut({scope: 'others'});
+  
+  if(error) {
+    toast('Erro ao sair de outros dispositivos.', 'err');
+    return;
+  }
+
+  const localSessionId = localStorage.getItem('local_session_id');
+  if (localSessionId) {
+    await supabaseClient
+      .from('user_sessions')
+      .delete()
+      .neq('id', localSessionId)
+      .eq('user_id', userId);
+  }
+  
+  toast('Logout em outros dispositivos realizado com sucesso!', 'ok');
+  fetchSessions();
 }
