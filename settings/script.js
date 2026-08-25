@@ -153,7 +153,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputFirstName) inputFirstName.value = firstName;
     if (inputLastName) inputLastName.value = lastName;
     if (inputEmail) inputEmail.value = email;
-    
+
+    const securityEmail = document.getElementById('securityEmail');
+    if (securityEmail) securityEmail.value = email;
+  
     if (inputPhone) { inputPhone.value = phone; if (typeof maskPhone === 'function') maskPhone(inputPhone); }
     if (inputCPF) { inputCPF.value = cpf; if (typeof maskCPF === 'function') maskCPF(inputCPF); }
     if (inputBirth) inputBirth.value = birthDate;
