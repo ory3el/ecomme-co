@@ -1000,7 +1000,6 @@ function startSessionHeartbeat() {
 
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-let intentionalLocalLogout = false;
 let sessionsChannel = null;
 
 async function doLogout() {
