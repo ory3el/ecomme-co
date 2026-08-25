@@ -471,6 +471,13 @@ async function doLogout() {
   window.location.reload();
 }
 
+const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+async function doOthersLogout() { 
+  toast('Saindo da conta em outros dispositivos...', 'info'); 
+  await supabaseClient.auth.signOut({scope: 'others'});
+  toast('Logout em outros dispositivos realizado com sucesso!', 'info');
+}
+
 // ── SUPABASE: ADDRESSES ───────────────────────────
 let currentAddressCount = 0;
 
@@ -504,7 +511,6 @@ function renderAddresses(addresses) {
       <span>Adicionar novo endereço</span>
     </div>
   `;
-
   let html = '';
 
   addresses.forEach(addr => {
