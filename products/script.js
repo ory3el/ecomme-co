@@ -419,14 +419,6 @@ function setupProductSearch() {
 }
 
 // ============================================================
-const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
-const EDGE_IMAGE_PRESETS = {
-  grid: 'grid',
-  list: 'list',
-  thumbnail: 'thumbnail',
-  modal: 'modal'
-};
-// ============================================================
 
 function prepareProductImageAnimations(
   container = document
