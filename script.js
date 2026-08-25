@@ -1056,11 +1056,9 @@ async function doLogout() {
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
   toast('Conta deslogada.', 'info');
-  let cart        = [];
-  let fav         = [];
-  let curId       = null;
-  let mQtyVal     = 1;
+  
   closeAcc();
+  window.location.reload()
 }
 
 // FAVICON
