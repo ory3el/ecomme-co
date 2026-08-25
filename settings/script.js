@@ -165,6 +165,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputBio) inputBio.value = bio;
   
     fetchAddresses();
+  
+    await registerCurrentSession();
+    fetchSessions();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
