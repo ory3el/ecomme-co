@@ -246,13 +246,13 @@
           </div>
           <div class="order-track">
             <div class="track-step done"><div class="ts-dot">
-              <img src="../images/icons/full/check.webp" style="width: 20px; height: auto; display: block;" alt="Check Mark"/>
+              <img src="/images/icons/full/check.webp" style="width: 20px; height: auto; display: block;" alt="Check Mark"/>
             </div><div class="ts-lbl">Confirmado</div></div>
             <div class="track-step done"><div class="ts-dot">
-              <img src="../images/icons/full/check.webp" style="width: 20px; height: auto; display: block;" alt="Check Mark"/>
+              <img src="/images/icons/full/check.webp" style="width: 20px; height: auto; display: block;" alt="Check Mark"/>
             </div><div class="ts-lbl">Preparando</div></div>
             <div class="track-step curr"><div class="ts-dot">
-              <img src="../images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+              <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
             </div><div class="ts-lbl">Trânsito</div></div>
             <div class="track-step"><div class="ts-dot">🚚</div><div class="ts-lbl">Saiu p/ entrega</div></div>
             <div class="track-step"><div class="ts-dot">🏠</div><div class="ts-lbl">Entregue</div></div>
@@ -494,11 +494,11 @@
       </div>
       <div class="card">
         <div class="card-title"><span class="ct-ico">
-          <img src="../images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+          <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
         </span> Pedidos e Entregas</div>
         <div class="notif-list">
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
-            <img src="../images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+            <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
           </div><div class="notif-info"><h4>Atualização de pedido</h4><p>Notificações de status, envio e entrega</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">🚚</div><div class="notif-info"><h4>Saiu para entrega</h4><p>Avise quando o pedido estiver a caminho</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">✅</div><div class="notif-info"><h4>Pedido entregue</h4><p>Confirmação de entrega bem-sucedida</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
@@ -563,11 +563,12 @@
           <button class="btn-ghost" onclick="document.getElementById('pwdChangeCard').style.display='none'">Cancelar</button>
         </div>
       </div>
-
+      
       <div class="card">
         <div class="card-title"><span class="ct-ico">💻</span> Sessões Ativas</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="session-card"><div class="session-device">💻</div><div class="session-info"><strong>Chrome · Windows 11</strong><small>São Paulo, SP · Agora mesmo · IP 177.X.X.X</small></div><span class="session-curr">Sessão atual</span></div>
+        <div id="sessionsList" style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size: 13px; color: #64748b;">Carregando sessões...</div>
+          <!--<div class="session-card"><div class="session-device">💻</div><div class="session-info"><strong>Chrome · Windows 11</strong><small>São Paulo, SP · Agora mesmo · IP 177.X.X.X</small></div><span class="session-curr">Sessão atual</span></div>-->
           <!--<div class="session-card"><div class="session-device">📱</div><div class="session-info"><strong>Safari · iPhone 15</strong><small>São Paulo, SP · Há 2 horas · IP 177.X.X.X</small></div><button class="btn-xs gray" onclick="toast('Sessão encerrada')">Encerrar</button></div>-->
           <!--<div class="session-card"><div class="session-device">🖥️</div><div class="session-info"><strong>Firefox · macOS</strong><small>Rio de Janeiro, RJ · Ontem às 15:32</small></div><button class="btn-xs gray" onclick="toast('Sessão encerrada')">Encerrar</button></div>-->
         </div>
