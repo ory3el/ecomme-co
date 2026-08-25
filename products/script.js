@@ -373,7 +373,7 @@ function startProductsRealtime() {
 const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
 let userIsSearching = false;
 
-input.addEventListener('inputs', () => {
+inputs.addEventListener('inputs', () => {
     userIsSearching = true;
     clearTimeout(
       catalogSearchDebounce
