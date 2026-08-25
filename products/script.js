@@ -4,8 +4,17 @@ let fav = [];
 let curId = null;
 let mQtyVal = 1;
 let view = 'grid';
+
 let products = [];
-let shuffled = [...products];
+let shuffled = [];
+
+const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
+const EDGE_IMAGE_PRESETS = {
+  grid: 'grid',
+  list: 'list',
+  thumbnail: 'thumbnail',
+  modal: 'modal'
+};
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
@@ -370,26 +379,44 @@ function startProductsRealtime() {
 
 // ============================================================
 
-const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
+const catalogSearchDebounce = null;
 let userIsSearching = false;
 
-inputs.addEventListener('inputs', () => {
-    userIsSearching = true;
-    clearTimeout(
-      catalogSearchDebounce
-    );
-    catalogSearchDebounce =
-      setTimeout(
+function setupProductSearch() {
+  const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
+
+  inputs.forEach(
+    input => {
+      input.addEventListener(
+        'input',
         () => {
-          userIsSearching = false;
-          if (userIsSearching) {
-            return;
-          }
-          resetCatalogAndLoad();
-        }, 400
+          userIsSearching = true;
+          clearTimeout(
+            window.catalogSearchTimer
+          );
+          inputs.forEach(
+            other => {
+              if (
+                other !== input
+              ) {
+                other.value =
+                  input.value;
+              }
+            }
+          );
+          window.catalogSearchTimer =
+            setTimeout(
+              async () => {
+                userIsSearching = false;
+                await resetCatalogAndLoad();
+              },
+              400
+            );
+        }
       );
-  }
-);
+    }
+  );
+}
 
 // ============================================================
 const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
@@ -896,23 +923,37 @@ function moveFromCartToFav(id) {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
-  const { data, error } = await supabaseClient
+  const {
+    data,
+    error
+  } = await supabaseClient
     .from('products')
     .select('*')
-    .order('id', { ascending: true });
+    .order(
+      'id',
+      {
+        ascending: true
+      }
+    );
+
   if (error) {
     console.error(
       'Erro ao carregar produtos do Supabase:',
       error
     );
+
     products = [];
     shuffled = [];
     return false;
   }
-  products = (data || []).map(normalizeProduct);
+
+  products =
+    (data || []).map(
+      normalizeProduct
+    );
+  
+  shuffled = [...products];
   productDataSignature = createProductsSignature(products);
-  shuffled = fishYates(products);
-  /*console.log(`Produtos carregados: ${products.length}`);*/
   return true;
 }
 
@@ -1193,29 +1234,6 @@ async function syncToSupabase() {
       error
     );
   }
-}
-
-// ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
-async function loadFromSupabase() {
-  if (!userId) return;
-
-  const { data, error } = await supabaseClient
-    .from('profiles')
-    .select('cart, fav')
-    .eq('id', userId)
-    .single();
-
-  if (error) {
-    console.error('Erro ao carregar carrinho/favoritos:', error);
-    return;
-  }
-
-  cart = hydrateUserItems(data?.cart);
-  fav = hydrateUserItems(data?.fav);
-
-  updateCart();
-  updateFav();
-  renderProducts();
 }
 
 // ── STYLES INJECTOR ──
