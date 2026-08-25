@@ -1,3 +1,34 @@
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let products = [];
+let shuffled = [...products];
+
+/* ─── UTILS ─────────────────────────────────────────────────────────── */
+const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
+const $ = id => document.getElementById(id);
+
+function starsHtml(r) {
+  let s = '';
+  const f = Math.floor(r);
+  for (let i = 0; i < f; i++) s += '★';
+  for (let i = f; i < 5; i++) s += '☆';
+  return s;
+}
+
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+/* ───────────────────────────────────────────────────────────────────── */
+
 // FAVICON
 const favicon = document.getElementById('favicon');
 function verificarTema(e) {
@@ -26,9 +57,6 @@ function injectPrefetch(url) {
     document.head.appendChild(link);
   }
 }
-
-let products = [];
-let shuffled = [...products];
 
 /* --------------------------- */
 let isScrolling = false;
@@ -363,13 +391,6 @@ input.addEventListener('input', () => {
   }
 );
 
-/* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart = [];
-let fav = [];
-let curId = null;
-let mQtyVal = 1;
-let view = 'grid';
-
 // ============================================================
 const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
 const EDGE_IMAGE_PRESETS = {
@@ -453,27 +474,6 @@ function getOptimizedImageUrl(
   }
 }
 // ============================================================
-
-/* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
-const $ = id => document.getElementById(id);
-
-function starsHtml(r) {
-  let s = '';
-  const f = Math.floor(r);
-  for (let i = 0; i < f; i++) s += '★';
-  for (let i = f; i < 5; i++) s += '☆';
-  return s;
-}
-
-function fishYates(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
