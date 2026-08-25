@@ -1052,13 +1052,14 @@ renderProducts();
 loadShuffleAndRender();
 
 // LOGOUT
+const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
   toast('Conta deslogada, recarregando a página.', 'info');
   
   closeAcc();
-  await sleep(2000);
+  await waitt(2000);
   window.location.reload()
 }
 
