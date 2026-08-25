@@ -1059,7 +1059,7 @@ async function doLogout() {
   toast('Conta deslogada, recarregando a página.', 'info');
   
   closeAcc();
-  await waitt(2000);
+  await waitt(1000);
   window.location.reload()
 }
 
