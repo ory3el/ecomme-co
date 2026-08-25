@@ -660,7 +660,6 @@ async function submitNewAddress() {
 }
 
 // SECURITY SECTION
-
 function getDeviceInfo() {
   const ua = navigator.userAgent;
   let browser = "Desconhecido";
@@ -721,9 +720,10 @@ async function fetchSessions() {
 
   const container = document.getElementById('sessionsList');
   if (!container) return;
-  
+
   const localSessionId = localStorage.getItem('local_session_id');
-  let html = '';
+  let currentSessionHtml = '';
+  let otherSessionsHtml = '';
 
   sessions.forEach(session => {
     const isCurrent = session.id === localSessionId;
@@ -734,7 +734,7 @@ async function fetchSessions() {
     const dateStr = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
 
     if (isCurrent) {
-      html += `
+      currentSessionHtml += `
         <div class="session-card">
           <div class="session-device">${icon}</div>
           <div class="session-info">
@@ -744,8 +744,9 @@ async function fetchSessions() {
           <span class="session-curr">Sessão atual</span>
         </div>
       `;
-    } else {
-      html += `
+    } 
+    else {
+      otherSessionsHtml += `
         <div class="session-card">
           <div class="session-device">${icon}</div>
           <div class="session-info">
@@ -759,9 +760,10 @@ async function fetchSessions() {
   });
 
   if(sessions.length === 0) {
-      html = '<div style="font-size: 13px; color: #64748b;">Nenhuma sessão ativa encontrada.</div>';
+      container.innerHTML = '<div style="font-size: 13px; color: #64748b;">Nenhuma sessão ativa encontrada.</div>';
+  } else {
+      container.innerHTML = currentSessionHtml + otherSessionsHtml;
   }
-  container.innerHTML = html;
 }
 
 async function removeSession(sessionId) {
