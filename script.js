@@ -1056,6 +1056,8 @@ async function doLogout() {
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
   toast('Conta deslogada.', 'info');
+  updateCart();
+  updateFav();
   closeAcc();
 }
 
