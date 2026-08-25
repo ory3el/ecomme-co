@@ -782,6 +782,54 @@ async function removeSession(sessionId) {
   }
 }
 
+async function verifySessionOnLoad() {
+  const localSessionId = localStorage.getItem('local_session_id');
+  if (!localSessionId) return;
+
+  const { data, error } = await supabaseClient
+    .from('user_sessions')
+    .select('id')
+    .eq('id', localSessionId)
+    .single();
+  
+  if (error || !data) {
+    await forceLocalLogout();
+  }
+}
+
+const waitt2 = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+async function forceLocalLogout() {
+  localStorage.removeItem('local_session_id');
+  await supabaseClient.auth.signOut();
+  
+  alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
+  await waitt2(1000);
+  goToLogin();
+}
+
+function subscribeToSessionChanges() {
+  if (!userId) return;
+  supabaseClient
+    .channel('realtime_sessions')
+    .on(
+      'postgres_changes',
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'user_sessions',
+        filter: `user_id=eq.${userId}` 
+      },
+      (payload) => {
+        const localSessionId = localStorage.getItem('local_session_id');
+        if (payload.eventType === 'DELETE' && payload.old.id === localSessionId) {
+          forceLocalLogout();
+          return;
+        }
+        fetchSessions();
+      }
+    ) .subscribe();
+}
+
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() { 
