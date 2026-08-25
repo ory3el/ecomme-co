@@ -939,3 +939,15 @@ function showToast(msg) {
 function toast(msg) {
   showToast(msg);
 }
+
+// LOGOUT
+const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+async function doLogout() { 
+  toast('Saindo da conta... 👋', 'info'); 
+  await supabaseClient.auth.signOut({scope: 'local'});
+  toast('Você saiu da conta, recarregando a página.', 'info');
+
+  closeAcc();
+  await waitt(1000);
+  window.location.reload();
+}
