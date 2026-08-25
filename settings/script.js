@@ -163,11 +163,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputGender) inputGender.value = gender;
     if (inputLang) inputLang.value = language;
     if (inputBio) inputBio.value = bio;
-  
     fetchAddresses();
-  
+
+    const sessionStillValid = await verifySessionOnLoad();
+    if (!sessionStillValid) {
+      return;
+    }
     await registerCurrentSession();
-    fetchSessions();
+    await fetchSessions();
+    subscribeToSessionChanges();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
@@ -665,48 +669,114 @@ function getDeviceInfo() {
   let browser = "Desconhecido";
   let os = "Desconhecido";
 
-  if (ua.includes("Firefox")) browser = "Firefox";
-  else if (ua.includes("Edg")) browser = "Edge";
-  else if (ua.includes("Chrome")) browser = "Chrome";
-  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+  // Browser
+  if (/Edg\//i.test(ua)) {
+    browser = "Edge";
+  } else if (/OPR\//i.test(ua) || /Opera/i.test(ua)) {
+    browser = "Opera";
+  } else if (/Firefox\//i.test(ua)) {
+    browser = "Firefox";
+  } else if (/SamsungBrowser/i.test(ua)) {
+    browser = "Samsung Internet";
+  } else if (/Chrome\//i.test(ua)) {
+    browser = "Chrome";
+  } else if (/Safari\//i.test(ua) && !/Chrome|Chromium/i.test(ua)) {
+    browser = "Safari";
+  }
 
-  if (ua.includes("Win")) os = "Windows";
-  else if (ua.includes("Mac")) os = "macOS";
-  else if (ua.includes("Linux")) os = "Linux";
-  else if (ua.includes("Android")) os = "Android";
-  else if (ua.includes("like Mac")) os = "iOS";
+  // OS
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    os = "iOS";
+  } else if (/Android/i.test(ua)) {
+    os = "Android";
+  } else if (/Windows/i.test(ua)) {
+    os = "Windows";
+  } else if (/Macintosh|Mac OS X/i.test(ua)) {
+    os = "macOS";
+  } else if (/Linux/i.test(ua)) {
+    os = "Linux";
+  }
 
   return { browser, os };
 }
 
 async function registerCurrentSession() {
   if (!userId) return;
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
   
-  let localSessionId = localStorage.getItem('local_session_id');
-  if (!localSessionId) {
-    const { browser, os } = getDeviceInfo();
-    let ip = "Desconhecido";
-    
-    try {
-      const res = await fetch('https://api.ipify.org?format=json');
-      const data = await res.json();
-      ip = data.ip;
-    } catch(e) { console.log("Não foi possível capturar o IP"); }
+  if (sessionError || !sessionData.session) {
+    console.error('Sessão Auth indisponível:', sessionError);
+    return false;
+  }
 
-    const { data, error } = await supabaseClient
-      .from('user_sessions')
-      .insert([{ user_id: userId, browser, os, ip_address: ip }])
-      .select()
-      .single();
-        
-    if (error) {
-      console.error("🚨 ERRO AO SALVAR SESSÃO:", error.message);
-      return; 
+  const session = sessionData.session;
+  const { browser, os } = getDeviceInfo();
+  let ip = "Desconhecido";
+
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    if (res.ok) {
+      const data = await res.json();
+      ip = data.ip || "Desconhecido";
     }
-    if (data) {
-      localStorage.setItem('local_session_id', data.id);
+  } catch (e) {
+    console.warn("Não foi possível capturar o IP.");
+  }
+
+  let localSessionId = localStorage.getItem('local_session_id');
+  if (localSessionId) {
+    const { data: existingLocal, error: localError } =
+      await supabaseClient
+        .from('user_sessions')
+        .select('id')
+        .eq('id', localSessionId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    
+    if (localError || !existingLocal) {
+      localStorage.removeItem('local_session_id');
+      localSessionId = null;
     }
   }
+  if (localSessionId) {
+    const { error } = await supabaseClient
+      .from('user_sessions')
+      .update({
+        browser,
+        os,
+        ip_address: ip,
+        last_seen_at: new Date().toISOString()
+      })
+      .eq('id', localSessionId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error('Erro ao atualizar sessão:', error);
+      return false;
+    }
+    return true;
+  }
+  const { data, error } = await supabaseClient
+    .from('user_sessions')
+    .insert([{
+      user_id: userId,
+      browser,
+      os,
+      ip_address: ip,
+      last_seen_at: new Date().toISOString()
+    }])
+    .select('id')
+    .single();
+  
+  if (error) {
+    console.error('🚨 ERRO AO SALVAR SESSÃO:', error.message);
+    return false;
+  }
+  if (data?.id) {
+    localStorage.setItem('local_session_id', data.id);
+  }
+  return true;
 }
 
 async function fetchSessions() {
@@ -714,9 +784,17 @@ async function fetchSessions() {
   
   const { data: sessions, error } = await supabaseClient
     .from('user_sessions')
-    .select('*')
+    .select(`
+      id,
+      user_id,
+      browser,
+      os,
+      ip_address,
+      created_at,
+      last_seen_at
+    `)
     .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .order('last_seen_at', { ascending: false });
 
   if (error) {
     console.error("Erro ao buscar sessões:", error);
@@ -735,8 +813,16 @@ async function fetchSessions() {
     let icon = '💻'; 
     if (session.os.includes('Android') || session.os.includes('iOS')) icon = '📱';
     else if (session.os.includes('macOS')) icon = '🖥️';
-    const dateObj = new Date(session.created_at);
-    const dateStr = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    
+    const dateSource = session.last_seen_at || session.created_at;
+    const dateObj = new Date(dateSource);
+    const dateStr =
+      dateObj.toLocaleDateString('pt-BR') +
+      ' às ' +
+      dateObj.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
     if (isCurrent) {
       currentSessionHtml += `
@@ -772,100 +858,242 @@ async function fetchSessions() {
 }
 
 async function removeSession(sessionId) {
+  if (!userId || !sessionId) return;
+
+  const currentSessionId = localStorage.getItem('local_session_id');
+  if (sessionId === currentSessionId) {
+    toast('Esta é a sessão atual.', 'info');
+    return;
+  }
+  const confirmed = confirm('Tem certeza que deseja encerrar esta sessão?');
+
+  if (!confirmed) return;
   toast('Encerrando sessão...', 'info');
-  
   const { error } = await supabaseClient
     .from('user_sessions')
     .delete()
-    .eq('id', sessionId);
-    
+    .eq('id', sessionId)
+    .eq('user_id', userId);
+  
   if (error) {
+    console.error('Erro ao encerrar sessão:', error);
     toast('Erro ao encerrar sessão.', 'err');
-  } else {
-    toast('Sessão encerrada com sucesso.', 'ok');
-    fetchSessions();
+    return;
   }
+  toast('Sessão encerrada com sucesso.', 'ok');
+  await fetchSessions();
 }
 
 async function verifySessionOnLoad() {
   const localSessionId = localStorage.getItem('local_session_id');
-  if (!localSessionId) return;
-
+  if (!localSessionId) {
+    return true;
+  }
   const { data, error } = await supabaseClient
     .from('user_sessions')
     .select('id')
     .eq('id', localSessionId)
-    .single();
+    .eq('user_id', userId)
+    .maybeSingle();
   
-  if (error || !data) {
-    await forceLocalLogout();
+  if (error) {
+    console.error('Erro ao verificar sessão:', error);
+    return true;
   }
+  if (!data) {
+    await forceLocalLogout();
+    return false;
+  }
+  return true;
 }
 
 const waitt2 = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function forceLocalLogout() {
   localStorage.removeItem('local_session_id');
-  await supabaseClient.auth.signOut();
-  
+  const { error } = await supabaseClient.auth.signOut({
+    scope: 'local'
+  });
+
+  if (error) {
+    console.error('Erro ao encerrar sessão local:', error);
+  }
+
   alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
   await waitt2(1000);
   goToLogin();
 }
 
+let intentionalLocalLogout = false;
 function subscribeToSessionChanges() {
   if (!userId) return;
-  supabaseClient
-    .channel('realtime_sessions')
+  if (sessionsChannel) {
+    supabaseClient.removeChannel(sessionsChannel);
+    sessionsChannel = null;
+  }
+  sessionsChannel = supabaseClient
+    .channel(`user-sessions-${userId}`)
     .on(
       'postgres_changes',
-      { 
-        event: '*', 
-        schema: 'public', 
+      {
+        event: '*',
+        schema: 'public',
         table: 'user_sessions',
-        filter: `user_id=eq.${userId}` 
+        filter: `user_id=eq.${userId}`
       },
-      (payload) => {
-        const localSessionId = localStorage.getItem('local_session_id');
-        if (payload.eventType === 'DELETE' && payload.old.id === localSessionId) {
-          forceLocalLogout();
+      async (payload) => {
+        if (intentionalLocalLogout) {
           return;
         }
-        fetchSessions();
+        const localSessionId = localStorage.getItem('local_session_id');
+        if (
+          payload.eventType === 'DELETE' &&
+          payload.old?.id === localSessionId
+        ) {
+          await forceLocalLogout();
+          return;
+        }
+        await fetchSessions();
       }
-    ) .subscribe();
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Realtime de sessões conectado.');
+      }
+      if (status === 'CHANNEL_ERROR') {
+        console.error(
+          '❌ Erro no Realtime de sessões.'
+        );
+      }
+    });
+}
+
+let sessionHeartbeat = null;
+async function updateSessionHeartbeat() {
+  if (!userId) return;
+  const localSessionId = localStorage.getItem('local_session_id');
+  if (!localSessionId) return;
+  const { error } = await supabaseClient
+    .from('user_sessions')
+    .update({
+      last_seen_at: new Date().toISOString()
+    })
+    .eq('id', localSessionId)
+    .eq('user_id', userId);
+  if (error) {
+    console.warn(
+      'Falha ao atualizar atividade da sessão:',
+      error.message
+    );
+  }
+}
+
+function startSessionHeartbeat() {
+  if (sessionHeartbeat) {
+    clearInterval(sessionHeartbeat);
+  }
+  updateSessionHeartbeat();
+  sessionHeartbeat = setInterval(
+    updateSessionHeartbeat,
+    60 * 1000
+  );
 }
 
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  localStorage.removeItem('local_session_id'); 
-  await supabaseClient.auth.signOut({scope: 'local'});
-  toast('Você saiu da conta, recarregando a página.', 'info');
+let intentionalLocalLogout = false;
+let sessionsChannel = null;
+
+async function doLogout() {
+  if (intentionalLocalLogout) return;
+  intentionalLocalLogout = true;
+  toast('Saindo da conta... 👋', 'info');
   
-  await waitt(1000);
+  const localSessionId = localStorage.getItem('local_session_id');
+  if (localSessionId && userId) {
+    const { error } = await supabaseClient
+      .from('user_sessions')
+      .delete()
+      .eq('id', localSessionId)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn(
+        'Não foi possível remover o registro da sessão:',
+        error.message
+      );
+    }
+  }
+
+  localStorage.removeItem('local_session_id');
+  const { error: signOutError } =
+    await supabaseClient.auth.signOut({
+      scope: 'local'
+    });
+  
+  if (signOutError) {
+    console.error(
+      'Erro ao fazer logout:',
+      signOutError
+    );
+  }
+  toast('Você saiu da conta.', 'info');
+  await waitt(700);
   window.location.reload();
 }
 
 // LOGOUT OTHERS DEVICES
-async function doOthersLogout() { 
-  toast('Saindo da conta em outros dispositivos...', 'info'); 
-  const { error } = await supabaseClient.auth.signOut({scope: 'others'});
+async function doOthersLogout() {
+  if (!userId) return;
+  const confirmed = confirm(
+    'Isso encerrará a conta em todos os outros dispositivos. Continuar?'
+  );
   
-  if(error) {
-    toast('Erro ao sair de outros dispositivos.', 'err');
+  if (!confirmed) return;
+  toast(
+    'Saindo da conta em outros dispositivos...',
+    'info'
+  );
+
+  const { error: authError } =
+    await supabaseClient.auth.signOut({
+      scope: 'others'
+    });
+  if (authError) {
+    console.error(
+      'Erro no logout dos outros dispositivos:',
+      authError
+    );
+    toast(
+      'Erro ao sair de outros dispositivos.',
+      'err'
+    );
     return;
   }
 
   const localSessionId = localStorage.getItem('local_session_id');
   if (localSessionId) {
-    await supabaseClient
-      .from('user_sessions')
-      .delete()
-      .neq('id', localSessionId)
-      .eq('user_id', userId);
+    const { error: dbError } =
+      await supabaseClient
+        .from('user_sessions')
+        .delete()
+        .eq('user_id', userId)
+        .neq('id', localSessionId);
+
+    if (dbError) {
+      console.error(
+        'Erro ao sincronizar user_sessions:',
+        dbError
+      );
+
+      toast(
+        'As sessões foram encerradas, mas houve erro ao atualizar a lista.', 'err'
+      );
+      await fetchSessions();
+      return;
+    }
   }
-  
-  toast('Logout em outros dispositivos realizado com sucesso!', 'ok');
-  fetchSessions();
+  toast(
+    'Logout em outros dispositivos realizado com sucesso!', 'ok'
+  );
+  await fetchSessions();
 }
