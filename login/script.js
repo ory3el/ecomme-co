@@ -153,40 +153,115 @@ function getDeviceInfo() {
   let browser = "Desconhecido";
   let os = "Desconhecido";
 
-  if (ua.includes("Firefox")) browser = "Firefox";
-  else if (ua.includes("Edg")) browser = "Edge";
-  else if (ua.includes("Chrome")) browser = "Chrome";
-  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+  // Browser
+  if (/Edg\//i.test(ua)) {
+    browser = "Edge";
+  } else if (/OPR\//i.test(ua) || /Opera/i.test(ua)) {
+    browser = "Opera";
+  } else if (/Firefox\//i.test(ua)) {
+    browser = "Firefox";
+  } else if (/SamsungBrowser/i.test(ua)) {
+    browser = "Samsung Internet";
+  } else if (/Chrome\//i.test(ua)) {
+    browser = "Chrome";
+  } else if (/Safari\//i.test(ua) && !/Chrome|Chromium/i.test(ua)) {
+    browser = "Safari";
+  }
 
-  if (ua.includes("Win")) os = "Windows";
-  else if (ua.includes("Mac")) os = "macOS";
-  else if (ua.includes("Linux")) os = "Linux";
-  else if (ua.includes("Android")) os = "Android";
-  else if (ua.includes("like Mac")) os = "iOS";
+  // OS
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    os = "iOS";
+  } else if (/Android/i.test(ua)) {
+    os = "Android";
+  } else if (/Windows/i.test(ua)) {
+    os = "Windows";
+  } else if (/Macintosh|Mac OS X/i.test(ua)) {
+    os = "macOS";
+  } else if (/Linux/i.test(ua)) {
+    os = "Linux";
+  }
 
   return { browser, os };
 }
 
 async function registerNewSession(userId) {
-  if (localStorage.getItem('local_session_id')) return;
+  if (!userId) return;
 
+  let localSessionId = localStorage.getItem('local_session_id');
+  if (localSessionId) {
+    const { data: existingSession, error } =
+      await supabaseClient
+        .from('user_sessions')
+        .select('id')
+        .eq('id', localSessionId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    
+    if (!existingSession || error) {
+      localStorage.removeItem('local_session_id');
+      localSessionId = null;
+    }
+  }
   const { browser, os } = getDeviceInfo();
   let ip = "Desconhecido";
-  
   try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const data = await res.json();
-    ip = data.ip;
-  } catch(e) { console.log("Não foi possível capturar o IP"); }
-
-  const { data, error } = await supabaseClient
-    .from('user_sessions')
-    .insert([{ user_id: userId, browser, os, ip_address: ip }])
-    .select()
-    .single();
-      
-  if (data && !error) {
-    localStorage.setItem('local_session_id', data.id);
+    const res = await fetch(
+      'https://api.ipify.org?format=json'
+    );
+    if (res.ok) {
+      const data = await res.json();
+      ip = data.ip || "Desconhecido";
+    }
+  } catch (e) {
+    console.warn(
+      "Não foi possível capturar o IP."
+    );
+  }
+  if (localSessionId) {
+    const { error } = await supabaseClient
+      .from('user_sessions')
+      .update({
+        browser,
+        os,
+        ip_address: ip,
+        last_seen_at: new Date().toISOString()
+      })
+      .eq('id', localSessionId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error(
+        'Erro ao atualizar sessão:',
+        error
+      );
+    }
+    return;
+  }
+  const { data, error } =
+    await supabaseClient
+      .from('user_sessions')
+      .insert([{
+        user_id: userId,
+        browser,
+        os,
+        ip_address: ip,
+        last_seen_at: new Date().toISOString()
+      }])
+      .select('id')
+      .single();
+  
+  if (error) {
+    console.error(
+      '🚨 ERRO AO SALVAR SESSÃO:',
+      error.message
+    );
+    return;
+  }
+  if (data?.id) {
+    localStorage.setItem(
+      'local_session_id',
+      data.id
+    );
   }
 }
 
