@@ -28,7 +28,7 @@ function injectPrefetch(url) {
 }
 
 let products = [];
-let shuffled = [];
+let shuffled = [...products];
 
 /* --------------------------- */
 let isScrolling = false;
@@ -369,7 +369,6 @@ let fav = [];
 let curId = null;
 let mQtyVal = 1;
 let view = 'grid';
-let shuffled = [...products];
 
 // ============================================================
 const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
