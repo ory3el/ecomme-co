@@ -1055,9 +1055,10 @@ loadShuffleAndRender();
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
-  toast('Conta deslogada.', 'info');
+  toast('Conta deslogada, recarregando a página.', 'info');
   
   closeAcc();
+  await sleep(2000);
   window.location.reload()
 }
 
