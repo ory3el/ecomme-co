@@ -686,6 +686,7 @@ async function registerCurrentSession() {
   if (!localSessionId) {
     const { browser, os } = getDeviceInfo();
     let ip = "Desconhecido";
+    
     try {
       const res = await fetch('https://api.ipify.org?format=json');
       const data = await res.json();
@@ -698,7 +699,11 @@ async function registerCurrentSession() {
       .select()
       .single();
         
-    if (data && !error) {
+    if (error) {
+      console.error("🚨 ERRO AO SALVAR SESSÃO:", error.message);
+      return; 
+    }
+    if (data) {
       localStorage.setItem('local_session_id', data.id);
     }
   }
@@ -834,6 +839,7 @@ function subscribeToSessionChanges() {
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
+  localStorage.removeItem('local_session_id'); 
   await supabaseClient.auth.signOut({scope: 'local'});
   toast('Você saiu da conta, recarregando a página.', 'info');
   
