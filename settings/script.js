@@ -87,8 +87,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     goToLogin()
     return;
   }
-
-  userId = user.id; 
+  userId = user.id;
 
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
@@ -167,11 +166,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const sessionStillValid = await verifySessionOnLoad();
     if (!sessionStillValid) {
-      return;
+    return;
     }
     await registerCurrentSession();
     await fetchSessions();
     subscribeToSessionChanges();
+    startSessionCheck();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
@@ -886,16 +886,17 @@ async function removeSession(sessionId) {
 
 async function verifySessionOnLoad() {
   const localSessionId = localStorage.getItem('local_session_id');
-  if (!localSessionId) {
+  if (!localSessionId || !userId) {
     return true;
   }
+
   const { data, error } = await supabaseClient
     .from('user_sessions')
     .select('id')
     .eq('id', localSessionId)
     .eq('user_id', userId)
     .maybeSingle();
-  
+
   if (error) {
     console.error('Erro ao verificar sessão:', error);
     return true;
@@ -905,6 +906,38 @@ async function verifySessionOnLoad() {
     return false;
   }
   return true;
+}
+
+let sessionCheckInterval = null;
+let sessionCheckRunning = false;
+function startSessionCheck() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+  }
+
+  sessionCheckInterval = setInterval(async () => {
+    if (sessionCheckRunning) return;
+    sessionCheckRunning = true;
+    try {
+      const valid = await verifySessionOnLoad();
+      if (!valid) {
+        stopSessionCheck();
+      }
+    } catch (error) {
+      console.error(
+        'Erro na verificação automática da sessão:',
+        error
+      );
+    } finally {
+      sessionCheckRunning = false;
+    }
+  }, 10_000);
+}
+function stopSessionCheck() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+    sessionCheckInterval = null;
+  }
 }
 
 const waitt2 = (ms) => new Promise(resolve => setTimeout(resolve, ms));
