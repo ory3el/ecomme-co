@@ -147,10 +147,54 @@ async function doRegister(){
 // ── LOCK VARIABLE ──
 let redirectionInProgress = false;
 
+// ── DEVICE REGISTER ──────────────────────
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let browser = "Desconhecido";
+  let os = "Desconhecido";
+
+  if (ua.includes("Firefox")) browser = "Firefox";
+  else if (ua.includes("Edg")) browser = "Edge";
+  else if (ua.includes("Chrome")) browser = "Chrome";
+  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+
+  if (ua.includes("Win")) os = "Windows";
+  else if (ua.includes("Mac")) os = "macOS";
+  else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("Android")) os = "Android";
+  else if (ua.includes("like Mac")) os = "iOS";
+
+  return { browser, os };
+}
+
+async function registerNewSession(userId) {
+  if (localStorage.getItem('local_session_id')) return;
+
+  const { browser, os } = getDeviceInfo();
+  let ip = "Desconhecido";
+  
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    ip = data.ip;
+  } catch(e) { console.log("Não foi possível capturar o IP"); }
+
+  const { data, error } = await supabaseClient
+    .from('user_sessions')
+    .insert([{ user_id: userId, browser, os, ip_address: ip }])
+    .select()
+    .single();
+      
+  if (data && !error) {
+    localStorage.setItem('local_session_id', data.id);
+  }
+}
+
 // ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session && !redirectionInProgress) {
     redirectionInProgress = true;
+    await registerNewSession(session.user.id);
 
     const finalDestination = getTargetUrl();
     if (window.location.search || window.location.hash) {
