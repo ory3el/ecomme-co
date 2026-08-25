@@ -931,7 +931,7 @@ function startSessionCheck() {
     } finally {
       sessionCheckRunning = false;
     }
-  }, 10_000);
+  }, 5_000);
 }
 function stopSessionCheck() {
   if (sessionCheckInterval) {
