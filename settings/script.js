@@ -471,7 +471,7 @@ async function doLogout() {
   window.location.reload();
 }
 
-const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// LOGOUT OTHERS DEVICES
 async function doOthersLogout() { 
   toast('Saindo da conta em outros dispositivos...', 'info'); 
   await supabaseClient.auth.signOut({scope: 'others'});
