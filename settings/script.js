@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!user || userError) {
     console.warn("Sessão inválida ou expirada. Redirecionando...");
-    window.location.href = '/login/';
+    goToLogin()
     return;
   }
 
@@ -461,7 +461,7 @@ async function removePhoto(event) {
 async function doLogout() { 
   toast('Saindo da conta... 👋', 'info'); 
   await supabaseClient.auth.signOut();
-  buttonLink('/login')
+  goToLogin()
 }
 
 // ── SUPABASE: ADDRESSES ───────────────────────────
