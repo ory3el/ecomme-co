@@ -1,7 +1,7 @@
 function showConsoleWarning() {
   console.log(
     '%cAVISO',
-    'background: rgba(255,255,255,0.9); color: red; font-size: 20px; font-weight: bold; padding: 2px 4px; border-radius: 15px;'
+    'background: white; color: red; font-size: 20px; font-weight: bold; padding: 2px 4px; border-radius: 5px;'
   );
   console.log(
     '%cO uso deste console pode permitir que invasores falsifiquem sua identidade para roubar informações por meio de um ataque chamado Self-XSS.\nNão insira nem cole códigos que você não conheça.',
