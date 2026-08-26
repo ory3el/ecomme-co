@@ -1,11 +1,11 @@
 function showConsoleWarning() {
   console.log(
     '%cAVISO',
-    'background: rgba(255, 100, 100, 1); color: #fff; font-size: 20px; font-weight: bold; padding: 2px 4px; border-radius: 150px;'
+    'background: rgba(255,0,0,0.5); color: #fff; font-size: 20px; font-weight: bold; padding: 2px 4px; border-radius: 15px;'
   );
   console.log(
     '%cO uso deste console pode permitir que invasores falsifiquem sua identidade para roubar informações por meio de um ataque chamado Self-XSS.\nNão insira nem cole códigos que você não conheça.',
-    'color: #fff; background: #000; font-size: 18px; line-height: 1.5;'
+    'color: #fff; background: rgba(255,0,0,0.5); font-size: 18px; line-height: 1.5; padding: 2px;'
   );
 }
 showConsoleWarning();
