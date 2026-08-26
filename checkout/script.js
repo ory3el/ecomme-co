@@ -148,8 +148,13 @@ let curId = null;
 let mQtyVal = 1;
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt  = p => 'R$ ' + p.toFixed(2).replace('.', ',');
-const $    = id  => document.getElementById(id);
+const fmt = value => {const number = Number(value);
+  if (!Number.isFinite(number)) {return 'R$ 0,00';}
+  return ('R$ ' + number.toFixed(2).replace('.', ',')
+  );
+};
+
+const $ = id  => document.getElementById(id);
 
 function starsHtml(r) {
   let s = '';
