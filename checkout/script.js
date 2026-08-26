@@ -766,7 +766,15 @@ function spawnConfetti(){
 }
 
 // ── HELPERS ─────────────────────────────────────────────
-function fp(p){return 'R$ '+p.toFixed(2).replace('.',',')}
+function fp(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)
+  ) {
+    return 'R$ 0,00';
+  }
+  return ('R$ ' + number.toFixed(2).replace('.', ',')
+  );
+}
 
 function toast(msg,type='ok'){
   const t=document.getElementById('toast');
