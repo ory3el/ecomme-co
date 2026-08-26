@@ -269,28 +269,37 @@ const { error } = await supabaseClient
 async function loadFromSupabase() {
   if (!userId) return;
 
-  const { data, error } = await supabaseClient
+  const {data, error} = await supabaseClient
     .from('profiles')
     .select('cart, fav, addresses')
     .eq('id', userId)
     .single();
 
-  if (!error && data) {
-    if (data.cart) { cart = data.cart; cartItems = data.cart; }
-    
-    if (data.addresses) {
-      savedAddresses = data.addresses;
-    }
+  if (error) {
+    console.error(
+      'Erro ao carregar dados do checkout:',
+      error
+    );
 
-    renderCart();
-    renderSummary();
-    renderAddresses();
-
-    if (typeof updateCart === 'function') updateCart();
-    if (typeof updateFav === 'function') updateFav(); 
+    return;
   }
+  
+  cartItems = hydrateCartItems(
+      data?.cart
+    );
+
+  cart = cartItems;
+  savedAddresses =
+    Array.isArray(data?.addresses)
+      ? data.addresses
+      : [];
+
+  renderCart();
+  renderSummary();
+  renderAddresses();
 }
 
+// -------------------------------------------------
 async function loadProductsFromSupabase() {
   const { data, error } = await supabaseClient
     .from('products')
@@ -307,6 +316,52 @@ async function loadProductsFromSupabase() {
     shuffled = [...products];
   }
 }
+
+function hydrateCartItems(
+  savedCart
+) {
+  if (!Array.isArray(savedCart)) {
+    return [];
+  }
+
+  return savedCart
+    .map(savedItem => {
+
+      const savedId =
+        String(
+          savedItem?.id ??
+          savedItem?.product_id ??
+          ''
+        );
+
+      if (!savedId) {
+        return null;
+      }
+
+      const product = products.find(item => String(item.id) === savedId);
+      if (!product) {
+        console.warn(
+          'Produto do carrinho não encontrado:',
+          savedId
+        );
+
+        return null;
+      }
+
+      return {
+        ...product,
+        id: savedId,
+        qty: Math.max(
+          1,
+          Number(
+            savedItem?.qty
+          ) || 1
+        )
+      };
+    })
+    .filter(Boolean);
+}
+
 // ── STATE ──────────────────────────────────────────────
 let cartItems = [];
 let discount = 0;
