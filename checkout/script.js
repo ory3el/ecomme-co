@@ -398,27 +398,199 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 
 // ── CART ───────────────────────────────────────────────
-function renderCart(){
-  const list = document.getElementById('cartList');
-  if(!cartItems.length){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px">🛒 Carrinho vazio</div>';return;}
-  list.innerHTML = cartItems.map(it => `
-    <div class="ci" id="ci-${it.id}">
-      <div class="ci-em">${it.emoji}</div>
-      <div style="flex:1;min-width:0">
-        <div class="ci-name">${it.name}</div>
-        <div class="ci-meta">${it.cat}</div>
-        <div class="qty-ctrl">
-          <button class="qbtn" onclick="chgQty(${it.id},-1)">−</button>
-          <span class="qn" id="q-${it.id}">${it.qty}</span>
-          <button class="qbtn" onclick="chgQty(${it.id},1)">+</button>
-        </div>
+function renderCart() {
+  const list =
+    document.getElementById(
+      'cartList'
+    );
+
+  if (!list) {
+    return;
+  }
+
+  if (!cartItems.length) {
+    list.innerHTML = `
+      <div
+        style="
+          text-align:center;
+          padding:32px;
+          color:var(--muted);
+          font-size:13px;
+        "
+      >
+        🛒 Carrinho vazio
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div class="ci-price" id="p-${it.id}">${fp(it.price*it.qty)}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${fp(it.price)} un.</div>
-      </div>
-      <button class="rm-btn" onclick="rmItem(${it.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-    </div>`).join('');
+    `;
+
+    return;
+  }
+
+  list.innerHTML =
+    cartItems
+      .map(item => {
+
+        const id =
+          String(item.id);
+
+        const qty =
+          Math.max(
+            1,
+            Number(item.qty) || 1
+          );
+
+        const price =
+          Number(item.price) || 0;
+
+        const category =
+          Array.isArray(item.cat)
+            ? item.cat.join(', ')
+            : String(
+                item.cat || ''
+              );
+
+        return `
+          <div
+            class="ci"
+            id="ci-${escapeHtml(id)}"
+          >
+
+            <div class="ci-em">
+              ${escapeHtml(
+                item.emoji || '📦'
+              )}
+            </div>
+
+            <div
+              style="
+                flex:1;
+                min-width:0;
+              "
+            >
+
+              <div class="ci-name">
+                ${escapeHtml(
+                  item.name ||
+                  'Produto'
+                )}
+              </div>
+
+              <div class="ci-meta">
+                ${escapeHtml(
+                  category
+                )}
+              </div>
+
+              <div class="qty-ctrl">
+
+                <button
+                  class="qbtn"
+                  onclick="
+                    chgQty(
+                      '${escapeJs(
+                        id
+                      )}',
+                      -1
+                    )
+                  "
+                >
+                  −
+                </button>
+
+                <span
+                  class="qn"
+                  id="q-${escapeHtml(id)}"
+                >
+                  ${qty}
+                </span>
+
+                <button
+                  class="qbtn"
+                  onclick="
+                    chgQty(
+                      '${escapeJs(
+                        id
+                      )}',
+                      1
+                    )
+                  "
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+            <div
+              style="
+                text-align:right;
+                flex-shrink:0;
+              "
+            >
+
+              <div
+                class="ci-price"
+                id="p-${escapeHtml(id)}"
+              >
+                ${fp(
+                  price * qty
+                )}
+              </div>
+
+              <div
+                style="
+                  font-size:10px;
+                  color:var(--muted);
+                  margin-top:2px;
+                "
+              >
+                ${fp(price)} un.
+              </div>
+
+            </div>
+
+            <button
+              class="rm-btn"
+              onclick="
+                rmItem(
+                  '${escapeJs(
+                    id
+                  )}'
+                )
+              "
+            >
+              <svg
+                viewBox="0 0 24 24"
+              >
+                <polyline
+                  points="
+                    3 6
+                    5 6
+                    21 6
+                  "
+                />
+
+                <path
+                  d="
+                    M19 6v14
+                    a2 2 0 0 1
+                    -2 2H7
+                    a2 2 0 0 1
+                    -2-2V6
+                    m3 0V4
+                    a1 1 0 0 1
+                    1-1h4
+                    a1 1 0 0 1
+                    1 1v2
+                  "
+                />
+              </svg>
+            </button>
+
+          </div>
+        `;
+      })
+      .join('');
 }
 
 function chgQty(id, d){
