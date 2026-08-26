@@ -963,5 +963,51 @@ function toast(msg,type='ok'){
   clearTimeout(t._t);
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
-
 window.addEventListener('keydown',e=>{ if(e.key==='Escape') flipCard(false); });
+
+function escapeHtml(value) {
+  return String(
+    value ?? ''
+  )
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+}
+function escapeJs(value) {
+  return String(
+    value ?? ''
+  )
+    .replace(
+      /\\/g,
+      '\\\\'
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    )
+    .replace(
+      /\r/g,
+      '\\r'
+    )
+    .replace(
+      /\n/g,
+      '\\n'
+    );
+}
