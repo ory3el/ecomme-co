@@ -1,4 +1,4 @@
-import { showConsoleWarning } from 'files/scripts/console-warning.js';
+import { showConsoleWarning } from '/files/scripts/console-warning.js';
 showConsoleWarning();
 
 // ── NAV LINKS ──────────────────────────────────────
