@@ -1,6 +1,3 @@
-import showConsoleWarning from '/files/scripts/console-warning.js';
-showConsoleWarning();
-
 // ── NAV LINKS ──────────────────────────────────────
 function buttonLink(url) {
   window.location.href = url;
