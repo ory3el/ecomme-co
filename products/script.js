@@ -1943,7 +1943,9 @@ function getProductImages(product) {
 
 const pLoading = document.getElementById('pLoading');
 function pLoadingNone() {
-  pLoading.style.display = 'none';
+  if (pLoading) {
+    pLoading.style.display = 'none';
+  }
 }
 pLoadingNone();
 
