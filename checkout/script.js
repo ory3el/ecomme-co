@@ -252,21 +252,28 @@ document.addEventListener('keydown', e => {
 
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
-  if (!userId) return;
-  
-const currentFav = fav;
-const currentCart = cart;
+  if (!userId) {
+    return;
+  }
 
-const { error } = await supabaseClient
-.from("profiles")
-.update({
-    cart: currentCart,
-    fav: currentFav
-})
-.eq("id", userId);
+  const cartToSave = cartItems.map(item => ({id: String(item.id), qty: Math.max(1, Number(item.qty) || 1)}));
+  const {error} =
+    await supabaseClient
+      .from('profiles')
+      .update({
+        cart:
+          cartToSave
+      })
+      .eq(
+        'id',
+        userId
+      );
 
   if (error) {
-    console.error("Erro ao sincronizar dados com o Supabase:", error);
+    console.error(
+      'Erro ao sincronizar carrinho:',
+      error
+    );
   }
 }
 
@@ -593,35 +600,68 @@ function renderCart() {
       .join('');
 }
 
-function chgQty(id, d){
-  const it = cartItems.find(x => x.id === id);
-  if(it){ 
-    it.qty = Math.max(1, it.qty + d); 
-    cart = cartItems; 
-    
-    document.getElementById('q-' + id).textContent = it.qty; 
-    document.getElementById('p-' + id).textContent = fp(it.price * it.qty); 
-    
-    renderSummary(); 
-    syncToSupabase();
+// -----------------------------------
+function chgQty(id, delta) {
+  const normalizedId = String(id);
+  const item =
+    cartItems.find(
+      product =>
+        String(
+          product.id
+        ) === normalizedId
+    );
+
+  if (!item) {return;}
+  item.qty = Math.max(1, Number(item.qty || 1) + Number(delta || 0));
+  cart = cartItems;
+  const qtyElement =
+    document.getElementById(
+      'q-' + normalizedId
+    );
+  const priceElement =
+    document.getElementById(
+      'p-' + normalizedId
+    );
+  if (qtyElement) {
+    qtyElement.textContent =
+      item.qty;
   }
+  if (priceElement) {
+    priceElement.textContent =
+      fp(
+        Number(item.price || 0) *
+        item.qty
+      );
+  }
+  renderSummary();
+  buildInstallOpts();
+  syncToSupabase();
 }
 
-function rmItem(id){
-  const el = document.getElementById('ci-'+id);
-  if(el){ 
-    el.style.transition='all .3s'; 
-    el.style.opacity='0'; 
-    el.style.transform='translateX(20px)'; 
-    
-    setTimeout(()=>{ 
-      cartItems = cartItems.filter(x=>x.id!==id); 
-      cart = cartItems; 
-      renderCart(); 
-      renderSummary(); 
-      syncToSupabase();
-    }, 300); 
+function rmItem(id) {
+  const normalizedId = String(id);
+  const element = document.getElementById('ci-' + normalizedId);
+  if (element) {
+    element.style.transition = 'opacity .3s, transform .3s';
+    element.style.opacity = '0';
+    element.style.transform = 'translateX(20px)';
   }
+
+  setTimeout(() => {
+      cartItems =
+        cartItems.filter(
+          item =>
+            String(
+              item.id
+            ) !== normalizedId
+        );
+
+      cart = cartItems;
+      renderCart();
+      renderSummary();
+      syncToSupabase();
+    },300
+  );
 }
 
 // ── COUPON ─────────────────────────────────────────────
@@ -635,11 +675,11 @@ function applyCoupon(){
 }
 
 // ── SUMMARY ────────────────────────────────────────────
-function renderSummary(){
-  const raw = cartItems.reduce((s,i)=>s+i.price*i.qty,0);
-  const dis = raw * discount;
-  const pixDis = payMethod==='pix' ? (raw-dis)*0.05 : 0;
-  const total = raw - dis - pixDis + shipping;
+function renderSummary() {
+  const raw = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
+  const dis = raw * (Number(discount) || 0);
+  const pixDis = payMethod === 'pix' ? (raw - dis) * 0.05 : 0;
+  const total = raw - dis - pixDis + (Number(shipping) || 0);
 
   document.getElementById('sumCount').textContent = `(${cartItems.reduce((s,i)=>s+i.qty,0)} itens)`;
   document.getElementById('sumSub').textContent = fp(raw);
@@ -885,17 +925,23 @@ function onCardName(inp){ document.getElementById('cardNameDisp').textContent=in
 function onCardExp(inp){ let v=inp.value.replace(/\D/g,'').slice(0,4); if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2); inp.value=v; document.getElementById('cardExpDisp').textContent=v||'MM/AA'; }
 function onCvv(inp){ document.getElementById('cvvDisp').textContent=inp.value||'•••'; }
 
+// ------------------------------------------------------------------------------
 const sumTotal = document.getElementById('sumTotal').textContent;
+function buildInstallOpts() {
+  const total = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
+  const opts = [1, 2, 3, 4, 5, 6];
+  const container = document.getElementById('installOpts');
+  if (!container) {return;}
 
-function buildInstallOpts(){
-  const total=cartItems.reduce((s,i)=>s+i.price*i.qty,0);
-  const opts=[1,2,3,4,5,6];
-  document.getElementById('installOpts').innerHTML=opts.map(n=>`
-    <div class="inst-btn ${n===1?'on':''}" onclick="selInstall(this,${n})">
-      <span class="inst-n">${n}×</span>
-      <div class="inst-val">${sumTotal}</div>
-      ${n===1?'<span class="inst-badge">À vista</span>':n<=3?'<span class="inst-badge">Sem juros</span>':''}
-    </div>`).join('');
+  container.innerHTML = opts.map(n => {
+    const installment = total / n;
+          return 
+            `<div class="inst-btn ${n === 1 ? 'on' : ''}" onclick="selInstall(this,${n})">
+              <span class="inst-n">${n}×</span>
+              <div class="inst-val">${fp(installment)}</div>
+              ${n === 1 ? `<span class="inst-badge">À vista</span>`: n <= 3 ? `<span class="inst-badge">Sem juros</span>` : ''}
+            </div>`; }
+    ) .join('');
 }
 
 function selInstall(btn,n){ document.querySelectorAll('.inst-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); installSel=n; renderSummary(); }
@@ -965,6 +1011,7 @@ function toast(msg,type='ok'){
 }
 window.addEventListener('keydown',e=>{ if(e.key==='Escape') flipCard(false); });
 
+// ----------------------------------------
 function escapeHtml(value) {
   return String(
     value ?? ''
