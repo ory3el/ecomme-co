@@ -5,7 +5,7 @@ function showConsoleWarning() {
   );
   console.log(
     '%cO uso deste console pode permitir que invasores falsifiquem sua identidade para roubar informações por meio de um ataque chamado Self-XSS.\nNão insira nem cole códigos que você não conheça.',
-    'color: red; background: #fff; font-size: 18px; line-height: 1.5; padding: 2px; font-weight: 400;'
+    'color: red; background: rgba(255,0,0,0.15); font-size: 18px; line-height: 1.5; padding: 2px; font-weight: 600; border-radius: 5px; '
   );
 }
 showConsoleWarning()
