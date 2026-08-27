@@ -939,7 +939,6 @@ async function loadProductsFromSupabase() {
   products = (data || []).map(normalizeProduct);
   shuffled = [...products];
   productDataSignature = createProductsSignature(products);
-  pLoadingNone();
   return true;
 }
 
