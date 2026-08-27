@@ -1941,7 +1941,7 @@ function getProductImages(product) {
   return images.slice(0, 5);
 }
 
-const pLoading = document.querySelectorAll('.pLoading');
+const pLoading = document.getElementById('pLoading');
 function pLoadingNone() {
   pLoading.style.display = 'none';
 }
