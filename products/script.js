@@ -1731,6 +1731,7 @@ function getFilteredList() {
 
 /* ------------------------------- */
 function renderProducts() {
+  pLoadingFlex();
   const grid = $('productsGrid');
   if (!grid) return;
   const q = (
@@ -1753,6 +1754,7 @@ function renderProducts() {
   const list = getFilteredList();
 
   if (!list.length) {
+    pLoadingNone();
     grid.innerHTML = `
       <div class="empty">
         <div class="empty-ico">
@@ -1779,14 +1781,12 @@ function renderProducts() {
     return;
   }
 
-  const slice = list.slice(
-    0,
-    visibleCount
-  );
+  const slice = list.slice(0, visibleCount);
   grid.innerHTML = slice
     .map(productCardHtml)
     .join('');
 
+  pLoadingFlex();
   prepareProductImageAnimations(grid);
   if (slice.length < list.length) {
     const sentinel =
@@ -1934,6 +1934,11 @@ const pLoading = document.getElementById('pLoading');
 function pLoadingNone() {
   if (pLoading) {
     pLoading.style.display = 'none';
+  }
+}
+function pLoadingFlex() {
+  if (pLoading) {
+    pLoading.style.display = 'flex';
   }
 }
 
