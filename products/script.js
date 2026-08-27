@@ -1785,7 +1785,7 @@ function renderProducts() {
     .map(productCardHtml)
     .join('');
 
-  pLoadingFlex();
+  pLoadingNone();
   prepareProductImageAnimations(grid);
   if (slice.length < list.length) {
     const sentinel =
