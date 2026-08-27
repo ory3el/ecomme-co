@@ -920,22 +920,14 @@ function moveFromCartToFav(id) {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
-  const {
-    data,
-    error
-  } = await supabaseClient
+  const {data, error} = await supabaseClient
     .from('products')
     .select('*')
-    .order(
-      'id',
-      {
-        ascending: true
-      }
-    );
+    .order('id', {ascending: true});
 
   if (error) {
     console.error(
-      'Erro ao carregar produtos do Supabase:',
+      'Erro ao carregar produtos:',
       error
     );
 
@@ -944,13 +936,10 @@ async function loadProductsFromSupabase() {
     return false;
   }
 
-  products =
-    (data || []).map(
-      normalizeProduct
-    );
-  
+  products = (data || []).map(normalizeProduct);
   shuffled = [...products];
   productDataSignature = createProductsSignature(products);
+  pLoadingNone();
   return true;
 }
 
@@ -1947,7 +1936,6 @@ function pLoadingNone() {
     pLoading.style.display = 'none';
   }
 }
-pLoadingNone();
 
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
