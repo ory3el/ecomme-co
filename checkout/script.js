@@ -39,6 +39,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (profileContainer) profileContainer.classList.add('hidden');
     injectPrefetch('/login');
+    renderCart();
+    renderSummary();
+    buildInstallOpts();
+    buildQR();
+    buildBarcode();
+    startPixTimer();
     return;
   }
   userId = user.id; 
@@ -391,18 +397,6 @@ async function doLogout() {
   await supabaseClient.auth.signOut();
   buttonLink('/login')
 }
-
-// ── INIT ───────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-  syncToSupabase();
-  renderCart();
-  renderSummary();
-  buildInstallOpts();
-  buildQR();
-  buildBarcode();
-  startPixTimer();
-});
-
 
 // ── CART ───────────────────────────────────────────────
 function renderCart() {
