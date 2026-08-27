@@ -1941,6 +1941,12 @@ function getProductImages(product) {
   return images.slice(0, 5);
 }
 
+const pLoading = document.getElementById('pLoading');
+function pLoadingNone {
+  pLoading.style.display = "none";
+}
+pLoadingNone();
+
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() { 
