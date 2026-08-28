@@ -14,11 +14,11 @@ function injectModalStyles() {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10001;
+  z-index: 250000;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity .3s ease, visibility .3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .loading-modal-container.active {
