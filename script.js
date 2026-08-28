@@ -1048,8 +1048,6 @@ loadShuffleAndRender();
 
 // LOGOUT
 async function doLogout() {
-  if (intentionalLocalLogout) return;
-  intentionalLocalLogout = true;
   toast('Saindo da conta... 👋', 'info');
   
   const localSessionId = localStorage.getItem('local_session_id');
