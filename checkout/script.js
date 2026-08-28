@@ -33,7 +33,6 @@ let userId = null;
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-  showLoadingModal('Carregando checkout...', 'Buscando seus produtos e informações.');
   const loginBtn = document.getElementById('authLoginBtn');
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
