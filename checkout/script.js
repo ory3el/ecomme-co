@@ -1156,3 +1156,19 @@ function getProductImages(product) {
   }
   return images.slice(0, 5);
 }
+
+// ----------------------------------------
+function getOptimizedImageUrl(sourceUrl, preset = 'grid') {
+  if (!sourceUrl) {
+    return '';
+  }
+  try {
+    const workerUrl = new URL(EDGE_IMAGE_ZONE);
+    workerUrl.searchParams.set('preset', preset);
+    workerUrl.searchParams.set('src', sourceUrl);
+    return workerUrl.toString();
+  } catch (error) {
+    console.error('Erro ao gerar URL otimizada:', error);
+    return sourceUrl;
+  }
+}
