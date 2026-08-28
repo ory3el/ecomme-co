@@ -30,6 +30,8 @@ input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:#93c5fd;border-radius:3px}
 
+* { -webkit-tap-highlight-color: transparent; }
+
 /* ── CSS VARS ──────────────────────────────────────────── */
 :root{
   --blueL:#3b82f6;
