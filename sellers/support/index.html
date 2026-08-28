@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Central de Suporte do Vendedor Ecomme — tire dúvidas sobre repasses, pedidos, cadastro de produtos e muito mais.">
+<title>Suporte do Vendedor | Ecomme</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/files/no-login/light-theme/styles.css">
+<link rel="stylesheet" href="sellers-support.css">
+<link rel="icon" id="favicon" type="image/png" sizes="144x144" href="/images/favicon-light.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div id="index-topbar"></div>
+<header id="index-header"></header>
+
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
+<section class="support-hero">
+  <div class="hero-grid-bg"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">Central do Vendedor</div>
+      <h1>Suporte dedicado<br>para <em>vendedores</em></h1>
+      <p>Do cadastro de produtos ao repasse na sua conta — nosso time de especialistas em marketplace está disponível 24 horas por dia, 7 dias por semana, via chat, e-mail ou WhatsApp.</p>
+      <div class="hero-search-wrap">
+        <div class="hero-search-box">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="heroSearch" placeholder="Buscar ajuda... ex: prazo de repasse">
+          <button class="btn-hero-search" onclick="handleHeroSearch()">
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+            Buscar
+          </button>
+        </div>
+        <div class="hero-suggestions">
+          <span class="hs-label">Populares:</span>
+          <button class="hs-chip" onclick="quickSearch('prazo de repasse')">💰 Prazo de repasse</button>
+          <button class="hs-chip" onclick="quickSearch('como despachar pedido')">📦 Como despachar</button>
+          <button class="hs-chip" onclick="quickSearch('emitir nota fiscal')">🧾 Nota fiscal</button>
+          <button class="hs-chip" onclick="quickSearch('tabela de comissões')">📊 Comissões</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <!-- main chat card -->
+      <div class="hcard hcard-main">
+        <div class="hc-top">
+          <div class="hc-avatar">RS</div>
+          <div>
+            <div class="hc-name">Rafael Souza</div>
+            <div class="hc-role">Especialista em Vendedores</div>
+          </div>
+        </div>
+        <div class="hc-status">Disponível agora</div>
+        <div style="margin-top:14px">
+          <div class="hc-message">Olá! Vi que o repasse de R$ 2.480,00 da sua loja caiu hoje. Posso te ajudar com mais alguma coisa? 💰</div>
+          <div class="hc-reply">Perfeito, obrigado! Só confirmando o prazo de compensação.</div>
+        </div>
+      </div>
+      <!-- response time card -->
+      <div class="hcard hcard-sm1">
+        <div class="hc-sm-head">Tempo de Resposta</div>
+        <div class="resp-row"><span class="resp-label">Chat</span><span class="resp-val">~2 min</span></div>
+        <div class="resp-row"><span class="resp-label">WhatsApp</span><span class="resp-val">~5 min</span></div>
+        <div class="resp-row" style="margin:0"><span class="resp-label">E-mail</span><span class="resp-val">~4h</span></div>
+      </div>
+      <!-- satisfaction card -->
+      <div class="hcard hcard-sm2">
+        <strong>Satisfação</strong>
+        <div class="sat-circle">
+          <svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="28"/><circle class="fill" id="satFill" cx="32" cy="32" r="28"/></svg>
+          <div class="sat-num">96%</div>
+        </div>
+        <p>vendedores satisfeitos</p>
+      </div>
+      <!-- live card -->
+      <div class="hcard hcard-sm3">
+        <div class="live-row"><div class="live-dot"></div><span class="live-label">Ao vivo</span></div>
+        <span class="live-num" id="agentsOnline">8</span>
+        <span class="live-sub">especialistas online</span>
+        <div class="wave-bars">
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS STRIP ════════════════════════════════════════════ -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-it reveal">
+      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
+      <div><strong>24/7</strong><span>Suporte sempre ativo</span></div>
+    </div>
+    <div class="stat-it reveal" style="transition-delay:.1s">
+      <div class="si-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><strong>&lt; 2 min</strong><span>Resposta no chat</span></div>
+    </div>
+    <div class="stat-it reveal" style="transition-delay:.2s">
+      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div><strong>96%</strong><span>Satisfação dos vendedores</span></div>
+    </div>
+    <div class="stat-it reveal" style="transition-delay:.3s">
+      <div class="si-ico"><svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+      <div><strong>+320</strong><span>Lojas ativas na plataforma</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOPIC CARDS ════════════════════════════════════════════ -->
+<section class="sec topics">
+  <div class="sec-head reveal">
+    <div class="sec-tag">Central de Ajuda</div>
+    <h2>O que você precisa resolver?</h2>
+    <p>Selecione o assunto abaixo para acessar os guias e soluções mais rápidas para vendedores.</p>
+  </div>
+  <div class="topics-grid">
+    <div class="topic-card reveal" onclick="showToast('Abrindo guia de cadastro de produtos...')" style="transition-delay:.05s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+      <div class="tc-name">Cadastro de Produtos</div>
+      <div class="tc-sub">Fotos, variações, categorias e importação em massa por planilha.</div>
+      <div class="tc-foot"><span class="tc-count">16 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="showToast('Abrindo guia de pedidos e despacho...')" style="transition-delay:.1s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+      <div class="tc-name">Pedidos e Despacho</div>
+      <div class="tc-sub">Como despachar, gerar etiquetas, prazos e rastreamento de envio.</div>
+      <div class="tc-foot"><span class="tc-count">13 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="location.href='/seller/saque'" style="transition-delay:.15s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+      <div class="tc-name">Pagamentos e Repasses</div>
+      <div class="tc-sub">Prazo de repasse, extrato financeiro, PIX e comprovantes.</div>
+      <div class="tc-foot"><span class="tc-count">11 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="showToast('Abrindo tabela de comissões...')" style="transition-delay:.2s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></div>
+      <div class="tc-name">Comissões e Taxas</div>
+      <div class="tc-sub">Percentual por categoria, taxas de processamento e planos.</div>
+      <div class="tc-foot"><span class="tc-count">7 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="location.href='/seller/configuracoes'" style="transition-delay:.25s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></div>
+      <div class="tc-name">Configurações da Loja</div>
+      <div class="tc-sub">Logotipo, frete, políticas de troca e dados bancários.</div>
+      <div class="tc-foot"><span class="tc-count">9 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="showToast('Abrindo guia de documentos fiscais...')" style="transition-delay:.3s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <div class="tc-name">Documentos Fiscais</div>
+      <div class="tc-sub">Emissão de nota fiscal, CNPJ/CPF e regime tributário.</div>
+      <div class="tc-foot"><span class="tc-count">8 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="showToast('Abrindo guia de avaliações...')" style="transition-delay:.35s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="tc-name">Avaliações e Reputação</div>
+      <div class="tc-sub">Como responder avaliações, disputas e métricas da loja.</div>
+      <div class="tc-foot"><span class="tc-count">6 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+    <div class="topic-card reveal" onclick="showToast('Abrindo guia de segurança...')" style="transition-delay:.4s">
+      <div class="tc-ico-wrap"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="tc-name">Segurança da Conta</div>
+      <div class="tc-sub">Autenticação em duas etapas, sessões e proteção contra fraude.</div>
+      <div class="tc-foot"><span class="tc-count">5 artigos</span><span class="tc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT CHANNELS ════════════════════════════════════════ -->
+<section class="sec channels">
+  <div class="sec-head reveal">
+    <div class="sec-tag">Fale Conosco</div>
+    <h2>Escolha seu canal preferido</h2>
+    <p>Três canais, um único objetivo: resolver a sua operação o mais rápido possível.</p>
+  </div>
+  <div class="channels-grid">
+    <div class="ch-card ch-main reveal-l">
+      <div class="ch-bg-circle"></div><div class="ch-bg-circle2"></div>
+      <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+      <div class="ch-body">
+        <div class="ch-tag">Mais rápido</div>
+        <h3>Chat da Central do Vendedor</h3>
+        <div class="ch-badge badge-live"><span class="dot"></span>8 especialistas online agora</div>
+        <p>Conecte-se instantaneamente com um especialista em operação de marketplace. Tempo médio de espera: 2 minutos.</p>
+      </div>
+      <button class="btn-ch primary" onclick="startChat()">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+        Iniciar Chat
+      </button>
+    </div>
+
+    <div class="ch-card ch-alt reveal" style="transition-delay:.12s">
+      <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
+      <div class="ch-body">
+        <div class="ch-tag">Sempre disponível</div>
+        <h3>WhatsApp do Vendedor</h3>
+        <div class="ch-badge badge-fast">⚡ Resposta rápida</div>
+        <p>Mande uma mensagem a qualquer hora. Nossa equipe de parceiros responde em até 5 minutos durante o horário comercial.</p>
+      </div>
+      <button class="btn-ch outline" onclick="showToast('Abrindo WhatsApp... 📱')">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+        Chamar no WhatsApp
+      </button>
+    </div>
+
+    <div class="ch-card ch-alt reveal-r" style="transition-delay:.24s">
+      <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="ch-body">
+        <div class="ch-tag">Para assuntos complexos</div>
+        <h3>E-mail para Parceiros</h3>
+        <div class="ch-badge badge-fast">📋 Ticket com protocolo</div>
+        <p>Envie detalhes da sua operação com documentos e prints. Respondemos em até 4 horas úteis com protocolo de atendimento.</p>
+      </div>
+      <button class="btn-ch outline" onclick="document.getElementById('ticketSec').scrollIntoView({behavior:'smooth'})">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Abrir Chamado
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LIVE CHAT DEMO ════════════════════════════════════════ -->
+<section class="sec chat-section">
+  <div class="chat-layout">
+    <div class="chat-info reveal-l">
+      <div class="sec-tag" style="margin-bottom:16px">Chat Interativo</div>
+      <h2>Converse com nosso<br><em>time de parceiros</em></h2>
+      <p>Nossos especialistas conhecem a fundo a operação de marketplace e resolvem qualquer situação com agilidade. Experimente o chat ao lado — é quase igual ao real!</p>
+      <div class="chat-feats">
+        <div class="cf-row"><div class="cf-dot green"></div><span>Especialistas humanos, sem bots</span></div>
+        <div class="cf-row"><div class="cf-dot blue"></div><span>Histórico de conversa salvo na sua conta de vendedor</span></div>
+        <div class="cf-row"><div class="cf-dot purple"></div><span>Transferência para o financeiro em segundos</span></div>
+      </div>
+    </div>
+    <div class="chat-widget reveal-r">
+      <div class="cw-header">
+        <div class="cw-agent-ava">RS</div>
+        <div class="cw-head-text">
+          <strong>Rafael Souza — Suporte ao Vendedor</strong>
+          <span>Online agora</span>
+        </div>
+        <div class="cw-actions">
+          <div class="cw-act-btn"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+          <div class="cw-act-btn"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        </div>
+      </div>
+      <div class="cw-body" id="chatBody">
+        <div class="cw-msg in" style="animation-delay:.1s">
+          <div class="msg-ava agent">RS</div>
+          <div>
+            <div class="msg-bubble">Olá! 👋 Seja bem-vindo à Central do Vendedor Ecomme. Como posso te ajudar hoje?</div>
+            <div class="msg-time">09:02</div>
+          </div>
+        </div>
+        <div class="cw-msg out" style="animation-delay:.3s">
+          <div class="msg-ava user">MA</div>
+          <div>
+            <div class="msg-bubble">Oi! Quero saber quando cai o repasse do pedido #EC2026-48271</div>
+            <div class="msg-time">09:03</div>
+          </div>
+        </div>
+        <div class="cw-msg in" style="animation-delay:.5s">
+          <div class="msg-ava agent">RS</div>
+          <div>
+            <div class="msg-bubble">Claro! Já verificando o extrato da sua loja… 🔍</div>
+            <div class="msg-time">09:03</div>
+          </div>
+        </div>
+        <div class="cw-msg in" style="animation-delay:.7s">
+          <div class="msg-ava agent">RS</div>
+          <div>
+            <div class="msg-bubble">O pedido <strong>#EC2026-48271</strong> foi entregue ontem e o repasse de <strong>R$ 172,81</strong> está previsto para cair na sua conta em até 7 dias úteis! 💰</div>
+            <div class="msg-time">09:04</div>
+          </div>
+        </div>
+      </div>
+      <div class="cw-footer">
+        <input class="cw-input" id="chatInput" type="text" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter') sendChatMsg()">
+        <button class="cw-send" onclick="sendChatMsg()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATUS BOARD ════════════════════════════════════════════ -->
+<section class="sec status-board">
+  <div class="sec-head reveal">
+    <div class="sec-tag">Status do Sistema</div>
+    <h2>Tudo funcionando</h2>
+    <p>Acompanhe a disponibilidade dos sistemas que sua loja depende, em tempo real.</p>
+  </div>
+  <div class="sb-card reveal">
+    <div class="sb-header">
+      <h3>
+        <svg style="width:20px;height:20px;fill:none;stroke:var(--green);stroke-width:2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Serviços Ecomme
+      </h3>
+      <div class="all-ok">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>
+        Todos os sistemas operacionais
+      </div>
+    </div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Painel do Vendedor</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill green" data-w="99"></div></div><div class="sb-pct">99%</div><div class="sb-status-dot green"></div></div></div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateway de Repasses</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill green" data-w="100"></div></div><div class="sb-pct">100%</div><div class="sb-status-dot green"></div></div></div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Emissão de Notas Fiscais</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill amber" data-w="91"></div></div><div class="sb-pct">91%</div><div class="sb-status-dot amber"></div></div></div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Rastreamento de Despachos</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill green" data-w="97"></div></div><div class="sb-pct">97%</div><div class="sb-status-dot green"></div></div></div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Chat de Suporte</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill green" data-w="100"></div></div><div class="sb-pct">100%</div><div class="sb-status-dot green"></div></div></div>
+    <div class="sb-row"><div class="sb-name"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>SSL / Segurança</div><div class="sb-right"><div class="sb-bar"><div class="sb-bar-fill green" data-w="100"></div></div><div class="sb-pct">100%</div><div class="sb-status-dot green"></div></div></div>
+  </div>
+</section>
+
+<!-- ══ FAQ ════════════════════════════════════════════════════ -->
+<section class="sec faq-sec">
+  <div class="faq-grid">
+    <div class="faq-sidebar reveal-l">
+      <div class="sec-tag" style="margin-bottom:18px">Dúvidas Frequentes</div>
+      <h2>Respostas <em>rápidas</em> para vendedores</h2>
+      <p>Reunimos as perguntas que mais recebemos da nossa base de parceiros para você resolver sem precisar abrir um chamado.</p>
+      <button class="btn-all-docs" onclick="showToast('Base de conhecimento em breve! 📚')">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Ver todos os artigos
+      </button>
+    </div>
+    <div class="faq-list reveal-r">
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Qual o prazo de repasse das minhas vendas?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">O repasse acontece em até 7 dias úteis após a confirmação da entrega, via PIX ou TED. No Plano Pro+ o prazo cai para 5 dias úteis. Você acompanha cada valor pendente e disponível no seu Painel Financeiro.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como cadastro um novo produto na minha loja?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Acesse <a href="/seller/produtos/novo" style="color:var(--blue);font-weight:600">Novo Produto</a> no seu painel e preencha nome, categoria, fotos, preço e estoque. Também é possível importar vários produtos de uma vez por planilha CSV.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como funciona a comissão por categoria?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Cada categoria tem uma taxa de comissão própria, entre 9% e 13%, aplicada sobre o valor da venda. A tabela completa fica disponível na página "Seja um Vendedor" e também no seu contrato de parceria.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como emito a nota fiscal dos meus pedidos?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Em <a href="/seller/pedidos" style="color:var(--blue);font-weight:600">Pedidos</a>, selecione o pedido despachado e clique em "Emitir NF". Também é possível emitir em lote selecionando vários pedidos de uma vez.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Um pedido não aparece para despacho. O que fazer?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Confira se o pagamento do cliente já foi confirmado — pedidos aguardando pagamento não aparecem na fila de despacho. Se o pagamento já foi aprovado e o pedido não apareceu em até 1 hora, abra um chamado com o número do pedido.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como altero meus dados bancários para recebimento?<div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button><div class="faq-a"><div class="faq-a-inner">Acesse <a href="/seller/configuracoes" style="color:var(--blue);font-weight:600">Configurações › Recebimentos</a> e atualize sua conta bancária ou chave PIX. Por segurança, a alteração fica pendente de confirmação por e-mail por até 24 horas antes de valer para novos repasses.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TICKET FORM ════════════════════════════════════════════ -->
+<section class="sec ticket-sec" id="ticketSec">
+  <div class="ticket-grid">
+    <div class="ticket-info reveal-l">
+      <div class="sec-tag" style="margin-bottom:18px">Abrir Chamado</div>
+      <h2>Não encontrou<br>o que precisa? <em>Escreva</em></h2>
+      <p>Preencha o formulário com o máximo de detalhes possível sobre sua loja ou pedido. Nossa equipe de parceiros analisa e responde em até 4 horas úteis com um protocolo de atendimento.</p>
+      <div class="t-feats">
+        <div class="tf-row">
+          <div class="tf-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+          <div><strong>Protocolo automático</strong><span>Gerado na abertura do chamado</span></div>
+        </div>
+        <div class="tf-row">
+          <div class="tf-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><strong>Resposta em até 4h úteis</strong><span>Equipe especializada em vendedores</span></div>
+        </div>
+        <div class="tf-row">
+          <div class="tf-ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div><strong>Dados criptografados</strong><span>SSL 256-bit em todo o processo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticket-form-card reveal-r">
+      <div id="ticketFormWrap">
+        <div class="form-row-2">
+          <div class="form-row" style="margin-bottom:0">
+            <label class="form-label">Nome completo</label>
+            <input class="form-inp" id="fName" type="text" placeholder="Marcos Andrade" value="Marcos Andrade">
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <label class="form-label">E-mail</label>
+            <input class="form-inp" id="fEmail" type="email" placeholder="seu@email.com" value="marcos.andrade@lojaandrade.com.br">
+          </div>
+        </div>
+        <div style="height:18px"></div>
+        <div class="form-row">
+          <label class="form-label">Assunto</label>
+          <select class="form-sel" id="fSubject">
+            <option value="">Selecione o assunto…</option>
+            <option>Cadastro de produtos</option>
+            <option>Pedidos e despacho</option>
+            <option>Pagamentos e repasses</option>
+            <option>Comissões e taxas</option>
+            <option>Configurações da loja</option>
+            <option>Documentos fiscais</option>
+            <option>Avaliações e reputação</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Número do pedido relacionado (opcional)</label>
+          <input class="form-inp" id="fOrder" type="text" placeholder="EC2026-">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Descreva seu problema</label>
+          <textarea class="form-area" id="fMsg" placeholder="Quanto mais detalhes, mais rápido conseguimos resolver…"></textarea>
+        </div>
+        <button class="btn-submit" onclick="submitTicket()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Enviar Chamado
+        </button>
+        <div class="form-note">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Seus dados são protegidos e nunca compartilhados.
+        </div>
+      </div>
+      <div class="form-success" id="formSuccess">
+        <div class="fs-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3>Chamado aberto!</h3>
+        <p>Protocolo: <strong id="ticketProtocol">#SUP-000</strong><br>Você receberá uma resposta em <strong>marcos.andrade@lojaandrade.com.br</strong> em até 4 horas úteis.</p>
+        <button style="margin-top:18px;color:var(--blue);font-weight:600;font-size:13px;text-decoration:underline" onclick="resetForm()">Abrir outro chamado</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="index-footer"></footer>
+<div id="index-sidebars"></div>
+
+<script>
+    fetch('/files/no-login/index-files/topbar.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('index-topbar').innerHTML = data;
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-topbar').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
+        });
+
+// ----------------------------------------------------------------
+
+    fetch('/files/no-login/index-files/header.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('index-header').innerHTML = data;
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-header').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
+        });
+
+// ----------------------------------------------------------------
+
+	fetch('/files/no-login/index-files/footer.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('index-footer').innerHTML = data;
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-footer').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
+        });
+
+// ----------------------------------------------------------------
+
+	fetch('/files/no-login/index-files/sidebars.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('index-sidebars').innerHTML = data;
+
+            const script = document.createElement('script');
+            script.src = '/files/no-login/scripts/script.js';
+            document.body.appendChild(script);
+        })
+        .catch(error => {
+            console.error("Erro no carregamento:", error);
+            document.getElementById('index-sidebars').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
+        });
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
