@@ -40,7 +40,7 @@ function showTab(tab){
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
   toast(`Redirecionando para o ${provider}...`);
-  
+  showLoadingModal('Carregando...', `Redirecionando para página de login do ${provider}`);
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
@@ -49,6 +49,7 @@ async function socialLogin(provider) {
   });
   if (error) {
     console.error(error);
+    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
     toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
@@ -275,6 +276,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
     localStorage.removeItem('ecomme_redirect_url');
     if (document.getElementById('formLogin')) {
+      requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
       toast('Sessão ativa! Redirecionando... 🎉');
       setTimeout(() => {
         window.location.href = finalDestination;
