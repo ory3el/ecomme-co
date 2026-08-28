@@ -56,7 +56,10 @@ async function handleRemoteLogout() {
   await supabaseClient.auth.signOut({scope: 'local'});
   alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
   let sessionCheckRunning = false;
-  window.location.reload();
+  let remoteLogoutHandled = false;
+  if (!remoteLogoutHandled && !sessionCheckRunning) {
+    window.location.reload();
+  }
 }
 
 function startSessionCheck() {
