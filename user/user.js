@@ -28,17 +28,12 @@
    in client-side code by design — it only grants what your Row Level
    Security (RLS) policies allow.
    ============================================================================ */
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-
 // DEMO MODE: true while the placeholders above haven't been replaced.
 // This is what lets this exact file render a working preview right now,
 // and automatically "turns itself off" the moment you add real credentials.
-const DEMO_MODE = SUPABASE_URL.includes('YOUR-PROJECT-ref');
 
 // How long we wait for Supabase before giving up and showing a timeout
 // state instead of leaving the visitor staring at a skeleton forever.
-const QUERY_TIMEOUT_MS = 8000;
 
 
 /* ============================================================================
@@ -49,9 +44,6 @@ const QUERY_TIMEOUT_MS = 8000;
    simplest, most compatible way to use the Supabase SDK from plain HTML —
    no bundler, no ES module CORS quirks, works from any static host.
    ============================================================================ */
-const supabaseClient = (!DEMO_MODE && window.supabase)
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
 
 
 /* ============================================================================
