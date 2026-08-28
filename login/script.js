@@ -80,6 +80,7 @@ async function doLogin(){
   if (error) {
     toast('E-mail ou senha incorretos.', 'err');
   } else {
+    sessionStorage.removeItem('remote_logout_notice_shown');
     toast('Login realizado com sucesso! 🎉');
     setTimeout(() => window.location.href = getTargetUrl(), 1200);
   }
@@ -135,6 +136,7 @@ async function doRegister(){
     console.error(error);
     toast(error.message, 'err');
   } else {
+    sessionStorage.removeItem('remote_logout_notice_shown');
     toast('Conta criada! Verifique o seu e-mail para confirmar o cadastro. 🚀');
   }
 }
@@ -264,6 +266,7 @@ async function registerNewSession(userId) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session && !redirectionInProgress) {
     redirectionInProgress = true;
+    sessionStorage.removeItem('remote_logout_notice_shown');
     await registerNewSession(session.user.id);
 
     const finalDestination = getTargetUrl();
