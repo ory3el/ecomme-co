@@ -36,12 +36,6 @@ function showToast(type,msg){
   setTimeout(()=>{ el.style.transition='opacity .3s,transform .3s'; el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),300); },3000);
 }
 
-/* ─── SUPABASE ──────────────────────────────────────────────────────── */
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let userId = null;
-
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
   const authGate = document.getElementById('authGate');
