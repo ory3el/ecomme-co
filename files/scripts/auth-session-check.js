@@ -1,12 +1,12 @@
-const SESSION_CHECK_INTERVAL = 10_000;
+const SESSION_CHECK_INTERVAL = 5_000;
 let sessionCheckTimer = null;
 let sessionCheckRunning = false;
 let remoteLogoutHandled = false;
 
-function goToLogin() {
+/*function goToLogin() {
   const currentPage = window.location.pathname + window.location.search;
   window.location.href = '/login?redirect=' + encodeURIComponent(currentPage);
-}
+}*/
 
 async function checkCurrentSession() {
   if (sessionCheckRunning || remoteLogoutHandled) return;
@@ -55,7 +55,6 @@ async function handleRemoteLogout() {
   localStorage.removeItem('local_session_id');
   await supabaseClient.auth.signOut({scope: 'local'});
   alert('Sua conta foi desconectada neste dispositivo porque a sessão foi encerrada em outro dispositivo.');
-  goToLogin();
 }
 
 function startSessionCheck() {
