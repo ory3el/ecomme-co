@@ -804,12 +804,49 @@ function renderSummary() {
   if(payMethod==='card' && installSel>1) note.textContent=`${installSel}× de ${fp(total/installSel)} sem juros`;
   else note.textContent='';
 
-  document.getElementById('sumItems').innerHTML = cartItems.map(it => `
-    <div class="sum-item">
-      <div class="sum-item-em">${it.emoji}<div class="sum-item-qty">${it.qty}</div></div>
-      <div style="flex:1;min-width:0"><div class="sum-item-name">${it.name}</div><div class="sum-item-cat">${it.cat}</div></div>
-      <div class="sum-item-price">${fp(it.price*it.qty)}</div>
-    </div>`).join('');
+  const sumItems =
+  document.getElementById(
+    'sumItems'
+  );
+
+if (sumItems) {
+  sumItems.innerHTML = cartItems .map(item => {
+        const images = getProductImages(item);
+        const mainImage = images[0] || null;
+        const optimizedImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.thumbnail) : null;
+        const category = Array.isArray(item.cat) ? item.cat.join(', ') : String(item.cat || '');
+        const quantity = Math.max(1, Number(item.qty) || 1);
+        const price = Number(item.price) || 0;
+
+        return `
+          <div class="sum-item">
+            <div class="sum-item-em">
+              ${optimizedImage ? `<img src="${escapeHtml(optimizedImage)}"
+                      alt="${escapeHtml(item.name || 'Produto')}"
+                      loading="lazy"
+                      decoding="async"
+                      class="sum-item-image">`
+                  :
+                   `<span class="sum-item-fallback">
+                      ${escapeHtml(item.emoji || '📦')}
+                    </span>`
+              }
+              <div class="sum-item-qty">${quantity}</div>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div class="sum-item-name">
+                ${escapeHtml(item.name || 'Produto')}
+              </div>
+              <div class="sum-item-cat">
+                ${escapeHtml(category)}
+              </div>
+            </div>
+            <div class="sum-item-price">
+              ${fp(price * quantity)}
+            </div>
+          </div>
+        `;
+      }).join('');
 }
 
 // ── STEP NAV ───────────────────────────────────────────
