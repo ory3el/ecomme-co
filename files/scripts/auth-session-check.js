@@ -54,7 +54,7 @@ async function handleRemoteLogout() {
   sessionCheckTimer = null;
   localStorage.removeItem('local_session_id');
   await supabaseClient.auth.signOut({scope: 'local'});
-  alert('Sua conta foi desconectada neste dispositivo porque a sessão foi encerrada em outro dispositivo.');
+  alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
 }
 
 function startSessionCheck() {
