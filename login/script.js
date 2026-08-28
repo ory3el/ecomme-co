@@ -7,11 +7,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ── 1. SUPABASE STARTER ──
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // ── NAV ──
 function buttonLink(url) {
   window.location.href = url;
