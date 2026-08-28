@@ -1,9 +1,9 @@
 // ── STYLES INJECTOR ──
 function injectModalStyles() {
-  if (document.getElementById('modal-alert-styles')) return;
+  if (document.getElementById('modal-loading-styles')) return;
 
   const style = document.createElement('style');
-  style.id = 'modal-alert-styles';
+  style.id = 'modal-loading-styles';
   style.textContent = `
 .loading-modal-container {
   position: fixed;
