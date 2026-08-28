@@ -80,7 +80,6 @@ async function doLogin(){
   if (error) {
     toast('E-mail ou senha incorretos.', 'err');
   } else {
-    sessionStorage.setItem('remote_logout_notice_shown', 'false');
     toast('Login realizado com sucesso! 🎉');
     setTimeout(() => window.location.href = getTargetUrl(), 1200);
   }
