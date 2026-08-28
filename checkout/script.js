@@ -1021,3 +1021,36 @@ function escapeJs(value) {
     .replace(/\r/g, '\\r')
     .replace(/\n/g, '\\n');
 }
+
+// ----------------------------------------
+function getProductImages(product) {
+  if (!product) {
+    return [];
+  }
+
+  const images = [];
+  if (
+    typeof product.image_url === 'string' &&
+    product.image_url.trim()
+  ) {
+    images.push(product.image_url.trim() );
+  }
+
+  if (
+    Array.isArray(product.gallery_urls)
+  ) {
+    product.gallery_urls.forEach(url => {
+        if (typeof url !== 'string') {
+          return;
+        }
+
+        const cleanUrl = url.trim();
+        if (!cleanUrl || images.includes(cleanUrl)) {
+          return;
+        }
+        images.push(cleanUrl);
+      }
+    );
+  }
+  return images.slice(0, 5);
+}
