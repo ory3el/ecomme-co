@@ -446,60 +446,141 @@ function renderCart() {
       .map(item => {
 
         const id =
-          String(item.id);
+          String(
+            item.id
+          );
 
         const qty =
           Math.max(
             1,
-            Number(item.qty) || 1
+            Number(
+              item.qty
+            ) || 1
           );
 
         const price =
-          Number(item.price) || 0;
+          Number(
+            item.price
+          ) || 0;
+
+        const images =
+          getProductImages(
+            item
+          );
+
+        const mainImage =
+          images[0] ||
+          null;
+
+        const imageUrl =
+          mainImage
+            ? getOptimizedImageUrl(
+                mainImage,
+                EDGE_IMAGE_PRESETS.thumbnail
+              )
+            : null;
 
         const category =
-          Array.isArray(item.cat)
-            ? item.cat.join(', ')
+          Array.isArray(
+            item.cat
+          )
+            ? item.cat.join(
+                ', '
+              )
             : String(
-                item.cat || ''
+                item.cat ||
+                ''
               );
 
         return `
           <div
             class="ci"
-            id="ci-${escapeHtml(id)}"
+            id="ci-${escapeHtml(
+              id
+            )}"
           >
 
-            <div class="ci-em">
-              ${escapeHtml(
-                item.emoji || '📦'
-              )}
+            <div class="ci-img">
+
+              ${
+                imageUrl
+                  ? `
+                    <img
+                      src="${escapeHtml(
+                        imageUrl
+                      )}"
+                      alt="${escapeHtml(
+                        item.name ||
+                        'Produto'
+                      )}"
+                      loading="lazy"
+                      decoding="async"
+                      style="
+                        width:100%;
+                        height:100%;
+                        object-fit:cover;
+                        border-radius:inherit;
+                        display:block;
+                      "
+                      onerror="
+                        this.style.display='none';
+                        this.nextElementSibling.style.display='flex';
+                      "
+                    >
+
+                    <span
+                      style="
+                        display:none;
+                        width:100%;
+                        height:100%;
+                        align-items:center;
+                        justify-content:center;
+                        font-size:28px;
+                      "
+                    >
+                      ${escapeHtml(
+                        item.emoji ||
+                        '📦'
+                      )}
+                    </span>
+                  `
+                  : `
+                    ${escapeHtml(
+                      item.emoji ||
+                      '📦'
+                    )}
+                  `
+              }
+
             </div>
 
             <div
-              style="
-                flex:1;
-                min-width:0;
-              "
+              class="ci-info"
             >
 
-              <div class="ci-name">
+              <div
+                class="ci-name"
+              >
                 ${escapeHtml(
                   item.name ||
                   'Produto'
                 )}
               </div>
 
-              <div class="ci-meta">
+              <div
+                class="ci-meta"
+              >
                 ${escapeHtml(
                   category
                 )}
               </div>
 
-              <div class="qty-ctrl">
+              <div
+                class="ci-qty"
+              >
 
                 <button
-                  class="qbtn"
+                  class="qb"
                   onclick="
                     chgQty(
                       '${escapeJs(
@@ -514,13 +595,15 @@ function renderCart() {
 
                 <span
                   class="qn"
-                  id="q-${escapeHtml(id)}"
+                  id="q-${escapeHtml(
+                    id
+                  )}"
                 >
                   ${qty}
                 </span>
 
                 <button
-                  class="qbtn"
+                  class="qb"
                   onclick="
                     chgQty(
                       '${escapeJs(
@@ -546,7 +629,9 @@ function renderCart() {
 
               <div
                 class="ci-price"
-                id="p-${escapeHtml(id)}"
+                id="p-${escapeHtml(
+                  id
+                )}"
               >
                 ${fp(
                   price * qty
@@ -560,7 +645,9 @@ function renderCart() {
                   margin-top:2px;
                 "
               >
-                ${fp(price)} un.
+                ${fp(
+                  price
+                )} un.
               </div>
 
             </div>
