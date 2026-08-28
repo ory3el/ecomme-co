@@ -1046,6 +1046,7 @@ syncToSupabase();
 renderProducts();
 loadShuffleAndRender();
 
+// ---------------------------------
 supabaseClient.auth.onAuthStateChange(
   async (event, session) => {
     if (event === 'SIGNED_OUT') {
