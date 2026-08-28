@@ -1,12 +1,6 @@
 const $ = id => document.getElementById(id);
 const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
 
-/* ─── SUPABASE ──────────────────────────────────────────────────────── */
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let userId = null;
-
 //EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
   let pathname = window.location.pathname; 
