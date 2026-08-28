@@ -803,14 +803,9 @@ function renderSummary() {
   const note = document.getElementById('installNote');
   if(payMethod==='card' && installSel>1) note.textContent=`${installSel}× de ${fp(total/installSel)} sem juros`;
   else note.textContent='';
-
-  const sumItems =
-  document.getElementById(
-    'sumItems'
-  );
-
-if (sumItems) {
-  sumItems.innerHTML = cartItems .map(item => {
+  
+  const sumItems = document.getElementById('sumItems');
+  if (sumItems) {sumItems.innerHTML = cartItems .map(item => {
         const images = getProductImages(item);
         const mainImage = images[0] || null;
         const optimizedImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.thumbnail) : null;
@@ -847,6 +842,7 @@ if (sumItems) {
           </div>
         `;
       }).join('');
+  }
 }
 
 // ── STEP NAV ───────────────────────────────────────────
