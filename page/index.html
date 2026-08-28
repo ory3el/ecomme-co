@@ -35,6 +35,16 @@
             document.getElementById('index-content').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
         });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let userId = null;
+</script>
+<script src="/files/scripts/auth-session-check.js"></script>
+<script src="/files/scripts/console-warning.js"></script>
 	
 </body>
 </html>
