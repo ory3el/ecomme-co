@@ -48,16 +48,17 @@ async function checkCurrentSession() {
 }
 
 async function handleRemoteLogout() {
-  if (sessionDebouce) {
-    if (remoteLogoutHandled) return;
-      remoteLogoutHandled = true;
-      clearInterval(sessionCheckTimer);
-      sessionCheckTimer = null;
-      localStorage.removeItem('local_session_id');
-      await supabaseClient.auth.signOut({scope: 'local'});
-      alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
-      window.location.reload();
-  }
+  if (remoteLogoutHandled) return;
+  const noticeAlreadyShown = sessionStorage.getItem('remote_logout_notice_shown');
+  if (noticeAlreadyShown === 'true') {return;}
+  remoteLogoutHandled = true;
+  sessionStorage.setItem('remote_logout_notice_shown', 'true');
+  clearInterval(sessionCheckTimer);
+  sessionCheckTimer = null;
+  localStorage.removeItem('local_session_id');
+  try {await supabaseClient.auth.signOut({scope: 'local'});} catch (error) {console.error('Erro ao encerrar sessão local:', error);}
+  alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
+  window.location.reload();
 }
 
 function startSessionCheck() {
