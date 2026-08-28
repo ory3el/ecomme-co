@@ -196,7 +196,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!user || userError) {
     console.warn("User session not active.");
-    if (gateChecking) gateChecking.style.display = 'none';
+    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
     if (gateLogin) gateLogin.style.display = 'block';
     
     if (authGate) {
@@ -217,7 +217,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!lojaCheck) {
     console.warn("Usuário autenticado, mas não possui loja.");
-    if (gateChecking) gateChecking.style.display = 'none';
+    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
     if (gateNoStore) gateNoStore.style.display = 'block';
     
     if (authGate) {
