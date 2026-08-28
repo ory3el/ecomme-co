@@ -230,7 +230,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (authGate) {
     authGate.classList.add('hidden');
     if (appShell) appShell.classList.remove('inert');
-    setTimeout(() => { authGate.style.display = 'none'; }, 550);
+    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
   }
 
   navigate(savedPage);
