@@ -17,6 +17,13 @@ checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
 let products = [];
+const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
+const EDGE_IMAGE_PRESETS = {
+  grid: 'grid',
+  list: 'list',
+  thumbnail: 'thumbnail',
+  modal: 'modal'
+};
 
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
