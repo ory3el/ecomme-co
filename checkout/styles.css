@@ -126,14 +126,14 @@ input,select,textarea{font-family:inherit}
 .ci{display:flex;align-items:center;gap:14px;padding:14px;background: var(--white);border:1.5px solid var(--border2);border-radius:var(--rl);transition:.2s}
 .ci:hover{border-color:var(--border);background:#fff}
 .ci-em{width:56px;height:56px;border-radius:10px;background:var(--blueDim);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:1px solid var(--border)}
-.ci-name{font-size:13px;font-weight:600;margin-bottom:2px;flex:1}
+.ci-info{font-size:13px;font-weight:600;margin-bottom:2px;flex:1}
 .ci-meta{font-size:11px;color:var(--muted)}
-.ci-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--blue);white-space:nowrap;position: absolute;right: 90px;margin-top: -2px;}
+.ci-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--blue);white-space:nowrap;/* position: absolute; *//* right: 90px; *//* margin-top: -2px; */}
 .qty-ctrl{display:flex;align-items:center;gap:6px;margin-top:6px}
 .qbtn{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:.15s;color:var(--muted)}
 .qbtn:hover{border-color:var(--blue);color:var(--blue)}
 .qn{font-size:12px;font-weight:700;min-width:20px;text-align:center}
-.rm-btn{width:28px;height:28px;border-radius: 50%;display:flex;align-items:center;justify-content:center;color:var(--light);transition:.18s;flex-shrink:0;position: absolute;right: 40px;}
+.rm-btn{width:28px;height:28px;border-radius: 50%;display:flex;align-items:center;justify-content:center;color:var(--light);transition:.18s;flex-shrink:0;/* position: absolute; *//* right: 40px; */}
 .rm-btn:hover{background:#fee2e2;color:var(--red)}
 .rm-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
 .coupon-row{display:flex;gap:8px;margin-top:14px}
@@ -305,7 +305,7 @@ input,select,textarea{font-family:inherit}
 .sum-item-qty{position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:var(--blue);color:#fff;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}
 .sum-item-name{font-size:12px;font-weight:600;flex:1;line-height:1.3}
 .sum-item-cat{font-size:10px;color:var(--muted)}
-.sum-item-price{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap}
+.sum-item-price{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap;}
 .sum-divider{border:none;border-top:1px solid #f1f5f9;margin:0 20px}
 .sum-totals{padding:14px 20px;display:flex;flex-direction:column;gap:8px}
 .tot-row{display:flex;justify-content:space-between;font-size:12px;align-items:center}
