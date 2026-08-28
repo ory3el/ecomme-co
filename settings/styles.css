@@ -20,6 +20,8 @@
     --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
    }
 
+* { -webkit-tap-highlight-color: transparent; }
+
 /* ── NO SCROLL ───────────────────────────────────────────── */
 .noscroll {
    overflow: hidden; scrollbar-gutter: stable;
