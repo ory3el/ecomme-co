@@ -109,7 +109,7 @@ input,select,textarea{font-family:inherit}
 @media(max-width:640px){.step-lbl{display:none}.step-item:not(:last-child)::after{width:32px}}
 
 /* ── LAYOUT ────────────────────────────────────────────── */
-.checkout-wrap{max-width:1200px;margin:0 auto;padding:28px 24px 60px;display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+.checkout-wrap{max-width:1200px;margin:0 auto;padding:28px 24px 60px;display: grid;grid-template-columns:1fr 380px;gap:24px;align-items:start;}
 .qb {height: 20px; width: 20px; font-size: 15px}
 
 /* ── PANEL ─────────────────────────────────────────────── */
@@ -376,4 +376,16 @@ input,select,textarea{font-family:inherit}
   font-size: 30px;
   background: var(--surface, #fff);
   border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* ----------------------------------------- */
+@media (max-width:888px) {
+  .checkout-wrap{display:block}
+  .sum-card{margin-top:15px}
+}
+@media (max-width:561px) {
+  .back-link{display:none}
+}
+@media (max-width:445px) {
+  .secure-badge{display:none}
 }
