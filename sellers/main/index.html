@@ -20,8 +20,12 @@
 	
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <script src="/files/scripts/console-warning.js"></script>
 </head>
 <body>
+
+<script src="/files/scripts/loading.js"></script>
+<script>showLoadingModal('Carregando dashboard...', 'Verificando sua sessão...');</script>
 	
 <div class="toast-stack">
   <div class="toast" id="toast">
@@ -38,7 +42,7 @@
 	
 <!-- AUTH GATE -->
 <div class="auth-gate" id="authGate">
-  <div class="gate-checking" id="gateChecking">
+  <div class="gate-checking" style="display:none" id="gateChecking">
     <div class="gate-ring"></div>
     <p>Verificando sua sessão…</p>
   </div>
