@@ -338,7 +338,11 @@ async function loadProductsFromSupabase() {
 function hydrateCartItems(
   savedCart
 ) {
-  if (!Array.isArray(savedCart)) {
+  if (
+    !Array.isArray(
+      savedCart
+    )
+  ) {
     return [];
   }
 
@@ -356,7 +360,14 @@ function hydrateCartItems(
         return null;
       }
 
-      const product = products.find(item => String(item.id) === savedId);
+      const product =
+        products.find(
+          item =>
+            String(
+              item.id
+            ) === savedId
+        );
+
       if (!product) {
         console.warn(
           'Produto do carrinho não encontrado:',
@@ -368,13 +379,17 @@ function hydrateCartItems(
 
       return {
         ...product,
-        id: savedId,
-        qty: Math.max(
-          1,
-          Number(
-            savedItem?.qty
-          ) || 1
-        )
+
+        id:
+          savedId,
+
+        qty:
+          Math.max(
+            1,
+            Number(
+              savedItem?.qty
+            ) || 1
+          )
       };
     })
     .filter(Boolean);
