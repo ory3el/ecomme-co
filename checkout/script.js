@@ -1,5 +1,3 @@
-showLoadingModal('Carregando checkout...', 'Buscando seus produtos e informações.');
-
 function buttonLink(url) {
   window.location.href = url;
 }
