@@ -39,8 +39,8 @@ function showTab(tab){
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
-  toast(`Redirecionando para o ${provider}...`);
-  showLoadingModal('Carregando...', `Redirecionando para página de login do ${provider}`);
+  //toast(`Redirecionando para o ${provider}...`);
+  showLoadingModal('Redirecionando...', `Carregando o login com o ${provider}`);
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
