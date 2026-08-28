@@ -1047,14 +1047,41 @@ renderProducts();
 loadShuffleAndRender();
 
 // LOGOUT
-const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut({scope: 'local'});
-  toast('Você saiu da conta, recarregando a página.', 'info');
+async function doLogout() {
+  if (intentionalLocalLogout) return;
+  intentionalLocalLogout = true;
+  toast('Saindo da conta... 👋', 'info');
+  
+  const localSessionId = localStorage.getItem('local_session_id');
+  if (localSessionId && userId) {
+    const { error } = await supabaseClient
+      .from('user_sessions')
+      .delete()
+      .eq('id', localSessionId)
+      .eq('user_id', userId);
 
-  closeAcc();
-  await waitt(1000);
+    if (error) {
+      console.warn(
+        'Não foi possível remover o registro da sessão:',
+        error.message
+      );
+    }
+  }
+
+  localStorage.removeItem('local_session_id');
+  const { error: signOutError } =
+    await supabaseClient.auth.signOut({
+      scope: 'local'
+    });
+  
+  if (signOutError) {
+    console.error(
+      'Erro ao fazer logout:',
+      signOutError
+    );
+  }
+  toast('Você saiu da conta.', 'info');
+  await waitt(700);
   window.location.reload();
 }
 
