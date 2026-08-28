@@ -86,12 +86,6 @@ window.addEventListener('scroll', () => {
   }, 120);
 }, { passive: true });
 
-/* ─── SUPABASE ──────────────────────────────────────────────────────── */
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let userId = null;
-
 // ============================================================
 
 const PRODUCT_REFRESH_INTERVAL = 10000;
