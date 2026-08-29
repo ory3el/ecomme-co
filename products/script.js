@@ -1223,24 +1223,97 @@ function injectModalStyles() {
   style.id = 'modal-alert-styles';
   style.textContent = `
     .modal-alert-container {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
-      z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      /*background: rgba(0, 0, 0, 0.6);*/
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
     }
-    .modal-alert-container.active { opacity: 1; pointer-events: auto; }
+    .modal-alert-container.active {
+      opacity: 1; pointer-events: auto;
+    }
     .modal-alert-content {
-      background: #fff; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%;
-      text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.8); transition: transform 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 36px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
     }
-    .modal-alert-container.active .modal-alert-content { transform: scale(1); }
-    .modal-alert-icon { font-size: 44px; margin-bottom: 15px; }
-    .modal-alert-content h3 { margin: 0 0 10px 0; font-family: 'Sora', 'Poppins', sans-serif; color: #10161a; font-size: 20px; font-weight: 700; }
-    .modal-alert-content p { color: #707c8a; font-size: 14.5px; line-height: 1.5; margin: 0 0 24px 0; }
-    .modal-alert-buttons { display: flex; gap: 12px; justify-content: center; }
-    .btn-alert-confirm { background: #2563EB; color: #fff; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-    .btn-alert-confirm:hover { background: #1d4ed8; }
-    .btn-alert-cancel { background: #e8ebf0; color: #10161a; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-    .btn-alert-cancel:hover { background: #d1d5db; }
+    .modal-alert-container.active .modal-alert-content {
+      transform: scale(1);
+    }
+    .modal-alert-icon {
+      font-size: 44px;
+      margin-bottom: 15px;
+    }
+    .modal-alert-content h3 {
+      margin: 0 0 10px 0;
+      font-family: 'Sora', 'Poppins', sans-serif;
+      color: #10161a;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .modal-alert-content p {
+      color: #707c8a;
+      font-size: 14.5px;
+      line-height: 1.5;
+      margin: 0 0 24px 0;
+    }
+    .modal-alert-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .btn-alert-confirm {
+      background: #2563EB;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-confirm:hover {
+      background: #1d4ed8;
+    }
+    .btn-alert-confirm-red {
+      background: #eb2525;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-confirm:hover {
+      background: #d81d1d;
+    }
+    .btn-alert-cancel {
+      background: #e8ebf0;
+      color: #10161a;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-cancel:hover {
+      background: #d1d5db;
+    }
   `;
   document.head.appendChild(style);
 }
@@ -1319,6 +1392,83 @@ function closeAuth() {
   if (authModal) {
     authModal.classList.remove('active');
   }
+}
+
+// ── POP-UP LOGOUT ────────────────────────────────────────────
+let confirmRedTimerId = null;
+async function showConfirmRed(message, title, icon) { 
+  injectModalStyles();
+  
+  let confirmRedModal = document.getElementById('confirmRedModal');
+  if (!confirmRedModal) {
+    confirmRedModal = document.createElement('div');
+    confirmRedModal.id = 'confirmRedModal';
+    confirmRedModal.className = 'modal-alert-container';
+    confirmRedModal.innerHTML = `
+      <div class="modal-alert-content">
+        <div class="modal-alert-icon" id="confirmRedIcon">${icon}</div>
+        <h3 id="confirmRedTitle">${title}</h3>
+        <p id="confirmRedMsg">${message}</p>
+        <div class="modal-alert-buttons">
+          <button class="btn-alert-cancel" onclick="closeConfirmRed()">Voltar</button>
+          <button class="btn-alert-confirm-red" id="btnConfirmLogout" onclick="confirmLogout()">Sair da conta</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(confirmRedModal); 
+  } else {
+    document.getElementById('confirmRedMsg').innerHTML = message;
+    document.getElementById('confirmRedTitle').textContent = title;
+    document.getElementById('confirmRedIcon').innerHTML = icon; 
+  }
+  
+  // ── LOGIC 3s ──
+  const confirmRedBtn = document.getElementById('btnConfirmLogout');
+  let timeLeft = 3;
+  confirmRedBtn.disabled = true;
+  confirmRedBtn.style.opacity = '0.5';
+  confirmRedBtn.style.cursor = 'not-allowed';
+  confirmRedBtn.style.transition = 'all 0.3s ease';
+  confirmRedBtn.textContent = `Sair da conta (${timeLeft}s)`;
+  
+  if (confirmRedTimerId) clearInterval(confirmRedTimerId);
+  confirmRedTimerId = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      confirmRedBtn.textContent = `Sair da conta (${timeLeft}s)`;
+    } else {
+      clearInterval(confirmRedTimerId);
+      confirmRedBtn.disabled = false;
+      confirmRedBtn.style.opacity = '1';
+      confirmRedBtn.style.cursor = 'pointer';
+      confirmRedBtn.textContent = 'Sair da conta';
+    }
+  }, 1000);
+  
+  confirmRedModal.offsetHeight;
+  confirmRedModal.classList.add('active');
+}
+  
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('active');
+  }
+}
+function confirmLogout() {
+  const confirmRedModal = document.getElementById('confirmRedModal');
+  doLogout();
+  if (confirmRedModal) {
+    confirmRedModal.classList.remove('active');
+  }
+}
+function closeConfirmRed() {
+  const confirmRedModal = document.getElementById('confirmRedModal');
+  if (confirmRedModal) {
+    confirmRedModal.classList.remove('active');
+  }
+  if (confirmRedTimerId) clearInterval(confirmRedTimerId);
 }
 
 //--------------------------------------------------------
