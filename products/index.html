@@ -432,15 +432,15 @@
       </button>
     </div>
     <div class="acc-body">
-      <div class="acc-profile-summary">
+      <button class="acc-profile-summary" onclick="buttonLink('/settings')">
         <div class="acc-avatar-large">
           <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
         </div>
-        <div class="acc-info">
+        <div class="acc-info" style="gap: 3px; display: flex; align-items: baseline;">
           <strong id="accSidebarName"></strong>
           <span id="accSidebarEmail"></span>
         </div>
-      </div>
+      </button>
       <div class="acc-menu-group">
         <p class="acc-label">Atalhos</p>
         <button class="btn-acc-option" onclick="buttonLink('/settings')">
