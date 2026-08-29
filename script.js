@@ -1061,6 +1061,7 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 // LOGOUT
+const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() {
   toast('Saindo da conta... 👋', 'info');
   const localSessionId = localStorage.getItem('local_session_id');
