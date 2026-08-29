@@ -2122,3 +2122,8 @@ async function doLogout() {
   await waitt(700);
   window.location.reload();
 }
+
+/* ----------------------------------------------------- */
+function openConfirmLogout() {
+  showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
+}
