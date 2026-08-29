@@ -1583,10 +1583,10 @@ header.dark-glass input::placeholder{
     .btn-madd {
       flex: 1;
       background: rgba(25,100,255,0);
-      box-shadow: 0px 0px 15px rgb(25 100 255 / 50%);
+      /* box-shadow: 0px 0px 15px rgb(25 100 255 / 50%); */
       border: none;
       color: var(--blue);
-      /* border: 1px solid; */
+      border: 1px solid;
       position: relative;
       height: 46px;
       margin-top: 5px;
@@ -1610,7 +1610,7 @@ header.dark-glass input::placeholder{
       margin-top: 5px;
       width: 46px;
       height: 46px;
-      border-radius: 50%;
+      border-radius: 15px;
       border: 1px solid var(--border2);
       display: flex;
       align-items: center;
