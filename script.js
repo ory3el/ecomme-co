@@ -1074,6 +1074,7 @@ async function doLogout() {
     
     if (deleteError) {console.error('Erro ao remover sessão do banco:', deleteError);}
   }
+  sessionStorage.setItem('remote_logout_notice_shown', 'true');
   localStorage.removeItem('local_session_id');
   const { error: signOutError } = await supabaseClient.auth.signOut({scope: 'local'});
   if (signOutError) {console.error('Erro ao fazer logout:', signOutError); }
