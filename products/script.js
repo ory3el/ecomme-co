@@ -137,7 +137,7 @@ window.addEventListener(
         );
       }
       injectPrefetch('/login');
-      renderProducts();
+      shuffleAndRender()
       return;
     }
 
@@ -191,7 +191,7 @@ window.addEventListener(
         headerImage.style.objectFit = 'cover';
       }
     }
-    renderProducts();
+    shuffleAndRender()
     startProductsRealtime();
     startProductRefresh();
   }
