@@ -57,6 +57,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   userId = user.id;
   /*await loadFromSupabase();*/
 
+  const { data: lojaCheck, error: lojaError } = await supabaseClient
+    .from('lojas')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  
+  if (lojaCheck) {
+    console.warn("Usuário já possui uma loja cadastrada");
+    buttonLink('/sellers/main');
+  }
+  
   if (loginBtn) loginBtn.classList.add('hidden');
   if (registerBtn) registerBtn.classList.remove('hidden');
   if (dashboardBtn) dashboardBtn.classList.remove('hidden');
