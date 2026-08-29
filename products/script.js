@@ -100,9 +100,7 @@ let pageIsVisible = true;
 document.addEventListener(
   'visibilitychange',
   () => {
-    pageIsVisible =
-      document.visibilityState === 'visible';
-
+    pageIsVisible = document.visibilityState === 'visible';
     if (pageIsVisible) {
       refreshProductsIfNeeded();
     }
