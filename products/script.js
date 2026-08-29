@@ -1093,6 +1093,7 @@ function openProduct(id) {
   $('mName').textContent = p.name;
   $('mDesc').textContent = p.desc;
   $('mPrice').textContent = fmt(p.price);
+  $('mPrice1').textContent = fmt(p.price);
 
   $('mOld').textContent =
     p.old > 0 ? fmt(p.old) : '';
