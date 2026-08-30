@@ -165,10 +165,9 @@ document.addEventListener(
 // ============================================================
 
 // EXECUTE DATABASE
-window.addEventListener(
-  'DOMContentLoaded',
-  async () => {
-
+window.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
+    initThemeToggle();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     const headerImage = document.getElementById('headerAvatar');
