@@ -346,69 +346,74 @@
 
   <!-- MORE SIDEBAR -->
   <div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
-  <div class="more-sb" id="moreSidebar">
+  <div class="more-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
     <div class="more-hd">
       <h3>Principais Atalhos</h3>
-      <button class="more-cls" onclick="closeMore()">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button class="more-cls" aria-label="Fechar menu" onclick="closeMore()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="more-body">
-      <div class="acc-menu-group" style="gap: 10px">
-       <button class="btn-acc-option" onclick="window.location.href = '/settings'">
-        <div class="btn-content">
-          <span class="btn-title">
-            <i class="fa-solid fa-gear"></i>
-            Configurações
-          </span>
-          <p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+      <!-- THEME SWITCH -->
+      <div class="theme-switch-wrap">
+        <p class="acc-label">Aparência</p>
+        <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span>
+          </button>
+          <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema">
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span>
+          </button>
+          <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span>
+          </button>
         </div>
-        <span class="btn-arrow">&gt;</span>
-      </button>
-      <button class="btn-acc-option" onclick="window.location.href = '/track-order'">
-        <div class="btn-content">
-          <span class="btn-title">
-            <i class="fa-solid fa-truck"></i>
-            Acompanhar Pedido
-          </span>
-          <p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
-        </div>
-        <span class="btn-arrow">&gt;</span>
-      </button>
-      <button class="btn-acc-option" onclick="window.location.href = '/sellers'">
-        <div class="btn-content">
-          <span class="btn-title">
-            <i class="fa-solid fa-sack-dollar"></i>
-            Página do Vendedor
-          </span>
-          <p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes</p>
-        </div>
-        <span class="btn-arrow">&gt;</span>
-      </button>
-      <button class="btn-acc-option" onclick="window.location.href = '/terms'">
-        <div class="btn-content">
-          <span class="btn-title">
-            <i class="fa-solid fa-file-contract"></i>
-            Termos e Condições de Uso
-          </span>
-        </div>
-        <span class="btn-arrow">&gt;</span>
-      </button>
-      <button class="btn-acc-option" onclick="window.location.href = '/support'">
-        <div class="btn-content">
-          <span class="btn-title">
-            <i class="fa-solid fa-circle-question"></i>
-            Suporte
-          </span>
-        </div>
-        <span class="btn-arrow">&gt;</span>
-      </button>
-     </div>
+      </div>
+      <div class="acc-menu-group" style="gap:10px">
+        <button class="btn-acc-option" onclick="buttonLink('/settings')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-gear"></i> Configurações</span>
+            <p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/track-order')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-truck"></i> Acompanhar Pedido</span>
+            <p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/sellers')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-sack-dollar"></i> Página do Vendedor</span>
+            <p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option active" onclick="buttonLink('/affiliates')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-handshake"></i> Programa de Afiliados</span>
+            <p class="btn-txt">Gere links, divulgue produtos e acompanhe suas comissões.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-file-contract"></i> Termos e Condições de Uso</span>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/support')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-circle-question"></i> Suporte</span>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+      </div>
     </div>
     <div class="notif-ft">
-      <button class="btn-cont" onclick="closeMore()">
-        Fechar Menu
-      </button>
+      <button class="btn-cont" onclick="closeMore()">Fechar Menu</button>
     </div>
   </div>
 
