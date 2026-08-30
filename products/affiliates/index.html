@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programa de Afiliados | Ecomme</title>
+  <meta name="description" content="Compartilhe produtos da Ecomme, gere links personalizados e receba comissões pelas vendas geradas através da sua audiência.">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('ecomme-theme') || 'auto';
+        var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var effective = saved === 'auto' ? (systemDark ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', effective);
+        document.documentElement.setAttribute('data-theme-pref', saved);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar" id="topbar">
+    🚀 Ganhe comissões indicando produtos da Ecomme <span>|</span> Cadastro gratuito, sem burocracia
+    <button class="topbar-close" aria-label="Fechar aviso" onclick="document.getElementById('topbar').style.display='none'">×</button>
+  </div>
+
+  <!-- HEADER -->
+  <header id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
+          <img src="/images/mainlogo.png" style="position:relative;top:0;width:200px;height:auto;display:block;" alt="Ecomme"/>
+        </button>
+      </div>
+      <nav class="nav-main" aria-label="Navegação principal">
+        <a href="/">Início</a>
+        <a href="/products">Produtos</a>
+        <a href="/categories">Categorias</a>
+        <a href="/offers">Ofertas</a>
+        <a href="/about-us">Sobre</a>
+      </nav>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="headerSearch" placeholder="Buscar produtos..." aria-label="Buscar produtos">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn hidden" id="bellBtn" title="Notificações" aria-label="Notificações" onclick="openNotif()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="hd-badge" id="bellBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" title="Lista de desejos" aria-label="Lista de desejos" onclick="openFav()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" title="Abrir carrinho" aria-label="Abrir carrinho" onclick="openCart()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="hd-badge" id="cartBadge" style="display:none">0</span>
+        </button>
+        <button id="authLoginBtn" class="btn-account" onclick="goToLogin()">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Entrar
+        </button>
+        <button class="icon-btn" title="Abrir menu" aria-label="Abrir menu" onclick="openMore()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()" role="button" tabindex="0" aria-label="Minha conta">
+          <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ AFFILIATE HERO ═══════════════ -->
+  <section class="aff-hero" id="topo">
+    <div class="aff-hero-bg" aria-hidden="true">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+    </div>
+    <div class="aff-hero-inner">
+      <span class="reveal aff-tag" style="--d:0">Programa de Afiliados Ecomme</span>
+      <h1 class="reveal" style="--d:1">Transforme sua influência em <span class="accent">novas oportunidades</span></h1>
+      <p class="aff-hero-lead reveal" style="--d:2">Ganhe indicando os produtos que você acredita.</p>
+      <p class="aff-hero-desc reveal" style="--d:3">Compartilhe produtos da Ecomme, acompanhe seus resultados e receba comissões pelas vendas geradas através dos seus links.</p>
+      <div class="aff-hero-btns reveal" style="--d:4">
+        <button class="btn-primary-lg" onclick="startAffiliateRegistration()">Quero ser Afiliado</button>
+        <button class="btn-outline-lg" onclick="scrollToSection('como-funciona')">Como funciona</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ BENEFÍCIOS ═══════════════ -->
+  <section class="aff-section" id="beneficios">
+    <div class="aff-container">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Vantagens</span>
+        <h2>Por que ser um Afiliado Ecomme?</h2>
+      </div>
+      <div class="benefits-grid">
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+          <h3>Comissões</h3>
+          <p>Ganhe uma comissão pelas vendas qualificadas geradas através dos seus links.</p>
+        </div>
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <h3>Produtos para divulgar</h3>
+          <p>Tenha acesso a uma grande variedade de produtos para recomendar.</p>
+        </div>
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <h3>Acompanhamento</h3>
+          <p>Visualize cliques, vendas, conversões e resultados.</p>
+        </div>
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-link"></i></div>
+          <h3>Links personalizados</h3>
+          <p>Crie links para produtos e compartilhe diretamente com sua audiência.</p>
+        </div>
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-share-nodes"></i></div>
+          <h3>Flexibilidade</h3>
+          <p>Divulgue através de redes sociais, sites, vídeos, blogs e outros canais permitidos.</p>
+        </div>
+        <div class="benefit-card io-reveal">
+          <div class="benefit-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <h3>Plataforma simples</h3>
+          <p>Gerencie suas atividades de afiliado em uma experiência intuitiva.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ COMO FUNCIONA ═══════════════ -->
+  <section class="aff-section aff-section-alt" id="como-funciona">
+    <div class="aff-container">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Passo a passo</span>
+        <h2>Comece em poucos passos</h2>
+      </div>
+      <ol class="timeline">
+        <li class="timeline-step io-reveal">
+          <span class="ts-num">01</span>
+          <div class="ts-body">
+            <h3>Cadastre-se</h3>
+            <p>Crie sua conta e solicite participação no programa.</p>
+          </div>
+        </li>
+        <li class="timeline-step io-reveal">
+          <span class="ts-num">02</span>
+          <div class="ts-body">
+            <h3>Escolha produtos</h3>
+            <p>Encontre produtos da Ecomme que façam sentido para sua audiência.</p>
+          </div>
+        </li>
+        <li class="timeline-step io-reveal">
+          <span class="ts-num">03</span>
+          <div class="ts-body">
+            <h3>Compartilhe seu link</h3>
+            <p>Divulgue seus links de afiliado em seus canais.</p>
+          </div>
+        </li>
+        <li class="timeline-step io-reveal">
+          <span class="ts-num">04</span>
+          <div class="ts-body">
+            <h3>Gere vendas</h3>
+            <p>Quando uma venda elegível acontecer através da sua divulgação, você gera comissão.</p>
+          </div>
+        </li>
+        <li class="timeline-step io-reveal">
+          <span class="ts-num">05</span>
+          <div class="ts-body">
+            <h3>Acompanhe seus resultados</h3>
+            <p>Visualize seu desempenho dentro da plataforma.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FAIXA DE DESTAQUES ═══════════════ -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-it io-reveal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.91 8.84L8.56 21.19a2 2 0 0 1-2.83 0L1.09 16.55a2 2 0 0 1 0-2.83L13.44 1.37a2 2 0 0 1 1.41-.58H20a2 2 0 0 1 2 2v5.15a2 2 0 0 1-.58 1.41z"/><circle cx="16.5" cy="7.5" r="1"/></svg>
+        <span><strong>Milhares de produtos</strong> para divulgar</span>
+      </div>
+      <div class="stat-it io-reveal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span><strong>Diversas categorias</strong> para toda audiência</span>
+      </div>
+      <div class="stat-it io-reveal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span><strong>Links personalizados</strong> em segundos</span>
+      </div>
+      <div class="stat-it io-reveal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        <span><strong>Dashboard de resultados</strong> completo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PARA QUEM É ═══════════════ -->
+  <section class="aff-section" id="para-quem">
+    <div class="aff-container">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Público</span>
+        <h2>Para quem é o programa</h2>
+      </div>
+      <div class="audience-grid">
+        <div class="audience-card io-reveal"><i class="fa-solid fa-pen-nib"></i><span>Criadores de conteúdo</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-star"></i><span>Influenciadores</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-blog"></i><span>Bloggers</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-globe"></i><span>Sites especializados</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-people-group"></i><span>Comunidades</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-video"></i><span>Criadores de vídeos</span></div>
+        <div class="audience-card io-reveal"><i class="fa-solid fa-user-group"></i><span>Pessoas com audiência online</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CANAIS DE DIVULGAÇÃO ═══════════════ -->
+  <section class="aff-section aff-section-alt" id="divulgacao">
+    <div class="aff-container">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Canais</span>
+        <h2>Divulgue onde sua audiência está</h2>
+      </div>
+      <div class="channels-grid">
+        <div class="channel-card io-reveal"><i class="fa-brands fa-instagram"></i><span>Instagram</span></div>
+        <div class="channel-card io-reveal"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></div>
+        <div class="channel-card io-reveal"><i class="fa-brands fa-youtube"></i><span>YouTube</span></div>
+        <div class="channel-card io-reveal"><i class="fa-solid fa-blog"></i><span>Blogs</span></div>
+        <div class="channel-card io-reveal"><i class="fa-solid fa-window-restore"></i><span>Sites</span></div>
+        <div class="channel-card io-reveal"><i class="fa-solid fa-comments"></i><span>Comunidades</span></div>
+        <div class="channel-card io-reveal"><i class="fa-solid fa-share-nodes"></i><span>Redes sociais</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FLUXO DE COMISSÃO ═══════════════ -->
+  <section class="aff-section" id="comissao">
+    <div class="aff-container">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Como a comissão funciona</span>
+        <h2>Você indica. A venda acontece.<br>Sua comissão é registrada.</h2>
+      </div>
+      <div class="flow-row io-reveal">
+        <div class="flow-step">
+          <div class="flow-icon"><i class="fa-solid fa-box"></i></div>
+          <span>Produto</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-icon"><i class="fa-solid fa-link"></i></div>
+          <span>Link de afiliado</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+          <span>Cliente compra</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <span>Venda atribuída</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="flow-step flow-step-final">
+          <div class="flow-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+          <span>Comissão gerada</span>
+        </div>
+      </div>
+      <p class="flow-note io-reveal">O percentual de comissão por categoria será exibido aqui assim que estiver configurado.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ MOCKUP DASHBOARD ═══════════════ -->
+  <section class="aff-section aff-section-alt" id="dashboard">
+    <div class="aff-container aff-container-narrow">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Prévia da plataforma</span>
+        <h2>Visão geral do seu painel de afiliado</h2>
+      </div>
+      <div class="dash-mock io-reveal">
+        <div class="dash-mock-hd">
+          <span class="dash-mock-title">Visão geral</span>
+          <span class="dash-mock-badge">Exemplo ilustrativo</span>
+        </div>
+        <div class="dash-mock-grid">
+          <div class="dash-kpi">
+            <span class="dash-kpi-label"><i class="fa-solid fa-arrow-pointer"></i> Cliques</span>
+            <span class="dash-kpi-value">1.284</span>
+          </div>
+          <div class="dash-kpi">
+            <span class="dash-kpi-label"><i class="fa-solid fa-bullseye"></i> Conversões</span>
+            <span class="dash-kpi-value">96</span>
+          </div>
+          <div class="dash-kpi">
+            <span class="dash-kpi-label"><i class="fa-solid fa-bag-shopping"></i> Vendas</span>
+            <span class="dash-kpi-value">62</span>
+          </div>
+          <div class="dash-kpi">
+            <span class="dash-kpi-label"><i class="fa-solid fa-sack-dollar"></i> Comissão</span>
+            <span class="dash-kpi-value">— —</span>
+          </div>
+          <div class="dash-kpi">
+            <span class="dash-kpi-label"><i class="fa-solid fa-link"></i> Links ativos</span>
+            <span class="dash-kpi-value">14</span>
+          </div>
+        </div>
+        <svg class="dash-mock-chart" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="0,80 40,70 80,74 120,55 160,60 200,40 240,45 280,28 320,32 360,15 400,20" />
+        </svg>
+        <p class="dash-mock-foot">Dados fictícios, apenas para demonstração visual do painel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CTA FINAL ═══════════════ -->
+  <section class="aff-cta">
+    <div class="aff-cta-inner io-reveal">
+      <h2>Pronto para começar?</h2>
+      <p>Transforme suas recomendações em novas oportunidades dentro do ecossistema Ecomme.</p>
+      <button class="btn-primary-lg" onclick="startAffiliateRegistration()">Quero ser Afiliado</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FAQ ═══════════════ -->
+  <section class="aff-section" id="faq">
+    <div class="aff-container aff-container-narrow">
+      <div class="section-head io-reveal">
+        <span class="section-eyebrow">Dúvidas frequentes</span>
+        <h2>Perguntas Frequentes</h2>
+      </div>
+      <div class="faq-list io-reveal">
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>O que é o Programa de Afiliados Ecomme?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>É um programa que permite indicar produtos da Ecomme através de links personalizados e receber comissão pelas vendas qualificadas geradas por essas indicações.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Quem pode participar?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>Criadores de conteúdo, influenciadores, bloggers, sites especializados, comunidades e qualquer pessoa com audiência online interessada em recomendar produtos.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Como funciona o link de afiliado?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>Você gera um link exclusivo para os produtos que deseja divulgar. Quando alguém acessa esse link e realiza uma compra, ela é associada à sua conta de afiliado.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Como as vendas são atribuídas?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>A venda é atribuída ao afiliado responsável pelo link que originou a visita e a compra, seguindo as regras de atribuição da plataforma.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Como acompanho minhas comissões?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>Diretamente no seu painel de afiliado, onde você acompanha cliques, conversões, vendas e comissões geradas pelos seus links.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Quando posso receber?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>As condições e prazos de recebimento serão detalhados no seu painel de afiliado assim que sua conta for aprovada.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Onde posso divulgar meus links?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>Redes sociais, sites, blogs, vídeos e comunidades — em qualquer canal permitido pelas diretrizes do programa.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span>Existe algum custo para participar?</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="faq-a"><p>Não. A participação no Programa de Afiliados Ecomme é gratuita.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footerLogo">
+          <button onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
+            <img src="/images/mainlogo.png" style="width:200px;height:auto;display:block;" alt="Ecomme"/>
+          </button>
+        </div>
+        <p style="cursor:default;">Conectamos você às melhores tendências globais com preços justos e entrega garantida em todo o Brasil.</p>
+        <div class="social-links">
+          <a href="https://www.tiktok.com/" aria-label="TikTok"><div class="social-btn"><img src="/images/tiktok.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="TikTok"/></div></a>
+          <a href="https://www.facebook.com/" aria-label="Facebook"><div class="social-btn"><img src="/images/facebook.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="Facebook"/></div></a>
+          <a href="https://www.instagram.com/" aria-label="Instagram"><div class="social-btn"><img src="/images/instagram.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="Instagram"/></div></a>
+          <a href="https://wa.me/" aria-label="WhatsApp"><div class="social-btn"><img src="/images/whatsapp.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="WhatsApp"/></div></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Loja</h4>
+        <div class="footer-links">
+          <a href="#">Novidades</a>
+          <a href="#">Mais Vendidos</a>
+          <a href="/offers">Promoções</a>
+          <a href="#">Kits e Combos</a>
+          <a href="#">Presentes</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Suporte</h4>
+        <div class="footer-links">
+          <a href="/track-order">Rastrear Pedido</a>
+          <a href="/terms/return-policy">Política de Devolução</a>
+          <a href="#">Perguntas Frequentes</a>
+          <a href="#">Contato</a>
+          <a href="#">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Empresa</h4>
+        <div class="footer-links">
+          <a href="/about-us">Sobre Nós</a>
+          <a href="/sellers">Seja um Vendedor Ecomme</a>
+          <a href="/affiliates" class="active">Programa de Afiliados</a>
+          <a href="/terms">Termos de Uso</a>
+          <a href="/terms/privacy">Privacidade</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p style="cursor:default;">&copy; 2026 <span style="font-weight:bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
+      <div class="payment-icons">
+        <div class="pay-icon"><img src="/images/payico/pix.png" style="width:50px;height:auto;display:block;" alt="Pix"/></div>
+        <div class="pay-icon"><img src="/images/payico/visa.png" style="width:50px;height:auto;display:block;" alt="Visa"/></div>
+        <div class="pay-icon"><img src="/images/payico/master.png" style="width:50px;height:auto;display:block;" alt="Mastercard"/></div>
+        <div class="pay-icon"><img src="/images/payico/elo.png" style="width:50px;height:auto;display:block;" alt="Elo"/></div>
+        <div class="pay-icon"><img src="/images/payico/boleto.png" style="width:50px;height:auto;display:block;" alt="Boleto"/></div>
+        <div class="pay-icon"><img src="/images/payico/picpay.png" style="width:50px;height:auto;display:block;" alt="PicPay"/></div>
+        <div class="pay-icon"><img src="/images/payico/pagbank.png" style="width:50px;height:auto;display:block;" alt="PagBank"/></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <div class="cart-sb" id="cartSidebar" role="dialog" aria-label="Carrinho" aria-hidden="true">
+    <div class="cart-hd">
+      <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+      <button class="cart-cls" aria-label="Fechar carrinho" onclick="closeCart()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-body" id="cartItems">
+      <div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio.</p></div>
+    </div>
+    <div class="cart-ft">
+      <div class="cart-tots">
+        <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+        <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+        <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+      </div>
+      <button class="btn-ckout" onclick="checkout()">
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Finalizar Compra
+      </button>
+      <button class="btn-cont" onclick="closeCart()">&larr; Continuar Comprando</button>
+    </div>
+  </div>
+
+  <!-- FAV SIDEBAR -->
+  <div class="overlay" id="favOverlay" onclick="closeFav()"></div>
+  <div class="fav-sb" id="favSidebar" role="dialog" aria-label="Lista de desejos" aria-hidden="true">
+    <div class="fav-hd">
+      <h3>Lista de Desejos <span style="color:var(--muted);font-size:15px" id="favCount">(0)</span></h3>
+      <button class="fav-cls" aria-label="Fechar lista de desejos" onclick="closeFav()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="fav-body" id="favItems">
+      <div class="fav-empty-st"><span>♡</span><p>Sua lista de desejos está vazia.</p></div>
+    </div>
+    <div class="fav-ft">
+      <div class="fav-tots"><div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="favTotal">R$ 0,00</span></div></div>
+      <button class="btn-ckout" onclick="addAllFavToCart()">
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Adicionar tudo ao carrinho
+      </button>
+      <button class="btn-cont" onclick="closeFav()">&larr; Continuar Comprando</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION SIDEBAR -->
+  <div class="overlay" id="notifOverlay" onclick="closeNotif()"></div>
+  <div class="notif-sb" id="notifSidebar" role="dialog" aria-label="Notificações" aria-hidden="true">
+    <div class="notif-hd">
+      <h3>Notificações <span style="color:var(--muted);font-size:15px" id="notifCount">(0)</span></h3>
+      <button class="notif-cls" aria-label="Fechar notificações" onclick="closeNotif()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="notif-body">
+      <div class="notif-empty-st"><span>🔔</span><p>Nenhuma notificação por aqui.</p></div>
+    </div>
+    <div class="notif-ft">
+      <button class="btn-ckout" onclick="window.location.href='/notifications'">
+        Ver Mais Notificações
+        <span class="btn-arrow">&gt;</span>
+      </button>
+      <button class="btn-cont" onclick="closeNotif()">Fechar Notificações</button>
+    </div>
+  </div>
+
+  <!-- MORE SIDEBAR -->
+  <div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+  <div class="more-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
+    <div class="more-hd">
+      <h3>Principais Atalhos</h3>
+      <button class="more-cls" aria-label="Fechar menu" onclick="closeMore()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="more-body">
+      <!-- THEME SWITCH -->
+      <div class="theme-switch-wrap">
+        <p class="acc-label">Aparência</p>
+        <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span>
+          </button>
+          <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema">
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span>
+          </button>
+          <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span>
+          </button>
+        </div>
+      </div>
+      <div class="acc-menu-group" style="gap:10px">
+        <button class="btn-acc-option" onclick="buttonLink('/settings')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-gear"></i> Configurações</span>
+            <p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/track-order')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-truck"></i> Acompanhar Pedido</span>
+            <p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/sellers')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-sack-dollar"></i> Página do Vendedor</span>
+            <p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option active" onclick="buttonLink('/affiliates')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-handshake"></i> Programa de Afiliados</span>
+            <p class="btn-txt">Gere links, divulgue produtos e acompanhe suas comissões.</p>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-file-contract"></i> Termos e Condições de Uso</span>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/support')">
+          <div class="btn-content">
+            <span class="btn-title"><i class="fa-solid fa-circle-question"></i> Suporte</span>
+          </div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+      </div>
+    </div>
+    <div class="notif-ft">
+      <button class="btn-cont" onclick="closeMore()">Fechar Menu</button>
+    </div>
+  </div>
+
+  <!-- ACC SIDEBAR -->
+  <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+  <div class="acc-sb" id="accSidebar" role="dialog" aria-label="Minha conta" aria-hidden="true">
+    <div class="acc-hd">
+      <h3>Minha Conta</h3>
+      <button class="acc-cls" aria-label="Fechar minha conta" onclick="closeAcc()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="acc-body">
+      <button class="acc-profile-summary" onclick="buttonLink('/settings')">
+        <div class="acc-avatar-large"><img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar"></div>
+        <div class="acc-info" style="gap:3px;display:flex;align-items:baseline;">
+          <strong id="accSidebarName"></strong>
+          <span id="accSidebarEmail"></span>
+        </div>
+      </button>
+      <div class="acc-menu-group">
+        <p class="acc-label">Atalhos</p>
+        <button class="btn-acc-option" onclick="buttonLink('/settings')"><i class="fa-solid fa-user-pen"></i><span>Editar Perfil</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/my-orders')"><i class="fa-solid fa-box-open"></i><span>Minhas Compras</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/reviews')"><i class="fa-solid fa-star"></i><span>Minhas Avaliações</span></button>
+        <button class="btn-acc-option" onclick="openFav(); closeAcc();"><i class="fa-solid fa-heart"></i><span>Lista de Desejos</span></button>
+      </div>
+      <div class="acc-menu-group">
+        <p class="acc-label">Suporte</p>
+        <button class="btn-acc-option" onclick="buttonLink('/support')"><i class="fa-solid fa-circle-question"></i><span>Ajuda &amp; FAQ</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')"><i class="fa-solid fa-file-contract"></i><span>Termos de Uso</span></button>
+      </div>
+      <div class="acc-ft">
+        <button class="btn-logout-sb" onclick="openConfirmLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da Conta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT MODAL (mantido por compatibilidade global; sem produto carregado nesta página) -->
+  <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+    <div class="modal">
+      <div class="modal-img-area">
+        <div class="modal-img" id="modalImg">
+          <button class="btn-mwish1" id="mWish" onclick="addFromModal2()" aria-label="Favoritar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </button>
+          <button class="mcls" onclick="closeModal()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <span id="mEmoji"></span>
+        </div>
+        <div class="m-qty-ctrl1">
+          <button class="qb" onclick="chgQty(-1)" aria-label="Diminuir quantidade">−</button>
+          <span class="m-qty-num" id="mQty">1</span>
+          <button class="qb" onclick="chgQty(1)" aria-label="Aumentar quantidade">+</button>
+        </div>
+        <div class="modal-gallery" id="modalGallery"></div>
+      </div>
+      <div class="modal-info">
+        <div class="m-cat" id="mCat"></div>
+        <div class="m-name" id="mName"></div>
+        <div class="m-desc" id="mDesc"></div>
+        <div class="m-price-row">
+          <span class="m-price" id="mPrice"></span>
+          <span class="m-old" id="mOld"></span>
+          <span class="m-disc" id="mDisc"></span>
+        </div>
+        <div class="m-feats" id="mFeats"></div>
+        <hr class="m-div">
+        <div class="m-qty-row">
+          <span class="m-qty-lbl">Quantidade:</span>
+          <div class="m-qty-ctrl">
+            <button class="qb" onclick="chgQty(-1)" aria-label="Diminuir quantidade">−</button>
+            <span class="m-qty-num" id="mQty2">1</span>
+            <button class="qb" onclick="chgQty(1)" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+        <div class="m-btns">
+          <span class="m-price1" id="mPrice1"></span>
+          <button class="btn-madd" onclick="addFromModal()">
+            <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Adicionar ao Carrinho
+          </button>
+          <button class="btn-mwish" id="mWish2" onclick="addFromModal2()" aria-label="Favoritar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">✓</div>
+    <span id="toastMsg">Produto adicionado!</span>
+  </div>
+
+  <!-- BACK TO TOP -->
+  <button class="back-top" id="backTop" aria-label="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <!-- QUICKLINK -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      if (window.quicklink) quicklink.listen();
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    if (!window.supabaseClient) {
+      var SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+      var SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+      window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    var supabaseClient = window.supabaseClient;
+    var userId = null;
+  </script>
+  <script src="/files/scripts/auth-session-check.js"></script>
+  <script src="/files/scripts/console-warning.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
