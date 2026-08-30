@@ -6,6 +6,7 @@
   --blue-dim:  rgba(37,99,235,0.07);
   --blue-mid:  rgba(37,99,235,0.14);
   --white:     #FFFFFF;
+  --black:     #000000;
   --bg:        #F3F7FF;
   --bg2:       #FFFFFF;
   --bg3:       #EBF2FF;
@@ -42,12 +43,13 @@ html[data-theme="dark"] {
   --blue3:     #93C5FD;
   --blue-dim:  rgba(96,165,250,0.12);
   --blue-mid:  rgba(96,165,250,0.22);
-  --white:     #141B2C;
+  --white:     #000000;
+  --black:     #FFFFFF;
   --bg:        #0A1120;
   --bg2:       #111827;
   --bg3:       #101C30;
   --surface:   #111827;
-  --surface-2: rgba(20,27,44,.75);
+  --surface-2: rgba(0,0,0,.75);
   --text:      #E7ECF5;
   --textW:     #fff;
   --muted:     #8B98AE;
@@ -194,8 +196,10 @@ header {
 
     /* ── PAGE HERO ───────────────────────────────────────────── */
     .page-hero {
-      background: #fff; padding: 72px 28px 56px;
-      position: relative; overflow: hidden;
+      background: var(--white);
+      padding: 72px 28px 56px;
+      position: relative;
+      overflow: hidden;
       border-bottom: 1px solid var(--border2);
     }
     .page-hero::before {
@@ -250,10 +254,13 @@ header {
     /* ── SEARCH BOX ──────────────────────────────────────────── */
     .search-wrap { max-width: 700px; margin: 0 auto 22px; }
     .search-box {
-      display: flex; align-items: center;
-      background: #fff;
-      border: 2px solid var(--border); border-radius: 100px;
-      padding: 0 8px 0 24px; gap: 10px;
+      display: flex;
+      align-items: center;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 100px;
+      padding: 0 8px 0 24px;
+      gap: 10px;
       transition: border-color 0.25s, box-shadow 0.25s;
       box-shadow: 0 6px 28px rgba(37,99,235,.09);
     }
@@ -331,7 +338,7 @@ header {
       gap: 14px;
       /* margin-bottom: 28px; */
       padding: 16px 22px;
-      background: #fff;
+      background: var(--white);
       border: 1px solid var(--border2);
       border-radius: var(--rad-lg);
       /* box-shadow: var(--shadow); */
@@ -380,7 +387,7 @@ header {
     }
 
     .sort-sel {
-      /* background: var(--bg3); */
+      background: var(--bg3);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 8px 34px 8px 13px;
@@ -434,7 +441,7 @@ header {
 
     /* card */
     .pcard {
-      background: #fff;
+      background: var(--white);
       border: 1px solid var(--border2);
       border-radius: var(--rad-lg);
       overflow: hidden;
@@ -477,8 +484,12 @@ header {
     }
     .pimg {
       content-visibility: auto;
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
+      color: var(--text);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 72px;
       transition: transform 0.4s cubic-bezier(.4,0,.2,1);
     }
@@ -503,13 +514,21 @@ header {
     .bsale { background: var(--red);  color: #fff; }
 
     .pwish-btn {
-      position: absolute; top: 12px; right: 12px;
-      width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(255,255,255,.92); border: 1px solid var(--border2);
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s; /*backdrop-filter: blur(4px);*/
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+      /*backdrop-filter: blur(4px);*/
     }
-    .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
+    .pwish-btn:hover, .pwish-btn.on {background: var(--surface-2);border-color: var(--red);}
     .pwish-btn svg { 
         width: 14px; height: 14px; fill: none; 
         stroke: var(--muted); stroke-width: 2; 
@@ -540,10 +559,16 @@ header {
     .btn-ac:hover { background: var(--blue2); }
     .btn-ac svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
     .btn-qv {
-      width: 38px; height: 38px; border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(0, 0, 0, 0.5);
-      display: flex; align-items: center; justify-content: center;
-      color: #000; transition: background 0.15s, border-color 0.15, color 0.15s;
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius);
+      background: var(--black);
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      transition: background 0.15s, border-color 0.15, color 0.15s;
     }
     .btn-qv:hover { background: #fff; border-color: var(--blue); color: var(--blue); }
     .btn-qv svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
@@ -634,7 +659,7 @@ header {
       top: 0;
       bottom: 0;
       width: 420px;
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--surface-2);
       box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
       /* border-left: 0px solid var(--border2); */
       border-top-left-radius: 25px;
@@ -682,8 +707,8 @@ header {
     .cart-empty-st span { font-size: 48px; }
 
     .ci {
-      background: rgba(255, 255, 255, 1);
-      border: 1px solid rgba(0, 0, 0, 0.0);
+      background: var(--white);
+      border: 1px solid var(--border);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       border-radius: 22px;
       padding: 14px;
@@ -717,11 +742,11 @@ header {
     }
 
     .ci-info { color: #000; flex: 1; min-width: 0; }
-    .ci-name { color: #000; font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-name {color: var(--black);font-size: 13px;font-weight: 500;margin-bottom: 3px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
     .ci-price { font-family: 'Outfit', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
-    .ci-qty {color: #000;background: rgba(25,100,255,0.0);border-radius: 150px;box-shadow: 0px 0px 15px rgb(200 200 200 / 100%);padding: 5px;max-width: 100px;display: flex;align-items: center;gap: 8px;margin-top: 8px;}
+    .ci-qty {color: var(--black);background: rgba(25,100,255,0.0);border-radius: 150px;box-shadow: 0px 0px 15px rgb(200 200 200 / 100%);padding: 5px;max-width: 100px;display: flex;align-items: center;gap: 8px;margin-top: 8px;}
     .qb {
-      color: #000;
+      color: var(--black);
       min-width: 36px;
       min-height: 36px;
       border-radius: 10px;
@@ -745,6 +770,7 @@ header {
       border-radius: 50%;
       /* background: rgba(0,0,0,0.1); */
       box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -788,7 +814,8 @@ header {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #000;
+      color: var(--black);
+      border: 1px solid var(--border);
       align-self: flex-start;
       transition: color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
@@ -813,7 +840,7 @@ header {
       bottom: 0;
       width: 420px;
       border: 3px solid var(--white);
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--surface-2);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       /* border-left: 0px solid var(--border2); */
       border-top-left-radius: 25px;
@@ -915,7 +942,7 @@ header {
     top: 0;
     bottom: 0;
     width: 420px;
-    background: rgba(255, 255, 255, 0.75);
+    background: var(--surface-2);
     box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
     /* border-left: 0px solid var(--border2); */
     border-top-left-radius: 25px;
@@ -991,7 +1018,7 @@ header {
     bottom: 0;
     width: 400px;
     border: 3px solid var(--white);
-    background: rgba(255, 255, 255, 0.75);
+    background: var(--surface-2);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     /* border-left: 0px solid var(--border2); */
     border-top-left-radius: 25px;
@@ -1077,7 +1104,7 @@ header {
 .btn-txt {
   font-weight: 500;
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--muted);
   margin: 0;
   text-align: left;
 }
@@ -1117,7 +1144,7 @@ header {
   top: 0;
   bottom: 0;
   width: 400px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--surface2);
   box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
   /* border-left: 0px solid var(--border2); */
   border-top-left-radius: 25px;
@@ -1199,8 +1226,8 @@ header {
   width: 100%;
   padding: 14px;
   border-radius: 150px;
-  background: #fff;
-  color: rgba(255,0,0);
+  background: var(--white);
+  color: var(--red);
   /* border: 1.5px solid #fee2e2; */
   display: flex;
   align-items: center;
@@ -1232,7 +1259,7 @@ header {
     .modal-ov.on { opacity: 1; pointer-events: all; }
     .modal {
       box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
-      background: rgba(255,255,255,1);
+      background: var(--white);
       /* backdrop-filter: blur(12px); */
       border-radius: 36px;
       max-width: 860px;
@@ -1445,7 +1472,7 @@ header {
     }
     .btn-mwish:hover {
       color: var(--red);
-      background: rgba(255,255,255,0.5);
+      background: var(--surface-2);
       transform: scale(1.07);
       box-shadow: 0px 0px 7px rgba(255,0,0,0.8);
     }
@@ -1541,7 +1568,7 @@ header {
   .footer-bottom { max-width: 1400px; margin: 0 auto; padding: 20px 0; display: flex; align-items: center; justify-content: space-between; }
   .footer-bottom p { font-size: 12px; color: var(--muted); }
   .payment-icons {display: flex;justify-content: center;gap: 8px;}
-  .pay-icon { background: #fff; border: 1px solid var(--border2); border-radius: 10px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .pay-icon {background: var(--white);border: 1px solid var(--border);border-radius: 10px;padding: 4px 10px;font-size: 11px;font-weight: 600;color: var(--muted);}
 
     /* ── RESPONSIVE ──────────────────────────────────────────── */
 
