@@ -11,7 +11,9 @@
   --bg2:       #FFFFFF;
   --bg3:       #EBF2FF;
   --surface:   #FFFFFF;
+  --surface1:  #FFFFFF;
   --surface-2: rgba(255,255,255,.75);
+  --overlay:   rgba(255,255,255,0.1);
   --text:      #0F172A;
   --textW:     #fff;
   --muted:     #64748B;
@@ -49,7 +51,9 @@ html[data-theme="dark"] {
   --bg2:       #0F172A;
   --bg3:       #111C31;
   --surface:   #0F172A;
-  --surface-2: rgba(15,23,42,.75);
+  --surface1:  rgba(255,255,255,0.9);
+  --surface-2: rgba(0,0,0,.75);
+  --overlay:   rgba(25,100,255,0.1);
   --text:      #F8FAFC;
   --textW:     #000000;
   --muted:     #94A3B8;
@@ -644,7 +648,7 @@ header {
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.1);
+      background: var(--overlay);
       backdrop-filter: blur(16px);
       z-index: 1999;
       opacity: 0;
@@ -1011,7 +1015,7 @@ header {
     }
     .theme-opt i { font-size: 14px; }
     .theme-opt:hover { color: var(--text); }
-    .theme-opt[aria-checked="true"] { background: var(--surface); color: var(--blue); box-shadow: var(--shadow); }
+    .theme-opt[aria-checked="true"] {background: var(--surface1);color: var(--blue);box-shadow: var(--shadow);}
 
     .more-sb {
     position: fixed;
@@ -1548,14 +1552,17 @@ header {
   .footer-brand p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 240px; margin-bottom: 20px; }
   .social-links { display: flex; gap: 8px; }
   .social-btn {
-      width: 36px; height: 36px; 
-      border-radius: 50%; 
-      border: 1px solid var(--border2); 
-      display: flex; align-items: center; 
-      justify-content: center; 
-      color: var(--muted); 
-      font-size: 14px; 
-      transition: border-color 0.2s, transform 0.2s; 
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+      transition: border-color 0.2s, transform 0.2s;
   }
   .social-btn:hover { 
       border-color: var(--blue);
