@@ -38,37 +38,39 @@
 
 /* ── TOKENS (DARK) ───────────────────────────────────────────────── */
 html[data-theme="dark"] {
-  --blue:      #3B82F6;
-  --blue2:     #60A5FA;
-  --blue3:     #93C5FD;
-  --blue-dim:  rgba(96,165,250,0.12);
-  --blue-mid:  rgba(96,165,250,0.22);
+  --blue:      #2563EB;
+  --blue2:     #3B82F6;
+  --blue3:     #60A5FA;
+  --blue-dim:  rgba(37,99,235,0.07);
+  --blue-mid:  rgba(37,99,235,0.14);
   --white:     #000000;
   --black:     #FFFFFF;
-  --bg:        #0A1120;
-  --bg2:       #111827;
-  --bg3:       #101C30;
-  --surface:   #111827;
+  --bg:        #0C1220;
+  --bg2:       #000000;
+  --bg3:       #140D00;
+  --surface:   #000000;
   --surface-2: rgba(0,0,0,.75);
-  --text:      #E7ECF5;
-  --textW:     #fff;
-  --muted:     #8B98AE;
-  --muted2:    #3c4759;
-  --border:    rgba(96,165,250,0.22);
-  --border2:   rgba(255,255,255,0.08);
-  --borderW:   rgba(255,255,255,0.08);
-  --red:       #F87171;
-  --green:     #34D399;
-  --shadow:    0 4px 24px rgba(0,0,0,0.35);
-  --shadow-hv: 0 20px 56px rgba(0,0,0,0.55);
-  --glass-bg:     linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-  --glass-border: rgba(255,255,255,.09);
-  --overlay-bg:   rgba(0,0,0,.55);
-  --sidebar-bg:   rgba(17,24,39,.88);
-  --sidebar-edge: #1c2739;
-  --toast-bg:     #1c2739;
-  --toast-text:   #E7ECF5;
-  --input-text:   #E7ECF5;
+  --text:      #F0E8D5;
+  --textW:     #000000;
+  --muted:     #9BAF73;
+  --muted2:    #3E3221;
+  --border:    rgba(37,99,235,0.18);
+  --border2:   rgba(240,232,213,0.08);
+  --borderW:   rgba(0,0,0,0.15);
+  --red:       #EF4444;
+  --green:     #10B981;
+  --radius:    8px;
+  --rad-lg:    16px;
+  --shadow:    0 4px 24px rgba(37,99,235,0.07);
+  --shadow-hv: 0 20px 56px rgba(37,99,235,0.15);
+  --glass-bg:     linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.16));
+  --glass-border: rgba(0,0,0,.25);
+  --overlay-bg:   rgba(255,255,255,.10);
+  --sidebar-bg:   rgba(0,0,0,.80);
+  --sidebar-edge: var(--white);
+  --toast-bg:     #E8EBF5;
+  --toast-text:   #10141a;
+  --input-text:   #F0E8D5;
   color-scheme: dark;
 }
 
