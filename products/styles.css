@@ -14,10 +14,12 @@
   --surface1:  #FFFFFF;
   --surface-2: rgba(255,255,255,.75);
   --overlay:   rgba(255,255,255,0.1);
+  --box-shdw:  0 4px 12px rgb(0 0 0 / 10%);
   --text:      #0F172A;
   --textW:     #fff;
   --muted:     #64748B;
   --muted2:    #c1cdde;
+  --border1:   transparent;
   --border:    rgba(37,99,235,0.18);
   --border2:   rgba(15,23,42,0.08);
   --borderW:   rgba(255,255,255,0.15);
@@ -54,11 +56,13 @@ html[data-theme="dark"] {
   --surface1:  rgba(255,255,255,0.9);
   --surface-2: rgba(0,0,0,.75);
   --overlay:   rgba(25,100,255,0.1);
+  --box-shdw:  0 0 52px rgb(255 255 255 / 20%);
   --text:      #F8FAFC;
   --textW:     #000000;
   --muted:     #94A3B8;
   --muted2:    #475569;
-  --border:    rgba(96,165,250,0.18);
+  --border1:   rgba(255,255,255,0.2);
+  --border:    rgba(96,165,250,0.28);
   --border2:   rgba(248,250,252,0.08);
   --borderW:   rgba(0,0,0,0.15);
   --red:       #EF4444;
@@ -666,7 +670,7 @@ header {
       bottom: 0;
       width: 420px;
       background: var(--surface-2);
-      box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
+      box-shadow: var(--box-shdw);
       /* border-left: 0px solid var(--border2); */
       border-top-left-radius: 25px;
       border-bottom-left-radius: 25px;
@@ -693,11 +697,11 @@ header {
     height: 34px;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.15);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: var(--black);
     transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
     .cart-cls:hover {
@@ -714,7 +718,7 @@ header {
 
     .ci {
       background: var(--white);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border1);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       border-radius: 22px;
       padding: 14px;
@@ -776,7 +780,7 @@ header {
       border-radius: 50%;
       /* background: rgba(0,0,0,0.1); */
       box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -847,7 +851,7 @@ header {
       width: 420px;
       border: 3px solid var(--white);
       background: var(--surface-2);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--box-shdw);
       /* border-left: 0px solid var(--border2); */
       border-top-left-radius: 25px;
       border-bottom-left-radius: 25px;
@@ -873,11 +877,11 @@ header {
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      border: 1px solid rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #000;
+      color: var(--black);
       transition: border-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s, background 0.3s;
     }
     .fav-cls:hover {
@@ -949,7 +953,7 @@ header {
     bottom: 0;
     width: 420px;
     background: var(--surface-2);
-    box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
+    box-shadow: var(--box-shdw);
     /* border-left: 0px solid var(--border2); */
     border-top-left-radius: 25px;
     border-bottom-left-radius: 25px;
@@ -976,11 +980,11 @@ header {
     height: 34px;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.15);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: var(--black);
     transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
     .notif-cls:hover {
@@ -1025,7 +1029,7 @@ header {
     width: 400px;
     border: 3px solid var(--white);
     background: var(--surface-2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shdw);
     /* border-left: 0px solid var(--border2); */
     border-top-left-radius: 25px;
     border-bottom-left-radius: 25px;
@@ -1053,11 +1057,11 @@ header {
     height: 34px;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.15);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: var(--black);
     transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
     .more-cls:hover {
@@ -1150,8 +1154,8 @@ header {
   top: 0;
   bottom: 0;
   width: 400px;
-  background: var(--surface2);
-  box-shadow: 0 0px 72px rgb(0 0 0 / 40%);
+  background: var(--surface-2);
+  box-shadow: var(--box-shdw);
   /* border-left: 0px solid var(--border2); */
   border-top-left-radius: 25px;
   border-bottom-left-radius: 25px;
@@ -1173,8 +1177,7 @@ header {
   border-radius: 22px 0px 30px 30px;
 }
 .acc-hd h3 {font-family: 'Outfit';font-size: 22px;font-weight: 500;}
-.acc-cls {width: 34px;height: 34px;aspect-ratio: 1/1;border-radius: 50%;border: 1px solid rgba(0,0,0,0.15);display: flex;align-items: center;justify-content: center;color: #000;transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
-}
+.acc-cls {width: 34px;height: 34px;aspect-ratio: 1/1;border-radius: 50%;border: 1px solid var(--border);display: flex;align-items: center;justify-content: center;color: var(--black);transition: border-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;}
 .acc-cls:hover {
     border-color: var(--red);
     color: var(--red);
@@ -1188,6 +1191,7 @@ header {
 .acc-profile-summary {
   /* background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%); */
   background: var(--white);
+  border: 1px solid var(--border1);
   padding: 24px;
   border-radius: 22px;
   display: flex;
@@ -1217,7 +1221,7 @@ header {
 .acc-info span { font-size: 12px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; }
 
 .acc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; margin-bottom: 10px; padding-left: 5px; }
-.acc-menu-group {display: flex;flex-direction: column;border-radius: 22px;background: var(--white);padding: 10px;gap: 4px;}
+.acc-menu-group {display: flex;flex-direction: column;border-radius: 22px;background: var(--white);border: 1px solid var(--border1);padding: 10px;gap: 4px;}
 .btn-acc-option {
   width: 100%; padding: 12px 15px; border-radius: 12px;
   display: flex; align-items: center; gap: 12px;
@@ -1234,7 +1238,7 @@ header {
   border-radius: 150px;
   background: var(--white);
   color: var(--red);
-  /* border: 1.5px solid #fee2e2; */
+  border: 1px solid var(--border1);
   display: flex;
   align-items: center;
   justify-content: center;
