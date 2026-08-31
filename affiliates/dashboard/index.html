@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Afiliado | Ecomme</title>
+  <meta name="description" content="Acompanhe cliques, conversões, vendas e comissões dos seus links de afiliado Ecomme.">
+  <meta name="robots" content="noindex">
+
+  <link rel="prefetch" href="/">
+  <link rel="prefetch" href="/affiliates">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- THEME (resolved before first paint) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('ecomme-theme') || 'auto';
+        var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var effective = saved === 'auto' ? (systemDark ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', effective);
+        document.documentElement.setAttribute('data-theme-pref', saved);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
+          <img src="/images/mainlogo.png" style="position:relative;top:0;width:200px;height:auto;display:block;" alt="Ecomme"/>
+        </button>
+      </div>
+      <nav class="nav-main" aria-label="Navegação principal">
+        <a href="/">Início</a>
+        <a href="/products">Produtos</a>
+        <a href="/categories">Categorias</a>
+        <a href="/offers">Ofertas</a>
+        <a href="/about-us">Sobre</a>
+      </nav>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="headerSearch" placeholder="Buscar produtos..." aria-label="Buscar produtos">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn hidden" id="bellBtn" title="Notificações" aria-label="Notificações" onclick="openNotif()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="hd-badge" id="bellBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" title="Lista de desejos" aria-label="Lista de desejos" onclick="openFav()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="hd-badge" id="wishBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" title="Abrir carrinho" aria-label="Abrir carrinho" onclick="openCart()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="hd-badge" id="cartBadge" style="display:none">0</span>
+        </button>
+        <button id="authLoginBtn" class="btn-account hidden" onclick="goToLogin()">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Entrar
+        </button>
+        <button class="icon-btn" title="Abrir menu" aria-label="Abrir menu" onclick="openMore()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()" role="button" tabindex="0" aria-label="Minha conta">
+          <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- AUTH GATE — shown until the Supabase session is checked -->
+  <div class="auth-gate" id="authGate">
+    <div class="auth-gate-spinner" role="status" aria-label="Verificando sua sessão"></div>
+    <p>Verificando sua sessão...</p>
+  </div>
+
+  <!-- DASHBOARD (hidden until the user is confirmed authenticated) -->
+  <main class="dash-main" id="dashboardMain" hidden>
+    <div class="dash-container">
+
+      <!-- BOAS-VINDAS -->
+      <div class="dash-welcome io-reveal">
+        <div>
+          <p class="dash-greeting" id="dashGreeting">Olá 👋</p>
+          <h1>Seu desempenho como afiliado</h1>
+          <p class="dash-sub">Acompanhe seus cliques, conversões, vendas e resultados em um só lugar.</p>
+        </div>
+        <button class="btn-primary-lg" onclick="createAffiliateLink()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar link
+        </button>
+      </div>
+
+      <!-- VISÃO GERAL -->
+      <section class="dash-card io-reveal" aria-labelledby="overviewTitle">
+        <div class="dash-card-hd">
+          <h2 id="overviewTitle">Visão geral</h2>
+          <div class="period-select" id="periodSelect">
+            <button class="period-btn" id="periodBtn" aria-haspopup="listbox" aria-expanded="false">
+              <span id="periodLabel">30 dias</span>
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+            <ul class="period-menu" id="periodMenu" role="listbox" aria-label="Selecionar período">
+              <li role="option" tabindex="0" data-period="7d">7 dias</li>
+              <li role="option" tabindex="0" data-period="30d" aria-selected="true">30 dias</li>
+              <li role="option" tabindex="0" data-period="90d">90 dias</li>
+              <li role="option" tabindex="0" data-period="year">Este ano</li>
+              <li role="option" tabindex="0" data-period="custom">Personalizado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dkpi-row" id="kpiRow">
+          <div class="dkpi">
+            <span class="dkpi-icon"><i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i></span>
+            <span class="dkpi-label">Cliques</span>
+            <span class="dkpi-value skeleton-value" data-kpi="clicks">&nbsp;</span>
+          </div>
+          <div class="dkpi">
+            <span class="dkpi-icon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></span>
+            <span class="dkpi-label">Conversões</span>
+            <span class="dkpi-value skeleton-value" data-kpi="conversions">&nbsp;</span>
+          </div>
+          <div class="dkpi">
+            <span class="dkpi-icon"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
+            <span class="dkpi-label">Vendas</span>
+            <span class="dkpi-value skeleton-value" data-kpi="sales">&nbsp;</span>
+          </div>
+          <div class="dkpi">
+            <span class="dkpi-icon"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+            <span class="dkpi-label">Comissão</span>
+            <span class="dkpi-value skeleton-value" data-kpi="commission">&nbsp;</span>
+          </div>
+          <div class="dkpi">
+            <span class="dkpi-icon"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
+            <span class="dkpi-label">Links ativos</span>
+            <span class="dkpi-value skeleton-value" data-kpi="activeLinks">&nbsp;</span>
+          </div>
+        </div>
+
+        <div class="chart-toggle" id="chartToggle" role="tablist" aria-label="Métrica exibida no gráfico">
+          <button class="chart-tab active" data-metric="clicks" role="tab" aria-selected="true">Cliques</button>
+          <button class="chart-tab" data-metric="conversions" role="tab" aria-selected="false">Conversões</button>
+          <button class="chart-tab" data-metric="sales" role="tab" aria-selected="false">Vendas</button>
+          <button class="chart-tab" data-metric="commission" role="tab" aria-selected="false">Comissões</button>
+        </div>
+
+        <div class="chart-wrap" id="chartWrap">
+          <svg class="chart-svg" id="chartSvg" viewBox="0 0 760 220" preserveAspectRatio="none" role="img" aria-labelledby="chartDesc"></svg>
+          <div class="chart-tooltip" id="chartTooltip" hidden></div>
+          <p class="sr-only" id="chartDesc">Gráfico de linha mostrando a evolução da métrica selecionada ao longo do período escolhido. Os mesmos dados estão disponíveis em formato de tabela logo abaixo.</p>
+        </div>
+        <table class="sr-only" id="chartDataTable">
+          <caption>Dados do gráfico em formato de tabela</caption>
+          <thead><tr><th scope="col">Data</th><th scope="col">Valor</th></tr></thead>
+          <tbody id="chartDataBody"></tbody>
+        </table>
+
+        <p class="dash-overview-note">Dados de demonstração — serão substituídos automaticamente após a integração com o Supabase.</p>
+      </section>
+
+      <!-- DESEMPENHO -->
+      <section class="io-reveal" aria-labelledby="perfTitle">
+        <h2 class="dash-section-title" id="perfTitle">Desempenho</h2>
+        <div class="perf-grid" id="perfGrid">
+          <div class="perf-card"><p class="perf-label">Taxa de conversão</p><p class="perf-value skeleton-value" data-perf="conversionRate">&nbsp;</p></div>
+          <div class="perf-card"><p class="perf-label">Ticket médio</p><p class="perf-value skeleton-value" data-perf="avgTicket">&nbsp;</p></div>
+          <div class="perf-card"><p class="perf-label">Ganho por clique</p><p class="perf-value skeleton-value" data-perf="earningsPerClick">&nbsp;</p></div>
+          <div class="perf-card"><p class="perf-label">Total de vendas</p><p class="perf-value skeleton-value" data-perf="totalSales">&nbsp;</p></div>
+        </div>
+      </section>
+
+      <!-- MEUS LINKS -->
+      <section class="dash-card io-reveal" aria-labelledby="linksTitle">
+        <div class="dash-card-hd"><h2 id="linksTitle">Meus links de afiliado</h2></div>
+
+        <div class="links-table-wrap" id="linksTableWrap">
+          <table class="links-table">
+            <thead>
+              <tr>
+                <th scope="col">Produto</th><th scope="col">Cliques</th><th scope="col">Conversões</th>
+                <th scope="col">Vendas</th><th scope="col">Comissão</th><th scope="col">Status</th><th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="linksTbody">
+              <tr><td colspan="7"><span class="skeleton" style="width:100%;height:16px;display:block;"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="links-cards" id="linksCards"></div>
+      </section>
+
+      <!-- COMISSÕES + ATIVIDADE -->
+      <div class="dash-two-col">
+        <section class="dash-card io-reveal" aria-labelledby="commTitle">
+          <div class="dash-card-hd"><h2 id="commTitle">Resumo de comissões</h2></div>
+          <div class="comm-body" id="commBody">
+            <div class="comm-row"><span class="lbl">Disponível</span><span class="val skeleton-value" data-comm="available">&nbsp;</span></div>
+            <div class="comm-row"><span class="lbl">Pendente</span><span class="val skeleton-value" data-comm="pending">&nbsp;</span></div>
+            <div class="comm-row total"><span class="lbl">Total gerado</span><span class="val skeleton-value" data-comm="total">&nbsp;</span></div>
+          </div>
+          <button class="btn-outline-lg" onclick="buttonLink('/affiliate/commissions')">Ver detalhes</button>
+        </section>
+
+        <section class="dash-card io-reveal" aria-labelledby="activityTitle">
+          <div class="dash-card-hd"><h2 id="activityTitle">Atividade recente</h2></div>
+          <ul class="activity-list" id="activityList">
+            <li class="activity-item"><span class="skeleton" style="width:34px;height:34px;border-radius:50%;"></span><div class="activity-body"><span class="skeleton" style="width:180px;height:13px;display:block;margin-bottom:6px;"></span><span class="skeleton" style="width:80px;height:11px;display:block;"></span></div></li>
+          </ul>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footerLogo">
+          <button onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
+            <img src="/images/mainlogo.png" style="width:200px;height:auto;display:block;" alt="Ecomme"/>
+          </button>
+        </div>
+        <p style="cursor:default;">Conectamos você às melhores tendências globais com preços justos e entrega garantida em todo o Brasil.</p>
+        <div class="social-links">
+          <a href="https://www.tiktok.com/" aria-label="TikTok"><div class="social-btn"><img src="/images/tiktok.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="TikTok"/></div></a>
+          <a href="https://www.facebook.com/" aria-label="Facebook"><div class="social-btn"><img src="/images/facebook.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="Facebook"/></div></a>
+          <a href="https://www.instagram.com/" aria-label="Instagram"><div class="social-btn"><img src="/images/instagram.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="Instagram"/></div></a>
+          <a href="https://wa.me/" aria-label="WhatsApp"><div class="social-btn"><img src="/images/whatsapp.png" style="width:50px;border-radius:100%;height:auto;display:block;" alt="WhatsApp"/></div></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Loja</h4>
+        <div class="footer-links">
+          <a href="#">Novidades</a><a href="#">Mais Vendidos</a><a href="/offers">Promoções</a><a href="#">Kits e Combos</a><a href="#">Presentes</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Suporte</h4>
+        <div class="footer-links">
+          <a href="/track-order">Rastrear Pedido</a><a href="/terms/return-policy">Política de Devolução</a><a href="#">Perguntas Frequentes</a><a href="#">Contato</a><a href="#">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="cursor:default;">Empresa</h4>
+        <div class="footer-links">
+          <a href="/about-us">Sobre Nós</a><a href="/sellers">Seja um Vendedor Ecomme</a><a href="/affiliates" class="active">Programa de Afiliados</a><a href="/terms">Termos de Uso</a><a href="/terms/privacy">Privacidade</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p style="cursor:default;">&copy; 2026 <span style="font-weight:bold;">Ecomme Place</span>. Todos os direitos reservados.</p>
+      <div class="payment-icons">
+        <div class="pay-icon"><img src="/images/payico/pix.png" style="width:50px;height:auto;display:block;" alt="Pix"/></div>
+        <div class="pay-icon"><img src="/images/payico/visa.png" style="width:50px;height:auto;display:block;" alt="Visa"/></div>
+        <div class="pay-icon"><img src="/images/payico/master.png" style="width:50px;height:auto;display:block;" alt="Mastercard"/></div>
+        <div class="pay-icon"><img src="/images/payico/elo.png" style="width:50px;height:auto;display:block;" alt="Elo"/></div>
+        <div class="pay-icon"><img src="/images/payico/boleto.png" style="width:50px;height:auto;display:block;" alt="Boleto"/></div>
+        <div class="pay-icon"><img src="/images/payico/picpay.png" style="width:50px;height:auto;display:block;" alt="PicPay"/></div>
+        <div class="pay-icon"><img src="/images/payico/pagbank.png" style="width:50px;height:auto;display:block;" alt="PagBank"/></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <div class="cart-sb" id="cartSidebar" role="dialog" aria-label="Carrinho" aria-hidden="true">
+    <div class="cart-hd">
+      <h3>Carrinho <span style="color:var(--muted);font-size:15px" id="cartCount">(0)</span></h3>
+      <button class="cart-cls" aria-label="Fechar carrinho" onclick="closeCart()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-body" id="cartItems"><div class="cart-empty-st"><span>🛒</span><p>Seu carrinho está vazio.</p></div></div>
+    <div class="cart-ft">
+      <div class="cart-tots">
+        <div class="ct-row"><span class="lbl">Subtotal</span><span id="cartSub">R$ 0,00</span></div>
+        <div class="ct-row"><span class="lbl">Frete</span><span style="color:var(--green)">Grátis acima de R$199</span></div>
+        <div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="cartTotal">R$ 0,00</span></div>
+      </div>
+      <button class="btn-ckout" onclick="checkout()">
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Finalizar Compra
+      </button>
+      <button class="btn-cont" onclick="closeCart()">&larr; Continuar Comprando</button>
+    </div>
+  </div>
+
+  <!-- FAV SIDEBAR -->
+  <div class="overlay" id="favOverlay" onclick="closeFav()"></div>
+  <div class="fav-sb" id="favSidebar" role="dialog" aria-label="Lista de desejos" aria-hidden="true">
+    <div class="fav-hd">
+      <h3>Lista de Desejos <span style="color:var(--muted);font-size:15px" id="favCount">(0)</span></h3>
+      <button class="fav-cls" aria-label="Fechar lista de desejos" onclick="closeFav()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="fav-body" id="favItems"><div class="fav-empty-st"><span>♡</span><p>Sua lista de desejos está vazia.</p></div></div>
+    <div class="fav-ft">
+      <div class="fav-tots"><div class="ct-row ttl"><span class="lbl">Total</span><span class="amt" id="favTotal">R$ 0,00</span></div></div>
+      <button class="btn-ckout" onclick="addAllFavToCart()">
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Adicionar tudo ao carrinho
+      </button>
+      <button class="btn-cont" onclick="closeFav()">&larr; Continuar Comprando</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION SIDEBAR -->
+  <div class="overlay" id="notifOverlay" onclick="closeNotif()"></div>
+  <div class="notif-sb" id="notifSidebar" role="dialog" aria-label="Notificações" aria-hidden="true">
+    <div class="notif-hd">
+      <h3>Notificações <span style="color:var(--muted);font-size:15px" id="notifCount">(0)</span></h3>
+      <button class="notif-cls" aria-label="Fechar notificações" onclick="closeNotif()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="notif-body"><div class="notif-empty-st"><span>🔔</span><p>Nenhuma notificação por aqui.</p></div></div>
+    <div class="notif-ft">
+      <button class="btn-ckout" onclick="window.location.href='/notifications'">Ver Mais Notificações <span class="btn-arrow">&gt;</span></button>
+      <button class="btn-cont" onclick="closeNotif()">Fechar Notificações</button>
+    </div>
+  </div>
+
+  <!-- MORE SIDEBAR -->
+  <div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+  <div class="more-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
+    <div class="more-hd">
+      <h3>Principais Atalhos</h3>
+      <button class="more-cls" aria-label="Fechar menu" onclick="closeMore()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="more-body">
+      <div class="theme-switch-wrap">
+        <p class="acc-label">Aparência</p>
+        <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span></button>
+          <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span></button>
+          <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span></button>
+        </div>
+      </div>
+      <div class="acc-menu-group" style="gap:10px">
+        <button class="btn-acc-option" onclick="buttonLink('/settings')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-gear"></i> Configurações</span><p class="btn-txt">Gerencie as preferências do sistema e da sua conta.</p></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/track-order')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-truck"></i> Acompanhar Pedido</span><p class="btn-txt">Acompanhe o status das suas entregas em tempo real.</p></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/sellers')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-sack-dollar"></i> Página do Vendedor</span><p class="btn-txt">Seu canal direto de vendas.</p></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option active" onclick="buttonLink('/affiliate/dashboard')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-chart-line"></i> Dashboard de Afiliado</span><p class="btn-txt">Cliques, conversões, vendas e comissões dos seus links.</p></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/affiliates')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-handshake"></i> Programa de Afiliados</span></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-file-contract"></i> Termos e Condições de Uso</span></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+        <button class="btn-acc-option" onclick="buttonLink('/support')">
+          <div class="btn-content"><span class="btn-title"><i class="fa-solid fa-circle-question"></i> Suporte</span></div>
+          <span class="btn-arrow">&gt;</span>
+        </button>
+      </div>
+    </div>
+    <div class="notif-ft"><button class="btn-cont" onclick="closeMore()">Fechar Menu</button></div>
+  </div>
+
+  <!-- ACC SIDEBAR -->
+  <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+  <div class="acc-sb" id="accSidebar" role="dialog" aria-label="Minha conta" aria-hidden="true">
+    <div class="acc-hd">
+      <h3>Minha Conta</h3>
+      <button class="acc-cls" aria-label="Fechar minha conta" onclick="closeAcc()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="acc-body">
+      <button class="acc-profile-summary" onclick="buttonLink('/settings')">
+        <div class="acc-avatar-large"><img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar"></div>
+        <div class="acc-info" style="gap:3px;display:flex;align-items:baseline;"><strong id="accSidebarName"></strong><span id="accSidebarEmail"></span></div>
+      </button>
+      <div class="acc-menu-group">
+        <p class="acc-label">Atalhos</p>
+        <button class="btn-acc-option" onclick="buttonLink('/settings')"><i class="fa-solid fa-user-pen"></i><span>Editar Perfil</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/my-orders')"><i class="fa-solid fa-box-open"></i><span>Minhas Compras</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/reviews')"><i class="fa-solid fa-star"></i><span>Minhas Avaliações</span></button>
+        <button class="btn-acc-option" onclick="openFav(); closeAcc();"><i class="fa-solid fa-heart"></i><span>Lista de Desejos</span></button>
+      </div>
+      <div class="acc-menu-group">
+        <p class="acc-label">Suporte</p>
+        <button class="btn-acc-option" onclick="buttonLink('/support')"><i class="fa-solid fa-circle-question"></i><span>Ajuda &amp; FAQ</span></button>
+        <button class="btn-acc-option" onclick="buttonLink('/terms')"><i class="fa-solid fa-file-contract"></i><span>Termos de Uso</span></button>
+      </div>
+      <div class="acc-ft"><button class="btn-logout-sb" onclick="openConfirmLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da Conta</button></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">✓</div>
+    <span id="toastMsg">Link copiado!</span>
+  </div>
+
+  <!-- BACK TO TOP -->
+  <button class="back-top" id="backTop" aria-label="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    if (!window.supabaseClient) {
+      var SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+      var SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+      window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    var supabaseClient = window.supabaseClient;
+    var userId = null;
+  </script>
+  <script src="/files/scripts/console-warning.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
