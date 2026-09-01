@@ -1291,11 +1291,8 @@ tbody tr:hover td{background:var(--bg3)}
   transform: translateX(4px); 
 }
 
-  .more-sb, 
-  .cart-sb, 
-  .notif-sb {
-    z-index: 9999;
-  }
+.notif-ft {width: 100%;padding: 20px;border-top: 1px solid var(--border2);background: var(--white);border-radius: 30px 30px 0px 20px;}
+.more-sb {z-index: 9999;}
 
 /* ── ACC SIDEBAR ── */
 .acc-sb {
