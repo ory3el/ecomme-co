@@ -1999,10 +1999,7 @@ function closeConfirmRed() {
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
 function openMore() {
-  closeFav();
-  closeCart();
   closeAcc();
-  closeNotif();
   if (typeof closeMore === 'function') closeNotif();
   $('moreSidebar').classList.add('on');
   $('moreOverlay').classList.add('on');
