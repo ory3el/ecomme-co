@@ -813,11 +813,21 @@ header {
     }
     .btn-ckout:hover { background: var(--blue2); }
     .btn-cont {
-      width: 100%; background: none; border: 1px solid rgba(0,0,0,0.1);
-      color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px;
+      width: 100%;
+      background: none;
+      border: 1px solid rgba(25,100,255,0.3);
+      color: var(--blue);
+      padding: 11px;
+      border-radius: 100px;
+      font-size: 16px;
+      transition: border-color 0.25s, color 0.25s, transform 0.25s, box-shadow 0.25s;
     }
-    .btn-cont:hover { border-color: var(--blue); color: var(--blue); }
-
+    .btn-cont:hover { 
+      border-color: var(--blue);
+      color: var(--blue); 
+      transform: scale(1.05);
+      box-shadow: 0px 0px 10px rgba(25,100,255,0.5);
+    }
     .cart-item-towish {
       width: 28px;
       height: 28px;
