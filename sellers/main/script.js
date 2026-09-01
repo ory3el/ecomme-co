@@ -232,6 +232,8 @@ const EXTRACT = [
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
+  initThemeToggle();
   const savedPage = localStorage.getItem('activePage') || 'dashboard';
   const authGate = document.getElementById('authGate');
   const gateChecking = document.getElementById('gateChecking');
