@@ -1297,7 +1297,12 @@ tbody tr:hover td{background:var(--bg3)}
   width: 100%; background: none; border: 1px solid rgba(0,0,0,0.1);
   color: var(--muted); padding: 11px; border-radius: 100px; font-size: 12px;
 }
-.btn-cont:hover { border-color: var(--blue); color: var(--blue); }
+.btn-cont:hover { 
+  border-color: var(--blue);
+  color: var(--blue); 
+  transform: scale(1.05);
+  box-shadow: 0px 0px 10px rgba(25,100,255,0.5);
+}
 .more-sb {z-index: 9999;}
 
 /* ── ACC SIDEBAR ── */
