@@ -2000,7 +2000,7 @@ function closeConfirmRed() {
 /* ─── MORE ───────────────────────────────────────────────────────── */
 function openMore() {
   closeAcc();
-  if (typeof closeMore === 'function') closeNotif();
+  if (typeof closeMore === 'function')
   $('moreSidebar').classList.add('on');
   $('moreOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
