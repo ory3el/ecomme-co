@@ -1997,6 +1997,24 @@ function closeConfirmRed() {
   if (confirmRedTimerId) clearInterval(confirmRedTimerId);
 }
 
+/* ─── MORE ───────────────────────────────────────────────────────── */
+function openMore() {
+  closeFav();
+  closeCart();
+  closeAcc();
+  closeNotif();
+  if (typeof closeMore === 'function') closeNotif();
+  $('moreSidebar').classList.add('on');
+  $('moreOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeMore() {
+  $('moreSidebar').classList.remove('on');
+  $('moreOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
 /* ─── ACC SIDEBAR ────────────────────────────────────────────────── */
 function openAcc() {
   const sb = document.getElementById('accSidebar');
