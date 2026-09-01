@@ -1230,6 +1230,7 @@ tbody tr:hover td{background:var(--bg3)}
       padding: 8px;
       display: flex;
       flex-direction: column;
+      justify-content: normal;
       gap: 0px;
       min-height: 0;
     }
@@ -1291,8 +1292,11 @@ tbody tr:hover td{background:var(--bg3)}
   transform: translateX(4px); 
 }
 
-.notif-ft {width: 100%;padding: 20px;border-top: 1px solid var(--border2);background: var(--white);border-radius: 30px 30px 0px 20px;}
-.more-sb {z-index: 9999;}
+  .more-sb, 
+  .cart-sb, 
+  .notif-sb {
+    z-index: 9999;
+  }
 
 /* ── ACC SIDEBAR ── */
 .acc-sb {
@@ -1345,6 +1349,7 @@ tbody tr:hover td{background:var(--bg3)}
   border-radius: 22px;
   display: flex;
   align-items: center;
+  justify-content: normal;
   gap: 15px;
   /* color: #fff; */
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
@@ -1372,10 +1377,18 @@ tbody tr:hover td{background:var(--bg3)}
 .acc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; margin-bottom: 10px; padding-left: 5px; }
 .acc-menu-group {display: flex;flex-direction: column;border-radius: 22px;background: var(--white);border: 1px solid var(--border1);padding: 10px;gap: 4px;}
 .btn-acc-option {
-  width: 100%; padding: 12px 15px; border-radius: 12px;
-  display: flex; align-items: center; gap: 12px;
-  background: transparent; color: var(--text);
-  font-size: 14px; font-weight: 500; transition: background 0.2s, transform 0.2s;
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  justify-content: normal;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.2s;
 }
 .btn-acc-option i { font-size: 16px; color: var(--blue); width: 20px; text-align: center; }
 .btn-acc-option:hover { background: var(--blue-dim); color: var(--blue); transform: translateX(5px); }
