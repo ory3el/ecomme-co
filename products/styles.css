@@ -37,7 +37,7 @@
   --toast-bg:     #10141a;
   --toast-text:   #e8edf5;
   --input-text:   #0F172A;
-  --logo-filter:  filter: none; drop-shadow: none;
+  --logo-filter:  none;
   color-scheme: light;
 }
 
@@ -80,7 +80,7 @@ html[data-theme="dark"] {
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
-  --logo-filter:  filter: brightness(0) invert(1); drop-shadow: 0 0 0 #000;
+  --logo-filter:  brightness(0) invert(1);
   color-scheme: dark;
 }
 
@@ -149,7 +149,7 @@ header {
 .logo { 
   flex-shrink: 0; display: flex; align-items: center; 
   gap: 5px; border-radius: 200px; padding: 5px 10px; 
-  var(--logo-filter)
+  filter: var(--logo-filter);
 }
 .footerLogo { flex-shrink: 0; display: flex; align-items: center; gap: 5px; position: relative; bottom: 25px; }
 .nav-main { display: flex; gap: 2px; }
