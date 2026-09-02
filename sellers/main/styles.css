@@ -428,7 +428,7 @@ body {
 .btn-xs { padding: 6px 10px; font-size: 11px; border-radius: var(--r); }
 
 .btn-checklist {
-    background: rgba(255,255,255,0.2);
+    background: none;
     border: 1px solid var(--blue);
     color: var(--blue);
     padding: 10px;
@@ -788,11 +788,11 @@ tbody tr:hover td{background:var(--bg3)}
     padding-bottom: 50px;
 }
 .preview-card {
-    box-shadow: var(--box-shdw);
+    /* box-shadow: var(--box-shdw); */
     max-width: 250px;
     margin-left: 20px;
     background: var(--white);
-    /* border: 1px solid var(--border2); */
+    border: 1px solid var(--border1);
     border-radius: var(--rad-lg);
     overflow: hidden;
     /* transition: all .3s cubic-bezier(.4,0,.2,1); */
@@ -806,7 +806,7 @@ tbody tr:hover td{background:var(--bg3)}
     top: -18px;
     padding:14px;
     border-radius: 20px 20px 0px 0px;
-    background: var(--glass-bg);
+    background: none;
     backdrop-filter: blur(16px);
     border-top: 1px solid rgba(0,0,0,0.1);
 }
