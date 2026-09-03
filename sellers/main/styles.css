@@ -46,8 +46,9 @@
   --toast-bg:     #10141a;
   --toast-text:   #e8edf5;
   --input-text:   #0F172A;
-  --img-filter:  none;
-  color-scheme: light;
+  --img-filter:   none;
+  --bd-filter:    blur(16px);
+  color-scheme:   light;
 }
 
 /* ── TOKENS (DARK) ───────────────────────────────────────────────── */
@@ -98,8 +99,9 @@ html[data-theme="dark"] {
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
-  --img-filter:  brightness(0) invert(1);
-  color-scheme: dark;
+  --img-filter:   brightness(0) invert(1);
+  --bd-filter:    none;
+  color-scheme:   dark;
 }
 
 /* Smooth, non-flashy transition when switching themes */
@@ -296,16 +298,21 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  background: none;
-  /* backdrop-filter:none; */
-  -webkit-backdrop-filter:none;
-  border:1px solid rgba(255,255,255,.0);
-  box-shadow: 0 2px 12px rgba(0,0,0,.0), inset 0 1px rgba(255,255,255,.0);
+  border:1px solid rgba(255,255,255,0.0);
+  /*box-shadow: 0 2px 12px rgba(0,0,0,.0), inset 0 1px rgba(255,255,255,.0);*/
   border-radius: 200px;
   padding: 5px 10px;
   position: relative;
   right: 10px;
   filter: var(--img-filter);
+
+  cursor: pointer;
+  background: none;
+  -webkit-backdrop-filter: var(--bd-filter);
+  backdrop-filter: var(--bd-filter);
+  box-shadow: var(--sh);
+  margin: 5px;
+  right: 0px;
 }
 
 /* LOGO SPACER */
@@ -630,7 +637,9 @@ body {
   transform: translateY(-4px);
 }
 .nav-btn.on {
-  background:rgba(0,0,0,0.9);color:#fff
+  background:rgba(0,0,0,0.9);
+  border: 1px solid var(--border1);
+  color:#fff
 }
 .nav-btn.on::before {
   content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
