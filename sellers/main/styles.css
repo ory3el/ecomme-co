@@ -376,7 +376,6 @@ body {
     transition: opacity .5s var(--ease);
     padding: 20px;
     transition:opacity .5s var(--ease);
-    
     /*background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -389,12 +388,26 @@ body {
   .gate-checking p{font-size:13px; color:var(--slate); font-weight:500;}
 
   .login-card{
-    width:100%; max-width:400px; background:#fff; border-radius: 50px; border:1px solid var(--line);
-    box-shadow:var(--shadow-3); padding:40px 36px; animation:scaleSpring .5s var(--spring);
+    width:100%;
+    max-width:400px;
+    background: var(--white);
+    border-radius: 50px;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-3);
+    padding:40px 36px;
+    animation:scaleSpring .5s var(--spring);
   }
   .login-brand {
-      display:flex; align-items:center; gap:6px; font-family:'Cormorant Garamond',serif; 
-      font-weight:700; font-size:22px; color:var(--blue); margin-bottom:26px; justify-content: left;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-family:'Cormorant Garamond',serif;
+      font-weight:700;
+      font-size:22px;
+      color:var(--blue);
+      margin-bottom:26px;
+      justify-content: left;
+      filter: var(--img-filter);
   }
   .login-brand .dot{opacity: 0; width:6px; height:6px; background:var(--blue); border-radius:50%; margin-top:1px;}
   .login-card h2{font-family:'Outfit',serif; font-weight:500; font-size:25px; margin-bottom:8px;}
@@ -403,7 +416,7 @@ body {
   .login-field{margin-bottom:14px;}
   .login-field label{font-size:11.5px; font-weight:600; color:var(--slate); margin-bottom:6px; display:block;}
   .btn-login{width:100%; height:46px; border-radius:100px; background:var(--blue); color:#fff; font-weight:700; font-size:13.5px; margin-top:6px; transition:all .3s var(--spring); box-shadow:0 10px 24px rgba(66,135,245,.28); display:flex; align-items:center; justify-content:center; gap:8px;}
-  .btn-login:hover{background:var(--blue-deep); transform:translateY(-2px);}
+  .btn-login:hover{background:var(--blue-deep); transform:translateY(-2px); color: var(--white)}
   .btn-login.loading{pointer-events:none;}
   .login-foot{text-align:center; margin-top:18px; font-size:11.5px; color:var(--slate-2);}
   .login-foot a{color:var(--blue); font-weight:600;}
