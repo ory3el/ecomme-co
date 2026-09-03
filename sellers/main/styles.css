@@ -1,5 +1,6 @@
 /* ── TOKENS (LIGHT — DEFAULT) ─────────────────────────────────────── */
 :root {
+  --blue-deep: #2E6BDE;
   --blue:      #2563EB;
   --blue2:     #3B82F6;
   --blue3:     #60A5FA;
@@ -51,6 +52,7 @@
 
 /* ── TOKENS (DARK) ───────────────────────────────────────────────── */
 html[data-theme="dark"] {
+  --blue-deep: #FFFFFF;
   --blue:      #2563EB;
   --blue2:     #3B82F6;
   --blue3:     #60A5FA;
