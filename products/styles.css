@@ -37,7 +37,7 @@
   --toast-bg:     #10141a;
   --toast-text:   #e8edf5;
   --input-text:   #0F172A;
-  --logo-filter:  none;
+  --img-filter:  none;
   color-scheme: light;
 }
 
@@ -80,7 +80,7 @@ html[data-theme="dark"] {
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
-  --logo-filter:  brightness(0) invert(1);
+  --img-filter:  brightness(0) invert(1);
   color-scheme: dark;
 }
 
@@ -134,8 +134,11 @@ body.nobodyscroll { overflow: hidden; }
 
 /* ── HEADER ──────────────────────────────────────────────────────── */
 header {
-  position: sticky; top: 0; z-index: 1000; overflow: hidden;
-  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background: var(--white);
   -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
   backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
   border-bottom: 1px solid var(--borderW);
@@ -149,9 +152,13 @@ header {
 .logo { 
   flex-shrink: 0; display: flex; align-items: center; 
   gap: 5px; border-radius: 200px; padding: 5px 10px; 
-  filter: var(--logo-filter);
+  filter: var(--img-filter);
 }
-.footerLogo { flex-shrink: 0; display: flex; align-items: center; gap: 5px; position: relative; bottom: 25px; }
+.footerLogo { 
+  flex-shrink: 0; display: flex; align-items: center;
+  gap: 5px; position: relative; bottom: 25px;
+  filter: var(--img-filter);
+}
 .nav-main { display: flex; gap: 2px; }
 .nav-main a {
   background: var(--glass-bg);
