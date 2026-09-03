@@ -46,6 +46,8 @@
   --toast-bg:     #10141a;
   --toast-text:   #e8edf5;
   --input-text:   #0F172A;
+  --selected:     #fff;
+  --selected1:    var(--blue);
   --img-filter:   none;
   --bd-filter:    blur(16px);
   color-scheme:   light;
@@ -99,6 +101,8 @@ html[data-theme="dark"] {
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
+  --selected:     var(--blue);
+  --selected1:    #fff;
   --img-filter:   brightness(0) invert(1);
   --bd-filter:    none;
   color-scheme:   dark;
@@ -1224,7 +1228,7 @@ tbody tr:hover td{background:var(--bg3)}
     }
     .theme-opt i { font-size: 14px; }
     .theme-opt:hover { color: var(--text); }
-    .theme-opt[aria-checked="true"] {background: var(--surface1);color: var(--blue);box-shadow: var(--shadow);}
+    .theme-opt[aria-checked="true"] {background: var(--selected);color: var(--selected1);box-shadow: var(--shadow);}
 
   .more-sb {
     opacity: 0;
