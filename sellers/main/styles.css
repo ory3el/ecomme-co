@@ -45,6 +45,7 @@
   --toast-bg:     #10141a;
   --toast-text:   #e8edf5;
   --input-text:   #0F172A;
+  --img-filter:  none;
   color-scheme: light;
 }
 
@@ -95,6 +96,7 @@ html[data-theme="dark"] {
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
+  --img-filter:  brightness(0) invert(1);
   color-scheme: dark;
 }
 
@@ -300,7 +302,8 @@ body {
   border-radius: 200px;
   padding: 5px 10px;
   position: relative;
-  right: 10px
+  right: 10px;
+  filter: var(--img-filter);
 }
 
 /* LOGO SPACER */
