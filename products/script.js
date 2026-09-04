@@ -703,7 +703,7 @@ function updateCart() {
           class="cart-item-towish"
           onclick="moveFromCartToFav('${item.id}')"
         >
-          ❤️
+          <i class="fa-regular fa-heart"></i>
         </button>
       </div>
     `;
