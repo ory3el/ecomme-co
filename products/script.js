@@ -697,7 +697,7 @@ function updateCart() {
           onclick="removeFromCart('${item.id}')"
           title="Remover do Carrinho"
         >
-          🗑️
+          <i class="fa-regular fa-trash-can"></i>
         </button>
         <button
           class="cart-item-towish"
@@ -919,7 +919,7 @@ function updateFav() {
           class="del"
           onclick="removeFromFav('${item.id}')"
         >
-          🗑️
+          <i class="fa-regular fa-trash-can"></i>
         </button>
       </div>
     `;
