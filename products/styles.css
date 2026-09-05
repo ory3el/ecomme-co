@@ -1450,6 +1450,53 @@ header {
       box-shadow: 0px 0px 15px rgba(255,100,100,0.5);
     }
     .mcls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .mArrows {
+      width: 100%;
+      height: 100px;
+      background: none;
+      position: absolute;
+      display: grid;
+      align-items: center;
+      z-index: 1;
+      justify-items: stretch;
+    }
+    .pArrow1 {
+    background: #fff;
+    position: absolute;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgb(0 0 0 / 40%);
+    left: 7px;
+    width: 50px;
+    aspect-ratio: 1;
+    transition: transform 0.25s;
+    }
+    .pArrow2 {
+      background: #fff;
+      position: absolute;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgb(0 0 0 / 40%);
+      right: 7px;
+      width: 50px;
+      aspect-ratio: 1;
+      transition: transform 0.25s;
+    }
+    .pArrow1:hover {transform: scale(1.08)}
+    .pArrow2:hover {transform: scale(1.08)}
+    .pArrow1:hover .arrow0 {transform: scale(1.3); color: var(--blue)}
+    .pArrow2:hover .arrow0 {transform: scale(1.3); color: var(--blue)}
+    .arrow1 {
+      rotate: 180deg;
+      font-size: 20px;
+      color: #000;
+      transition: transform 0.2s;
+    }
+    .arrow2 {
+      rotate: 0deg;
+      font-size: 20px;
+      color: #000;
+      transition: transform 0.2s;
+    }
+
     .modal-info {background: rgba(255,255,255,0);min-height: 574px;padding: 36px;display: flex;flex-wrap: wrap;flex-direction: column;text-align: start;}
     .m-cat {font-size: 10px;font-weight: 600;letter-spacing: 1.5px;text-transform: uppercase;color: var(--blue);margin-bottom: 8px;}
     .m-name {font-size: 28px;font-weight: 500;margin-bottom: 12px;line-height: 1.2;}
