@@ -1455,10 +1455,12 @@ header {
       height: 100px;
       background: none;
       position: absolute;
-      display: grid;
+      display: flex;
+      opacity: 0;
       align-items: center;
       z-index: 1;
       justify-items: stretch;
+      transition: opacity 0.2s;
     }
     .pArrow1 {
     background: #fff;
@@ -1495,6 +1497,10 @@ header {
       font-size: 20px;
       color: #000;
       transition: transform 0.2s;
+    }
+    .modal-img-area:hover .mArrows {
+      display: flex;
+      opacity: 1;
     }
 
     .modal-info {background: rgba(255,255,255,0);min-height: 574px;padding: 36px;display: flex;flex-wrap: wrap;flex-direction: column;text-align: start;}
@@ -2074,8 +2080,8 @@ header {
    TRAVA SÉRIE OURO: DETECÇÃO DE TELA DE TOQUE (Mesmo em Modo Desktop)
    ========================================================================== */
 @media (pointer: coarse) {
-
-  /* Impede que os cards tentem flutuar, dar zoom ou criar sombras pesadas ao toque */
+  .mArrows {display: flex !important; opacity: 1;}
+  
   .product-card:hover,
   .product-card:active,
   .product-card:focus,
