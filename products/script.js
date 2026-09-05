@@ -1207,7 +1207,7 @@ function openProduct(id) {
       );*/
       button.addEventListener('click', () => {
         showModalImage(index);
-      });
+      };
         modalGallery
           .querySelectorAll(
             '.modal-gallery-thumb'
