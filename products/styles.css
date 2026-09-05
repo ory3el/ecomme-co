@@ -1885,10 +1885,6 @@ header {
    FAIXA DE CORREÇÃO CRÍTICA: CATEGORIAS E VITRINE (MOBILE)
    ========================================================================== */
 @media (max-width: 768px) {
-  .pactions {
-    display: none;
-  }
-
   #categorias, 
   .main-layout, 
   .products-area {
