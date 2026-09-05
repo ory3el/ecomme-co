@@ -1050,6 +1050,8 @@ function closeAcc() {
 }
 
 /* ----------------------------------- */
+/* ─── MODAL IMAGE ──────────────────────────────────────────────── */
+
 function showModalImage(index, direction = null, animate = true) {
   const mEmoji = $('mEmoji');
   const modalGallery = $('modalGallery');
@@ -1057,81 +1059,41 @@ function showModalImage(index, direction = null, animate = true) {
   if (!mEmoji || !modalImages.length) return;
 
   const oldIndex = modalImageIndex;
-  modalImageIndex = (index + modalImages.length) % modalImages.length;
+
+  modalImageIndex =
+    (index + modalImages.length) % modalImages.length;
 
   const image = modalImages[modalImageIndex];
 
-  if (!image) {
-    mEmoji.textContent = '';
-    return;
-  }
-
-  if (direction === null && oldIndex !== modalImageIndex) {
-    const total = modalImages.length;
-    const forwardDistance = (modalImageIndex - oldIndex + total) % total;
-    const backwardDistance = (oldIndex - modalImageIndex + total) % total;
-    direction = forwardDistance <= backwardDistance ? 'next' : 'prev';
-  }
+  if (!image) return;
 
   const optimizedImage = getOptimizedImageUrl(
     image,
     EDGE_IMAGE_PRESETS.modal
   );
 
-  const shouldAnimate = animate && oldIndex !== modalImageIndex;
-
-  mEmoji.classList.remove(
-    'modal-slide-next',
-    'modal-slide-prev',
-    'modal-image-loading'
-  );
-
-  mEmoji.innerHTML = '';
-
-  const loader = document.createElement('div');
-  loader.className = 'modal-image-loader';
-  loader.innerHTML = '<span></span>';
-
   const img = document.createElement('img');
+
   img.src = optimizedImage;
   img.alt = 'Imagem do produto';
   img.decoding = 'async';
   img.fetchPriority = 'high';
-  img.className = 'modal-main-image';
 
-  if (shouldAnimate) {
-    mEmoji.classList.add(
+  /*
+   * NÃO deixamos a imagem invisível.
+   * A animação acontece somente durante a entrada.
+   */
+  if (animate && oldIndex !== modalImageIndex) {
+    img.className =
       direction === 'prev'
-        ? 'modal-slide-prev'
-        : 'modal-slide-next'
-    );
+        ? 'modal-main-image modal-enter-prev'
+        : 'modal-main-image modal-enter-next';
+  } else {
+    img.className = 'modal-main-image';
   }
 
-  mEmoji.classList.add('modal-image-loading');
-
-  mEmoji.appendChild(loader);
+  mEmoji.innerHTML = '';
   mEmoji.appendChild(img);
-
-  const finishLoading = () => {
-    mEmoji.classList.remove('modal-image-loading');
-
-    requestAnimationFrame(() => {
-      img.classList.add('is-loaded');
-    });
-  };
-
-  img.addEventListener('load', finishLoading, { once: true });
-
-  img.addEventListener('error', () => {
-    loader.remove();
-    mEmoji.classList.remove('modal-image-loading');
-
-    mEmoji.innerHTML = '🖼️';
-  }, { once: true });
-
-  if (img.complete && img.naturalWidth > 0) {
-    finishLoading();
-  }
 
   if (modalGallery) {
     modalGallery
@@ -1144,7 +1106,9 @@ function showModalImage(index, direction = null, animate = true) {
       });
 
     const activeThumb =
-      modalGallery.querySelector('.modal-gallery-thumb.on');
+      modalGallery.querySelector(
+        '.modal-gallery-thumb.on'
+      );
 
     if (activeThumb) {
       activeThumb.scrollIntoView({
@@ -1156,24 +1120,21 @@ function showModalImage(index, direction = null, animate = true) {
   }
 }
 
-/* ----------------------------------------- */
 function previousImg() {
   if (modalImages.length <= 1) return;
-
   showModalImage(modalImageIndex - 1, 'prev', true);
 }
 
 function nextImg() {
   if (modalImages.length <= 1) return;
-  showModalImage(modalImageIndex + 1, 'next', true);
+  showModalImage(modalImageIndex + 1,'next', true);
 }
 
-/* ----------------------------------------- */
+/* ─── MODAL NAVIGATION ───────────────────────────────────────── */
 function updateModalNavigationVisibility() {
   const arrows = document.querySelector('.mArrows');
   if (!arrows) return;
-  const visible = modalImages.length > 1;
-  arrows.style.display = visible ? 'flex' : 'none';
+  arrows.style.display = modalImages.length > 1 ? 'flex' : 'none';
 }
 
 /* ----------------------------------------- */
