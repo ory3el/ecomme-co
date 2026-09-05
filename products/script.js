@@ -1260,8 +1260,9 @@ function openProduct(id) {
       modalGallery.appendChild(button);
     });
 
-  modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
-  showModalImage(modalImageIndex, null, false);
+    modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
+    showModalImage(modalImageIndex, null, false);
+  }
 
   $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
