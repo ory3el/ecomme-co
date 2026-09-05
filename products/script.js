@@ -1207,7 +1207,7 @@ function openProduct(id) {
       );*/
       button.addEventListener('click', () => {
         showModalImage(index);
-      }
+      });
         modalGallery
           .querySelectorAll(
             '.modal-gallery-thumb'
@@ -1301,7 +1301,7 @@ window.addEventListener('scroll', () => {
 
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); closeFav(); closeMore(); closeAcc(); }
+  if (e.key === 'Escape') { closeModal(); closeNotif(); closeCart(); closeFav(); closeMore(); closeAcc(); }
 });
 
 // ── HYDRATE USER SAVED ITEMS ──
