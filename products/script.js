@@ -1226,7 +1226,8 @@ showModalImage(modalImageIndex);
     )
   );
   $('modalOverlay').classList.add('on');
-}
+ }
+};
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
