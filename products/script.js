@@ -1050,33 +1050,102 @@ function closeAcc() {
 }
 
 /* ----------------------------------- */
-function showModalImage(index) {
+function showModalImage(index, direction = null, animate = true) {
   const mEmoji = $('mEmoji');
   const modalGallery = $('modalGallery');
-  if (!mEmoji || !modalImages.length) {return;}
 
-  modalImageIndex = ( index + modalImages.length) % modalImages.length;
+  if (!mEmoji || !modalImages.length) return;
+
+  const oldIndex = modalImageIndex;
+  modalImageIndex = (index + modalImages.length) % modalImages.length;
+
   const image = modalImages[modalImageIndex];
-  const optimizedImage = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.modal);
 
-  mEmoji.innerHTML = `
-    <img
-      src="${optimizedImage}"
-      alt="Imagem do produto"
-      decoding="async"
-      fetchpriority="high"
-    >
-  `;
+  if (!image) {
+    mEmoji.textContent = '';
+    return;
+  }
+
+  if (direction === null && oldIndex !== modalImageIndex) {
+    const total = modalImages.length;
+    const forwardDistance = (modalImageIndex - oldIndex + total) % total;
+    const backwardDistance = (oldIndex - modalImageIndex + total) % total;
+    direction = forwardDistance <= backwardDistance ? 'next' : 'prev';
+  }
+
+  const optimizedImage = getOptimizedImageUrl(
+    image,
+    EDGE_IMAGE_PRESETS.modal
+  );
+
+  const shouldAnimate = animate && oldIndex !== modalImageIndex;
+
+  mEmoji.classList.remove(
+    'modal-slide-next',
+    'modal-slide-prev',
+    'modal-image-loading'
+  );
+
+  mEmoji.innerHTML = '';
+
+  const loader = document.createElement('div');
+  loader.className = 'modal-image-loader';
+  loader.innerHTML = '<span></span>';
+
+  const img = document.createElement('img');
+  img.src = optimizedImage;
+  img.alt = 'Imagem do produto';
+  img.decoding = 'async';
+  img.fetchPriority = 'high';
+  img.className = 'modal-main-image';
+
+  if (shouldAnimate) {
+    mEmoji.classList.add(
+      direction === 'prev'
+        ? 'modal-slide-prev'
+        : 'modal-slide-next'
+    );
+  }
+
+  mEmoji.classList.add('modal-image-loading');
+
+  mEmoji.appendChild(loader);
+  mEmoji.appendChild(img);
+
+  const finishLoading = () => {
+    mEmoji.classList.remove('modal-image-loading');
+
+    requestAnimationFrame(() => {
+      img.classList.add('is-loaded');
+    });
+  };
+
+  img.addEventListener('load', finishLoading, { once: true });
+
+  img.addEventListener('error', () => {
+    loader.remove();
+    mEmoji.classList.remove('modal-image-loading');
+
+    mEmoji.innerHTML = '🖼️';
+  }, { once: true });
+
+  if (img.complete && img.naturalWidth > 0) {
+    finishLoading();
+  }
 
   if (modalGallery) {
-    modalGallery.querySelectorAll('.modal-gallery-thumb')
-      .forEach(
-        (button, buttonIndex) => {
-          button.classList.toggle('on',buttonIndex === modalImageIndex);
-        }
-      );
+    modalGallery
+      .querySelectorAll('.modal-gallery-thumb')
+      .forEach((button, buttonIndex) => {
+        button.classList.toggle(
+          'on',
+          buttonIndex === modalImageIndex
+        );
+      });
 
-    const activeThumb = modalGallery.querySelector('.modal-gallery-thumb.on');
+    const activeThumb =
+      modalGallery.querySelector('.modal-gallery-thumb.on');
+
     if (activeThumb) {
       activeThumb.scrollIntoView({
         behavior: 'smooth',
@@ -1087,15 +1156,15 @@ function showModalImage(index) {
   }
 }
 
-/* ----------------------------------------- */
 function previousImg() {
-  if (modalImages.length <= 1) {return;}
-  showModalImage(modalImageIndex - 1);
+  if (modalImages.length <= 1) return;
+
+  showModalImage(modalImageIndex - 1, 'prev', true);
 }
 
 function nextImg() {
-  if (modalImages.length <= 1) {return;}
-  showModalImage(modalImageIndex + 1);
+  if (modalImages.length <= 1) return;
+  showModalImage(modalImageIndex + 1, 'next', true);
 }
 
 /* ----------------------------------------- */
@@ -1160,11 +1229,13 @@ function openProduct(id) {
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    mEmoji.innerHTML = optimizedMainImage? `<img
-            src="${optimizedMainImage}"
-            alt="${p.name}"
-            decoding="async"
-            fetchpriority="high">` : p.emoji;
+    mEmoji.innerHTML = optimizedMainImage? 
+      `<img
+        src="${optimizedMainImage}"
+        alt="${p.name}"
+        decoding="async"
+        fetchpriority="high">` 
+    : p.emoji;
   }
 
   const modalGallery = $('modalGallery');
@@ -1187,10 +1258,8 @@ function openProduct(id) {
       modalGallery.appendChild(button);
     });
 
-modalGallery.style.display =
-  images.length > 1 ? 'flex' : 'none';
-
-showModalImage(modalImageIndex);
+  modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
+  showModalImage(modalImageIndex, null, false);
 
   $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
