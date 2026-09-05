@@ -2081,6 +2081,7 @@ header {
    ========================================================================== */
 @media (pointer: coarse) {
   .mArrows {display: flex !important; opacity: 1;}
+  .pactions {display: none;}
   
   .product-card:hover,
   .product-card:active,
