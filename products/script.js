@@ -1102,9 +1102,7 @@ function nextImg() {
 function updateModalNavigationVisibility() {
   const buttons = document.querySelectorAll('.modal-image-nav');
   const visible = modalImages.length > 1;
-
-  buttons.forEach(button => {button.style.display = visible ? 'flex' : 'none';}
-  );
+  buttons.forEach(button => {button.style.display = visible ? 'flex' : 'none';});
 }
 
 /* ----------------------------------------- */
@@ -1175,51 +1173,24 @@ function openProduct(id) {
     images.forEach((image, index) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className =
-        'modal-gallery-thumb' +
-        (index === 0 ? ' on' : '');
-
+      button.className = 'modal-gallery-thumb' + (index === 0 ? ' on' : '');
       const thumbnail = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail);
+
       button.innerHTML = `
         <img
           src="${thumbnail}"
           alt="${p.name} - imagem ${index + 1}"
           loading="lazy"
-          decoding="async"
-        >
+          decoding="async">
       `;
-      
-      button.addEventListener('click', () => {
-        const selectedImage =
-          getOptimizedImageUrl(
-            image,
-            EDGE_IMAGE_PRESETS.modal
-          );
-        if (mEmoji) {
-          mEmoji.innerHTML = `
-            <img
-              src="${selectedImage}"
-              alt="${p.name}"
-              decoding="async"
-            >
-          `;
-        }
-      });
-      /*button.addEventListener('click', () => {
-        showModalImage(index);
-      };*/
-        modalGallery
-          .querySelectorAll(
-            '.modal-gallery-thumb'
-          )
-          .forEach(btn => {btn.classList.remove('on');});
-        button.classList.add('on');
-      });
+      button.addEventListener('click', () => {showModalImage(index);});
       modalGallery.appendChild(button);
     });
-    modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
-    showModalImage(modalImageIndex);
-  }
+
+modalGallery.style.display =
+  images.length > 1 ? 'flex' : 'none';
+
+showModalImage(modalImageIndex);
 
   $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
