@@ -1206,12 +1206,9 @@ function setupModalSwipe() {
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
-/* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
-
   const normalizedId = String(id);
-
   const p = products.find(
     x => String(x.id) === normalizedId
   );
@@ -1221,113 +1218,65 @@ function openProduct(id) {
     document.body.classList.remove("noscroll");
     return;
   }
-
   curId = normalizedId;
   mQtyVal = 1;
   $('mQty').textContent = 1;
-
+  
   const images = getProductImages(p);
-
   modalImages = images;
   modalImageIndex = 0;
-
   updateModalNavigationVisibility();
-
-  const modalGallery = $('modalGallery');
+  const mainImage = images[0] || null;
+  const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.modal) : null;
   const mEmoji = $('mEmoji');
 
-  /* ── GALERIA ───────────────────────────────────────────────────── */
+  if (mEmoji) {
+    mEmoji.innerHTML = optimizedMainImage? 
+      `<img
+        src="${optimizedMainImage}"
+        alt="${p.name}"
+        decoding="async"
+        fetchpriority="high">` 
+    : p.emoji;
+  }
+
+  const modalGallery = $('modalGallery');
   if (modalGallery) {
     modalGallery.innerHTML = '';
-
     images.forEach((image, index) => {
       const button = document.createElement('button');
-
       button.type = 'button';
-
-      button.className =
-        'modal-gallery-thumb' +
-        (index === 0 ? ' on' : '');
-
-      const thumbnail = getOptimizedImageUrl(
-        image,
-        EDGE_IMAGE_PRESETS.thumbnail
-      );
+      button.className = 'modal-gallery-thumb' + (index === 0 ? ' on' : '');
+      const thumbnail = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail);
 
       button.innerHTML = `
         <img
           src="${thumbnail}"
           alt="${p.name} - imagem ${index + 1}"
           loading="lazy"
-          decoding="async"
-        >
+          decoding="async">
       `;
-
-      button.addEventListener('click', () => {
-        const oldIndex = modalImageIndex;
-
-        if (index === oldIndex) return;
-
-        const total = modalImages.length;
-
-        const forwardDistance =
-          (index - oldIndex + total) % total;
-
-        const backwardDistance =
-          (oldIndex - index + total) % total;
-
-        const direction =
-          forwardDistance <= backwardDistance
-            ? 'next'
-            : 'prev';
-
-        showModalImage(
-          index,
-          direction,
-          true
-        );
-      });
-
+      button.addEventListener('click', () => {showModalImage(index);});
       modalGallery.appendChild(button);
     });
 
-    modalGallery.style.display =
-      images.length > 1
-        ? 'flex'
-        : 'none';
-
-    showModalImage(
-      modalImageIndex,
-      null,
-      false
-    );
+    modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
+    showModalImage(modalImageIndex, null, false);
   }
 
-  /* ── INFORMAÇÕES DO PRODUTO ───────────────────────────────────── */
-
-  if (mEmoji) {
-    mEmoji.style.position = 'relative';
-  }
-
+  $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
     Array.isArray(p.cat)
       ? p.cat.join(', ')
       : p.cat;
 
   $('mName').textContent = p.name;
-
   $('mDesc').textContent = p.desc;
-
-  $('mPrice').textContent =
-    fmt(p.price);
-
-  $('mPrice1').textContent =
-    fmt(p.price);
+  $('mPrice').textContent = fmt(p.price);
+  $('mPrice1').textContent = fmt(p.price);
 
   $('mOld').textContent =
-    p.old > 0
-      ? fmt(p.old)
-      : '';
+    p.old > 0 ? fmt(p.old) : '';
 
   $('mDisc').textContent =
     p.discount > 0
@@ -1348,7 +1297,6 @@ function openProduct(id) {
       x => String(x.id) === normalizedId
     )
   );
-
   $('modalOverlay').classList.add('on');
 }
 
