@@ -1050,66 +1050,33 @@ function closeAcc() {
 }
 
 /* ----------------------------------- */
-/* ─── MODAL IMAGE ──────────────────────────────────────────────── */
-
-function showModalImage(index, direction = null, animate = true) {
+function showModalImage(index) {
   const mEmoji = $('mEmoji');
   const modalGallery = $('modalGallery');
+  if (!mEmoji || !modalImages.length) {return;}
 
-  if (!mEmoji || !modalImages.length) return;
-
-  const oldIndex = modalImageIndex;
-
-  modalImageIndex =
-    (index + modalImages.length) % modalImages.length;
-
+  modalImageIndex = ( index + modalImages.length) % modalImages.length;
   const image = modalImages[modalImageIndex];
+  const optimizedImage = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.modal);
 
-  if (!image) return;
-
-  const optimizedImage = getOptimizedImageUrl(
-    image,
-    EDGE_IMAGE_PRESETS.modal
-  );
-
-  const img = document.createElement('img');
-
-  img.src = optimizedImage;
-  img.alt = 'Imagem do produto';
-  img.decoding = 'async';
-  img.fetchPriority = 'high';
-
-  /*
-   * NÃO deixamos a imagem invisível.
-   * A animação acontece somente durante a entrada.
-   */
-  if (animate && oldIndex !== modalImageIndex) {
-    img.className =
-      direction === 'prev'
-        ? 'modal-main-image modal-enter-prev'
-        : 'modal-main-image modal-enter-next';
-  } else {
-    img.className = 'modal-main-image';
-  }
-
-  mEmoji.innerHTML = '';
-  mEmoji.appendChild(img);
+  mEmoji.innerHTML = `
+    <img
+      src="${optimizedImage}"
+      alt="Imagem do produto"
+      decoding="async"
+      fetchpriority="high"
+    >
+  `;
 
   if (modalGallery) {
-    modalGallery
-      .querySelectorAll('.modal-gallery-thumb')
-      .forEach((button, buttonIndex) => {
-        button.classList.toggle(
-          'on',
-          buttonIndex === modalImageIndex
-        );
-      });
-
-    const activeThumb =
-      modalGallery.querySelector(
-        '.modal-gallery-thumb.on'
+    modalGallery.querySelectorAll('.modal-gallery-thumb')
+      .forEach(
+        (button, buttonIndex) => {
+          button.classList.toggle('on',buttonIndex === modalImageIndex);
+        }
       );
 
+    const activeThumb = modalGallery.querySelector('.modal-gallery-thumb.on');
     if (activeThumb) {
       activeThumb.scrollIntoView({
         behavior: 'smooth',
@@ -1120,21 +1087,22 @@ function showModalImage(index, direction = null, animate = true) {
   }
 }
 
+/* ----------------------------------------- */
 function previousImg() {
-  if (modalImages.length <= 1) return;
-  showModalImage(modalImageIndex - 1, 'prev', true);
+  if (modalImages.length <= 1) {return;}
+  showModalImage(modalImageIndex - 1);
 }
 
 function nextImg() {
-  if (modalImages.length <= 1) return;
-  showModalImage(modalImageIndex + 1,'next', true);
+  if (modalImages.length <= 1) {return;}
+  showModalImage(modalImageIndex + 1);
 }
 
-/* ─── MODAL NAVIGATION ───────────────────────────────────────── */
+/* ----------------------------------------- */
 function updateModalNavigationVisibility() {
-  const arrows = document.querySelector('.mArrows');
-  if (!arrows) return;
-  arrows.style.display = modalImages.length > 1 ? 'flex' : 'none';
+  const buttons = document.querySelectorAll('.modal-image-nav');
+  const visible = modalImages.length > 1;
+  buttons.forEach(button => {button.style.display = visible ? 'flex' : 'none';});
 }
 
 /* ----------------------------------------- */
@@ -1166,150 +1134,77 @@ function setupModalSwipe() {
   }, {passive: true});
 }
 
-/* ─── MODAL ───────────────────────────────────────────────────── */
-
+/* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
-
   const normalizedId = String(id);
-
   const p = products.find(
     x => String(x.id) === normalizedId
   );
 
   if (!p) {
-    console.error(
-      "Produto não encontrado:",
-      normalizedId
-    );
-
+    console.error("Produto não encontrado:", normalizedId);
     document.body.classList.remove("noscroll");
-
     return;
   }
-
   curId = normalizedId;
-
   mQtyVal = 1;
-
   $('mQty').textContent = 1;
-
-  /* ── IMAGENS ───────────────────────────────────────────── */
-
+  
   const images = getProductImages(p);
-
   modalImages = images;
-
   modalImageIndex = 0;
-
   updateModalNavigationVisibility();
-
+  const mainImage = images[0] || null;
+  const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.modal) : null;
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    /*
-     * Mantém o container controlado pelo CSS.
-     * NÃO usar position: relative aqui.
-     */
-    mEmoji.style.position = '';
+    mEmoji.innerHTML = optimizedMainImage? `<img
+            src="${optimizedMainImage}"
+            alt="${p.name}"
+            decoding="async"
+            fetchpriority="high">` : p.emoji;
   }
 
-  /* ── GALERIA ───────────────────────────────────────────── */
-
   const modalGallery = $('modalGallery');
-
   if (modalGallery) {
     modalGallery.innerHTML = '';
-
     images.forEach((image, index) => {
-      const button =
-        document.createElement('button');
-
+      const button = document.createElement('button');
       button.type = 'button';
-
-      button.className =
-        'modal-gallery-thumb' +
-        (index === 0 ? ' on' : '');
-
-      const thumbnail =
-        getOptimizedImageUrl(
-          image,
-          EDGE_IMAGE_PRESETS.thumbnail
-        );
+      button.className = 'modal-gallery-thumb' + (index === 0 ? ' on' : '');
+      const thumbnail = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail);
 
       button.innerHTML = `
         <img
           src="${thumbnail}"
           alt="${p.name} - imagem ${index + 1}"
           loading="lazy"
-          decoding="async"
-        >
+          decoding="async">
       `;
-
-      button.addEventListener(
-        'click',
-        () => {
-          if (index === modalImageIndex) {
-            return;
-          }
-
-          const direction =
-            index > modalImageIndex
-              ? 'next'
-              : 'prev';
-
-          showModalImage(
-            index,
-            direction,
-            true
-          );
-        }
-      );
-
+      button.addEventListener('click', () => {showModalImage(index);});
       modalGallery.appendChild(button);
     });
 
-    modalGallery.style.display =
-      images.length > 1
-        ? 'flex'
-        : 'none';
-  }
+modalGallery.style.display =
+  images.length > 1 ? 'flex' : 'none';
 
-  /*
-   * PRIMEIRA IMAGEM
-   *
-   * Sem animação.
-   * Portanto ela aparece imediatamente.
-   */
-  showModalImage(
-    0,
-    null,
-    false
-  );
+showModalImage(modalImageIndex);
 
-  /* ── INFORMAÇÕES ───────────────────────────────────────── */
-
+  $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
     Array.isArray(p.cat)
       ? p.cat.join(', ')
       : p.cat;
 
-  $('mName').textContent =
-    p.name;
-
-  $('mDesc').textContent =
-    p.desc;
-
-  $('mPrice').textContent =
-    fmt(p.price);
-
-  $('mPrice1').textContent =
-    fmt(p.price);
+  $('mName').textContent = p.name;
+  $('mDesc').textContent = p.desc;
+  $('mPrice').textContent = fmt(p.price);
+  $('mPrice1').textContent = fmt(p.price);
 
   $('mOld').textContent =
-    p.old > 0
-      ? fmt(p.old)
-      : '';
+    p.old > 0 ? fmt(p.old) : '';
 
   $('mDisc').textContent =
     p.discount > 0
@@ -1317,14 +1212,12 @@ function openProduct(id) {
       : '';
 
   $('mFeats').innerHTML =
-    p.features
-      .map(f => `
-        <div class="m-feat">
-          <div class="fchk">✓</div>
-          ${f}
-        </div>
-      `)
-      .join('');
+    p.features.map(f =>
+      `<div class="m-feat">
+        <div class="fchk">✓</div>
+        ${f}
+      </div>`
+    ).join('');
 
   $('mWish').classList.toggle(
     'on',
@@ -1332,9 +1225,9 @@ function openProduct(id) {
       x => String(x.id) === normalizedId
     )
   );
-
   $('modalOverlay').classList.add('on');
-}
+ }
+};
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
