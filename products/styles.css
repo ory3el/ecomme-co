@@ -1623,83 +1623,65 @@ header {
     .btn-mwish1 svg { width: 16px;height: 16px;fill: none;stroke: currentColor;stroke-width: 2; }
     .btn-mwish1.on svg { fill: var(--red); }
 
-/* ── MODAL IMAGE TRANSITIONS ───────────────────────────────────── */
+/* ── MODAL IMAGE ANIMATION ─────────────────────────────────────── */
+
 #mEmoji {
   position: absolute;
   inset: 0;
   overflow: hidden;
   isolation: isolate;
 }
+
 #mEmoji .modal-main-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
   border-radius: 36px;
-  opacity: 0;
-  transform: translateX(0) scale(1.015);
-  transition: opacity .18s ease, transform .45s cubic-bezier(.22,.61,.36,1);
-  will-change: transform, opacity;
-}
-#mEmoji .modal-main-image.is-loaded {
   opacity: 1;
   transform: translateX(0) scale(1);
-}
-#mEmoji.modal-slide-next .modal-main-image {
-  transform: translateX(14%) scale(1.025);
-}
-#mEmoji.modal-slide-next .modal-main-image.is-loaded {
-  transform: translateX(0) scale(1);
-}
-#mEmoji.modal-slide-prev .modal-main-image {
-  transform: translateX(-14%) scale(1.025);
-}
-#mEmoji.modal-slide-prev .modal-main-image.is-loaded {
-  transform: translateX(0) scale(1);
+  will-change: transform, opacity;
 }
 
-/* ── LOADING SPINNER ────────────────────────────────────────────── */
-.modal-image-loader {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  background: rgba(255,255,255,.08);
+#mEmoji .modal-enter-next {
+  animation: modalImageNext .42s cubic-bezier(.22,.61,.36,1);
 }
 
-.modal-image-loader span {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 3px solid rgba(255,255,255,.28);
-  border-top-color: var(--blue);
-  animation: modal-image-spin .75s linear infinite;
+#mEmoji .modal-enter-prev {
+  animation: modalImagePrev .42s cubic-bezier(.22,.61,.36,1);
 }
 
-@keyframes modal-image-spin {
+@keyframes modalImageNext {
+  from {
+    opacity: 0;
+    transform: translateX(14%) scale(1.025);
+  }
+
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 
-#mEmoji:not(.modal-image-loading) .modal-image-loader {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .18s ease, visibility .18s ease;
+@keyframes modalImagePrev {
+  from {
+    opacity: 0;
+    transform: translateX(-14%) scale(1.025);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #mEmoji .modal-main-image {
-    transition: opacity .15s ease;
+    animation: none !important;
     transform: none !important;
-  }
-
-  .modal-image-loader span {
-    animation-duration: 1.2s;
+    opacity: 1;
   }
 }
 
