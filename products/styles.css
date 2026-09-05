@@ -41,6 +41,7 @@
   --glass-bg:     linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.16));
   --glass-border: rgba(255,255,255,.25);
   --overlay-bg:   rgba(0,0,0,.16);
+  --nbg:          #fff;
   --sidebar-bg:   rgba(255,255,255,.80);
   --sidebar-edge: var(--white);
   --toast-bg:     #10141a;
@@ -96,6 +97,7 @@ html[data-theme="dark"] {
   --glass-bg:     linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
   --glass-border: rgba(255,255,255,.12);
   --overlay-bg:   rgba(255,255,255,0.16);
+  --nbg:          rgba(255,255,255,0.16);
   --sidebar-bg:   rgba(15,23,42,.80);
   --sidebar-edge: #000000;
   --toast-bg:     #E8EDF5;
@@ -793,23 +795,43 @@ header {
     .ci-info { color: #000; flex: 1; min-width: 0; }
     .ci-name {color: var(--black);font-size: 13px;font-weight: 500;margin-bottom: 3px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
     .ci-price { font-family: 'Outfit', serif; font-size: 17px; font-weight: 500; color: var(--blue); }
-    .ci-qty {color: var(--black);background: rgba(25,100,255,0.0);border-radius: 150px;box-shadow: 0px 0px 15px rgb(200 200 200 / 100%);padding: 5px;max-width: 100px;display: flex;align-items: center;gap: 8px;margin-top: 8px;}
+    .ci-qty {color: var(--black);background: rgba(25,100,255,0.0);border-radius: 15px;box-shadow: 0 0 10px var(--light);padding: 5px;max-width: 90px;max-height: 30px;display: flex;align-items: center;justify-content: center;gap: 5px;margin-top: 8px;}
     .qb {
       color: var(--black);
-      min-width: 36px;
-      min-height: 36px;
+      width: 25px;
+      height: 25px;
       border-radius: 10px;
-      background: var(--white);
+      background: var(--nbg);
       border: 1px solid rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
       font-weight: 600;
-      transition: border-color 0.15s, color 0.15s;
+      transition: background 0.25s, border-color 0.25s, color 0.25s;
     }
     .qb:hover { 
       border-color: var(--blue);
+      background: #fff;
+      color: var(--blue);
+    }
+    .qb1 {
+      color: #000;
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      transition: background 0.25s, border-color 0.25s, color 0.25s;
+    }
+    .qb1:hover { 
+      border-color: var(--blue);
+      background: #fff;
       color: var(--blue);
     }
     .qn { font-size: 13px; font-weight: 600; min-width: 22px; text-align: center; }
@@ -1470,7 +1492,8 @@ header {
     left: 7px;
     width: 50px;
     aspect-ratio: 1;
-    transition: transform 0.25s;
+    transform: scale(0);
+    transition: 0.2s, transform 0.3s;
     }
     .pArrow2 {
       background: #fff;
@@ -1480,7 +1503,8 @@ header {
       right: 7px;
       width: 50px;
       aspect-ratio: 1;
-      transition: transform 0.25s;
+      transform: scale(0);
+      transition: transform 0.3s;
     }
     .pArrow1:hover {transform: scale(1.08)}
     .pArrow2:hover {transform: scale(1.08)}
@@ -1498,6 +1522,8 @@ header {
       color: #000;
       transition: transform 0.2s;
     }
+    .modal-img-area:hover .pArrow1 {transform: scale(1.0);}
+    .modal-img-area:hover .pArrow2 {transform: scale(1.0);}
     .modal-img-area:hover .mArrows {
       display: flex;
       opacity: 1;
@@ -1532,6 +1558,15 @@ header {
       border-radius: 150px;
       padding: 6px 14px;
     }
+    .m-qty-ctrl0 {
+      display: flex;
+      align-items: center;
+      /* gap: 10px; */
+      background: var(--glass-bg);
+      border: 1px solid var(--muted2);
+      border-radius: 15px;
+      padding: 3px 3px;
+    }
     .m-qty-ctrl1 {
       position: relative;
       display: none;
@@ -1542,11 +1577,12 @@ header {
       z-index: 1000;
       background: rgba(250,250,250,1);
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      border: 3px solid var(--white);
+      border: 3px solid #fff;
       border-radius: 10px;
       /* padding: 6px 14px; */
     }
-    .m-qty-num { font-size: 15px; font-weight: 700; min-width: 28px; text-align: center; }
+    .m-qty-num {color: var(--black);font-size: 15px;font-weight: 700;min-width: 28px;text-align: center;}
+    .m-qty-num1 {color: #000;font-size: 15px;font-weight: 700;min-width: 28px;text-align: center;}
     .m-btns {display: flex;gap: 10px;margin-top: auto;align-items: center;}
     .btn-madd {
       flex: 1;
