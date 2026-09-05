@@ -1156,6 +1156,7 @@ function showModalImage(index, direction = null, animate = true) {
   }
 }
 
+/* ----------------------------------------- */
 function previousImg() {
   if (modalImages.length <= 1) return;
 
@@ -1169,9 +1170,10 @@ function nextImg() {
 
 /* ----------------------------------------- */
 function updateModalNavigationVisibility() {
-  const buttons = document.querySelectorAll('.modal-image-nav');
+  const arrows = document.querySelector('.mArrows');
+  if (!arrows) return;
   const visible = modalImages.length > 1;
-  buttons.forEach(button => {button.style.display = visible ? 'flex' : 'none';});
+  arrows.style.display = visible ? 'flex' : 'none';
 }
 
 /* ----------------------------------------- */
