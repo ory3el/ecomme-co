@@ -1189,7 +1189,7 @@ function openProduct(id) {
         >
       `;
       
-      /*button.addEventListener('click', () => {
+      button.addEventListener('click', () => {
         const selectedImage =
           getOptimizedImageUrl(
             image,
@@ -1204,10 +1204,10 @@ function openProduct(id) {
             >
           `;
         }
-      );*/
-      button.addEventListener('click', () => {
+      );
+      /*button.addEventListener('click', () => {
         showModalImage(index);
-      };
+      };*/
         modalGallery
           .querySelectorAll(
             '.modal-gallery-thumb'
