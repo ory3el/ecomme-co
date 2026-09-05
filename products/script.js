@@ -1204,7 +1204,7 @@ function openProduct(id) {
             >
           `;
         }
-      );
+      });
       /*button.addEventListener('click', () => {
         showModalImage(index);
       };*/
