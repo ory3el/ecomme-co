@@ -1166,78 +1166,150 @@ function setupModalSwipe() {
   }, {passive: true});
 }
 
-/* ─── MODAL ──────────────────────────────────────────────────────── */
+/* ─── MODAL ───────────────────────────────────────────────────── */
+
 function openProduct(id) {
   document.body.classList.add("noscroll");
+
   const normalizedId = String(id);
+
   const p = products.find(
     x => String(x.id) === normalizedId
   );
 
   if (!p) {
-    console.error("Produto não encontrado:", normalizedId);
+    console.error(
+      "Produto não encontrado:",
+      normalizedId
+    );
+
     document.body.classList.remove("noscroll");
+
     return;
   }
+
   curId = normalizedId;
+
   mQtyVal = 1;
+
   $('mQty').textContent = 1;
-  
+
+  /* ── IMAGENS ───────────────────────────────────────────── */
+
   const images = getProductImages(p);
+
   modalImages = images;
+
   modalImageIndex = 0;
+
   updateModalNavigationVisibility();
-  const mainImage = images[0] || null;
-  const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, EDGE_IMAGE_PRESETS.modal) : null;
+
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    mEmoji.innerHTML = optimizedMainImage? 
-      `<img
-        src="${optimizedMainImage}"
-        alt="${p.name}"
-        decoding="async"
-        fetchpriority="high">` 
-    : p.emoji;
+    /*
+     * Mantém o container controlado pelo CSS.
+     * NÃO usar position: relative aqui.
+     */
+    mEmoji.style.position = '';
   }
 
+  /* ── GALERIA ───────────────────────────────────────────── */
+
   const modalGallery = $('modalGallery');
+
   if (modalGallery) {
     modalGallery.innerHTML = '';
+
     images.forEach((image, index) => {
-      const button = document.createElement('button');
+      const button =
+        document.createElement('button');
+
       button.type = 'button';
-      button.className = 'modal-gallery-thumb' + (index === 0 ? ' on' : '');
-      const thumbnail = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail);
+
+      button.className =
+        'modal-gallery-thumb' +
+        (index === 0 ? ' on' : '');
+
+      const thumbnail =
+        getOptimizedImageUrl(
+          image,
+          EDGE_IMAGE_PRESETS.thumbnail
+        );
 
       button.innerHTML = `
         <img
           src="${thumbnail}"
           alt="${p.name} - imagem ${index + 1}"
           loading="lazy"
-          decoding="async">
+          decoding="async"
+        >
       `;
-      button.addEventListener('click', () => {showModalImage(index);});
+
+      button.addEventListener(
+        'click',
+        () => {
+          if (index === modalImageIndex) {
+            return;
+          }
+
+          const direction =
+            index > modalImageIndex
+              ? 'next'
+              : 'prev';
+
+          showModalImage(
+            index,
+            direction,
+            true
+          );
+        }
+      );
+
       modalGallery.appendChild(button);
     });
 
-    modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
-    showModalImage(modalImageIndex, null, false);
+    modalGallery.style.display =
+      images.length > 1
+        ? 'flex'
+        : 'none';
   }
 
-  $('mEmoji').style.position = 'relative';
+  /*
+   * PRIMEIRA IMAGEM
+   *
+   * Sem animação.
+   * Portanto ela aparece imediatamente.
+   */
+  showModalImage(
+    0,
+    null,
+    false
+  );
+
+  /* ── INFORMAÇÕES ───────────────────────────────────────── */
+
   $('mCat').textContent =
     Array.isArray(p.cat)
       ? p.cat.join(', ')
       : p.cat;
 
-  $('mName').textContent = p.name;
-  $('mDesc').textContent = p.desc;
-  $('mPrice').textContent = fmt(p.price);
-  $('mPrice1').textContent = fmt(p.price);
+  $('mName').textContent =
+    p.name;
+
+  $('mDesc').textContent =
+    p.desc;
+
+  $('mPrice').textContent =
+    fmt(p.price);
+
+  $('mPrice1').textContent =
+    fmt(p.price);
 
   $('mOld').textContent =
-    p.old > 0 ? fmt(p.old) : '';
+    p.old > 0
+      ? fmt(p.old)
+      : '';
 
   $('mDisc').textContent =
     p.discount > 0
@@ -1245,12 +1317,14 @@ function openProduct(id) {
       : '';
 
   $('mFeats').innerHTML =
-    p.features.map(f =>
-      `<div class="m-feat">
-        <div class="fchk">✓</div>
-        ${f}
-      </div>`
-    ).join('');
+    p.features
+      .map(f => `
+        <div class="m-feat">
+          <div class="fchk">✓</div>
+          ${f}
+        </div>
+      `)
+      .join('');
 
   $('mWish').classList.toggle(
     'on',
@@ -1258,6 +1332,7 @@ function openProduct(id) {
       x => String(x.id) === normalizedId
     )
   );
+
   $('modalOverlay').classList.add('on');
 }
 
