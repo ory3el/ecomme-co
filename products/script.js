@@ -1100,7 +1100,7 @@ function nextImg() {
 
 /* ----------------------------------------- */
 function updateModalNavigationVisibility() {
-  const buttons = document.querySelectorAll('.modal-image-nav');
+  const buttons = document.querySelectorAll('.mArrows');
   const visible = modalImages.length > 1;
   buttons.forEach(button => {button.style.display = visible ? 'flex' : 'none';});
 }
