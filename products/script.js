@@ -1148,17 +1148,9 @@ function openProductModalHistory() {
   productModalHistoryOpen = true;
 }
 
-function closeProductModalUI() {
-  const modal = $('productModal');
-  if (modal) {
-    modal.classList.remove('on');
-  }
-  document.body.classList.remove('noscroll');
-}
-
 function closeProductModal() {
   if (!productModalHistoryOpen) {
-    closeProductModalUI();
+    closeModal();
     return;
   }
   history.back();
@@ -1183,7 +1175,7 @@ function openProduct(id) {
     document.body.classList.remove("noscroll");
     return;
   }
-  pushProductModalHistory();
+  openProductModalHistory();
   curId = normalizedId;
   mQtyVal = 1;
   $('mQty').textContent = 1;
