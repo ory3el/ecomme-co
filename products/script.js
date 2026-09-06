@@ -1134,20 +1134,6 @@ function setupModalSwipe() {
   }, {passive: true});
 }
 
-/* ----------------------------------------- */
-const pArrow1 = document.querySelector('.pArrow1');
-const pArrow2 = document.querySelector('.pArrow2');
-const arrow0 = document.querySelector('.arrow0');
-
-pArrow1.addEventListener('touchend', function() {
-    pArrow1.blur(); 
-    arrow0.blur(); 
-});
-pArrow2.addEventListener('touchend', function() {
-    pArrow2.blur(); 
-    arrow0.blur(); 
-});
-
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
