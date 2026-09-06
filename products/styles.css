@@ -718,7 +718,7 @@ header {
       z-index: 2000;
       transform: translateX(100%);
       transition: opacity 0.35s, transform .35s cubic-bezier(.4,0,.2,1);
-      transition-delay: 0.5s;
+      /*transition-delay: 0.5s;*/
       flex-direction: column;
     }
     .cart-sb.on { opacity: 1; transform: translateX(0); }
@@ -931,7 +931,7 @@ header {
       z-index: 2000;
       transform: translateX(100%);
       transition: opacity 0.35s, transform .35s cubic-bezier(.4,0,.2,1);
-      transition-delay: 0.5s;
+      /*transition-delay: 0.5s;*/
       flex-direction: column;
     }
     .fav-sb.on { opacity: 1; transform: translateX(0); }
