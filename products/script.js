@@ -1266,7 +1266,7 @@ showModalImage(modalImageIndex);
  }
 };
 
-function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
+function handleModalClick(e) { if (e.target === $('modalOverlay')) closeProductModal(); }
 function closeModal()        { $('modalOverlay').classList.remove('on'); document.body.classList.remove("noscroll"); }
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
 
