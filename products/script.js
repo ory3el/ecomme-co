@@ -154,9 +154,7 @@ let pageIsVisible = true;
 
 // ============================================================
 
-document.addEventListener(
-  'visibilitychange',
-  () => {
+document.addEventListener('visibilitychange', () => {
     pageIsVisible = document.visibilityState === 'visible';
     if (pageIsVisible) {
       refreshProductsIfNeeded();
@@ -171,6 +169,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     initThemeToggle();
     setupModalSwipe();
+    setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     const headerImage = document.getElementById('headerAvatar');
@@ -180,7 +179,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
-    
     if (!user || userError) {
       userId = null;
       if (loginBtn) {
@@ -1176,6 +1174,7 @@ function openProductModalHistory() {
 
 function closeProductModal() {
   if (!productModalHistoryOpen) {
+    stopModalAutoPlay();
     closeModal();
     return;
   }
@@ -1187,6 +1186,35 @@ window.addEventListener('popstate', () => {
   productModalHistoryOpen = false;
   closeModal();
 });
+
+/* ----------------------------------------- */
+let modalAutoPlayTimer = null;
+const MODAL_AUTO_PLAY_INTERVAL = 3000;
+
+function startModalAutoPlay() {
+  stopModalAutoPlay();
+  if (modalImages.length <= 1) return;
+  modalAutoPlayTimer = setInterval(() => {
+    if (modalImages.length <= 1) {
+      stopModalAutoPlay();
+      return;
+    }
+    showModalImage(modalImageIndex + 1);
+  }, MODAL_AUTO_PLAY_INTERVAL);
+}
+
+function stopModalAutoPlay() {
+  if (!modalAutoPlayTimer) return;
+  clearInterval(modalAutoPlayTimer);
+  modalAutoPlayTimer = null;
+}
+
+function setupModalAutoPlay() {
+  const modalImgArea = document.querySelector('.modal-img-area');
+  if (!modalImgArea) return;
+  modalImgArea.addEventListener('mouseenter', stopModalAutoPlay);
+  modalImgArea.addEventListener('mouseleave', startModalAutoPlay);
+}
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
@@ -1242,10 +1270,8 @@ function openProduct(id) {
       modalGallery.appendChild(button);
     });
 
-modalGallery.style.display =
-  images.length > 1 ? 'flex' : 'none';
-
-showModalImage(modalImageIndex);
+  modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
+  showModalImage(modalImageIndex);
 
   $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
@@ -1282,6 +1308,7 @@ showModalImage(modalImageIndex);
   );
   $('modalOverlay').classList.add('on');
  }
+ startModalAutoPlay();
 };
 
 function handleModalClick(e) { if (e.target === $('modalOverlay')) closeProductModal(); }
