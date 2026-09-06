@@ -1088,14 +1088,40 @@ function showModalImage(index) {
 }
 
 /* ----------------------------------------- */
+function mobileArrowFeedback(button, callback) {
+  if (!button) {
+    callback();
+    return;
+  }
+
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    button.classList.remove('mobile-clicked');
+    void button.offsetWidth;
+    button.classList.add('mobile-clicked');
+    callback();
+    setTimeout(() => {
+      button.classList.remove('mobile-clicked');
+    }, 220);
+  } else {
+    callback();
+  }
+}
+
+/* ----------------------------------------- */
 function previousImg() {
-  if (modalImages.length <= 1) {return;}
-  showModalImage(modalImageIndex - 1);
+  if (modalImages.length <= 1) return;
+  const button = document.querySelector('.pArrow1');
+  mobileArrowFeedback(button, () => {
+    showModalImage(modalImageIndex - 1);
+  });
 }
 
 function nextImg() {
-  if (modalImages.length <= 1) {return;}
-  showModalImage(modalImageIndex + 1);
+  if (modalImages.length <= 1) return;
+  const button = document.querySelector('.pArrow2');
+  mobileArrowFeedback(button, () => {
+    showModalImage(modalImageIndex + 1);
+  });
 }
 
 /* ----------------------------------------- */
