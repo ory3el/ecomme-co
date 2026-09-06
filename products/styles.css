@@ -1379,6 +1379,7 @@ header {
 
 #mEmoji {
   position: absolute;
+  border-radius: 36px;
   inset: 0;
   font-size: 100px;
   align-self: stretch;
@@ -1664,6 +1665,7 @@ header {
 
 /* ── MODAL IMAGE ANIMATION ─────────────────────────────────────── */
 #mEmoji {
+  border-radius: 36px;
   position: absolute;
   inset: 0;
   overflow: hidden;
