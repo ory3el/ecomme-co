@@ -1663,7 +1663,6 @@ header {
     .btn-mwish1.on svg { fill: var(--red); }
 
 /* ── MODAL IMAGE ANIMATION ─────────────────────────────────────── */
-
 #mEmoji {
   position: absolute;
   inset: 0;
@@ -1679,40 +1678,62 @@ header {
   display: block;
   object-fit: cover;
   border-radius: 36px;
-  opacity: 1;
-  transform: translateX(0) scale(1);
-  will-change: transform, opacity;
+  will-change: transform;
 }
 
 #mEmoji .modal-enter-next {
-  animation: modalImageNext .42s cubic-bezier(.22,.61,.36,1);
+  animation: modalImageEnterNext 0.42s cubic-bezier(.22,.61,.36,1) forwards;
 }
 
 #mEmoji .modal-enter-prev {
-  animation: modalImagePrev .42s cubic-bezier(.22,.61,.36,1);
+  animation: modalImageEnterPrev 0.42s cubic-bezier(.22,.61,.36,1) forwards;
 }
 
-@keyframes modalImageNext {
+#mEmoji .modal-exit-next {
+  animation: modalImageExitNext 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+#mEmoji .modal-exit-prev {
+  animation: modalImageExitPrev 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+@keyframes modalImageEnterNext {
   from {
-    opacity: 0;
-    transform: translateX(14%) scale(1.025);
+    transform: translateX(100%);
   }
 
   to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
   }
 }
 
-@keyframes modalImagePrev {
+@keyframes modalImageEnterPrev {
   from {
-    opacity: 0;
-    transform: translateX(-14%) scale(1.025);
+    transform: translateX(-100%);
   }
 
   to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
+  }
+}
+
+@keyframes modalImageExitNext {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes modalImageExitPrev {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
   }
 }
 
@@ -1720,7 +1741,6 @@ header {
   #mEmoji .modal-main-image {
     animation: none !important;
     transform: none !important;
-    opacity: 1;
   }
 }
 
