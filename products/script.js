@@ -666,7 +666,7 @@ function updateCart() {
             image
               ? `<img
                    src="${optimizedImage}"
-                   data-product-id="${item.id}"
+                   data-product-id="${product.id}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
@@ -892,7 +892,7 @@ function updateFav() {
             image
               ? `<img
                    src="${optimizedImage}"
-                   data-product-id="${item.id}"
+                   data-product-id="${product.id}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
