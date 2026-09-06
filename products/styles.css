@@ -1472,65 +1472,91 @@ header {
       box-shadow: 0px 0px 15px rgba(255,100,100,0.5);
     }
     .mcls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .mArrows {
-      pointer-events: none;
-      width: 100%;
-      height: 100px;
-      background: none;
-      position: absolute;
-      display: flex;
-      opacity: 0;
-      align-items: center;
-      z-index: 1;
-      justify-items: stretch;
-      transition: opacity 0.2s;
-    }
-    .pArrow1 {
-      pointer-events: auto;
-      background: #fff;
-      position: absolute;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgb(0 0 0 / 40%);
-      left: 7px;
-      width: 50px;
-      aspect-ratio: 1;
-      transform: scale(0);
-      transition: 0.2s, transform 0.3s;
-    }
-    .pArrow2 {
-      pointer-events: auto;
-      background: #fff;
-      position: absolute;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgb(0 0 0 / 40%);
-      right: 7px;
-      width: 50px;
-      aspect-ratio: 1;
-      transform: scale(0);
-      transition: transform 0.3s;
-    }
-    .pArrow1:hover {transform: scale(1.08)}
-    .pArrow2:hover {transform: scale(1.08)}
-    .pArrow1:hover .arrow0 {transform: scale(1.3); color: var(--blue)}
-    .pArrow2:hover .arrow0 {transform: scale(1.3); color: var(--blue)}
-    .arrow1 {
-      rotate: 180deg;
-      font-size: 20px;
-      color: #000;
-      transition: transform 0.2s;
-    }
-    .arrow2 {
-      rotate: 0deg;
-      font-size: 20px;
-      color: #000;
-      transition: transform 0.2s;
-    }
-    .modal-img-area:hover .pArrow1 {transform: scale(1.0);}
-    .modal-img-area:hover .pArrow2 {transform: scale(1.0);}
-    .modal-img-area:hover .mArrows {
-      display: flex;
-      opacity: 1;
-    }
+.mArrows {
+  pointer-events: none;
+  width: 100%;
+  height: 100px;
+  background: none;
+  position: absolute;
+  display: flex;
+  opacity: 0;
+  align-items: center;
+  z-index: 10;
+  justify-content: space-between;
+  transition: opacity 0.2s ease;
+}
+
+.pArrow1,
+.pArrow2 {
+  pointer-events: auto;
+  background: #fff;
+  position: absolute;
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgb(0 0 0 / 40%);
+  transform: translateY(-50%) scale(1);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.pArrow1 {
+  left: 7px;
+}
+
+.pArrow2 {
+  right: 7px;
+}
+
+.pArrow1:hover,
+.pArrow2:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.pArrow1:hover .arrow0,
+.pArrow2:hover .arrow0 {
+  color: var(--blue);
+  transform: scale(1.3);
+}
+
+.arrow0 {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.arrow1 {
+  rotate: 180deg;
+  font-size: 20px;
+  color: #000;
+}
+
+.arrow2 {
+  rotate: 0deg;
+  font-size: 20px;
+  color: #000;
+}
+
+.modal-img-area .mArrows {
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-img-area:hover .mArrows {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.modal-img-area:hover .pArrow1,
+.modal-img-area:hover .pArrow2 {
+  opacity: 1;
+}
 
     .modal-info {background: rgba(255,255,255,0);min-height: 574px;padding: 36px;display: flex;flex-wrap: wrap;flex-direction: column;text-align: start;}
     .m-cat {font-size: 10px;font-weight: 600;letter-spacing: 1.5px;text-transform: uppercase;color: var(--blue);margin-bottom: 8px;}
