@@ -1159,7 +1159,7 @@ function closeProductModal() {
 window.addEventListener('popstate', () => {
   if (!productModalHistoryOpen) return;
   productModalHistoryOpen = false;
-  closeProductModalUI();
+  closeModal();
 });
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
