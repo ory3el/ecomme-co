@@ -1134,6 +1134,42 @@ function setupModalSwipe() {
   }, {passive: true});
 }
 
+/* ----------------------------------------- */
+let productModalHistoryOpen = false;
+
+function openProductModalHistory() {
+  if (productModalHistoryOpen) return;
+  history.pushState(
+    {
+      ...(history.state || {}),
+      productModal: true
+    }, '', window.location.href
+  );
+  productModalHistoryOpen = true;
+}
+
+function closeProductModalUI() {
+  const modal = $('productModal');
+  if (modal) {
+    modal.classList.remove('on');
+  }
+  document.body.classList.remove('noscroll');
+}
+
+function closeProductModal() {
+  if (!productModalHistoryOpen) {
+    closeProductModalUI();
+    return;
+  }
+  history.back();
+}
+
+window.addEventListener('popstate', () => {
+  if (!productModalHistoryOpen) return;
+  productModalHistoryOpen = false;
+  closeProductModalUI();
+});
+
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
@@ -1147,6 +1183,7 @@ function openProduct(id) {
     document.body.classList.remove("noscroll");
     return;
   }
+  pushProductModalHistory();
   curId = normalizedId;
   mQtyVal = 1;
   $('mQty').textContent = 1;
