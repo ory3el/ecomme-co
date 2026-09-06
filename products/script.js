@@ -666,6 +666,7 @@ function updateCart() {
             image
               ? `<img
                    src="${optimizedImage}"
+                   data-product-id="${item.id}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
@@ -891,6 +892,7 @@ function updateFav() {
             image
               ? `<img
                    src="${optimizedImage}"
+                   data-product-id="${item.id}"
                    alt="${item.name}"
                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                  >`
@@ -1046,6 +1048,18 @@ function closeAcc() {
   if (ov) ov.classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
+
+/* ----------------------------------- */
+document.addEventListener('click', (event) => {
+  const image = event.target.closest('.ci-img');
+  if (!image) return;
+  const productId = image.dataset.productId;
+  if (!productId) {
+    console.warn('Imagem sem data-product-id:', image);
+    return;
+  }
+  openProduct(productId);
+});
 
 /* ----------------------------------- */
 function showModalImage(index, direction = 'next') {
