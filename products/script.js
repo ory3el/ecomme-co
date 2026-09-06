@@ -1048,31 +1048,50 @@ function closeAcc() {
 }
 
 /* ----------------------------------- */
-function showModalImage(index) {
+function showModalImage(index, direction = 'next') {
   const mEmoji = $('mEmoji');
   const modalGallery = $('modalGallery');
-  if (!mEmoji || !modalImages.length) {return;}
-
-  modalImageIndex = ( index + modalImages.length) % modalImages.length;
+  if (!mEmoji || !modalImages.length) return;
+  const oldImage = mEmoji.querySelector('.modal-main-image');
+  modalImageIndex = (index + modalImages.length) % modalImages.length;
   const image = modalImages[modalImageIndex];
   const optimizedImage = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.modal);
+  const newImage = document.createElement('img');
+  newImage.src = optimizedImage;
+  newImage.alt = 'Imagem do produto';
+  newImage.decoding = 'async';
+  newImage.fetchPriority = 'high';
+  newImage.className =
+    `modal-main-image ${direction === 'next'
+      ? 'modal-enter-next'
+      : 'modal-enter-prev'}`;
 
-  mEmoji.innerHTML = `
-    <img
-      src="${optimizedImage}"
-      alt="Imagem do produto"
-      decoding="async"
-      fetchpriority="high"
-    >
-  `;
+  mEmoji.appendChild(newImage);
+  if (oldImage) {
+    oldImage.classList.add(
+      direction === 'next'
+        ? 'modal-exit-next'
+        : 'modal-exit-prev'
+    );
+  }
+
+  newImage.addEventListener('animationend', () => {
+    mEmoji.querySelectorAll('.modal-main-image').forEach(img => {
+      if (img !== newImage) {
+        img.remove();
+      }
+    });
+  }, { once: true });
 
   if (modalGallery) {
-    modalGallery.querySelectorAll('.modal-gallery-thumb')
-      .forEach(
-        (button, buttonIndex) => {
-          button.classList.toggle('on',buttonIndex === modalImageIndex);
-        }
-      );
+    modalGallery
+      .querySelectorAll('.modal-gallery-thumb')
+      .forEach((button, buttonIndex) => {
+        button.classList.toggle(
+          'on',
+          buttonIndex === modalImageIndex
+        );
+      });
 
     const activeThumb = modalGallery.querySelector('.modal-gallery-thumb.on');
     if (activeThumb) {
@@ -1110,7 +1129,7 @@ function previousImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow1');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex - 1);
+    showModalImage(modalImageIndex - 1, 'prev');
   });
 }
 
@@ -1118,7 +1137,7 @@ function nextImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow2');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex + 1);
+    showModalImage(modalImageIndex + 1, 'next');
   });
 }
 
@@ -1199,7 +1218,7 @@ function startModalAutoPlay() {
       stopModalAutoPlay();
       return;
     }
-    showModalImage(modalImageIndex + 1);
+    showModalImage(modalImageIndex + 1, 'next');
   }, MODAL_AUTO_PLAY_INTERVAL);
 }
 
