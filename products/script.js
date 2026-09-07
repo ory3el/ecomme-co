@@ -1343,7 +1343,11 @@ function openProduct(id) {
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    mEmoji.innerHTML = p.emoji || '';
+    if (modalImages.length > 0) {
+      mEmoji.innerHTML = '';
+    } else {
+      mEmoji.innerHTML = p.emoji || '';
+    }
   }
 
   const modalGallery = $('modalGallery');
