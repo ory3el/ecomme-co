@@ -152,7 +152,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     .eq('id', user.id)
     .single();
 
-
+  if (!profileError && profile) {
+      const fullName = profile.full_name || 'Cliente';
+      const email = user.email || '';
+      if ($('menuSidebarName')) {
+        $('menuSidebarName').textContent = fullName;
+      }
+      if ($('menuSidebarEmail')) {
+        $('menuSidebarEmail').textContent = email;
+      }
+      if (
+        profile.avatar_url && $('menuSidebarAvatar')
+      ) {
+        $('menuSidebarAvatar').src = profile.avatar_url;
+      }
+  }
+    
 /* supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     if (!session) {
