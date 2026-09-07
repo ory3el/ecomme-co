@@ -1377,26 +1377,6 @@ header {
   box-shadow: 0 0 20px rgb(0 0 0 / 10%);
 }
 
-#mEmoji {
-  position: absolute;
-  border-radius: 36px;
-  inset: 0;
-  font-size: 100px;
-  align-self: stretch;
-  align-self: center;
-  /* width: 100%; */
-  /* height: 100%; */
-  display: block;
-}
-
-#mEmoji img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 36px;
-}
-
 .modal-gallery {
   width: 100%;
   display: flex;
@@ -1665,12 +1645,24 @@ header {
 
 /* ── MODAL IMAGE ANIMATION ─────────────────────────────────────── */
 #mEmoji {
+  position: relative;
   border-radius: 36px;
-  position: absolute;
   inset: 0;
   overflow: hidden;
+  font-size: 100px;
   isolation: isolate;
+  align-self: stretch;
+  align-self: center;
   contain: paint;
+  display: block;
+}
+
+#mEmoji img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 36px;
 }
 
 #mEmoji .modal-main-image {
