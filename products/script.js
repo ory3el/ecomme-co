@@ -1048,40 +1048,86 @@ function closeAcc() {
 }
 
 /* ----------------------------------- */
-function showModalImage(index, direction = 'next') {
+let modalImageRequestId = 0;
+function showModalImage(index, direction = 'next', animate = true) {
   const mEmoji = $('mEmoji');
   const modalGallery = $('modalGallery');
   if (!mEmoji || !modalImages.length) return;
+  const requestId = ++modalImageRequestId;
   const oldImage = mEmoji.querySelector('.modal-main-image');
   modalImageIndex = (index + modalImages.length) % modalImages.length;
   const image = modalImages[modalImageIndex];
-  const optimizedImage = getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.modal);
-  const newImage = document.createElement('img');
-  newImage.src = optimizedImage;
+  if (!image) return;
+  const optimizedImage = getOptimizedImageUrl(
+    image,
+    EDGE_IMAGE_PRESETS.modal
+  );
+
+  const newImage = new Image();
   newImage.alt = 'Imagem do produto';
   newImage.decoding = 'async';
   newImage.fetchPriority = 'high';
-  newImage.className =
-    `modal-main-image ${direction === 'next'
-      ? 'modal-enter-next'
-      : 'modal-enter-prev'}`;
+  newImage.className = 'modal-main-image';
 
-  mEmoji.appendChild(newImage);
-  if (oldImage) {
-    oldImage.classList.add(
-      direction === 'next'
-        ? 'modal-exit-next'
-        : 'modal-exit-prev'
-    );
+  const mountImage = () => {
+    if (requestId !== modalImageRequestId) return;
+
+    newImage.className =
+      `modal-main-image ${
+        animate
+          ? (direction === 'next'
+              ? 'modal-enter-next'
+              : 'modal-enter-prev')
+          : ''
+      }`;
+
+    if (animate && oldImage) {
+      oldImage.classList.add(
+        direction === 'next'
+          ? 'modal-exit-next'
+          : 'modal-exit-prev'
+      );
+    }
+
+    mEmoji.appendChild(newImage);
+    if (animate) {
+      newImage.addEventListener(
+        'animationend',
+        () => {
+          mEmoji
+            .querySelectorAll('.modal-main-image')
+            .forEach(img => {
+              if (img !== newImage) {
+                img.remove();
+              }
+            });
+        },
+        { once: true }
+      );
+    } else {
+      mEmoji
+        .querySelectorAll('.modal-main-image')
+        .forEach(img => {
+          if (img !== newImage) {
+            img.remove();
+          }
+        });
+    }
+  };
+
+  newImage.onload = mountImage;
+  newImage.onerror = () => {
+    if (requestId !== modalImageRequestId) return;
+    if (!oldImage) {
+      newImage.className = 'modal-main-image';
+      mEmoji.appendChild(newImage);
+    }
+  };
+
+  newImage.src = optimizedImage;
+  if (newImage.complete && newImage.naturalWidth > 0) {
+    requestAnimationFrame(mountImage);
   }
-
-  newImage.addEventListener('animationend', () => {
-    mEmoji.querySelectorAll('.modal-main-image').forEach(img => {
-      if (img !== newImage) {
-        img.remove();
-      }
-    });
-  }, { once: true });
 
   if (modalGallery) {
     modalGallery
@@ -1093,10 +1139,14 @@ function showModalImage(index, direction = 'next') {
         );
       });
 
-    const activeThumb = modalGallery.querySelector('.modal-gallery-thumb.on');
+    const activeThumb =
+      modalGallery.querySelector(
+        '.modal-gallery-thumb.on'
+      );
+
     if (activeThumb) {
       activeThumb.scrollIntoView({
-        behavior: 'smooth',
+        behavior: animate ? 'smooth' : 'auto',
         block: 'nearest',
         inline: 'center'
       });
@@ -1129,7 +1179,8 @@ function previousImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow1');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex - 1, 'prev');
+    showModalImage(modalImageIndex - 1, 'prev', true);
+    resetModalAutoPlayAfterManualInteraction();
   });
 }
 
@@ -1137,7 +1188,8 @@ function nextImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow2');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex + 1, 'next');
+    showModalImage(modalImageIndex + 1, 'next', true);
+    resetModalAutoPlayAfterManualInteraction();
   });
 }
 
@@ -1208,31 +1260,60 @@ window.addEventListener('popstate', () => {
 
 /* ----------------------------------------- */
 let modalAutoPlayTimer = null;
-const MODAL_AUTO_PLAY_INTERVAL = 3000;
+let modalAutoPlayResumeTimer = null;
 
-function startModalAutoPlay() {
+const MODAL_AUTO_PLAY_INTERVAL = 3000;
+const MODAL_AUTO_PLAY_MANUAL_DELAY = 5000;
+
+function startModalAutoPlay(delay = 0) {
   stopModalAutoPlay();
   if (modalImages.length <= 1) return;
-  modalAutoPlayTimer = setInterval(() => {
-    if (modalImages.length <= 1) {
-      stopModalAutoPlay();
-      return;
-    }
-    showModalImage(modalImageIndex + 1, 'next');
-  }, MODAL_AUTO_PLAY_INTERVAL);
+  
+  const start = () => {
+    if (modalImages.length <= 1) return;
+
+    modalAutoPlayTimer = setInterval(() => {
+      if (modalImages.length <= 1) {
+        stopModalAutoPlay();
+        return;
+      }
+      showModalImage(modalImageIndex + 1, 'next', true);
+    }, MODAL_AUTO_PLAY_INTERVAL);
+  };
+
+  if (delay > 0) {
+    modalAutoPlayResumeTimer = setTimeout(() => {
+      modalAutoPlayResumeTimer = null;
+      start();
+    }, delay);
+  } else {
+    start();
+  }
 }
 
 function stopModalAutoPlay() {
-  if (!modalAutoPlayTimer) return;
-  clearInterval(modalAutoPlayTimer);
-  modalAutoPlayTimer = null;
+  if (modalAutoPlayTimer) {
+    clearInterval(modalAutoPlayTimer);
+    modalAutoPlayTimer = null;
+  }
+
+  if (modalAutoPlayResumeTimer) {
+    clearTimeout(modalAutoPlayResumeTimer);
+    modalAutoPlayResumeTimer = null;
+  }
+}
+
+function resetModalAutoPlayAfterManualInteraction() {
+  startModalAutoPlay(
+    MODAL_AUTO_PLAY_MANUAL_DELAY
+  );
 }
 
 function setupModalAutoPlay() {
   const modalImgArea = document.querySelector('.modal-img-area');
   if (!modalImgArea) return;
   modalImgArea.addEventListener('mouseenter', stopModalAutoPlay);
-  modalImgArea.addEventListener('mouseleave', startModalAutoPlay);
+  modalImgArea.addEventListener('mouseleave', () => {startModalAutoPlay();});
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
@@ -1262,11 +1343,7 @@ function openProduct(id) {
   const mEmoji = $('mEmoji');
 
   if (mEmoji) {
-    mEmoji.innerHTML = optimizedMainImage? `<img
-            src="${optimizedMainImage}"
-            alt="${p.name}"
-            decoding="async"
-            fetchpriority="high">` : p.emoji;
+    mEmoji.innerHTML = p.emoji || '';
   }
 
   const modalGallery = $('modalGallery');
@@ -1285,14 +1362,17 @@ function openProduct(id) {
           loading="lazy"
           decoding="async">
       `;
-      button.addEventListener('click', () => {showModalImage(index);});
+      button.addEventListener('click', () => {
+        const direction = index >= modalImageIndex ? 'next' : 'prev';
+        showModalImage(index, direction, true);
+        resetModalAutoPlayAfterManualInteraction();
+      });
       modalGallery.appendChild(button);
     });
 
   modalGallery.style.display = images.length > 1 ? 'flex' : 'none';
-  showModalImage(modalImageIndex);
+  showModalImage(modalImageIndex, 'next', false);
 
-  $('mEmoji').style.position = 'relative';
   $('mCat').textContent =
     Array.isArray(p.cat)
       ? p.cat.join(', ')
