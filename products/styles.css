@@ -1670,6 +1670,7 @@ header {
   inset: 0;
   overflow: hidden;
   isolation: isolate;
+  contain: paint;
 }
 
 #mEmoji .modal-main-image {
@@ -1681,68 +1682,87 @@ header {
   object-fit: cover;
   border-radius: 36px;
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 #mEmoji .modal-enter-next {
-  animation: modalImageEnterNext 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+  animation:
+    modalImageEnterNext
+    0.42s
+    cubic-bezier(.22,.61,.36,1)
+    both;
 }
 
 #mEmoji .modal-enter-prev {
-  animation: modalImageEnterPrev 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+  animation:
+    modalImageEnterPrev
+    0.42s
+    cubic-bezier(.22,.61,.36,1)
+    both;
 }
 
 #mEmoji .modal-exit-next {
-  animation: modalImageExitNext 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+  animation:
+    modalImageExitNext
+    0.42s
+    cubic-bezier(.22,.61,.36,1)
+    both;
 }
 
 #mEmoji .modal-exit-prev {
-  animation: modalImageExitPrev 0.42s cubic-bezier(.22,.61,.36,1) forwards;
+  animation:
+    modalImageExitPrev
+    0.42s
+    cubic-bezier(.22,.61,.36,1)
+    both;
 }
 
 @keyframes modalImageEnterNext {
   from {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
 
   to {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes modalImageEnterPrev {
   from {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
 
   to {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes modalImageExitNext {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
 }
 
 @keyframes modalImageExitPrev {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #mEmoji .modal-main-image {
     animation: none !important;
-    transform: none !important;
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
