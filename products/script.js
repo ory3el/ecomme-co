@@ -1176,7 +1176,7 @@ function mobileArrowFeedback(button, callback) {
 
 /* ----------------------------------------- */
 let modalLastImageInteraction = 0;
-const MODAL_FAST_CLICK_THRESHOLD = 500;
+const MODAL_FAST_CLICK_THRESHOLD = 350;
 
 function shouldAnimateModalImage() {
   const now = performance.now();
@@ -1278,7 +1278,7 @@ let modalAutoPlayTimer = null;
 let modalAutoPlayResumeTimer = null;
 
 const MODAL_AUTO_PLAY_INTERVAL = 3000;
-const MODAL_AUTO_PLAY_MANUAL_DELAY = 5000;
+const MODAL_AUTO_PLAY_MANUAL_DELAY = 6000;
 
 function startModalAutoPlay(delay = 0) {
   stopModalAutoPlay();
