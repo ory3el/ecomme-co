@@ -723,13 +723,13 @@
   <div class="overlay" id="menuOverlay" onclick="closeMenu()"></div>
   <div class="menu-sb" id="menuSidebar">
     <div class="menu-hd">
-      <h3>Menu - Configurações</h3>
+      <h3>Menu de Navegação</h3>
       <button class="menu-cls" onclick="closeMenu()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="menu-body">
-      <button class="menu-profile-summary" onclick="buttonLink('/settings')">
+      <button class="menu-profile-summary" onclick="showPanel('profile',this); closeMenu()">
         <div class="menu-avatar-large">
           <img id="menuSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
         </div>
