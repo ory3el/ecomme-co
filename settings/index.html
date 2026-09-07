@@ -704,6 +704,128 @@
   </div>
 </div>
 
+  <!-- ACC SIDEBAR -->
+  <div class="overlay" id="menuOverlay" onclick="closeMenu()"></div>
+  <div class="menu-sb" id="menuSidebar">
+    <div class="menu-hd">
+      <h3>Minha Conta</h3>
+      <button class="menu-cls" onclick="closeMenu()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="menu-body">
+      <button class="menu-profile-summary" onclick="buttonLink('/settings')">
+        <div class="menu-avatar-large">
+          <img id="menuSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
+        </div>
+        <div class="menu-info" style="gap: 3px; display: flex; align-items: baseline;">
+          <strong id="menuSidebarName"></strong>
+          <span id="menuSidebarEmail"></span>
+        </div>
+      </button>
+      <div class="menu-menu-group">
+        <p class="menu-label">Atalhos</p>
+        <button class="btn-menu-option" onclick="buttonLink('/settings')">
+          <i class="fa-solid fa-user-pen"></i>
+          <span>Editar Perfil</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/my-orders')">
+          <i class="fa-solid fa-box-open"></i>
+          <span>Minhas Compras</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/reviews')">
+          <i class="fa-solid fa-star"></i>
+          <span>Minhas Avaliações</span>
+        </button>
+        <button class="btn-menu-option" onclick="openFav(); closeAcc();">
+          <i class="fa-solid fa-heart"></i>
+          <span>Lista de Desejos</span>
+        </button>
+      </div>
+      <div class="acc-menu-group">
+        <p class="acc-label">Suporte</p>
+        <button class="btn-menu-option" onclick="buttonLink('/support')">
+          <i class="fa-solid fa-circle-question"></i>
+          <span>Ajuda & FAQ</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/terms')">
+          <i class="fa-solid fa-file-contract"></i>
+          <span>Termos de Uso</span>
+        </button>
+      </div>
+      <div class="menu-ft">
+        <button class="btn-logout-sb" onclick="openConfirmLogout()">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          Sair da Conta
+        </button>
+      </div>
+    </div>
+  </div>
+    
+  <!-- PRODUCT MODAL -->
+  <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
+    <div class="modal">
+      <div class="modal-img-area">
+        <div class="modal-img" id="modalImg">
+          <button class="btn-mwish1" id="mWish" onclick="addFromModal2()">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </button>
+          <button class="mcls" onclick="closeProductModal()">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <div class="mArrows">
+            <button class="pArrow1" onclick="previousImg()"><i class="fa-solid fa-chevron-right arrow0 arrow1"></i></button>
+            <button class="pArrow2" onclick="nextImg()"><i class="fa-solid fa-chevron-right arrow0 arrow2"></i></button>
+          </div>
+          <span id="mEmoji"></span>
+        </div>
+        <div class="m-qty-ctrl1">
+          <button class="qb1" onclick="chgQty(-1)">−</button>
+          <span class="m-qty-num1" id="mQty">1</span>
+          <button class="qb1" onclick="chgQty(1)">+</button>
+        </div>
+        <div class="modal-gallery" id="modalGallery"></div>
+      </div>
+      <div class="modal-info">
+        <div class="m-cat" id="mCat"></div>
+        <div class="m-name" id="mName"></div>
+        <div class="m-desc" id="mDesc"></div>
+        <div class="m-price-row">
+          <span class="m-price" id="mPrice"></span>
+          <span class="m-old" id="mOld"></span>
+          <span class="m-disc" id="mDisc"></span>
+        </div>
+        <div class="m-feats" id="mFeats"></div>
+        <hr class="m-div">
+        <div class="m-qty-row">
+          <span class="m-qty-lbl">Quantidade:</span>
+          <div class="m-qty-ctrl0">
+            <button class="qb" onclick="chgQty(-1)">−</button>
+            <span class="m-qty-num" id="mQty">1</span>
+            <button class="qb" onclick="chgQty(1)">+</button>
+          </div>
+        </div>
+        <div class="m-btns">
+          <span class="m-price1" id="mPrice1"></span>
+          <button class="btn-madd" onclick="addFromModal()">
+            <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Adicionar ao Carrinho
+          </button>
+          <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- CROP MODAL -->
 <div id="cropModal" class="crop-modal">
   <div class="crop-modal-content">
     <div class="crop-hd">
@@ -712,11 +834,9 @@
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    
     <div class="img-container">
       <img id="imageToCrop" src="" alt="Imagem para recortar">
     </div>
-    
     <div class="av-btns" style="justify-content: flex-end; margin-top: 15px;">
       <button class="btn-xs gray" onclick="closeCropModal()">Cancelar</button>
       <button class="btn-xs blue" onclick="executeCrop()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
