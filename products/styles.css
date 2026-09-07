@@ -1682,7 +1682,7 @@ header {
 #mEmoji .modal-enter-next {
   animation:
     modalImageEnterNext
-    0.42s
+    0.35s
     cubic-bezier(.22,.61,.36,1)
     both;
 }
@@ -1690,7 +1690,7 @@ header {
 #mEmoji .modal-enter-prev {
   animation:
     modalImageEnterPrev
-    0.42s
+    0.35s
     cubic-bezier(.22,.61,.36,1)
     both;
 }
@@ -1698,7 +1698,7 @@ header {
 #mEmoji .modal-exit-next {
   animation:
     modalImageExitNext
-    0.42s
+    0.35s
     cubic-bezier(.22,.61,.36,1)
     both;
 }
@@ -1706,7 +1706,7 @@ header {
 #mEmoji .modal-exit-prev {
   animation:
     modalImageExitPrev
-    0.42s
+    0.35s
     cubic-bezier(.22,.61,.36,1)
     both;
 }
