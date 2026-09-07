@@ -208,6 +208,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+/* ─── MOBILE MENU ───────────────────────────────────────────────────────── */
+function openMenu() {
+  $('menuSidebar').classList.add('on');
+  $('menuOverlay').classList.add('on');
+  document.body.classList.add("nobodyscroll");
+}
+
+function closeMore() {
+  $('menuSidebar').classList.remove('on');
+  $('menuOverlay').classList.remove('on');
+  document.body.classList.remove("nobodyscroll");
+}
+
 // ── FUNÇÃO DE UPLOAD DA FOTO DE PERFIL ─────────────────────
 let cropperInstance = null;
 let originalFileName = "";
