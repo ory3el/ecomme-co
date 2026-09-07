@@ -265,16 +265,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-/* ─── MOBILE MENU ───────────────────────────────────────────────────────── */
+/* ─── MOBILE MENU ────────────────────────────────────────────────── */
 function openMenu() {
-  $('menuSidebar').classList.add('on');
-  $('menuOverlay').classList.add('on');
+  const sb = document.getElementById('menuSidebar');
+  const ov = document.getElementById('menuOverlay');
+  if (sb) sb.classList.add('on');
+  if (ov) ov.classList.add('on');
   document.body.classList.add("nobodyscroll");
 }
 
-function closeMore() {
-  $('menuSidebar').classList.remove('on');
-  $('menuOverlay').classList.remove('on');
+function closeMenu() {
+  const sb = document.getElementById('menuSidebar');
+  const ov = document.getElementById('menuOverlay');
+  if (sb) sb.classList.remove('on');
+  if (ov) ov.classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
