@@ -1175,12 +1175,28 @@ function mobileArrowFeedback(button, callback) {
 }
 
 /* ----------------------------------------- */
+let modalLastImageInteraction = 0;
+const MODAL_FAST_CLICK_THRESHOLD = 500;
+
+function shouldAnimateModalImage() {
+  const now = performance.now();
+  const elapsed = now - modalLastImageInteraction;
+  modalLastImageInteraction = now;
+  return elapsed >= MODAL_FAST_CLICK_THRESHOLD;
+}
+
+function changeModalImageManually(index, direction = 'next') {
+  const animate = shouldAnimateModalImage();
+  showModalImage(index, direction, animate);
+  resetModalAutoPlayAfterManualInteraction();
+}
+
+/* ----------------------------------------- */
 function previousImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow1');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex - 1, 'prev', true);
-    resetModalAutoPlayAfterManualInteraction();
+    changeModalImageManually(modalImageIndex - 1, 'prev');
   });
 }
 
@@ -1188,8 +1204,7 @@ function nextImg() {
   if (modalImages.length <= 1) return;
   const button = document.querySelector('.pArrow2');
   mobileArrowFeedback(button, () => {
-    showModalImage(modalImageIndex + 1, 'next', true);
-    resetModalAutoPlayAfterManualInteraction();
+    changeModalImageManually(modalImageIndex + 1, 'next');
   });
 }
 
@@ -1368,7 +1383,7 @@ function openProduct(id) {
       `;
       button.addEventListener('click', () => {
         const direction = index >= modalImageIndex ? 'next' : 'prev';
-        showModalImage(index, direction, true);
+        changeModalImageManually(index, direction);
         resetModalAutoPlayAfterManualInteraction();
       });
       modalGallery.appendChild(button);
