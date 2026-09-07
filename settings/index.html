@@ -37,7 +37,7 @@
 
 <!-- ── HEADER ───────────────────────────────────────────────── -->
 <header class="site-header">
-  <button class="sidebarOpen">
+  <button class="sidebarOpen" onclick="openMenu()">
     <div class="sidebar-btn"> > </div>
   </button>
   
@@ -722,7 +722,7 @@
   <div class="overlay" id="menuOverlay" onclick="closeMenu()"></div>
   <div class="menu-sb" id="menuSidebar">
     <div class="menu-hd">
-      <h3>Minha Conta</h3>
+      <h3>Menu - Configurações</h3>
       <button class="menu-cls" onclick="closeMenu()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -738,33 +738,45 @@
         </div>
       </button>
       <div class="menu-menu-group">
-        <p class="menu-label">Atalhos</p>
+        <p class="menu-label">Conta</p>
         <button class="btn-menu-option" onclick="buttonLink('/settings')">
           <i class="fa-solid fa-user-pen"></i>
-          <span>Editar Perfil</span>
+          <span>Meu Perfil</span>
         </button>
         <button class="btn-menu-option" onclick="buttonLink('/my-orders')">
           <i class="fa-solid fa-box-open"></i>
-          <span>Minhas Compras</span>
+          <span>Lista de desejos</span>
         </button>
         <button class="btn-menu-option" onclick="buttonLink('/reviews')">
           <i class="fa-solid fa-star"></i>
-          <span>Minhas Avaliações</span>
+          <span>Meus Cupons</span>
         </button>
         <button class="btn-menu-option" onclick="openFav(); closeAcc();">
           <i class="fa-solid fa-heart"></i>
-          <span>Lista de Desejos</span>
+          <span>Minhas Avaliações</span>
         </button>
       </div>
       <div class="acc-menu-group">
-        <p class="acc-label">Suporte</p>
+        <p class="acc-label">Configurações</p>
         <button class="btn-menu-option" onclick="buttonLink('/support')">
           <i class="fa-solid fa-circle-question"></i>
-          <span>Ajuda & FAQ</span>
+          <span>Endereços</span>
         </button>
         <button class="btn-menu-option" onclick="buttonLink('/terms')">
           <i class="fa-solid fa-file-contract"></i>
-          <span>Termos de Uso</span>
+          <span>Pagamentos</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/terms')">
+          <i class="fa-solid fa-file-contract"></i>
+          <span>Notificações</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/terms')">
+          <i class="fa-solid fa-file-contract"></i>
+          <span>Segurança</span>
+        </button>
+        <button class="btn-menu-option" onclick="buttonLink('/terms')">
+          <i class="fa-solid fa-file-contract"></i>
+          <span>Configurações</span>
         </button>
       </div>
       <div class="menu-ft">
