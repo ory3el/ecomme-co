@@ -879,17 +879,12 @@ function renderSummary() {
 // ── STEP NAV ───────────────────────────────────────────
 function goStep(n) {
   if (n < 1 || n > 4) return;
-
+  if (currentStep === 4 && n !== 4) return;
+  
   const isGoingBack = n <= furthestStep;
   const isGoingForward = n === currentStep + 1;
-
-  if (!isGoingBack && !isGoingForward) {
-    return;
-  }
-
-  if (n > furthestStep) {
-    furthestStep = n;
-  }
+  if (!isGoingBack && !isGoingForward) return;
+  if (n > furthestStep) furthestStep = n;
 
   currentStep = n;
   if (n === 3) {
@@ -913,16 +908,10 @@ function goStep(n) {
 
   ids.forEach((id, i) => {
     const panel = document.getElementById(id);
-
-    if (panel) {
-      panel.style.display = (i + 1 === n)
-        ? 'block'
-        : 'none';
-    }
+    if (panel) panel.style.display = (i + 1 === n) ? 'block' : 'none';
   });
 
   sids.forEach((id, i) => {
-
     const stepNumber = i + 1;
     const el = document.getElementById(id);
     if (!el) return;
@@ -945,14 +934,8 @@ function goStep(n) {
     }
 
     const unlocked = stepNumber <= furthestStep;
-
-    if (dot) {
-      dot.disabled = !unlocked;
-    }
-
-    if (label) {
-      label.disabled = !unlocked;
-    }
+    if (dot) dot.disabled = !unlocked;
+    if (label) label.disabled = !unlocked;
 
     el.setAttribute(
       'aria-disabled',
@@ -960,20 +943,14 @@ function goStep(n) {
     );
   });
 
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-
+  window.scrollTo({top: 0, behavior: 'smooth'});
   if (n === 4) {
     showConfirm();
   }
 }
 
 function goToHeaderStep(n) {
-  if (n > furthestStep) {
-    return;
-  }
+  if (n > furthestStep) return;
   goStep(n);
 }
   
