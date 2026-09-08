@@ -953,10 +953,6 @@ function goStep(n) {
     behavior: 'smooth'
   });
 
-  if (n === 3) {
-    selPayTab(this,'card');
-    selPayTab(this,'pix');
-  }
   if (n === 4) {
     showConfirm();
   }
