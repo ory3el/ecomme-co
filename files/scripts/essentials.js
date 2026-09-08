@@ -297,10 +297,9 @@ function injectEcommeUI() {
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
   `);
+  initEcommeUI()
 }
-
 function initEcommeUI() {
-injectEcommeUI();
   
 /* ── THEME ───────────────────────────────────────────────────────── */
 function systemPrefersDark() {
@@ -2606,4 +2605,4 @@ function openConfirmLogout() {
 }
   
 }
-initEcommeUI()
+injectEcommeUI();
