@@ -544,6 +544,30 @@ function initHeaderAuthListener() {
 initHeaderAuthListener();
 
 // ============================================================
+
+function createProductsSignature(
+  productList
+) {
+  return productList
+    .map(product => ({
+      id: String(product.id),
+      name: product.name,
+      price: product.price,
+      old: product.old,
+      discount: product.discount,
+      rating: product.rating,
+      reviews: product.reviews,
+      shipping: product.shipping,
+      badge: product.badge,
+      desc: product.desc,
+      cat: product.cat,
+      image_url: product.image_url,
+      gallery_urls: product.gallery_urls,
+      features: product.features
+    })) .map(product => JSON.stringify(product)) .join('|');
+}
+  
+// ============================================================
 function getOptimizedImageUrl(
   sourceUrl,
   preset = 'grid'
