@@ -1,5 +1,3 @@
-const $ = id => document.getElementById(id);
-
   /* ─── TRACK FORM ─────────────────────────────────────────────────── */
   function fillDemo() {
     $('orderNum').value = 'EC2026-48271';
