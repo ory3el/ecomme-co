@@ -1329,7 +1329,7 @@ async function placeOrder() {
 
 // ── CONFIRMATION ────────────────────────────────────────
 function showConfirm(){
-  const code='EC-'+String(Math.floor(Math.random()*90000000)+10000000);
+  const code='EC-'+String(Math.floor(Math.random()*90000000)+15);
   document.getElementById('orderCode').textContent=code;
   const today=new Date();
   const transit=new Date(today); transit.setDate(today.getDate()+3);
