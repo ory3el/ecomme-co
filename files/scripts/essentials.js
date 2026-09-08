@@ -424,6 +424,27 @@ function injectPrefetch(url) {
   }
 }
 
+// ============================================================
+
+const PRODUCT_REFRESH_INTERVAL = 10000;
+let productRefreshTimer = null;
+let productRealtimeChannel = null;
+let productRefreshRunning = false;
+let productDataSignature = '';
+let pageIsVisible = true;
+
+// ============================================================
+
+document.addEventListener('visibilitychange', () => {
+    pageIsVisible = document.visibilityState === 'visible';
+    if (pageIsVisible) {
+      refreshProductsIfNeeded();
+    }
+  }
+);
+
+// ============================================================
+  
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
