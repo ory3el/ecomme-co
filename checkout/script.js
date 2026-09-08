@@ -933,7 +933,7 @@ function goStep(n) {
         : stepNumber;
     }
 
-    const unlocked = stepNumber <= furthestStep;
+    const unlocked = currentStep === 4 ? stepNumber === 4 : stepNumber <= furthestStep;
     if (dot) dot.disabled = !unlocked;
     if (label) label.disabled = !unlocked;
 
