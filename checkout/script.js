@@ -442,6 +442,8 @@ let payMethod = '';
 let shipping = 0;
 let currentStep = 1;
 let furthestStep = 1;
+let installSel = 1;
+let pixInterval;
 
 // LOGOUT
 async function doLogout() { 
@@ -892,8 +894,6 @@ function goStep(n) {
   currentStep = n;
   if (n === 3) {
     let payMethod = 'pix';
-    let installSel = 1;
-    let pixInterval;
 
     buildQR();
     updatePaymentButton();
