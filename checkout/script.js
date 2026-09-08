@@ -325,20 +325,11 @@ async function syncToSupabase() {
   const {error} =
     await supabaseClient
       .from('profiles')
-      .update({
-        cart:
-          cartToSave
-      })
-      .eq(
-        'id',
-        userId
-      );
+      .update({cart: cartToSave})
+      .eq('id', userId);
 
   if (error) {
-    console.error(
-      'Erro ao sincronizar carrinho:',
-      error
-    );
+    console.error('Erro ao sincronizar carrinho:', error);
   }
 }
 
@@ -357,20 +348,11 @@ async function loadFromSupabase() {
       'Erro ao carregar dados do checkout:',
       error
     );
-
     return;
   }
-  
-  cartItems = hydrateCartItems(
-      data?.cart
-    );
-
+  cartItems = hydrateCartItems(data?.cart);
   cart = cartItems;
-  savedAddresses =
-    Array.isArray(data?.addresses)
-      ? data.addresses
-      : [];
-
+  savedAddresses = Array.isArray(data?.addresses) ? data.addresses : [];
   renderCart();
   renderSummary();
   renderAddresses();
@@ -970,6 +952,9 @@ function goStep(n) {
     behavior: 'smooth'
   });
 
+  if (n === 3) {
+    let payMethod = 'pix';
+  }
   if (n === 4) {
     showConfirm();
   }
