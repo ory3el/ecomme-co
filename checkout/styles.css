@@ -476,15 +476,16 @@ input,select,textarea{font-family:inherit}
 /* ----------------------------------------- */
 .step-item:not(.active):not(.done) .step-dot,
 .step-item:not(.active):not(.done) .step-lbl {
-  cursor: not-allowed;
+  /*cursor: not-allowed;*/
 }
 .step-dot:disabled,
 .step-lbl:disabled {
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .step-item:not(.active):not(.done) {
-  opacity: .65;
+  /*opacity: .65;*/
 }
 .step-item.done,
 .step-item.active {
