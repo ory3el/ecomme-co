@@ -1860,10 +1860,6 @@ async function loadFromSupabase() {
   updateCart();
   updateFav();
 }
-
-function productsSection() {
-const productsGrid = document.querySelectorAll('.products-grid');
-//if (!productsGrid) return;
   
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
 function shuffleAndRender() {
@@ -2390,9 +2386,7 @@ function filterByCategory(event, category) {
     renderProducts();
     document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
   }
- }
 }
-productsSection();
 // ---------------------------------------------------------------------
   
 function normalizeProduct(p) {
