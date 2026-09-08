@@ -1,4 +1,4 @@
-function injectEcommeUI() {
+/*function injectEcommeUI() {
   if (document.getElementById('cartSidebar')) return;
 
   document.body.insertAdjacentHTML('afterbegin', `
@@ -299,7 +299,7 @@ function injectEcommeUI() {
   `);
   initEcommeUI()
 }
-function initEcommeUI() {
+function initEcommeUI() {*/
   
 /* ── THEME ───────────────────────────────────────────────────────── */
 function systemPrefersDark() {
@@ -2604,5 +2604,5 @@ function openConfirmLogout() {
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
   
-}
-injectEcommeUI();
+/*}
+injectEcommeUI();*/
