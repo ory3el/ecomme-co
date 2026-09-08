@@ -954,6 +954,7 @@ function goStep(n) {
   });
 
   if (n === 3) {
+    selPayTab(this,'card');
     selPayTab(this,'pix');
   }
   if (n === 4) {
