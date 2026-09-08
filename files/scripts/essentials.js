@@ -575,8 +575,30 @@ function createProductsSignature(
       features: product.features
     })) .map(product => JSON.stringify(product)) .join('|');
 }
-  
+
 // ============================================================
+  
+function startProductsRealtime() {
+  if (productRealtimeChannel) {
+    supabaseClient.removeChannel(productRealtimeChannel);
+  }
+
+  productRealtimeChannel = supabaseClient.channel('products-live')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'products'
+    },
+        
+      payload => { if (!pageIsVisible) {return;}
+        refreshProductsIfNeeded();
+      }
+    )
+  //.subscribe(status => {console.log('Products Realtime:',status);});
+}
+
+// ============================================================
+  
 function getOptimizedImageUrl(
   sourceUrl,
   preset = 'grid'
