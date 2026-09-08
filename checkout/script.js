@@ -953,7 +953,7 @@ function goStep(n) {
     behavior: 'smooth'
   });
 
-  if (n === 2) {
+  if (n === 3) {
     selPayTab(this,'pix');
   }
   if (n === 4) {
