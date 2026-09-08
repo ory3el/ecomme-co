@@ -889,6 +889,25 @@ function goStep(n) {
   }
 
   currentStep = n;
+  if (n === 3) {
+    let payMethod = 'pix';
+    let installSel = 1;
+    let pixInterval;
+    let pixSeconds = 1799;
+
+    buildQR();
+    updatePaymentButton();
+    buildBarcode();
+    startPixTimer();
+    
+    const pixTab = document.querySelector(
+      '.pay-tab[onclick*="\'pix\'"]'
+    );
+    if (pixTab) {
+      selPayTab(pixTab, 'pix');
+    }
+  }
+  
   const ids = ['step1', 'step2', 'step3', 'step4'];
   const sids = ['s1', 's2', 's3', 's4'];
 
@@ -956,21 +975,6 @@ function goToHeaderStep(n) {
     return;
   }
   goStep(n);
-}
-
-// PAY TAB
-function goPayTab() {
-  goStep(3);
-  selPayTab(this,'pix');
-  let payMethod = 'pix';
-  let installSel = 1;
-  let pixInterval;
-  let pixSeconds = 1799;
-
-  buildQR();
-  updatePaymentButton();
-  buildBarcode();
-  startPixTimer();
 }
   
 // ── ADDRESS ────────────────────────────────────────────
