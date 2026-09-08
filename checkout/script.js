@@ -97,6 +97,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn("User session not active.");
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (profileContainer) profileContainer.classList.add('hidden');
+    updatePaymentButton();
     injectPrefetch('/login');
     renderCart();
     renderSummary();
@@ -952,9 +953,6 @@ function goStep(n) {
     behavior: 'smooth'
   });
 
-  if (n === 3) {
-    let payMethod = 'pix';
-  }
   if (n === 4) {
     showConfirm();
   }
@@ -1119,17 +1117,22 @@ function renderAddresses() {
 }
 
 // ── PAYMENT TABS ───────────────────────────────────────
-function selPayTab(tab, method){
-  document.querySelectorAll('.pay-tab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('on'));
+function selPayTab(tab, method) {
+  document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('on'));
   tab.classList.add('on');
-  document.getElementById('pp-'+method).classList.add('on');
+  const panel = document.getElementById('pp-' + method);
+  if (panel) {
+    panel.classList.add('on');
+  }
   payMethod = method;
   renderSummary();
+  updatePaymentButton();
 }
 
 // ── PIX ────────────────────────────────────────────────
 function buildQR(){
+  payMethod = 'pix';
   const p=[1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1,1,0,1,0,1,0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,1,0,0,1,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,1,0,0,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1];
   document.getElementById('qrGrid').innerHTML=p.map(b=>`<div class="qr-c ${b?'b':'w'}"></div>`).join('');
 }
@@ -1169,7 +1172,60 @@ function onCardName(inp){ document.getElementById('cardNameDisp').textContent=in
 function onCardExp(inp){ let v=inp.value.replace(/\D/g,'').slice(0,4); if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2); inp.value=v; document.getElementById('cardExpDisp').textContent=v||'MM/AA'; }
 function onCvv(inp){ document.getElementById('cvvDisp').textContent=inp.value||'•••'; }
 
-// ------------------------------------------------------------------------------
+function validateCardPayment() {
+  const cardNum = document.getElementById('cardNum');
+  const cardName = document.getElementById('cardName');
+  const cardExp = document.getElementById('cardExp');
+  const cardCvv = document.getElementById('cardCvv');
+  if (!cardNum || !cardName || !cardExp || !cardCvv) {
+    return false;
+  }
+  
+  const number = cardNum.value.replace(/\D/g, '');
+  const name = cardName.value.trim();
+  const exp = cardExp.value.trim();
+  const cvv = cardCvv.value.replace(/\D/g, '');
+  if (number.length < 13) {
+    toast('Digite um número de cartão válido.', 'err');
+    cardNum.focus();
+    return false;
+  }
+  if (name.length < 3) {
+    toast('Digite o nome do titular.', 'err');
+    cardName.focus();
+    return false;
+  }
+  if (!/^\d{2}\/\d{2}$/.test(exp)) {
+    toast('Digite uma validade válida no formato MM/AA.', 'err');
+    cardExp.focus();
+    return false;
+  }
+  const [month, year] = exp.split('/').map(Number);
+  if (month < 1 || month > 12) {
+    toast('A validade do cartão é inválida.', 'err');
+    cardExp.focus();
+    return false;
+  }
+  const now = new Date();
+  const currentYear = now.getFullYear() % 100;
+  const currentMonth = now.getMonth() + 1;
+  if (
+    year < currentYear ||
+    (year === currentYear && month < currentMonth)
+  ) {
+    toast('Esse cartão está vencido.', 'err');
+    cardExp.focus();
+    return false;
+  }
+  if (cvv.length < 3) {
+    toast('Digite o CVV do cartão.', 'err');
+    cardCvv.focus();
+    return false;
+  }
+  return true;
+}
+
+// -------------------------------------------
 const sumTotal = document.getElementById('sumTotal').textContent;
 function buildInstallOpts() {
   const total = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
@@ -1190,6 +1246,50 @@ function buildInstallOpts() {
 
 function selInstall(btn,n){ document.querySelectorAll('.inst-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); installSel=n; renderSummary(); }
 
+// -------------------------------------------
+function validatePayment() {
+  if (!payMethod) {
+    toast('Escolha uma forma de pagamento.', 'err');
+    return false;
+  }
+  
+  switch (payMethod) {
+    case 'pix': return true;
+    case 'card': return validateCardPayment();
+    case 'boleto': return true;
+    default:
+      toast('Forma de pagamento inválida.', 'err');
+      return false;
+  }
+}
+
+// -------------------------------------------
+function updatePaymentButton() {
+  const btn = document.getElementById('payBtn');
+  if (!btn) return;
+  const svg = btn.querySelector('svg');
+  let text = 'Confirmar pedido';
+  if (payMethod === 'pix') {
+    text = 'Confirmar pedido com PIX';
+  }
+
+  if (payMethod === 'card') {
+    text = 'Pagar com cartão';
+  }
+
+  if (payMethod === 'boleto') {
+    text = 'Gerar boleto';
+  }
+
+  btn.innerHTML = `
+    ${text}
+    <svg viewBox="0 0 24 24">
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="12,5 19,12 12,19"/>
+    </svg>
+  `;
+}
+
 // ── BOLETO ─────────────────────────────────────────────
 function buildBarcode(){
   const stripes=document.getElementById('barcodeStripes');
@@ -1199,11 +1299,44 @@ function buildBarcode(){
 function copyBoleto(){ navigator.clipboard?.writeText('1234.56789 01234.567890 12345.678901 1 00000001'); toast('Código do boleto copiado! 📄'); }
 
 // ── PLACE ORDER ─────────────────────────────────────────
-function placeOrder(){
-  const btn=document.getElementById('payBtn');
+async function placeOrder() {
+  if (currentStep !== 3) {
+    return;
+  }
+  
+  if (!validatePayment()) {
+    return;
+  }
+  
+  const btn = document.getElementById('payBtn');
+  if (!btn || btn.classList.contains('loading')) {
+    return;
+  }
+  
   btn.classList.add('loading');
-  btn.querySelector('svg').style.display='none';
-  setTimeout(()=>{ btn.classList.remove('loading'); goStep(4); },2000);
+  btn.disabled = true;
+  const svg = btn.querySelector('svg');
+  if (svg) {
+    svg.style.display = 'none';
+  }
+  const originalText = btn.childNodes[0];
+  if (originalText) {
+    originalText.textContent = ' Processando...';
+  }
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    goStep(4);
+  } catch (error) {
+    console.error('Erro ao processar pagamento:', error);
+    toast('Não foi possível processar o pagamento.', 'err');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    if (svg) {
+      svg.style.display = '';
+    }
+  }
 }
 
 // ── CONFIRMATION ────────────────────────────────────────
