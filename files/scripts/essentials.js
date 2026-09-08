@@ -1,7 +1,7 @@
 function injectEcommeUI() {
   if (document.getElementById('cartSidebar')) return;
 
-  document.body.insertAdjacentHTML('beforeend', `
+  document.body.insertAdjacentHTML('afterbegin', `
   <!-- CART SIDEBAR -->
   <div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
   <div class="cart-sb" id="cartSidebar">
