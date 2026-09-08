@@ -97,14 +97,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn("User session not active.");
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (profileContainer) profileContainer.classList.add('hidden');
-    updatePaymentButton();
     injectPrefetch('/login');
     renderCart();
     renderSummary();
     buildInstallOpts();
-    buildQR();
-    buildBarcode();
-    startPixTimer();
     return;
   }
   userId = user.id; 
@@ -441,13 +437,10 @@ function hydrateCartItems(
 let cartItems = [];
 let discount = 0;
 let couponCode = '';
+let payMethod = '';
 let shipping = 0;
 let currentStep = 1;
 let furthestStep = 1;
-let payMethod = '';
-let installSel = 1;
-let pixInterval;
-let pixSeconds = 1799;
 
 // LOGOUT
 async function doLogout() { 
@@ -965,6 +958,21 @@ function goToHeaderStep(n) {
   goStep(n);
 }
 
+// PAY TAB
+function goPayTab() {
+  goStep(3);
+  selPayTab(this,'pix');
+  let payMethod = 'pix';
+  let installSel = 1;
+  let pixInterval;
+  let pixSeconds = 1799;
+
+  buildQR();
+  updatePaymentButton();
+  buildBarcode();
+  startPixTimer();
+}
+  
 // ── ADDRESS ────────────────────────────────────────────
 function selAddr(el){ document.querySelectorAll('.addr-opt').forEach(a=>a.classList.remove('on')); el.classList.add('on'); }
 function toggleNewAddr(){ const f=document.getElementById('newAddrForm'); f.classList.toggle('on'); }
