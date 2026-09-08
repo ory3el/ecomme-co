@@ -688,6 +688,50 @@ function startProductsRealtime() {
 }
 
 // ============================================================
+
+function prepareProductImageAnimations(
+  container = document
+) {
+  const images =
+    container.querySelectorAll(
+      'img.product-image-reveal'
+    );
+  images.forEach(
+    img => {
+      const markLoaded = () => {
+        img.classList.add(
+          'is-loaded'
+        );
+      };
+      if (img.complete) {
+        requestAnimationFrame(
+          markLoaded
+        );
+      } else {
+        img.addEventListener(
+          'load',
+          markLoaded,
+          {
+            once: true
+          }
+        );
+        img.addEventListener(
+          'error',
+          () => {
+            img.classList.add(
+              'is-loaded'
+            );
+          },
+          {
+            once: true
+          }
+        );
+      }
+    }
+  );
+}
+
+// ============================================================
   
 function getOptimizedImageUrl(
   sourceUrl,
