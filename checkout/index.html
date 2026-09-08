@@ -59,9 +59,22 @@
 <div class="steps-bar">
   <div class="steps-in">
     <div class="step-item active" id="s1"><button class="step-dot" onclick="goTo1()">1</button><button class="step-lbl" onclick="goTo1()">Carrinho</button></div>
-    <div class="step-item" id="s2"><button class="step-dot" onclick="goTo2()">2</button><button class="step-lbl" onclick="goTo2()">Entrega</button></div>
-    <div class="step-item" id="s3"><button class="step-dot" onclick="goTo3()">3</button><button class="step-lbl" onclick="goTo3()">Pagamento</button></div>
-    <div class="step-item" id="s4"><button class="step-dot" onclick="goTo4()">4</button><button class="step-lbl" onclick="goTo4()">Confirmação</button></div>
+    <div class="step-item active" id="s1">
+      <button class="step-dot" onclick="goToHeaderStep(1)">1</button>
+      <button class="step-lbl" onclick="goToHeaderStep(1)">Carrinho</button>
+    </div>
+    <div class="step-item" id="s2">
+      <button class="step-dot" onclick="goToHeaderStep(2)" disabled>2</button>
+      <button class="step-lbl" onclick="goToHeaderStep(2)" disabled>Entrega</button>
+    </div>
+    <div class="step-item" id="s3">
+      <button class="step-dot" onclick="goToHeaderStep(3)" disabled>3</button>
+      <button class="step-lbl" onclick="goToHeaderStep(3)" disabled>Pagamento</button>
+    </div>
+    <div class="step-item" id="s4">
+      <button class="step-dot" onclick="goToHeaderStep(4)" disabled>4</button>
+      <button class="step-lbl" onclick="goToHeaderStep(4)" disabled>Confirmação</button>
+    </div>
   </div>
 </div>
 
