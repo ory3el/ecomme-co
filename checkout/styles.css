@@ -474,6 +474,24 @@ input,select,textarea{font-family:inherit}
 }
 
 /* ----------------------------------------- */
+.step-item:not(.active):not(.done) .step-dot,
+.step-item:not(.active):not(.done) .step-lbl {
+  cursor: not-allowed;
+}
+.step-dot:disabled,
+.step-lbl:disabled {
+  cursor: not-allowed;
+}
+
+.step-item:not(.active):not(.done) {
+  opacity: .65;
+}
+.step-item.done,
+.step-item.active {
+  opacity: 1;
+}
+
+/* ----------------------------------------- */
 @media (max-width:888px) {
   .checkout-wrap{display:block}
   .sum-card{margin-top:15px}
