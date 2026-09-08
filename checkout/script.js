@@ -208,6 +208,7 @@ let savedAddresses = [];
 let cart = [];
 let curId = null;
 let mQtyVal = 1;
+let pixSeconds = 1799;
 
 /* ─── UTILS ─────────────────────────────────────────────────────────── */
 const fmt = value => {const number = Number(value);
@@ -893,7 +894,6 @@ function goStep(n) {
     let payMethod = 'pix';
     let installSel = 1;
     let pixInterval;
-    let pixSeconds = 1799;
 
     buildQR();
     updatePaymentButton();
@@ -1144,7 +1144,6 @@ function selPayTab(tab, method) {
 
 // ── PIX ────────────────────────────────────────────────
 function buildQR(){
-  payMethod = 'pix';
   const p=[1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1,1,0,1,0,1,0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,1,0,0,1,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,1,0,0,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1];
   document.getElementById('qrGrid').innerHTML=p.map(b=>`<div class="qr-c ${b?'b':'w'}"></div>`).join('');
 }
