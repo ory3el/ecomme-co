@@ -1,5 +1,3 @@
-let products = [];
-
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 /* document.addEventListener("DOMContentLoaded", () => {
   const modalPerfo = document.getElementById('performanceModal');
