@@ -598,6 +598,68 @@ function createProductsSignature(
 }
 
 // ============================================================
+
+async function refreshProductsIfNeeded() {
+  if (
+    !pageIsVisible ||
+    productRefreshRunning
+  ) {return;}
+  
+  productRefreshRunning = true;
+  
+  try {
+    const {data, error} = await supabaseClient
+      .from('products')
+      .select('*')
+      .order(
+        'id',
+        {ascending: true}
+      );
+
+    if (error) {
+      console.error('Erro na atualização automática dos produtos:',error);
+      return;
+    }
+
+    const updatedProducts = (data || []).map(normalizeProduct);
+    const newSignature = createProductsSignature(updatedProducts);
+    if (newSignature === productDataSignature) {
+      return;
+    }
+
+    productDataSignature = newSignature;
+    updatedProducts.forEach(
+      product => {
+        productCache.set(
+          String(product.id),
+          product
+        );
+      }
+    );
+    
+    products = updatedProducts;
+    shuffled = [...products];
+    virtualStartIndex = -1;
+    virtualEndIndex = -1;
+    virtualColumns = 0;
+    renderProducts();
+  } finally {productRefreshRunning = false;}
+}
+
+// ============================================================
+
+function startProductRefresh() {
+  if (productRefreshTimer) {
+    clearInterval(productRefreshTimer);
+  }
+
+  productRefreshTimer = setInterval( () => {
+    refreshProductsIfNeeded();},
+    PRODUCT_REFRESH_INTERVAL
+    );
+}
+  
+// ============================================================
   
 function startProductsRealtime() {
   if (productRealtimeChannel) {
