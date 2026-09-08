@@ -898,9 +898,6 @@ function renderSummary() {
 }
 
 // ── STEP NAV ───────────────────────────────────────────
-let currentStep = 1;
-let furthestStep = 1;
-
 function goStep(n) {
   if (n < 1 || n > 4) return;
 
