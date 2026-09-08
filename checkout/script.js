@@ -460,6 +460,7 @@ let discount = 0;
 let couponCode = '';
 let shipping = 0;
 let currentStep = 1;
+let furthestStep = 1;
 let payMethod = '';
 let installSel = 1;
 let pixInterval;
@@ -897,18 +898,91 @@ function renderSummary() {
 }
 
 // ── STEP NAV ───────────────────────────────────────────
-function goStep(n){
-  const ids=['step1','step2','step3','step4'];
-  const sids=['s1','s2','s3','s4'];
-  ids.forEach((id,i)=>{ document.getElementById(id).style.display = i+1===n?'block':'none'; });
-  sids.forEach((id,i)=>{
-    const el=document.getElementById(id);
-    el.className='step-item '+(i+1<n?'done':i+1===n?'active':'');
-    el.querySelector('.step-dot').textContent = i+1<n?'✓':i+1;
+let currentStep = 1;
+let furthestStep = 1;
+
+function goStep(n) {
+  if (n < 1 || n > 4) return;
+
+  const isGoingBack = n <= furthestStep;
+  const isGoingForward = n === currentStep + 1;
+
+  if (!isGoingBack && !isGoingForward) {
+    return;
+  }
+
+  if (n > furthestStep) {
+    furthestStep = n;
+  }
+
+  currentStep = n;
+  const ids = ['step1', 'step2', 'step3', 'step4'];
+  const sids = ['s1', 's2', 's3', 's4'];
+
+  ids.forEach((id, i) => {
+    const panel = document.getElementById(id);
+
+    if (panel) {
+      panel.style.display = (i + 1 === n)
+        ? 'block'
+        : 'none';
+    }
   });
-  currentStep=n;
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(n===4) showConfirm();
+
+  sids.forEach((id, i) => {
+
+    const stepNumber = i + 1;
+    const el = document.getElementById(id);
+    if (!el) return;
+  
+    if (stepNumber < n) {
+      el.className = 'step-item done';
+    } else if (stepNumber === n) {
+      el.className = 'step-item active';
+    } else {
+      el.className = 'step-item';
+    }
+
+    const dot = el.querySelector('.step-dot');
+    const label = el.querySelector('.step-lbl');
+
+    if (dot) {
+      dot.textContent = stepNumber < n
+        ? '✓'
+        : stepNumber;
+    }
+
+    const unlocked = stepNumber <= furthestStep;
+
+    if (dot) {
+      dot.disabled = !unlocked;
+    }
+
+    if (label) {
+      label.disabled = !unlocked;
+    }
+
+    el.setAttribute(
+      'aria-disabled',
+      String(!unlocked)
+    );
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+
+  if (n === 4) {
+    showConfirm();
+  }
+}
+
+function goToHeaderStep(n) {
+  if (n > furthestStep) {
+    return;
+  }
+  goStep(n);
 }
 
 // ── ADDRESS ────────────────────────────────────────────
