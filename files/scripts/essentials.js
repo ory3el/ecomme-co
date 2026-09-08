@@ -381,6 +381,15 @@ const EDGE_IMAGE_PRESETS = {
 const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
 const $ = id => document.getElementById(id);
 
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+  
 // FAVICON
 const favicon = document.getElementById('favicon');
 function verificarTema(e) {
