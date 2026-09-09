@@ -893,6 +893,7 @@ function goStep(n) {
     buildQR();
     updatePaymentButton();
     buildBarcode();
+    
     startPixTimer();
     
     const pixTab = document.querySelector(
@@ -1125,8 +1126,21 @@ function buildQR(){
   document.getElementById('qrGrid').innerHTML=p.map(b=>`<div class="qr-c ${b?'b':'w'}"></div>`).join('');
 }
 
+let pixTimerDB = false;
 function startPixTimer(){
-  pixInterval=setInterval(()=>{ if(pixSeconds<=0){clearInterval(pixInterval);document.getElementById('pixTimer').textContent='EXPIRADO';return;} pixSeconds--; const m=Math.floor(pixSeconds/60),s=pixSeconds%60; document.getElementById('pixTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); },1000);
+  if (pixTimerDB) return;
+  pixTimerDB = true;
+  
+  pixInterval=setInterval(()=>{ 
+    if(pixSeconds<=0){
+      clearInterval(pixInterval);
+      document.getElementById('pixTimer').textContent='EXPIRADO';
+      return;
+    } 
+    pixSeconds--; 
+    const m=Math.floor(pixSeconds/60),s=pixSeconds%60; 
+    document.getElementById('pixTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); 
+  },1000);
 }
 
 function copyPIX(){
