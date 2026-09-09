@@ -419,6 +419,136 @@ document.addEventListener('visibilitychange', () => {
 
 // ============================================================
 
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
+    initThemeToggle();
+    setupModalSwipe();
+    setupModalAutoPlay();
+    const loginBtn = document.getElementById('authLoginBtn');
+    const profileContainer = document.getElementById('headerProfileContainer');
+    const headerImage = document.getElementById('headerAvatar');
+    const productsLoaded = await loadProductsFromSupabase();
+    if (!productsLoaded) {
+      return;
+    }
+
+    const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+    if (!user || userError) {
+      userId = null;
+      if (loginBtn) {
+        loginBtn.classList.remove(
+          'hidden'
+        );
+      }
+      if (profileContainer) {
+        profileContainer.classList.add(
+          'hidden'
+        );
+      }
+      injectPrefetch('/login');
+      loadShuffleAndRender();
+      return;
+    }
+
+    userId = user.id;
+    await loadFromSupabase();
+    if (loginBtn) {
+      loginBtn.classList.add('hidden');
+    }
+    if (profileContainer) {
+      profileContainer.classList.remove(
+        'hidden'
+      );
+    }
+
+    const {data: profile, error: profileError} = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (!profileError && profile) {
+      const fullName =
+        profile.full_name ||
+        'Cliente';
+      const email =
+        user.email || '';
+      if ($('accSidebarName')) {
+        $('accSidebarName').textContent =
+          fullName;
+      }
+      if ($('accSidebarEmail')) {
+        $('accSidebarEmail').textContent =
+          email;
+      }
+      if (
+        profile.avatar_url &&
+        $('accSidebarAvatar')
+      ) {
+        $('accSidebarAvatar').src =
+          profile.avatar_url;
+      }
+      
+      const photoUrl =
+        profile.avatar_url || '';
+      if (photoUrl && headerImage) {
+        headerImage.src = photoUrl;
+        headerImage.style.filter = 'none';
+        headerImage.style.width = '100%';
+        headerImage.style.height = '100%';
+        headerImage.style.borderRadius = '100%';
+        headerImage.style.objectFit = 'cover';
+      }
+    }
+    loadShuffleAndRender();
+    startProductsRealtime();
+    startProductRefresh();
+  }
+);
+
+// HEADER
+function initHeaderAuthListener() {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  const bellBtn = document.getElementById('bellBtn');
+  const headerAvatar = document.getElementById('headerAvatar');
+
+  if (!loginBtn || !profileContainer) return;
+  
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (session && session.user) {
+      loginBtn.classList.add('hidden');
+      bellBtn.classList.remove('hidden');
+      profileContainer.classList.remove('hidden');
+
+      try {
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!profileError && profileData && profileData.avatar_url) {
+          headerAvatar.src = profileData.avatar_url;
+        } else {
+          headerAvatar.src = "/images/icons/full/user.webp";
+        }
+      } catch (err) {
+        console.error("Erro ao carregar o avatar do header:", err);
+      }
+    } else {
+      loginBtn.classList.remove('hidden');
+      profileContainer.classList.add('hidden');
+      bellBtn.classList.add('hidden');
+      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
+    }
+  });
+}
+initHeaderAuthListener();
+
+// ============================================================
+
 function createProductsSignature(
   productList
 ) {
