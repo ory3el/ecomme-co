@@ -1673,7 +1673,36 @@ function addFromModal2() {
   openFav();
 }
 
-// -------------------------------------
+//--------------------------------------------------------
+async function loadFromSupabase() {
+  if (!userId) return;
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from('profiles')
+    .select('cart, fav')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error(
+      'Erro ao carregar carrinho/favoritos:',
+      error
+    );
+    return;
+  }
+  cart = hydrateUserItems(
+    data?.cart
+  );
+  fav = hydrateUserItems(
+    data?.fav
+  );
+  updateCart();
+  updateFav();
+}
+
+//--------------------------------------------------------
 function normalizeProduct(p) {
   return {
     ...p,
