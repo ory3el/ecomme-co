@@ -66,9 +66,14 @@ function updateCountdown() {
   const h = Math.floor(diff / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
-  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
-  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
-  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+  
+  const cdH = document.getElementById('cdH');
+  const cdM = document.getElementById('cdM');
+  const cdS = document.getElementById('cdS');
+
+  if (cdH) cdH.textContent = String(h).padStart(2,'0');
+  if (cdM) cdM.textContent = String(m).padStart(2,'0');
+  if (cdS) cdS.textContent = String(s).padStart(2,'0');
 }
 setInterval(updateCountdown, 1000);
 updateCountdown();
