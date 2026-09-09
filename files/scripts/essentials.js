@@ -396,7 +396,8 @@ function fishYates(arr) {
   }
   return a;
 }
-  
+/* ───────────────────────────────────────────────────────────────────── */
+
 // FAVICON
 const favicon = document.getElementById('favicon');
 function verificarTema(e) {
@@ -431,6 +432,20 @@ function injectPrefetch(url) {
   }
 }
 
+/* --------------------------- */
+let isScrolling = false;
+let scrollTimer;
+
+window.addEventListener('scroll', () => {
+  isScrolling = true;
+  document.documentElement.classList.add('is-scrolling');
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    isScrolling = false;
+    document.documentElement.classList.remove('is-scrolling');
+  }, 120);
+}, { passive: true });
+
 // ============================================================
 
 const PRODUCT_REFRESH_INTERVAL = 10000;
@@ -451,7 +466,7 @@ document.addEventListener('visibilitychange', () => {
 );
 
 // ============================================================
-  
+
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
@@ -580,6 +595,32 @@ function initHeaderAuthListener() {
 }
 initHeaderAuthListener();
 
+/*function updateHeaderContrast() {
+  const header = document.querySelector("header");
+  const sampleY = header.offsetHeight + 10;
+  const x = window.innerWidth / 2;
+  const el = document.elementFromPoint(x, sampleY);
+
+  if (!el) return;
+  const style = getComputedStyle(el);
+  const bg = style.backgroundColor;
+  const rgb = bg.match(/\d+/g);
+
+  if (!rgb) return;
+  const r = Number(rgb[0]);
+  const g = Number(rgb[1]);
+  const b = Number(rgb[2]);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  
+  if (brightness < 90) {
+    header.classList.add("dark-glass");
+  } else {
+    header.classList.remove("dark-glass");
+  }
+}
+window.addEventListener("scroll", updateHeaderContrast);
+window.addEventListener("resize", updateHeaderContrast);*/
+
 // ============================================================
 
 function createProductsSignature(
@@ -665,12 +706,16 @@ function startProductRefresh() {
     PRODUCT_REFRESH_INTERVAL
     );
 }
-  
+
 // ============================================================
-  
+
 function startProductsRealtime() {
-  if (productRealtimeChannel) {
-    supabaseClient.removeChannel(productRealtimeChannel);
+  if (
+    productRealtimeChannel
+  ) {
+    supabaseClient.removeChannel(
+      productRealtimeChannel
+    );
   }
 
   productRealtimeChannel = supabaseClient.channel('products-live')
@@ -680,11 +725,52 @@ function startProductsRealtime() {
       table: 'products'
     },
         
-      payload => { if (!pageIsVisible) {return;}
-        refreshProductsIfNeeded();
-      }
-    )
-  //.subscribe(status => {console.log('Products Realtime:',status);});
+        payload => { if (!pageIsVisible) {return;}
+          refreshProductsIfNeeded();
+        }
+      )
+      .subscribe(status => {console.log('Products Realtime:',status);});
+}
+
+// ============================================================
+
+const catalogSearchDebounce = null;
+let userIsSearching = false;
+
+function setupProductSearch() {
+  const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
+
+  inputs.forEach(
+    input => {
+      input.addEventListener(
+        'input',
+        () => {
+          userIsSearching = true;
+          clearTimeout(
+            window.catalogSearchTimer
+          );
+          inputs.forEach(
+            other => {
+              if (
+                other !== input
+              ) {
+                other.value =
+                  input.value;
+              }
+            }
+          );
+          window.catalogSearchTimer =
+            setTimeout(
+              async () => {
+                userIsSearching = false;
+                await resetCatalogAndLoad();
+              },
+              400
+            );
+        }
+      );
+    }
+  );
 }
 
 // ============================================================
@@ -732,7 +818,6 @@ function prepareProductImageAnimations(
 }
 
 // ============================================================
-  
 function getOptimizedImageUrl(
   sourceUrl,
   preset = 'grid'
@@ -2025,7 +2110,7 @@ async function loadFromSupabase() {
   updateCart();
   updateFav();
 }
-  
+
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
 function shuffleAndRender() {
   shuffled = fishYates(products);
@@ -2552,8 +2637,7 @@ function filterByCategory(event, category) {
     document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
   }
 }
-// ---------------------------------------------------------------------
-  
+
 function normalizeProduct(p) {
   return {
     ...p,
