@@ -91,7 +91,7 @@
 
     /* grid */
    .products-grid {
-       margin: auto;
+       margin: 0 auto 75px auto;
        display: grid;
        max-width: 1435px;
        padding: 10px;
