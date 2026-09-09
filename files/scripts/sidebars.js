@@ -447,7 +447,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         );
       }
       injectPrefetch('/login');
-      loadShuffleAndRender();
       return;
     }
 
@@ -501,7 +500,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         headerImage.style.objectFit = 'cover';
       }
     }
-    loadShuffleAndRender();
     startProductsRealtime();
     startProductRefresh();
   }
