@@ -1673,6 +1673,53 @@ function addFromModal2() {
   openFav();
 }
 
+// ── HYDRATE USER SAVED ITEMS ──
+function hydrateUserItems(savedItems) {
+  if (!Array.isArray(savedItems)) return [];
+  return savedItems
+    .map(item => {
+      const product = products.find(
+        p => String(p.id) === String(item.id)
+      );
+      if (!product) return null;
+      return {
+        ...product,
+        qty: Math.max(1, Number(item.qty) || 1)
+      };
+    })
+    .filter(Boolean);
+}
+
+// ── SYNC CART AND WISHLIST WITH SUPABASE ──
+async function syncToSupabase() {
+  if (!userId) return;
+
+  const cartToSave = cart.map(item => ({
+    id: String(item.id),
+    qty: Number(item.qty) || 1
+  }));
+
+  const favToSave = fav.map(item => ({
+    id: String(item.id),
+    qty: Number(item.qty) || 1
+  }));
+
+  const { error } = await supabaseClient
+    .from('profiles')
+    .update({
+      cart: cartToSave,
+      fav: favToSave
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error(
+      'Erro ao sincronizar carrinho/favoritos:',
+      error
+    );
+  }
+}
+
 //--------------------------------------------------------
 async function loadFromSupabase() {
   if (!userId) return;
