@@ -616,7 +616,6 @@ async function refreshProductsIfNeeded() {
     virtualStartIndex = -1;
     virtualEndIndex = -1;
     virtualColumns = 0;
-    renderProducts();
   } finally {productRefreshRunning = false;}
 }
 
@@ -1154,7 +1153,6 @@ function updateFav() {
       </div>
     `;
   }).join('');
-  renderProducts();
 }
 
 function openFav() {
@@ -1183,7 +1181,6 @@ function addAllFavToCart() {
   });
   fav = [];
   updateFav();
-  renderProducts();
   closeFav();
   openCart();
   showToast('Todos os itens foram para o carrinho! 🛒');
