@@ -418,7 +418,7 @@ header {
     .cart-tots { margin-bottom: 16px; }
     .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
     .ct-row .lbl { color: var(--muted); }
-    .ct-row.ttl {font-size: 15px;font-weight: 600;padding-top: 10px;/* border-top: 1px solid var(--border2); */margin-top: 10px;}
+    .ct-row.ttl {font-size: 20px;font-weight: 600;padding-top: 10px;/* border-top: 1px solid var(--border2); */margin-top: 10px;}
     .ct-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
 
     .btn-ckout {
@@ -531,10 +531,10 @@ header {
 
     .fav-ft {padding: 20px;border-top: 1px solid var(--border2);background:var(--white);border-radius: 30px 30px 0px 20px;}
     .fav-tots { margin-bottom: 16px; }
-    .ct-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
-    .ct-row .lbl { color: var(--muted); }
-    .ct-row.ttl {font-size: 20px;font-weight: 600;padding-top: 10px;/* border-top: 1px solid var(--border2); */margin-top: 10px;}
-    .ct-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
+    .fav-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .fav-row .lbl { color: var(--muted); }
+    .fav-row.ttl {font-size: 20px;font-weight: 600;padding-top: 10px;border-top: none; margin-top: 10px;}
+    .fav-row.ttl .amt { font-family: 'Outfit', serif; font-size: 22px; color: var(--blue); }
 
     .btn-ckout {
       width: 100%;
@@ -656,6 +656,7 @@ header {
 
   .more-sb {
     opacity: 0;
+    padding: 0;
     display: flex;
     position: fixed;
     right: 0;
