@@ -1802,3 +1802,8 @@ function pLoadingFlex() {
     pLoading.style.display = 'flex';
   }
 }
+
+// KEYBOARD ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeNotif(); closeCart(); closeFav(); closeMore(); closeAcc(); }
+});
