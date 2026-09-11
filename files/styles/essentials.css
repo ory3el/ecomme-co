@@ -1072,7 +1072,7 @@ header {
 .modal-info {background: rgba(255,255,255,0);min-height: 574px;padding: 36px;display: flex;flex-wrap: wrap;flex-direction: column;text-align: start;}
 .m-cat {font-size: 10px;font-weight: 600;letter-spacing: 1.5px;text-transform: uppercase;color: var(--blue);margin-bottom: 8px;}
 .m-name {font-family: inherit;font-size: 28px;font-weight: 500;margin-bottom: 12px;line-height: 1.2;}
-.m-desc {color: var(--muted);font-size: 13px;line-height: 1.7;margin-bottom: 20px;}
+.m-desc {color: var(--muted);font-size: 15px;line-height: 1.7;margin-bottom: 20px;}
 .m-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
 .m-price {font-family: 'outfit';font-size: 36px;font-weight: 500;color: var(--blue);}
 .m-price1 {display: none;font-family: 'outfit';font-size: 25px;font-weight: 500;color: var(--blue);}
