@@ -1803,6 +1803,32 @@ function pLoadingFlex() {
   }
 }
 
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function toast(msg) {
+  showToast(msg);
+}
+
+// BACK TO TOP
+const backTop = document.getElementById('backTop');
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    backTop.classList.toggle(
+      'visible',
+      window.scrollY > 400
+    );
+    scrollTicking = false;
+  });
+}, { passive: true });
+
 // KEYBOARD ESC
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeNotif(); closeCart(); closeFav(); closeMore(); closeAcc(); }
