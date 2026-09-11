@@ -886,6 +886,7 @@ header {
 /* ── MODAL ───────────────────────────────────────────────── */
 .modal-ov {
   position: fixed;
+  padding: 0;
   top: 0;
   left: 0;
   width: 100%;
@@ -901,7 +902,7 @@ header {
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
-.modal-ov.on { opacity: 1; pointer-events: all; }
+.modal-ov.on {opacity: 1;pointer-events: all;}
 .modal {
   box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
   background: var(--white);
@@ -926,6 +927,7 @@ header {
 
 .modal-img {
   width: 100%;
+  background: #fff;
   min-height: 400px;
   aspect-ratio: 1 / 1;
   position: relative;
@@ -2061,6 +2063,14 @@ header {
     .m-name {align-self: center;}
     .m-desc {align-self: center;}
     #mEmoji {max-height: 400px;border-radius: 0 0 36px 0;}
-    #mEmoji img {max-height: 400px;}
-    #mEmoji .modal-main-image {max-height: 400px;border-radius: 0 0 36px 0;}
+    #mEmoji img {max-height: 400px; aspect-ratio: 1}
+    #mEmoji .modal-main-image {
+      max-height: 400px;
+      max-width: 400px;
+      border-radius: 0 0 36px 0;
+      justify-items: center;
+      aspect-ratio: 1;
+      display: flex;
+      margin: auto;
+    }
 }
