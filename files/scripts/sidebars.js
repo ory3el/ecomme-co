@@ -887,7 +887,7 @@ function updateCart() {
 
     return `
       <div class="ci">
-        <div class="ci-img" onclick="openProduct('${item.id}')">
+        <div class="ci-img" onclick="openProduct('${item.id}'); closeCart()">
           ${
             image
               ? `<img
@@ -1112,7 +1112,7 @@ function updateFav() {
 
     return `
       <div class="ci">
-        <div class="ci-img" onclick="openProduct('${item.id}')">
+        <div class="ci-img" onclick="openProduct('${item.id}'); closeFav()">
           ${
             image
               ? `<img
