@@ -616,6 +616,85 @@
   </div>
     
   <!-- PRODUCT MODAL -->
+	<div class="modal">
+      <div class="modal-img-area">
+        <div class="modal-img" id="modalImg">
+          <button class="btn-mwish1 on" id="mWish1" onclick="addFromModal2()">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </button>
+          <button class="mcls" onclick="closeProductModal()">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <div class="mArrows" style="display: flex;">
+            <button class="pArrow1" onclick="previousImg()"><i class="fa-solid fa-chevron-right arrow0 arrow1"></i></button>
+            <button class="pArrow2" onclick="nextImg()"><i class="fa-solid fa-chevron-right arrow0 arrow2"></i></button>
+          </div>
+          <span id="mEmoji"><img alt="Imagem do produto" decoding="async" fetchpriority="high" class="modal-main-image modal-enter-next" src="https://image.sellerium.workers.dev/?preset=modal&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145229-slot1-qbfhwqdex58.jpg"></span>
+        </div>
+        <div class="m-qty-ctrl1">
+          <button class="qb1" onclick="chgQty(-1)">−</button>
+          <span class="m-qty-num1" id="mQty">1</span>
+          <button class="qb1" onclick="chgQty(1)">+</button>
+        </div>
+        <div class="modal-gallery" id="modalGallery" style="display: flex;"><button type="button" class="modal-gallery-thumb">
+        <img src="https://image.sellerium.workers.dev/?preset=thumbnail&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145226-slot0-q5m4jypybda.jpg" alt="iPhone 16 Pro Max - imagem 1" loading="lazy" decoding="async">
+      </button><button type="button" class="modal-gallery-thumb on">
+        <img src="https://image.sellerium.workers.dev/?preset=thumbnail&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145229-slot1-qbfhwqdex58.jpg" alt="iPhone 16 Pro Max - imagem 2" loading="lazy" decoding="async">
+      </button><button type="button" class="modal-gallery-thumb">
+        <img src="https://image.sellerium.workers.dev/?preset=thumbnail&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145230-slot2-3uqsliubsat.webp" alt="iPhone 16 Pro Max - imagem 3" loading="lazy" decoding="async">
+      </button><button type="button" class="modal-gallery-thumb">
+        <img src="https://image.sellerium.workers.dev/?preset=thumbnail&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145230-slot3-yo9e5nv0go.jpg" alt="iPhone 16 Pro Max - imagem 4" loading="lazy" decoding="async">
+      </button><button type="button" class="modal-gallery-thumb">
+        <img src="https://image.sellerium.workers.dev/?preset=thumbnail&amp;src=https%3A%2F%2Fcedrpcezoaqaeivrfuxn.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fproducts%2F1788524145230-slot4-y1xpvyczdzh.webp" alt="iPhone 16 Pro Max - imagem 5" loading="lazy" decoding="async">
+      </button></div>
+      </div>
+      <div class="modal-info">
+	   <div style="align-self: flex-start">
+        <div class="m-cat" id="mCat">Eletrônicos</div>
+        <div class="m-name" id="mName">iPhone 16 Pro Max</div>
+        <div class="m-desc" id="mDesc">O iPhone 16 Pro Max é o smartphone mais avançado da Apple, combinando uma tela Super Retina XDR imersiva de 6,9 polegadas, o poderoso chip A18 Pro, um inovador botão de Controle da Câmera e autonomia de bateria estendida para o dia todo.</div>
+	   </div>
+
+	   <div style="align-self: end">
+		<div class="m-feats" id="mFeats"></div>
+        <div class="m-price-row">
+          <span class="m-price" id="mPrice">R$ 5284,97</span>
+          <span class="m-old" id="mOld"></span>
+          <span class="m-disc" id="mDisc"></span>
+        </div>
+        <hr class="m-div">
+        <div class="m-qty-row">
+          <span class="m-qty-lbl">Quantidade:</span>
+          <div class="m-qty-ctrl0">
+            <button class="qb" onclick="chgQty(-1)">−</button>
+            <span class="m-qty-num" id="mQty">1</span>
+            <button class="qb" onclick="chgQty(1)">+</button>
+          </div>
+        </div>
+        <div class="m-btns">
+          <span class="m-price1" id="mPrice1">R$ 5284,97</span>
+          <button class="btn-madd" onclick="openProductPage()">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>Ver Mais Informações</button>
+          <button class="btn-mcart" id="mWish" onclick="addFromModal()">
+            <svg style="" viewBox="0 0 24 24">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          </button>
+        <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </button></div>
+      </div>
+	 </div>
+    </div>
+
+
+
+
+	
   <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
     <div class="modal">
       <div class="modal-img-area">
@@ -664,16 +743,17 @@
             <span class="m-qty-num" id="mQty">1</span>
             <button class="qb" onclick="chgQty(1)">+</button>
           </div>
-        </div>
+        </div>  
         <div class="m-btns">
           <span class="m-price1" id="mPrice1"></span>
-          <button class="btn-madd" onclick="addFromModal()">
-            <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-              <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-            </svg>
-            Adicionar ao Carrinho
+          <button class="btn-madd" onclick="openProductPage()">
+            <i class="fa-solid fa-arrow-up-right-from-square">
+            Ver Mais Informações
           </button>
+		  <button class="btn-mcart" id="mWish" onclick="addFromModal()">
+          	<svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+		  </button>
           <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
