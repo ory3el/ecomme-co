@@ -941,10 +941,7 @@ function updateCart() {
         >
           <i class="fa-regular fa-trash-can"></i>
         </button>
-        <button
-          class="cart-item-towish"
-          onclick="event.stopPropagation(); toggleFav(String(curId));"
-        >
+        <button class="cart-item-towish" id="cartItemToWish" onclick="event.stopPropagation(); toggleFav(String(curId));">
           <i class="fa-regular fa-heart"></i>
         </button>
       </div>
