@@ -1526,10 +1526,6 @@ header {
     justify-content: center;
   }
 
-  .modal {
-    grid-template-columns: 1fr;
-    max-height: 85vh;
-  }
   .modal-img-side {
     min-height: 300px;
     border-radius: 16px 16px 0 0;
@@ -2081,6 +2077,7 @@ header {
 /* MOBILE PRODUCT MODAL */
 @media (max-width: 768px) {
     .modal {
+        grid-template-columns: 1fr;
         min-height: 100% !important;
         min-width: 100% !important;
         justify-content: center;
