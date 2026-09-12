@@ -20,10 +20,11 @@
       /* box-shadow: var(--shadow); */
       flex-wrap: wrap;
     }
-    .tb-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 180px; }
+    .tb-left {display: flex;align-items: center;gap: 12px;flex: 1;min-width: 180px;}
     .tb-title {
       font-family: 'Outfit', serif;
-      font-size: 22px; font-weight: 600;
+      font-size: 22px;
+      font-weight: 600;
     }
     .tb-count {
       background: var(--blue-dim); color: var(--blue);
@@ -37,8 +38,8 @@
       align-items: center;
       gap: 6px;
       /* background: var(--blue-dim); */
-      border: 1px solid var(--border);
-      color: var(--blue);
+      border: 1px solid var(--blue-deep);
+      color: var(--blue-deep);
       padding: 7px 16px;
       border-radius: var(--radius);
       font-size: 12px;
@@ -86,7 +87,7 @@
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
-    .vbtn:hover, .vbtn.on { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .vbtn:hover, .vbtn.on {border-color: var(--blue-deep);color: var(--blue-deep);background: var(--blue-dim);}
     .vbtn svg { width: 14px; height: 14px; fill: currentColor; }
 
     /* grid */
@@ -312,4 +313,8 @@
       justify-content: center;
       position: relative;
       top: -65px;
+    }
+
+    @media (max-width: 615px) {
+        .tb-left { justify-content: center }
     }
