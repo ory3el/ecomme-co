@@ -195,7 +195,7 @@ header {
   color: var(--muted); border-radius: 911px; transition: color .2s, background .2s;
 }
 .nav-main a:hover { color: var(--text); background: var(--bg3); }
-.nav-main a.active { color: var(--blue); background: var(--surface-2); border: 1px solid var(--blue); font-weight: 600; }
+.nav-main a.active {color: var(--blue-deep);background: var(--surface);border: 1px solid var(--blue-deep);font-weight: 600;}
 
 .header-actions { display: flex; align-items: center; gap: 6px; }
 .search-bar {
