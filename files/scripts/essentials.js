@@ -1074,6 +1074,14 @@ function toggleFav(id) {
       )
     );
   }
+  if ($('mWish1')) {
+    $('mWish').classList.toggle(
+      'on',
+      fav.some(
+        x => String(x.id) === normalizedId
+      )
+    );
+  }
 }
 
 function addToFav(id, qty = 1) {
@@ -1722,6 +1730,12 @@ function openProduct(id) {
     ).join('');
 
   $('mWish').classList.toggle(
+    'on',
+    fav.some(
+      x => String(x.id) === normalizedId
+    )
+  );
+  $('mWish1').classList.toggle(
     'on',
     fav.some(
       x => String(x.id) === normalizedId
