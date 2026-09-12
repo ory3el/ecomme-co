@@ -309,7 +309,6 @@ injectSidebars();
 function initEcommeUI() {*/
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
-let mQtyVal = 1;
 let modalImages = [];
 let modalImageIndex = 0;
 
