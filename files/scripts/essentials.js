@@ -1,10 +1,3 @@
-function injectSidebars() {
-  document.body.insertAdjacentHTML('afterbegin', `
-    <script src="/files/scripts/sidebars.js"></script>
-  `);
-}
-injectSidebars();
-
 /*function injectEcommeUI() {
   if (document.getElementById('cartSidebar')) return;
 
