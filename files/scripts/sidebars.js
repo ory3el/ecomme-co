@@ -966,6 +966,7 @@ function openCart() {
   $('cartSidebar').classList.add('on');
   $('cartOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
+  $('cartItemToWish').classList.toggle('on',fav.some(x => String(x.id) === normalizedId));
 }
 
 function closeCart() {
@@ -1026,7 +1027,7 @@ function toggleFav(id) {
       )
     );
   }
-  if ($('cart-item-towish')) {
+  if ($('cartItemToWish')) {
     $('cart-item-towish').classList.toggle(
       'on',
       fav.some(
