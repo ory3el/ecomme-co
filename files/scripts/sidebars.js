@@ -787,6 +787,7 @@ function getOptimizedImageUrl(
 }
 // ============================================================
 
+const normalizedId = String(id);
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
@@ -797,7 +798,6 @@ function addToCart(id, qty = 1) {
     );
     return;
   }
-  const normalizedId = String(id);
   const p = products.find(
     x => String(x.id) === normalizedId
   );
