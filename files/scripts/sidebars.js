@@ -937,15 +937,13 @@ function updateCart() {
         </div>
         <button
           class="del"
-          onclick="removeFromCart('${item.id}')"
-          title="Remover do Carrinho"
-        >
+          onclick="confirmRemoveFromCart('${item.id}', '${item.name.replace(/'/g, "\\'")}')"
+          title="Remover do Carrinho">
           <i class="fa-regular fa-trash-can"></i>
         </button>
         <button class="cart-item-towish ${fav.some(f => String(f.id) === String(item.id)) ? 'on' : ''}" data-product-id="${item.id}"
           onclick="event.stopPropagation(); toggleFav('${item.id}');"
           title="${fav.some(f => String(f.id) === String(item.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
-          
           <i class="fa-regular fa-heart"></i>
         </button>
       </div>
@@ -989,6 +987,12 @@ function checkout() {
   showToast('Redirecionando para o pagamento... 🔒');
   window.location.href = "/checkout"
   setTimeout(closeCart, 1200);
+}
+
+let cartItemPendingDelete = null;
+function confirmRemoveFromCart(id) {
+  cartItemPendingDelete = String(id);
+  showConfirm(`Remover ${productName} do carrinho? Você pode adicioná-lo novamente quando quiser.`, 'Remover do Carrinho', '<i class="fa-solid fa-trash-can"></i>');
 }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
@@ -1952,8 +1956,9 @@ function injectModalStyles() {
 // ── POP-UP WARNING ──
 async function showAlert(message, title, icon) {
   injectModalStyles();
-
+  
   let alertModal = document.getElementById('alertModal');
+  
   if (!alertModal) {
     alertModal = document.createElement('div');
     alertModal.id = 'alertModal';
@@ -1970,47 +1975,74 @@ async function showAlert(message, title, icon) {
     `;
     document.body.appendChild(alertModal);
   } else {
+
     document.getElementById('alertMsg').textContent = message;
     document.getElementById('alertTitle').textContent = title;
     document.getElementById('alertIcon').textContent = icon;
   }
-
+  
   alertModal.offsetHeight;
   alertModal.classList.add('active');
 }
 
-// ── POP-UP AUTH ──
-async function showAuth(message, title, icon) {
+// ── POP-UP CONFIRM ──
+let confirmTimerId = null;
+
+async function showConfirm(message, title, icon) { 
   injectModalStyles();
-
-  let authModal = document.getElementById('authModal');
-
-  if (!authModal) {
-    authModal = document.createElement('div');
-    authModal.id = 'authModal';
-    authModal.className = 'modal-alert-container';
-    authModal.innerHTML = `
+  
+  let confirmModal = document.getElementById('confirmModal');
+  if (!confirmModal) {
+    confirmModal = document.createElement('div');
+    confirmModal.id = 'confirmModal';
+    confirmModal.className = 'modal-alert-container';
+    confirmModal.innerHTML = `
       <div class="modal-alert-content">
-        <div class="modal-alert-icon" id="authIcon">${icon}</div>
-        <h3 id="authTitle">${title}</h3>
-        <p id="authMsg">${message}</p>
+        <div class="modal-alert-icon" id="confirmIcon">${icon}</div>
+        <h3 id="confirmTitle">${title}</h3>
+        <p id="confirmMsg">${message}</p>
         <div class="modal-alert-buttons">
-          <button class="btn-alert-cancel" onclick="closeAuth()">Cancelar</button>
-          <button class="btn-alert-confirm" onclick="buttonLink('/login')">Fazer Login</button>
+          <button class="btn-alert-cancel" onclick="closeConfirm()">Cancelar</button>
+          <button class="btn-alert-confirm" id="btnConfirmRemove" onclick="confirmRemove()">Remover Produto</button>
         </div>
       </div>
     `;
-    document.body.appendChild(authModal);
+    document.body.appendChild(confirmModal); 
   } else {
-    document.getElementById('authMsg').textContent = message;
-    document.getElementById('authTitle').textContent = title;
-    document.getElementById('authIcon').textContent = icon;
+    document.getElementById('confirmMsg').innerHTML = message;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmIcon').innerHTML = icon; 
   }
-
-  authModal.offsetHeight;
-  authModal.classList.add('active');
+  
+  // ── LOGIC 1s ──
+  const confirmBtn = document.getElementById('btnConfirmRemove');
+  let timeLeft = 1;
+  
+  confirmBtn.disabled = true;
+  confirmBtn.style.opacity = '0.5';
+  confirmBtn.style.cursor = 'not-allowed';
+  confirmBtn.style.transition = 'all 0.3s ease';
+  confirmBtn.textContent = `Remover Produto (${timeLeft}s)`;
+  
+  if (confirmTimerId) clearInterval(confirmTimerId);
+  
+  confirmTimerId = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      confirmBtn.textContent = `Remover Produto (${timeLeft}s)`;
+    } else {
+      clearInterval(confirmTimerId);
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = '1';
+      confirmBtn.style.cursor = 'pointer';
+      confirmBtn.textContent = 'Remover Produto';
+    }
+  }, 1000);
+  
+  confirmModal.offsetHeight;
+  confirmModal.classList.add('active');
 }
-
+  
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
@@ -2018,19 +2050,34 @@ function closeAlert() {
   }
 }
 
-function closeAuth() {
-  const authModal = document.getElementById('authModal');
-  if (authModal) {
-    authModal.classList.remove('active');
+function confirmRemove() {
+  const confirmModal = document.getElementById('confirmModal');
+  
+  if (!cartItemPendingDelete) return;
+  removeFromCart(cartItemPendingDelete);
+  cartItemPendingDelete = null;
+  
+  if (confirmModal) {
+    confirmModal.classList.remove('active');
   }
 }
 
-// ── POP-UP LOGOUT ────────────────────────────────────────────
+function closeConfirm() {
+  const confirmModal = document.getElementById('confirmModal');
+  if (confirmModal) {
+    confirmModal.classList.remove('active');
+  }
+  if (confirmTimerId) clearInterval(confirmTimerId);
+}
+
+// ── POP-UP LOGOUT ──
 let confirmRedTimerId = null;
+
 async function showConfirmRed(message, title, icon) { 
   injectModalStyles();
   
   let confirmRedModal = document.getElementById('confirmRedModal');
+  
   if (!confirmRedModal) {
     confirmRedModal = document.createElement('div');
     confirmRedModal.id = 'confirmRedModal';
@@ -2057,6 +2104,7 @@ async function showConfirmRed(message, title, icon) {
   // ── LOGIC 3s ──
   const confirmRedBtn = document.getElementById('btnConfirmLogout');
   let timeLeft = 3;
+  
   confirmRedBtn.disabled = true;
   confirmRedBtn.style.opacity = '0.5';
   confirmRedBtn.style.cursor = 'not-allowed';
@@ -2064,6 +2112,7 @@ async function showConfirmRed(message, title, icon) {
   confirmRedBtn.textContent = `Sair da conta (${timeLeft}s)`;
   
   if (confirmRedTimerId) clearInterval(confirmRedTimerId);
+  
   confirmRedTimerId = setInterval(() => {
     timeLeft--;
     if (timeLeft > 0) {
@@ -2087,13 +2136,16 @@ function closeAlert() {
     alertModal.classList.remove('active');
   }
 }
+
 function confirmLogout() {
   const confirmRedModal = document.getElementById('confirmRedModal');
   doLogout();
+  
   if (confirmRedModal) {
     confirmRedModal.classList.remove('active');
   }
 }
+
 function closeConfirmRed() {
   const confirmRedModal = document.getElementById('confirmRedModal');
   if (confirmRedModal) {
