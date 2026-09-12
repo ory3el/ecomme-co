@@ -204,10 +204,12 @@ header {
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
   border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px;
-  transition: border-color .2s, background .2s;
+  transition: border-color 0.25s, background 0.25s, transition: 0.25s;
 }
-.search-bar:focus-within { background: var(--surface); border: 1.5px solid var(--blue); }
-.search-bar input { background: none; border: none; outline: none; color: var(--input-text); font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
+.search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
+.search-bar:focus-within input {color: #fff}
+.search-bar:focus-within svg {stroke: #fff}
+.search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
 .search-bar input::placeholder { color: var(--muted); font-size: 14px; font-weight: 400; }
 .search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; }
 
@@ -244,7 +246,7 @@ header {
 .header-profile {
   width: 40px;
   height: 40px;
-  background: var(--blue-deep);
+  background: var(--blue);
   border: 1px solid var(--bg3);
   overflow: hidden;
   cursor: pointer;
