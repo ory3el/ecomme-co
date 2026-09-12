@@ -942,12 +942,26 @@ function updateCart() {
         >
           <i class="fa-regular fa-trash-can"></i>
         </button>
-        <button class="cart-item-towish" id="cartItemToWish" onclick="event.stopPropagation(); toggleFav(String(curId));">
+        <button class="cart-item-towish ${fav.some(f => String(f.id) === String(item.id)) ? 'on' : ''}" data-product-id="${item.id}"
+          onclick="event.stopPropagation(); toggleFav('${item.id}');"
+          title="${fav.some(f => String(f.id) === String(item.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+          
           <i class="fa-regular fa-heart"></i>
         </button>
       </div>
     `;
   }).join('');
+}
+
+function updateCartWishButtons() {
+  document.querySelectorAll('.cart-item-towish[data-product-id]').forEach(button => {
+    const productId = String(button.dataset.productId);
+    const isFav = fav.some(
+      item => String(item.id) === productId
+    );
+    button.classList.toggle('on', isFav);
+    button.title = isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
+  });
 }
 
 function openCart() {
@@ -1019,14 +1033,7 @@ function toggleFav(id) {
       )
     );
   }
-  if ($('cartItemToWish')) {
-    $('cart-item-towish').classList.toggle(
-      'on',
-      fav.some(
-        x => String(x.id) === normalizedId
-      )
-    );
-  }
+  updateCartWishButtons();
 }
 
 function addToFav(id, qty = 1) {
