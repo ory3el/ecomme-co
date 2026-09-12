@@ -308,10 +308,6 @@ injectSidebars();
 }
 function initEcommeUI() {*/
 
-/* ─── STATE ─────────────────────────────────────────────────────────── */
-let modalImages = [];
-let modalImageIndex = 0;
-
 /* --------------------------- */
 let isScrolling = false;
 let scrollTimer;
