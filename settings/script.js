@@ -326,7 +326,7 @@ function openCropModal(event) {
       aspectRatio: 1,
       viewMode: 2,
       dragMode: 'move',
-      autoCropArea: 0.9,
+      autoCropArea: 1,
       background: false,
     });
   };
@@ -398,6 +398,7 @@ async function executeCrop() {
       const avatarImage = document.getElementById('profileAvatar');
       const sidebarImage = document.getElementById('sidebarAvatar');
       const headerImage = document.getElementById('headerAvatar');
+      const menuImage = document.getElementById('menuSidebarAvatar');
       
       if (avatarImage) {
         avatarImage.src = publicPhotoUrl;
@@ -416,6 +417,14 @@ async function executeCrop() {
         sidebarImage.style.objectFit = "cover";
       }
       if (headerImage) {
+        headerImage.src = publicPhotoUrl;
+        headerImage.style.filter = "none";
+        headerImage.style.width = "100%";
+        headerImage.style.height = "100%";
+        headerImage.style.borderRadius = "100%";
+        headerImage.style.objectFit = "cover";
+      }
+      if (menuImage) {
         headerImage.src = publicPhotoUrl;
         headerImage.style.filter = "none";
         headerImage.style.width = "100%";
@@ -496,7 +505,7 @@ async function removePhoto(event) {
   event.stopPropagation();
   
   if (!userId) return;
-  toast('Removendo foto... ⏳', 'info');
+  toast('Removendo foto...', 'info');
 
   try {
     const { data: profile, error: fetchError } = await supabaseClient
@@ -532,6 +541,7 @@ async function removePhoto(event) {
     const avatarImage = document.getElementById('profileAvatar');
     const sidebarImage = document.getElementById('sidebarAvatar');
     const headerImage = document.getElementById('headerAvatar');
+    const menuImage = document.getElementById('menuSidebarAvatar');
     if (avatarImage) {
       avatarImage.src = "/images/icons/full/user.webp";
       avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
@@ -545,6 +555,12 @@ async function removePhoto(event) {
       sidebarImage.style.height = "auto";
     }
     if (headerImage) {
+      headerImage.src = "/images/icons/full/user.webp";
+      headerImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      headerImage.style.width = "75%";
+      headerImage.style.height = "auto";
+    }
+    if (menuImage) {
       headerImage.src = "/images/icons/full/user.webp";
       headerImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
       headerImage.style.width = "75%";
