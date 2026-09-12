@@ -943,13 +943,19 @@ function updateCart() {
         </button>
         <button
           class="cart-item-towish"
-          onclick="moveFromCartToFav('${item.id}')"
+          onclick="event.stopPropagation(); toggleFav(String(curId));"
         >
           <i class="fa-regular fa-heart"></i>
         </button>
       </div>
     `;
   }).join('');
+  $('cart-item-towish').classList.toggle(
+    'on',
+    fav.some(
+      x => String(x.id) === normalizedId
+    )
+  );
 }
 
 function openCart() {
@@ -1014,6 +1020,14 @@ function toggleFav(id) {
   }
   if ($('mWish1')) {
     $('mWish1').classList.toggle(
+      'on',
+      fav.some(
+        x => String(x.id) === normalizedId
+      )
+    );
+  }
+  if ($('cart-item-towish')) {
+    $('cart-item-towish').classList.toggle(
       'on',
       fav.some(
         x => String(x.id) === normalizedId
