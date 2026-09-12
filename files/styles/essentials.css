@@ -1014,7 +1014,7 @@ header {
   transform: scale(1.12);
   box-shadow: 0px 0px 15px rgba(255,100,100,0.5);
 }
-.mcls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+.mcls svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 .mArrows {
   pointer-events: none;
   width: 100%;
@@ -2065,7 +2065,7 @@ header {
 }
 
 /* MOBILE PRODUCT MODAL */
-@media (max-width: 762px) {
+@media (max-width: 768px) {
     .modal {
         min-height: 100% !important;
         min-width: 100% !important;
