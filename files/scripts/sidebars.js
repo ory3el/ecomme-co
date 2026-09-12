@@ -787,7 +787,6 @@ function getOptimizedImageUrl(
 }
 // ============================================================
 
-let DbNormalizedId = false;
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
@@ -799,12 +798,7 @@ function addToCart(id, qty = 1) {
     return;
   }
 
-  if (!DbNormalizedId) {
-    const normalizedId = String(id);
-    let DbNormalizedId = true;
-  } else {
-    return;
-  }
+  const normalizedId = String(id);
   const p = products.find(
     x => String(x.id) === normalizedId
   );
@@ -956,16 +950,6 @@ function updateCart() {
   }).join('');
 }
 
-function updateCartWishBtn() {
-  if (!DbNormalizedId) {
-    const normalizedId = String(id);
-    let DbNormalizedId = true;
-  } else {
-    return;
-  }
-  $('cartItemToWish').classList.toggle('on',fav.some(x => String(x.id) === normalizedId));
-}
-
 function openCart() {
   closeMore();
   closeFav();
@@ -974,7 +958,7 @@ function openCart() {
   $('cartSidebar').classList.add('on');
   $('cartOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
-  updateCartWishBtn()
+  updateCart();
 }
 
 function closeCart() {
