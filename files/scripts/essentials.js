@@ -1,6 +1,4 @@
 function injectSidebars() {
-  if (document.getElementById('cartSidebar')) return;
-
   document.body.insertAdjacentHTML('afterbegin', `
     <script src="/files/scripts/sidebars.js"></script>
   `);
