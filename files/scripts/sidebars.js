@@ -990,9 +990,9 @@ function checkout() {
 }
 
 let cartItemPendingDelete = null;
-function confirmRemoveFromCart(id) {
+function confirmRemoveFromCart(id, productName) {
   cartItemPendingDelete = String(id);
-  showConfirm(`Remover ${productName} do carrinho? Você pode adicioná-lo novamente quando quiser.`, 'Remover do Carrinho', '<i class="fa-solid fa-trash-can"></i>');
+  showConfirm(`Remover "${productName}" do carrinho? Você pode adicioná-lo novamente quando quiser.`, 'Remover do Carrinho', '<i class="fa-solid fa-trash-can"></i>');
 }
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
