@@ -100,7 +100,7 @@
         <div class="sb-sec-label">Conta</div>
         <button class="nav-item" data-panel="profile" onclick="showPanel('profile',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
+            <i class="fa-solid fa-user"></i>
           </span><span class="nav-lbl">Meu Perfil</span><span class="nav-arrow">›</span>
         </button>
         <!-- <button class="nav-item" data-panel="orders" onclick="showPanel('orders',this)">
@@ -110,16 +110,20 @@
           <span class="nav-badge">0</span>
         </button> -->
         <button class="nav-item" data-panel="wishlist" onclick="showPanel('wishlist',this)">
-          <span class="nav-ico">❤️</span><span class="nav-lbl">Lista de Desejos</span>
+          <span class="nav-ico">
+            <i class="fa-solid fa-heart"></i>
+          </span><span class="nav-lbl">Lista de Desejos</span>
           <span class="nav-badge">0</span>
         </button>
         <button class="nav-item" data-panel="coupons" onclick="showPanel('coupons',this)">
-          <span class="nav-ico">🎟️</span><span class="nav-lbl">Meus Cupons</span>
+          <span class="nav-ico">
+            <i class="fa-solid fa-ticket"></i>
+          </span><span class="nav-lbl">Meus Cupons</span>
           <span class="nav-badge">0</span>
         </button>
         <button class="nav-item" data-panel="reviews" onclick="showPanel('reviews',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/star.webp" style="width: 20px; height: auto; display: block;" alt="Star"/>
+            <i class="fa-solid fa-star"></i>
           </span><span class="nav-lbl">Minhas Avaliações</span><span class="nav-arrow">›</span>
         </button>
       </div>
@@ -127,33 +131,35 @@
         <div class="sb-sec-label">Configurações</div>
         <button class="nav-item" data-panel="addresses" onclick="showPanel('addresses',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/pin.webp" style="width: 20px; height: auto; display: block;" alt="Pin"/>
+            <i class="fa-solid fa-location-dot"></i>
           </span><span class="nav-lbl">Endereços</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="payments" onclick="showPanel('payments',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/card.webp" style="width: 20px; height: auto; display: block;" alt="Card"/>
+            <i class="fa-solid fa-credit-card"></i>
           </span><span class="nav-lbl">Pagamentos</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="notifications" onclick="showPanel('notifications',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
+            <i class="fa-solid fa-bell"></i>
           </span><span class="nav-lbl">Notificações</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item" data-panel="security" onclick="showPanel('security',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/padlock.webp" style="width: 20px; height: auto; display: block;" alt="Padlock"/>
+            <i class="fa-solid fa-lock"></i>
           </span><span class="nav-lbl">Segurança</span><span class="nav-arrow">›</span>
         </button>
         <button class="nav-item active" data-panel="settings" onclick="showPanel('settings',this)">
           <span class="nav-ico">
-            <img src="/images/icons/full/setting.webp" style="width: 20px; height: auto; display: block;" alt="Setting"/>
+            <i class="fa-solid fa-gear"></i>
           </span><span class="nav-lbl">Configurações</span><span class="nav-arrow">›</span>
         </button>
       </div>
       <div class="sb-section">
         <button class="nav-item danger" onclick="doLogout()//showPanel('logout',this)">
-          <span class="nav-ico">🚪</span><span class="nav-lbl">Sair da Conta</span>
+          <span class="nav-ico">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </span><span class="nav-lbl">Sair da Conta</span>
         </button>
       </div>
     </nav>
@@ -167,11 +173,16 @@
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meu Perfil</h2><p>Gerencie suas informações pessoais</p></div>
           <div style="display:flex;gap:8px">
-            <button class="btn-ghost" onclick="toast('Visualizando como cliente','info')">👁 Visualizar</button>
+            <button class="btn-ghost" onclick="toast('Visualizando como cliente','info')">
+              <i class="fa-solid fa-eye"></i>
+              Visualizar
+            </button>
           </div>
         </div>
       <div class="card">
-        <div class="card-title"><span class="ct-ico">🖼️</span> Foto de Perfil</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-image"></i>
+        </span> Foto de Perfil</div>
       <div class="av-upload" onclick="toast('Selecionar imagem...','info'); document.getElementById('avatarInput').click()">
         <div class="av-big" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
           <img src="/images/icons/full/user.webp" id="profileAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
@@ -190,7 +201,7 @@
   </div>
   <div class="card">
     <div class="card-title"><span class="ct-ico">
-      <img src="/images/icons/full/user.webp" style="width: 20px; height: auto; display: block;" alt="User"/>
+        <i class="fa-solid fa-user"></i>
         </span> Informações Pessoais</div>
         <div class="fgrid">
           <div class="fgrp"><label>Nome</label><input type="text" id="profileFirstName" class="finput" placeholder="Seu nome"></div>
@@ -219,7 +230,7 @@
 
       <div class="card" style="margin-top: 10px;">
         <div class="card-title"><span class="ct-ico">
-          <img src="/images/icons/full/dashboard.webp" style="width: 20px; height: auto; display: block;" alt="Dashboard"/>
+          <i class="fa-solid fa-chart-simple"></i>
         </span> Nível de Completude do Perfil</div>
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
           <div style="flex:1;background:#e2e8f0;border-radius:100px;height:8px;overflow:hidden">
@@ -336,7 +347,10 @@
     <div class="panel" id="panel-wishlist">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Lista de Desejos</h2><p>0 produtos salvos</p></div>
-        <button class="btn-primary" onclick="toast('Adicionando tudo ao carrinho! 🛒')">🛒 Adicionar tudo ao carrinho</button>
+        <button class="btn-primary" onclick="toast('Adicionando tudo ao carrinho! 🛒')">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Adicionar tudo ao carrinho
+        </button>
       </div>
       <div class="card">
         <div class="wish-grid">
@@ -384,16 +398,23 @@
     <div class="panel" id="panel-coupons">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meus Cupons</h2><p>Descontos disponíveis para você</p></div>
-        <button class="btn-outline" onclick="toast('Digite o código no carrinho 🎟️','info')">+ Adicionar cupom</button>
+        <button class="btn-outline" onclick="toast('Digite o código no carrinho 🎟️','info')">
+          <i class="fa-solid fa-plus"></i>
+          Adicionar cupom
+        </button>
       </div>
       <div class="card">
-        <div class="card-title"><span class="ct-ico">✅</span> Cupons Ativos</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-check"></i>
+        </span> Cupons Ativos</div>
         <div class="coupon-card">
           <div class="coupon-pct">10%</div>
           <div class="coupon-info">
             <h4>Desconto de Boas-vindas</h4>
             <p>Válido para qualquer produto da loja</p>
-            <div class="coupon-exp">⏰ Expira em 31/01/2025</div>
+            <div class="coupon-exp">
+              <i class="fa-solid fa-alarm-clock"></i>
+              Expira em 31/01/2025</div>
           </div>
           <div class="coupon-code" onclick="copyCoupon('SAVE10')">SAVE10</div>
         </div>
@@ -402,13 +423,17 @@
           <div class="coupon-info">
             <h4>Desconto Eletrônicos</h4>
             <p>Exclusivo para a categoria eletrônicos</p>
-            <div class="coupon-exp">⏰ Expira em 15/02/2025</div>
+            <div class="coupon-exp">
+              <i class="fa-solid fa-alarm-clock"></i>
+              Expira em 15/02/2025</div>
           </div>
           <div class="coupon-code" onclick="copyCoupon('SAVE20')">SAVE20</div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="ct-ico">⏳</span> Cupons Expirados</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-hourglass-end"></i>
+        </span> Cupons Expirados</div>
         <div style="opacity:.5">
           <div class="coupon-card" style="background:#f8fafd;border-color:#e2e8f0">
             <div class="coupon-pct" style="color:#94a3b8">15%</div>
@@ -419,11 +444,81 @@
       </div>
     </div>
 
+    <!-- ════ AVALIAÇÕES ════ -->
+    <div class="panel" id="panel-reviews">
+      <div class="panel-hd">
+        <div class="panel-hd-left"><h2>Minhas Avaliações</h2><p>Produtos que você avaliou</p></div>
+      </div>
+      <div class="card">
+        <div class="rev-card">
+          <div class="rev-hd"><div class="rev-prod-ico">⌚</div><div><div class="rev-prod-name">Smartwatch Pro X7</div><div class="rev-prod-cat">Eletrônicos · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
+            <i class="fa-solid fa-pencil"></i>
+            Editar
+          </button></div></div>
+          <div class="rev-stars">★★★★★</div>
+          <div class="rev-text">"Melhor smartwatch que já tive! Chegou em 8 dias, embalagem impecável e a qualidade está acima do esperado. A bateria realmente dura 14 dias como anunciado. Recomendo muito!"</div>
+          <div class="rev-meta"><span>20 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
+            <i class="fa-regular fa-thumbs-up"></i>
+            42 pessoas acharam útil
+          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
+            <i class="fa-regular fa-thumbs-up"></i>
+            Útil
+          </button></div></div>
+        </div>
+        <div class="rev-card">
+          <div class="rev-hd"><div class="rev-prod-ico">🎒</div><div><div class="rev-prod-name">Mochila Anti-Furto Executiva</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
+            <i class="fa-solid fa-pencil"></i>
+            Editar
+          </button></div></div>
+          <div class="rev-stars">★★★★☆</div>
+          <div class="rev-text">"Ótima mochila, muito espaçosa e o compartimento USB é muito prático. Tirei uma estrela porque o zíper poderia ser mais resistente. De resto, excelente custo-benefício."</div>
+          <div class="rev-meta"><span>19 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
+            <i class="fa-regular fa-thumbs-up"></i>
+            18 pessoas acharam útil
+          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
+            <i class="fa-regular fa-thumbs-up"></i>
+            Útil
+          </button></div></div>
+        </div>
+        <div class="rev-card">
+          <div class="rev-hd"><div class="rev-prod-ico">👟</div><div><div class="rev-prod-name">Tênis Running UltraLight</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
+            <i class="fa-solid fa-pencil"></i>
+            Editar
+          </button></div></div>
+          <div class="rev-stars">★★★★★</div>
+          <div class="rev-text">"Levíssimo e muito confortável! Uso para corrida de 5km diariamente. O amortecimento é excelente. Numeração precisa, peça o seu tamanho normal."</div>
+          <div class="rev-meta"><span>15 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
+            <i class="fa-regular fa-thumbs-up"></i>
+            31 pessoas acharam útil
+          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
+            <i class="fa-regular fa-thumbs-up"></i>
+            Útil
+          </button></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-hourglass-half"></i>
+        </span> Aguardando sua Avaliação</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#f8fafd;border:1.5px solid #e2e8f0;border-radius:12px">
+          <div class="card-waiting" style="display:flex;align-items:center;gap:12px"><div style="font-size:28px">💡</div><div><div style="font-size:13px;font-weight:600">Kit LED Smart RGB 10m</div><div style="font-size:11px;color:#64748b">Entregue em 10 Jan 2025</div></div></div>
+          <button class="btn-primary" style="font-size:12px" onclick="toast('Abrindo formulário de avaliação ⭐','info')">
+            <i class="fa-solid fa-star"></i>
+            Avaliar agora
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- ════ ENDEREÇOS ════ -->
     <div class="panel" id="panel-addresses">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Endereços</h2><p>Gerencie seus endereços de entrega</p></div>
-        <button class="btn-primary" onclick="openAddressModal()">+ Novo endereço</button>
+        <button class="btn-primary" onclick="openAddressModal()">
+          <i class="fa-solid fa-plus"></i>
+          Novo endereço
+        </button>
       </div>
       <div class="card">
         <div class="addr-grid">
@@ -433,12 +528,18 @@
             <div class="addr-name"></div>
             <div class="addr-street"><br><br></div>
             <div class="addr-actions">
-              <button class="btn-xs blue" onclick="toast('Editando endereço','info')">✏️</button>
-              <button class="btn-xs gray" onclick="toast('Endereço excluído')">🗑</button>
+              <button class="btn-xs blue" onclick="toast('Editando endereço','info')">
+                <i class="fa-solid fa-pencil"></i>
+              </button>
+              <button class="btn-xs gray" onclick="toast('Endereço excluído')">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
             </div>
           </div>
           <div class="add-card" onclick="openAddressModal()">
-            <div class="add-card-ico">📍</div>
+            <div class="add-card-ico">
+              <i class="fa-solid fa-plus"></i>
+            </div>
             <span>Adicionar novo endereço</span>
           </div>
         </div>
@@ -452,41 +553,62 @@
       </div>
       <div class="card">
         <div class="card-title"><span class="ct-ico">
-          <img src="/images/icons/full/card.webp" style="width: 20px; height: auto; display: block;" alt="Card"/>
+          <i class="fa-solid fa-credit-card"></i>
         </span> Cartões Salvos</div>
         <div class="pay-card">
           <div class="pay-ico visa">VISA</div>
           <div class="pay-info"><div class="pay-name">Visa terminado em 4231 <span class="pay-default">Principal</span></div><div class="pay-detail">Ana Carolina · Expira 08/2027</div></div>
           <div class="pay-actions">
-            <button class="btn-xs blue" onclick="toast('Editando cartão','info')">✏️</button>
-            <button class="btn-xs gray" onclick="toast('Cartão excluído')">🗑</button>
+            <button class="btn-xs blue" onclick="toast('Editando cartão','info')">
+              <i class="fa-solid fa-pencil"></i>
+            </button>
+            <button class="btn-xs gray" onclick="toast('Cartão excluído')">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
         </div>
         <div class="pay-card">
           <div class="pay-ico master">MC</div>
           <div class="pay-info"><div class="pay-name">Mastercard terminado em 8817</div><div class="pay-detail">Ana Carolina · Expira 12/2026</div></div>
           <div class="pay-actions">
-            <button class="btn-xs blue" onclick="toast('Definido como principal ✓')">⭐</button>
-            <button class="btn-xs gray" onclick="toast('Cartão excluído')">🗑</button>
+            <button class="btn-xs blue" onclick="toast('Definido como principal ✓')">
+              <i class="fa-solid fa-star"></i>
+            </button>
+            <button class="btn-xs gray" onclick="toast('Cartão excluído')">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
         </div>
-        <button class="btn-outline" style="margin-top:10px; font-size: 12px" onclick="toast('Adicionando cartão','info')">+  Novo cartão</button>
+        <button class="btn-outline" style="margin-top:10px; font-size: 12px" onclick="toast('Adicionando cartão','info')">
+          <i class="fa-solid fa-plus"></i>
+          Novo cartão
+        </button>
       </div>
       <div class="card">
-        <div class="card-title"><span class="ct-ico">📱</span> Chave PIX</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-brands fa-pix"></i>
+        </span> Chave PIX</div>
         <div class="pay-card">
           <div class="pay-ico pix">PIX</div>
           <div class="pay-info"><div class="pay-name">Chave PIX — CPF</div><div class="pay-detail">123.456.789-00 · Banco do Brasil</div></div>
           <div class="pay-actions">
-            <button class="btn-xs gray" onclick="toast('Chave copiada!')">📋 Copiar</button>
-            <button class="btn-xs gray" onclick="toast('Chave excluída')">🗑</button>
+            <button class="btn-xs gray" onclick="toast('Chave copiada!')">
+              <i class="fa-solid fa-clipboard"></i>
+              Copiar
+            </button>
+            <button class="btn-xs gray" onclick="toast('Chave excluída')">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
         </div>
-        <button class="btn-outline" style="margin-top:10px; font-size: 12px" onclick="toast('Cadastrar nova chave PIX','info')">+  Adicionar chave PIX</button>
+        <button class="btn-outline" style="margin-top:10px; font-size: 12px" onclick="toast('Cadastrar nova chave PIX','info')">
+          <i class="fa-solid fa-plus"></i>
+          Adicionar chave PIX
+        </button>
       </div>
       <div class="card">
         <div class="card-title"><span class="ct-ico">
-          <img src="/images/icons/full/dashboard.webp" style="width: 20px; height: auto; display: block;" alt="Dashboard"/>
+          <i class="fa-solid fa-clock-rotate-left"></i>
         </span> Histórico de Pagamentos</div>
         <div style="display:flex;flex-direction:column;gap:0">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
@@ -509,37 +631,62 @@
     <div class="panel" id="panel-notifications">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Notificações</h2><p>Escolha como e quando deseja ser notificado</p></div>
-        <button class="btn-outline" onclick="setAllNotifs()">✓ Ativar todas</button>
+        <button class="btn-outline" onclick="setAllNotifs()">
+          <i class="fa-solid fa-check"></i>
+          Ativar todas
+        </button>
       </div>
       <div class="card">
         <div class="card-title"><span class="ct-ico">
-          <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+          <i class="fa-solid fa-box-open"></i>
         </span> Pedidos e Entregas</div>
         <div class="notif-list">
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
-            <img src="/images/icons/full/box.webp" style="width: 20px; height: auto; display: block;" alt="Box"/>
+            <i class="fa-solid fa-box-open"></i>
           </div><div class="notif-info"><h4>Atualização de pedido</h4><p>Notificações de status, envio e entrega</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">🚚</div><div class="notif-info"><h4>Saiu para entrega</h4><p>Avise quando o pedido estiver a caminho</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">✅</div><div class="notif-info"><h4>Pedido entregue</h4><p>Confirmação de entrega bem-sucedida</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">↩️</div><div class="notif-info"><h4>Status de devolução</h4><p>Atualizações sobre solicitações de troca/devolução</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="ct-ico">🏷️</span> Promoções e Ofertas</div>
-        <div class="notif-list">
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">⚡</div><div class="notif-info"><h4>Ofertas relâmpago</h4><p>Flash sales e descontos por tempo limitado</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">🎟️</div><div class="notif-info"><h4>Cupons exclusivos</h4><p>Novos cupons e promoções personalizadas</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">📧</div><div class="notif-info"><h4>Newsletter semanal</h4><p>Tendências e novidades por e-mail</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">❤️</div><div class="notif-info"><h4>Itens favoritos em promoção</h4><p>Alerte quando um produto salvo entrar em oferta</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="ct-ico">📲</span> Canal de Notificações</div>
-        <div class="notif-list">
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">📧</div><div class="notif-info"><h4>E-mail</h4><p>ana.carolina@email.com</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="notif-row"><div class="notif-left"><div class="notif-ico">📱</div><div class="notif-info"><h4>SMS / WhatsApp</h4><p>(11) 99999-8888</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
-            <img src="/images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
+            <i class="fa-solid fa-truck"></i>
+          </div><div class="notif-info"><h4>Saiu para entrega</h4><p>Avise quando o pedido estiver a caminho</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-check"></i>
+          </div><div class="notif-info"><h4>Pedido entregue</h4><p>Confirmação de entrega bem-sucedida</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-reply"></i>
+          </div><div class="notif-info"><h4>Status de devolução</h4><p>Atualizações sobre solicitações de troca/devolução</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-tag"></i>
+        </span> Promoções e Ofertas</div>
+        <div class="notif-list">
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-bolt"></i>
+          </div><div class="notif-info"><h4>Ofertas relâmpago</h4><p>Flash sales e descontos por tempo limitado</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-ticket"></i>
+          </div><div class="notif-info"><h4>Cupons exclusivos</h4><p>Novos cupons e promoções personalizadas</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-envelope"></i>
+          </div><div class="notif-info"><h4>Novidades semanais</h4><p>Tendências e novidades por e-mail</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-heart"></i>
+          </div><div class="notif-info"><h4>Itens favoritos em promoção</h4><p>Alerte quando um produto salvo entrar em oferta</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-bell"></i>
+        </span> Canal de Notificações</div>
+        <div class="notif-list">
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-envelope"></i>
+          </div><div class="notif-info"><h4>E-mail</h4><p>seu.email@email.com</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-comment"></i>
+          </div><div class="notif-info"><h4>SMS / WhatsApp</h4><p></p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          <div class="notif-row"><div class="notif-left"><div class="notif-ico">
+            <i class="fa-solid fa-bell"></i>
           </div><div class="notif-info"><h4>Push no navegador</h4><p>Notificações em tempo real</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
         </div>
       </div>
@@ -551,82 +698,69 @@
         <div class="panel-hd-left"><h2>Segurança</h2><p>Proteja sua conta com as melhores práticas</p></div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="ct-ico">🛡️</span> Status de Segurança</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-shield"></i>
+        </span> Status de Segurança</div>
         <div style="display:flex;align-items:center;gap:12px;padding:14px;background:linear-gradient(135deg,#dcfce7,#d1fae5);border-radius:12px;border:1px solid #86efac;margin-bottom:18px">
-          <span style="font-size:28px">🔐</span>
+          <span style="font-size:28px">
+            <i class="fa-solid fa-lock"></i>
+          </span>
           <div><div style="font-size:13px;font-weight:700;color:#15803d">Conta Segura</div><div style="font-size:11px;color:#166534">Sua conta está protegida com senha forte e e-mail verificado</div></div>
-          <div style="margin-left:auto;background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px">Nível: Alto</div>
+          <div class="account-status" style="margin-left:auto;background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px">Nível: Alto</div>
         </div>
         <div class="notif-list">
-          <div class="security-item"><div class="sec-left"><div class="sec-ico blue">🔑</div><div class="sec-info"><h4>Senha da conta</h4><p>Última atualização há 30 dias</p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Configurada</span><button class="btn-xs blue" onclick="changePwd()">Alterar</button></div></div>
-          <div class="security-item"><div class="sec-left"><div class="sec-ico green">📧</div><div class="sec-info"><h4>E-mail verificado</h4><p id="securityEmail"></p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Verificado</span></div></div>
-          <div class="security-item"><div class="sec-left"><div class="sec-ico green">📱</div><div class="sec-info"><h4>Celular verificado</h4><p>(11) 99999-8888</p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Verificado</span></div></div>
+          <div class="security-item"><div class="sec-left"><div class="sec-ico blue">
+            <i class="fa-solid fa-key"></i>
+          </div><div class="sec-info"><h4>Senha da conta</h4><p>Última atualização há 30 dias</p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Configurada</span><button class="btn-xs blue" onclick="changePwd()">Alterar</button></div></div>
+          <div class="security-item"><div class="sec-left"><div class="sec-ico green">
+            <i class="fa-solid fa-envelope"></i>
+          </div><div class="sec-info"><h4>E-mail verificado</h4><p id="securityEmail"></p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Verificado</span></div></div>
+          <div class="security-item"><div class="sec-left"><div class="sec-ico green">
+            <i class="fa-solid fa-phone"></i>
+          </div><div class="sec-info"><h4>Celular verificado</h4><p></p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● Verificado</span></div></div>
           <div class="security-item"><div class="sec-left"><div class="sec-ico yellow">
-            <img src="/images/icons/full/padlock.webp" style="width: 20px; height: auto; display: block;" alt="Padlock"/>
+            <i class="fa-solid fa-lock"></i>
           </div><div class="sec-info"><h4>Autenticação em 2 fatores (2FA)</h4><p>Proteção extra ao fazer login</p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-off">○ Inativo</span><button class="btn-xs blue" onclick="toast('Configurando 2FA...','info')">Ativar</button></div></div>
-          <div class="security-item"><div class="sec-left"><div class="sec-ico blue">🌐</div><div class="sec-info"><h4>Contas vinculadas</h4>
+          <div class="security-item"><div class="sec-left"><div class="sec-ico blue">
+            <i class="fa-solid fa-globe"></i>
+          </div><div class="sec-info"><h4>Contas vinculadas</h4>
             <p>Google</p></div></div><div style="display:flex;align-items:center;gap:8px"><span class="sec-status sec-on">● 1 conta</span><button class="btn-xs gray" onclick="toast('Gerenciando vínculos','info')">Gerenciar</button></div></div>
         </div>
       </div>
 
       <!-- change password inline -->
       <div class="card" id="pwdChangeCard" style="display:none">
-        <div class="card-title"><span class="ct-ico">🔑</span> Alterar Senha</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-key"></i>
+        </span> Alterar Senha</div>
         <div class="fgrid" style="grid-template-columns:1fr">
           <div class="fgrp"><label>Senha atual</label><input class="finput" type="password" placeholder="••••••••"></div>
           <div class="fgrp"><label>Nova senha</label><input class="finput" type="password" placeholder="Mínimo 8 caracteres"></div>
           <div class="fgrp"><label>Confirmar nova senha</label><input class="finput" type="password" placeholder="Repita a nova senha"></div>
         </div>
         <div class="form-actions">
-          <button class="btn-primary" onclick="toast('Senha alterada com sucesso! 🔑');document.getElementById('pwdChangeCard').style.display='none'">💾 Salvar nova senha</button>
+          <button class="btn-primary" onclick="toast('Senha alterada com sucesso! 🔑');document.getElementById('pwdChangeCard').style.display='none'">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Salvar nova senha
+          </button>
           <button class="btn-ghost" onclick="document.getElementById('pwdChangeCard').style.display='none'">Cancelar</button>
         </div>
       </div>
       
       <div class="card">
-        <div class="card-title"><span class="ct-ico">💻</span> Sessões Ativas</div>
+        <div class="card-title"><span class="ct-ico">
+          <i class="fa-solid fa-desktop"></i>
+        </span> Sessões Ativas</div>
         <div id="sessionsList" style="display:flex;flex-direction:column;gap:8px">
           <div style="font-size: 13px; color: #64748b;">Carregando sessões...</div>
           <!--<div class="session-card"><div class="session-device">💻</div><div class="session-info"><strong>Chrome · Windows 11</strong><small>São Paulo, SP · Agora mesmo · IP 177.X.X.X</small></div><span class="session-curr">Sessão atual</span></div>-->
           <!--<div class="session-card"><div class="session-device">📱</div><div class="session-info"><strong>Safari · iPhone 15</strong><small>São Paulo, SP · Há 2 horas · IP 177.X.X.X</small></div><button class="btn-xs gray" onclick="toast('Sessão encerrada')">Encerrar</button></div>-->
           <!--<div class="session-card"><div class="session-device">🖥️</div><div class="session-info"><strong>Firefox · macOS</strong><small>Rio de Janeiro, RJ · Ontem às 15:32</small></div><button class="btn-xs gray" onclick="toast('Sessão encerrada')">Encerrar</button></div>-->
         </div>
-        <button class="btn-danger" style="margin-top:14px;width:100%;justify-content:center" onclick="doOthersLogout()">🚪 Encerrar todas as outras sessões</button>
-      </div>
-    </div>
-
-    <!-- ════ AVALIAÇÕES ════ -->
-    <div class="panel" id="panel-reviews">
-      <div class="panel-hd">
-        <div class="panel-hd-left"><h2>Minhas Avaliações</h2><p>Produtos que você avaliou</p></div>
-      </div>
-      <div class="card">
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">⌚</div><div><div class="rev-prod-name">Smartwatch Pro X7</div><div class="rev-prod-cat">Eletrônicos · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">✏️ Editar</button></div></div>
-          <div class="rev-stars">★★★★★</div>
-          <div class="rev-text">"Melhor smartwatch que já tive! Chegou em 8 dias, embalagem impecável e a qualidade está acima do esperado. A bateria realmente dura 14 dias como anunciado. Recomendo muito!"</div>
-          <div class="rev-meta"><span>20 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>👍 42 pessoas acharam útil</span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">👍 Útil</button></div></div>
-        </div>
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">🎒</div><div><div class="rev-prod-name">Mochila Anti-Furto Executiva</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">✏️ Editar</button></div></div>
-          <div class="rev-stars">★★★★☆</div>
-          <div class="rev-text">"Ótima mochila, muito espaçosa e o compartimento USB é muito prático. Tirei uma estrela porque o zíper poderia ser mais resistente. De resto, excelente custo-benefício."</div>
-          <div class="rev-meta"><span>19 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>👍 18 pessoas acharam útil</span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">👍 Útil</button></div></div>
-        </div>
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">👟</div><div><div class="rev-prod-name">Tênis Running UltraLight</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">✏️ Editar</button></div></div>
-          <div class="rev-stars">★★★★★</div>
-          <div class="rev-text">"Levíssimo e muito confortável! Uso para corrida de 5km diariamente. O amortecimento é excelente. Numeração precisa, peça o seu tamanho normal."</div>
-          <div class="rev-meta"><span>15 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>👍 31 pessoas acharam útil</span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">👍 Útil</button></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="ct-ico">⏳</span> Aguardando sua Avaliação</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#f8fafd;border:1.5px solid #e2e8f0;border-radius:12px">
-          <div style="display:flex;align-items:center;gap:12px"><div style="font-size:28px">💡</div><div><div style="font-size:13px;font-weight:600">Kit LED Smart RGB 10m</div><div style="font-size:11px;color:#64748b">Entregue em 10 Jan 2025</div></div></div>
-          <button class="btn-primary" style="font-size:12px" onclick="toast('Abrindo formulário de avaliação ⭐','info')">⭐ Avaliar agora</button>
-        </div>
+        <button class="btn-danger" style="margin-top:14px;width:100%;justify-content:center" onclick="doOthersLogout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Encerrar todas as outras sessões
+        </button>
       </div>
     </div>
 
@@ -634,13 +768,16 @@
     <div class="panel active" id="panel-settings">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Configurações</h2><p>Personalize sua experiência na Ecomme</p></div>
-        <button class="btn-primary" onclick="toast('Configurações salvas! ✓')">💾 Salvar</button>
+        <button class="btn-primary" onclick="toast('Configurações salvas! ✓')">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Salvar
+        </button>
       </div>
       <div class="card">
         <div class="settings-section">
           <div class="settings-title">Aparência</div>
           <div class="setting-row"><div class="setting-left"><h4>Ícones estilizados</h4><p>Ícones personalizados com identidade visual marcante.</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Tema</h4><p>Escolha entre claro, escuro ou automático</p></div><div class="theme-btns"><div class="theme-btn light on" onclick="setTheme(this,'light')" title="Claro">☀️</div><div class="theme-btn dark" onclick="setTheme(this,'dark')" title="Escuro">🌙</div><div class="theme-btn auto" onclick="setTheme(this,'auto')" title="Automático">⚙️</div></div></div>
+          <div class="setting-row"><div class="setting-left"><h4>Tema</h4><p>Escolha entre claro, escuro ou automático</p></div><div class="theme-btns"><div class="theme-btn light on" onclick="setTheme(this,'light')" title="Claro"><i class="fa-solid fa-sun"></i></div><div class="theme-btn dark" onclick="setTheme(this,'dark')" title="Escuro"><i class="fa-solid fa-moon"></i></div><div class="theme-btn auto" onclick="setTheme(this,'auto')" title="Automático"><i class="fa-solid fa-gear"></i></div></div></div>
           <div class="setting-row"><div class="setting-left"><h4>Idioma</h4><p>Idioma exibido na interface</p></div><select class="lang-sel"><option>🇧🇷 Português (BR)</option><option>🇺🇸 English (US)</option><option>🇪🇸 Español</option></select></div>
           <div class="setting-row"><div class="setting-left"><h4>Moeda</h4><p>Moeda para exibição de preços</p></div><select class="currency-sel"><option>R$ — Real Brasileiro</option><option>$ — Dólar Americano</option><option>€ — Euro</option></select></div>
         <div class="settings-section">
@@ -664,12 +801,24 @@
       </div>
       <div class="card">
         <div class="danger-zone">
-          <h4>⚠️ Zona de Perigo</h4>
+          <h4>
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Zona de Perigo
+          </h4>
           <p>Estas ações são irreversíveis. Proceda com cautela.</p>
           <div class="btns">
-            <button class="btn-danger" onclick="toast('Exportando dados... você receberá um e-mail em até 24h','info')">📦 Exportar meus dados (LGPD)</button>
-            <button class="btn-danger" onclick="toast('Conta pausada. Você pode reativá-la a qualquer momento.','info')">⏸ Pausar conta</button>
-            <button class="btn-danger" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5" onclick="toast('Para excluir a conta, confirme por e-mail.','err')">🗑 Excluir conta permanentemente</button>
+            <button class="btn-danger" onclick="toast('Exportando dados... você receberá um e-mail em até 24h','info')">
+              <i class="fa-solid fa-file-export"></i>
+              Exportar meus dados
+            </button>
+            <button class="btn-danger" onclick="toast('Conta pausada. Você pode reativá-la a qualquer momento.','info')">
+              <i class="fa-solid fa-pause"></i>
+              Pausar conta
+            </button>
+            <button class="btn-danger-delete" onclick="toast('Para excluir a conta, confirme por e-mail.','err')">
+              <i class="fa-solid fa-trash-can"></i>
+              Excluir conta permanentemente
+            </button>
           </div>
         </div>
       </div>
@@ -741,12 +890,12 @@
       <div class="menu-menu-group">
         <p class="menu-label">Conta</p>
         <button class="btn-menu-option" onclick="showPanel('profile',this); closeMenu()">
-          <i class="fa-solid fa-user-pen"></i>
+          <i class="fa-solid fa-user"></i>
           <span>Meu Perfil</span>
         </button>
         <button class="btn-menu-option" onclick="showPanel('wishlist',this); closeMenu()">
           <i class="fa-solid fa-heart"></i>
-          <span>Lista de desejos</span>
+          <span>Lista de Desejos</span>
         </button>
         <button class="btn-menu-option" onclick="showPanel('coupons',this); closeMenu()">
           <i class="fa-solid fa-ticket"></i>
