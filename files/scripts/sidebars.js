@@ -787,6 +787,7 @@ function getOptimizedImageUrl(
 }
 // ============================================================
 
+let DbNormalizedId = false;
 /* ─── CART ───────────────────────────────────────────────────────────── */
 function addToCart(id, qty = 1) {
   if (!userId) {
@@ -797,8 +798,13 @@ function addToCart(id, qty = 1) {
     );
     return;
   }
-  
-  const normalizedId = String(id);
+
+  if (!DbNormalizedId) {
+    const normalizedId = String(id);
+    let DbNormalizedId = true;
+  } else {
+    return;
+  }
   const p = products.find(
     x => String(x.id) === normalizedId
   );
@@ -951,8 +957,9 @@ function updateCart() {
 }
 
 function updateCartWishBtn() {
-  if (!normalizedId) {
+  if (!DbNormalizedId) {
     const normalizedId = String(id);
+    let DbNormalizedId = true;
   } else {
     return;
   }
