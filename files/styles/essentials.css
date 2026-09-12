@@ -1137,9 +1137,8 @@ header {
   flex: 1;
   background: rgba(25,100,255,0);
   /* box-shadow: 0px 0px 15px rgb(25 100 255 / 50%); */
-  border: none;
   color: var(--blue);
-  border: 1px solid;
+  border: 1px solid var(--blue);
   position: relative;
   height: 46px;
   margin-top: 5px;
@@ -1151,20 +1150,43 @@ header {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.3s, color 0.3s, transform 0.3s;
+  transition: background 0.3s, color 0.3s, border 0.3s, transform 0.3s;
 }
 .btn-madd:hover {
   background: var(--blue2);
   color: var(--white);
   border: 1px solid var(--blue);
-  transform: scale(1.03);
+  /*transform: scale(1.03);*/
 }
-.btn-mwish {
+.btn-mcart {
   margin-top: 5px;
   width: 46px;
   height: 46px;
   border-radius: 15px;
   border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.btn-mcart:hover {
+  color: var(--blue);
+  background: var(--surface-2);
+  transform: scale(1.07);
+  box-shadow: 0px 0px 7px rgba(25,100,255,0.8);
+}
+.btn-mcart:hover svg {transform: scale(1.1)}
+.btn-mcart.on { border-color: var(--blue); color: var(--blue); }
+.btn-mcart svg { transition: 0.3s transform; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.btn-mcart.on svg { fill: var(--blue); }
+
+.btn-mwish {
+  margin-top: 5px;
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  border: 1px solid var(--border2) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1200,8 +1222,9 @@ header {
   transform: scale(1.07);
   box-shadow: 0px 0px 7px rgba(255,0,0,0.8);
 }
+.btn-mwish:hover svg {transform: scale(1.1)}
 .btn-mwish.on { border-color: var(--red); color: var(--red); }
-.btn-mwish svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.btn-mwish svg { transition: 0.3s transform; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
 .btn-mwish.on svg { fill: var(--red); }
 
 .btn-mwish1.on { border-color: var(--red); color: var(--red); }
@@ -2054,9 +2077,9 @@ header {
     .btn-mwish {display: none;}
     .btn-mwish1 {display: flex;}
     .m-price {display: none;}
-    .m-price1 {display: flex;}
+    .m-price1 {display: flex;margin-right: 30px;}
     .modal-img {max-width: 80%;max-height: 400px;align-self: center;border-radius: 0 0 36px 36px;}
-    .m-btns {gap: 50px;}
+    .m-btns {}
     .modal-img-area {padding: 0;/* margin-bottom: -80px; */}
     .m-qty-row {display: none;}
     .m-qty-ctrl1 {display: flex;}
