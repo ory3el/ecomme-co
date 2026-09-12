@@ -947,12 +947,6 @@ function updateCart() {
       </div>
     `;
   }).join('');
-  $('cart-item-towish').classList.toggle(
-    'on',
-    fav.some(
-      x => String(x.id) === normalizedId
-    )
-  );
 }
 
 function openCart() {
