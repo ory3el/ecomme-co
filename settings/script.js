@@ -1251,3 +1251,60 @@ async function doOthersLogout() {
   );
   await fetchSessions();
 }
+
+// -----------------------------------------------------------------------------------
+
+async function pauseAccount() {
+  if (!userId) {
+    toast('Sua sessão expirou.', 'err');
+    return;
+  }
+
+  const confirmed = confirm('Pausar sua conta?\n\n' + 'Você será desconectado e não poderá acessar a conta até reativá-la.');
+  if (!confirmed) return;
+
+  toast(
+    'Pausando sua conta...',
+    'info'
+  );
+
+  try {
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      toast('Sessão expirada.', 'err');
+      return;
+    }
+
+    const response = await fetch(
+      `${SUPABASE_URL}/functions/v1/account-action`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+            `Bearer ${session.access_token}`,
+          'apikey':
+            SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({action: 'pause'})
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Não foi possível pausar a conta.');
+    }
+    
+    localStorage.removeItem('local_session_id');
+    await supabaseClient.auth.signOut({scope: 'local'});
+    alert('Sua conta foi pausada com sucesso.');
+    window.location.href = '/login';
+  } catch (error) {
+    console.error('Erro ao pausar conta:',error);
+    toast(error.message || 'Não foi possível pausar a conta.', 'err');
+  }
+}
