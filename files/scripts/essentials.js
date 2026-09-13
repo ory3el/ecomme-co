@@ -581,21 +581,10 @@ function loadShuffleAndRender() {
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
 function productCardHtml(p) {
   const images = getProductImages(p);
-  const mainImage =
-    images[0] || null;
-
-  const inW =
-    fav.some(
-      x =>
-        String(x.id) ===
-        String(p.id)
-    );
-
-  const category =
-    Array.isArray(p.cat)
-      ? p.cat.join(', ')
-      : String(p.cat || '');
-
+  const mainImage = images[0] || null;
+  const inW = fav.some(x => String(x.id) === String(p.id));
+  const category = Array.isArray(p.cat) ? p.cat.join(', ') : String(p.cat || '');
+  
   let badgeH = '';
   if (p.badge === 'hot') {
     badgeH = `
@@ -654,36 +643,11 @@ function productCardHtml(p) {
     `
     : '';
 
-  const oldPrice =
-    p.old > 0
-      ? `
-        <span class="pold">
-          ${fmt(p.old)}
-        </span>
-      `
-      : '';
-  const discount =
-    p.discount > 0
-      ? `
-        <span class="pdisc">
-          -${p.discount}%
-        </span>
-      `
-      : '';
+  const oldPrice = p.old > 0 ? ` <span class="pold"> ${fmt(p.old)}</span>` : '';
+  const discount = p.discount > 0 ? `<span class="pdisc"> -${p.discount}% </span>` : '';
+  const imagePreset = view === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
+  const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, imagePreset) : null;
   
-  const imagePreset =
-    view === 'list'
-      ? EDGE_IMAGE_PRESETS.list
-      : EDGE_IMAGE_PRESETS.grid;
-
-  const optimizedMainImage =
-    mainImage
-      ? getOptimizedImageUrl(
-          mainImage,
-          imagePreset
-        )
-      : null;
-
   const imageHtml =
     optimizedMainImage
       ? `
