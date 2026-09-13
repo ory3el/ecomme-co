@@ -508,7 +508,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
       if (profile.avatar_url && $('accSidebarAvatar')) {
         $('accSidebarAvatar').src = profile.avatar_url;
-        $('accSidebarAvatar').style.display = "none";
+        $('accSidebarAvatar').style.display = "flex";
       }
       
       const photoUrl = profile.avatar_url || '';
