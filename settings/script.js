@@ -164,7 +164,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('menuSidebarEmail').textContent = email;
       }
       if (profile.avatar_url && $('menuSidebarAvatar')) {
-        $('menuSidebarAvatar').style.filter = "none !important";
+        $('menuSidebarAvatar').style.filter = "none";
         $('menuSidebarAvatar').src = profile.avatar_url;
         $('menuSidebarIcon').style.display = "none";
       }
