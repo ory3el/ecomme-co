@@ -1254,6 +1254,421 @@ async function doOthersLogout() {
 
 // -----------------------------------------------------------------------------------
 
+// ── STYLES INJECTOR ──
+function injectModalStyles() {
+  if (document.getElementById('modal-alert-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'modal-alert-styles';
+  style.textContent = `
+    .modal-alert-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      /*background: rgba(0, 0, 0, 0.6);*/
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-alert-container.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-alert-content {
+      /*background: rgba(255, 255, 255, 0.8);*/
+      background: var(--white);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 36px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 100px rgba(25,100,255,0.5);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+    .modal-alert-container.active .modal-alert-content {
+      transform: scale(1);
+    }
+    .modal-alert-icon {
+      font-size: 44px;
+      margin-bottom: 15px;
+    }
+    .modal-alert-content h3 {
+      margin: 0 0 10px 0;
+      font-family: 'Sora', 'Poppins', sans-serif;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .modal-alert-content p {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.5;
+      margin: 0 0 24px 0;
+    }
+    .modal-alert-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .btn-alert-confirm {
+      background: #2563EB;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-alert-confirm:hover {
+      background: var(--blue2);
+      transform: scale(1.05);
+    }
+    .btn-alert-confirm-red {
+      background: #eb2525;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-confirm-red:hover {
+      background: #d81d1d;
+    }
+    .btn-alert-cancel {
+      background: var(--white);
+      border: 1px solid var(--text1);
+      color: var(--black);
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-cancel:hover {
+      background: var(--surface);
+    }
+    
+    /* ── DELETE ACCOUNT MODAL ── */
+    .modal-delete-input-wrap {
+      margin: 0 0 22px 0;
+      text-align: left;
+    }
+
+    .modal-delete-input-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-family: 'Sora', 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .modal-delete-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px 15px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      outline: none;
+      background: var(--surface);
+      color: var(--input-text);
+      font-family: 'Sora', 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 1px;
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+    }
+
+    .modal-delete-input::placeholder {
+      color: var(--muted);
+      letter-spacing: 0;
+      font-weight: 400;
+    }
+
+    .modal-delete-input:focus {
+      border-color: #eb2525;
+      box-shadow: 0 0 0 4px rgba(235,37,37,.10);
+    }
+
+    .modal-delete-input.valid {
+      border-color: #10B981;
+      box-shadow: 0 0 0 4px rgba(16,185,129,.10);
+    }
+
+    .modal-delete-input.invalid {
+      border-color: #eb2525;
+      box-shadow: 0 0 0 4px rgba(235,37,37,.10);
+    }
+
+    .modal-delete-hint {
+      margin-top: 8px;
+      min-height: 18px;
+      font-size: 12px;
+      text-align: center;
+      color: var(--muted);
+      transition: color .2s ease;
+    }
+
+    .modal-delete-hint.valid {
+      color: #10B981;
+    }
+
+    .modal-delete-hint.invalid {
+      color: #eb2525;
+    }
+
+    .btn-alert-delete {
+      background: #eb2525;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition:
+        background .2s ease,
+        transform .2s ease,
+        opacity .2s ease;
+    }
+
+    .btn-alert-delete:hover:not(:disabled) {
+      background: #d81d1d;
+      transform: scale(1.05);
+    }
+
+    .btn-alert-delete:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// ── DELETE ACCOUNT CONFIRM ──
+let deleteAccountConfirmOpen = false;
+function showDeleteAccountConfirm() {injectModalStyles();
+  let deleteModal = document.getElementById('deleteAccountModal');
+  if (!deleteModal) {
+    deleteModal = document.createElement('div');
+    deleteModal.id = 'deleteAccountModal';
+    deleteModal.className = 'modal-alert-container';
+    deleteModal.innerHTML = `
+      <div class="modal-alert-content">
+        <div class="modal-alert-icon">
+          ⚠️
+        </div>
+        <h3 id="deleteAccountTitle">
+          Excluir conta permanentemente
+        </h3>
+        <p id="deleteAccountMsg">
+          Esta ação é permanente e não poderá ser desfeita.
+          Todos os dados vinculados à sua conta poderão ser
+          removidos definitivamente.
+        </p>
+        <div class="modal-delete-input-wrap">
+          <label
+            class="modal-delete-input-label"
+            for="deleteAccountInput"
+          >
+            Digite "<strong>DELETE</strong>" para confirmar
+          </label>
+          <input
+            id="deleteAccountInput"
+            class="modal-delete-input"
+            type="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            placeholder="DELETE"
+            maxlength="6"
+          >
+          <div id="deleteAccountHint" class="modal-delete-hint">
+            A confirmação diferencia maiúsculas e minúsculas.
+          </div>
+        </div>
+        <div class="modal-alert-buttons">
+          <button
+            class="btn-alert-cancel"
+            type="button"
+            onclick="closeDeleteAccountConfirm()"
+          >
+            Cancelar
+          </button>
+          
+          <button
+            class="btn-alert-delete"
+            id="btnDeleteAccountConfirm"
+            type="button"
+            disabled
+            onclick="confirmDeleteAccountAction()"
+          >
+            Excluir conta
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(deleteModal);
+    const input = document.getElementById('deleteAccountInput');
+    if (input) {
+      input.addEventListener(
+        'input',
+        validateDeleteAccountInput
+      );
+      input.addEventListener('keydown',
+        function (event) {
+          if (
+            event.key === 'Enter' &&
+            input.value === 'DELETE'
+          ) {
+            confirmDeleteAccountAction();
+          }
+        }
+      );
+    }
+  }
+
+  const input = document.getElementById('deleteAccountInput');
+  const btn = document.getElementById('btnDeleteAccountConfirm');
+  const hint = document.getElementById('deleteAccountHint');
+
+  if (input) {
+    input.value = '';
+    input.classList.remove(
+      'valid',
+      'invalid'
+    );
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.45';
+  }
+
+  if (hint) {
+    hint.textContent = 'A confirmação diferencia maiúsculas e minúsculas.';
+    hint.classList.remove(
+      'valid',
+      'invalid'
+    );
+  }
+
+  deleteAccountConfirmOpen = true;
+  deleteModal.offsetHeight;
+  deleteModal.classList.add('active');
+
+  setTimeout(() => {
+    input?.focus();
+  }, 180);
+}
+
+// --------------------------------------
+
+function validateDeleteAccountInput() {
+  const input = document.getElementById('deleteAccountInput');
+  const btn = document.getElementById('btnDeleteAccountConfirm');
+  const hint = document.getElementById('deleteAccountHint');
+
+  if (!input || !btn) return;
+  const value = input.value;
+  const isValid = value === 'DELETE';
+  const hasValue = value.length > 0;
+
+  btn.disabled = !isValid;
+  btn.style.opacity = isValid ? '1' : '0.45';
+
+  // ── INPUT ──
+  input.classList.remove(
+    'valid',
+    'invalid'
+  );
+
+  if (isValid) {
+    input.classList.add('valid');
+    if (hint) {
+      hint.textContent = 'Confirmação válida ✓';
+      hint.classList.remove('invalid');
+      hint.classList.add('valid');
+    }
+    return;
+  }
+
+  if (hasValue) {
+    input.classList.add('invalid');
+    if (hint) {
+      hint.textContent = 'Digite exatamente "DELETE" para continuar.';
+      hint.classList.remove('valid');
+      hint.classList.add('invalid');
+    }
+    return;
+  }
+
+  if (hint) {
+    hint.textContent = 'A confirmação diferencia maiúsculas e minúsculas.';
+    hint.classList.remove(
+      'valid',
+      'invalid'
+    );
+  }
+}
+
+// --------------------------------------
+
+function closeDeleteAccountConfirm() {
+  const deleteModal = document.getElementById('deleteAccountModal');
+  if (deleteModal) {
+    deleteModal.classList.remove('active');
+  }
+  
+  deleteAccountConfirmOpen = false;
+  const input = document.getElementById('deleteAccountInput');
+
+  if (input) {
+    input.value = '';
+    input.classList.remove(
+      'valid',
+      'invalid'
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------------
+
+async function confirmDeleteAccountAction() {
+  const input = document.getElementById('deleteAccountInput');
+  if (!input) return;
+  if (input.value !== 'DETELE') {
+    validateDeleteAccountInput();
+    return;
+  }
+  closeDeleteAccountConfirm();
+
+  if (
+    typeof deleteAccountPermanently === 'function'
+  ) {
+    await deleteAccountPermanently();
+  } else {
+    console.error('deleteAccountPermanently() não foi encontrada.');
+    toast('A função de exclusão da conta ainda não está configurada.', 'err');
+  }
+}
+
+// -----------------------------------------------------------------------------------
+
 async function pauseAccount() {
   if (!userId) {
     toast('Sua sessão expirou.', 'err');
