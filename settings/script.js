@@ -163,10 +163,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       if ($('menuSidebarEmail')) {
         $('menuSidebarEmail').textContent = email;
       }
-      if (
-        profile.avatar_url && $('menuSidebarAvatar')
-      ) {
+      if (profile.avatar_url && $('menuSidebarAvatar')) {
         $('menuSidebarAvatar').src = profile.avatar_url;
+        $('menuSidebarIcon').style.display = "none";
       }
   }
     
