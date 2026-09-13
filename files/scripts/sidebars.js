@@ -509,6 +509,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (profile.avatar_url && $('accSidebarAvatar')) {
         $('accSidebarAvatar').src = profile.avatar_url;
         $('accSidebarAvatar').style.display = "flex";
+        $('accSidebarIcon').style.display = "none";
       }
       
       const photoUrl = profile.avatar_url || '';
