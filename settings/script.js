@@ -255,6 +255,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const avatarImage = document.getElementById('profileAvatar');
     const sidebarImage = document.getElementById('sidebarAvatar');
     const headerImage = document.getElementById('headerAvatar');
+    const menuImage = document.getElementById('menuSidebarAvatar');
+    const menuUserIcon = document.getElementById('menuSidebarIcon');
     if (avatarImage) {
       avatarImage.src = photoUrl;
       avatarImage.style.filter = "none";
@@ -278,6 +280,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.height = "100%";
       headerImage.style.borderRadius = "100%";
       headerImage.style.objectFit = "cover";
+    }
+    if (menuImage) {
+      menuImage.src = publicPhotoUrl;
+      menuImage.style.display = "flex"
+    }
+    if (menuUserIcon) {
+      menuUserIcon.style.display = "none"
     }
   }
 });
@@ -399,6 +408,7 @@ async function executeCrop() {
       const sidebarImage = document.getElementById('sidebarAvatar');
       const headerImage = document.getElementById('headerAvatar');
       const menuImage = document.getElementById('menuSidebarAvatar');
+      const menuUserIcon = document.getElementById('menuSidebarIcon');
       
       if (avatarImage) {
         avatarImage.src = publicPhotoUrl;
@@ -426,11 +436,10 @@ async function executeCrop() {
       }
       if (menuImage) {
         menuImage.src = publicPhotoUrl;
-        menuImage.style.filter = "none";
-        menuImage.style.width = "100%";
-        menuImage.style.height = "100%";
-        menuImage.style.borderRadius = "100%";
-        menuImage.style.objectFit = "cover";
+        menuImage.style.display = "flex"
+      }
+      if (menuUserIcon) {
+        menuUserIcon.style.display = "none"
       }
 
       toast('Foto atualizada com sucesso! 🎉', 'ok');
@@ -542,6 +551,7 @@ async function removePhoto(event) {
     const sidebarImage = document.getElementById('sidebarAvatar');
     const headerImage = document.getElementById('headerAvatar');
     const menuImage = document.getElementById('menuSidebarAvatar');
+    const menuUserIcon = document.getElementById('menuSidebarIcon');
     
     if (avatarImage) {
       avatarImage.src = "/images/icons/full/user.webp";
@@ -563,9 +573,10 @@ async function removePhoto(event) {
     }
     if (menuImage) {
       menuImage.src = "/images/icons/full/user.webp";
-      menuImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
-      menuImage.style.width = "75%";
-      menuImage.style.height = "auto";
+      menuImage.style.display = "none"
+    }
+    if (menuUserIcon) {
+      menuUserIcon.style.display = "flex"
     }
     toast('Foto de perfil removida com sucesso! 🗑️', 'ok');
 
