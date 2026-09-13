@@ -49,6 +49,7 @@
   --selected:     #fff;
   --selected1:    var(--blue);
   --img-filter:   none;
+  --img-filter1:  brightness(0);
   --bd-filter:    blur(16px);
   color-scheme:   light;
 }
@@ -104,6 +105,7 @@ html[data-theme="dark"] {
   --selected:     var(--blue);
   --selected1:    #fff;
   --img-filter:   brightness(0) invert(1);
+  --img-filter1:  brightness(0) invert(1);
   --bd-filter:    none;
   color-scheme:   dark;
 }
@@ -834,6 +836,7 @@ input,select,textarea{font-family:inherit}
 .hdr-ico{width:36px;height:36px;border-radius:50%;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:16px;transition:.2s}
 .hdr-ico:hover{border-color:#93c5fd;color:#2563eb;background:#eff6ff}
 .hdr-av{width:36px;height:36px;border-radius:50%;/* background:linear-gradient(135deg,#528eff,#7a59ff); */display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;border: 1px solid #fff;box-shadow:0 0 0 2px #2563eb}
+.hdr-av img {filter: var(--img-filter1) !important}
 
 /* ── PAGE WRAP ───────────────────────────────────────────── */
 .page{max-width:1360px;background: var(--surface);margin:0 auto;padding:28px 24px;display: grid;grid-template-columns:260px 1fr;gap:24px;align-items:start;}
@@ -848,6 +851,7 @@ input,select,textarea{font-family:inherit}
 .user-av-wrap{position:relative;display:inline-block;margin-bottom:12px}
 .user-av{width:72px;height:72px;border-radius:50%;/* background:linear-gradient(135deg,#528eff 0%,#7a59ff 100%); */display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:#fff;border:3px solid #fff;box-shadow:0 4px 16px rgba(37,99,235,.25);cursor:pointer;transition:transform .2s}
 .user-av:hover{transform:scale(1.05)}
+.user-av img {filter: var(--img-filter1) !important}
 .av-edit{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #fff;cursor:pointer;color:#fff}
 .user-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
 .user-email{font-size:11px;color: var(--muted);margin-bottom:12px}
@@ -929,7 +933,8 @@ textarea.finput{resize:vertical;min-height:80px}
 /* avatar upload area */
 .av-upload{display:flex;align-items:center;gap:20px;padding:20px;background: var(--white);border: 2px dashed var(--border);border-radius:14px;margin-bottom:20px;transition:.2s;cursor:pointer}
 .av-upload:hover{border-color:#93c5fd;transform: scale(1.02);}
-.av-big{width:80px;height:80px;border-radius:50%;/* background:linear-gradient(135deg,#528eff,#7a59ff); */border: 1px solid;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;flex-shrink:0}
+.av-big{width:80px;height:80px;border-radius:50%;/* background:linear-gradient(135deg,#528eff,#7a59ff); */border: 1px solid var(--muted2);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;flex-shrink:0}
+.av-big img {filter: var(--img-filter1) !important;}
 .av-upload-txt h4{font-size:13px;font-weight:600;margin-bottom:4px}
 .av-upload-txt p{font-size:11px;color: var(--muted);}
 .av-btns{display:flex;gap:8px;margin-top:8px}
