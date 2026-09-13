@@ -1667,6 +1667,108 @@ async function confirmDeleteAccountAction() {
   }
 }
 
+// ───────────────────────────────
+
+let deletingAccount = false;
+async function deleteAccountPermanently() {
+  if (deletingAccount) return;
+  deletingAccount = true;
+
+  try {
+    const {
+      data: { session },
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+    
+    if (sessionError) {
+      throw new Error('Não foi possível verificar sua sessão.');
+    }
+    if (!session) {
+      throw new Error('Sua sessão expirou. Faça login novamente.');
+    }
+
+    const deleteBtn = document.getElementById('btnDeleteAccountConfirm');
+    if (deleteBtn) {
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Excluindo...';
+      deleteBtn.style.opacity = '0.6';
+      deleteBtn.style.cursor = 'not-allowed';
+    }
+    toast('Excluindo sua conta... ', 'info');
+    
+    const {
+      data,
+      error
+    } = await supabaseClient.functions.invoke(
+      'account-action',
+      {
+        body: {
+          action: 'delete'
+        }
+      }
+    );
+
+    if (error) {
+      console.error('Erro na Edge Function:', error);
+      throw new Error(error.message || 'Não foi possível excluir sua conta.');
+    }
+
+    if (!data?.success) {
+      throw new Error(data?.error || 'A exclusão da conta não foi concluída.');
+    }
+
+    localStorage.removeItem('local_session_id');
+    sessionStorage.removeItem('remote_logout_notice_shown');
+    if (typeof stopSessionCheck === 'function') {
+      stopSessionCheck();
+    }
+
+    if (
+      typeof sessionCheckTimer !== 'undefined' &&
+      sessionCheckTimer
+    ) {
+      clearInterval(sessionCheckTimer);
+      sessionCheckTimer = null;
+    }
+
+    if (
+      typeof sessionHeartbeat !== 'undefined' &&
+      sessionHeartbeat
+    ) {
+      clearInterval(sessionHeartbeat);
+      sessionHeartbeat = null;
+    }
+
+    const {
+      error: signOutError
+    } = await supabaseClient.auth.signOut({
+      scope: 'local'
+    });
+
+    if (signOutError) {
+      console.warn('Sessão local já deveria estar encerrada:', signOutError);
+    }
+
+    toast('Sua conta foi excluída permanentemente.', 'ok');
+    await new Promise(
+      resolve => setTimeout(resolve, 900)
+    );
+    
+    window.location.replace('/?account_deleted=1');
+  } catch (error) {
+    console.error('Erro ao excluir conta:', error);
+    toast(error.message || 'Não foi possível excluir sua conta.', 'err');
+    const deleteBtn = document.getElementById('btnDeleteAccountConfirm');
+    if (deleteBtn) {
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Excluir conta';
+      deleteBtn.style.opacity = '1';
+      deleteBtn.style.cursor = 'pointer';
+    }
+    deletingAccount = false;
+  }
+}
+
 // -----------------------------------------------------------------------------------
 
 async function pauseAccount() {
