@@ -164,6 +164,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('menuSidebarEmail').textContent = email;
       }
       if (profile.avatar_url && $('menuSidebarAvatar')) {
+        $('menuSidebarAvatar').style.filter = "none !important";
         $('menuSidebarAvatar').src = profile.avatar_url;
         $('menuSidebarIcon').style.display = "none";
       }
@@ -283,6 +284,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (menuImage) {
       menuImage.src = photoUrl;
       menuImage.style.display = "flex"
+      menuImage.style.filter = "none !important";
     }
     if (menuUserIcon) {
       menuUserIcon.style.display = "none"
@@ -434,6 +436,7 @@ async function executeCrop() {
         headerImage.style.objectFit = "cover";
       }
       if (menuImage) {
+        menuImage.style.filter = "none !important";
         menuImage.src = publicPhotoUrl;
         menuImage.style.display = "flex"
       }
@@ -571,6 +574,7 @@ async function removePhoto(event) {
       headerImage.style.height = "auto";
     }
     if (menuImage) {
+      menuImage.style.filter = "";
       menuImage.src = "";
       menuImage.style.display = "none"
     }
