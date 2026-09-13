@@ -1886,7 +1886,7 @@ function injectModalStyles() {
       max-width: 440px;
       width: 90%;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(25,100,255,0.5);
+      box-shadow: 0 0 100px rgba(25,100,255,0.5);
       transform: scale(0.8);
       transition: transform 0.3s ease;
     }
