@@ -342,7 +342,7 @@ html.theme-transition, html.theme-transition *{
   align-items: center;
   flex-shrink: 0;
 }
-.menu-avatar-large img {width: 75%;height: 75%;object-fit: cover;}
+.menu-avatar-large img {width: 100%; height: 100%; object-fit: cover;}
 .menu-info { display: flex; flex-direction: column; min-width: 0; }
 .menu-info strong { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .menu-info span { font-size: 12px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; }
