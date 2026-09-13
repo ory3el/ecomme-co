@@ -259,7 +259,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const menuUserIcon = document.getElementById('menuSidebarIcon');
     if (avatarImage) {
       avatarImage.src = photoUrl;
-      avatarImage.style.filter = "none !important";
+      avatarImage.style.filter = "none";
       avatarImage.style.width = "100%";
       avatarImage.style.height = "100%";
       avatarImage.style.borderRadius = "100%";
@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     if (sidebarImage) {
       sidebarImage.src = photoUrl;
-      sidebarImage.style.filter = "none !important";
+      sidebarImage.style.filter = "none";
       sidebarImage.style.width = "100%";
       sidebarImage.style.height = "100%";
       sidebarImage.style.borderRadius = "100%";
@@ -275,7 +275,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     if (headerImage) {
       headerImage.src = photoUrl;
-      headerImage.style.filter = "none !important";
+      headerImage.style.filter = "none";
       headerImage.style.width = "100%";
       headerImage.style.height = "100%";
       headerImage.style.borderRadius = "100%";
@@ -284,7 +284,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (menuImage) {
       menuImage.src = photoUrl;
       menuImage.style.display = "flex"
-      menuImage.style.filter = "none !important";
+      menuImage.style.filter = "none";
     }
     if (menuUserIcon) {
       menuUserIcon.style.display = "none"
@@ -413,7 +413,7 @@ async function executeCrop() {
       
       if (avatarImage) {
         avatarImage.src = publicPhotoUrl;
-        avatarImage.style.filter = "none !important";
+        avatarImage.style.filter = "none";
         avatarImage.style.width = "100%";
         avatarImage.style.height = "100%";
         avatarImage.style.borderRadius = "100%";
@@ -421,7 +421,7 @@ async function executeCrop() {
       }
       if (sidebarImage) {
         sidebarImage.src = publicPhotoUrl;
-        sidebarImage.style.filter = "none !important";
+        sidebarImage.style.filter = "none";
         sidebarImage.style.width = "100%";
         sidebarImage.style.height = "100%";
         sidebarImage.style.borderRadius = "100%";
@@ -429,14 +429,14 @@ async function executeCrop() {
       }
       if (headerImage) {
         headerImage.src = publicPhotoUrl;
-        headerImage.style.filter = "none !important";
+        headerImage.style.filter = "none";
         headerImage.style.width = "100%";
         headerImage.style.height = "100%";
         headerImage.style.borderRadius = "100%";
         headerImage.style.objectFit = "cover";
       }
       if (menuImage) {
-        menuImage.style.filter = "none !important";
+        menuImage.style.filter = "none";
         menuImage.src = publicPhotoUrl;
         menuImage.style.display = "flex"
       }
@@ -563,13 +563,13 @@ async function removePhoto(event) {
     }
     if (sidebarImage) {
       sidebarImage.src = "/images/icons/full/user.webp";
-      sidebarImage.style.filter = "none !important";
+      sidebarImage.style.filter = "none";
       sidebarImage.style.width = "75%";
       sidebarImage.style.height = "auto";
     }
     if (headerImage) {
       headerImage.src = "/images/icons/full/user.webp";
-      headerImage.style.filter = "none !important";
+      headerImage.style.filter = "none";
       headerImage.style.width = "75%";
       headerImage.style.height = "auto";
     }
