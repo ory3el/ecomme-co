@@ -168,6 +168,7 @@
       align-items: center;
       justify-content: center;
       font-size: 72px;
+      transform: none !important;
       transition: transform 0.4s cubic-bezier(.4,0,.2,1);
     }
     .pimg img {
@@ -189,14 +190,14 @@
       padding: 3px 10px;
       border-radius: 100px;
       font-size: 9px;
-      font-family: 'inter';
-      font-weight: 900;
+      font-family: 'poppins';
+      font-weight: 600;
       letter-spacing: .7px;
       text-transform: uppercase;
     }
     .bhot  {background: var(--bg);border: 1px solid var(--red);color: var(--red22);}
-    .bnew  {background: var(--bg);border: 1px solid var(--blue);color: var(--blue22);color: var(--blue22);}
-    .bsale {background: var(--bg);border: 1px solid var(--green);color: var(--green22);}
+    .bnew  {background: var(--bg);border: 1px solid var(--blue);color: var(--blue22);}
+    .bsale {display: none;background: var(--bg);border: 1px solid var(--green);color: var(--green22);}
 
     .pwish-btn {
       position: absolute;
@@ -256,14 +257,14 @@
       height: 38px;
       background: var(--bg);
       border-radius: var(--radius);
-      border: 1px solid var(--black);
+      border: 1px solid var(--muted);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--black);
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .btn-qv:hover { background: #fff; border-color: var(--blue); color: var(--blue); }
+    .btn-qv:hover {border-color: var(--blue);color: var(--blue);}
     .btn-qv svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
 
     .is-scrolling .pcard:hover {
@@ -279,14 +280,14 @@
 
     .pinfo {padding: 10px;flex: 1;display: flex;flex-direction: column;}
     .pcat  { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; }
-    .pname { font-weight: 500; font-size: 14px; line-height: 1.4; margin-bottom: 8px; flex: 1; }
+    .pname {font-weight: 500;font-family: 'poppins';font-size: 14px;line-height: 1.4;margin-bottom: 8px;flex: 1;}
     .prating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
     .pstars { color: #F59E0B; font-size: 11px; letter-spacing: 1px; }
     .prcnt  { font-size: 11px; color: var(--muted); }
     .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-    .pprice { font-family: 'Outfit', serif; font-size: 19px; font-weight: 500; color: var(--blue); }
+    .pprice {font-family: 'Outfit', serif;font-size: 19px;font-weight: 500;color: var(--blue);}
     .pold   { font-size: 12px; color: var(--muted); text-decoration: line-through; }
-    .pdisc  {font-size: 10px;font-weight: 700;color: var(--green22);border: 1px solid var(--green);font-family: 'Inter';letter-spacing: 2px;background: var(--bg);padding: 2px 7px;border-radius: 4px;margin-left: auto;}
+    .pdisc  {font-size: 10px;font-weight: 700;color: var(--green22);border: 1px solid var(--green);font-family: 'poppins';letter-spacing: 1px;background: var(--bg);padding: 2px 7px;border-radius: 4px;margin-left: auto;}
     .pfship {
       font-size: 11px; color: var(--green);
       margin-top: 7px; display: flex; align-items: center; gap: 4px;
