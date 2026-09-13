@@ -1878,7 +1878,8 @@ function injectModalStyles() {
       opacity: 1; pointer-events: auto;
     }
     .modal-alert-content {
-      background: rgba(255, 255, 255, 0.8);
+      /*background: rgba(255, 255, 255, 0.8);*/
+      background: var(--white);
       backdrop-filter: blur(12px);
       padding: 30px;
       border-radius: 36px;
