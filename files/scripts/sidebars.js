@@ -1886,7 +1886,7 @@ function injectModalStyles() {
       max-width: 440px;
       width: 90%;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 30px rgba(25,100,255,0.5);
       transform: scale(0.8);
       transition: transform 0.3s ease;
     }
@@ -1900,12 +1900,12 @@ function injectModalStyles() {
     .modal-alert-content h3 {
       margin: 0 0 10px 0;
       font-family: 'Sora', 'Poppins', sans-serif;
-      color: #10161a;
+      color: var(--text);
       font-size: 20px;
       font-weight: 700;
     }
     .modal-alert-content p {
-      color: #707c8a;
+      color: var(--muted);
       font-size: 14.5px;
       line-height: 1.5;
       margin: 0 0 24px 0;
@@ -1924,10 +1924,11 @@ function injectModalStyles() {
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.2s;
+      transition: transform 0.2s, background 0.2s;
     }
     .btn-alert-confirm:hover {
-      background: #1d4ed8;
+      background: var(--blue2);
+      transform: scale(1.05);
     }
     .btn-alert-confirm-red {
       background: #eb2525;
@@ -1940,13 +1941,13 @@ function injectModalStyles() {
       font-size: 14px;
       transition: background 0.2s;
     }
-    .btn-alert-confirm:hover {
+    .btn-alert-confirm-red:hover {
       background: #d81d1d;
     }
     .btn-alert-cancel {
-      background: #e8ebf0;
-      color: #10161a;
-      border: none;
+      background: var(--white);
+      border: 1px solid var(--text1);
+      color: var(--black);
       padding: 11px 24px;
       border-radius: 250px;
       font-weight: 600;
@@ -1955,7 +1956,7 @@ function injectModalStyles() {
       transition: background 0.2s;
     }
     .btn-alert-cancel:hover {
-      background: #d1d5db;
+      background: var(--surface);
     }
   `;
   document.head.appendChild(style);
