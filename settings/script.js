@@ -557,19 +557,19 @@ async function removePhoto(event) {
     
     if (avatarImage) {
       avatarImage.src = "/images/icons/full/user.webp";
-      avatarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      avatarImage.style.filter = "none !important";
       avatarImage.style.width = "75%";
       avatarImage.style.height = "auto";
     }
     if (sidebarImage) {
       sidebarImage.src = "/images/icons/full/user.webp";
-      sidebarImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      sidebarImage.style.filter = "none !important";
       sidebarImage.style.width = "75%";
       sidebarImage.style.height = "auto";
     }
     if (headerImage) {
       headerImage.src = "/images/icons/full/user.webp";
-      headerImage.style.filter = "brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5))";
+      headerImage.style.filter = "none !important";
       headerImage.style.width = "75%";
       headerImage.style.height = "auto";
     }
