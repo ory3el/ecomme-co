@@ -473,14 +473,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!user || userError) {
       userId = null;
       if (loginBtn) {
-        loginBtn.classList.remove(
-          'hidden'
-        );
+        loginBtn.classList.remove('hidden');
       }
       if (profileContainer) {
-        profileContainer.classList.add(
-          'hidden'
-        );
+        profileContainer.classList.add('hidden');
       }
       injectPrefetch('/login');
       return;
@@ -492,9 +488,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       loginBtn.classList.add('hidden');
     }
     if (profileContainer) {
-      profileContainer.classList.remove(
-        'hidden'
-      );
+      profileContainer.classList.remove('hidden');
     }
 
     const {data: profile, error: profileError} = await supabaseClient
@@ -504,29 +498,20 @@ window.addEventListener('DOMContentLoaded', async () => {
       .single();
 
     if (!profileError && profile) {
-      const fullName =
-        profile.full_name ||
-        'Cliente';
-      const email =
-        user.email || '';
+      const fullName = profile.full_name || 'Cliente';
+      const email = user.email || '';
       if ($('accSidebarName')) {
-        $('accSidebarName').textContent =
-          fullName;
+        $('accSidebarName').textContent = fullName;
       }
       if ($('accSidebarEmail')) {
-        $('accSidebarEmail').textContent =
-          email;
+        $('accSidebarEmail').textContent = email;
       }
-      if (
-        profile.avatar_url &&
-        $('accSidebarAvatar')
-      ) {
-        $('accSidebarAvatar').src =
-          profile.avatar_url;
+      if (profile.avatar_url && $('accSidebarAvatar')) {
+        $('accSidebarAvatar').src = profile.avatar_url;
+        $('accSidebarAvatar').style.display = "none";
       }
       
-      const photoUrl =
-        profile.avatar_url || '';
+      const photoUrl = profile.avatar_url || '';
       if (photoUrl && headerImage) {
         headerImage.src = photoUrl;
         headerImage.style.filter = 'none';
