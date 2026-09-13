@@ -20,6 +20,7 @@
   --surface-2: rgba(255,255,255,.75);
   --overlay:   rgba(255,255,255,0.1);
   --box-shdw:  0 4px 12px rgb(0 0 0 / 10%);
+  --box-shdw1: rgb(0 0 0 / 20%);
   --ink:       #0E1626;
   --text:      #0F172A;
   --text1:     rgba(0,0,0,0.75);
@@ -63,7 +64,7 @@
 /* ── TOKENS (DARK) ───────────────────────────────────────────────── */
 html[data-theme="dark"] {
   --blue-deep: #FFFFFF;
-  --blue:      #2563EB;
+  --blue:      #4287f5;
   --blue11:    #0C1220;
   --blue22:    #FFFFFF;
   --blue2:     #3B82F6;
@@ -82,6 +83,7 @@ html[data-theme="dark"] {
   --surface-2: rgba(0,0,0,.75);
   --overlay:   rgba(25,100,255,0.1);
   --box-shdw:  0 0 52px rgb(255 255 255 / 20%);
+  --box-shdw1: rgb(255 255 255 / 20%);
   --ink:       #D7E3FC;
   --text:      #F8FAFC;
   --text1:     rgba(255,255,255,0.75);
@@ -134,6 +136,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
+  font-family: 'Poppins';
   font-size: 14px;
   line-height: 1.6;
   overflow-x: hidden;
@@ -358,7 +361,7 @@ header {
       height: 60px;
       border-radius: 8px;
       background: rgba(0, 0, 0, 0.0);
-      border: 1px solid rgba(0,0,0,0.0);
+      border: 1px solid var(--border1);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
@@ -936,10 +939,11 @@ header {
 }
 .modal-ov.on {opacity: 1;pointer-events: all;}
 .modal {
-  box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
+  box-shadow: var(--box-shdw);
   background: var(--white);
   /* backdrop-filter: blur(12px); */
-  border-radius: 36px;
+  border: 1px solid var(--border1);
+  /* border-radius: 36px; */
   max-width: 860px;
   min-height: 550px;
   width: min(860px, calc(100% - 24px));
@@ -1116,7 +1120,7 @@ header {
 .m-price {font-family: 'outfit';font-size: 36px;font-weight: 500;color: var(--blue);}
 .m-price1 {display: none;font-family: 'outfit';font-size: 25px;font-weight: 500;color: var(--blue);}
 .m-old { font-size: 14px; color: var(--muted); text-decoration: line-through; }
-.m-disc {font-size: 11px;font-weight: 900;min-width: 65px;min-height: 24px;text-align: center;color: var(--green2);background: var(--bg);border: 1px solid var(--green);font-family: 'Outfit';padding: 3px 8px;border-radius: 4px;}
+.m-disc {font-size: 11px;font-weight: 900;min-width: 65px;min-height: 24px;text-align: center;color: var(--green22);background: var(--bg);border: 1px solid var(--green);font-family: 'Outfit';padding: 3px 8px;border-radius: 4px;}
 .m-feats {display: flex;/* display: none; */flex-direction: column;justify-content: end;gap: 8px;/* margin-bottom: 24px; */}
 .m-feat { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
 .fchk {
