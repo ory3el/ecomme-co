@@ -281,7 +281,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       headerImage.style.objectFit = "cover";
     }
     if (menuImage) {
-      menuImage.src = publicPhotoUrl;
+      menuImage.src = photoUrl;
       menuImage.style.display = "flex"
     }
     if (menuUserIcon) {
@@ -571,7 +571,7 @@ async function removePhoto(event) {
       headerImage.style.height = "auto";
     }
     if (menuImage) {
-      menuImage.src = "/images/icons/full/user.webp";
+      menuImage.src = "";
       menuImage.style.display = "none"
     }
     if (menuUserIcon) {
