@@ -147,12 +147,34 @@ async function initGoogleIdentity() {
 
 async function startGoogleLogin() {
   const ready = await initGoogleIdentity();
+  
   if (!ready) {
     toast('O login do Google ainda está carregando.', 'err');
     return;
   }
+
   google.accounts.id.prompt(notification => {
-    console.log('Google Prompt Status:', notification.getMomentType?.() || 'desconhecido');
+    console.log('Google Prompt Notification:', notification);
+    
+    if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
+      const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
+      console.warn('One Tap não exibido pelo motivo:', reason);
+      triggerGooglePopupFallback();
+    }
+  });
+}
+
+// ---------------------------------------
+
+function triggerGooglePopupFallback() {
+  supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname + window.location.search,
+      queryParams: {
+        prompt: 'select_account'
+      }
+    }
   });
 }
 
