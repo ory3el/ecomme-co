@@ -56,7 +56,6 @@ function initThemeToggle() {
 window.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initThemeToggle();
-  await waitForGoogleIdentity();
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
   
