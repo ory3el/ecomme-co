@@ -56,7 +56,7 @@ function initThemeToggle() {
 window.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initThemeToggle();
-  initGoogleIdentity();
+  await waitForGoogleIdentity();
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
   
@@ -104,8 +104,9 @@ let googleModalResolver = null;
 let googleNonce = null;
 let googleHashedNonce = null;
 
-// ----------------------------------
+// -------------------------------
 
+let googleReady = false;
 async function initGoogleIdentity() {
   if (
     typeof google === 'undefined' ||
@@ -133,16 +134,68 @@ async function initGoogleIdentity() {
 
 // -------------------------------
 
-function startGoogleLogin() {
-  if (
-    typeof google === 'undefined' ||
-    !google.accounts?.id
-  ) {
-    toast('O login do Google ainda está carregando.', 'err');
-    return;
-  }
-  initGoogleIdentity();
-  google.accounts.id.prompt();
+function renderGoogleButtons() {
+  if (!googleReady) return;
+  const containers =
+    document.querySelectorAll(
+      '#googleLoginButton'
+    );
+  containers.forEach(container => {
+    if (container.dataset.rendered === 'true') {
+      return;
+    }
+    container.innerHTML = '';
+    google.accounts.id.renderButton(
+      container,
+      {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'pill',
+        logo_alignment: 'left',
+        width: Math.min(
+          container.clientWidth || 400,
+          400
+        ),
+        use_fedcm_for_button: true
+      }
+    );
+    container.dataset.rendered = 'true';
+  });
+}
+
+// -------------------------------
+
+function waitForGoogleIdentity() {
+  return new Promise(resolve => {
+    if (
+      typeof google !== 'undefined' &&
+      google.accounts?.id
+    ) {
+      resolve(true);
+      return;
+    }
+    let tries = 0;
+    const timer =
+      setInterval(() => {
+        tries++;
+        if (
+          typeof google !== 'undefined' &&
+          google.accounts?.id
+        ) {
+          clearInterval(timer);
+          resolve(
+            initGoogleIdentity()
+          );
+          return;
+        }
+        if (tries >= 100) {
+          clearInterval(timer);
+          resolve(false);
+        }
+      }, 100);
+  });
 }
 
 // ------------------------------------------------
