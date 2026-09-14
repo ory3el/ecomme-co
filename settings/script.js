@@ -1711,7 +1711,22 @@ async function deleteAccountPermanently() {
 
     if (error) {
       console.error('Erro na Edge Function:', error);
-      throw new Error(error.message || 'Não foi possível excluir sua conta.');
+      let serverMessage = error.message || 'Não foi possível excluir sua conta.';
+
+      if (error.context) {
+        try {
+          const errorBody = await error.context.json();
+          console.error('Log da Edge Function:', errorBody);
+          serverMessage =
+            errorBody?.error ||
+            errorBody?.message ||
+            errorBody?.msg ||
+            serverMessage;
+        } catch (readError) {
+          console.warn('Não foi possível ler o corpo do erro da Edge Function:', readError);
+        }
+      }
+      throw new Error(serverMessage);
     }
 
     if (!data?.success) {
