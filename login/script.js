@@ -418,14 +418,14 @@ async function confirmGoogleAccountCreation() {
     // -----------------------------
     const { error: profileError } =
       await supabaseClient
+      console.log('Dados que serão salvos no perfil:', {
+        userId: data.user.id,
+        full_name: fullName,
+        phone: phone || null,
+        birth_date: birthDate,
+        gender: gender
+      });
         .from('profiles')
-        console.log('Dados que serão salvos no perfil:', {
-          userId: data.user.id,
-          full_name: fullName,
-          phone: phone || null,
-          birth_date: birthDate,
-          gender: gender
-        });
         .update({
           full_name: fullName,
           phone: phone || null,
