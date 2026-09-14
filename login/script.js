@@ -113,7 +113,8 @@ function generateNonce() {
 // -------------------------------
 
 let currentRawNonce = '';
-let googleReady = false
+let googleReady = false;
+let isInitializingGoogle = false;
 
 async function initGoogleIdentity() {
   if (
@@ -123,62 +124,46 @@ async function initGoogleIdentity() {
   ) {
     return false;
   }
-  if (googleReady) {
-    return true;
-  }
+  if (googleReady) return true;
+  if (isInitializingGoogle) return false;
   
-  currentRawNonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
-  const encoder = new TextEncoder();
-  const encodedNonce = encoder.encode(currentRawNonce);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  isInitializingGoogle = true;
 
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredential,
-    auto_select: false,
-    use_fedcm_for_prompt: true,
-    nonce: hashedNonce
-  });
-  
-  googleReady = true;
-  return true;
+  try {
+    currentRawNonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+
+    const encoder = new TextEncoder();
+    const encodedNonce = encoder.encode(currentRawNonce);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      use_fedcm_for_prompt: true,
+      nonce: hashedNonce
+    });
+    
+    googleReady = true;
+    return true;
+  } finally {
+    isInitializingGoogle = false;
+  }
 }
 
 // -------------------------------
 
-function startGoogleLogin() {
-  const ready = initGoogleIdentity();
+async function startGoogleLogin() {
+  const ready = await initGoogleIdentity();
   if (!ready) {
-    toast(
-      'O login do Google ainda está carregando.',
-      'err'
-    );
+    toast('O login do Google ainda está carregando.', 'err');
     return;
   }
-  google.accounts.id.prompt(
-    notification => {
-      console.log(
-        'Google Prompt:',
-        notification
-      );
-      if (
-        notification.isNotDisplayed?.()
-      ) {
-        console.warn(
-          'O Google não exibiu o seletor:',
-          notification.getNotDisplayedReason?.()
-        );
-      }
-      if (
-        notification.isSkippedMoment?.()
-      ) {
-        console.warn('O Google pulou o seletor:', notification.getSkippedReason?.()
-        );
-      }
-    }
-  );
+  google.accounts.id.prompt(notification => {
+    console.log('Google Prompt Status:', notification.getMomentType?.() || 'desconhecido');
+  });
 }
 
 // -------------------------------
