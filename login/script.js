@@ -101,35 +101,67 @@ const GOOGLE_CLIENT_ID = '394176278495-nrt3cm60njrv670sjue1idhatqfrjlea.apps.goo
 let googleCredentialPending = null;
 let googleAccountPending = null;
 let googleModalResolver = null;
-let googleNonce = null;
-let googleHashedNonce = null;
 
 // -------------------------------
 
 let googleReady = false;
-async function initGoogleIdentity() {
+
+function initGoogleIdentity() {
   if (
     typeof google === 'undefined' ||
-    !google.accounts?.id
+    !google.accounts ||
+    !google.accounts.id
   ) {
     return false;
   }
-
-  const nonceData = await generateGoogleNonce();
-  googleNonce = nonceData.nonce;
-  googleHashedNonce = nonceData.hashedNonce;
+  if (googleReady) {
+    return true;
+  }
 
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
-    nonce: googleHashedNonce,
     auto_select: false,
-    use_fedcm_for_button: true
+    use_fedcm_for_prompt: true
   });
   
   googleReady = true;
-  renderGoogleButtons();
   return true;
+}
+
+// -------------------------------
+
+async function startGoogleLogin() {
+  const ready = initGoogleIdentity();
+  if (!ready) {
+    toast(
+      'O login do Google ainda está carregando.',
+      'err'
+    );
+    return;
+  }
+  google.accounts.id.prompt(
+    notification => {
+      console.log(
+        'Google Prompt:',
+        notification
+      );
+      if (
+        notification.isNotDisplayed?.()
+      ) {
+        console.warn(
+          'O Google não exibiu o seletor:',
+          notification.getNotDisplayedReason?.()
+        );
+      }
+      if (
+        notification.isSkippedMoment?.()
+      ) {
+        console.warn('O Google pulou o seletor:', notification.getSkippedReason?.()
+        );
+      }
+    }
+  );
 }
 
 // -------------------------------
@@ -173,28 +205,25 @@ function waitForGoogleIdentity() {
       typeof google !== 'undefined' &&
       google.accounts?.id
     ) {
-      resolve(true);
+      resolve(initGoogleIdentity());
       return;
     }
     let tries = 0;
-    const timer =
-      setInterval(() => {
-        tries++;
-        if (
-          typeof google !== 'undefined' &&
-          google.accounts?.id
-        ) {
-          clearInterval(timer);
-          resolve(
-            initGoogleIdentity()
-          );
-          return;
-        }
-        if (tries >= 100) {
-          clearInterval(timer);
-          resolve(false);
-        }
-      }, 100);
+    const timer = setInterval(() => {
+      tries++;
+      if (
+        typeof google !== 'undefined' &&
+        google.accounts?.id
+      ) {
+        clearInterval(timer);
+        resolve(initGoogleIdentity());
+        return;
+      }
+      if (tries >= 100) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, 100);
   });
 }
 
@@ -470,7 +499,8 @@ async function confirmGoogleAccountCreation() {
   btn.textContent = 'Criando conta...';
 
   try {
-    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: googleCredentialPending, nonce: googleNonce});
+    const { data, error } = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: googleCredentialPending});
+    
     if (error) {
       throw error;
     }
@@ -479,7 +509,6 @@ async function confirmGoogleAccountCreation() {
     }
     const fullName = `${name} ${surname}`.trim();
 
-    // -----------------------------
     console.log('Dados que serão salvos no perfil:', {
       userId: data.user.id,
       full_name: fullName,
@@ -503,7 +532,6 @@ async function confirmGoogleAccountCreation() {
       console.error('Erro real ao salvar profiles:', profileError);
       throw new Error(`A conta foi criada, mas os dados não foram salvos: ${profileError.message}`);
     }
-    // ----------------------------
     
     googleCredentialPending = null;
     googleAccountPending = null;
@@ -536,7 +564,8 @@ async function confirmGoogleAccountCreation() {
 async function loginExistingGoogleAccount(credential, account) {
   showLoadingModal('Entrando...', 'Verificando sua conta');
   try {
-    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential, nonce: googleNonce});
+    const { data, error } = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential});
+    
     if (!error && data?.session) return;
     console.error('Erro no signInWithIdToken:', error);
     if (
@@ -578,18 +607,6 @@ async function loginExistingGoogleAccount(credential, account) {
     }
     toast(message, 'err');
   }
-}
-
-// -----------------------------------
-
-async function generateGoogleNonce() {
-  const bytes = crypto.getRandomValues(new Uint8Array(32));
-  const nonce = btoa(String.fromCharCode(...bytes));
-  const encoded = new TextEncoder().encode(nonce);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashedNonce = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return {nonce, hashedNonce};
 }
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
