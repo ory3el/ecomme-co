@@ -777,3 +777,17 @@ iframe {
     grid-template-columns: 1fr;
   }
 }
+
+.google-login-render {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 15px;
+}
+.google-login-render > div,
+.google-login-render iframe {
+  max-width: 100%;
+}
