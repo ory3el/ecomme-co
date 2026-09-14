@@ -94,6 +94,400 @@ function showTab(tab){
   if(isLogin) toggleForgot(false);
 }
 
+// ── GOOGLE SIGN-IN ───────────────────────────────────────────
+
+const GOOGLE_CLIENT_ID = '394176278495-nrt3cm60njrv670sjue1idhatqfrjlea.apps.googleusercontent.com';
+let googleCredentialPending = null;
+let googleAccountPending = null;
+let googleModalResolver = null;
+
+function initGoogleIdentity() {
+  if (
+    typeof google === 'undefined' ||
+    !google.accounts ||
+    !google.accounts.id
+  ) {
+    console.warn('Google Identity Services ainda não carregou.');
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential
+  });
+}
+
+function startGoogleLogin() {
+  if (
+    typeof google === 'undefined' ||
+    !google.accounts?.id
+  ) {
+    toast('O login do Google ainda está carregando.', 'err');
+    return;
+  }
+  initGoogleIdentity();
+  google.accounts.id.prompt();
+}
+
+async function handleGoogleCredential(response) {
+  if (!response?.credential) {
+    toast('Não foi possível obter a conta do Google.', 'err');
+    return;
+  }
+  try {
+    showLoadingModal('Verificando conta...', 'Estamos verificando sua conta do Google');
+    const result = await verifyGoogleAccount(response.credential);
+    hideLoadingModal();
+    if (!result) return;
+    if (result.exists) {
+      await loginExistingGoogleAccount(
+        response.credential
+      );
+      return;
+    }
+
+    googleCredentialPending = response.credential;
+    googleAccountPending = result.account;
+    await showGoogleAccountConfirmation(
+      result.account
+    );
+
+  } catch (error) {
+    console.error('Erro no Google Login:', error);
+    hideLoadingModal();
+    toast(error.message || 'Não foi possível verificar a conta do Google.', 'err');
+  }
+}
+
+// ------------------------------------------------
+
+async function verifyGoogleAccount(credential) {
+  const {
+    data,
+    error
+  } = await supabaseClient.functions.invoke('google-account-check',
+    {
+      body: {
+        credential
+      }
+    }
+  );
+
+  if (error) {
+    console.error('Erro ao verificar Google:', error);
+    let message = error.message;
+    if (error.context) {
+      try {
+        const body = await error.context.json();
+        console.error('Resposta da Edge Function:', body
+        );
+        message = body?.error || body?.message || message;
+      } catch {}
+
+    }
+    throw new Error(message);
+  }
+  if (!data?.success) {
+    throw new Error(data?.error || 'Não foi possível verificar a conta.');
+  }
+  return data;
+}
+
+// ----------------------------------------------
+
+function showGoogleAccountConfirmation(account) {
+  createGoogleConfirmModal();
+  const overlay = document.getElementById('googleConfirmOverlay');
+  const avatar = document.getElementById('googleConfirmAvatar');
+  const name = document.getElementById('googleConfirmName');
+  const surname = document.getElementById('googleConfirmSurname');
+  const email = document.getElementById('googleConfirmEmail');
+  const phone = document.getElementById('googleConfirmPhone');
+  const birth = document.getElementById('googleConfirmBirth');
+  const gender = document.getElementById('googleConfirmGender');
+  avatar.src = account.picture || '/images/icons/full/user.webp';
+  name.value = account.given_name || '';
+  surname.value = account.family_name || '';
+  email.value = account.email || '';
+  phone.value = account.phone_number || '';
+  birth.value = '';
+  gender.value = '';
+  overlay.classList.add('active');
+  return new Promise(resolve => {
+    googleModalResolver = resolve;
+  });
+}
+
+// ------------------------------------------------
+
+function createGoogleConfirmModal() {
+  if (document.getElementById('googleConfirmOverlay')
+  ) {
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'googleConfirmOverlay';
+  overlay.className = 'google-confirm-overlay';
+  overlay.innerHTML = `
+    <div class="google-confirm-modal">
+      <div class="google-confirm-head">
+        <div class="google-confirm-avatar">
+          <img
+            id="googleConfirmAvatar"
+            src="/images/icons/full/user.webp"
+            alt="Foto da conta Google"
+          >
+        </div>
+        <h3>
+          Confirme sua conta
+        </h3>
+        <p>
+          Verifique os dados da conta Google
+          antes de criar sua conta na Ecomme.
+        </p>
+      </div>
+      <div class="google-confirm-grid">
+        <div class="google-confirm-field">
+          <label>
+            Nome
+            <span class="google-confirm-required">*</span>
+          </label>
+          <input
+            id="googleConfirmName"
+            class="google-confirm-input"
+            type="text"
+            maxlength="100"
+            autocomplete="given-name"
+          >
+        </div>
+        <div class="google-confirm-field">
+          <label>
+            Sobrenome
+          </label>
+          <input
+            id="googleConfirmSurname"
+            class="google-confirm-input"
+            type="text"
+            maxlength="100"
+            autocomplete="family-name"
+          >
+        </div>
+        <div class="google-confirm-field full">
+          <label>
+            E-mail
+          </label>
+          <input
+            id="googleConfirmEmail"
+            class="google-confirm-input"
+            type="email"
+            readonly
+            tabindex="-1"
+          >
+        </div>
+        <div class="google-confirm-field full">
+          <label>
+            Telefone
+          </label>
+          <input
+            id="googleConfirmPhone"
+            class="google-confirm-input"
+            type="tel"
+            placeholder="(00) 00000-0000"
+            maxlength="15"
+            oninput="maskPhone(this)"
+          >
+        </div>
+        <div class="google-confirm-field">
+          <label>
+            Data de nascimento
+          </label>
+          <input
+            id="googleConfirmBirth"
+            class="google-confirm-input"
+            type="date"
+          >
+
+        </div>
+        <div class="google-confirm-field">
+          <label>
+            Gênero
+          </label>
+          <select
+            id="googleConfirmGender"
+            class="google-confirm-input"
+          >
+            <option value="">
+              Prefiro não informar
+            </option>
+            <option value="Masculino">
+              Masculino
+            </option>
+            <option value="Feminino">
+              Feminino
+            </option>
+            <option value="Outro">
+              Outro
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="google-confirm-actions">
+        <button
+          type="button"
+          class="google-confirm-btn google-confirm-cancel"
+          onclick="cancelGoogleAccountCreation()"
+        >
+          Cancelar
+        </button>
+        
+        <button
+          type="button"
+          id="googleConfirmContinue"
+          class="google-confirm-btn google-confirm-continue"
+          onclick="confirmGoogleAccountCreation()"
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// --------------------------------------
+
+function cancelGoogleAccountCreation() {
+  googleCredentialPending = null;
+  googleAccountPending = null;
+  const overlay = document.getElementById('googleConfirmOverlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+  }
+  if (googleModalResolver) {
+    googleModalResolver(false);
+    googleModalResolver = null;
+  }
+}
+
+// -----------------------------------------------
+
+async function confirmGoogleAccountCreation() {
+  if (!googleCredentialPending) {
+    toast('A sessão do Google expirou. Tente novamente.', 'err'
+    );
+    return;
+  }
+  const nameInput = document.getElementById('googleConfirmName');
+  const surnameInput = document.getElementById('googleConfirmSurname');
+  const phoneInput = document.getElementById('googleConfirmPhone');
+  const birthInput = document.getElementById('googleConfirmBirth');
+  const genderInput = document.getElementById('googleConfirmGender');
+  const btn = document.getElementById('googleConfirmContinue');
+  const name = nameInput.value.trim();
+  const surname = surnameInput.value.trim();
+  const phone = phoneInput.value.replace(/\D/g, '');
+  const birthDate = birthInput.value || null;
+  const gender = genderInput.value || null;
+  if (!name) {
+    nameInput.focus();
+    toast('Digite seu nome para continuar.', 'err');
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.textContent = 'Criando conta...';
+
+  try {
+    const {
+      data,
+      error
+    } = await supabaseClient.auth
+      .signInWithIdToken({
+        provider: 'google',
+        token: googleCredentialPending
+      });
+
+    if (error) {
+      throw error;
+    }
+    if (!data?.user) {
+      throw new Error('Não foi possível criar sua conta.');
+    }
+
+    const fullName = `${name} ${surname}`.trim();
+    const {
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .upsert({
+        id: data.user.id,
+        full_name: fullName,
+        phone: phone || null,
+        birth_date: birthDate,
+        gender: gender
+      }, {
+        onConflict: 'id'
+      });
+
+    if (profileError) {
+      console.error('Erro ao salvar perfil:', profileError);
+      throw new Error('A conta foi criada, mas não foi possível salvar todos os seus dados.');
+    }
+
+    googleCredentialPending = null;
+    googleAccountPending = null;
+
+    const overlay = document.getElementById('googleConfirmOverlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+    }
+
+    if (googleModalResolver) {
+      googleModalResolver(true);
+      googleModalResolver = null;
+    }
+    
+    sessionStorage.removeItem('remote_logout_notice_shown');
+    toast('Conta criada com sucesso! 🎉');
+    setTimeout(() => {
+      window.location.href = getTargetUrl();
+    }, 1000);
+  } catch (error) {
+    console.error('Erro ao criar conta Google:', error);
+    toast(error.message || 'Não foi possível criar a conta.', 'err');
+    btn.classList.remove('loading');
+    btn.textContent = 'Continuar';
+  }
+}
+
+// ---------------------------------------
+
+async function loginExistingGoogleAccount(
+  credential
+) {
+  showLoadingModal('Entrando...', 'Sua conta foi encontrada');
+  const {
+    data,
+    error
+  } = await supabaseClient.auth
+    .signInWithIdToken({
+      provider: 'google',
+      token: credential
+    });
+
+  if (error) {
+    hideLoadingModal();
+    console.error('Erro no login Google:', error);
+    toast('Essa conta já existe, mas não está vinculada ao Google.', 'err');
+    return;
+  }
+  if (!data?.session) {
+    hideLoadingModal();
+    toast('Não foi possível iniciar sua sessão.', 'err');
+    return;
+  }
+}
+
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
   //toast(`Redirecionando para o ${provider}...`);
