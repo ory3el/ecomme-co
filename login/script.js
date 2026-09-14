@@ -628,7 +628,7 @@ function createPausedAccountModal() {
   overlay.innerHTML = `
     <div class="paused-account-modal">
       <div class="paused-account-icon">
-        ⏸
+        <i class="fa-solid fa-pause"></i>
       </div>
       <h3>Conta pausada</h3>
       <p>
