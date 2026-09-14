@@ -1133,6 +1133,89 @@ function toast(msg, type='ok'){
   t._timer = setTimeout(() => t.classList.remove('on'), 10000);
 }
 
+// ── POP-UP LOGOUT ───────────────────────────────────────────────────────
+let confirmRedTimerId = null;
+
+async function showConfirmRed(message, title, icon) { 
+  injectModalStyles();
+  
+  let confirmRedModal = document.getElementById('confirmRedModal');
+  
+  if (!confirmRedModal) {
+    confirmRedModal = document.createElement('div');
+    confirmRedModal.id = 'confirmRedModal';
+    confirmRedModal.className = 'modal-alert-container';
+    confirmRedModal.innerHTML = `
+      <div class="modal-alert-content">
+        <div class="modal-alert-icon" id="confirmRedIcon">${icon}</div>
+        <h3 id="confirmRedTitle">${title}</h3>
+        <p id="confirmRedMsg">${message}</p>
+        <div class="modal-alert-buttons">
+          <button class="btn-alert-cancel" onclick="closeConfirmRed()">Voltar</button>
+          <button class="btn-alert-confirm-red" id="btnConfirmLogout" onclick="confirmLogout()">Sair da conta</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(confirmRedModal); 
+  } else {
+    document.getElementById('confirmRedMsg').innerHTML = message;
+    document.getElementById('confirmRedTitle').textContent = title;
+    document.getElementById('confirmRedIcon').innerHTML = icon; 
+  }
+  
+  // ── LOGIC 3s ──
+  const confirmRedBtn = document.getElementById('btnConfirmLogout');
+  let timeLeft = 3;
+  
+  confirmRedBtn.disabled = true;
+  confirmRedBtn.style.opacity = '0.5';
+  confirmRedBtn.style.cursor = 'not-allowed';
+  confirmRedBtn.style.transition = 'all 0.3s ease';
+  confirmRedBtn.textContent = `Sair da conta (${timeLeft}s)`;
+  
+  if (confirmRedTimerId) clearInterval(confirmRedTimerId);
+  
+  confirmRedTimerId = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      confirmRedBtn.textContent = `Sair da conta (${timeLeft}s)`;
+    } else {
+      clearInterval(confirmRedTimerId);
+      confirmRedBtn.disabled = false;
+      confirmRedBtn.style.opacity = '1';
+      confirmRedBtn.style.cursor = 'pointer';
+      confirmRedBtn.textContent = 'Sair da conta';
+    }
+  }, 1000);
+  
+  confirmRedModal.offsetHeight;
+  confirmRedModal.classList.add('active');
+}
+  
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('active');
+  }
+}
+
+function confirmLogout() {
+  const confirmRedModal = document.getElementById('confirmRedModal');
+  doLogout();
+  
+  if (confirmRedModal) {
+    confirmRedModal.classList.remove('active');
+  }
+}
+
+function closeConfirmRed() {
+  const confirmRedModal = document.getElementById('confirmRedModal');
+  if (confirmRedModal) {
+    confirmRedModal.classList.remove('active');
+  }
+  if (confirmRedTimerId) clearInterval(confirmRedTimerId);
+}
 
 // ── KEYBOARD SUBMIT ────────────────────────────────────────
 document.addEventListener('keydown', e => {
