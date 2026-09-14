@@ -416,15 +416,16 @@ async function confirmGoogleAccountCreation() {
     const fullName = `${name} ${surname}`.trim();
 
     // -----------------------------
+    console.log('Dados que serão salvos no perfil:', {
+      userId: data.user.id,
+      full_name: fullName,
+      phone: phone || null,
+      birth_date: birthDate,
+      gender: gender
+    });
+    
     const { error: profileError } =
       await supabaseClient
-      console.log('Dados que serão salvos no perfil:', {
-        userId: data.user.id,
-        full_name: fullName,
-        phone: phone || null,
-        birth_date: birthDate,
-        gender: gender
-      });
         .from('profiles')
         .update({
           full_name: fullName,
