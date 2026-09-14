@@ -413,27 +413,33 @@ async function confirmGoogleAccountCreation() {
     if (!data?.user) {
       throw new Error('Não foi possível criar sua conta.');
     }
-
     const fullName = `${name} ${surname}`.trim();
-    const {
-      error: profileError
-    } = await supabaseClient
-      .from('profiles')
-      .upsert({
-        id: data.user.id,
-        full_name: fullName,
-        phone: phone || null,
-        birth_date: birthDate,
-        gender: gender
-      }, {
-        onConflict: 'id'
-      });
+
+    // -----------------------------
+    const { error: profileError } =
+      await supabaseClient
+        .from('profiles')
+        console.log('Dados que serão salvos no perfil:', {
+          userId: data.user.id,
+          full_name: fullName,
+          phone: phone || null,
+          birth_date: birthDate,
+          gender: gender
+        });
+        .update({
+          full_name: fullName,
+          phone: phone || null,
+          birth_date: birthDate,
+          gender: gender
+        })
+        .eq('id', data.user.id);
 
     if (profileError) {
-      console.error('Erro ao salvar perfil:', profileError);
-      throw new Error('A conta foi criada, mas não foi possível salvar todos os seus dados.');
+      console.error('Erro real ao salvar profiles:', profileError);
+      throw new Error(`A conta foi criada, mas os dados não foram salvos: ${profileError.message}`);
     }
-
+    // ----------------------------
+    
     googleCredentialPending = null;
     googleAccountPending = null;
 
