@@ -112,9 +112,10 @@ function generateNonce() {
 
 // -------------------------------
 
-let googleReady = false;
+let currentRawNonce = '';
+let googleReady = false
 
-function initGoogleIdentity() {
+async function initGoogleIdentity() {
   if (
     typeof google === 'undefined' ||
     !google.accounts ||
@@ -126,13 +127,19 @@ function initGoogleIdentity() {
     return true;
   }
   
-  currentNonce = generateNonce();
+  currentRawNonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+  const encoder = new TextEncoder();
+  const encodedNonce = encoder.encode(currentRawNonce);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
     auto_select: false,
     use_fedcm_for_prompt: true,
-    nonce: currentNonce
+    nonce: hashedNonce
   });
   
   googleReady = true;
@@ -479,7 +486,7 @@ async function confirmGoogleAccountCreation() {
     const { data, error } = await supabaseClient.auth.signInWithIdToken({
       provider: 'google', 
       token: googleCredentialPending,
-      nonce: currentNonce
+      nonce: currentRawNonce
     });
     
     if (error) {
@@ -548,7 +555,7 @@ async function loginExistingGoogleAccount(credential, account) {
     const { data, error } = await supabaseClient.auth.signInWithIdToken({
       provider: 'google', 
       token: credential,
-      nonce: currentNonce
+      nonce: currentRawNonce
     });
     
     if (!error && data?.session) return;
