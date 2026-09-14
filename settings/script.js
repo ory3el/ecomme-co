@@ -1267,7 +1267,7 @@ function injectModalStyles() {
       /*background: rgba(0, 0, 0, 0.6);*/
       backdrop-filter: blur(12px);
       display: flex; align-items: center; justify-content: center;
-      z-index: 500000;
+      z-index: 9000;
       opacity: 0; pointer-events: none;
       transition: opacity 0.3s ease;
     }
