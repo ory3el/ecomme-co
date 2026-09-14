@@ -420,16 +420,16 @@ iframe {
   .auth-shell{border-radius:0;min-height:100vh;box-shadow:none}
 }
 
-/* ── BOTÃO DO FACEBOOK ESPELHADO COM O GOOGLE ──────────────── */
+/* ────────────────── */
 .fb-btn-google-style {
   flex: 1;
-  height: 40px; /* Altura exata do botão Large do Google */
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--white);
-  border: 1px solid var(--black); /* Cor da borda oficial do Google Outline */
-  border-radius: 15px; /* Formato rectangular padrão da API */
+  border: 1px solid var(--black);
+  border-radius: 15px;
   color: var(--black);
   font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
   font-size: 14px;
@@ -440,7 +440,6 @@ iframe {
   transition: color 0.25s, background-color 0.25s, border-color 0.25s, box-shadow 0.2s;
 }
 
-/* Efeito Hover idêntico ao do Google */
 .fb-btn-google-style:hover {
   color: #000;
   background-color: #f8f9fa;
@@ -451,7 +450,6 @@ iframe {
   background-color: #f1f3f4;
 }
 
-/* Container do ícone do Facebook proporcional ao do Google */
 .fb-btn-google-style .fb-icon-wrap {
   display: flex;
   align-items: center;
@@ -460,7 +458,7 @@ iframe {
 }
 
 .fb-btn-google-style .fb-icon-wrap img {
-  width: 20px; /* Tamanho exato do escudo de marca do iframe */
+  width: 20px;
   height: 20px;
   display: block;
 }
@@ -469,4 +467,151 @@ iframe {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ── MODAL PAUSED ACCOUNT ───────────────────────────────────── */
+.paused-account-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .28s ease;
+}
+
+.paused-account-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.paused-account-modal {
+  width: min(440px, 100%);
+  background: var(--white);
+  border: 1px solid rgba(37, 99, 235, .12);
+  border-radius: 28px;
+  padding: 30px;
+
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, .20),
+    0 0 0 1px rgba(37, 99, 235, .05);
+
+  transform: translateY(18px) scale(.96);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+
+.paused-account-overlay.active .paused-account-modal {
+  transform: translateY(0) scale(1);
+}
+
+.paused-account-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+  background: rgba(37, 99, 235, .08);
+  color: var(--blue);
+  font-size: 29px;
+}
+
+.paused-account-modal h3 {
+  margin: 0 0 10px;
+  text-align: center;
+
+  font-family: 'Sora', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+  color: var(--text);
+}
+
+.paused-account-modal p {
+  margin: 0 auto 24px;
+  max-width: 350px;
+
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.paused-account-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.paused-account-btn {
+  min-height: 46px;
+  border: none;
+  border-radius: 100px;
+  padding: 0 18px;
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    box-shadow .2s ease,
+    opacity .2s ease;
+}
+
+.paused-account-btn:hover {
+  transform: translateY(-1px);
+}
+
+.paused-account-btn:active {
+  transform: translateY(0);
+}
+
+.paused-account-btn.primary {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(37,99,235,.22);
+}
+
+.paused-account-btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.paused-account-btn.secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.paused-account-btn.secondary:hover {
+  background: var(--bg3);
+}
+
+.paused-account-btn.loading {
+  pointer-events: none;
+  opacity: .65;
+}
+
+@media (max-width: 500px) {
+  .paused-account-modal {
+    border-radius: 24px;
+    padding: 24px 20px;
+  }
+
+  .paused-account-actions {
+    grid-template-columns: 1fr;
+  }
 }
