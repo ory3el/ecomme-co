@@ -103,6 +103,15 @@ let googleModalResolver = null;
 
 // -------------------------------
 
+let currentNonce = '';
+function generateNonce() {
+  const array = new Uint8Array(16);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, c => c.toString(16).padStart(2, '0')).join('');
+}
+
+// -------------------------------
+
 let googleReady = false;
 
 function initGoogleIdentity() {
@@ -116,12 +125,16 @@ function initGoogleIdentity() {
   if (googleReady) {
     return true;
   }
+  
+  currentNonce = generateNonce();
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
     auto_select: false,
-    use_fedcm_for_prompt: true
+    use_fedcm_for_prompt: true,
+    nonce: currentNonce
   });
+  
   googleReady = true;
   return true;
 }
@@ -463,7 +476,11 @@ async function confirmGoogleAccountCreation() {
   btn.textContent = 'Criando conta...';
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: googleCredentialPending});
+    const { data, error } = await supabaseClient.auth.signInWithIdToken({
+      provider: 'google', 
+      token: googleCredentialPending,
+      nonce: currentNonce
+    });
     
     if (error) {
       throw error;
@@ -528,7 +545,11 @@ async function confirmGoogleAccountCreation() {
 async function loginExistingGoogleAccount(credential, account) {
   showLoadingModal('Entrando...', 'Verificando sua conta');
   try {
-    const { data, error } = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential});
+    const { data, error } = await supabaseClient.auth.signInWithIdToken({
+      provider: 'google', 
+      token: credential,
+      nonce: currentNonce
+    });
     
     if (!error && data?.session) return;
     console.error('Erro no signInWithIdToken:', error);
