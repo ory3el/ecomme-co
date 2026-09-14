@@ -1072,7 +1072,7 @@ function toast(msg, type='ok'){
   ic.textContent = type === 'ok' ? '✓' : '!';
   t.classList.add('on');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('on'), 3000);
+  t._timer = setTimeout(() => t.classList.remove('on'), 10000);
 }
 
 
