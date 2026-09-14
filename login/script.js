@@ -116,21 +116,19 @@ function initGoogleIdentity() {
   if (googleReady) {
     return true;
   }
-
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
     auto_select: false,
     use_fedcm_for_prompt: true
   });
-  
   googleReady = true;
   return true;
 }
 
 // -------------------------------
 
-async function startGoogleLogin() {
+function startGoogleLogin() {
   const ready = initGoogleIdentity();
   if (!ready) {
     toast(
@@ -161,39 +159,6 @@ async function startGoogleLogin() {
       }
     }
   );
-}
-
-// -------------------------------
-
-function renderGoogleButtons() {
-  if (!googleReady) return;
-  const containers =
-    document.querySelectorAll(
-      '#googleLoginButton'
-    );
-  containers.forEach(container => {
-    if (container.dataset.rendered === 'true') {
-      return;
-    }
-    container.innerHTML = '';
-    google.accounts.id.renderButton(
-      container,
-      {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'pill',
-        logo_alignment: 'left',
-        width: Math.min(
-          container.clientWidth || 400,
-          400
-        ),
-        use_fedcm_for_button: true
-      }
-    );
-    container.dataset.rendered = 'true';
-  });
 }
 
 // -------------------------------
