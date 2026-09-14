@@ -56,6 +56,7 @@ function initThemeToggle() {
 window.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initThemeToggle();
+  initGoogleIdentity();
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
   
@@ -100,21 +101,37 @@ const GOOGLE_CLIENT_ID = '394176278495-nrt3cm60njrv670sjue1idhatqfrjlea.apps.goo
 let googleCredentialPending = null;
 let googleAccountPending = null;
 let googleModalResolver = null;
+let googleNonce = null;
+let googleHashedNonce = null;
 
-function initGoogleIdentity() {
+// ----------------------------------
+
+async function initGoogleIdentity() {
   if (
     typeof google === 'undefined' ||
-    !google.accounts ||
-    !google.accounts.id
+    !google.accounts?.id
   ) {
-    console.warn('Google Identity Services ainda não carregou.');
-    return;
+    return false;
   }
+
+  const nonceData = await generateGoogleNonce();
+  googleNonce = nonceData.nonce;
+  googleHashedNonce = nonceData.hashedNonce;
+
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredential
+    callback: handleGoogleCredential,
+    nonce: googleHashedNonce,
+    auto_select: false,
+    use_fedcm_for_button: true
   });
+  
+  googleReady = true;
+  renderGoogleButtons();
+  return true;
 }
+
+// -------------------------------
 
 function startGoogleLogin() {
   if (
@@ -127,6 +144,8 @@ function startGoogleLogin() {
   initGoogleIdentity();
   google.accounts.id.prompt();
 }
+
+// ------------------------------------------------
 
 async function handleGoogleCredential(response) {
   if (!response?.credential) {
@@ -398,15 +417,7 @@ async function confirmGoogleAccountCreation() {
   btn.textContent = 'Criando conta...';
 
   try {
-    const {
-      data,
-      error
-    } = await supabaseClient.auth
-      .signInWithIdToken({
-        provider: 'google',
-        token: googleCredentialPending
-      });
-
+    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: googleCredentialPending, nonce: googleNonce});
     if (error) {
       throw error;
     }
@@ -472,7 +483,7 @@ async function confirmGoogleAccountCreation() {
 async function loginExistingGoogleAccount(credential, account) {
   showLoadingModal('Entrando...', 'Verificando sua conta');
   try {
-    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential});
+    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential, nonce: googleNonce});
     if (!error && data?.session) return;
     console.error('Erro no signInWithIdToken:', error);
     if (
@@ -514,6 +525,18 @@ async function loginExistingGoogleAccount(credential, account) {
     }
     toast(message, 'err');
   }
+}
+
+// -----------------------------------
+
+async function generateGoogleNonce() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const nonce = btoa(String.fromCharCode(...bytes));
+  const encoded = new TextEncoder().encode(nonce);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashedNonce = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return {nonce, hashedNonce};
 }
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
