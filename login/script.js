@@ -1133,6 +1133,111 @@ function toast(msg, type='ok'){
   t._timer = setTimeout(() => t.classList.remove('on'), 10000);
 }
 
+// ── STYLES INJECTOR ─────────────────────────────────────────────────────
+function injectModalStyles() {
+  if (document.getElementById('modal-alert-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'modal-alert-styles';
+  style.textContent = `
+    .modal-alert-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      /*background: rgba(0, 0, 0, 0.6);*/
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-alert-container.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-alert-content {
+      /*background: rgba(255, 255, 255, 0.8);*/
+      background: var(--white);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 36px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 100px rgba(25,100,255,0.5);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+    .modal-alert-container.active .modal-alert-content {
+      transform: scale(1);
+    }
+    .modal-alert-icon {
+      font-size: 44px;
+      margin-bottom: 15px;
+    }
+    .modal-alert-content h3 {
+      margin: 0 0 10px 0;
+      font-family: 'Sora', 'Poppins', sans-serif;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .modal-alert-content p {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.5;
+      margin: 0 0 24px 0;
+    }
+    .modal-alert-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .btn-alert-confirm {
+      background: #2563EB;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-alert-confirm:hover {
+      background: var(--blue2);
+      transform: scale(1.05);
+    }
+    .btn-alert-confirm-red {
+      background: #eb2525;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-confirm-red:hover {
+      background: #d81d1d;
+    }
+    .btn-alert-cancel {
+      background: var(--white);
+      border: 1px solid var(--text1);
+      color: var(--black);
+      padding: 11px 24px;
+      border-radius: 250px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-alert-cancel:hover {
+      background: var(--surface);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // ── POP-UP LOGOUT ───────────────────────────────────────────────────────
 let confirmRedTimerId = null;
 
