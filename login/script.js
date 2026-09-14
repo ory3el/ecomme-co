@@ -111,36 +111,218 @@ async function socialLogin(provider) {
   }
 }
 
+// ── PAUSED ACCOUNT ─────────────────────────────────────────────
+let pausedAccountModalOpen = false;
+let pausedAccountChecking = false;
+
+function createPausedAccountModal() {
+  if (document.getElementById('pausedAccountOverlay')) {
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'pausedAccountOverlay';
+  overlay.className = 'paused-account-overlay';
+  overlay.innerHTML = `
+    <div class="paused-account-modal">
+      <div class="paused-account-icon">
+        ⏸
+      </div>
+      <h3>Conta pausada</h3>
+      <p>
+        Sua conta atualmente está desativada.
+        Deseja reativá-la agora para continuar
+        acessando sua conta?
+      </p>
+      <div class="paused-account-actions">
+
+        <button
+          type="button"
+          class="paused-account-btn secondary"
+          id="btnKeepPaused"
+          onclick="keepAccountPaused()"
+        >
+          Manter desativada
+        </button>
+
+        <button
+          type="button"
+          class="paused-account-btn primary"
+          id="btnReactivateAccount"
+          onclick="reactivateAccount()"
+        >
+          Reativar conta
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function showPausedAccountModal() {
+  createPausedAccountModal();
+  const overlay = document.getElementById('pausedAccountOverlay');
+  if (!overlay) {
+    return Promise.resolve(false);
+  }
+  pausedAccountModalOpen = true;
+  overlay.classList.add('active');
+  return new Promise(resolve => {
+    overlay._resolveDecision = resolve;
+  });
+}
+
+function closePausedAccountModal() {
+  const overlay = document.getElementById('pausedAccountOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+  pausedAccountModalOpen = false;
+}
+
+async function keepAccountPaused() {
+  const overlay = document.getElementById('pausedAccountOverlay');
+  const resolve = overlay?._resolveDecision;
+  closePausedAccountModal();
+  if (resolve) {
+    overlay._resolveDecision = null;
+    resolve(false);
+  }
+}
+
+async function reactivateAccount() {
+  if (pausedAccountChecking) return;
+  pausedAccountChecking = true;
+  const btn = document.getElementById('btnReactivateAccount');
+  const otherBtn = document.getElementById('btnKeepPaused');
+
+  if (btn) {
+    btn.classList.add('loading');
+    btn.textContent = 'Reativando...';
+  }
+  if (otherBtn) {
+    otherBtn.disabled = true;
+  }
+
+  try {
+    const {
+      data: { session },
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+    if (sessionError || !session?.user?.id) {
+      throw new Error( 'Sua sessão expirou. Faça login novamente.');
+    }
+
+    const { error } =
+      await supabaseClient
+        .from('profiles')
+        .update({
+          account_status: 'active',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', session.user.id);
+
+    if (error) {
+      console.error('Erro ao reativar conta:', error
+      );
+      throw new Error('Não foi possível reativar sua conta.'
+      );
+    }
+
+    const overlay = document.getElementById('pausedAccountOverlay');
+    const resolve = overlay?._resolveDecision;
+    closePausedAccountModal();
+    if (resolve) {
+      overlay._resolveDecision = null;
+      resolve(true);
+    }
+  } catch (error) {
+    console.error('Erro ao reativar conta:', error);
+    toast(error.message || 'Não foi possível reativar sua conta.', 'err');
+
+    if (btn) {
+      btn.classList.remove('loading');
+      btn.textContent = 'Reativar conta';
+    }
+    if (otherBtn) {
+      otherBtn.disabled = false;
+    }
+    pausedAccountChecking = false;
+    return false;
+  }
+}
+
+
+async function checkPausedAccount(user) {
+  if (!user?.id) {
+    return false;
+  }
+  try {
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from('profiles')
+      .select('account_status')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro ao verificar status da conta:', error);
+      return true;
+    }
+    const status = profile?.account_status || 'active';
+    if (status !== 'paused') {
+      return true;
+    }
+
+    const shouldReactivate = await showPausedAccountModal();
+    if (!shouldReactivate) {
+      await supabaseClient.auth.signOut({
+        scope: 'local'
+      });
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Erro ao verificar conta pausada:', error);
+    toast('Não foi possível verificar o status da sua conta.', 'err');
+    return false;
+  }
+}
+
 // ── LOGIN E-MAIL & PWD (SUPABASE) ────────────────
-async function doLogin(){
+async function doLogin() {
   let valid = true;
   const email = document.getElementById('loginEmail');
-  const pwd   = document.getElementById('loginPwd');
-
-  if(!validateEmail(email.value.trim())){
-    showFieldErr(email,'loginEmailErr'); valid = false;
+  const pwd = document.getElementById('loginPwd');
+  if (!validateEmail(email.value.trim())) {
+    showFieldErr(email, 'loginEmailErr');
+    valid = false;
   }
-  if(!pwd.value){
-    showFieldErr(pwd,'loginPwdErr'); valid = false;
-  }
-  if(!valid){ toast('Preencha os campos obrigatórios','err'); return; }
 
+  if (!pwd.value) {
+    showFieldErr(pwd, 'loginPwdErr');
+    valid = false;
+  }
+  if (!valid) {
+    toast('Preencha os campos obrigatórios', 'err');
+    return;
+  }
   const btn = document.getElementById('btnLogin');
   btn.classList.add('loading');
-
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.signInWithPassword({
     email: email.value.trim(),
-    password: pwd.value,
+    password: pwd.value
   });
 
   btn.classList.remove('loading');
-
   if (error) {
+    console.error('Erro no login:', error);
     toast('E-mail ou senha incorretos.', 'err');
-  } else {
-    sessionStorage.removeItem('remote_logout_notice_shown');
-    toast('Login realizado com sucesso! 🎉');
-    setTimeout(() => window.location.href = getTargetUrl(), 1200);
+    return;
   }
 }
 
@@ -322,25 +504,49 @@ async function registerNewSession(userId) {
 
 // ── ACTIVE SESSION & URL CLEAR ────────────
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (session && !redirectionInProgress) {
-    redirectionInProgress = true;
-    sessionStorage.removeItem('remote_logout_notice_shown');
-    await registerNewSession(session.user.id);
-
-    const finalDestination = getTargetUrl();
-    if (window.location.search || window.location.hash) {
-      window.history.replaceState({}, document.title, window.location.pathname);
+    if (!session || redirectionInProgress) {
+      return;
     }
-    localStorage.removeItem('ecomme_redirect_url');
-    if (document.getElementById('formLogin')) {
-      requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
-      toast('Sessão ativa! Redirecionando... 🎉');
-      setTimeout(() => {
-        window.location.href = finalDestination;
-      }, 1200);
+    redirectionInProgress = true;
+    try {
+      const canContinue = await checkPausedAccount(session.user);
+      if (!canContinue) {
+        redirectionInProgress = false;
+        return;
+      }
+      sessionStorage.removeItem('remote_logout_notice_shown');
+      await registerNewSession(session.user.id);
+      const finalDestination = getTargetUrl();
+      if (
+        window.location.search || window.location.hash
+      ) {
+        window.history.replaceState(
+          {},
+          document.title, window.location.pathname
+        );
+      }
+
+      localStorage.removeItem('ecomme_redirect_url');
+      if (
+        document.getElementById('formLogin')
+      ) {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            hideLoadingModal();
+          }, 180);
+        });
+        toast('Sessão ativa! Redirecionando... 🎉');
+        setTimeout(() => {
+          window.location.href = finalDestination;
+        }, 1200);
+      }
+    } catch (error) {
+      console.error('Erro após autenticação:', error);
+      redirectionInProgress = false;
+      toast('Não foi possível concluir o login.', 'err');
     }
   }
-});
+);
 
 // ── FORGOT PASSWORD ────────────────────────────────────────
 function toggleForgot(show){
