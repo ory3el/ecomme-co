@@ -1651,7 +1651,7 @@ function closeDeleteAccountConfirm() {
 async function confirmDeleteAccountAction() {
   const input = document.getElementById('deleteAccountInput');
   if (!input) return;
-  if (input.value !== 'DETELE') {
+  if (input.value !== 'DELETE') {
     validateDeleteAccountInput();
     toast('Digite exatamente "DELETE" para continuar.', 'err');
     return;
