@@ -469,29 +469,50 @@ async function confirmGoogleAccountCreation() {
 
 // ---------------------------------------
 
-async function loginExistingGoogleAccount(
-  credential
-) {
-  showLoadingModal('Entrando...', 'Sua conta foi encontrada');
-  const {
-    data,
-    error
-  } = await supabaseClient.auth
-    .signInWithIdToken({
-      provider: 'google',
-      token: credential
-    });
+async function loginExistingGoogleAccount(credential, account) {
+  showLoadingModal('Entrando...', 'Verificando sua conta');
+  try {
+    const {data, error} = await supabaseClient.auth.signInWithIdToken({provider: 'google', token: credential});
+    if (!error && data?.session) return;
+    console.error('Erro no signInWithIdToken:', error);
+    if (
+      error &&
+      (
+        error.code === 'user_already_exists' ||
+        error.code === 'email_exists' ||
+        error.message ?.toLowerCase().includes('already exists')
+      )
+    ) {
+      hideLoadingModal();
+      const {data: oauthData, error: oauthError} =
+        await supabaseClient.auth
+          .signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: window.location.origin + window.location.pathname + window.location.search,
+              queryParams: {login_hint: account?.email || ''}
+            }
+          });
 
-  if (error) {
+      if (oauthError) throw oauthError;
+      return;
+    }
+    throw error;
+  } catch (error) {
     hideLoadingModal();
     console.error('Erro no login Google:', error);
-    toast('Essa conta já existe, mas não está vinculada ao Google.', 'err');
-    return;
-  }
-  if (!data?.session) {
-    hideLoadingModal();
-    toast('Não foi possível iniciar sua sessão.', 'err');
-    return;
+
+    let message = error?.message || 'Não foi possível entrar com o Google.';
+    if (error?.code === 'identity_already_exists') {
+      message = 'Essa conta Google já está vinculada a outro usuário Ecomme.';
+    }
+    else if (error?.code === 'email_not_confirmed') {
+      message = 'O e-mail dessa conta ainda não foi confirmado.';
+    }
+    else if (error?.code === 'user_already_exists') {
+      message = 'Já existe uma conta Ecomme com esse e-mail.';
+    }
+    toast(message, 'err');
   }
 }
 
