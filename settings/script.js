@@ -1653,6 +1653,7 @@ async function confirmDeleteAccountAction() {
   if (!input) return;
   if (input.value !== 'DETELE') {
     validateDeleteAccountInput();
+    toast('Digite exatamente "DELETE" para continuar.', 'err');
     return;
   }
   closeDeleteAccountConfirm();
