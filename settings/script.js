@@ -611,31 +611,6 @@ async function loadWishlist() {
     }
 
     if (wishlist.length === 0) {
-      grid.innerHTML = `
-        <div style="
-          grid-column: 1 / -1;
-          padding: 50px 20px;
-          text-align: center;
-          color: var(--muted);
-        ">
-          <i
-            class="fa-regular fa-heart"
-            style="font-size:42px;margin-bottom:12px;display:block;"
-          ></i>
-          <strong style="
-            display:block;
-            color:var(--text);
-            font-size:15px;
-            margin-bottom:5px;
-          ">
-            Sua Lista de Desejos está vazia
-          </strong>
-          <span style="font-size:12px;">
-            Os produtos que você salvar aparecerão aqui.
-          </span>
-        </div>
-      `;
-
       countEl.textContent = '0 produtos salvos';
       return;
     }
@@ -683,32 +658,12 @@ async function loadWishlist() {
       }`;
 
     if (orderedProducts.length === 0) {
-      grid.innerHTML = `
-        <div style="
-          grid-column: 1 / -1;
-          padding: 40px;
-          text-align:center;
-          color:var(--muted);
-        ">
-          Sua Lista de Desejos está vazia.
-        </div>
-      `;
       return;
     }
     grid.innerHTML = orderedProducts.map(product => createWishlistCard(product)).join('');
   } catch (error) {
     console.error('Erro ao carregar Lista de Desejos:', error);
     countEl.textContent = 'Não foi possível carregar';
-    grid.innerHTML = `
-      <div style="
-        grid-column:1 / -1;
-        padding:40px;
-        text-align:center;
-        color:var(--red);
-      ">
-        Não foi possível carregar sua Lista de Desejos.
-      </div>
-    `;
   }
 }
 
