@@ -142,7 +142,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
   const savedSection = localStorage.getItem('ecomme_settings_section');
-  if (savedSection) showPanel(savedSection);
+  if (savedSection) {
+    showPanel(savedSection);
+    if (savedSection === 'wishlist') {
+      await loadWishlist();
+    }
+  }
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
