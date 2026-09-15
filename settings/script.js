@@ -2055,13 +2055,9 @@ async function pauseAccount() {
   const confirmed = confirm('Pausar sua conta?\n\n' + 'Você será desconectado e não poderá acessar a conta até reativá-la.');
   if (!confirmed) return;
 
-  toast(
-    'Pausando sua conta...',
-    'info'
-  );
+  toast('Pausando sua conta...', 'info');
 
   try {
-
     const {
       data: { session }
     } = await supabaseClient.auth.getSession();
