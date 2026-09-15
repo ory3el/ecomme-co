@@ -8,28 +8,31 @@ let remoteLogoutHandled = false;
   window.location.href = '/login?redirect=' + encodeURIComponent(currentPage);
 }*/
 
+// ------------------------------------
+
 async function checkCurrentSession() {
   if (sessionCheckRunning || remoteLogoutHandled) return;
   sessionCheckRunning = true;
-
   try {
-    const {data: { session }, error: authError} = await supabaseClient.auth.getSession();
+    const {
+      data: { session },
+      error: authError
+    } = await supabaseClient.auth.getSession();
+
     if (authError) {
       console.error('Erro ao verificar sessão do Supabase:', authError);
       return;
     }
-    
+
     if (!session) {
-      await handleRemoteLogout();
       return;
     }
     const localSessionId = localStorage.getItem('local_session_id');
     if (!localSessionId) {
-      await handleRemoteLogout();
       return;
     }
 
-    const { data, error } = await supabaseClient
+    const {data, error} = await supabaseClient
       .from('user_sessions')
       .select('id')
       .eq('id', localSessionId)
@@ -40,12 +43,17 @@ async function checkCurrentSession() {
       console.error('Erro ao verificar sessão:', error);
       return;
     }
-
-    if (!data) {await handleRemoteLogout();}
+    if (!data) {
+      await handleRemoteLogout();
+    }
   } catch (error) {
     console.error('Erro na verificação da sessão:', error);
-  } finally {sessionCheckRunning = false;}
+  } finally {
+    sessionCheckRunning = false;
+  }
 }
+
+// --------------------------------------
 
 async function handleRemoteLogout() {
   if (remoteLogoutHandled) return;
@@ -60,6 +68,8 @@ async function handleRemoteLogout() {
   alert('Sua sessão foi encerrada remotamente por outro dispositivo.');
   window.location.reload();
 }
+
+// ------------------------------
 
 function startSessionCheck() {
   if (sessionCheckTimer) {
