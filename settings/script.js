@@ -68,7 +68,6 @@ function goToLogin() {
 
 // FAVICON
 const favicon = document.getElementById('favicon');
-    
 function checkTheme(e) {
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
@@ -92,6 +91,7 @@ function showPanel(id, btn){
   else { const nb = document.querySelector(`[data-panel="${id}"]`); if(nb) nb.classList.add('active'); }
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
   window.scrollTo({top:0, behavior:'smooth'});
+  if (id === 'wishlist') loadWishlist();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
