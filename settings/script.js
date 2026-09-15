@@ -1955,7 +1955,7 @@ async function exportUserData() {
         sessao_atual: session.id === localStorage.getItem('local_session_id')
       }))
     };
-    const json = JSON.stringify(exportData, null, '\t');
+    const json = JSON.stringify(exportData, null, 4);
     const blob = new Blob([json], {type: 'application/json;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
