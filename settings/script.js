@@ -1849,7 +1849,7 @@ async function exportUserData() {
     toast('Sua sessão expirou. Faça login novamente.', 'err');
     return;
   }
-  toast('Preparando seus dados... ⏳', 'info');
+  toast('Preparando seus dados...', 'info');
   try {
     const {
       data: { user },
@@ -1858,54 +1858,110 @@ async function exportUserData() {
 
     if (userError) throw userError;
     if (!user) throw new Error('Usuário não encontrado.');
-
-    const { data: profile, error: profileError } =
-      await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (profileError) throw profileError;
-    const { data: addresses, error: addressesError } =
-      await supabaseClient
-        .from('addresses')
-        .select('*')
-        .eq('user_id', userId);
+    const {
+      data: addresses,
+      error: addressesError
+    } = await supabaseClient
+      .from('addresses')
+      .select('*')
+      .eq('user_id', userId);
 
     if (addressesError) throw addressesError;
-    const { data: sessions, error: sessionsError } =
-      await supabaseClient
-        .from('user_sessions')
-        .select('*')
-        .eq('user_id', userId);
+    const {
+      data: sessions,
+      error: sessionsError
+    } = await supabaseClient
+      .from('user_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_seen_at', { ascending: false });
 
     if (sessionsError) throw sessionsError;
+    const fullName = profile?.full_name || '';
+    const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+    const firstName = nameParts.shift() || '';
+    const lastName = nameParts.join(' ');
+
     const exportData = {
-      export_info: {
-        generated_at: new Date().toISOString(),
-        format: 'Ecomme User Data Export',
-        version: 1
+      informacoes_exportacao: {
+        produto: 'Ecomme',
+        tipo: 'Exportação dos meus dados',
+        versao: 1,
+        gerado_em: new Date().toISOString()
       },
 
-      account: {
+      conta: {
         id: user.id,
         email: user.email || null,
-        created_at: user.created_at || null,
-        last_sign_in_at: user.last_sign_in_at || null
+        criada_em: user.created_at || null,
+        ultimo_login: user.last_sign_in_at || null
       },
 
-      profile: profile || null,
-      addresses: addresses || [],
-      sessions: sessions || []
+      perfil: {
+        nome: {
+          completo: fullName || null,
+          primeiro_nome: firstName || null,
+          sobrenome: lastName || null
+        },
+        telefone: profile?.phone || null,
+        cpf: profile?.cpf || null,
+        data_nascimento: profile?.birth_date || null,
+        genero: profile?.gender || null,
+        idioma: profile?.language || null,
+        biografia: profile?.bio || null,
+        foto_perfil: profile?.avatar_url || null
+      },
+
+      preferencias: {
+        idioma: profile?.language || null
+      },
+
+      enderecos: (addresses || []).map(address => ({
+        id: address.id || null,
+        tipo: address.type || null,
+        destinatario: address.recipient_name || null,
+        endereco: {
+          rua: address.street || null,
+          numero: address.number || null,
+          complemento: address.complement || null,
+          bairro: address.neighborhood || null,
+          cidade: address.city || null,
+          estado: address.state || null,
+          cep: address.zip_code || null
+        },
+        principal: Boolean(address.is_default),
+        criado_em: address.created_at || null
+      })),
+
+      sessoes: (sessions || []).map(session => ({
+        id: session.id || null,
+        dispositivo: {
+          navegador: session.browser || null,
+          sistema: session.os || null
+        },
+        ip: session.ip_address || null,
+        criada_em: session.created_at || null,
+        ultimo_acesso: session.last_seen_at || null,
+        sessao_atual: session.id === localStorage.getItem('local_session_id')
+      }))
     };
     const json = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const blob = new Blob([json], {type: 'application/json;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     const date = new Date().toISOString().slice(0, 10);
-    link.download = `ecomme-meus-dados-${date}.json`;
+    link.download = `meus-dados-ecomme_${date}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
