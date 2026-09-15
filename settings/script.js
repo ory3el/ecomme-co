@@ -129,13 +129,12 @@ function toast(msg, type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-// ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
+// ── SUPABASE ───────────────────────────────────────────────
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-// ESCUTADOR DE SESSÃO COM BANCO DE DADOS
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
@@ -590,7 +589,6 @@ async function removePhoto(event) {
 }
 
 // ── WISHLIST ──────────────────────────────────
-
 async function loadWishlist() {
   const grid = document.getElementById('wishlistGrid');
   const countEl = document.getElementById('wishlistCount');
@@ -602,12 +600,12 @@ async function loadWishlist() {
       error: profileError
     } = await supabaseClient
       .from('profiles')
-      .select('wishlist')
+      .select('fav')
       .eq('id', userId)
       .single();
 
     if (profileError) throw profileError;
-    let wishlist = profile?.wishlist || [];
+    let wishlist = profile?.fav || [];
     if (!Array.isArray(wishlist)) {
       wishlist = [];
     }
