@@ -1842,6 +1842,82 @@ async function pauseAccount() {
   }
 }
 
+// -----------------------------------------------------------------------------------
+
+async function exportUserData() {
+  if (!userId) {
+    toast('Sua sessão expirou. Faça login novamente.', 'err');
+    return;
+  }
+  toast('Preparando seus dados... ⏳', 'info');
+  try {
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if (userError) throw userError;
+    if (!user) throw new Error('Usuário não encontrado.');
+
+    const { data: profile, error: profileError } =
+      await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (profileError) throw profileError;
+    const { data: addresses, error: addressesError } =
+      await supabaseClient
+        .from('addresses')
+        .select('*')
+        .eq('user_id', userId);
+
+    if (addressesError) throw addressesError;
+    const { data: sessions, error: sessionsError } =
+      await supabaseClient
+        .from('user_sessions')
+        .select('*')
+        .eq('user_id', userId);
+
+    if (sessionsError) throw sessionsError;
+    const exportData = {
+      export_info: {
+        generated_at: new Date().toISOString(),
+        format: 'Ecomme User Data Export',
+        version: 1
+      },
+
+      account: {
+        id: user.id,
+        email: user.email || null,
+        created_at: user.created_at || null,
+        last_sign_in_at: user.last_sign_in_at || null
+      },
+
+      profile: profile || null,
+      addresses: addresses || [],
+      sessions: sessions || []
+    };
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `ecomme-meus-dados-${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast('Seus dados foram exportados com sucesso! ✓', 'ok');
+  } catch (error) {
+    console.error('Erro ao exportar dados:', error);
+    toast('Não foi possível exportar seus dados.', 'err'
+    );
+  }
+}
+  
 // ── POP-UP LOGOUT ───────────────────────────────────────────────────────
 let confirmRedTimerId = null;
 
