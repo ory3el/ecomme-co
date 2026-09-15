@@ -92,6 +92,7 @@ function showPanel(id, btn){
   else { const nb = document.querySelector(`[data-panel="${id}"]`); if(nb) nb.classList.add('active'); }
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
   window.scrollTo({top:0, behavior:'smooth'});
+  if (id === 'wishlist') loadWishlist();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
