@@ -91,6 +91,7 @@ function showPanel(id, btn){
   if(btn) btn.classList.add('active');
   else { const nb = document.querySelector(`[data-panel="${id}"]`); if(nb) nb.classList.add('active'); }
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
+  localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top:0, behavior:'smooth'});
   if (id === 'wishlist') loadWishlist();
 }
@@ -140,6 +141,8 @@ let userId = null;
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
+  const savedSection = localStorage.getItem('ecomme_settings_section');
+  if (savedSection) showPanel(savedSection);
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
