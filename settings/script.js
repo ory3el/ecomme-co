@@ -1919,7 +1919,6 @@ async function exportUserData() {
         genero: profile?.gender || null,
         idioma: profile?.language || null,
         biografia: profile?.bio || null,
-        foto_perfil: profile?.avatar_url || null
       },
 
       preferencias: {
