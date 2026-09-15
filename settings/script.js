@@ -589,6 +589,267 @@ async function removePhoto(event) {
   }
 }
 
+// ── WISHLIST ──────────────────────────────────
+
+async function loadWishlist() {
+  const grid = document.getElementById('wishlistGrid');
+  const countEl = document.getElementById('wishlistCount');
+  if (!grid || !userId) return;
+  
+  try {
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('wishlist')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) throw profileError;
+    let wishlist = profile?.wishlist || [];
+    if (!Array.isArray(wishlist)) {
+      wishlist = [];
+    }
+
+    if (wishlist.length === 0) {
+      grid.innerHTML = `
+        <div style="
+          grid-column: 1 / -1;
+          padding: 50px 20px;
+          text-align: center;
+          color: var(--muted);
+        ">
+          <i
+            class="fa-regular fa-heart"
+            style="font-size:42px;margin-bottom:12px;display:block;"
+          ></i>
+          <strong style="
+            display:block;
+            color:var(--text);
+            font-size:15px;
+            margin-bottom:5px;
+          ">
+            Sua Lista de Desejos está vazia
+          </strong>
+          <span style="font-size:12px;">
+            Os produtos que você salvar aparecerão aqui.
+          </span>
+        </div>
+      `;
+
+      countEl.textContent = '0 produtos salvos';
+      return;
+    }
+
+    const productIds = wishlist
+      .map(item => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item?.id ||
+               item?.product_id ||
+               item?.productId ||
+               null;
+      })
+      .filter(Boolean);
+
+    if (productIds.length === 0) {
+      throw new Error(
+        'A Lista de Desejos não contém IDs de produtos válidos.'
+      );
+    }
+
+    const {
+      data: products,
+      error: productsError
+    } = await supabaseClient
+      .from('products')
+      .select('*')
+      .in('id', productIds);
+
+    if (productsError) throw productsError;
+    const orderedProducts = productIds
+      .map(id =>
+        products.find(product =>
+          String(product.id) === String(id)
+        )
+      )
+      .filter(Boolean);
+
+    countEl.textContent =
+      `${orderedProducts.length} ${
+        orderedProducts.length === 1
+          ? 'produto salvo'
+          : 'produtos salvos'
+      }`;
+
+    if (orderedProducts.length === 0) {
+      grid.innerHTML = `
+        <div style="
+          grid-column: 1 / -1;
+          padding: 40px;
+          text-align:center;
+          color:var(--muted);
+        ">
+          Sua Lista de Desejos está vazia.
+        </div>
+      `;
+      return;
+    }
+    grid.innerHTML = orderedProducts.map(product => createWishlistCard(product)).join('');
+  } catch (error) {
+    console.error('Erro ao carregar Lista de Desejos:', error);
+    countEl.textContent = 'Não foi possível carregar';
+    grid.innerHTML = `
+      <div style="
+        grid-column:1 / -1;
+        padding:40px;
+        text-align:center;
+        color:var(--red);
+      ">
+        Não foi possível carregar sua Lista de Desejos.
+      </div>
+    `;
+  }
+}
+
+// -----------------------------------
+function createWishlistCard(product) {
+  const name = product.name || product.title || product.nome || 'Produto';
+  const category = product.category || product.category_name || product.categoria || 'Produto';
+  const price = Number(product.price ?? product.preco ?? 0);
+  const oldPrice = Number( product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
+  const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
+  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'}) : '';
+  return `
+    <div class="wcard" data-product-id="${product.id}">
+      <div class="wcard-img">
+        ${
+          image
+            ? `
+              <img
+                src="${image}"
+                alt="${escapeHtml(name)}"
+                style="
+                  width:100%;
+                  height:100%;
+                  object-fit:cover;
+                  display:block;
+                "
+              >
+            `
+            : `
+              <i
+                class="fa-solid fa-image"
+                style="font-size:42px;color:#94a3b8;"
+              ></i>
+            `
+        }
+        <button
+          class="wcard-rm"
+          onclick="
+            event.stopPropagation();
+            removeWishlistProduct('${product.id}', '${escapeJs(name)}')
+          "
+          title="Remover da Lista de Desejos"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="wcard-info">
+        <div class="wcard-cat">
+          ${escapeHtml(category)}
+        </div>
+        <div class="wcard-name">
+          ${escapeHtml(name)}
+        </div>
+        <div>
+          <span class="wcard-price">
+            ${formattedPrice}
+          </span>
+          ${
+            formattedOldPrice
+              ? `
+                <span class="wcard-old">
+                  ${formattedOldPrice}
+                </span>
+              `
+              : ''
+          }
+        </div>
+        <button
+          class="wcard-add"
+          onclick="
+            event.stopPropagation();
+            addWishlistProductToCart('${product.id}')
+          "
+        >
+          + Adicionar ao carrinho
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function escapeJs(value) {
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'");
+}
+
+// -----------------------------------------------------------
+async function removeWishlistProduct(productId, productName) {
+  if (!userId) {
+    toast('Sessão expirada.', 'err');
+    return;
+  }
+
+  try {
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('wishlist')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) throw profileError;
+    let wishlist = Array.isArray(profile?.wishlist) ? profile.wishlist : [];
+    wishlist = wishlist.filter(item => {
+      const id = typeof item === 'string' ? item : item?.id || item?.product_id || item?.productId;
+      return String(id) !== String(productId);
+    });
+
+    const {
+      error: updateError
+    } = await supabaseClient
+      .from('profiles')
+      .update({
+        wishlist
+      })
+      .eq('id', userId);
+
+    if (updateError) throw updateError;
+    toast(`${productName} removido dos favoritos`, 'ok');
+    await loadWishlist();
+  } catch (error) {
+    console.error('Erro ao remover produto da Lista de Desejos:', error);
+    toast('Não foi possível remover o produto.', 'err');
+  }
+}
+
 // ── SUPABASE: ADDRESSES ───────────────────────────
 let currentAddressCount = 0;
 
