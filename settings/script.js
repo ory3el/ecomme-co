@@ -68,6 +68,7 @@ function goToLogin() {
 
 // FAVICON
 const favicon = document.getElementById('favicon');
+    
 function checkTheme(e) {
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
@@ -91,7 +92,6 @@ function showPanel(id, btn){
   else { const nb = document.querySelector(`[data-panel="${id}"]`); if(nb) nb.classList.add('active'); }
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
   window.scrollTo({top:0, behavior:'smooth'});
-  if (id === 'wishlist') loadWishlist();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
@@ -129,12 +129,13 @@ function toast(msg, type='ok'){
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-// ── SUPABASE ───────────────────────────────────────────────
+// ── SUPABASE: INICIALIZAÇÃO REAL ───────────────────────────
 const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
+// ESCUTADOR DE SESSÃO COM BANCO DE DADOS
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
@@ -585,221 +586,6 @@ async function removePhoto(event) {
   } catch (erro) {
     console.error('Erro ao remover foto:', erro.message);
     toast('Ocorreu um erro ao remover a foto.', 'err');
-  }
-}
-
-// ── WISHLIST ──────────────────────────────────
-async function loadWishlist() {
-  const grid = document.getElementById('wishlistGrid');
-  const countEl = document.getElementById('wishlistCount');
-  if (!grid || !userId) return;
-  
-  try {
-    const {
-      data: profile,
-      error: profileError
-    } = await supabaseClient
-      .from('profiles')
-      .select('fav')
-      .eq('id', userId)
-      .single();
-
-    if (profileError) throw profileError;
-    let wishlist = profile?.fav || [];
-    if (!Array.isArray(wishlist)) {
-      wishlist = [];
-    }
-
-    if (wishlist.length === 0) {
-      countEl.textContent = '0 produtos salvos';
-      return;
-    }
-
-    const productIds = wishlist
-      .map(item => {
-        if (typeof item === 'string') {
-          return item;
-        }
-        return item?.id ||
-               item?.product_id ||
-               item?.productId ||
-               null;
-      })
-      .filter(Boolean);
-
-    if (productIds.length === 0) {
-      throw new Error(
-        'A Lista de Desejos não contém IDs de produtos válidos.'
-      );
-    }
-
-    const {
-      data: products,
-      error: productsError
-    } = await supabaseClient
-      .from('products')
-      .select('*')
-      .in('id', productIds);
-
-    if (productsError) throw productsError;
-    const orderedProducts = productIds
-      .map(id =>
-        products.find(product =>
-          String(product.id) === String(id)
-        )
-      )
-      .filter(Boolean);
-
-    countEl.textContent =
-      `${orderedProducts.length} ${
-        orderedProducts.length === 1
-          ? 'produto salvo'
-          : 'produtos salvos'
-      }`;
-
-    if (orderedProducts.length === 0) {
-      return;
-    }
-    grid.innerHTML = orderedProducts.map(product => createWishlistCard(product)).join('');
-  } catch (error) {
-    console.error('Erro ao carregar Lista de Desejos:', error);
-    countEl.textContent = 'Não foi possível carregar';
-  }
-}
-
-// -----------------------------------
-function createWishlistCard(product) {
-  const name = product.name || product.title || product.nome || 'Produto';
-  const category = product.category || product.category_name || product.categoria || 'Produto';
-  const price = Number(product.price ?? product.preco ?? 0);
-  const oldPrice = Number( product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
-  const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
-  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'}) : '';
-  return `
-    <div class="wcard" data-product-id="${product.id}">
-      <div class="wcard-img">
-        ${
-          image
-            ? `
-              <img
-                src="${image}"
-                alt="${escapeHtml(name)}"
-                style="
-                  width:100%;
-                  height:100%;
-                  object-fit:cover;
-                  display:block;
-                "
-              >
-            `
-            : `
-              <i
-                class="fa-solid fa-image"
-                style="font-size:42px;color:#94a3b8;"
-              ></i>
-            `
-        }
-        <button
-          class="wcard-rm"
-          onclick="
-            event.stopPropagation();
-            removeWishlistProduct('${product.id}', '${escapeJs(name)}')
-          "
-          title="Remover da Lista de Desejos"
-        >
-          ✕
-        </button>
-      </div>
-      <div class="wcard-info">
-        <div class="wcard-cat">
-          ${escapeHtml(category)}
-        </div>
-        <div class="wcard-name">
-          ${escapeHtml(name)}
-        </div>
-        <div>
-          <span class="wcard-price">
-            ${formattedPrice}
-          </span>
-          ${
-            formattedOldPrice
-              ? `
-                <span class="wcard-old">
-                  ${formattedOldPrice}
-                </span>
-              `
-              : ''
-          }
-        </div>
-        <button
-          class="wcard-add"
-          onclick="
-            event.stopPropagation();
-            addWishlistProductToCart('${product.id}')
-          "
-        >
-          + Adicionar ao carrinho
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function escapeJs(value) {
-  return String(value ?? '')
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'");
-}
-
-// -----------------------------------------------------------
-async function removeWishlistProduct(productId, productName) {
-  if (!userId) {
-    toast('Sessão expirada.', 'err');
-    return;
-  }
-
-  try {
-    const {
-      data: profile,
-      error: profileError
-    } = await supabaseClient
-      .from('profiles')
-      .select('wishlist')
-      .eq('id', userId)
-      .single();
-
-    if (profileError) throw profileError;
-    let wishlist = Array.isArray(profile?.wishlist) ? profile.wishlist : [];
-    wishlist = wishlist.filter(item => {
-      const id = typeof item === 'string' ? item : item?.id || item?.product_id || item?.productId;
-      return String(id) !== String(productId);
-    });
-
-    const {
-      error: updateError
-    } = await supabaseClient
-      .from('profiles')
-      .update({
-        wishlist
-      })
-      .eq('id', userId);
-
-    if (updateError) throw updateError;
-    toast(`${productName} removido dos favoritos`, 'ok');
-    await loadWishlist();
-  } catch (error) {
-    console.error('Erro ao remover produto da Lista de Desejos:', error);
-    toast('Não foi possível remover o produto.', 'err');
   }
 }
 
@@ -2010,9 +1796,13 @@ async function pauseAccount() {
   const confirmed = confirm('Pausar sua conta?\n\n' + 'Você será desconectado e não poderá acessar a conta até reativá-la.');
   if (!confirmed) return;
 
-  toast('Pausando sua conta...', 'info');
+  toast(
+    'Pausando sua conta...',
+    'info'
+  );
 
   try {
+
     const {
       data: { session }
     } = await supabaseClient.auth.getSession();
