@@ -645,6 +645,7 @@ async function loadWishlist() {
         </div>
       `;
       countEl.textContent = '0 produtos salvos';
+      sidebarCount.style.display = "none";
       sidebarCount.textContent = '0';
       return;
     }
@@ -685,6 +686,7 @@ async function loadWishlist() {
       )
       .filter(Boolean);
 
+    sidebarCount.style.display = "block";
     sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
@@ -924,6 +926,7 @@ async function loadCart() {
         </div>
       `;
       countEl.textContent = '0 produtos salvos';
+      sidebarCount.style.display = "none";
       sidebarCount.textContent = '0';
       return;
     }
@@ -964,6 +967,7 @@ async function loadCart() {
       )
       .filter(Boolean);
 
+    sidebarCount.style.display = "block";
     sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
