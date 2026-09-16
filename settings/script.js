@@ -600,6 +600,7 @@ async function removePhoto(event) {
 async function loadWishlist() {
   const grid = document.getElementById('wishlistGrid');
   const countEl = document.getElementById('wishlistCount');
+  const sidebarCount = document.getElementById('sWishlistBadge');
   if (!grid || !userId) return;
 
   try {
@@ -644,6 +645,7 @@ async function loadWishlist() {
         </div>
       `;
       countEl.textContent = '0 produtos salvos';
+      sidebarCount.textContent = '0';
       return;
     }
 
@@ -683,6 +685,7 @@ async function loadWishlist() {
       )
       .filter(Boolean);
 
+    sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
         orderedProducts.length === 1
@@ -876,6 +879,7 @@ async function removeWishlistProduct(productId, productName) {
 async function loadCart() {
   const grid = document.getElementById('cartGrid');
   const countEl = document.getElementById('cartCount');
+  const sidebarCount = document.getElementById('sCartBadge');
   if (!grid || !userId) return;
 
   try {
@@ -920,6 +924,7 @@ async function loadCart() {
         </div>
       `;
       countEl.textContent = '0 produtos salvos';
+      sidebarCount.textContent = '0';
       return;
     }
 
@@ -959,6 +964,7 @@ async function loadCart() {
       )
       .filter(Boolean);
 
+    sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
         orderedProducts.length === 1
