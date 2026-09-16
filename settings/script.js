@@ -141,7 +141,6 @@ let userId = null;
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
-  loadWishlist();
   const savedSection = localStorage.getItem('ecomme_settings_section');
   if (savedSection) showPanel(savedSection);
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
@@ -251,6 +250,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await fetchSessions();
     subscribeToSessionChanges();
     startSessionCheck();
+    loadWishlist();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
