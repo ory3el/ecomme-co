@@ -81,7 +81,7 @@ checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
 // ── PANEL NAV ──────────────────────────────────────────────
-const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
+const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',cart:'Meu Carrinho',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
 
 function showPanel(id, btn){
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -94,6 +94,7 @@ function showPanel(id, btn){
   localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top:0, behavior:'smooth'});
   if (id === 'wishlist') loadWishlist();
+  if (id === 'cart') loadCart();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
@@ -251,6 +252,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     subscribeToSessionChanges();
     startSessionCheck();
     loadWishlist();
+    loadCart();
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
@@ -594,15 +596,13 @@ async function removePhoto(event) {
   }
 }
 
-// ── LISTA DE DESEJOS ──────────────────────────────────
+// ── WISHLIST ──────────────────────────────────────────
 async function loadWishlist() {
   const grid = document.getElementById('wishlistGrid');
   const countEl = document.getElementById('wishlistCount');
-
   if (!grid || !userId) return;
 
   try {
-    // Busca a lista salva no perfil do usuário
     const {
       data: profile,
       error: profileError
@@ -613,15 +613,11 @@ async function loadWishlist() {
       .single();
 
     if (profileError) throw profileError;
-
     let wishlist = profile?.fav || [];
-
-    // Garante que seja sempre um array
     if (!Array.isArray(wishlist)) {
       wishlist = [];
     }
 
-    // Lista vazia
     if (wishlist.length === 0) {
       grid.innerHTML = `
         <div style="
@@ -634,7 +630,6 @@ async function loadWishlist() {
             class="fa-regular fa-heart"
             style="font-size:42px;margin-bottom:12px;display:block;"
           ></i>
-
           <strong style="
             display:block;
             color:var(--text);
@@ -643,27 +638,14 @@ async function loadWishlist() {
           ">
             Sua Lista de Desejos está vazia
           </strong>
-
           <span style="font-size:12px;">
             Os produtos que você salvar aparecerão aqui.
           </span>
         </div>
       `;
-
       countEl.textContent = '0 produtos salvos';
       return;
     }
-
-
-    // --------------------------------------------------
-    // Extrai apenas os IDs dos produtos.
-    //
-    // Aceita tanto:
-    // ["id1", "id2"]
-    //
-    // quanto:
-    // [{ id: "id1" }, { id: "id2" }]
-    // --------------------------------------------------
 
     const productIds = wishlist
       .map(item => {
@@ -678,15 +660,12 @@ async function loadWishlist() {
       })
       .filter(Boolean);
 
-
     if (productIds.length === 0) {
       throw new Error(
         'A Lista de Desejos não contém IDs de produtos válidos.'
       );
     }
 
-
-    // Busca os produtos correspondentes
     const {
       data: products,
       error: productsError
@@ -696,9 +675,6 @@ async function loadWishlist() {
       .in('id', productIds);
 
     if (productsError) throw productsError;
-
-
-    // Mantém a mesma ordem da Lista de Desejos
     const orderedProducts = productIds
       .map(id =>
         products.find(product =>
@@ -707,7 +683,6 @@ async function loadWishlist() {
       )
       .filter(Boolean);
 
-
     countEl.textContent =
       `${orderedProducts.length} ${
         orderedProducts.length === 1
@@ -715,8 +690,6 @@ async function loadWishlist() {
           : 'produtos salvos'
       }`;
 
-
-    // Nenhum produto encontrado
     if (orderedProducts.length === 0) {
       grid.innerHTML = `
         <div style="
@@ -731,8 +704,6 @@ async function loadWishlist() {
       return;
     }
 
-
-    // Renderiza os cards
     grid.innerHTML = orderedProducts
       .map(product => createWishlistCard(product))
       .join('');
@@ -742,9 +713,8 @@ async function loadWishlist() {
       'Erro ao carregar Lista de Desejos:',
       error
     );
-
+    
     countEl.textContent = 'Não foi possível carregar';
-
     grid.innerHTML = `
       <div style="
         grid-column:1 / -1;
@@ -758,76 +728,18 @@ async function loadWishlist() {
   }
 }
 
-
 function createWishlistCard(product) {
-
-  // Compatibilidade com possíveis nomes
-  // diferentes de campos do produto.
-  const name =
-    product.name ||
-    product.title ||
-    product.nome ||
-    'Produto';
-
-
-  const category =
-    product.category ||
-    product.category_name ||
-    product.categoria ||
-    'Produto';
-
-
-  const price =
-    Number(
-      product.price ??
-      product.preco ??
-      0
-    );
-
-
-  const oldPrice =
-    Number(
-      product.old_price ??
-      product.original_price ??
-      product.compare_at_price ??
-      0
-    );
-
-
-  // Tenta encontrar a imagem principal
-  const image =
-    product.image ||
-    product.image_url ||
-    product.main_image ||
-    product.thumbnail ||
-    (
-      Array.isArray(product.images)
-        ? product.images[0]
-        : null
-    );
-
-
-  const formattedPrice =
-    price.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-
-
-  const formattedOldPrice =
-    oldPrice > price
-      ? oldPrice.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        })
-      : '';
-
+  const name = product.name || product.title || product.nome || 'Produto';
+  const category = product.category || product.category_name || product.categoria || 'Produto';
+  const price = Number(product.price ?? product.preco ?? 0);
+  const oldPrice = Number(product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
+  const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
+  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
 
   return `
     <div class="wcard" data-product-id="${product.id}">
-
       <div class="wcard-img">
-
         ${
           image
             ? `
@@ -849,7 +761,6 @@ function createWishlistCard(product) {
               ></i>
             `
         }
-
         <button
           class="wcard-rm"
           onclick="
@@ -860,24 +771,18 @@ function createWishlistCard(product) {
         >
           ✕
         </button>
-
       </div>
-
       <div class="wcard-info">
-
         <div class="wcard-cat">
           ${escapeHtml(category)}
         </div>
-
         <div class="wcard-name">
           ${escapeHtml(name)}
         </div>
-
         <div>
           <span class="wcard-price">
             ${formattedPrice}
           </span>
-
           ${
             formattedOldPrice
               ? `
@@ -888,7 +793,6 @@ function createWishlistCard(product) {
               : ''
           }
         </div>
-
         <button
           class="wcard-add"
           onclick="
@@ -898,15 +802,11 @@ function createWishlistCard(product) {
         >
           + Adicionar ao carrinho
         </button>
-
       </div>
-
     </div>
   `;
 }
 
-
-// Protege textos inseridos no HTML
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -916,42 +816,34 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
-
 function escapeJs(value) {
   return String(value ?? '')
     .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'");
 }
 
-
-// Remove produto da Lista de Desejos
 async function removeWishlistProduct(productId, productName) {
-
   if (!userId) {
     toast('Sessão expirada.', 'err');
     return;
   }
 
   try {
-
     const {
       data: profile,
       error: profileError
     } = await supabaseClient
       .from('profiles')
-      .select('wishlist')
+      .select('fav')
       .eq('id', userId)
       .single();
 
     if (profileError) throw profileError;
-
-    let wishlist = Array.isArray(profile?.wishlist)
-      ? profile.wishlist
+    let wishlist = Array.isArray(profile?.fav)
+      ? profile.fav
       : [];
 
-
     wishlist = wishlist.filter(item => {
-
       const id =
         typeof item === 'string'
           ? item
@@ -962,36 +854,282 @@ async function removeWishlistProduct(productId, productName) {
       return String(id) !== String(productId);
     });
 
+    const {
+      error: updateError
+    } = await supabaseClient
+      .from('profiles')
+      .update({
+        fav
+      })
+      .eq('id', userId);
+
+    if (updateError) throw updateError;
+    toast(`${productName} removido dos favoritos`, 'ok');
+    await loadWishlist();
+  } catch (error) {
+    console.error('Erro ao remover produto da Lista de Desejos:', error);
+    toast('Não foi possível remover o produto.', 'err');
+  }
+}
+
+// ── CART ──────────────────────────────────────────────
+async function loadCart() {
+  const grid = document.getElementById('cartGrid');
+  const countEl = document.getElementById('cartCount');
+  if (!grid || !userId) return;
+
+  try {
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('cart')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) throw profileError;
+    let cart = profile?.cart || [];
+    if (!Array.isArray(cart)) {
+      cart = [];
+    }
+
+    if (cart.length === 0) {
+      grid.innerHTML = `
+        <div style="
+          grid-column: 1 / -1;
+          padding: 50px 20px;
+          text-align: center;
+          color: var(--muted);
+        ">
+          <i
+            class="fa-regular fa-heart"
+            style="font-size:42px;margin-bottom:12px;display:block;"
+          ></i>
+          <strong style="
+            display:block;
+            color:var(--text);
+            font-size:15px;
+            margin-bottom:5px;
+          ">
+            Seu Carrinho está vazio
+          </strong>
+          <span style="font-size:12px;">
+            Os produtos que você adicionar aparecerão aqui.
+          </span>
+        </div>
+      `;
+      countEl.textContent = '0 produtos salvos';
+      return;
+    }
+
+    const productIds = cart
+      .map(item => {
+        if (typeof item === 'string') {
+          return item;
+        }
+
+        return item?.id ||
+               item?.product_id ||
+               item?.productId ||
+               null;
+      })
+      .filter(Boolean);
+
+    if (productIds.length === 0) {
+      throw new Error(
+        'O Carrinho não contém IDs de produtos válidos.'
+      );
+    }
+
+    const {
+      data: products,
+      error: productsError
+    } = await supabaseClient
+      .from('products')
+      .select('*')
+      .in('id', productIds);
+
+    if (productsError) throw productsError;
+    const orderedProducts = productIds
+      .map(id =>
+        products.find(product =>
+          String(product.id) === String(id)
+        )
+      )
+      .filter(Boolean);
+
+    countEl.textContent =
+      `${orderedProducts.length} ${
+        orderedProducts.length === 1
+          ? 'produto salvo'
+          : 'produtos salvos'
+      }`;
+
+    if (orderedProducts.length === 0) {
+      grid.innerHTML = `
+        <div style="
+          grid-column: 1 / -1;
+          padding: 40px;
+          text-align:center;
+          color:var(--muted);
+        ">
+          Nenhum produto do seu Carrinho está disponível.
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = orderedProducts
+      .map(product => createCartCard(product))
+      .join('');
+
+  } catch (error) {
+    console.error(
+      'Erro ao carregar Carrinho:',
+      error
+    );
+    
+    countEl.textContent = 'Não foi possível carregar';
+    grid.innerHTML = `
+      <div style="
+        grid-column:1 / -1;
+        padding:40px;
+        text-align:center;
+        color:var(--red);
+      ">
+        Não foi possível carregar seu Carrinho.
+      </div>
+    `;
+  }
+}
+
+function createCartCard(product) {
+  const name = product.name || product.title || product.nome || 'Produto';
+  const category = product.category || product.category_name || product.categoria || 'Produto';
+  const price = Number(product.price ?? product.preco ?? 0);
+  const oldPrice = Number(product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
+  const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
+  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
+
+  return `
+    <div class="wcard" data-product-id="${product.id}">
+      <div class="wcard-img">
+        ${
+          image
+            ? `
+              <img
+                src="${image}"
+                alt="${escapeHtml(name)}"
+                style="
+                  width:100%;
+                  height:100%;
+                  object-fit:cover;
+                  display:block;
+                "
+              >
+            `
+            : `
+              <i
+                class="fa-solid fa-image"
+                style="font-size:42px;color:#94a3b8;"
+              ></i>
+            `
+        }
+        <button
+          class="wcard-rm"
+          onclick="
+            event.stopPropagation();
+            removeCartProduct('${product.id}', '${escapeJs(name)}')
+          "
+          title="Remover do Carrinho"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="wcard-info">
+        <div class="wcard-cat">
+          ${escapeHtml(category)}
+        </div>
+        <div class="wcard-name">
+          ${escapeHtml(name)}
+        </div>
+        <div>
+          <span class="wcard-price">
+            ${formattedPrice}
+          </span>
+          ${
+            formattedOldPrice
+              ? `
+                <span class="wcard-old">
+                  ${formattedOldPrice}
+                </span>
+              `
+              : ''
+          }
+        </div>
+        <button
+          class="wcard-add"
+          onclick="
+            event.stopPropagation();
+            buttonLink('/checkout')
+          "
+        >
+          Comprar agora
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function removeCartProduct(productId, productName) {
+  if (!userId) {
+    toast('Sessão expirada.', 'err');
+    return;
+  }
+
+  try {
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('cart')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) throw profileError;
+    let cart = Array.isArray(profile?.cart)
+      ? profile.cart
+      : [];
+
+    cart = cart.filter(item => {
+      const id =
+        typeof item === 'string'
+          ? item
+          : item?.id ||
+            item?.product_id ||
+            item?.productId;
+
+      return String(id) !== String(productId);
+    });
 
     const {
       error: updateError
     } = await supabaseClient
       .from('profiles')
       .update({
-        wishlist
+        cart
       })
       .eq('id', userId);
 
     if (updateError) throw updateError;
-
-    toast(
-      `${productName} removido dos favoritos`,
-      'ok'
-    );
-
-    await loadWishlist();
-
+    toast(`${productName} removido do Carrinho`, 'ok');
+    await loadCart();
   } catch (error) {
-
-    console.error(
-      'Erro ao remover produto da Lista de Desejos:',
-      error
-    );
-
-    toast(
-      'Não foi possível remover o produto.',
-      'err'
-    );
+    console.error('Erro ao remover produto do Carrinho:', error);
+    toast('Não foi possível remover o produto.', 'err');
   }
 }
 
