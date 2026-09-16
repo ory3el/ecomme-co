@@ -93,7 +93,7 @@ function showPanel(id, btn){
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
   localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top:0, behavior:'smooth'});
-  //if (id === 'wishlist') loadWishlist();
+  if (id === 'wishlist') loadWishlist();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
