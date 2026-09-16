@@ -93,7 +93,7 @@ function showPanel(id, btn){
   document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
   localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top:0, behavior:'smooth'});
-  if (id === 'wishlist') loadWishlist();
+  //if (id === 'wishlist') loadWishlist();
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
@@ -141,13 +141,9 @@ let userId = null;
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
+  loadWishlist();
   const savedSection = localStorage.getItem('ecomme_settings_section');
-  if (savedSection) {
-    showPanel(savedSection);
-    if (savedSection === 'wishlist') {
-      await loadWishlist();
-    }
-  }
+  if (savedSection) showPanel(savedSection);
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
@@ -599,7 +595,6 @@ async function removePhoto(event) {
 }
 
 // ── LISTA DE DESEJOS ──────────────────────────────────
-
 async function loadWishlist() {
   const grid = document.getElementById('wishlistGrid');
   const countEl = document.getElementById('wishlistCount');
