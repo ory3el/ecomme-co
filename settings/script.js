@@ -2521,7 +2521,9 @@ async function exportUserData() {
 }
   
 // ── POP-UP LOGOUT ───────────────────────────────────────────────────────
-let confirmRedTimerId = null;
+if (typeof confirmRedTimerId !== 'undefined') {
+  let confirmRedTimerId = null;
+}
 
 async function showConfirmRed(message, title, icon) { 
   injectModalStyles();
