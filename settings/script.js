@@ -2893,15 +2893,7 @@ function setupModalAutoPlay() {
 function openProduct(id) {
   document.body.classList.add("noscroll");
   const normalizedId = String(id);
-  const p = products.find(
-    x => String(x.id) === normalizedId
-  );
 
-  if (!p) {
-    console.error("Produto não encontrado:", normalizedId);
-    document.body.classList.remove("noscroll");
-    return;
-  }
   openProductModalHistory();
   curId = normalizedId;
   mQtyVal = 1;
@@ -2919,7 +2911,7 @@ function openProduct(id) {
     if (modalImages.length > 0) {
       mEmoji.innerHTML = '';
     } else {
-      mEmoji.innerHTML = p.emoji || '';
+      mEmoji.innerHTML = product.emoji || '';
     }
   }
 
@@ -2935,7 +2927,7 @@ function openProduct(id) {
       button.innerHTML = `
         <img
           src="${thumbnail}"
-          alt="${p.name} - imagem ${index + 1}"
+          alt="${product.name} - imagem ${index + 1}"
           loading="lazy"
           decoding="async">
       `;
