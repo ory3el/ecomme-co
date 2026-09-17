@@ -69,8 +69,10 @@ function goToLogin() {
 }
 
 // FAVICON
-const favicon = document.getElementById('favicon');
-    
+if (typeof favicon !== 'undefined') {
+  const favicon = document.getElementById('favicon');
+}
+
 function checkTheme(e) {
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
