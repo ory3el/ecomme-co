@@ -1678,35 +1678,17 @@ function openProduct(id) {
   $('mDesc').textContent = p.desc;
   $('mPrice').textContent = fmt(p.price);
   $('mPrice1').textContent = fmt(p.price);
-
-  $('mOld').textContent =
-    p.old > 0 ? fmt(p.old) : '';
-
-  $('mDisc').textContent =
-    p.discount > 0
-      ? `-${p.discount}% OFF`
-      : '';
-
-  $('mFeats').innerHTML =
-    p.features.map(f =>
+  $('mOld').textContent = p.old > 0 ? fmt(p.old) : '';
+  $('mDisc').textContent = p.discount > 0 ? `-${p.discount}% OFF` : '';
+  $('mFeats').innerHTML = p.features.map(f =>
       `<div class="m-feat">
         <div class="fchk">✓</div>
         ${f}
       </div>`
     ).join('');
-
-  $('mWish').classList.toggle(
-    'on',
-    fav.some(
-      x => String(x.id) === normalizedId
-    )
-  );
-  $('mWish1').classList.toggle(
-    'on',
-    fav.some(
-      x => String(x.id) === normalizedId
-    )
-  );
+    
+  if ($('mWish')) $('mWish').classList.toggle('on', fav.some(x => String(x.id) === normalizedId));
+  if ($('mWish1')) $('mWish1').classList.toggle('on', fav.some(x => String(x.id) === normalizedId));
   $('modalOverlay').classList.add('on');
  }
  startModalAutoPlay();
