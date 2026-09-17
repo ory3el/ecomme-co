@@ -113,19 +113,19 @@
           <span class="nav-ico">
             <i class="fa-solid fa-heart"></i>
           </span><span class="nav-lbl">Lista de Desejos</span>
-          <span class="nav-badge" id="sWishlistBadge">0</span>
+          <span class="nav-badge" style="display: none" id="sWishlistBadge">0</span>
         </button>
         <button class="nav-item" data-panel="cart" onclick="showPanel('cart',this)">
           <span class="nav-ico">
-            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-cart-shopping"></i>
           </span><span class="nav-lbl">Meu Carrinho</span>
-          <span class="nav-badge" id="sCartBadge">0</span>
+          <span class="nav-badge" style="display: none" id="sCartBadge">0</span>
         </button>
         <button class="nav-item" data-panel="coupons" onclick="showPanel('coupons',this)">
           <span class="nav-ico">
             <i class="fa-solid fa-ticket"></i>
           </span><span class="nav-lbl">Meus Cupons</span>
-          <span class="nav-badge" id="sCouponsBadge">0</span>
+          <span class="nav-badge" style="display: none" id="sCouponsBadge">0</span>
         </button>
         <button class="nav-item" data-panel="reviews" onclick="showPanel('reviews',this)">
           <span class="nav-ico">
@@ -353,7 +353,7 @@
     <div class="panel" id="panel-wishlist">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Lista de Desejos</h2><p id="wishlistCount">0 produtos salvos</p></div>
-        <button class="btn-primary" onclick="toast('Adicionando tudo ao carrinho! 🛒')">
+        <button class="btn-primary" id="wishTopButton" onclick="toast('Adicionando tudo ao carrinho! 🛒')">
           <i class="fa-solid fa-cart-shopping"></i>
           Adicionar tudo ao carrinho
         </button>
@@ -367,7 +367,7 @@
     <div class="panel" id="panel-cart">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Meu Carrinho</h2><p id="cartCount">0 produtos salvos</p></div>
-        <button class="btn-primary" onclick="buttonLink('/checkout')">
+        <button class="btn-primary" id="cartTopButton" onclick="buttonLink('/checkout')">
           <i class="fa-solid fa-credit-card"></i>
           Finalizar Compra
         </button>
