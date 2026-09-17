@@ -1002,15 +1002,15 @@ textarea.finput{resize:vertical;min-height:80px}
 
 /* wishlist grid */
 .wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.wcard{background: #fff !important;border:1.5px solid #e2e8f0;border-radius:14px;min-height: 320px;overflow:hidden;transition:all .25s;cursor:pointer;position:relative}
+.wcard{background: var(--white) !important;border:1.5px solid #e2e8f0;border-radius:14px;min-height: 320px;overflow:hidden;transition:all .25s;cursor:pointer;position:relative}
 .wcard:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(37,99,235,.1);transform:translateY(-2px)}
-.wcard-img{aspect-ratio:1;background: #fff !important;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
+.wcard-img{aspect-ratio:1;background: var(--white) !important;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
 .wcard-rm{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.9);border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.2s;z-index:2}
 .wcard-rm:hover{background:#fee2e2;border-color:#fca5a5;color:#ef4444}
 .wcard-info{padding:12px}
-.wcard-cat{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#2563eb;margin-bottom:3px}
-.wcard-name{font-size:12px;font-weight:600;margin-bottom:5px;line-height:1.4}
-.wcard-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:#2563eb}
+.wcard-cat{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color: var(--blue);margin-bottom:3px}
+.wcard-name{font-size:12px;font-weight:600;margin-bottom:5px;line-height:1.4;color: var(--black);}
+.wcard-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color: var(--blue);}
 .wcard-old{font-size:10px;color:#94a3b8;text-decoration:line-through;margin-left:4px}
 .wcard-add{width:100%;background:#2563eb;position: absolute;bottom: 0;color:#fff;padding:8px;font-size:11px;font-weight:700;border-radius:0 0 12px 12px;transition:.2s;margin-top:8px}
 .wcard-add:hover{background:#1d4ed8}
@@ -1284,6 +1284,10 @@ textarea.finput{resize:vertical;min-height:80px}
 .btn-arrow {
   display: none;
   rotate: 326deg;
+}
+
+@media (max-width: 10980px) {
+  .wish-grid {grid-template-columns: repeat(4,1fr) !important;}
 }
 
 @media (max-width: 980px) {
