@@ -1146,7 +1146,6 @@ function updateFav() {
   }
 
   const el = $('favItems');
-
   if (!fav.length) {
     el.innerHTML = `
       <div class="fav-empty-st">
@@ -1157,7 +1156,8 @@ function updateFav() {
     return;
   }
 
-  el.innerHTML = fav.map(item => {
+  if ($('favItems')) {
+   el.innerHTML = fav.map(item => {
     const images = getProductImages(item);
     const image = images[0] || null;
     const optimizedImage = image ? getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail) : null;
@@ -1202,7 +1202,8 @@ function updateFav() {
         </button>
       </div>
     `;
-  }).join('');
+   }).join('');
+  }
 }
 
 function openFav() {
