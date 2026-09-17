@@ -801,16 +801,10 @@ function createWishlistCard(product) {
               : ''
           }
         </div>
-        <button
-          class="wcard-add"
-          onclick="
-            event.stopPropagation();
-            addWishlistProductToCart('${product.id}')
-          "
-        >
-          + Adicionar ao carrinho
-        </button>
       </div>
+      <button class="wcard-add" onclick="event.stopPropagation(); addWishlistProductToCart('${product.id}')">
+        + Adicionar ao carrinho
+      </button>
     </div>
   `;
 }
@@ -1021,7 +1015,7 @@ async function loadCart() {
 
 function createCartCard(product) {
   const name = product.name || product.title || product.nome || 'Produto';
-  const category = product.category || product.category_name || product.categoria || 'Produto';
+  const category = Array.isArray(product.cat) ? product.cat.join(', ') : String(product.cat || '');
   const price = Number(product.price ?? product.preco ?? 0);
   const oldPrice = Number(product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
   const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
@@ -1084,16 +1078,10 @@ function createCartCard(product) {
               : ''
           }
         </div>
-        <button
-          class="wcard-add"
-          onclick="
-            event.stopPropagation();
-            buttonLink('/checkout')
-          "
-        >
-          Comprar agora
-        </button>
       </div>
+      <button class="wcard-add" onclick="event.stopPropagation(); buttonLink('/checkout')">
+        Comprar agora
+      </button>
     </div>
   `;
 }
