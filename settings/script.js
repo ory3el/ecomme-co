@@ -601,6 +601,7 @@ async function loadWishlist() {
   const grid = document.getElementById('wishlistGrid');
   const countEl = document.getElementById('wishlistCount');
   const sidebarCount = document.getElementById('sWishlistBadge');
+  const topButton = document.getElementById('wishTopButton');
   if (!grid || !userId) return;
 
   try {
@@ -646,6 +647,7 @@ async function loadWishlist() {
       `;
       countEl.textContent = '0 produtos salvos';
       sidebarCount.style.display = "none";
+      topButton.style.display = "none";
       sidebarCount.textContent = '0';
       return;
     }
@@ -687,6 +689,7 @@ async function loadWishlist() {
       .filter(Boolean);
 
     sidebarCount.style.display = "block";
+    topButton.style.display = "block";
     sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
@@ -882,6 +885,7 @@ async function loadCart() {
   const grid = document.getElementById('cartGrid');
   const countEl = document.getElementById('cartCount');
   const sidebarCount = document.getElementById('sCartBadge');
+  const cTopButton = document.getElementById('cartTopButton');
   if (!grid || !userId) return;
 
   try {
@@ -927,6 +931,7 @@ async function loadCart() {
       `;
       countEl.textContent = '0 produtos salvos';
       sidebarCount.style.display = "none";
+      cTopButton.style.display = "none";
       sidebarCount.textContent = '0';
       return;
     }
@@ -968,6 +973,7 @@ async function loadCart() {
       .filter(Boolean);
 
     sidebarCount.style.display = "block";
+    cTopButton.style.display = "block";
     sidebarCount.textContent = `${orderedProducts.length}`;
     countEl.textContent =
       `${orderedProducts.length} ${
