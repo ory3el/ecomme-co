@@ -13,7 +13,7 @@
   --bg2:       #FFFFFF;
   --bg3:       #EBF2FF;
   --surface:   #FFFFFF;
-  --surface0: rgba(255,255,255,0.5);
+  --surface0:  rgba(255,255,255,0.5);
   --surface1:  #FFFFFF;
   --surface-2: rgba(255,255,255,.75);
   --overlay:   rgba(255,255,255,0.1);
@@ -1002,7 +1002,7 @@ textarea.finput{resize:vertical;min-height:80px}
 
 /* wishlist grid */
 .wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.wcard{background: var(--white) !important;border:1.5px solid #e2e8f0;/* justify-content: center; *//* justify-items: center; */border-radius:14px;min-height: 320px;overflow:hidden;transition: all 0.25s;display: grid;cursor:pointer;position:relative}
+.wcard{background: var(--white) !important;border:1.5px solid #e2e8f0;justify-content: center;/* justify-items: center; */border-radius:14px;min-height: 320px;overflow:hidden;transition: all 0.25s;display: grid;cursor:pointer;position:relative}
 .wcard:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(37,99,235,.1);transform:translateY(-2px)}
 .wcard-img{aspect-ratio:1;background: var(--white) !important;display:flex;align-items:center;justify-content:center;border-radius: 14px;font-size:52px;position:relative;/* min-width: 228.77px; *//* min-height: 228.77px; */}
 .wcard-rm{position:absolute;aspect-ratio: 1;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background: var(--sidebar-bg);border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:12px;transition: .25s;z-index:2}
@@ -1012,7 +1012,7 @@ textarea.finput{resize:vertical;min-height:80px}
 .wcard-name{font-size:12px;font-weight:600;margin-bottom:5px;line-height:1.4;color: var(--black);}
 .wcard-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color: var(--blue);}
 .wcard-old{font-size:10px;color:#94a3b8;text-decoration:line-through;margin-left:4px}
-.wcard-add{width: 100%;background:#2563eb;/* position: absolute; *//* bottom: 0; */color:#fff;padding:8px;font-size:11px;font-weight:700;align-self: end;border-radius:0 0 12px 12px;transition:.2s;margin-top:8px;}
+.wcard-add{width: 100%;background:#2563eb;display: flex;justify-content: center;/* position: absolute; *//* bottom: 0; */color:#fff;padding:8px;font-size:11px;font-weight:700;align-self: end;border-radius:0 0 12px 12px;transition:.2s;margin-top:8px;}
 .wcard-add:hover{background:#1d4ed8}
 
 /* addresses */
