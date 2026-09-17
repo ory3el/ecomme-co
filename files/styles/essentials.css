@@ -1527,12 +1527,14 @@ header {
     justify-content: center;
     gap: 20px;
   }
-
+  .hero-visual {overflow: hidden}
+  .hero-cards {margin: 0 250px; padding-bottom: 25px}
+  .trust {display: flex; justify-content: center}
   .trust-inner {
     grid-template-columns: 1fr 1fr;
   }
   .categories-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .main-layout {
@@ -1610,6 +1612,10 @@ header {
   .btn-subscribe {
     border-radius: 0 0 16px 16px;
   }
+}
+
+@media (max-width: 888px) {
+  .categories-grid {grid-template-columns: repeat(4, minmax(0, 1fr));}
 }
 
 @media (max-width: 768px) {
