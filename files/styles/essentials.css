@@ -943,7 +943,7 @@ header {
   background: var(--white);
   /* backdrop-filter: blur(12px); */
   border: 1px solid var(--border1);
-  /* border-radius: 36px; */
+  border-radius: 36px;
   max-width: 860px;
   min-height: 550px;
   width: min(860px, calc(100% - 24px));
@@ -2159,4 +2159,9 @@ header {
       display: flex;
       margin: auto;
     }
+}
+
+@media (max-width: 500px) {
+  .btn-madd {padding: 0 4px}
+  .btn-madd i {display: none}
 }
