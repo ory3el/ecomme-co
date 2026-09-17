@@ -1,4 +1,6 @@
-const $ = id => document.getElementById(id);
+if (typeof $ !== 'undefined') {
+  const $ = id => document.getElementById(id);
+}
 
 /* -- THEME --------------------------------------------------------- */
 function systemPrefersDark() {
