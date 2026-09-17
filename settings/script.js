@@ -1699,7 +1699,9 @@ function startSessionHeartbeat() {
 }
 
 // LOGOUT
-const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+if (typeof waitt !== 'undefined') {
+  const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+}
 let sessionsChannel = null;
 
 async function doLogout() {
