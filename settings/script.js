@@ -912,8 +912,7 @@ async function loadCart() {
           text-align: center;
           color: var(--muted);
         ">
-          <i
-            class="fa-regular fa-heart"
+          <i class="fa-solid fa-cart-shopping"
             style="font-size:42px;margin-bottom:12px;display:block;"
           ></i>
           <strong style="
