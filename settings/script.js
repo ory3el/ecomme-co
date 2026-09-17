@@ -613,12 +613,12 @@ async function loadWishlist() {
       .single();
 
     if (profileError) throw profileError;
-    let wishlist = profile?.fav || [];
-    if (!Array.isArray(wishlist)) {
-      wishlist = [];
+    let fav = profile?.fav || [];
+    if (!Array.isArray(fav)) {
+      fav = [];
     }
 
-    if (wishlist.length === 0) {
+    if (fav.length === 0) {
       grid.innerHTML = `
         <div style="
           grid-column: 1 / -1;
@@ -650,17 +650,12 @@ async function loadWishlist() {
       return;
     }
 
-    const productIds = wishlist
+    const productIds = fav
       .map(item => {
         if (typeof item === 'string') {
           return item;
         }
-
-        return item?.id ||
-               item?.product_id ||
-               item?.productId ||
-               null;
-      })
+        return item?.id || item?.product_id || item?.productId || null;})
       .filter(Boolean);
 
     if (productIds.length === 0) {
@@ -744,8 +739,8 @@ function createWishlistCard(product) {
   const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
 
   return `
-    <div class="wcard" data-product-id="${product.id}">
-      <div class="wcard-img" onclick="openProduct('${product.id}')">
+    <div class="wcard" onclick="openProduct('${product.id}')" data-product-id="${product.id}">
+      <div class="wcard-img">
         ${
           image
             ? `
@@ -839,11 +834,11 @@ async function removeWishlistProduct(productId, productName) {
       .single();
 
     if (profileError) throw profileError;
-    let wishlist = Array.isArray(profile?.fav)
+    let fav = Array.isArray(profile?.fav)
       ? profile.fav
       : [];
 
-    wishlist = wishlist.filter(item => {
+    fav = fav.filter(item => {
       const id =
         typeof item === 'string'
           ? item
@@ -1021,7 +1016,7 @@ function createCartCard(product) {
   const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
 
   return `
-    <div class="wcard" data-product-id="${product.id}">
+    <div class="wcard" onclick="openProduct('${product.id}')" data-product-id="${product.id}">
       <div class="wcard-img">
         ${
           image
