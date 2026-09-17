@@ -1135,11 +1135,15 @@ function updateFav() {
     0
   );
 
-  $('wishBadge').textContent = count;
-  $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  if ($('wishBadge')) {
+    $('wishBadge').textContent = count;
+    $('wishBadge').style.display = count > 0 ? 'flex' : 'none';
+  }
 
-  $('favCount').textContent = `(${count})`;
-  $('favTotal').textContent = fmt(total);
+  if ($('favCount') && $('favTotal')) {
+    $('favCount').textContent = `(${count})`;
+    $('favTotal').textContent = fmt(total);
+  }
 
   const el = $('favItems');
 
