@@ -747,7 +747,7 @@ function createWishlistCard(product) {
 
   return `
     <div class="wcard" data-product-id="${product.id}">
-      <div class="wcard-img">
+      <div class="wcard-img" onclick="openProduct('${product.id}')">
         ${
           image
             ? `
