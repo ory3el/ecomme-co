@@ -123,7 +123,7 @@ function maskPhone(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.len
 function toast(msg, type='ok'){
   const t=document.getElementById('t1');
   const ic=document.getElementById('tIco');
-  const tx=document.getElementById('tMsg');
+  const tx=document.getElementById('toastMsg');
   tx.textContent=msg;
   ic.className=`t-ico ${type}`;
   ic.textContent=type==='ok'?'✓':type==='err'?'!':'ℹ';
@@ -1312,10 +1312,8 @@ async function submitNewAddress() {
     toast('Erro ao salvar endereço.', 'err');
   } else {
     toast('Endereço salvo com sucesso! 📍', 'ok');
-
     const formDiv = document.getElementById('newAddrForm');
     if (formDiv) formDiv.classList.remove('on');
-    
     fetchAddresses(); 
     closeAddressModal()
   }
@@ -1709,10 +1707,7 @@ async function doLogout() {
       .eq('user_id', userId);
 
     if (error) {
-      console.warn(
-        'Não foi possível remover o registro da sessão:',
-        error.message
-      );
+      console.warn('Não foi possível remover o registro da sessão:', error.message);
     }
   }
 
@@ -1723,10 +1718,7 @@ async function doLogout() {
     });
   
   if (signOutError) {
-    console.error(
-      'Erro ao fazer logout:',
-      signOutError
-    );
+    console.error('Erro ao fazer logout:', signOutError);
   }
   toast('Você saiu da conta.', 'info');
   await waitt(700);
@@ -1736,29 +1728,18 @@ async function doLogout() {
 // LOGOUT OTHERS DEVICES
 async function doOthersLogout() {
   if (!userId) return;
-  const confirmed = confirm(
-    'Isso encerrará a conta em todos os outros dispositivos. Continuar?'
-  );
+  const confirmed = confirm('Isso encerrará a conta em todos os outros dispositivos. Continuar?');
   
   if (!confirmed) return;
-  toast(
-    'Saindo da conta em outros dispositivos...',
-    'info'
-  );
+  toast('Saindo da conta em outros dispositivos...', 'info');
 
   const { error: authError } =
     await supabaseClient.auth.signOut({
       scope: 'others'
     });
   if (authError) {
-    console.error(
-      'Erro no logout dos outros dispositivos:',
-      authError
-    );
-    toast(
-      'Erro ao sair de outros dispositivos.',
-      'err'
-    );
+    console.error('Erro no logout dos outros dispositivos:', authError);
+    toast('Erro ao sair de outros dispositivos.', 'err');
     return;
   }
 
@@ -1772,21 +1753,13 @@ async function doOthersLogout() {
         .neq('id', localSessionId);
 
     if (dbError) {
-      console.error(
-        'Erro ao sincronizar user_sessions:',
-        dbError
-      );
-
-      toast(
-        'As sessões foram encerradas, mas houve erro ao atualizar a lista.', 'err'
-      );
+      console.error('Erro ao sincronizar user_sessions:', dbError);
+      toast('As sessões foram encerradas, mas houve erro ao atualizar a lista.', 'err');
       await fetchSessions();
       return;
     }
   }
-  toast(
-    'Logout em outros dispositivos realizado com sucesso!', 'ok'
-  );
+  toast('Logout em outros dispositivos realizado com sucesso!', 'ok');
   await fetchSessions();
 }
 
@@ -2086,10 +2059,7 @@ function showDeleteAccountConfirm() {injectModalStyles();
 
   if (input) {
     input.value = '';
-    input.classList.remove(
-      'valid',
-      'invalid'
-    );
+    input.classList.remove('valid', 'invalid');
   }
 
   if (btn) {
@@ -2099,10 +2069,7 @@ function showDeleteAccountConfirm() {injectModalStyles();
 
   if (hint) {
     hint.textContent = 'A confirmação diferencia maiúsculas e minúsculas.';
-    hint.classList.remove(
-      'valid',
-      'invalid'
-    );
+    hint.classList.remove('valid', 'invalid');
   }
 
   deleteAccountConfirmOpen = true;
@@ -2130,11 +2097,7 @@ function validateDeleteAccountInput() {
   btn.style.opacity = isValid ? '1' : '0.45';
 
   // ── INPUT ──
-  input.classList.remove(
-    'valid',
-    'invalid'
-  );
-
+  input.classList.remove('valid', 'invalid');
   if (isValid) {
     input.classList.add('valid');
     if (hint) {
@@ -2333,14 +2296,9 @@ async function pauseAccount() {
 
   const confirmed = confirm('Pausar sua conta?\n\n' + 'Você será desconectado e não poderá acessar a conta até reativá-la.');
   if (!confirmed) return;
-
-  toast(
-    'Pausando sua conta...',
-    'info'
-  );
-
+  toast('Pausando sua conta...', 'info');
+  
   try {
-
     const {
       data: { session }
     } = await supabaseClient.auth.getSession();
