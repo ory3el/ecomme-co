@@ -1297,8 +1297,8 @@ function openMore() {
 }
 
 function closeMore() {
-  $('moreSidebar').classList.remove('on');
-  $('moreOverlay').classList.remove('on');
+  if ($('moreSidebar')) $('moreSidebar').classList.remove('on');
+  if ($('moreOverlay')) $('moreOverlay').classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
