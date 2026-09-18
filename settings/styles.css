@@ -1161,13 +1161,13 @@ textarea.finput{resize:vertical;min-height:80px}
 .empty-state p{font-size:12px;max-width:260px;line-height:1.6}
 
 /* toast */
-/*.toast-stack{position:fixed;top:16px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}*/
+/*.toast-stack{position:fixed;top:16px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .t{background:#0f1a2e;color:#fff;padding:11px 18px;border-radius:12px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;opacity:0;transform:translateX(24px);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(15,26,46,.2)}
 .t.on{opacity:1;transform:translateX(0)}
 .t-ico{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
 .t-ico.ok{background:#16a34a}
 .t-ico.err{background:#ef4444}
-.t-ico.info{background:#2563eb}
+.t-ico.info{background:#2563eb}*/
 
 /* TOAST */
 .toast-stack { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #10141a; border: 1px solid rgba(255,255,255,0.1); color: #e8edf5; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; z-index: 11000; display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
