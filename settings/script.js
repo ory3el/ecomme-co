@@ -120,7 +120,7 @@ function maskCPF(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.lengt
 function maskPhone(inp){ let v=inp.value.replace(/\D/g,'').slice(0,11); if(v.length>6) v='('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7); else if(v.length>2) v='('+v.slice(0,2)+') '+v.slice(2); inp.value=v; }
 
 // ── TOAST ──────────────────────────────────────────────────
-function toast(msg, type='ok'){
+/*function toast(msg, type='ok'){
   const t=document.getElementById('t1');
   const ic=document.getElementById('tIco');
   const tx=document.getElementById('toastMsg');
@@ -130,6 +130,18 @@ function toast(msg, type='ok'){
   t.classList.add('on');
   clearTimeout(t._t);
   t._t=setTimeout(()=>t.classList.remove('on'),3000);
+}*/
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  if (toastMsg) toastMsg.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 5000);
+}
+function toast(msg) {
+  showToast(msg);
 }
 
 // -----------------------------------------------------------
