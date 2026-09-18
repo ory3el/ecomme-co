@@ -1,5 +1,3 @@
-const $ = id => document.getElementById(id);
-
 /* -- THEME --------------------------------------------------------- */
 function systemPrefersDark() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
