@@ -3,7 +3,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-
 const SESSION_CHECK_INTERVAL = 5_000;
 let sessionCheckTimer = null;
 let sessionCheckRunning = false;
