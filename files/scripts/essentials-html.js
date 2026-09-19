@@ -300,6 +300,11 @@
   </script>
   `);
 
+const windowPath = window.location.pathname;
+const specificPathTerm = "/";
+const initialPathPosition = windowPath.indexOf(specificPathTerm) + specificPathTerm.length;
+const pathResult = windowPath.substring(initialPathPosition);
+
 const script1 = document.createElement('script');
 script1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
