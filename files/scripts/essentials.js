@@ -366,7 +366,7 @@ function initTheme() {
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
-    initThemeToggle();
+    //initThemeToggle();
     setupModalSwipe();
     setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
