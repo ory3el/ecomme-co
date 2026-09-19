@@ -303,11 +303,6 @@
 const script1 = document.createElement('script');
 script1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
-const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let userId = null;
-
 const script2 = document.createElement('script');
 script2.src = '/files/scripts/auth-session-check.js';
 
@@ -321,6 +316,10 @@ const script5 = document.createElement('script');
 script5.src = 'script.js';
 
 document.body.appendChild(script1);
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
 document.body.appendChild(script2);
 document.body.appendChild(script3);
 document.body.appendChild(script4);
