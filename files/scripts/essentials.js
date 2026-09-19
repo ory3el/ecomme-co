@@ -367,8 +367,6 @@ function initTheme() {
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     //initThemeToggle();
-    setupModalSwipe();
-    setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     const headerImage = document.getElementById('headerAvatar');
