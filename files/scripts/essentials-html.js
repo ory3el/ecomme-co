@@ -298,19 +298,33 @@
       quicklink.listen();
     });
   </script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let userId = null;
-</script>
-<script src="/files/scripts/auth-session-check.js"></script>
-<script src="/files/scripts/console-warning.js"></script>
-<script defer src="/files/scripts/sidebars.js"></script>
-<script defer src="/files/scripts/essentials.js"></script>
-<script defer src="script.js"></script>
   `);
+
+const script1 = document.createElement('script');
+script1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+
+const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId = null;
+
+const script2 = document.createElement('script');
+script2.src = '/files/scripts/auth-session-check.js';
+
+const script3 = document.createElement('script');
+script3.src = '/files/scripts/console-warning.js';
+
+const script4 = document.createElement('script');
+script4.src = '/files/scripts/essentials.js';
+
+const script5 = document.createElement('script');
+script5.src = 'script.js';
+
+document.body.appendChild(script1);
+document.body.appendChild(script2);
+document.body.appendChild(script3);
+document.body.appendChild(script4);
+document.body.appendChild(script5);
+
 //}
 //initEcommeUI()
