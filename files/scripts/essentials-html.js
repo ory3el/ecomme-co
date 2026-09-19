@@ -312,14 +312,14 @@ script3.src = '/files/scripts/console-warning.js';
 const script4 = document.createElement('script');
 script4.src = '/files/scripts/essentials.js';
 
-/*const script5 = document.createElement('script');
-script5.src = 'script.js';*/
+const script5 = document.createElement('script');
+script5.src = `/${pathResult}/script.js`;
 
 document.body.appendChild(script1);
 document.body.appendChild(script2);
 document.body.appendChild(script3);
 document.body.appendChild(script4);
-//document.body.appendChild(script5);
+document.body.appendChild(script5);
 
 //}
 //initEcommeUI()
