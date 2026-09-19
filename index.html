@@ -796,8 +796,8 @@
 <script>
 const windowPath = window.location.pathname;
 const specificPathTerm = "/";
-const initialPathPosition = path.indexOf(specificTerm) + specificTerm.length;
-const pathResult = path.substring(initialPosition);
+const initialPathPosition = windowPath.indexOf(specificPathTerm) + specificPathTerm.length;
+const pathResult = windowPath.substring(initialPathPosition);
 </script>
 <script defer src="/files/scripts/essentials-html.js"></script>
 </body>
