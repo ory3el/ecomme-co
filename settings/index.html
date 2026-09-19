@@ -62,11 +62,11 @@
     </div>
     <div class="hdr-right">
       <div class="hdr-ico" style="cursor: pointer;" onclick="showPanel('notifications')" title="Notificações">
-        <img src="/images/icons/full/bell.webp" style="width: 20px; height: auto; display: block;" alt="Bell"/>
+        <i class="fa-solid fa-bell"></i>
       </div>
-      <div class="hdr-ico" style="cursor: pointer;" onclick="openCart()" title="Carrinho">
-        <img src="/images/icons/full/cart.webp" style="width: 20px; height: auto; display: block;" alt="Cart"/>
-        <span class="hd-badge" id="cartBadge">0</span>
+      <div class="hdr-ico" style="cursor: pointer;" onclick="showPanel('cart')" title="Carrinho">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <!--<span class="hd-badge" id="cartBadge">0</span>-->
       </div>
       <div class="hdr-av" onclick="showPanel('profile')" title="Perfil">
         <img src="/images/icons/full/user.webp" id="headerAvatar" style="width: 75%; height: auto; display: block" alt="User"/>
@@ -97,7 +97,7 @@
       <!-- <div class="user-badge">⭐ Cliente Gold</div> -->
       <div class="user-stats">
         <div class="ustat"><strong id="profileOrdersCount">0</strong><small>Pedidos</small></div>
-        <div class="ustat"><strong id="profileWishCount">0</strong><small>L. Desejos</small></div>
+        <div class="ustat"><strong id="profileWishCount">0</strong><small>Desejos</small></div>
         <div class="ustat"><strong id="profileFollowing">0</strong><small>Seguindo</small></div>
       </div>
     </div>
