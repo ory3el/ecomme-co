@@ -1119,10 +1119,12 @@ function filterByCategory(event, category) {
   }
 }
 
+/*
 const script1 = document.createElement('script');
 script1.src = '/files/scripts/sidebars.js';
 
 document.body.appendChild(script1);
+*/
 
 /*}
 injectEcommeUI();*/
