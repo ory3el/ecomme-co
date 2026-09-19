@@ -308,7 +308,6 @@
 </script>
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
-<script src="/files/scripts/sidebars.js"></script>
   `);
 //}
 //initEcommeUI()
