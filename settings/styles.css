@@ -840,7 +840,7 @@ input,select,textarea{font-family:inherit}
 .hdr-bc a{color: var(--blue-deep);font-weight:500}
 .hdr-bc span{opacity:.5}
 .hdr-right{display:flex;align-items:center;gap:10px}
-.hdr-ico{width:36px;height:36px;border-radius:50%;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:16px;transition:.2s}
+.hdr-ico{width:36px;height:36px;border-radius:50%;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:var(--black);font-size:16px;transition:.2s}
 .hdr-ico:hover{border-color:#93c5fd;color:#2563eb;background:#eff6ff}
 .hdr-av{width:36px;height:36px;border-radius:50%;/* background:linear-gradient(135deg,#528eff,#7a59ff); */display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;border: 1px solid #fff;box-shadow:0 0 0 2px #2563eb}
 .hdr-av img {filter: var(--img-filter1);}
