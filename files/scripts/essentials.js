@@ -315,8 +315,8 @@ window.addEventListener('scroll', () => {
   }, 120);
 }, { passive: true });
 
-
 /* ── THEME ───────────────────────────────────────────────────────── */
+/*
 function systemPrefersDark() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
@@ -360,13 +360,12 @@ function initTheme() {
     else if (mq.addListener) mq.addListener(onChange);
   }
 }
+*/
 
 // ============================================================
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-    initTheme();
-    //initThemeToggle();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     const headerImage = document.getElementById('headerAvatar');
