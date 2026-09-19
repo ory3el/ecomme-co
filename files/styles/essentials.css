@@ -681,7 +681,7 @@ header {
     }
     .theme-opt i { font-size: 14px; }
     .theme-opt:hover { color: var(--text); }
-    .theme-opt[aria-checked="true"] {background: var(--border) !important; color: var(--selected1);box-shadow: var(--shadow);}
+    .theme-opt[aria-checked="true"] {background: var(--border) !important; color: var(--black) !important; box-shadow: var(--shadow);}
 
   .more-sb {
     opacity: 0;
