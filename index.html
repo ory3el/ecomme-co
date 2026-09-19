@@ -549,10 +549,12 @@
     </div>
     <div class="more-body">
       <!-- THEME SWITCH -->
-      <div class="theme-switch-wrap">
-        <p class="acc-label">Aparência</p>
-        <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
-          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro">
+      <div class="acc-menu-group">
+	    <p class="acc-label">Tema</p>
+		<div class="theme-switch-wrap">
+    
+		<div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="true" title="Tema claro">
             <i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span>
           </button>
           <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema">
@@ -562,6 +564,7 @@
             <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span>
           </button>
         </div>
+		</div>
       </div>
       <div class="acc-menu-group" style="gap:10px">
         <button class="btn-acc-option" onclick="buttonLink('/settings')">
