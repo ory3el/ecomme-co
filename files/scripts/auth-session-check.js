@@ -3,6 +3,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
+
 const SESSION_CHECK_INTERVAL = 5_000;
 let sessionCheckTimer = null;
 let sessionCheckRunning = false;
@@ -12,6 +13,27 @@ let remoteLogoutHandled = false;
   const currentPage = window.location.pathname + window.location.search;
   window.location.href = '/login?redirect=' + encodeURIComponent(currentPage);
 }*/
+
+/* ─── UTILS ─────────────────────────────────────────────────────────── */
+const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
+const $ = id => document.getElementById(id);
+
+function starsHtml(r) {
+  let s = '';
+  const f = Math.floor(r);
+  for (let i = 0; i < f; i++) s += '★';
+  for (let i = f; i < 5; i++) s += '☆';
+  return s;
+}
+
+function fishYates(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 // ------------------------------------
 
