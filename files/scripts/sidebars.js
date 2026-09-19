@@ -981,8 +981,8 @@ function openCart() {
 }
 
 function closeCart() {
-  $('cartSidebar').classList.remove('on');
-  $('cartOverlay').classList.remove('on');
+  if ($('cartSidebar')) $('cartSidebar').classList.remove('on');
+  if ($('cartOverlay')) $('cartOverlay').classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
@@ -1217,8 +1217,8 @@ function openFav() {
 }
 
 function closeFav() {
-  $('favSidebar').classList.remove('on');
-  $('favOverlay').classList.remove('on');
+  if ($('favSidebar')) $('favSidebar').classList.remove('on');
+  if ($('favOverlay')) $('favOverlay').classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
@@ -1279,8 +1279,8 @@ function openNotif() {
 }
 
 function closeNotif() {
-  $('notifSidebar').classList.remove('on');
-  $('notifOverlay').classList.remove('on');
+  if ($('notifSidebar')) $('notifSidebar').classList.remove('on');
+  if ($('notifOverlay')) $('notifOverlay').classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
