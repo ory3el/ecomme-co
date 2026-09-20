@@ -145,6 +145,7 @@ async function initGoogleIdentity() {
 
 // -------------------------------
 
+const selectWait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function startGoogleLogin() {
   const ready = await initGoogleIdentity();
   showLoadingModal('Um Momento...', 'Carregando Login com o Google');
@@ -163,6 +164,9 @@ async function startGoogleLogin() {
       console.warn('One Tap não exibido pelo motivo:', reason);
       triggerGooglePopupFallback();
     }
+
+    await selectWait(5000);
+    showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
   });
 }
 
@@ -184,13 +188,11 @@ function triggerGooglePopupFallback() {
 
 function waitForGoogleIdentity() {
   return new Promise(resolve => {
-    showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
     if (
       typeof google !== 'undefined' &&
       google.accounts?.id
     ) {
       resolve(initGoogleIdentity());
-      showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuarr');
       return;
     }
     let tries = 0;
