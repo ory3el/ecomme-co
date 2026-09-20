@@ -183,13 +183,14 @@ function triggerGooglePopupFallback() {
 // -------------------------------
 
 function waitForGoogleIdentity() {
-  showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
   return new Promise(resolve => {
+    showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
     if (
       typeof google !== 'undefined' &&
       google.accounts?.id
     ) {
       resolve(initGoogleIdentity());
+      showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuarr');
       return;
     }
     let tries = 0;
