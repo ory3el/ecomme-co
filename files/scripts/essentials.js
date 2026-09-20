@@ -366,6 +366,8 @@ function initTheme() {
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+    const productsLoaded = await loadProductsFromSupabase();
+    if (!productsLoaded) return;
     loadShuffleAndRender();
     startProductsRealtime();
     startProductRefresh();
