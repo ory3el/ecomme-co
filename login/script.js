@@ -156,6 +156,7 @@ async function startGoogleLogin() {
 
   google.accounts.id.prompt(notification => {
     console.log('Google Prompt Notification:', notification);
+    showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
     const credentialPickerContainer = document.getElementById('credential_picker_container');
     credentialPickerContainer.style.setProperty("z-index", "850000", "important");
     
@@ -164,9 +165,6 @@ async function startGoogleLogin() {
       console.warn('One Tap não exibido pelo motivo:', reason);
       triggerGooglePopupFallback();
     }
-
-    await selectWait(5000);
-    showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
   });
 }
 
