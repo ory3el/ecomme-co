@@ -156,7 +156,11 @@ async function startGoogleLogin() {
   google.accounts.id.prompt(notification => {
     console.log('Google Prompt Notification:', notification);
     const credentialPickerContainer = document.getElementById('credential_picker_container');
+    const credentialPickerContainer2 = document.getElementById('credentials-picker-container');
+    const animatedContainer = document.getElementById('animated-container');
     credentialPickerContainer.style.setProperty("z-index", "850000", "important");
+    credentialPickerContainer2.style.setProperty("border-radius", "50px", "important");
+    animatedContainer.style.setProperty("padding", "3px", "important");
     
     if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
       const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
