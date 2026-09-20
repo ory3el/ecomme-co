@@ -187,6 +187,13 @@ function triggerGooglePopupFallback() {
 // -------------------------------
 
 function waitForGoogleIdentity() {
+  const credentialPickerContainer = document.getElementById('credential_picker_container');
+  const credentialPickerContainer2 = document.getElementById('credentials-picker-container');
+  const animatedContainer = document.getElementById('animated-container');
+  credentialPickerContainer.style.setProperty("z-index", "850000", "important");
+  credentialPickerContainer2.style.setProperty("border-radius", "50px", "important");
+  animatedContainer.style.setProperty("padding", "3px", "important");
+  
   return new Promise(resolve => {
     if (
       typeof google !== 'undefined' &&
