@@ -497,12 +497,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       const photoUrl = profile.avatar_url || '';
       if (photoUrl && headerImage) {
         headerImage.src = photoUrl;
-        headerImage.style.filter = 'none';
+        headerImage.style.display = 'none';
         headerImage.style.width = '100%';
         headerImage.style.height = '100%';
         headerImage.style.borderRadius = '100%';
         headerImage.style.objectFit = 'cover';
-        headerImage.style.filter = 'none';
       }
     }
     startProductsRealtime();
