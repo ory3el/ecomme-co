@@ -166,6 +166,7 @@ async function startGoogleLogin() {
     }
   });
   await selectWait(5000);
+  hideLoadingModal();
   showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
 }
 
@@ -221,6 +222,7 @@ async function handleGoogleCredential(response) {
     return;
   }
   try {
+    hideLoadingModal();
     showLoadingModal('Verificando conta...', 'Estamos verificando sua conta do Google');
     const result = await verifyGoogleAccount(response.credential);
     hideLoadingModal();
@@ -551,6 +553,7 @@ async function confirmGoogleAccountCreation() {
 // ---------------------------------------
 
 async function loginExistingGoogleAccount(credential, account) {
+  hideLoadingModal();
   showLoadingModal('Entrando...', 'Verificando sua conta');
   try {
     const { data, error } = await supabaseClient.auth.signInWithIdToken({
