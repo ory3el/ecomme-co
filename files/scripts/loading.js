@@ -35,7 +35,7 @@ function injectModalStyles() {
   padding: 30px 28px;
   border-radius: 36px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.16);
+  box-shadow: var(--box-shdw);
   transform: scale(0.82);
   transition: transform .35s cubic-bezier(.22,1,.36,1);}
   
@@ -47,7 +47,7 @@ function injectModalStyles() {
   height: 44px;
   margin: 0 auto 18px;
   border-radius: 50%;
-  border: 4px solid rgba(37,99,235,.16);
+  border: 4px solid var(--black);
   border-top-color: #2563EB;
   animation: loadingSpin .8s linear infinite;
 }
@@ -55,7 +55,7 @@ function injectModalStyles() {
 .loading-modal-title {
   margin: 0;
   font-family: 'Sora', 'Poppins', sans-serif;
-  color: #10161a;
+  color: var(--text);
   font-size: 19px;
   font-weight: 700;
   line-height: 1.3;
@@ -63,7 +63,7 @@ function injectModalStyles() {
 
 .loading-modal-message {
   margin: 8px 0 0;
-  color: #707c8a;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
 }
