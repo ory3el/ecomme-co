@@ -155,6 +155,8 @@ async function startGoogleLogin() {
 
   google.accounts.id.prompt(notification => {
     console.log('Google Prompt Notification:', notification);
+    const credentialPickerContainer = document.getElementById('credential_picker_container');
+    credentialPickerContainer.style.z_index = "850000";
     
     if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
       const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
