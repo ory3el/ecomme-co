@@ -502,6 +502,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         headerImage.style.height = '100%';
         headerImage.style.borderRadius = '100%';
         headerImage.style.objectFit = 'cover';
+        headerImage.style.filter = 'none';
       }
     }
     startProductsRealtime();
