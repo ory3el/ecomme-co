@@ -146,8 +146,8 @@ async function initGoogleIdentity() {
 // -------------------------------
 
 async function startGoogleLogin() {
-  showLoadingModal('Um Momento...', 'Carregando Login com o Google');
   const ready = await initGoogleIdentity();
+  showLoadingModal('Um Momento...', 'Carregando Login com o Google');
   if (!ready) {
     toast('O login do Google ainda está carregando.', 'err');
     return;
@@ -162,7 +162,6 @@ async function startGoogleLogin() {
       triggerGooglePopupFallback();
     }
   });
-  hideLoadingModal();
 }
 
 // ---------------------------------------
