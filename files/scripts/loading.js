@@ -8,13 +8,13 @@ function injectModalStyles() {
 .loading-modal-container {
   position: fixed;
   inset: 0;
-  background: rgba(255,255,255,0.12);
+  background: var(--overlay);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 250000;
+  z-index: 25000;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -28,9 +28,9 @@ function injectModalStyles() {
 }
 
 .loading-modal-content {
-  background: rgba(255,255,255,.82);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: var(--sidebar-bg);
+  /*backdrop-filter: blur(18px);*/
+  /*-webkit-backdrop-filter: blur(18px);*/
   width: min(90%, 380px);
   padding: 30px 28px;
   border-radius: 36px;
