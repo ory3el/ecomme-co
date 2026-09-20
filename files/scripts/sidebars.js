@@ -445,11 +445,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
-    const headerImage = document.getElementById('headerAvatar');
-    const productsLoaded = await loadProductsFromSupabase();
+    /*const productsLoaded = await loadProductsFromSupabase();
     if (!productsLoaded) {
       return;
-    }
+    }*/
 
     const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
     if (!user || userError) {
@@ -493,16 +492,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('accSidebarAvatar').style.display = "flex";
         $('accSidebarIcon').style.display = "none";
       }
-      
-      const photoUrl = profile.avatar_url || '';
-      if (photoUrl && headerImage) {
-        headerImage.src = photoUrl;
-        headerImage.style.display = 'none';
-        headerImage.style.width = '100%';
-        headerImage.style.height = '100%';
-        headerImage.style.borderRadius = '100%';
-        headerImage.style.objectFit = 'cover';
-      }
     }
     startProductsRealtime();
     startProductRefresh();
@@ -532,7 +521,12 @@ function initHeaderAuthListener() {
           .single();
 
         if (!profileError && profileData && profileData.avatar_url) {
-          headerAvatar.src = profileData.avatar_url;
+          headerAvatar.src = profileData.avatar_url;      
+          headerAvatar.style.filter = 'none';
+          headerAvatar.style.width = '100%';
+          headerAvatar.style.height = '100%';
+          headerAvatar.style.borderRadius = '100%';
+          headerAvatar.style.objectFit = 'cover';
         } else {
           headerAvatar.src = "/images/icons/full/user.webp";
         }
