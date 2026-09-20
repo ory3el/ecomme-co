@@ -10,19 +10,19 @@ function showConsoleWarning() {
 
   console.log(
     "%cPERIGO!", 
-    "color: #ff0000; font-size: 40px; font-weight: bold; font-family: sans-serif; text-shadow: 2px 2px 0px #000;"
+    "margin-bottom: 10px; color: #ff0000; font-size: 40px; font-weight: bold; font-family: sans-serif; text-shadow: 2px 2px 0px #000;"
   );
   console.log(
     "%cEste é um recurso de navegador voltado exclusivamente para desenvolvedores.", 
-    "font-size: 16px; font-weight: bold; font-family: sans-serif; margin-top: 10px;"
+    "margin-bottom: 10px; font-size: 16px; font-weight: bold; font-family: sans-serif; margin-top: 10px;"
   );
   console.log(
     "%cSe alguém disse para você copiar e colar um código aqui para ativar um recurso, ganhar descontos ou 'hackear' o sistema, é um golpe (ataque Self-XSS).", 
-    "font-size: 16px; font-weight: bold; color: #ffcc00; font-family: sans-serif; margin-top: 10px;"
+    "margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #ffcc00; font-family: sans-serif; margin-top: 10px;"
   );
   console.log(
     "%cColar qualquer código aqui dará aos invasores acesso total à sua conta, permitindo o roubo de dados pessoais, compras indevidas e acesso aos seus pagamentos.", 
-    "font-size: 16px; font-weight: bold; color: #ff5555; font-family: sans-serif; margin-top: 10px;"
+    "margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #ff5555; font-family: sans-serif; margin-top: 10px;"
   );
 }
 showConsoleWarning();
