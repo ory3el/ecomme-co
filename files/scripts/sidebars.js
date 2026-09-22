@@ -888,7 +888,7 @@ function startProductsRealtime() {
           refreshProductsIfNeeded();
         }
       )
-      .subscribe(status => {console.log('Products Realtime:',status);});
+      .subscribe(status => {/*console.log('Products Realtime:',status);*/});
 }
 
 // ============================================================
