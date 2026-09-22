@@ -353,7 +353,9 @@ if (typeof systemPrefersDark === 'undefined') {
       const raw = localStorage.getItem('ecomme_settings');
       const settings = raw ? JSON.parse(raw) : {};
       localStorage.setItem('ecomme_settings', JSON.stringify({...settings, theme: pref}));
-    } catch (error) console.warn('Não foi possível salvar o tema localmente:', error);
+    } catch (error) {
+      console.warn('Não foi possível salvar o tema localmente:', error);
+    }
     const root = document.documentElement;
     if (!opts.silent) root.classList.add('theme-transition');
     root.setAttribute('data-theme', effectiveTheme(pref));
