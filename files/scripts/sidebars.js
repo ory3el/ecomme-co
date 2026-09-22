@@ -728,7 +728,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (profile.avatar_url && $('accSidebarAvatar')) {
         $('accSidebarAvatar').src = profile.avatar_url;
         $('accSidebarAvatar').style.display = "flex";
-        $('accSidebarIcon').style.display = "none";
+        if ($('accSidebarIcon')) $('accSidebarIcon').style.display = "none";
       }
     }
     startProductsRealtime();
