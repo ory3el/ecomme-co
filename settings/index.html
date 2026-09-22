@@ -1253,7 +1253,12 @@ const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let userId = null;
 
-const fmt = p => p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
+const fmt = p => {
+  if (typeof window.formatEcommePrice === 'function') {
+    return window.formatEcommePrice(p);
+  }
+  return p != null ? 'R$ ' + Number(p).toFixed(2).replace('.', ',') : '';
+};
 const $ = id => document.getElementById(id);
 </script>
 <script src="/files/scripts/console-warning.js"></script>
