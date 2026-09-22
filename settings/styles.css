@@ -1103,11 +1103,11 @@ textarea.finput{resize:vertical;min-height:80px}
 .setting-left h4{font-size:13px;font-weight:600;margin-bottom:2px}
 .setting-left p{font-size:11px;color: var(--muted);}
 .theme-btns{display:flex;gap:6px}
-.theme-btn{width:32px;height:32px;border-radius:8px;border:2px solid #e2e8f0;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;font-size:14px}
-.theme-btn.on{border-color:#2563eb}
-.theme-btn.light{background: #fff;color: #000;}
-.theme-btn.dark{background:#0f1a2e}
-.theme-btn.auto{background: linear-gradient(135deg,#fff 50%,#0f1a2e 50%);}
+.theme-opt{width:32px;height:32px;border-radius:8px;border:2px solid #e2e8f0;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;font-size:14px}
+.theme-opt.on{border-color:#2563eb}
+.theme-opt.light{background: #fff;color: #000;}
+.theme-opt.dark{background:#0f1a2e}
+.theme-opt.auto{background: linear-gradient(135deg,#fff 50%,#0f1a2e 50%);}
 .lang-sel {
   background: none;
   border:1.5px solid #e2e8f0;
