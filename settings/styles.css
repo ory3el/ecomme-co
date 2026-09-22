@@ -881,9 +881,9 @@ input,select,textarea{font-family:inherit}
 .nav-item.danger:hover{background: var(--white);border-color: var(--red);color: var(--red);}
 .nav-ico{font-size:17px;width:24px;text-align:center;flex-shrink:0}
 .nav-lbl{flex:1}
-.nav-badge{background:#eff6ff;color:#2563eb;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:auto;transition:.18s}
+.nav-badge{background: var(--bg3);color: var(--blue-deep);box-shadow: 0 0 10px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:auto;transition:.18s}
 .nav-badge.red{background:#fef2f2;color:#ef4444}
-.nav-arrow{font-size:11px;color:#94a3b8;margin-left:auto;transition:.2s}
+.nav-arrow{font-size:11px;color: var(--muted);margin-left:auto;transition:.2s}
 .nav-item:hover .nav-arrow,.nav-item.active .nav-arrow{opacity:0}
 
 /* ── MAIN CONTENT ────────────────────────────────────────── */
@@ -1002,9 +1002,9 @@ textarea.finput{resize:vertical;min-height:80px}
 
 /* wishlist grid */
 .wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.wcard{background: var(--white) !important;border:1.5px solid var(--muted2);justify-content: center;/* justify-items: center; */border-radius:14px;min-height: 320px;overflow:hidden;transition: all 0.25s;display: grid;cursor:pointer;position:relative}
+.wcard{background: var(--white) !important;border:1.5px solid var(--muted2);justify-content: center;justify-items: center;border-radius:14px;min-height: 320px;overflow:hidden;transition: all 0.25s;display: grid;cursor:pointer;position:relative}
 .wcard:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(37,99,235,.1);transform:translateY(-2px)}
-.wcard-img{aspect-ratio:1;background: var(--white) !important;display:flex;align-items:center;justify-content:center;border-radius: 14px;font-size:52px;position:relative;/* min-width: 228.77px; *//* min-height: 228.77px; */}
+.wcard-img{aspect-ratio:1;background: var(--white) !important;display:flex;align-items:center;justify-content:center;border-radius: 14px;font-size:52px;position:relative;min-width: 100%;min-height: 100%;/* min-width: 228.77px; *//* min-height: 228.77px; */}
 .wcard-rm{position:absolute;aspect-ratio: 1;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background: var(--sidebar-bg);border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:12px;transition: .25s;z-index:2}
 .wcard-rm:hover{color:#ef4444;border-color: var(--red);}
 .wcard-info{align-self: start;height: 100%;width: 100%;display: grid;padding:12px;}
