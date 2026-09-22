@@ -464,20 +464,16 @@ async function syncEcommeDisplaySettings() {
 }
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
-if (typeof cart === 'undefined') {
-  let cart = [];
-  let fav = [];
-  let curId = null;
-  let mQtyVal = 1;
-  let view = 'grid';
-  let modalImages = [];
-  let modalImageIndex = 0;
-}
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let modalImages = [];
+let modalImageIndex = 0;
 
-if (typeof products === 'undefined') {
-  let products = [];
-  let shuffled = [];
-}
+let products = [];
+let shuffled = [];
 
 const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
 const EDGE_IMAGE_PRESETS = {
