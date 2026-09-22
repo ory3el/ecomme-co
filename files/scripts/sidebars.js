@@ -332,17 +332,39 @@ if (typeof systemPrefersDark === 'undefined') {
     });
   }
 
+  async function saveThemeToSupabase(pref) {
+    try {
+      if (typeof supabaseClient === 'undefined') return;
+      const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+      if (userError || !user) return;
+    
+      const { error } = await supabaseClient.from('user_settings').upsert({user_id: user.id, theme: pref}, {onConflict: 'user_id'});
+      if (error) console.error('Erro ao salvar tema no Supabase:', error);
+    } catch (error) {
+      console.error('Erro ao sincronizar tema com o Supabase:', error);
+    }
+  }
+  
   function applyTheme(pref, opts) {
     opts = opts || {};
-    try { localStorage.setItem('ecomme-theme', pref); } catch (e) {}
-    var root = document.documentElement;
+    if (!['light', 'dark', 'auto'].includes(pref)) pref = 'light';
+    try {
+      localStorage.setItem('ecomme-theme', pref);
+      const raw = localStorage.getItem('ecomme_settings');
+      const settings = raw ? JSON.parse(raw) : {};
+      localStorage.setItem('ecomme_settings', JSON.stringify({...settings, theme: pref}));
+    } catch (error) console.warn('Não foi possível salvar o tema localmente:', error);
+    const root = document.documentElement;
     if (!opts.silent) root.classList.add('theme-transition');
     root.setAttribute('data-theme', effectiveTheme(pref));
     root.setAttribute('data-theme-pref', pref);
     updateThemeSwitchUI(pref);
     if (!opts.silent) {
-      window.setTimeout(function () { root.classList.remove('theme-transition'); }, 420);
+      window.setTimeout(function () {
+        root.classList.remove('theme-transition');
+      }, 420);
     }
+    if (opts.saveToSupabase !== false) saveThemeToSupabase(pref);
   }
 
   function initTheme() {
@@ -354,7 +376,7 @@ if (typeof systemPrefersDark === 'undefined') {
       var mq = window.matchMedia('(prefers-color-scheme: dark)');
       var onChange = function () {
         var currentPref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
-        if (currentPref === 'auto') applyTheme('auto', { silent: false });
+        if (currentPref === 'auto') applyTheme('auto', {silent: false, saveToSupabase: false});
       };
       if (mq.addEventListener) mq.addEventListener('change', onChange);
       else if (mq.addListener) mq.addListener(onChange);
@@ -490,8 +512,11 @@ async function syncEcommeDisplaySettings() {
     }
 
     applyTheme(
-      window.ecommeDisplaySettings.theme,
-      {silent: true}
+      window.ecommeDisplaySettings.theme || 'auto',
+      {
+        silent: true,
+        saveToSupabase: false
+      }
     );
 
     const currency =
