@@ -34,7 +34,7 @@ if (typeof systemPrefersDark === 'undefined') {
   }
 
   function updateThemeSwitchUI(pref) {
-    document.querySelectorAll('.theme-btn').forEach(function (btn) {
+    document.querySelectorAll('.theme-opt').forEach(function (btn) {
       var isActive = btn.dataset.themeChoice === pref;
       btn.setAttribute('aria-checked', String(isActive));
     });
@@ -72,9 +72,9 @@ if (typeof systemPrefersDark === 'undefined') {
 
 /* ── THEME ───────────────────────────────────────────────────────── */
 function initThemeToggle() {
-  var wrap = document.getElementById('themeBtns');
+  var wrap = document.getElementById('themeSwitch');
   if (!wrap) return;
-  wrap.querySelectorAll('.theme-btn').forEach(function (btn) {
+  wrap.querySelectorAll('.theme-opt').forEach(function (btn) {
     btn.addEventListener('click', function () {
       applyTheme(btn.dataset.themeChoice);
     });
