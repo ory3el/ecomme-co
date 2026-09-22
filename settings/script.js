@@ -735,11 +735,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
   if (!user || userError) {
-    console.warn("Sessão inválida ou expirada. Redirecionando...");
-    goToLogin()
+    userId = null;
+    await loadSavedEcommeSettings(null);
     return;
   }
+
   userId = user.id;
+  await loadSavedEcommeSettings(user.id);
 
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
