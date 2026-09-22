@@ -1,59 +1,3 @@
-/* -- THEME --------------------------------------------------------- */
-function systemPrefersDark() {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
-function effectiveTheme(pref) {
-  return pref === 'auto' ? (systemPrefersDark() ? 'dark' : 'light') : pref;
-}
-
-function updateThemeSwitchUI(pref) {
-  document.querySelectorAll('.theme-opt').forEach(function (btn) {
-    var isActive = btn.dataset.themeChoice === pref;
-    btn.setAttribute('aria-checked', String(isActive));
-  });
-}
-
-function applyTheme(pref, opts) {
-  opts = opts || {};
-  try { localStorage.setItem('ecomme-theme', pref); } catch (e) {}
-  var root = document.documentElement;
-  if (!opts.silent) root.classList.add('theme-transition');
-  root.setAttribute('data-theme', effectiveTheme(pref));
-  root.setAttribute('data-theme-pref', pref);
-  updateThemeSwitchUI(pref);
-  if (!opts.silent) {
-    window.setTimeout(function () { root.classList.remove('theme-transition'); }, 420);
-  }
-}
-
-function initTheme() {
-  var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
-  updateThemeSwitchUI(pref);
-
-  // Live-follow the OS theme while the user's preference is "auto"
-  if (window.matchMedia) {
-    var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    var onChange = function () {
-      var currentPref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
-      if (currentPref === 'auto') applyTheme('auto', { silent: false });
-    };
-    if (mq.addEventListener) mq.addEventListener('change', onChange);
-    else if (mq.addListener) mq.addListener(onChange);
-  }
-}
-
-function initThemeToggle() {
-  var wrap = document.getElementById('themeSwitch');
-  if (!wrap) return;
-  wrap.querySelectorAll('.theme-opt').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      applyTheme(btn.dataset.themeChoice);
-    });
-  });
-}
-/* ------------------------------------------------------------------ */
-
 // ── NAV LINKS ──────────────────────────────────────
 function buttonLink(url) {
   window.location.href = url;
@@ -79,6 +23,63 @@ function checkTheme(e) {
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
+
+// ------------------------------------------------
+if (typeof systemPrefersDark === 'undefined') {
+  function systemPrefersDark() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function effectiveTheme(pref) {
+    return pref === 'auto' ? (systemPrefersDark() ? 'dark' : 'light') : pref;
+  }
+
+  function updateThemeSwitchUI(pref) {
+    document.querySelectorAll('.theme-btn').forEach(function (btn) {
+      var isActive = btn.dataset.themeChoice === pref;
+      btn.setAttribute('aria-checked', String(isActive));
+    });
+  }
+
+  function applyTheme(pref, opts) {
+    opts = opts || {};
+    try { localStorage.setItem('ecomme-theme', pref); } catch (e) {}
+    var root = document.documentElement;
+    if (!opts.silent) root.classList.add('theme-transition');
+    root.setAttribute('data-theme', effectiveTheme(pref));
+    root.setAttribute('data-theme-pref', pref);
+    updateThemeSwitchUI(pref);
+    if (!opts.silent) {
+      window.setTimeout(function () { root.classList.remove('theme-transition'); }, 420);
+    }
+  }
+
+  function initTheme() {
+    var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
+    updateThemeSwitchUI(pref);
+
+    // Live-follow the OS theme while the user's preference is "auto"
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var onChange = function () {
+        var currentPref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
+        if (currentPref === 'auto') applyTheme('auto', { silent: false });
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    }
+  }
+}
+
+/* ── THEME ───────────────────────────────────────────────────────── */
+function initThemeToggle() {
+  var wrap = document.getElementById('theme-btns');
+  if (!wrap) return;
+  wrap.querySelectorAll('.theme-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      applyTheme(btn.dataset.themeChoice);
+    });
+  });
+}
 
 // ── PANEL NAV ──────────────────────────────────────────────
 const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',cart:'Meu Carrinho',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
