@@ -956,8 +956,8 @@ function updateCart() {
   }
 
   if ($('cartCount')) $('cartCount').textContent = `(${count})`;
-  if ($('cartSub')) $('cartSub').textContent = fmt(total);
-  if ($('cartTotal')) $('cartTotal').textContent = fmt(total);
+  if ($('cartSub')) $('cartSub').textContent = window.ecommeFormatPrice(total);
+  if ($('cartTotal')) $('cartTotal').textContent = window.ecommeFormatPrice(total);
 
   const el = $('cartItems');
 
@@ -1210,7 +1210,7 @@ function updateFav() {
 
   if ($('favCount') && $('favTotal')) {
     $('favCount').textContent = `(${count})`;
-    $('favTotal').textContent = fmt(total);
+    $('favTotal').textContent = window.ecommeFormatPrice(total);
   }
 
   const el = $('favItems');
@@ -1248,7 +1248,7 @@ function updateFav() {
             ${item.name}
           </div>
           <div class="ci-price">
-            ${window.ecommeFormatPrice(p.price)}
+            ${window.ecommeFormatPrice(item.price)}
           </div>
           <button
             class="btn-madd"
