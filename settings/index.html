@@ -756,40 +756,225 @@
     </div>
 
     <!-- ════ CONFIGURAÇÕES ════ -->
-    <div class="panel active" id="panel-settings">
-      <div class="panel-hd">
-        <div class="panel-hd-left"><h2>Configurações</h2><p>Personalize sua experiência na Ecomme</p></div>
-        <button class="btn-primary" onclick="toast('Configurações salvas! ✓')">
-          <i class="fa-solid fa-floppy-disk"></i>
-          Salvar
-        </button>
+<div class="panel active" id="panel-settings">
+
+  <div class="panel-hd">
+    <div class="panel-hd-left">
+      <h2>Configurações</h2>
+      <p>Personalize sua experiência na Ecomme</p>
+    </div>
+
+    <button class="btn-primary" id="saveSettingsBtn" onclick="saveSettings()">
+      <i class="fa-solid fa-floppy-disk"></i>
+      Salvar
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="settings-section">
+      <div class="settings-title">Aparência</div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Ícones estilizados</h4>
+          <p>Ícones personalizados com identidade visual marcante.</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingStyledIcons"
+            checked
+          >
+          <div class="toggle-lbl"></div>
+        </label>
       </div>
-      <div class="card">
-        <div class="settings-section">
-          <div class="settings-title">Aparência</div>
-          <div class="setting-row"><div class="setting-left"><h4>Ícones estilizados</h4><p>Ícones personalizados com identidade visual marcante.</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Tema</h4><p>Escolha entre claro, escuro ou automático</p></div><div class="theme-btns" id="themeSwitch"><div class="theme-opt light on" onclick="setTheme(this,'light')" data-theme-choice="light" role="radio" aria-checked="false" title="Claro"><i class="fa-solid fa-sun"></i></div><div class="theme-opt dark" onclick="setTheme(this,'dark')" data-theme-choice="dark" role="radio" aria-checked="false" title="Escuro"><i class="fa-solid fa-moon"></i></div><div class="theme-opt auto" onclick="setTheme(this,'auto')" data-theme-choice="auto" role="radio" aria-checked="false" title="Automático"><i class="fa-solid fa-gear"></i></div></div></div>
-          <div class="setting-row"><div class="setting-left"><h4>Idioma</h4><p>Idioma exibido na interface</p></div><select class="lang-sel"><option>🇧🇷 Português (BR)</option><option>🇺🇸 English (US)</option><option>🇪🇸 Español</option></select></div>
-          <div class="setting-row"><div class="setting-left"><h4>Moeda</h4><p>Moeda para exibição de preços</p></div><select class="currency-sel"><option>R$ — Real Brasileiro</option><option>$ — Dólar Americano</option><option>€ — Euro</option></select></div>
-        <div class="settings-section">
-          <div class="settings-title">Privacidade</div>
-          <div class="setting-row"><div class="setting-left"><h4>Perfil público</h4><p>Outros usuários podem ver seu perfil e avaliações</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Histórico de compras visível</h4><p>Mostrar produtos comprados em recomendações</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Personalização por IA</h4><p>Receber recomendações com base no comportamento</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Compartilhar dados com parceiros</h4><p>Autorizar uso de dados para anúncios relevantes</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Tema</h4>
+          <p>Escolha entre claro, escuro ou automático</p>
         </div>
-        <div class="settings-section">
-          <div class="settings-title">Acessibilidade</div>
-          <div class="setting-row"><div class="setting-left"><h4>Fonte maior</h4><p>Aumentar tamanho do texto na interface</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-          <!--<div class="setting-row"><div class="setting-left"><h4>Reduzir animações</h4><p>Desativar efeitos e transições</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>-->
-          <div class="setting-row"><div class="setting-left"><h4>Alto contraste</h4><p>Aumentar contraste para melhor legibilidade</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-        </div>
-        <div class="settings-section" style="margin-bottom:0">
-          <div class="settings-title">Desempenho</div>
-          <div class="setting-row"><div class="setting-left"><h4>Reduzir animações</h4><p>Desativar efeitos e transições</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
-          <div class="setting-row"><div class="setting-left"><h4>Otimizar desempenho</h4><p>Ter o máximo de desempenho e fluidez em todo o site</p></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+        <div class="theme-btns" id="themeSwitch">
+          <div
+            class="theme-opt light"
+            onclick="setTheme(this,'light')"
+            data-theme-choice="light"
+            role="radio"
+            aria-checked="false"
+            title="Claro"
+          >
+            <i class="fa-solid fa-sun"></i>
+          </div>
+          <div
+            class="theme-opt dark"
+            onclick="setTheme(this,'dark')"
+            data-theme-choice="dark"
+            role="radio"
+            aria-checked="false"
+            title="Escuro"
+          >
+            <i class="fa-solid fa-moon"></i>
+          </div>
+          <div
+            class="theme-opt auto"
+            onclick="setTheme(this,'auto')"
+            data-theme-choice="auto"
+            role="radio"
+            aria-checked="false"
+            title="Automático"
+          >
+            <i class="fa-solid fa-gear"></i>
+          </div>
         </div>
       </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Idioma</h4>
+          <p>Idioma exibido na interface</p>
+        </div>
+        <select class="lang-sel" id="settingLanguage">
+          <option value="pt-BR">🇧🇷 Português (BR)</option>
+          <option value="en-US">🇺🇸 English (US)</option>
+          <option value="es-ES">🇪🇸 Español</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Moeda</h4>
+          <p>Moeda para exibição de preços</p>
+        </div>
+        <select class="currency-sel" id="settingCurrency">
+          <option value="BRL">R$ — Real Brasileiro</option>
+          <option value="USD">$ — Dólar Americano</option>
+          <option value="EUR">€ — Euro</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">Privacidade</div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Perfil público</h4>
+          <p>Outros usuários podem ver seu perfil e avaliações</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingProfilePublic"
+            checked
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Histórico de compras visível</h4>
+          <p>Mostrar produtos comprados em recomendações</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingPurchaseHistory"
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Personalização por IA</h4>
+          <p>Receber recomendações com base no comportamento</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingAiPersonalization"
+            checked
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Compartilhar dados com parceiros</h4>
+          <p>Autorizar uso de dados para anúncios relevantes</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingPartnerData"
+            checked
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">Acessibilidade</div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Fonte maior</h4>
+          <p>Aumentar tamanho do texto na interface</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingLargerFont"
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Alto contraste</h4>
+          <p>Aumentar contraste para melhor legibilidade</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingHighContrast"
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+    </div>
+    <div class="settings-section" style="margin-bottom:0">
+      <div class="settings-title">Desempenho</div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Reduzir animações</h4>
+          <p>Desativar efeitos e transições</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingReduceAnimations"
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-left">
+          <h4>Otimizar desempenho</h4>
+          <p>Ter o máximo de desempenho e fluidez em todo o site</p>
+        </div>
+        <label class="toggle-wrap">
+          <input
+            type="checkbox"
+            class="toggle-inp"
+            id="settingOptimizePerformance"
+          >
+          <div class="toggle-lbl"></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
       <div class="card">
         <div class="danger-zone">
           <h4>
