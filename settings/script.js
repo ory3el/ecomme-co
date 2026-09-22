@@ -1327,9 +1327,9 @@ function createWishlistCard(product) {
   const price = Number(product.price ?? product.preco ?? 0);
   const oldPrice = Number(product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
   const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
-  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
-
+  const formattedPrice = formatEcommePrice(price);
+  const formattedOldPrice = oldPrice > price ? formatEcommePrice(oldPrice) : '';
+  
   return `
     <div class="wcard" onclick="openProduct('${product.id}')" data-product-id="${product.id}">
       <div class="wcard-img">
@@ -1604,8 +1604,8 @@ function createCartCard(product) {
   const price = Number(product.price ?? product.preco ?? 0);
   const oldPrice = Number(product.old_price ?? product.original_price ?? product.compare_at_price ?? 0);
   const image = product.image || product.image_url || product.main_image || product.thumbnail || (Array.isArray(product.images) ? product.images[0] : null);
-  const formattedPrice = price.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-  const formattedOldPrice = oldPrice > price ? oldPrice.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '';
+  const formattedPrice = formatEcommePrice(price);
+  const formattedOldPrice = oldPrice > price ? formatEcommePrice(oldPrice) : '';
 
   return `
     <div class="wcard" onclick="openProduct('${product.id}')" data-product-id="${product.id}">
