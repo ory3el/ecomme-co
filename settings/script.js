@@ -389,12 +389,9 @@ function applySettingsToUI(settings) {
   applySavedTheme(ecommeSettings.theme);
 }
 
-async function loadEcommeCurrencyRates() {
-
-  if (
-    ecommeSettings.currency === 'BRL' &&
-    !localStorage.getItem('ecomme_currency_rates')
-  ) {
+async function loadEcommeCurrencyRates(currency = ecommeSettings.currency) {
+  if (currency === 'BRL') {
+    ecommeCurrencyRates.BRL = 1;
     return true;
   }
 
@@ -412,15 +409,21 @@ async function loadEcommeCurrencyRates() {
 
       if (
         age < 6 * 60 * 60 * 1000 &&
-        cached.rates?.USD &&
-        cached.rates?.EUR
+        cached.rates &&
+        Number(cached.rates.USD) > 0 &&
+        Number(cached.rates.EUR) > 0
       ) {
+
         ecommeCurrencyRates = cached.rates;
-        return true;
+
+        return Number(
+          ecommeCurrencyRates[currency]
+        ) > 0;
       }
     }
 
   } catch (error) {
+
     console.warn(
       'Erro ao ler cache das moedas:',
       error
@@ -444,14 +447,21 @@ async function loadEcommeCurrencyRates() {
     const rates = {
       BRL: 1,
       USD: Number(
-        rows.find(row => row.quote === 'USD')?.rate || 0
+        rows.find(
+          row => row.quote === 'USD'
+        )?.rate || 0
       ),
       EUR: Number(
-        rows.find(row => row.quote === 'EUR')?.rate || 0
+        rows.find(
+          row => row.quote === 'EUR'
+        )?.rate || 0
       )
     };
 
-    if (!rates.USD || !rates.EUR) {
+    if (
+      !rates.USD ||
+      !rates.EUR
+    ) {
       throw new Error(
         'Cotação USD/EUR inválida.'
       );
@@ -467,7 +477,9 @@ async function loadEcommeCurrencyRates() {
       })
     );
 
-    return true;
+    return Number(
+      ecommeCurrencyRates[currency]
+    ) > 0;
 
   } catch (error) {
 
@@ -583,8 +595,7 @@ async function saveSettings() {
 
   if (newSettings.currency !== 'BRL') {
 
-    const ratesLoaded =
-      await loadEcommeCurrencyRates();
+    const ratesLoaded = await loadEcommeCurrencyRates(newSettings.currency);
 
     if (
       !ratesLoaded ||
