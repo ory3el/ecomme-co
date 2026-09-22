@@ -860,12 +860,14 @@ function updateCart() {
     0
   );
 
-  $('cartBadge').textContent = count;
-  $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+  if ($('cartBadge')) {
+    $('cartBadge').textContent = count;
+    $('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+  }
 
-  $('cartCount').textContent = `(${count})`;
-  $('cartSub').textContent = fmt(total);
-  $('cartTotal').textContent = fmt(total);
+  if ($('cartCount')) $('cartCount').textContent = `(${count})`;
+  if ($('cartSub')) $('cartSub').textContent = fmt(total);
+  if ($('cartTotal')) $('cartTotal').textContent = fmt(total);
 
   const el = $('cartItems');
 
