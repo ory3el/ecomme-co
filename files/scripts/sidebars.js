@@ -405,193 +405,146 @@ window.ecommeFormatPrice =
     ).format(convertedValue);
   };
 
+// ------------------------------------------
 async function syncEcommeDisplaySettings() {
   window.ecommeDisplaySettings = {
+    theme: 'auto',
     currency: 'BRL'
   };
 
   try {
-
-    const {
-      data: { user }
-    } = await supabaseClient.auth.getUser();
+    const {data: {user}} = await supabaseClient.auth.getUser();
 
     if (user) {
-
-      const {
-        data,
-        error
-      } = await supabaseClient
+      const {data, error} = await supabaseClient
         .from('user_settings')
-        .select('currency')
+        .select('theme, currency')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
+        console.error('Erro ao carregar configurações da conta:', error);
+      }
 
-        console.error(
-          'Erro ao carregar moeda da conta:',
-          error
-        );
+      if (data) {
+        if (
+          ['light', 'dark', 'auto'].includes(data.theme)
+        ) {
+          window.ecommeDisplaySettings.theme = data.theme;
+        }
 
-        window.ecommeDisplaySettings.currency = 'BRL';
-
-      } else if (data?.currency) {
-
-        window.ecommeDisplaySettings.currency =
-          data.currency;
+        if (
+          ['BRL', 'USD', 'EUR'].includes(data.currency)
+        ) {
+          window.ecommeDisplaySettings.currency = data.currency;
+        }
 
         try {
-
-          const localRaw =
-            localStorage.getItem('ecomme_settings');
-
-          const localSettings =
-            localRaw
-              ? JSON.parse(localRaw)
-              : {};
+          const localRaw = localStorage.getItem('ecomme_settings');
+          const localSettings = localRaw
+            ? JSON.parse(localRaw)
+            : {};
 
           localStorage.setItem(
             'ecomme_settings',
             JSON.stringify({
               ...localSettings,
-              currency: data.currency
+              theme: window.ecommeDisplaySettings.theme,
+              currency: window.ecommeDisplaySettings.currency
             })
           );
-
         } catch (error) {
-
           console.warn(
-            'Não foi possível atualizar o cache da moeda:',
+            'Não foi possível atualizar o cache local:',
             error
           );
         }
       }
-
     }
-      
+
     else {
-
       try {
-
-        const localRaw =
-          localStorage.getItem('ecomme_settings');
+        const localRaw = localStorage.getItem('ecomme_settings');
 
         if (localRaw) {
-
-          const localSettings =
-            JSON.parse(localRaw);
+          const localSettings = JSON.parse(localRaw);
 
           if (
-            localSettings?.currency === 'BRL' ||
-            localSettings?.currency === 'USD' ||
-            localSettings?.currency === 'EUR'
+            ['light', 'dark', 'auto'].includes(localSettings?.theme)
           ) {
+            window.ecommeDisplaySettings.theme = localSettings.theme;
+          }
 
-            window.ecommeDisplaySettings.currency =
-              localSettings.currency;
+          if (
+            ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
+          ) {
+            window.ecommeDisplaySettings.currency = localSettings.currency;
           }
         }
-
       } catch (error) {
-
         console.warn(
-          'Não foi possível ler a moeda local:',
+          'Não foi possível ler as configurações locais:',
           error
         );
       }
     }
 
+    applyTheme(
+      window.ecommeDisplaySettings.theme,
+      {silent: true}
+    );
+
     const currency =
       window.ecommeDisplaySettings.currency || 'BRL';
 
     if (currency === 'BRL') {
-
       window.ecommeCurrencyRates.BRL = 1;
-
       return;
     }
 
-    try {
+    const cachedRaw =
+      localStorage.getItem('ecomme_currency_rates');
 
-      const cachedRaw =
-        localStorage.getItem(
-          'ecomme_currency_rates'
-        );
+    if (cachedRaw) {
+      const cached = JSON.parse(cachedRaw);
+      const age =
+        Date.now() - Number(cached.savedAt || 0);
 
-      if (cachedRaw) {
-
-        const cached =
-          JSON.parse(cachedRaw);
-
-        const age =
-          Date.now() -
-          Number(cached.savedAt || 0);
-
-        if (
-          age < 6 * 60 * 60 * 1000 &&
-          cached.rates?.USD &&
-          cached.rates?.EUR
-        ) {
-
-          window.ecommeCurrencyRates =
-            cached.rates;
-
-          return;
-        }
+      if (
+        age < 6 * 60 * 60 * 1000 &&
+        cached.rates?.USD &&
+        cached.rates?.EUR
+      ) {
+        window.ecommeCurrencyRates = cached.rates;
+        return;
       }
-
-    } catch (error) {
-
-      console.warn(
-        'Erro ao ler cache das cotações:',
-        error
-      );
     }
-    
-    const response =
-      await fetch(
-        'https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR'
-      );
+
+    const response = await fetch(
+      'https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR'
+    );
 
     if (!response.ok) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    const rows =
-      await response.json();
+    const rows = await response.json();
 
     const rates = {
       BRL: 1,
-
       USD: Number(
-        rows.find(
-          row => row.quote === 'USD'
-        )?.rate || 0
+        rows.find(row => row.quote === 'USD')?.rate || 0
       ),
-
       EUR: Number(
-        rows.find(
-          row => row.quote === 'EUR'
-        )?.rate || 0
+        rows.find(row => row.quote === 'EUR')?.rate || 0
       )
     };
 
-    if (
-      !rates.USD ||
-      !rates.EUR
-    ) {
-
-      throw new Error(
-        'Cotações inválidas.'
-      );
+    if (!rates.USD || !rates.EUR) {
+      throw new Error('Cotações inválidas.');
     }
 
-    window.ecommeCurrencyRates =
-      rates;
+    window.ecommeCurrencyRates = rates;
 
     localStorage.setItem(
       'ecomme_currency_rates',
@@ -600,14 +553,17 @@ async function syncEcommeDisplaySettings() {
         rates
       })
     );
+
   } catch (error) {
-    console.error('Não foi possível sincronizar a moeda:', error);
+    console.error(
+      'Não foi possível sincronizar as configurações:',
+      error
+    );
+
+    window.ecommeDisplaySettings.theme = 'light';
     window.ecommeDisplaySettings.currency = 'BRL';
-    window.ecommeCurrencyRates = {
-      BRL: 1,
-      USD: null,
-      EUR: null
-    };
+
+    applyTheme('auto', {silent: true});
   }
 }
 
