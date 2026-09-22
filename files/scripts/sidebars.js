@@ -362,7 +362,6 @@ if (typeof systemPrefersDark === 'undefined') {
   }
 }
 
-
 /* ── THEME ───────────────────────────────────────────────────────── */
 function initThemeToggle() {
   var wrap = document.getElementById('themeSwitch');
@@ -372,6 +371,96 @@ function initThemeToggle() {
       applyTheme(btn.dataset.themeChoice);
     });
   });
+}
+
+// ============================================================
+
+window.ecommeDisplaySettings = window.ecommeDisplaySettings || {currency: 'BRL'};
+window.ecommeCurrencyRates = window.ecommeCurrencyRates || {BRL: 1, USD: null, EUR: null};
+window.ecommeFormatPrice =
+  window.ecommeFormatPrice || function(amount) {
+    const value = Number(amount);
+    if (!Number.isFinite(value)) {
+      return '';
+    }
+
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
+    const rate = Number(window.ecommeCurrencyRates[currency]);
+    if (
+      currency !== 'BRL' &&
+      (!Number.isFinite(rate) || rate <= 0)
+    ) {
+      return '';
+    }
+
+    const convertedValue = value * (currency === 'BRL' ? 1 : rate);
+    const localeMap = {
+      BRL: 'pt-BR',
+      USD: 'en-US',
+      EUR: 'de-DE'
+    };
+    return new Intl.NumberFormat(
+      localeMap[currency] || 'pt-BR',
+      {style: 'currency', currency}
+    ).format(convertedValue);
+  };
+
+async function syncEcommeDisplaySettings() {
+  try {
+    const localRaw = localStorage.getItem('ecomme_settings');
+    if (localRaw) {
+      const localSettings = JSON.parse(localRaw);
+      window.ecommeDisplaySettings = {...window.ecommeDisplaySettings, ...localSettings};
+    }
+
+    if (typeof supabaseClient !== 'undefined') {
+      const {data: { user }} = await supabaseClient.auth.getUser();
+      if (user) {
+        const {data} = await supabaseClient
+          .from('user_settings')
+          .select('currency')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data?.currency) {
+          window.ecommeDisplaySettings.currency = data.currency;
+          localStorage.setItem('ecomme_settings', JSON.stringify({...JSON.parse(localStorage.getItem('ecomme_settings') || '{}'), currency: data.currency}));
+        }
+      }
+    }
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
+    if (currency === 'BRL') {
+      window.ecommeCurrencyRates.BRL = 1;
+      return;
+    }
+    const cachedRaw = localStorage.getItem('ecomme_currency_rates');
+    if (cachedRaw) {
+      const cached = JSON.parse(cachedRaw);
+      const age = Date.now() - Number(cached.savedAt || 0);
+      if (
+        age < 6 * 60 * 60 * 1000 &&
+        cached.rates?.USD &&
+        cached.rates?.EUR
+      ) {
+        window.ecommeCurrencyRates = cached.rates;
+        return;
+      }
+    }
+    
+    const response = await fetch('https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = await response.json();
+    const rates = {
+      BRL: 1,
+      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
+      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
+    };
+    if (!rates.USD || !rates.EUR) throw new Error('Cotações inválidas.');
+    window.ecommeCurrencyRates = rates;
+    localStorage.setItem('ecomme_currency_rates', JSON.stringify({savedAt: Date.now(), rates}));
+  } catch (error) {
+    console.warn('Não foi possível sincronizar a moeda:', error);
+  }
 }
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
@@ -439,6 +528,7 @@ function injectPrefetch(url) {
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+    await syncEcommeDisplaySettings();
     initTheme();
     initThemeToggle();
     setupModalSwipe();
@@ -902,7 +992,7 @@ function updateCart() {
         <div class="ci-info">
           <div class="ci-name">${item.name}</div>
           <div class="ci-price">
-            ${fmt(item.price)}
+            ${window.ecommeFormatPrice(p.price)}
           </div>
           <div class="ci-qty">
             <button
@@ -1158,7 +1248,7 @@ function updateFav() {
             ${item.name}
           </div>
           <div class="ci-price">
-            ${fmt(item.price)}
+            ${window.ecommeFormatPrice(p.price)}
           </div>
           <button
             class="btn-madd"
@@ -1654,9 +1744,9 @@ function openProduct(id) {
 
   $('mName').textContent = p.name;
   $('mDesc').textContent = p.desc;
-  $('mPrice').textContent = fmt(p.price);
-  $('mPrice1').textContent = fmt(p.price);
-  $('mOld').textContent = p.old > 0 ? fmt(p.old) : '';
+  $('mPrice').textContent = window.ecommeFormatPrice(p.price);
+  $('mPrice1').textContent = window.ecommeFormatPrice(p.price);
+  $('mOld').textContent = p.old > 0 ? window.ecommeFormatPrice(p.old) : '';
   $('mDisc').textContent = p.discount > 0 ? `-${p.discount}% OFF` : '';
   $('mFeats').innerHTML = p.features.map(f =>
       `<div class="m-feat">
