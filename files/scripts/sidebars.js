@@ -464,7 +464,7 @@ async function syncEcommeDisplaySettings() {
 }
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
-if (typeof cart && fav && curId === 'undefined') {
+if (typeof cart === 'undefined') {
   let cart = [];
   let fav = [];
   let curId = null;
@@ -474,7 +474,7 @@ if (typeof cart && fav && curId === 'undefined') {
   let modalImageIndex = 0;
 }
 
-if (typeof products && shuffled === 'undefined') {
+if (typeof products === 'undefined') {
   let products = [];
   let shuffled = [];
 }
