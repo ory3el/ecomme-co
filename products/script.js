@@ -211,47 +211,6 @@ function startProductsRealtime() {
 
 // ============================================================
 
-const catalogSearchDebounce = null;
-let userIsSearching = false;
-
-function setupProductSearch() {
-  const inputs = [$('heroSearch'), $('headerSearch')].filter(Boolean);
-
-  inputs.forEach(
-    input => {
-      input.addEventListener(
-        'input',
-        () => {
-          userIsSearching = true;
-          clearTimeout(
-            window.catalogSearchTimer
-          );
-          inputs.forEach(
-            other => {
-              if (
-                other !== input
-              ) {
-                other.value =
-                  input.value;
-              }
-            }
-          );
-          window.catalogSearchTimer =
-            setTimeout(
-              async () => {
-                userIsSearching = false;
-                await resetCatalogAndLoad();
-              },
-              400
-            );
-        }
-      );
-    }
-  );
-}
-
-// ============================================================
-
 function prepareProductImageAnimations(
   container = document
 ) {
