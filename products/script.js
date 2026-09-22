@@ -1,17 +1,3 @@
-/* --------------------------- */
-let isScrolling = false;
-let scrollTimer;
-
-window.addEventListener('scroll', () => {
-  isScrolling = true;
-  document.documentElement.classList.add('is-scrolling');
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(() => {
-    isScrolling = false;
-    document.documentElement.classList.remove('is-scrolling');
-  }, 120);
-}, { passive: true });
-
 // ============================================================
 
 document.addEventListener('visibilitychange', () => {
