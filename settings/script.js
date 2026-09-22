@@ -72,7 +72,7 @@ if (typeof systemPrefersDark === 'undefined') {
 
 /* ── THEME ───────────────────────────────────────────────────────── */
 function initThemeToggle() {
-  var wrap = document.getElementById('theme-btns');
+  var wrap = document.getElementById('themeBtns');
   if (!wrap) return;
   wrap.querySelectorAll('.theme-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
