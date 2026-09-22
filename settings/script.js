@@ -766,7 +766,7 @@ function createWishlistCard(product) {
             : `
               <i
                 class="fa-solid fa-image"
-                style="font-size:42px;color:#94a3b8;"
+                style="font-size:42px;color:var(--muted);"
               ></i>
             `
         }
@@ -1043,7 +1043,7 @@ function createCartCard(product) {
             : `
               <i
                 class="fa-solid fa-image"
-                style="font-size:42px;color:#94a3b8;"
+                style="font-size:42px;color:var(--muted);"
               ></i>
             `
         }
