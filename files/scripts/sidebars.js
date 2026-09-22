@@ -406,60 +406,208 @@ window.ecommeFormatPrice =
   };
 
 async function syncEcommeDisplaySettings() {
+  window.ecommeDisplaySettings = {
+    currency: 'BRL'
+  };
+
   try {
-    const localRaw = localStorage.getItem('ecomme_settings');
-    if (localRaw) {
-      const localSettings = JSON.parse(localRaw);
-      window.ecommeDisplaySettings = {...window.ecommeDisplaySettings, ...localSettings};
-    }
 
-    if (typeof supabaseClient !== 'undefined') {
-      const {data: { user }} = await supabaseClient.auth.getUser();
-      if (user) {
-        const {data} = await supabaseClient
-          .from('user_settings')
-          .select('currency')
-          .eq('user_id', user.id)
-          .maybeSingle();
+    const {
+      data: { user }
+    } = await supabaseClient.auth.getUser();
 
-        if (data?.currency) {
-          window.ecommeDisplaySettings.currency = data.currency;
-          localStorage.setItem('ecomme_settings', JSON.stringify({...JSON.parse(localStorage.getItem('ecomme_settings') || '{}'), currency: data.currency}));
+    if (user) {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from('user_settings')
+        .select('currency')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(
+          'Erro ao carregar moeda da conta:',
+          error
+        );
+
+        window.ecommeDisplaySettings.currency = 'BRL';
+
+      } else if (data?.currency) {
+
+        window.ecommeDisplaySettings.currency =
+          data.currency;
+
+        try {
+
+          const localRaw =
+            localStorage.getItem('ecomme_settings');
+
+          const localSettings =
+            localRaw
+              ? JSON.parse(localRaw)
+              : {};
+
+          localStorage.setItem(
+            'ecomme_settings',
+            JSON.stringify({
+              ...localSettings,
+              currency: data.currency
+            })
+          );
+
+        } catch (error) {
+
+          console.warn(
+            'Não foi possível atualizar o cache da moeda:',
+            error
+          );
         }
       }
+
     }
-    const currency = window.ecommeDisplaySettings.currency || 'BRL';
-    if (currency === 'BRL') {
-      window.ecommeCurrencyRates.BRL = 1;
-      return;
-    }
-    const cachedRaw = localStorage.getItem('ecomme_currency_rates');
-    if (cachedRaw) {
-      const cached = JSON.parse(cachedRaw);
-      const age = Date.now() - Number(cached.savedAt || 0);
-      if (
-        age < 6 * 60 * 60 * 1000 &&
-        cached.rates?.USD &&
-        cached.rates?.EUR
-      ) {
-        window.ecommeCurrencyRates = cached.rates;
-        return;
+      
+    else {
+
+      try {
+
+        const localRaw =
+          localStorage.getItem('ecomme_settings');
+
+        if (localRaw) {
+
+          const localSettings =
+            JSON.parse(localRaw);
+
+          if (
+            localSettings?.currency === 'BRL' ||
+            localSettings?.currency === 'USD' ||
+            localSettings?.currency === 'EUR'
+          ) {
+
+            window.ecommeDisplaySettings.currency =
+              localSettings.currency;
+          }
+        }
+
+      } catch (error) {
+
+        console.warn(
+          'Não foi possível ler a moeda local:',
+          error
+        );
       }
     }
+
+    const currency =
+      window.ecommeDisplaySettings.currency || 'BRL';
+
+    if (currency === 'BRL') {
+
+      window.ecommeCurrencyRates.BRL = 1;
+
+      return;
+    }
+
+    try {
+
+      const cachedRaw =
+        localStorage.getItem(
+          'ecomme_currency_rates'
+        );
+
+      if (cachedRaw) {
+
+        const cached =
+          JSON.parse(cachedRaw);
+
+        const age =
+          Date.now() -
+          Number(cached.savedAt || 0);
+
+        if (
+          age < 6 * 60 * 60 * 1000 &&
+          cached.rates?.USD &&
+          cached.rates?.EUR
+        ) {
+
+          window.ecommeCurrencyRates =
+            cached.rates;
+
+          return;
+        }
+      }
+
+    } catch (error) {
+
+      console.warn(
+        'Erro ao ler cache das cotações:',
+        error
+      );
+    }
     
-    const response = await fetch('https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const rows = await response.json();
+    const response =
+      await fetch(
+        'https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR'
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+    }
+
+    const rows =
+      await response.json();
+
     const rates = {
       BRL: 1,
-      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
-      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
+
+      USD: Number(
+        rows.find(
+          row => row.quote === 'USD'
+        )?.rate || 0
+      ),
+
+      EUR: Number(
+        rows.find(
+          row => row.quote === 'EUR'
+        )?.rate || 0
+      )
     };
-    if (!rates.USD || !rates.EUR) throw new Error('Cotações inválidas.');
-    window.ecommeCurrencyRates = rates;
-    localStorage.setItem('ecomme_currency_rates', JSON.stringify({savedAt: Date.now(), rates}));
+
+    if (
+      !rates.USD ||
+      !rates.EUR
+    ) {
+
+      throw new Error(
+        'Cotações inválidas.'
+      );
+    }
+
+    window.ecommeCurrencyRates =
+      rates;
+
+    localStorage.setItem(
+      'ecomme_currency_rates',
+      JSON.stringify({
+        savedAt: Date.now(),
+        rates
+      })
+    );
   } catch (error) {
-    console.warn('Não foi possível sincronizar a moeda:', error);
+    console.error('Não foi possível sincronizar a moeda:', error);
+    window.ecommeDisplaySettings.currency = 'BRL';
+    window.ecommeCurrencyRates = {
+      BRL: 1,
+      USD: null,
+      EUR: null
+    };
   }
 }
 
@@ -992,7 +1140,7 @@ function updateCart() {
         <div class="ci-info">
           <div class="ci-name">${item.name}</div>
           <div class="ci-price">
-            ${window.ecommeFormatPrice(p.price)}
+            ${window.ecommeFormatPrice(item.price)}
           </div>
           <div class="ci-qty">
             <button
