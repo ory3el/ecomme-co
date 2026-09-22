@@ -52,6 +52,10 @@
   }
 })();
 
+if (localStorage.getItem('ecomme_settings_section')) {
+  localStorage.removeItem('ecomme_settings_section');
+}
+
 // NEWSLETTER
 function handleSubscribe() {
   showToast('Inscrito! Você receberá descontos exclusivos 🎉');
