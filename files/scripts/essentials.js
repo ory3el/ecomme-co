@@ -364,8 +364,109 @@ function initTheme() {
 
 // ============================================================
 
+window.ecommeDisplaySettings =
+  window.ecommeDisplaySettings || {
+    currency: 'BRL'
+  };
+
+window.ecommeCurrencyRates =
+  window.ecommeCurrencyRates || {
+    BRL: 1,
+    USD: null,
+    EUR: null
+  };
+
+window.ecommeFormatPrice =
+  window.ecommeFormatPrice || function(amount) {
+    const value = Number(amount);
+    if (!Number.isFinite(value)) {
+      return '';
+    }
+
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
+    const rate = Number(window.ecommeCurrencyRates[currency]);
+    if (
+      currency !== 'BRL' &&
+      (!Number.isFinite(rate) || rate <= 0)
+    ) {
+      return '';
+    }
+
+    const convertedValue = value * (currency === 'BRL' ? 1 : rate);
+    const localeMap = {
+      BRL: 'pt-BR',
+      USD: 'en-US',
+      EUR: 'de-DE'
+    };
+    return new Intl.NumberFormat(
+      localeMap[currency] || 'pt-BR',
+      {style: 'currency', currency}
+    ).format(convertedValue);
+  };
+
+async function syncEcommeDisplaySettings() {
+  try {
+    const localRaw = localStorage.getItem('ecomme_settings');
+    if (localRaw) {
+      const localSettings = JSON.parse(localRaw);
+      window.ecommeDisplaySettings = {...window.ecommeDisplaySettings, ...localSettings};
+    }
+
+    if (typeof supabaseClient !== 'undefined') {
+      const {data: { user }} = await supabaseClient.auth.getUser();
+      if (user) {
+        const {data} = await supabaseClient
+          .from('user_settings')
+          .select('currency')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data?.currency) {
+          window.ecommeDisplaySettings.currency = data.currency;
+          localStorage.setItem('ecomme_settings', JSON.stringify({...JSON.parse(localStorage.getItem('ecomme_settings') || '{}'), currency: data.currency}));
+        }
+      }
+    }
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
+    if (currency === 'BRL') {
+      window.ecommeCurrencyRates.BRL = 1;
+      return;
+    }
+    const cachedRaw = localStorage.getItem('ecomme_currency_rates');
+    if (cachedRaw) {
+      const cached = JSON.parse(cachedRaw);
+      const age = Date.now() - Number(cached.savedAt || 0);
+      if (
+        age < 6 * 60 * 60 * 1000 &&
+        cached.rates?.USD &&
+        cached.rates?.EUR
+      ) {
+        window.ecommeCurrencyRates = cached.rates;
+        return;
+      }
+    }
+    
+    const response = await fetch('https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = await response.json();
+    const rates = {
+      BRL: 1,
+      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
+      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
+    };
+    if (!rates.USD || !rates.EUR) throw new Error('Cotações inválidas.');
+    window.ecommeCurrencyRates = rates;
+    localStorage.setItem('ecomme_currency_rates', JSON.stringify({savedAt: Date.now(), rates}));
+  } catch (error) {
+    console.warn('Não foi possível sincronizar a moeda:', error);
+  }
+}
+
+// ============================================================
+
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+    await syncEcommeDisplaySettings();
     const productsLoaded = await loadProductsFromSupabase();
     if (!productsLoaded) return;
     loadShuffleAndRender();
@@ -635,7 +736,7 @@ function productCardHtml(p) {
     `
     : '';
 
-  const oldPrice = p.old > 0 ? ` <span class="pold"> ${fmt(p.old)}</span>` : '';
+  const oldPrice = p.old > 0 ? ` <span class="pold"> ${window.ecommeFormatPrice(p.old)}</span>` : '';
   const discount = p.discount > 0 ? `<span class="pdisc"> -${p.discount}% </span>` : '';
   const imagePreset = view === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
   const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, imagePreset) : null;
@@ -706,7 +807,7 @@ function productCardHtml(p) {
           </div>
           <div class="price-row">
             <span class="pprice">
-              ${fmt(p.price)}
+              ${window.ecommeFormatPrice(p.price)}
             </span>
             ${oldPrice}
             ${discount}
@@ -812,7 +913,7 @@ function productCardHtml(p) {
         </div>
         <div class="price-row">
           <span class="pprice">
-            ${fmt(p.price)}
+            ${window.ecommeFormatPrice(p.price)}
           </span>
           ${oldPrice}
           ${discount}
