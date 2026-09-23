@@ -2888,10 +2888,7 @@ window.addEventListener('scroll', () => {
   if (scrollTicking) return;
   scrollTicking = true;
   requestAnimationFrame(() => {
-    backTop.classList.toggle(
-      'visible',
-      window.scrollY > 400
-    );
+    if (backTop) backTop.classList.toggle('visible',window.scrollY > 400);
     scrollTicking = false;
   });
 }, { passive: true });
