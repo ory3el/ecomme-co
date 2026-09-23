@@ -683,29 +683,69 @@ async function requestTranslations(
   language,
   texts
 ) {
-
-  const result = {};
-
   if (!texts.length) {
-    return result;
+    return {};
   }
 
-  const response =
-    await supabaseClient.functions.invoke(
-      'translate-texts',
-      {
-        body: {
-          targetLanguage: language,
-          texts
-        }
-      }
+  const {
+    data: { session },
+    error: sessionError
+  } = await supabaseClient.auth.getSession();
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  if (!session?.access_token) {
+    throw new Error(
+      'Não há uma sessão autenticada para traduzir a página.'
     );
-
-  if (response.error) {
-    throw response.error;
   }
 
-  return response.data?.translations || {};
+  const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/translate-texts`,
+    {
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': SUPABASE_ANON_KEY
+      },
+
+      body: JSON.stringify({
+        targetLanguage: language,
+        texts
+      })
+    }
+  );
+
+  const responseText =
+    await response.text();
+
+  let responseData = {};
+
+  try {
+    responseData =
+      responseText
+        ? JSON.parse(responseText)
+        : {};
+  } catch (error) {
+    console.error(
+      'Resposta não-JSON da Edge Function:',
+      responseText
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      responseData?.error ||
+      responseData?.message ||
+      `Erro HTTP ${response.status} ao traduzir.`
+    );
+  }
+
+  return responseData?.translations || {};
 }
 
 
@@ -1339,15 +1379,6 @@ async function refreshProductsIfNeeded() {
     }
 
     productDataSignature = newSignature;
-    updatedProducts.forEach(
-      product => {
-        productCache.set(
-          String(product.id),
-          product
-        );
-      }
-    );
-    
     products = updatedProducts;
     shuffled = [...products];
     virtualStartIndex = -1;
