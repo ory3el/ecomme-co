@@ -399,6 +399,515 @@ function initThemeToggle() {
 
 // ============================================================
 
+window.ecommeLanguage = 'pt-BR';
+const ecommeOriginalTextNodes = new WeakMap();
+const ecommeOriginalAttributes = new WeakMap();
+let ecommeTranslationRunning = false;
+let ecommeTranslationObserver = null;
+let ecommeTranslationObserverTimer = null;
+
+function shouldIgnoreTranslationElement(element) {
+  if (!element) {
+    return true;
+  }
+
+  if (
+    element.closest(
+      'script, style, noscript, svg, code, pre, textarea'
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    element.closest(
+      '[data-no-translate]'
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+
+function isMeaningfulTranslationText(text) {
+  if (!text) {
+    return false;
+  }
+
+  const clean =
+    text
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  if (!clean) {
+    return false;
+  }
+
+  if (/^[\d\s.,%$€£+\-/:]+$/.test(clean)) {
+    return false;
+  }
+
+  if (
+    /^https?:\/\//i.test(clean) ||
+    /^www\./i.test(clean)
+  ) {
+    return false;
+  }
+
+  if (
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+function getTranslationCache() {
+
+  try {
+
+    const raw =
+      localStorage.getItem(
+        'ecomme_translation_cache'
+      );
+
+    if (!raw) {
+      return {};
+    }
+
+    return JSON.parse(raw);
+
+  } catch (error) {
+
+    console.warn(
+      'Erro ao ler cache de tradução:',
+      error
+    );
+
+    return {};
+  }
+}
+
+
+function saveTranslationCache(cache) {
+
+  try {
+
+    localStorage.setItem(
+      'ecomme_translation_cache',
+      JSON.stringify(cache)
+    );
+
+  } catch (error) {
+
+    console.warn(
+      'Erro ao salvar cache de tradução:',
+      error
+    );
+  }
+}
+
+
+function collectTranslationNodes() {
+
+  const items = [];
+
+  const walker =
+    document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT
+    );
+
+  let node;
+
+  while (
+    node = walker.nextNode()
+  ) {
+
+    const parent =
+      node.parentElement;
+
+    if (
+      !parent ||
+      shouldIgnoreTranslationElement(parent)
+    ) {
+      continue;
+    }
+
+    const source =
+      node.nodeValue
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (
+      !isMeaningfulTranslationText(source)
+    ) {
+      continue;
+    }
+
+    if (
+      !ecommeOriginalTextNodes.has(node)
+    ) {
+
+      ecommeOriginalTextNodes.set(
+        node,
+        node.nodeValue
+      );
+    }
+
+    items.push({
+      type: 'text',
+      node,
+      source
+    });
+  }
+
+  const elements =
+    document.querySelectorAll(
+      '[placeholder], [title], [aria-label]'
+    );
+
+  elements.forEach(element => {
+
+    if (
+      shouldIgnoreTranslationElement(element)
+    ) {
+      return;
+    }
+
+    [
+      'placeholder',
+      'title',
+      'aria-label'
+    ].forEach(attribute => {
+
+      const value =
+        element.getAttribute(attribute);
+
+      if (
+        !isMeaningfulTranslationText(value)
+      ) {
+        return;
+      }
+
+      if (
+        !ecommeOriginalAttributes.has(element)
+      ) {
+
+        ecommeOriginalAttributes.set(
+          element,
+          {}
+        );
+      }
+
+      const originals =
+        ecommeOriginalAttributes.get(element);
+
+      if (
+        originals[attribute] === undefined
+      ) {
+
+        originals[attribute] =
+          value;
+      }
+
+      items.push({
+        type: 'attribute',
+        element,
+        attribute,
+        source: value
+      });
+    });
+  });
+
+  return items;
+}
+
+
+function restoreOriginalPage() {
+
+  document
+    .querySelectorAll(
+      '[placeholder], [title], [aria-label]'
+    )
+    .forEach(element => {
+
+      const originals =
+        ecommeOriginalAttributes.get(
+          element
+        );
+
+      if (!originals) {
+        return;
+      }
+
+      Object.entries(originals)
+        .forEach(
+          ([attribute, value]) => {
+
+            element.setAttribute(
+              attribute,
+              value
+            );
+          }
+        );
+    });
+
+  const walker =
+    document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT
+    );
+
+  let node;
+
+  while (
+    node = walker.nextNode()
+  ) {
+
+    const original =
+      ecommeOriginalTextNodes.get(node);
+
+    if (original !== undefined) {
+      node.nodeValue = original;
+    }
+  }
+}
+
+
+async function requestTranslations(
+  language,
+  texts
+) {
+
+  const result = {};
+
+  if (!texts.length) {
+    return result;
+  }
+
+  const response =
+    await supabaseClient.functions.invoke(
+      'translate-texts',
+      {
+        body: {
+          targetLanguage: language,
+          texts
+        }
+      }
+    );
+
+  if (response.error) {
+    throw response.error;
+  }
+
+  return response.data?.translations || {};
+}
+
+
+async function translatePage(
+  language =
+    window.ecommeLanguage || 'pt-BR'
+) {
+
+  if (
+    ecommeTranslationRunning
+  ) {
+    return;
+  }
+
+  if (
+    !['pt-BR', 'en-US', 'es-ES']
+      .includes(language)
+  ) {
+    language = 'pt-BR';
+  }
+
+  window.ecommeLanguage =
+    language;
+
+  if (language === 'pt-BR') {
+
+    if (ecommeTranslationObserver) {
+      ecommeTranslationObserver.disconnect();
+    }
+
+    restoreOriginalPage();
+
+    if (ecommeTranslationObserver) {
+      ecommeTranslationObserver.observe(
+        document.body,
+        {
+          childList: true,
+          subtree: true
+        }
+      );
+    }
+
+    return;
+  }
+
+  ecommeTranslationRunning = true;
+
+  if (ecommeTranslationObserver) {
+    ecommeTranslationObserver.disconnect();
+  }
+
+  try {
+
+    restoreOriginalPage();
+
+    const items =
+      collectTranslationNodes();
+
+    if (!items.length) {
+      return;
+    }
+
+    const cache =
+      getTranslationCache();
+
+    const languageCache =
+      cache[language] || {};
+
+    const uniqueTexts =
+      [
+        ...new Set(
+          items.map(
+            item => item.source
+          )
+        )
+      ];
+
+    const missingTexts =
+      uniqueTexts.filter(
+        text =>
+          !languageCache[text]
+      );
+
+    for (
+      let i = 0;
+      i < missingTexts.length;
+      i += 40
+    ) {
+
+      const batch =
+        missingTexts.slice(
+          i,
+          i + 40
+        );
+
+      const translations =
+        await requestTranslations(
+          language,
+          batch
+        );
+
+      Object.assign(
+        languageCache,
+        translations
+      );
+    }
+
+    cache[language] =
+      languageCache;
+
+    saveTranslationCache(cache);
+
+    for (const item of items) {
+
+      const translated =
+        languageCache[item.source];
+
+      if (!translated) {
+        continue;
+      }
+
+      if (item.type === 'text') {
+
+        item.node.nodeValue =
+          item.node.nodeValue.replace(
+            item.source,
+            translated
+          );
+
+      }
+
+      if (
+        item.type === 'attribute'
+      ) {
+
+        item.element.setAttribute(
+          item.attribute,
+          translated
+        );
+      }
+    }
+
+  } catch (error) {
+
+    console.error(
+      'Erro ao traduzir página:',
+      error
+    );
+
+  } finally {
+
+    ecommeTranslationRunning =
+      false;
+
+    if (ecommeTranslationObserver) {
+
+      ecommeTranslationObserver.observe(
+        document.body,
+        {
+          childList: true,
+          subtree: true
+        }
+      );
+    }
+  }
+}
+
+
+function initEcommeTranslationObserver() {
+  if (!document.body) {
+    return;
+  }
+
+  ecommeTranslationObserver =
+    new MutationObserver(() => {
+
+      clearTimeout(
+        ecommeTranslationObserverTimer
+      );
+
+      ecommeTranslationObserverTimer =
+        setTimeout(() => {
+
+          translatePage(
+            window.ecommeLanguage
+          );
+
+        }, 250);
+    });
+
+  ecommeTranslationObserver.observe(
+    document.body,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+}
+window.ecommeTranslatePage = translatePage;
+
+// ============================================================
+
 window.ecommeDisplaySettings = window.ecommeDisplaySettings || {currency: 'BRL'};
 window.ecommeCurrencyRates = window.ecommeCurrencyRates || {BRL: 1, USD: null, EUR: null};
 window.ecommeFormatPrice =
@@ -433,6 +942,7 @@ window.ecommeFormatPrice =
 async function syncEcommeDisplaySettings() {
   window.ecommeDisplaySettings = {
     theme: 'auto',
+    language: 'pt-BR',
     currency: 'BRL'
   };
 
@@ -442,7 +952,7 @@ async function syncEcommeDisplaySettings() {
     if (user) {
       const {data, error} = await supabaseClient
         .from('user_settings')
-        .select('theme, currency')
+        .select('theme, language, currency')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -450,6 +960,12 @@ async function syncEcommeDisplaySettings() {
         console.error('Erro ao carregar configurações da conta:', error);
       }
 
+      if (
+        ['pt-BR', 'en-US', 'es-ES'].includes(data?.language)
+      ) {
+        window.ecommeDisplaySettings.language = data.language;
+      }
+      
       if (data) {
         if (
           ['light', 'dark', 'auto'].includes(data.theme)
@@ -521,17 +1037,16 @@ async function syncEcommeDisplaySettings() {
       }
     );
 
-    const currency =
-      window.ecommeDisplaySettings.currency || 'BRL';
-
+    window.ecommeLanguage = window.ecommeDisplaySettings.language || 'pt-BR';
+    await translatePage(window.ecommeLanguage);
+    
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
     if (currency === 'BRL') {
       window.ecommeCurrencyRates.BRL = 1;
       return;
     }
 
-    const cachedRaw =
-      localStorage.getItem('ecomme_currency_rates');
-
+    const cachedRaw = localStorage.getItem('ecomme_currency_rates');
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
       const age =
@@ -572,9 +1087,7 @@ async function syncEcommeDisplaySettings() {
     }
 
     window.ecommeCurrencyRates = rates;
-
-    localStorage.setItem(
-      'ecomme_currency_rates',
+    localStorage.setItem('ecomme_currency_rates',
       JSON.stringify({
         savedAt: Date.now(),
         rates
@@ -590,7 +1103,13 @@ async function syncEcommeDisplaySettings() {
     window.ecommeDisplaySettings.theme = 'light';
     window.ecommeDisplaySettings.currency = 'BRL';
 
-    applyTheme('auto', {silent: true});
+    applyTheme(
+      window.ecommeDisplaySettings.theme || 'auto',
+      {
+        silent: true,
+        saveToSupabase: false
+      }
+    );
   }
 }
 
@@ -664,6 +1183,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     initThemeToggle();
     setupModalSwipe();
     setupModalAutoPlay();
+    initEcommeTranslationObserver();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     /*const productsLoaded = await loadProductsFromSupabase();
