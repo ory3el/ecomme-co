@@ -687,18 +687,46 @@ async function requestTranslations(
     return {};
   }
 
-  const {
+  let {
     data: { session },
     error: sessionError
   } = await supabaseClient.auth.getSession();
 
   if (sessionError) {
-    throw sessionError;
+    console.warn(
+      'Erro ao obter sessão:',
+      sessionError
+    );
+  }
+
+  if (!session?.access_token) {
+    console.warn(
+      'Sessão sem access_token. Tentando renovar...'
+    );
+
+    const {
+      data: refreshData,
+      error: refreshError
+    } = await supabaseClient.auth.refreshSession();
+
+    if (refreshError) {
+      console.error(
+        'Erro ao renovar sessão:',
+        refreshError
+      );
+
+      throw new Error(
+        'Não foi possível renovar a sessão da conta.'
+      );
+    }
+
+    session =
+      refreshData?.session || null;
   }
 
   if (!session?.access_token) {
     throw new Error(
-      'Não há uma sessão autenticada para traduzir a página.'
+      'A sessão da conta não possui um access token válido.'
     );
   }
 
@@ -709,8 +737,12 @@ async function requestTranslations(
 
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-        'apikey': SUPABASE_ANON_KEY
+
+        'Authorization':
+          `Bearer ${session.access_token}`,
+
+        'apikey':
+          SUPABASE_ANON_KEY
       },
 
       body: JSON.stringify({
@@ -732,12 +764,18 @@ async function requestTranslations(
         : {};
   } catch (error) {
     console.error(
-      'Resposta não-JSON da Edge Function:',
+      'Resposta inválida da Edge Function:',
       responseText
     );
   }
 
   if (!response.ok) {
+    console.error(
+      'Erro HTTP da Edge Function:',
+      response.status,
+      responseData
+    );
+
     throw new Error(
       responseData?.error ||
       responseData?.message ||
@@ -747,7 +785,6 @@ async function requestTranslations(
 
   return responseData?.translations || {};
 }
-
 
 async function translatePage(
   language =
