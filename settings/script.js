@@ -690,15 +690,14 @@ async function saveSettings() {
         throw error;
       }
 
-      toast(
-        'Configurações salvas na sua conta! ✓',
-        'ok'
-      );
-
+      window.ecommeLanguage = newSettings.language;
+      if (typeof window.ecommeTranslatePage === 'function') {
+        await window.ecommeTranslatePage(newSettings.language);
+      }
+      
+      toast('Configurações salvas na sua conta! ✓', 'ok');
     } else {
-      toast(
-        'Configurações salvas neste navegador! ✓',
-        'ok'
+      toast('Configurações salvas neste navegador! ✓', 'ok'
       );
     }
 
