@@ -1641,8 +1641,8 @@ function updateCart() {
           }
         </div>
         <div class="ci-info">
-          <div class="ci-name">${item.name}</div>
-          <div class="ci-price">
+          <div class="ci-name" data-no-translate>${item.name}</div>
+          <div class="ci-price" data-no-translate>
             ${window.ecommeFormatPrice(item.price)}
           </div>
           <div class="ci-qty">
@@ -1895,10 +1895,10 @@ function updateFav() {
           }
         </div>
         <div class="ci-info">
-          <div class="ci-name">
+          <div class="ci-name" data-no-translate>
             ${item.name}
           </div>
-          <div class="ci-price">
+          <div class="ci-price" data-no-translate>
             ${window.ecommeFormatPrice(item.price)}
           </div>
           <button
