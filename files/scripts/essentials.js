@@ -900,7 +900,7 @@ function productCardHtml(p) {
         <div class="pcat">
           ${category}
         </div>
-        <div class="pname">
+        <div class="pname" data-no-translate>
           ${p.name}
         </div>
         <div class="prating">
