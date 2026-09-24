@@ -151,7 +151,7 @@ const DEFAULT_ECOMME_SETTINGS = {
   theme: 'light',
   language: 'pt-BR',
   currency: 'BRL',
-
+  
   profile_public: true,
   purchase_history_visible: false,
   ai_personalization: true,
@@ -164,9 +164,7 @@ const DEFAULT_ECOMME_SETTINGS = {
   optimize_performance: false
 };
 
-let ecommeSettings = {
-  ...DEFAULT_ECOMME_SETTINGS
-};
+let ecommeSettings = ...DEFAULT_ECOMME_SETTINGS;
 
 let ecommeCurrencyRates = {
   BRL: 1,
@@ -184,13 +182,9 @@ function normalizeEcommeSettings(data = {}) {
 function getStoredEcommeSettings() {
   try {
     const raw = localStorage.getItem(ECOMME_SETTINGS_KEY);
-
-    if (!raw) {
-      return null;
-    }
+    if (!raw) return null;
 
     return normalizeEcommeSettings(JSON.parse(raw));
-
   } catch (error) {
     console.warn('Não foi possível ler as configurações locais:', error);
     return null;
@@ -199,14 +193,8 @@ function getStoredEcommeSettings() {
 
 function cacheEcommeSettings(settings) {
   try {
-    localStorage.setItem(
-      ECOMME_SETTINGS_KEY,
-      JSON.stringify(settings)
-    );
-
-    localStorage.setItem(
-      'ecomme-theme',
-      settings.theme
+    localStorage.setItem(ECOMME_SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem('ecomme-theme', settings.theme
     );
 
   } catch (error) {
@@ -216,42 +204,26 @@ function cacheEcommeSettings(settings) {
 
 function getEffectiveTheme(theme) {
   if (theme === 'auto') {
-    return window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-
   return theme;
 }
 
 function applySavedTheme(theme) {
-
-  document.documentElement.setAttribute(
-    'data-theme-pref',
-    theme
+  document.documentElement.setAttribute('data-theme-pref', theme
   );
 
-  document.documentElement.setAttribute(
-    'data-theme',
-    getEffectiveTheme(theme)
-  );
-
+  document.documentElement.setAttribute('data-theme', getEffectiveTheme(theme));
   document.querySelectorAll('#themeSwitch .theme-opt').forEach(btn => {
     btn.classList.toggle(
       'on',
       btn.dataset.themeChoice === theme
     );
-
-    btn.setAttribute(
-      'aria-checked',
-      String(btn.dataset.themeChoice === theme)
-    );
+    btn.setAttribute('aria-checked', String(btn.dataset.themeChoice === theme));
   });
 }
 
 function setTheme(btn, theme) {
-
   document
     .querySelectorAll('#themeSwitch .theme-opt')
     .forEach(b => {
@@ -261,67 +233,30 @@ function setTheme(btn, theme) {
 
   btn.classList.add('on');
   btn.setAttribute('aria-checked', 'true');
-
-  document.documentElement.setAttribute(
-    'data-theme-pref',
-    theme
-  );
-
-  document.documentElement.setAttribute(
-    'data-theme',
-    getEffectiveTheme(theme)
-  );
+  document.documentElement.setAttribute('data-theme-pref', theme);
+  document.documentElement.setAttribute('data-theme', getEffectiveTheme(theme));
 }
 
 function readSettingsFromUI() {
-
-  const selectedTheme =
-    document.querySelector(
-      '#themeSwitch .theme-opt.on'
-    )?.dataset.themeChoice || 'light';
-
+  const selectedTheme = document.querySelector('#themeSwitch .theme-opt.on')?.dataset.themeChoice || 'light';
   return {
-    styled_icons:
-      document.getElementById('settingStyledIcons')?.checked ?? true,
-
+    styled_icons: document.getElementById('settingStyledIcons')?.checked ?? true,
     theme: selectedTheme,
-
-    language:
-      document.getElementById('settingLanguage')?.value || 'pt-BR',
-
-    currency:
-      document.getElementById('settingCurrency')?.value || 'BRL',
-
-    profile_public:
-      document.getElementById('settingProfilePublic')?.checked ?? true,
-
-    purchase_history_visible:
-      document.getElementById('settingPurchaseHistory')?.checked ?? false,
-
-    ai_personalization:
-      document.getElementById('settingAiPersonalization')?.checked ?? true,
-
-    share_data_with_partners:
-      document.getElementById('settingPartnerData')?.checked ?? true,
-
-    larger_font:
-      document.getElementById('settingLargerFont')?.checked ?? false,
-
-    high_contrast:
-      document.getElementById('settingHighContrast')?.checked ?? false,
-
-    reduce_animations:
-      document.getElementById('settingReduceAnimations')?.checked ?? false,
-
-    optimize_performance:
-      document.getElementById('settingOptimizePerformance')?.checked ?? false
+    language: document.getElementById('settingLanguage')?.value || 'pt-BR',
+    currency: document.getElementById('settingCurrency')?.value || 'BRL',
+    profile_public: document.getElementById('settingProfilePublic')?.checked ?? true,
+    purchase_history_visible: document.getElementById('settingPurchaseHistory')?.checked ?? false,
+    ai_personalization: document.getElementById('settingAiPersonalization')?.checked ?? true,
+    share_data_with_partners: document.getElementById('settingPartnerData')?.checked ?? true,
+    larger_font: document.getElementById('settingLargerFont')?.checked ?? false,
+    high_contrast: document.getElementById('settingHighContrast')?.checked ?? false,
+    reduce_animations: document.getElementById('settingReduceAnimations')?.checked ?? false,
+    optimize_performance: document.getElementById('settingOptimizePerformance')?.checked ?? false
   };
 }
 
 function applySettingsToUI(settings) {
-
   ecommeSettings = normalizeEcommeSettings(settings);
-
   const setChecked = (id, value) => {
     const el = document.getElementById(id);
     if (el) {
@@ -329,63 +264,25 @@ function applySettingsToUI(settings) {
     }
   };
 
-  setChecked(
-    'settingStyledIcons',
-    ecommeSettings.styled_icons
-  );
-
-  setChecked(
-    'settingProfilePublic',
-    ecommeSettings.profile_public
-  );
-
-  setChecked(
-    'settingPurchaseHistory',
-    ecommeSettings.purchase_history_visible
-  );
-
-  setChecked(
-    'settingAiPersonalization',
-    ecommeSettings.ai_personalization
-  );
-
-  setChecked(
-    'settingPartnerData',
-    ecommeSettings.share_data_with_partners
-  );
-
-  setChecked(
-    'settingLargerFont',
-    ecommeSettings.larger_font
-  );
-
-  setChecked(
-    'settingHighContrast',
-    ecommeSettings.high_contrast
-  );
-
-  setChecked(
-    'settingReduceAnimations',
-    ecommeSettings.reduce_animations
-  );
-
-  setChecked(
-    'settingOptimizePerformance',
-    ecommeSettings.optimize_performance
-  );
-
+  setChecked('settingStyledIcons', ecommeSettings.styled_icons);
+  setChecked('settingProfilePublic', ecommeSettings.profile_public);
+  setChecked('settingPurchaseHistory', ecommeSettings.purchase_history_visible);
+  setChecked('settingAiPersonalization', ecommeSettings.ai_personalization);
+  setChecked('settingPartnerData', ecommeSettings.share_data_with_partners);
+  setChecked('settingLargerFont', ecommeSettings.larger_font);
+  setChecked('settingHighContrast', ecommeSettings.high_contrast);
+  setChecked('settingReduceAnimations', ecommeSettings.reduce_animations);
+  setChecked('settingOptimizePerformance', ecommeSettings.optimize_performance);
+  
   const lang = document.getElementById('settingLanguage');
-
   if (lang) {
     lang.value = ecommeSettings.language;
   }
 
   const currency = document.getElementById('settingCurrency');
-
   if (currency) {
     currency.value = ecommeSettings.currency;
   }
-
   applySavedTheme(ecommeSettings.theme);
 }
 
@@ -396,16 +293,10 @@ async function loadEcommeCurrencyRates(currency = ecommeSettings.currency) {
   }
 
   try {
-
-    const cachedRaw =
-      localStorage.getItem('ecomme_currency_rates');
-
+    const cachedRaw = localStorage.getItem('ecomme_currency_rates');
     if (cachedRaw) {
-
       const cached = JSON.parse(cachedRaw);
-
-      const age =
-        Date.now() - Number(cached.savedAt || 0);
+      const age = Date.now() - Number(cached.savedAt || 0);
 
       if (
         age < 6 * 60 * 60 * 1000 &&
@@ -413,9 +304,7 @@ async function loadEcommeCurrencyRates(currency = ecommeSettings.currency) {
         Number(cached.rates.USD) > 0 &&
         Number(cached.rates.EUR) > 0
       ) {
-
         ecommeCurrencyRates = cached.rates;
-
         return Number(
           ecommeCurrencyRates[currency]
         ) > 0;
@@ -423,101 +312,47 @@ async function loadEcommeCurrencyRates(currency = ecommeSettings.currency) {
     }
 
   } catch (error) {
-
-    console.warn(
-      'Erro ao ler cache das moedas:',
-      error
-    );
+    console.warn('Erro ao ler cache das moedas:', error);
   }
 
   try {
-
-    const response = await fetch(
-      'https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR'
-    );
-
+    const response = await fetch('https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR');
     if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}`
-      );
+      throw new Error(`HTTP ${response.status}`);
     }
 
     const rows = await response.json();
-
     const rates = {
       BRL: 1,
-      USD: Number(
-        rows.find(
-          row => row.quote === 'USD'
-        )?.rate || 0
-      ),
-      EUR: Number(
-        rows.find(
-          row => row.quote === 'EUR'
-        )?.rate || 0
-      )
+      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
+      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
     };
 
-    if (
-      !rates.USD ||
-      !rates.EUR
-    ) {
-      throw new Error(
-        'Cotação USD/EUR inválida.'
-      );
+    if (!rates.USD || !rates.EUR) {
+      throw new Error('Cotação USD/EUR inválida.');
     }
 
     ecommeCurrencyRates = rates;
-
-    localStorage.setItem(
-      'ecomme_currency_rates',
-      JSON.stringify({
-        savedAt: Date.now(),
-        rates
-      })
-    );
-
-    return Number(
-      ecommeCurrencyRates[currency]
-    ) > 0;
+    localStorage.setItem('ecomme_currency_rates', JSON.stringify({ savedAt: Date.now(), rates}));
+    return Number(ecommeCurrencyRates[currency]) > 0;
 
   } catch (error) {
-
-    console.error(
-      'Erro ao carregar cotações:',
-      error
-    );
-
+    console.error('Erro ao carregar cotações:', error);
     return false;
   }
 }
 
 function formatEcommePrice(amount) {
-
   const value = Number(amount);
+  if (!Number.isFinite(value)) return '';
+  const currency = ecommeSettings.currency || 'BRL';
+  const rate = Number(ecommeCurrencyRates[currency]);
 
-  if (!Number.isFinite(value)) {
+  if (currency !== 'BRL' && (!Number.isFinite(rate) || rate <= 0)) {
     return '';
   }
 
-  const currency =
-    ecommeSettings.currency || 'BRL';
-
-  const rate =
-    Number(
-      ecommeCurrencyRates[currency]
-    );
-
-  if (
-    currency !== 'BRL' &&
-    (!Number.isFinite(rate) || rate <= 0)
-  ) {
-    return '';
-  }
-
-  const convertedValue =
-    value * (currency === 'BRL' ? 1 : rate);
-
+  const convertedValue = value * (currency === 'BRL' ? 1 : rate);
   const localeMap = {
     BRL: 'pt-BR',
     USD: 'en-US',
@@ -532,104 +367,54 @@ function formatEcommePrice(amount) {
     }
   ).format(convertedValue);
 }
-
 window.formatEcommePrice = formatEcommePrice;
 
 async function loadSavedEcommeSettings(accountUserId = null) {
-
-  const localSettings =
-    getStoredEcommeSettings();
-
-  ecommeSettings =
-    normalizeEcommeSettings(
-      localSettings || DEFAULT_ECOMME_SETTINGS
-    );
+  const localSettings = getStoredEcommeSettings();
+  ecommeSettings = normalizeEcommeSettings(localSettings || DEFAULT_ECOMME_SETTINGS);
 
   if (accountUserId) {
-
-    const {
-      data,
-      error
-    } = await supabaseClient
+    const {data, error} = await supabaseClient
       .from('user_settings')
       .select('*')
       .eq('user_id', accountUserId)
       .maybeSingle();
 
     if (error) {
-
-      console.warn(
-        'Não foi possível carregar user_settings:',
-        error.message
-      );
-
+      console.warn('Não foi possível carregar user_settings:', error.message);
     } else if (data) {
-
-      ecommeSettings =
-        normalizeEcommeSettings(data);
-
-      cacheEcommeSettings(
-        ecommeSettings
-      );
+      ecommeSettings = normalizeEcommeSettings(data);
+      cacheEcommeSettings(ecommeSettings);
     }
   }
 
-  applySettingsToUI(
-    ecommeSettings
-  );
-
+  applySettingsToUI(ecommeSettings);
   await loadEcommeCurrencyRates();
 }
 
 async function saveSettings() {
-
-  const saveBtn =
-    document.getElementById(
-      'saveSettingsBtn'
-    );
-
-  const newSettings =
-    normalizeEcommeSettings(
-      readSettingsFromUI()
-    );
-
-  if (newSettings.currency !== 'BRL') {
-
-    const ratesLoaded = await loadEcommeCurrencyRates(newSettings.currency);
-
-    if (
-      !ratesLoaded ||
-      !ecommeCurrencyRates[newSettings.currency]
-    ) {
-
-      toast(
-        'Não foi possível obter a cotação da moeda agora.',
-        'err'
-      );
-
-      return;
-    }
-  }
+  const saveBtn = document.getElementById('saveSettingsBtn');
+  const newSettings = normalizeEcommeSettings(readSettingsFromUI());
 
   if (saveBtn) {
     saveBtn.disabled = true;
     saveBtn.style.opacity = '0.65';
-    saveBtn.innerHTML =
-      '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+  }
+  
+  if (newSettings.currency !== 'BRL') {
+    const ratesLoaded = await loadEcommeCurrencyRates(newSettings.currency);
+    if (!ratesLoaded || !ecommeCurrencyRates[newSettings.currency]) {
+      toast('Não foi possível obter a cotação da moeda agora.', 'err');
+      return;
+    }
   }
 
   try {
-
     let activeUserId = userId;
-
     if (!activeUserId) {
-
-      const {
-        data: { user }
-      } = await supabaseClient.auth.getUser();
-
+      const {data: { user }} = await supabaseClient.auth.getUser();
       activeUserId = user?.id || null;
-
       if (activeUserId) {
         userId = activeUserId;
       }
@@ -637,59 +422,33 @@ async function saveSettings() {
 
     ecommeSettings = newSettings;
     cacheEcommeSettings(newSettings);
-
-    applySavedTheme(
-      newSettings.theme
-    );
+    applySavedTheme(newSettings.theme);
 
     if (activeUserId) {
-
-      const {
-        error
-      } = await supabaseClient
+      const {error} = await supabaseClient
         .from('user_settings')
         .upsert(
           {
             user_id: activeUserId,
-
             styled_icons: newSettings.styled_icons,
             theme: newSettings.theme,
             language: newSettings.language,
             currency: newSettings.currency,
-
-            profile_public:
-              newSettings.profile_public,
-
-            purchase_history_visible:
-              newSettings.purchase_history_visible,
-
-            ai_personalization:
-              newSettings.ai_personalization,
-
-            share_data_with_partners:
-              newSettings.share_data_with_partners,
-
-            larger_font:
-              newSettings.larger_font,
-
-            high_contrast:
-              newSettings.high_contrast,
-
-            reduce_animations:
-              newSettings.reduce_animations,
-
-            optimize_performance:
-              newSettings.optimize_performance
+            profile_public: newSettings.profile_public,
+            purchase_history_visible: newSettings.purchase_history_visible,
+            ai_personalization: newSettings.ai_personalization,
+            share_data_with_partners: newSettings.share_data_with_partners,
+            larger_font: newSettings.larger_font,
+            high_contrast: newSettings.high_contrast,
+            reduce_animations: newSettings.reduce_animations,
+            optimize_performance: newSettings.optimize_performance
           },
           {
             onConflict: 'user_id'
           }
         );
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       window.ecommeLanguage = newSettings.language;
       if (typeof window.ecommeTranslatePage === 'function') {
         await window.ecommeTranslatePage(newSettings.language);
@@ -712,26 +471,15 @@ async function saveSettings() {
     if (typeof renderProducts === 'function') {
       renderProducts();
     }
-
   } catch (error) {
-
-    console.error(
-      'Erro ao salvar configurações:',
-      error
-    );
-
-    toast(
-      'Erro ao salvar configurações: ' +
-      (error.message || 'Erro desconhecido'),
-      'err'
-    );
+    console.error('Erro ao salvar configurações:', error);
+    toast('Erro ao salvar configurações: ' + (error.message || 'Erro desconhecido'), 'err');
 
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false;
       saveBtn.style.opacity = '1';
-      saveBtn.innerHTML =
-        '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+      saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
     }
   }
 }
