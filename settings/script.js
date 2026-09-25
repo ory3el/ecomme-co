@@ -164,7 +164,9 @@ const DEFAULT_ECOMME_SETTINGS = {
   optimize_performance: false
 };
 
-let ecommeSettings = ...DEFAULT_ECOMME_SETTINGS;
+let ecommeSettings = {
+  ...DEFAULT_ECOMME_SETTINGS
+};
 
 let ecommeCurrencyRates = {
   BRL: 1,
