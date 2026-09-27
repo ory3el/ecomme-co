@@ -222,8 +222,8 @@ header {
   transition: border-color 0.25s, background 0.25s, transition: 0.25s;
 }
 .search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
-.search-bar:focus-within input {color: var(--white)}
-.search-bar:focus-within svg {stroke: var(--white)}
+.search-bar:focus-within input {color: var(--black)}
+.search-bar:focus-within svg {stroke: var(--black)}
 .search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
 .search-bar input::placeholder { color: var(--muted); font-size: 14px; font-weight: 400; }
 .search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; }
