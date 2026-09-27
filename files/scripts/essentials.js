@@ -1053,9 +1053,9 @@ function renderProducts() {
           <button
             class="btn-clear"
             onclick="
-              $('headerSearch').value='';
-              $('heroSearch').value='';
-              loadShuffleAndRender();
+              if($('headerSearch')) $('headerSearch').value='';
+              if($('heroSearch')) $('heroSearch').value='';
+              renderProducts();
             "
           >
             Limpar busca
