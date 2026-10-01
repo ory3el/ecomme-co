@@ -1455,3 +1455,158 @@ function getOptimizedImageUrl(sourceUrl, preset = 'grid') {
     return sourceUrl;
   }
 }
+
+// ------------------------------------
+
+function showDataModal() {
+  if (document.getElementById('dataOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dataOverlay';
+  overlay.className = 'data-overlay';
+  overlay.innerHTML = `
+    <div class="data-modal">
+      <div class="data-head">
+        <h3>
+          Precisamos de mais alguns dados essenciais
+        </h3>
+        <p>
+          Esses dados serão usados para verificar
+          sua identidade e validar sua compra.
+        </p>
+      </div>
+      <div class="data-grid">
+        <div class="data-field">
+          <label>
+            Nome
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataName"
+            class="data-input"
+            type="text"
+            maxlength="100"
+            autocomplete="given-fullname"
+          >
+        </div>
+        <div class="data-field">
+          <label>
+            Sobrenome
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataSurname"
+            class="data-input"
+            type="text"
+            maxlength="100"
+            autocomplete="given-surname"
+          >
+        </div>
+        <div class="data-field full">
+          <label>
+            E-mail
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataEmail"
+            class="data-input"
+            type="email"
+            readonly
+            tabindex="-1"
+          >
+        </div>
+        <div class="data-field full">
+          <label>
+            Telefone / WhatsApp
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataPhone"
+            class="data-input"
+            type="tel"
+            placeholder="(00) 00000-0000"
+            maxlength="15"
+            oninput="maskPhone(this)"
+          >
+        </div>
+        <div class="data-field">
+          <label>
+            CPF
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataCpf"
+            class="data-input"
+            type="tel"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            oninput="maskCpf(this)"
+          >
+        </div>
+        <div class="data-field">
+          <label>
+            Data de nascimento
+            <span class="data-required">*</span>
+          </label>
+          <input
+            id="dataBirth"
+            class="data-input"
+            type="date"
+          >
+
+        </div>
+      </div>
+      <div class="data-actions">
+        <button
+          type="button"
+          class="data-btn data-cancel"
+          onclick="buttonLink('/')"
+        >
+          Sair do checkout
+        </button>
+        
+        <button
+          type="button"
+          id="dataContinue"
+          class="data-btn data-continue"
+          onclick="validateData()"
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// --------------------------------------
+
+function validateData() {
+  const nameInput = document.getElementById('dataName');
+  const surnameInput = document.getElementById('dataSurname');
+  const emailInput = document.getElementById('dataEmail');
+  const phoneInput = document.getElementById('dataPhone');
+  const cpfInput = document.getElementById('dataCpf');
+  const birthInput = document.getElementById('dataBirth');
+
+  const errorMessage = document.getElementById('errorMessage');
+  const iLength = value.length;
+
+  if (nameInput.iLength < 3) {
+    errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
+    return;
+  } else if (nameInput.iLength > 30) {
+    errorMessage.textContent = `O comprimento máximo deste campo é 30 caracteres. Você inseriu ${nameInput.iLength}.`;
+    return;
+  }
+  if (surnameInput.iLength < 3) {
+    errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
+    return;
+  } else if (nameInput.iLength > 50) {
+    errorMessage.textContent = `O comprimento máximo deste campo é 50 caracteres. Você inseriu ${nameInput.iLength}.`;
+    return;
+  }
+
+  const overlay = document.getElementById('dataOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
