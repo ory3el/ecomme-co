@@ -80,6 +80,99 @@ const EDGE_IMAGE_PRESETS = {
   modal: 'modal'
 };
 
+// ---------------------------------------------
+function checkoutNeedsDataModal(user, profile) {
+  if (!user || !profile) {
+    return true;
+  }
+
+  const email = String(user.email || '').trim();
+
+  const fullName = String(
+    profile.full_name || ''
+  ).trim();
+
+  const phone = String(
+    profile.phone || ''
+  ).replace(/\D/g, '');
+
+  const cpf = String(
+    profile.cpf || ''
+  ).replace(/\D/g, '');
+
+  const birthDate = String(
+    profile.birth_date || ''
+  ).trim();
+
+  // ── NOME E SOBRENOME ──────────────────────────────
+  const nameParts = fullName
+    ? fullName.split(/\s+/)
+    : [];
+
+  const firstName = nameParts.shift() || '';
+  const lastName = nameParts.join(' ').trim();
+
+  if (
+    firstName.length < 3 ||
+    firstName.length > 30
+  ) {
+    return true;
+  }
+
+  if (
+    lastName.length < 3 ||
+    lastName.length > 50
+  ) {
+    return true;
+  }
+
+  // ── E-MAIL ─────────────────────────────────────────
+  if (
+    !email ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  ) {
+    return true;
+  }
+
+  // ── TELEFONE ───────────────────────────────────────
+  if (
+    phone.length !== 10 &&
+    phone.length !== 11
+  ) {
+    return true;
+  }
+
+  // ── CPF ────────────────────────────────────────────
+  if (
+    !isValidCPF(cpf)
+  ) {
+    return true;
+  }
+
+  // ── DATA DE NASCIMENTO ─────────────────────────────
+  if (!birthDate) {
+    return true;
+  }
+
+  const parsedBirthDate = new Date(
+    `${birthDate}T00:00:00`
+  );
+
+  if (
+    Number.isNaN(parsedBirthDate.getTime())
+  ) {
+    return true;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (parsedBirthDate > today) {
+    return true;
+  }
+  return false;
+}
+
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
@@ -91,7 +184,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await loadProductsFromSupabase();
   const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
   let shuffled = [...products];
-  requestAnimationFrame(() => {setTimeout(() => { hideLoadingModal(); } ,180); });
+  //requestAnimationFrame(() => {setTimeout(() => { hideLoadingModal(); } ,180); });
   
   if (!user || userError) {
     console.warn("User session not active.");
@@ -161,6 +254,20 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
+  // ── CHECKOUT DATA VERIFICATION ──────────
+  const needsDataModal = checkoutNeedsDataModal(user, profile);
+
+  // ── FINISHES LOADING ───────────────────────────
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      hideLoadingModal();
+      if (needsDataModal) {
+        setTimeout(() => {
+          showDataModal();
+        }, 400);
+      }
+    }, 180);
+  });
 });
 
 // HEADER
