@@ -1564,7 +1564,7 @@ function validateData() {
   const birthInput = document.getElementById('dataBirth');
 
   const errorMessage = document.getElementById('errorMessage');
-  const iLength = value.length;
+  const iLength = input.value.length;
 
   if (nameInput.iLength < 3) {
     errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
