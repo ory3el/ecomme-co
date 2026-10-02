@@ -264,7 +264,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (needsDataModal) {
         setTimeout(() => {
           showDataModal();
-          validateData();
         }, 400);
       }
     }, 180);
@@ -1853,6 +1852,7 @@ async function showDataModal() {
   const loaded = await loadDataModalProfile();
   if (loaded) {
     overlay.classList.add('active');
+    validateData();
   }
 }
 
