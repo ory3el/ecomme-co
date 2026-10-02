@@ -1432,125 +1432,320 @@ function getOptimizedImageUrl(sourceUrl, preset = 'grid') {
 
 // ------------------------------------
 
-function showDataModal() {
-  if (document.getElementById('dataOverlay')) return;
+function maskDataPhone(input) {
+  if (!input) return;
+  let value = input.value.replace(/\D/g, '').slice(0, 11);
+  if (value.length > 6) {
+    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+  } else if (value.length > 2) {
+    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+  } else if (value.length > 0) {
+    value = `(${value}`;
+  }
+  input.value = value;
+}
 
-  const overlay = document.createElement('div');
-  overlay.id = 'dataOverlay';
-  overlay.className = 'data-overlay';
-  overlay.innerHTML = `
-    <div class="data-modal">
-      <div class="data-head">
-        <h3>
-          Precisamos de mais alguns dados essenciais
-        </h3>
-        <p>
-          Esses dados serão usados para verificar
-          sua identidade e validar sua compra.
-        </p>
-      </div>
-      <div class="data-grid">
-        <div class="data-field">
-          <label>
-            Nome
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataName"
-            class="data-input"
-            type="text"
-            maxlength="100"
-            autocomplete="given-fullname"
-          >
-        </div>
-        <div class="data-field">
-          <label>
-            Sobrenome
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataSurname"
-            class="data-input"
-            type="text"
-            maxlength="100"
-            autocomplete="given-surname"
-          >
-        </div>
-        <div class="data-field full">
-          <label>
-            E-mail
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataEmail"
-            class="data-input"
-            type="email"
-            readonly
-            tabindex="-1"
-          >
-        </div>
-        <div class="data-field full">
-          <label>
-            Telefone / WhatsApp
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataPhone"
-            class="data-input"
-            type="tel"
-            placeholder="(00) 00000-0000"
-            maxlength="15"
-            oninput="maskPhone(this)"
-          >
-        </div>
-        <div class="data-field">
-          <label>
-            CPF
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataCpf"
-            class="data-input"
-            type="tel"
-            placeholder="000.000.000-00"
-            maxlength="14"
-            oninput="maskCpf(this)"
-          >
-        </div>
-        <div class="data-field">
-          <label>
-            Data de nascimento
-            <span class="data-required">*</span>
-          </label>
-          <input
-            id="dataBirth"
-            class="data-input"
-            type="date"
-          >
+// ---------------------------
+function maskDataCPF(input) {
+  if (!input) return;
+  let value = input.value.replace(/\D/g, '').slice(0, 11);
 
+  if (value.length > 9) {
+    value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9)}`;
+  } else if (value.length > 6) {
+    value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6)}`;
+  } else if (value.length > 3) {
+    value = `${value.slice(0, 3)}.${value.slice(3)}`;
+  }
+  input.value = value;
+}
+
+// --------------------------
+function isValidCPF(value) {
+  const cpf = String(value || '').replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+    return false;
+  }
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += Number(cpf[i]) * (10 - i);
+  }
+
+  let remainder = (sum * 10) % 11;
+  if (remainder === 10) {
+    remainder = 0;
+  }
+
+  if (remainder !== Number(cpf[9])) {
+    return false;
+  }
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += Number(cpf[i]) * (11 - i);
+  }
+
+  remainder = (sum * 10) % 11;
+  if (remainder === 10) {
+    remainder = 0;
+  }
+
+  return remainder === Number(cpf[10]);
+}
+
+// -------------------------------------------
+function setDataInputError(input, hasError) {
+  if (!input) return;
+  input.style.borderColor = hasError ? '#EF4444' : '';
+  input.style.boxShadow = hasError
+    ? '0 0 0 3px rgba(239,68,68,.10)'
+    : '';
+}
+
+// ------------------------------------
+async function loadDataModalProfile() {
+  const nameInput = document.getElementById('dataName');
+  const surnameInput = document.getElementById('dataSurname');
+  const emailInput = document.getElementById('dataEmail');
+  const phoneInput = document.getElementById('dataPhone');
+  const cpfInput = document.getElementById('dataCpf');
+  const birthInput = document.getElementById('dataBirth');
+
+  if (
+    !nameInput ||
+    !surnameInput ||
+    !emailInput ||
+    !phoneInput ||
+    !cpfInput ||
+    !birthInput
+  ) {
+    return false;
+  }
+
+  try {
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      toast('Sua sessão expirou. Faça login novamente.', 'err');
+      return false;
+    }
+
+    userId = user.id;
+
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from('profiles')
+      .select('full_name, phone, cpf, birth_date')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error(
+        'Erro ao carregar dados do perfil para o modal:',
+        profileError
+      );
+
+      toast('Não foi possível carregar seus dados.', 'err');
+      return false;
+    }
+
+    const fullName = String(profile?.full_name || '').trim();
+
+    const nameParts = fullName
+      ? fullName.split(/\s+/)
+      : [];
+
+    const firstName = nameParts.shift() || '';
+    const lastName = nameParts.join(' ');
+
+    nameInput.value = firstName;
+    surnameInput.value = lastName;
+    emailInput.value = user.email || '';
+
+    phoneInput.value = profile?.phone || '';
+    maskDataPhone(phoneInput);
+
+    cpfInput.value = profile?.cpf || '';
+    maskDataCPF(cpfInput);
+
+    birthInput.value = profile?.birth_date || '';
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      'Erro ao carregar dados para o Data Modal:',
+      error
+    );
+
+    toast('Não foi possível carregar seus dados.', 'err');
+    return false;
+  }
+}
+
+// ------------------------------------
+
+async function showDataModal() {
+  let overlay = document.getElementById('dataOverlay');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'dataOverlay';
+    overlay.className = 'data-overlay';
+    overlay.innerHTML = `
+      <div class="data-modal">
+        <div class="data-head">
+          <h3>
+            Precisamos de mais alguns dados essenciais
+          </h3>
+          <p>
+            Esses dados serão usados para verificar
+            sua identidade e validar sua compra.
+          </p>
+        </div>
+
+        <div class="data-grid">
+
+          <div class="data-field">
+            <label>
+              Nome
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataName"
+              class="data-input"
+              type="text"
+              maxlength="100"
+              autocomplete="given-name"
+            >
+          </div>
+
+          <div class="data-field">
+            <label>
+              Sobrenome
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataSurname"
+              class="data-input"
+              type="text"
+              maxlength="100"
+              autocomplete="family-name"
+            >
+          </div>
+
+          <div class="data-field full">
+            <label>
+              E-mail
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataEmail"
+              class="data-input"
+              type="email"
+              readonly
+              tabindex="-1"
+            >
+          </div>
+
+          <div class="data-field full">
+            <label>
+              Telefone / WhatsApp
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataPhone"
+              class="data-input"
+              type="tel"
+              placeholder="(00) 00000-0000"
+              maxlength="15"
+              oninput="maskDataPhone(this)"
+            >
+          </div>
+
+          <div class="data-field">
+            <label>
+              CPF
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataCpf"
+              class="data-input"
+              type="tel"
+              placeholder="000.000.000-00"
+              maxlength="14"
+              oninput="maskDataCPF(this)"
+            >
+          </div>
+
+          <div class="data-field">
+            <label>
+              Data de nascimento
+              <span class="data-required">*</span>
+            </label>
+
+            <input
+              id="dataBirth"
+              class="data-input"
+              type="date"
+            >
+          </div>
+        </div>
+
+        <div
+          id="dataErrorMessage"
+          role="alert"
+          aria-live="polite"
+          style="
+            display:none;
+            margin-top:16px;
+            padding:10px 12px;
+            border-radius:12px;
+            background:rgba(239,68,68,.08);
+            color:#dc2626;
+            font-size:12px;
+            font-weight:600;
+          "
+        ></div>
+        <div class="data-actions">
+
+          <button
+            type="button"
+            class="data-btn data-cancel"
+            onclick="buttonLink('/')"
+          >
+            Sair do checkout
+          </button>
+
+          <button
+            type="button"
+            id="dataContinue"
+            class="data-btn data-continue"
+            onclick="validateData()"
+          >
+            Continuar
+          </button>
         </div>
       </div>
-      <div class="data-actions">
-        <button
-          type="button"
-          class="data-btn data-cancel"
-          onclick="buttonLink('/')"
-        >
-          Sair do checkout
-        </button>
-        
-        <button
-          type="button"
-          id="dataContinue"
-          class="data-btn data-continue"
-          onclick="validateData()"
-        >
-          Continuar
-        </button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  const loaded = await loadDataModalProfile();
+  if (loaded) {
+    overlay.classList.add('active');
+  }
 }
 
 // --------------------------------------
