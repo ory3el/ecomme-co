@@ -1750,7 +1750,7 @@ async function showDataModal() {
 
 // --------------------------------------
 
-function validateData() {
+async function validateData() {
   const nameInput = document.getElementById('dataName');
   const surnameInput = document.getElementById('dataSurname');
   const emailInput = document.getElementById('dataEmail');
@@ -1758,25 +1758,226 @@ function validateData() {
   const cpfInput = document.getElementById('dataCpf');
   const birthInput = document.getElementById('dataBirth');
 
-  const errorMessage = document.getElementById('errorMessage');
-  const nameLength = nameInput.value.length;
-  const surnameLength = surnameInput.value.length;
+  const continueBtn = document.getElementById('dataContinue');
+  const errorMessage = document.getElementById('dataErrorMessage');
 
-  if (nameLength < 3) {
-    errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
-    return;
-  } else if (nameLength > 30) {
-    errorMessage.textContent = `O comprimento máximo deste campo é 30 caracteres. Você inseriu ${nameInput.iLength}.`;
-    return;
-  }
-  if (surnameLength < 3) {
-    errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
-    return;
-  } else if (surnameLength > 50) {
-    errorMessage.textContent = `O comprimento máximo deste campo é 50 caracteres. Você inseriu ${nameInput.iLength}.`;
-    return;
+  if (
+    !nameInput ||
+    !surnameInput ||
+    !emailInput ||
+    !phoneInput ||
+    !cpfInput ||
+    !birthInput
+  ) {
+    return false;
   }
 
-  const overlay = document.getElementById('dataOverlay');
-  if (overlay) overlay.classList.remove('active');
+  function clearErrors() {
+    [
+      nameInput,
+      surnameInput,
+      emailInput,
+      phoneInput,
+      cpfInput,
+      birthInput
+    ].forEach(input => {
+      setDataInputError(input, false);
+    });
+
+    if (errorMessage) {
+      errorMessage.textContent = '';
+      errorMessage.style.display = 'none';
+    }
+  }
+
+
+  function showError(message, input = null) {
+    if (input) {
+      setDataInputError(input, true);
+      input.focus();
+    }
+
+    if (errorMessage) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    } else {
+      toast(message, 'err');
+    }
+
+    return false;
+  }
+
+  clearErrors();
+  const firstName = nameInput.value.trim();
+  const lastName = surnameInput.value.trim();
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.replace(/\D/g, '');
+  const cpf = cpfInput.value.replace(/\D/g, '');
+  const birthDate = birthInput.value;
+
+  if (firstName.length < 3) {
+    return showError(
+      'O nome deve ter pelo menos 3 caracteres.',
+      nameInput
+    );
+  }
+
+  if (firstName.length > 30) {
+    return showError(
+      'O nome deve ter no máximo 30 caracteres.',
+      nameInput
+    );
+  }
+
+  if (lastName.length < 3) {
+    return showError(
+      'O sobrenome deve ter pelo menos 3 caracteres.',
+      surnameInput
+    );
+  }
+
+  if (lastName.length > 50) {
+    return showError(
+      'O sobrenome deve ter no máximo 50 caracteres.',
+      surnameInput
+    );
+  }
+
+  if (
+    !email ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  ) {
+    return showError(
+      'O e-mail da sua conta não é válido.',
+      emailInput
+    );
+  }
+
+  if (
+    phone.length !== 10 &&
+    phone.length !== 11
+  ) {
+    return showError(
+      'Digite um telefone válido com DDD.',
+      phoneInput
+    );
+  }
+
+  if (!isValidCPF(cpf)) {
+    return showError(
+      'Digite um CPF válido.',
+      cpfInput
+    );
+  }
+
+  if (!birthDate) {
+    return showError(
+      'Informe sua data de nascimento.',
+      birthInput
+    );
+  }
+
+  const parsedBirthDate = new Date(
+    `${birthDate}T00:00:00`
+  );
+
+  if (
+    Number.isNaN(parsedBirthDate.getTime())
+  ) {
+    return showError(
+      'A data de nascimento informada é inválida.',
+      birthInput
+    );
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (parsedBirthDate > today) {
+    return showError(
+      'A data de nascimento não pode estar no futuro.',
+      birthInput
+    );
+  }
+
+  if (!userId) {
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      toast(
+        'Sua sessão expirou. Faça login novamente.',
+        'err'
+      );
+
+      return false;
+    }
+
+    userId = user.id;
+  }
+
+  const originalText = continueBtn
+    ? continueBtn.innerHTML
+    : 'Continuar';
+
+  if (continueBtn) {
+    continueBtn.disabled = true;
+    continueBtn.style.opacity = '0.7';
+    continueBtn.innerHTML = 'Salvando...';
+  }
+
+  try {
+    const fullName =
+      `${firstName} ${lastName}`.trim();
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({
+        full_name: fullName,
+        phone: phone,
+        cpf: cpf,
+        birth_date: birthDate
+      })
+      .eq('id', userId);
+
+    if (error) {
+      throw error;
+    }
+
+    const overlay =
+      document.getElementById('dataOverlay');
+
+    if (overlay) {
+      overlay.classList.remove('active');
+    }
+
+    toast(
+      'Dados atualizados com sucesso! ✓',
+      'ok'
+    );
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      'Erro ao atualizar os dados do Data Modal:',
+      error
+    );
+
+    showError(
+      'Não foi possível salvar seus dados agora. Tente novamente.'
+    );
+
+    return false;
+
+  } finally {
+    if (continueBtn) {
+      continueBtn.disabled = false;
+      continueBtn.style.opacity = '1';
+      continueBtn.innerHTML =
+        originalText || 'Continuar';
+    }
+  }
 }
