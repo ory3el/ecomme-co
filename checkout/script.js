@@ -1564,19 +1564,20 @@ function validateData() {
   const birthInput = document.getElementById('dataBirth');
 
   const errorMessage = document.getElementById('errorMessage');
-  const iLength = input.value.length;
+  const nameLength = nameInput.value.length;
+  const surnameLength = surnameInput.value.length;
 
-  if (nameInput.iLength < 3) {
+  if (nameLength < 3) {
     errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
     return;
-  } else if (nameInput.iLength > 30) {
+  } else if (nameLength > 30) {
     errorMessage.textContent = `O comprimento máximo deste campo é 30 caracteres. Você inseriu ${nameInput.iLength}.`;
     return;
   }
-  if (surnameInput.iLength < 3) {
+  if (surnameLength < 3) {
     errorMessage.textContent = `O comprimento mínimo deste campo é 3 caracteres. Você inseriu apenas ${nameInput.iLength}.`;
     return;
-  } else if (nameInput.iLength > 50) {
+  } else if (surnameLength > 50) {
     errorMessage.textContent = `O comprimento máximo deste campo é 50 caracteres. Você inseriu ${nameInput.iLength}.`;
     return;
   }
