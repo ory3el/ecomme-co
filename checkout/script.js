@@ -1731,6 +1731,7 @@ async function showDataModal() {
               type="text"
               maxlength="100"
               autocomplete="given-name"
+              oninput="updateDataInputState(this, 3, 30)"
             >
           </div>
 
@@ -1746,6 +1747,7 @@ async function showDataModal() {
               type="text"
               maxlength="100"
               autocomplete="family-name"
+              oninput="updateDataInputState(this, 3, 50)"
             >
           </div>
 
@@ -1776,7 +1778,7 @@ async function showDataModal() {
               type="tel"
               placeholder="(00) 00000-0000"
               maxlength="15"
-              oninput="maskDataPhone(this)"
+              oninput="maskDataPhone(this); updateDataPhoneState(this)"
             >
           </div>
 
@@ -1792,7 +1794,7 @@ async function showDataModal() {
               type="tel"
               placeholder="000.000.000-00"
               maxlength="14"
-              oninput="maskDataCPF(this)"
+              oninput="maskDataCPF(this); updateDataCPFState(this)"
             >
           </div>
 
@@ -1806,6 +1808,7 @@ async function showDataModal() {
               id="dataBirth"
               class="data-input"
               type="date"
+              onchange="updateDataBirthState(this)"
             >
           </div>
         </div>
@@ -2087,5 +2090,65 @@ async function validateData() {
       continueBtn.innerHTML =
         originalText || 'Continuar';
     }
+  }
+}
+
+// --------------------------------------------------------
+function updateDataInputState(input, minLength, maxLength) {
+  if (!input) return;
+  const length = input.value.trim().length;
+  if (length >= minLength && length <= maxLength) {
+    input.style.borderColor = '#10B981';
+    input.style.boxShadow = '0 0 0 3px rgba(16,185,129,.10)';
+  } else {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+  }
+}
+
+function updateDataPhoneState(input) {
+  if (!input) return;
+  const phone = input.value.replace(/\D/g, '');
+  if (phone.length === 10 || phone.length === 11) {
+    input.style.borderColor = '#10B981';
+    input.style.boxShadow = '0 0 0 3px rgba(16,185,129,.10)';
+  } else {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+  }
+}
+
+function updateDataCPFState(input) {
+  if (!input) return;
+  const cpf = input.value.replace(/\D/g, '');
+  if (cpf.length === 11 && isValidCPF(cpf)) {
+    input.style.borderColor = '#10B981';
+    input.style.boxShadow = '0 0 0 3px rgba(16,185,129,.10)';
+  } else {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+  }
+}
+
+function updateDataBirthState(input) {
+  if (!input) return;
+  const value = input.value;
+  if (!value) {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+    return;
+  }
+  const date = new Date(`${value}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (
+    !Number.isNaN(date.getTime()) &&
+    date <= today
+  ) {
+    input.style.borderColor = '#10B981';
+    input.style.boxShadow = '0 0 0 3px rgba(16,185,129,.10)';
+  } else {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
   }
 }
