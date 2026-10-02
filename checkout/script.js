@@ -263,7 +263,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       hideLoadingModal();
       if (needsDataModal) {
         setTimeout(() => {
-          showDataModal();
+          await showDataModal();
+          validateData();
         }, 400);
       }
     }, 180);
