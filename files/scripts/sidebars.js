@@ -1935,7 +1935,7 @@ function updateFav() {
   }
 
   const el = $('favItems');
-  if (!fav.length) {
+  if (!fav.length && $('favSidebar')) {
     el.innerHTML = `
       <div class="fav-empty-st">
         <span>❤️</span>
@@ -1945,7 +1945,7 @@ function updateFav() {
     return;
   }
 
-  if ($('favItems')) {
+  if ($('favItems') && $('favSidebar')) {
    el.innerHTML = fav.map(item => {
     const images = getProductImages(item);
     const image = images[0] || null;
