@@ -1680,7 +1680,7 @@ function updateCart() {
 
   const el = $('cartItems');
 
-  if (!cart.length) {
+  if (!cart.length && $('cartSidebar')) {
     el.innerHTML = `
       <div class="cart-empty-st">
         <span>🛒</span>
