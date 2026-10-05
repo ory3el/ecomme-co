@@ -1690,6 +1690,7 @@ function updateCart() {
     return;
   }
 
+  if ($('cartSidebar')) {
   el.innerHTML = cart.map(item => {
     const images = getProductImages(item);
     const image = images[0] || null;
@@ -1743,6 +1744,7 @@ function updateCart() {
       </div>
     `;
   }).join('');
+  }
 }
 
 function updateCartWishButtons() {
