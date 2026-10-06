@@ -1700,6 +1700,7 @@ async function loadDataModalProfile() {
 
 async function showDataModal() {
   let overlay = document.getElementById('dataOverlay');
+  showToast('Revise os dados de sua conta', type = 'info');
 
   if (!overlay) {
     overlay = document.createElement('div');
@@ -1855,6 +1856,7 @@ async function showDataModal() {
   const loaded = await loadDataModalProfile();
   if (loaded) {
     overlay.classList.add('active');
+    document.body.classList.add("nobodyscroll");
     validateData();
   }
 }
@@ -2057,18 +2059,13 @@ async function validateData() {
       throw error;
     }
 
-    const overlay =
-      document.getElementById('dataOverlay');
-
+    const overlay = document.getElementById('dataOverlay');
     if (overlay) {
       overlay.classList.remove('active');
+      document.body.classList.remove("nobodyscroll");
     }
 
-    toast(
-      'Dados atualizados com sucesso! ✓',
-      'ok'
-    );
-
+    toast('Dados atualizados com sucesso! ✓', 'ok');
     return true;
 
   } catch (error) {
@@ -2087,8 +2084,7 @@ async function validateData() {
     if (continueBtn) {
       continueBtn.disabled = false;
       continueBtn.style.opacity = '1';
-      continueBtn.innerHTML =
-        originalText || 'Continuar';
+      continueBtn.innerHTML = originalText || 'Continuar';
     }
   }
 }
