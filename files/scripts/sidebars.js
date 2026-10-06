@@ -2398,7 +2398,7 @@ function setupModalAutoPlay() {
 }
 
 /* ─── MODAL ──────────────────────────────────────────────────────── */
-function openProduct(id) {
+async function openProduct(id) {
   document.body.classList.add("noscroll");
 
   const productsLoaded = await loadProductsFromSupabase();
