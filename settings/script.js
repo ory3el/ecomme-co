@@ -598,6 +598,12 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       return;
     }*/
 
+    if (!user || userError) {
+      userId = null;
+      return;
+    }
+  
+    const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
     userId = user.id;
     const { data: profile, error } = await supabaseClient
       .from('profiles')
