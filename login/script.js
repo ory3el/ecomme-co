@@ -538,7 +538,7 @@ async function confirmGoogleAccountCreation() {
     }
     
     sessionStorage.removeItem('remote_logout_notice_shown');
-    toast('Conta criada com sucesso! 🎉');
+    toast('Conta criada com sucesso!', 'ok');
     setTimeout(() => {
       window.location.href = getTargetUrl();
     }, 1000);
@@ -899,7 +899,7 @@ async function doRegister(){
     toast(error.message, 'err');
   } else {
     sessionStorage.removeItem('remote_logout_notice_shown');
-    toast('Conta criada! Verifique o seu e-mail para confirmar o cadastro. 🚀');
+    toast('Conta criada! Verifique o seu e-mail para confirmar o cadastro. 🚀', 'ok');
   }
 }
 
@@ -1057,7 +1057,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
             hideLoadingModal();
           }, 180);
         });
-        toast('Sessão ativa! Redirecionando... 🎉');
+        toast('Sessão ativa! Redirecionando...', 'ok');
         setTimeout(() => {
           window.location.href = finalDestination;
         }, 1200);
