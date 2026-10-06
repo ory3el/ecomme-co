@@ -985,7 +985,6 @@ function goStep(n) {
     buildQR();
     updatePaymentButton();
     buildBarcode();
-    
     startPixTimer();
     
     const pixTab = document.querySelector(
@@ -1712,6 +1711,7 @@ async function loadDataModalProfile() {
 async function showDataModal() {
   let overlay = document.getElementById('dataOverlay');
   showToast('Revise os dados da sua conta', 'info');
+  showLoadingModal('Carregando...', 'Renderizando Modal');
 
   if (!overlay) {
     overlay = document.createElement('div');
@@ -1865,10 +1865,13 @@ async function showDataModal() {
   }
 
   const loaded = await loadDataModalProfile();
+  hideLoadingModal();
   if (loaded) {
     overlay.classList.add('active');
     document.body.classList.add("nobodyscroll");
     validateData();
+  } else {
+    showToast('Erro ao carregar Modal', 'err');
   }
 }
 
