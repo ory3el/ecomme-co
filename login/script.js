@@ -1162,7 +1162,7 @@ function simulateLoad(btnId, cb, delay=1400){
 
 
 // TOAST
-function showToast(msg, type = 'ok') {
+function showToast(msg, type) {
   const t = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
   const toastIcon = t?.querySelector('.toast-icon');
@@ -1179,8 +1179,8 @@ function showToast(msg, type = 'ok') {
   }, 5000);
 }
 
-function toast(msg, type = 'ok') {
-  showToast(msg, type = 'ok');
+function toast(msg, type) {
+  showToast(msg, type);
 }
 
 // ── KEYBOARD SUBMIT ────────────────────────────────────────
