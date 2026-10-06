@@ -1161,18 +1161,26 @@ function simulateLoad(btnId, cb, delay=1400){
 }
 
 
-// ── TOAST ──────────────────────────────────────────────────
-function toast(msg, type='ok'){
-  const t  = document.getElementById('toast1');
-  const ic = document.getElementById('toastIco');
-  const tx = document.getElementById('toastMsg');
-  if(!t || !ic || !tx) return;
-  tx.textContent = msg;
-  ic.className = 'toast-ico ' + type;
-  ic.textContent = type === 'ok' ? '✓' : '!';
-  t.classList.add('on');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('on'), 10000);
+// TOAST
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const toastIcon = t?.querySelector('.toast-icon');
+  if (!t) return;
+  if (toastMsg) toastMsg.textContent = msg;
+  if (toastIcon) {
+    toastIcon.className = `toast-icon ${type}`;
+    toastIcon.innerHTML = type === 'ok' ? '<i class="fa-solid fa-check"></i>' : type === 'err' ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-info"></i>';
+  }
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => {
+    t.classList.remove('show');
+  }, 5000);
+}
+
+function toast(msg, type = 'ok') {
+  showToast(msg, type = 'ok');
 }
 
 // ── KEYBOARD SUBMIT ────────────────────────────────────────
