@@ -677,8 +677,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
-    
-  // ── Renderiza a foto do Google se ela existir ──
+
+  // ------------------------------------------------------
   if (photoUrl) {
     const avatarImage = document.getElementById('profileAvatar');
     const sidebarImage = document.getElementById('sidebarAvatar');
