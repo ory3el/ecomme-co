@@ -549,54 +549,58 @@ async function saveSettings() {
 
 // -----------------------------------------------------------
 window.addEventListener('DOMContentLoaded', async () => {
-  initTheme();
-  initThemeToggle();
-  const savedSection = localStorage.getItem('ecomme_settings_section');
-  if (savedSection) showPanel(savedSection);
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
-  if (!user || userError) {
-    userId = null;
-    await loadSavedEcommeSettings(null);
-    return;
-  }
-
-  userId = user.id;
-  await loadSavedEcommeSettings(user.id);
-
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (!profileError && profile) {
-      const fullName = profile.full_name || 'Cliente';
-      const email = user.email || '';
-      if ($('menuSidebarName')) {
-        $('menuSidebarName').textContent = fullName;
-      }
-      if ($('menuSidebarEmail')) {
-        $('menuSidebarEmail').textContent = email;
-      }
-      if (profile.avatar_url && $('menuSidebarAvatar')) {
-        $('menuSidebarAvatar').style.filter = "none";
-        $('menuSidebarAvatar').src = profile.avatar_url;
-        $('menuSidebarIcon').style.display = "none";
-      }
-  }
-    
-/* supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-    if (!session) {
-      window.location.href = '/login/';
+    initTheme();
+    initThemeToggle();
+  
+    const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
+    if (!user || userError) {
+      userId = null;
+      await loadSavedEcommeSettings(null);
+      const savedSection = localStorage.getItem('ecomme_settings_section');
+      if (savedSection) showPanel(savedSection);
       return;
     }
+
+    userId = user.id;
+    await loadSavedEcommeSettings(user.id);
+    const savedSection = localStorage.getItem('ecomme_settings_section');
+    if (savedSection) showPanel(savedSection);
+    const {data: profile, error: profileError} = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+  
+    if (!profileError && profile) {
+      const fullName = profile.full_name || 'Cliente';
+      const email = user.email || '';
+      if ($('menuSidebarName')) $('menuSidebarName').textContent = fullName;
+      if ($('menuSidebarEmail')) $('menuSidebarEmail').textContent = email;
+      if (profile.avatar_url && $('menuSidebarAvatar')) {
+        $('menuSidebarAvatar').style.filter = 'none';
+        $('menuSidebarAvatar').src = profile.avatar_url;
+        if ($('menuSidebarIcon')) $('menuSidebarIcon').style.display = 'none';
+      }
+    }
+  }
+);
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    userId = session?.user?.id || null;
+    protectedPanels.forEach(panelId => {updateProtectedPanel(panelId);});
+    const activePanel = document.querySelector('.panel.active');
+    if (!activePanel) return;
+    const activeId = activePanel.id.replace('panel-', '');
+    updateProtectedPanel(activeId);
+  }
+);
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    /*if (!session) {
+      window.location.href = '/login/';
+      return;
+    }*/
 
     const user = session.user;
     userId = user.id;
 
-    // ── NOVIDADE: Buscando os dados direto da tabela 'profiles' ──
     const { data: profile, error } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -606,7 +610,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (error) {
       console.error("Erro ao buscar perfil:", error.message);
       return;
-    } */
+    }
 
     const email = user.email || "";
     const fullName = profile.full_name || "Cliente";
@@ -667,7 +671,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   /*if (event === 'SIGNED_OUT') {
     window.location.href = '/login/';
   }*/
-
+  }
+    
   // ── Renderiza a foto do Google se ela existir ──
   if (photoUrl) {
     const avatarImage = document.getElementById('profileAvatar');
