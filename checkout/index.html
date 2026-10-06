@@ -30,11 +30,13 @@
 <body>
 <script src="/files/scripts/loading.js"></script>
 <script>showLoadingModal('Carregando checkout...', 'Buscando seus produtos e informações.');</script>
-  
-<div class="toast-wrap">
-  <div class="toast" id="toast"><div class="t-ico ok" id="tIco">✓</div><span id="tMsg">OK</span></div>
-</div>
 
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon"><i class="fa-solid fa-check"></i></div>
+  <span id="toastMsg"></span>
+</div>
+  
 <!-- ── HEADER ──────────────────────────────────────────── -->
 <header class="hdr">
   <div class="hdr-in">
