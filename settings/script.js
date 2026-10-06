@@ -591,7 +591,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
   }
 );
 
-//supabaseClient.auth.onAuthStateChange(async (event, session) => {
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   //if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     /*if (!session) {
       window.location.href = '/login/';
