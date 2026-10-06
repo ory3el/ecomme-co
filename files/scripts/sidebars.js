@@ -1763,8 +1763,8 @@ function openCart() {
   closeFav();
   closeNotif();
   closeAcc();
-  $('cartSidebar').classList.add('on');
-  $('cartOverlay').classList.add('on');
+  if ($('cartSidebar')) $('cartSidebar').classList.add('on');
+  if ($('cartOverlay')) $('cartOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
   updateCart();
 }
@@ -2000,8 +2000,8 @@ function openFav() {
   closeCart();
   closeNotif();
   closeAcc();
-  $('favSidebar').classList.add('on');
-  $('favOverlay').classList.add('on');
+  if ($('favSidebar')) $('favSidebar').classList.add('on');
+  if ($('favOverlay')) $('favOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
 }
 
