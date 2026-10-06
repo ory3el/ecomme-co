@@ -2403,8 +2403,8 @@ function openProduct(id) {
 
   const productsLoaded = await loadProductsFromSupabase();
   if (!productsLoaded) {
-    return;
     showToast('Produtos não carregados', 'err');
+    return;
   }
   
   const normalizedId = String(id);
