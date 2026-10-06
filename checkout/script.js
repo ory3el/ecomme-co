@@ -379,7 +379,7 @@ function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart
 function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
-function showToast(msg, type = 'ok') {
+function showToast(msg, type) {
   const t = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
   const toastIcon = t?.querySelector('.toast-icon');
@@ -396,8 +396,8 @@ function showToast(msg, type = 'ok') {
   }, 5000);
 }
 
-function toast(msg, type = 'ok') {
-  showToast(msg, type = 'ok');
+function toast(msg, type) {
+  showToast(msg, type);
 }
 
 // KEYBOARD ESC
@@ -1089,7 +1089,7 @@ async function searchCEP() {
     
     const numInput = document.getElementById('numInp');
     if (numInput) numInput.focus();
-    toast('CEP encontrado! ✓');
+    toast('CEP encontrado!', 'ok');
     
   } catch (error) {
     toast('Erro de conexão ao buscar o CEP', 'err');
@@ -1109,7 +1109,7 @@ function unlockAddressFields() {
     document.getElementById('stateInp').readOnly = false;
     document.getElementById('unlockAddrBtn').style.display = 'none';
     document.getElementById('streetInp').focus();
-    toast('Campos liberados para edição manual ✏️', 'inf');
+    toast('Campos liberados para edição manual ✏️', 'info');
   }
 }
 
@@ -1163,7 +1163,7 @@ async function saveAddressToSupabase() {
     btn.style.opacity = '1';
     return;
   }
-  toast('Endereço salvo com sucesso! 📍', 'ok');
+  toast('Endereço salvo com sucesso!', 'ok');
   
   document.getElementById('numInp').value = '';
   document.getElementById('cepInp').value = '';
@@ -1239,7 +1239,7 @@ function copyPIX(){
   navigator.clipboard?.writeText('00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-426614174000');
   const b=document.getElementById('copyPixBtn'); b.textContent='✓ Copiado!'; b.className='btn-copy copied';
   setTimeout(()=>{ b.textContent='📋 Copiar'; b.className='btn-copy'; },3000);
-  toast('Chave PIX copiada! 📋');
+  toast('Chave PIX copiada! 📋', 'ok');
 }
 
 // ── CARD ───────────────────────────────────────────────
@@ -1390,7 +1390,7 @@ function buildBarcode(){
   const widths=[1,2,1,3,1,2,2,1,3,1,1,2,3,1,2,1,3,2,1,1,2,3,1,2,1,2,3,1,1,2,3,1,2,2,1,3,2,1,1,2,1,3];
   stripes.innerHTML=widths.map((w,i)=>`<div class="bs" style="width:${w*3}px;background:${i%2===0?'#0f1a2e':'#fff'}"></div>`).join('');
 }
-function copyBoleto(){ navigator.clipboard?.writeText('1234.56789 01234.567890 12345.678901 1 00000001'); toast('Código do boleto copiado! 📄'); }
+function copyBoleto(){ navigator.clipboard?.writeText('1234.56789 01234.567890 12345.678901 1 00000001'); toast('Código do boleto copiado! 📄', 'ok'); }
 
 // ── PLACE ORDER ─────────────────────────────────────────
 async function placeOrder() {
@@ -1711,7 +1711,7 @@ async function loadDataModalProfile() {
 
 async function showDataModal() {
   let overlay = document.getElementById('dataOverlay');
-  showToast('Revise os dados da sua conta', type = 'info');
+  showToast('Revise os dados da sua conta', 'info');
 
   if (!overlay) {
     overlay = document.createElement('div');
@@ -2076,7 +2076,7 @@ async function validateData() {
       document.body.classList.remove("nobodyscroll");
     }
 
-    toast('Dados atualizados com sucesso! ✓', 'ok');
+    toast('Dados atualizados com sucesso!', 'ok');
     return true;
 
   } catch (error) {
