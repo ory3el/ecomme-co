@@ -83,19 +83,61 @@ function initThemeToggle() {
 
 // ── PANEL NAV ──────────────────────────────────────────────
 const labels = {profile:'Meu Perfil',orders:'Meus Pedidos',wishlist:'Lista de Desejos',cart:'Meu Carrinho',coupons:'Meus Cupons',addresses:'Endereços',payments:'Pagamentos',notifications:'Notificações',security:'Segurança',reviews:'Avaliações',settings:'Configurações',logout:'Sair da Conta'};
+const protectedPanels = ['profile', 'orders', 'wishlist', 'cart', 'coupons', 'reviews', 'addresses', 'payments', 'notifications', 'security'];
 
-function showPanel(id, btn){
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+// ---------------------------------
+function updateProtectedPanel(id) {
   const panel = document.getElementById('panel-' + id);
-  if(panel) panel.classList.add('active');
-  if(btn) btn.classList.add('active');
-  else { const nb = document.querySelector(`[data-panel="${id}"]`); if(nb) nb.classList.add('active'); }
-  document.getElementById('bcSection').textContent = labels[id] || 'Minha Conta';
+  if (!panel) return;
+  const requiresLogin = protectedPanels.includes(id);
+  if (!requiresLogin) {
+    panel.classList.remove('login-required');
+    const existingNotice = panel.querySelector('.login-required-state');
+    if (existingNotice) existingNotice.remove();
+    return;
+  }
+
+  if (userId) {
+    panel.classList.remove('login-required');
+    const existingNotice = panel.querySelector('.login-required-state');
+    if (existingNotice) existingNotice.remove();
+    return;
+  }
+
+  panel.classList.add('login-required');
+  let notice = panel.querySelector('.login-required-state');
+  if (notice) return;
+  notice = document.createElement('div');
+  notice.className = 'login-required-state';
+  notice.innerHTML = `
+    <div class="login-required-icon"><i class="fa-solid fa-lock"></i></div>
+    <h3>Acesse sua conta</h3>
+    <p>Faça login ou crie uma conta para acessar esta seção e visualizar suas informações.</p>
+    <button type="button" class="btn-login-required" onclick="goToLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i>
+      Acessar Conta
+    </button>
+    `;
+
+  const header = panel.querySelector('.panel-hd');
+  if (header) {
+    header.insertAdjacentElement('afterend', notice);
+  } else {panel.prepend(notice);}
+}
+
+// ----------------------------
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(panel => {panel.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(button => {button.classList.remove('active');});
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active'); else {const navButton = document.querySelector(`[data-panel="${id}"]`); if (navButton) navButton.classList.add('active');}
+  const breadcrumb = document.getElementById('bcSection');
+  if (breadcrumb) breadcrumb.textContent = labels[id] || 'Minha Conta';}
   localStorage.setItem('ecomme_settings_section', id);
-  window.scrollTo({top:0, behavior:'smooth'});
-  if (id === 'wishlist') loadWishlist();
-  if (id === 'cart') loadCart();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  updateProtectedPanel(id);
+  if (userId) {if (id === 'wishlist') loadWishlist(); if (id === 'cart') loadCart();}
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
