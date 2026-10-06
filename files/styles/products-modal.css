@@ -462,3 +462,40 @@
     transform: translate3d(0, 0, 0) !important;
   }
 }
+
+/* MOBILE PRODUCT MODAL */
+@media (max-width: 768px) {
+    .modal {
+        grid-template-columns: 1fr;
+        min-height: 100% !important;
+        min-width: 100% !important;
+        justify-content: center;
+        border-radius: 0;
+    }
+    .modal-info {min-height: 0;}
+    .btn-mwish {display: none;}
+    .btn-mwish1 {display: flex;}
+    .m-price {display: none;}
+    .m-price1 {display: flex;margin-right: 30px;}
+    .modal-img {max-width: 80%;max-height: 400px;align-self: center;border-radius: 0 0 36px 36px;}
+    .m-btns {}
+    .modal-img-area {padding: 0;/* margin-bottom: -80px; */}
+    .m-qty-row {display: none;}
+    .m-qty-ctrl1 {display: flex;}
+    .modal-gallery {margin-top: -30px;position: relative;}
+    /*.modal-info {margin-top: -140px;}*/
+    .m-price-row, .m-cat {display: none}
+    .m-name {align-self: center;}
+    .m-desc {align-self: center;}
+    #mEmoji {max-height: 400px;border-radius: 0 0 36px 0;}
+    #mEmoji img {max-height: 400px; aspect-ratio: 1}
+    #mEmoji .modal-main-image {
+      max-height: 400px;
+      max-width: 400px;
+      border-radius: 0 0 36px 0;
+      justify-items: center;
+      aspect-ratio: 1;
+      display: flex;
+      margin: auto;
+    }
+}
