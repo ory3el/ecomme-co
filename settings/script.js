@@ -591,19 +591,20 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
   }
 );
 
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
+//supabaseClient.auth.onAuthStateChange(async (event, session) => {
   //if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     /*if (!session) {
       window.location.href = '/login/';
       return;
     }*/
 
+    const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
+
     if (!user || userError) {
       userId = null;
       return;
     }
   
-    const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
     userId = user.id;
     const { data: profile, error } = await supabaseClient
       .from('profiles')
