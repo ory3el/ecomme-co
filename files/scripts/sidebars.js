@@ -1765,7 +1765,7 @@ function openCart() {
   closeAcc();
   if ($('cartSidebar')) $('cartSidebar').classList.add('on');
   if ($('cartOverlay')) $('cartOverlay').classList.add('on');
-  document.body.classList.add("nobodyscroll");
+  if ($('cartSidebar')) document.body.classList.add("nobodyscroll");
   updateCart();
 }
 
@@ -2002,7 +2002,7 @@ function openFav() {
   closeAcc();
   if ($('favSidebar')) $('favSidebar').classList.add('on');
   if ($('favOverlay')) $('favOverlay').classList.add('on');
-  document.body.classList.add("nobodyscroll");
+  if ($('favOverlay')) document.body.classList.add("nobodyscroll");
 }
 
 function closeFav() {
