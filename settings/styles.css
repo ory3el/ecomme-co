@@ -1253,8 +1253,6 @@ textarea.finput{resize:vertical;min-height:80px}
   background: var(--white);
 }
 
-
-
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -1279,21 +1277,78 @@ textarea.finput{resize:vertical;min-height:80px}
   transition: transform 0.3s;
 }
 
-.sidebarOpen:hover {
-  transform: scale(1.1);
-}
-
-.sidebar-btn {
-  rotate: 0deg;
-  color: var(--blue-deep);
-}
-
-.btn-arrow {
-  display: none;
-  rotate: 326deg;
-}
-
+.sidebarOpen:hover {transform: scale(1.1)}
+.sidebar-btn {rotate: 0deg; color: var(--blue-deep)}
+.btn-arrow {display: none; rotate: 326deg}
 .wcard-img img {border-radius: 14px}
+
+/* ── LOGIN REQUIRED ───────────────────────────────────── */
+.panel.login-required > :not(.panel-hd):not(.login-required-state) {display: none !important;}
+.panel.login-required .panel-hd > *:not(.panel-hd-left) {display: none !important;}
+
+.login-required-state {
+  min-height: 420px;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.login-required-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: var(--blue-dim);
+  color: var(--blue);
+  font-size: 30px;
+}
+
+.login-required-state h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.login-required-state p {
+  max-width: 430px;
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.btn-login-required {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 160px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s, background .2s;
+}
+
+.btn-login-required:hover {
+  background: var(--blue2);
+  transform: translateY(-1px);
+}
 
 @media (max-width: 10980px) {
   .wish-grid {grid-template-columns: repeat(4,1fr) !important;}
