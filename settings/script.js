@@ -131,9 +131,9 @@ function showPanel(id, btn) {
   document.querySelectorAll('.nav-item').forEach(button => {button.classList.remove('active');});
   const panel = document.getElementById('panel-' + id);
   if (panel) panel.classList.add('active');
-  if (btn) btn.classList.add('active'); else {const navButton = document.querySelector(`[data-panel="${id}"]`); if (navButton) navButton.classList.add('active');}
+  if (btn) {btn.classList.add('active');} else {const navButton = document.querySelector(`[data-panel="${id}"]`); if (navButton) navButton.classList.add('active');}
   const breadcrumb = document.getElementById('bcSection');
-  if (breadcrumb) breadcrumb.textContent = labels[id] || 'Minha Conta';}
+  if (breadcrumb) breadcrumb.textContent = labels[id] || 'Minha Conta';
   localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top: 0, behavior: 'smooth'});
   updateProtectedPanel(id);
