@@ -551,6 +551,13 @@ async function saveSettings() {
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     initThemeToggle();
+
+    const sessionStillValid = await verifySessionOnLoad();
+    if (!sessionStillValid) return;
+    await registerCurrentSession();
+    await fetchSessions();
+    subscribeToSessionChanges();
+    startSessionCheck();
   
     const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
     if (!user || userError) {
@@ -664,13 +671,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     fetchAddresses();
 
     const sessionStillValid = await verifySessionOnLoad();
-    if (!sessionStillValid) {
-    return;
-    }
-    await registerCurrentSession();
-    await fetchSessions();
-    subscribeToSessionChanges();
-    startSessionCheck();
+    if (!sessionStillValid) return;
     loadWishlist();
     loadCart();
   /*if (event === 'SIGNED_OUT') {
