@@ -2400,6 +2400,13 @@ function setupModalAutoPlay() {
 /* ─── MODAL ──────────────────────────────────────────────────────── */
 function openProduct(id) {
   document.body.classList.add("noscroll");
+
+  const productsLoaded = await loadProductsFromSupabase();
+  if (!productsLoaded) {
+    return;
+    showToast('Produtos não carregados', 'err');
+  }
+  
   const normalizedId = String(id);
   const p = products.find(
     x => String(x.id) === normalizedId
