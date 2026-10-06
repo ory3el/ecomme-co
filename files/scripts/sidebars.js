@@ -1263,10 +1263,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     initEcommeTranslationObserver();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
-    /*const productsLoaded = await loadProductsFromSupabase();
-    if (!productsLoaded) {
-      return;
-    }*/
+    const productsLoaded = await loadProductsFromSupabase();
+    if (!productsLoaded) return;
 
     const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
     if (!user || userError) {
