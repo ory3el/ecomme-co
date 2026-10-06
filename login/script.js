@@ -606,8 +606,11 @@ async function loginExistingGoogleAccount(credential, account) {
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
-  toast(`Redirecionando para o ${provider}...`, type = 'info');
+  toast(`Redirecionando para o ${provider}...`, 'info');
   showLoadingModal('Redirecionando...', `Carregando o login com o ${provider}`);
+  const options = {redirectTo: window.location.origin + window.location.pathname + window.location.search};
+  if (provider === 'google') options.queryParams = {prompt: 'select_account'};
+  
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
     options: {
