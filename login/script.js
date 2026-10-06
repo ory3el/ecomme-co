@@ -606,7 +606,7 @@ async function loginExistingGoogleAccount(credential, account) {
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
-  //toast(`Redirecionando para o ${provider}...`);
+  toast(`Redirecionando para o ${provider}...`, type = 'info');
   showLoadingModal('Redirecionando...', `Carregando o login com o ${provider}`);
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider,
@@ -1214,3 +1214,5 @@ function openConfirmLogout() {
   closeAcc();
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
+
+startGoogleLogin();
