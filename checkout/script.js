@@ -1469,16 +1469,6 @@ function fp(value) {
   );
 }
 
-function toast(msg,type='ok'){
-  const t=document.getElementById('toast');
-  const ic=document.getElementById('tIco');
-  document.getElementById('tMsg').textContent=msg;
-  ic.className='t-ico '+(type==='ok'?'ok':type==='inf'?'inf':'err-t');
-  ic.textContent=type==='ok'?'✓':type==='inf'?'ℹ':'!';
-  t.classList.add('on');
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('on'),3000);
-}
 window.addEventListener('keydown',e=>{ if(e.key==='Escape') flipCard(false); });
 
 // ----------------------------------------
