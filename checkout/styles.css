@@ -124,6 +124,9 @@ input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar-thumb{background:#93c5fd;border-radius:3px}
 
 * { -webkit-tap-highlight-color: transparent; }
+.noscroll { overflow: hidden; scrollbar-gutter: stable; }
+body.nobodyscroll { overflow: hidden; }
+.hidden { display: none !important; }
 
 /* ── CSS VARS ──────────────────────────────────────────── */
 :root{
