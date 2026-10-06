@@ -379,14 +379,25 @@ function addFromModal()      { addToCart(curId, mQtyVal); closeModal(); openCart
 function addFromModal2()     { addToFav(curId, mQtyVal); closeModal(); openFav(); }
 
 // TOAST
-function showToast(msg) {
+function showToast(msg, type = 'ok') {
   const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
+  const toastMsg = document.getElementById('toastMsg');
+  const toastIcon = t?.querySelector('.toast-icon');
+  if (!t) return;
+  if (toastMsg) toastMsg.textContent = msg;
+  if (toastIcon) {
+    toastIcon.className = `toast-icon ${type}`;
+    toastIcon.textContent = type === 'ok' ? '✓' : type === 'err' ? '!' : 'ℹ';
+  }
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(t._t);
+  t._t = setTimeout(() => {
+    t.classList.remove('show');
+  }, 5000);
 }
-function toast(msg) {
-  showToast(msg);
+
+function toast(msg, type = 'ok') {
+  showToast(msg, type = 'ok');
 }
 
 // KEYBOARD ESC
