@@ -387,7 +387,7 @@ function showToast(msg, type = 'ok') {
   if (toastMsg) toastMsg.textContent = msg;
   if (toastIcon) {
     toastIcon.className = `toast-icon ${type}`;
-    toastIcon.innerHtml = type === 'ok' ? '<i class="fa-solid fa-check"></i>' : type === 'err' ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-info"></i>';
+    toastIcon.innerHTML = type === 'ok' ? '<i class="fa-solid fa-check"></i>' : type === 'err' ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-info"></i>';
   }
   t.classList.add('show');
   clearTimeout(t._t);
