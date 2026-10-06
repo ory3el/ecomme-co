@@ -608,18 +608,27 @@ async function loginExistingGoogleAccount(credential, account) {
 async function socialLogin(provider) {
   toast(`Redirecionando para o ${provider}...`, 'info');
   showLoadingModal('Redirecionando...', `Carregando o login com o ${provider}`);
-  const options = {redirectTo: window.location.origin + window.location.pathname + window.location.search};
-  if (provider === 'google') options.queryParams = {prompt: 'select_account'};
-  
-  const { data, error } = await supabaseClient.auth.signInWithOAuth({
-    provider: provider,
-    options: {
-      redirectTo: window.location.origin + window.location.pathname + window.location.search 
-    }
-  });
+
+  const options = {
+    redirectTo:
+      window.location.origin +
+      window.location.pathname +
+      window.location.search
+  };
+  if (provider === 'google') {
+    options.queryParams = {
+      prompt: 'select_account'
+    };
+  }
+
+  const {data, error} = await supabaseClient.auth.signInWithOAuth({provider, options});
   if (error) {
-    console.error(error);
-    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
+    console.error('Erro no login social:', error);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        hideLoadingModal();
+      }, 180);
+    });
     toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
