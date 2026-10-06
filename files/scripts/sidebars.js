@@ -2499,7 +2499,11 @@ function addFromModal() {
   const isFav = fav.some(item => String(item.id) === normalizedId);
   if ($('mWish')) $('mWish').classList.toggle('on', isFav);
   if ($('mWish1')) $('mWish1').classList.toggle('on', isFav);
-  if (window.location.pathname === '/settings' || window.location.pathname === '/settings/') return;
+  if (window.location.pathname === '/settings' || window.location.pathname === '/settings/') {
+    loadWishlist();
+    loadCart();
+    return;
+  }
   closeModal();
   openFav();
 }
