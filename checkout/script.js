@@ -1711,7 +1711,7 @@ async function loadDataModalProfile() {
 
 async function showDataModal() {
   let overlay = document.getElementById('dataOverlay');
-  showToast('Revise os dados de sua conta', type = 'info');
+  showToast('Revise os dados da sua conta', type = 'info');
 
   if (!overlay) {
     overlay = document.createElement('div');
