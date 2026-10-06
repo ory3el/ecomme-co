@@ -2494,12 +2494,22 @@ function closeModal()        { $('modalOverlay').classList.remove('on'); documen
 function chgQty(d)           { mQtyVal = Math.max(1, mQtyVal + d); $('mQty').textContent = mQtyVal; }
 
 function addFromModal() {
-  addToCart(String(curId), mQtyVal);
+  toggleFav(String(curId));
+  const normalizedId = String(curId);
+  const isFav = fav.some(item => String(item.id) === normalizedId);
+  if ($('mWish')) $('mWish').classList.toggle('on', isFav);
+  if ($('mWish1')) $('mWish1').classList.toggle('on', isFav);
+  if (window.location.pathname === '/settings' || window.location.pathname === '/settings/') return;
   closeModal();
-  openCart();
+  openFav();
 }
 function addFromModal2() {
-  addToFav(String(curId), mQtyVal);
+  toggleFav(String(curId));
+  const normalizedId = String(curId);
+  const isFav = fav.some(item => String(item.id) === normalizedId);
+  if ($('mWish')) $('mWish').classList.toggle('on', isFav);
+  if ($('mWish1')) $('mWish1').classList.toggle('on', isFav);
+  if (window.location.pathname === '/settings' || window.location.pathname === '/settings/') return;
   closeModal();
   openFav();
 }
