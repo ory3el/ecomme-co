@@ -2406,7 +2406,7 @@ function openProduct(id) {
   );
 
   if (!p) {
-    toast('Produto não encontrado.');
+    showToast('Produto não encontrado.', type = 'err');
     console.error("Produto não encontrado:", normalizedId);
     document.body.classList.remove("noscroll");
     return;
