@@ -2071,16 +2071,14 @@ function subscribeToSessionChanges() {
         await fetchSessions();
       }
     )
-    .subscribe((status) => {
+    /*.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         console.log('✅ Realtime de sessões conectado.');
       }
       if (status === 'CHANNEL_ERROR') {
-        console.error(
-          '❌ Erro no Realtime de sessões.'
-        );
+        console.error('❌ Erro no Realtime de sessões.');
       }
-    });
+    });*/
 }
 
 let sessionHeartbeat = null;
