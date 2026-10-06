@@ -2941,15 +2941,34 @@ function closeConfirmRed() {
 }
 
 // TOAST
-function showToast(msg) {
+/*function showToast(msg) {
   const t = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
   if (toastMsg) toastMsg.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
+}*/
+
+// TOAST
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const toastIcon = t?.querySelector('.toast-icon');
+  if (!t) return;
+  if (toastMsg) toastMsg.textContent = msg;
+  if (toastIcon) {
+    toastIcon.className = `toast-icon ${type}`;
+    toastIcon.textContent = type === 'ok' ? '✓' : type === 'err' ? '!' : 'ℹ';
+  }
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => {
+    t.classList.remove('show');
+  }, 5000);
 }
-function toast(msg) {
-  showToast(msg);
+
+function toast(msg, type = 'ok') {
+  showToast(msg, type = 'ok');
 }
 
 // BACK TO TOP
