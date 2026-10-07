@@ -70,19 +70,20 @@ function buttonLink(url) {
 }
 
 // ── FAVICON ──
-const favicon = document.getElementById('favicon');
+if (typeof favicon === 'undefined') {
+  const favicon = document.getElementById('favicon');
     
-function checkTheme(e) {
-  if (e.matches) {
-    favicon.href = '/images/favicon-light.png';
-  } else {
-    favicon.href = '/images/favicon-blue.png';
+  function checkTheme(e) {
+    if (e.matches) {
+      favicon.href = '/images/favicon-light.png';
+    } else {
+      favicon.href = '/images/favicon-blue.png';
+    }
   }
+  const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+  checkTheme(mqDark);
+  mqDark.addEventListener('change', checkTheme);
 }
-const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
-checkTheme(mqDark);
-mqDark.addEventListener('change', checkTheme);
-
 
 // ── TAB SWITCH ─────────────────────────────────────────────
 function showTab(tab){
