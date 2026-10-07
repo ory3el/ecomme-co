@@ -1245,7 +1245,7 @@ function openConfirmLogout() {
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
 
-const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+const {data: { user }, error: userError} = supabaseClient.auth.getUser();
 if (!user || userError) {
   await startGoogleLogin();
   return;
