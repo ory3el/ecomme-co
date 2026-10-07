@@ -77,7 +77,7 @@ html[data-theme="dark"] {
   --bg:        #0C1220;
   --bg2:       #0F172A;
   --bg3:       #111C31;
-  --surface:   #0F172A;
+  --surface:   #1f1f1f;
   --surface0:  rgba(0,0,0,0.5);
   --surface1:  rgba(255,255,255,0.9);
   --surface-2: rgba(0,0,0,.75);
