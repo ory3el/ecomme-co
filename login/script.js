@@ -1207,29 +1207,31 @@ function getTargetUrl() {
 }
 
 // LOGOUT
-const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function doLogout() {
-  toast('Saindo da conta... 👋', 'info');
-  const localSessionId = localStorage.getItem('local_session_id');
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (localSessionId && user) {
-    const { error: deleteError } = await supabaseClient
+if (typeof waitt === 'undefined') {
+  const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  async function doLogout() {
+    toast('Saindo da conta... 👋', 'info');
+    const localSessionId = localStorage.getItem('local_session_id');
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (localSessionId && user) {
+      const { error: deleteError } = await supabaseClient
         .from('user_sessions')
         .delete()
         .eq('id', localSessionId)
         .eq('user_id', user.id);
     
-    if (deleteError) {console.error('Erro ao remover sessão do banco:', deleteError);}
+      if (deleteError) {console.error('Erro ao remover sessão do banco:', deleteError);}
+    }
+    sessionStorage.setItem('remote_logout_notice_shown', 'true');
+    localStorage.removeItem('local_session_id');
+    const { error: signOutError } = await supabaseClient.auth.signOut({scope: 'local'});
+    if (signOutError) {console.error('Erro ao fazer logout:', signOutError); }
+    toast('Você saiu da conta.', 'info');
+    await waitt(700);
+    window.location.reload();
   }
-  sessionStorage.setItem('remote_logout_notice_shown', 'true');
-  localStorage.removeItem('local_session_id');
-  const { error: signOutError } = await supabaseClient.auth.signOut({scope: 'local'});
-  if (signOutError) {console.error('Erro ao fazer logout:', signOutError); }
-  toast('Você saiu da conta.', 'info');
-  await waitt(700);
-  window.location.reload();
 }
-
+  
 /* ----------------------------------------------------- */
 function openConfirmLogout() {
   closeAcc();
