@@ -58,6 +58,12 @@ window.addEventListener('DOMContentLoaded', () => {
   initThemeToggle();
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
+
+  const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+  if (!user || userError) {
+    await startGoogleLogin();
+    return;
+  }
   
   if (redirectParam) {
     localStorage.setItem('ecomme_redirect_url', redirectParam);
@@ -1236,5 +1242,3 @@ function openConfirmLogout() {
   closeAcc();
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
-
-startGoogleLogin();
