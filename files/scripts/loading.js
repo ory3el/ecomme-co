@@ -18,7 +18,7 @@ function injectModalStyles() {
 [data-theme=dark]{
   --text:        #F8FAFC;
   --muted:       #94A3B8;
-  --surface:     #1f1f1f;
+  --surface:     #000d2b;
   --overlay:     rgba(0,0,0,0.1);
   --sidebar-bg:  rgba(15,23,42,0.80);
   --box-shdw:    0 0 52px rgb(255 255 255 / 20%);
