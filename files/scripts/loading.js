@@ -9,6 +9,7 @@ function injectModalStyles() {
 :root,[data-theme=light]{
   --text:        #0F172A;
   --muted:       #64748B;
+  --surface:     #FFFFFF;
   --overlay:     rgba(255,255,255,0.1);
   --sidebar-bg:  rgba(255,255,255,0.80);
   --box-shdw:    0 4px 12px rgb(0 0 0 / 10%);
@@ -17,7 +18,8 @@ function injectModalStyles() {
 [data-theme=dark]{
   --text:        #F8FAFC;
   --muted:       #94A3B8;
-  --overlay:     rgba(25,100,255,0.1);
+  --surface:     #0F172A;
+  --overlay:     rgba(0,0,0,0.1);
   --sidebar-bg:  rgba(15,23,42,0.80);
   --box-shdw:    0 0 52px rgb(255 255 255 / 20%);
   color-scheme:  dark
@@ -46,7 +48,7 @@ function injectModalStyles() {
 }
 
 .loading-modal-content {
-  background: var(--sidebar-bg);
+  background: var(--surface);
   /*backdrop-filter: blur(18px);*/
   /*-webkit-backdrop-filter: blur(18px);*/
   width: min(90%, 380px);
