@@ -3,24 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resumo Rápido | Ecomme Sellers</title>
+  <title>Resumo Rápido | Loja do Vendedor | Ecomme</title>
+  <meta name="description" content="Resumo rápido do desempenho da sua loja na Ecomme.">
+  <meta name="robots" content="noindex">
 
-  <link rel="prefetch" href="/sellers/main">
-
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="/files/styles/essentials.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  <link rel="icon" id="favicon" type="image/png" sizes="144x144" href="/images/favicon-light.png">
-
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
+  <link rel="stylesheet" href="session.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-
+  <!-- THEME: resolvido antes do primeiro paint (mesma chave 'ecomme-theme' do Dashboard) -->
   <script>
     (function () {
       try {
@@ -34,57 +28,238 @@
       }
     })();
   </script>
-
 </head>
 <body>
 
-  <script src="/files/scripts/loading.js"></script>
-  <script>showLoadingModal('Carregando dashboard...', 'Verificando sua sessão...');</script>
+  <!-- AUTH GATE (mesmos ids do Dashboard: authGate / gateChecking / gateLogin / gateNoStore) -->
+  <div class="auth-gate" id="authGate">
+    <div class="gate-pane" id="gateChecking" style="display:block">
+      <div class="gate-spinner" role="status" aria-label="Verificando sua sessão"></div>
+      <p>Verificando sua sessão...</p>
+    </div>
+    <div class="gate-pane" id="gateLogin">
+      <div class="gate-ico"><i class="fa-solid fa-lock"></i></div>
+      <h2>Entre para ver o resumo da sua loja</h2>
+      <p>Esta área é exclusiva para vendedores autenticados.</p>
+      <button class="btn-solid" onclick="goToLogin()">Entrar</button>
+    </div>
+    <div class="gate-pane" id="gateNoStore">
+      <div class="gate-ico"><i class="fa-solid fa-store"></i></div>
+      <h2>Você ainda não possui uma loja</h2>
+      <p>Crie sua loja na Ecomme para acompanhar o desempenho por aqui.</p>
+      <button class="btn-solid" onclick="buttonLink('/sellers')">Quero vender na Ecomme</button>
+    </div>
+  </div>
 
-  <header class="app-hdr">
-    <div class="app-hdr-in">
-      <div class="fac gap16">
-		<div class="logo-spacer"></div>
-        <div class="app-breadcrumb" id="appBC">
-          <a href="/" onclick="window.location.href = '/'">Início</a>
-		  <span>›</span>
-		  <a href="/sellers" onclick="window.location.href = '/sellers'">Ecomme Sellers</a>
-          <span>›</span>
-		  <span id="bcText">Resumo Rápido</span>
+  <div class="sess-app">
+
+    <!-- Forma azul clara com borda inferior curva -->
+    <svg class="sess-wave" viewBox="0 0 1440 560" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 0H1440V330C1300 420 1000 500 720 500S140 420 0 330Z"/>
+    </svg>
+
+    <!-- HEADER -->
+    <header class="sess-header">
+      <div class="sess-header-in">
+        <div class="sess-brand">
+          <img src="/images/mainlogo.png" alt="Ecomme" class="sess-logo">
+          <span class="sess-sep" aria-hidden="true"></span>
+          <span class="sess-brand-tag">Loja do Vendedor</span>
+        </div>
+
+        <nav class="sess-nav" aria-label="Navegação do vendedor">
+          <button class="is-active" aria-current="page">Resumo</button>
+          <button onclick="goToDashboard('vendas')">Vendas</button>
+          <button onclick="goToDashboard('produtos')">Produtos</button>
+          <button onclick="goToDashboard('avaliacoes')">Avaliações</button>
+          <button onclick="goToDashboard('financeiro')">Financeiro</button>
+          <button onclick="openMore()" aria-haspopup="dialog">Mais <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        </nav>
+
+        <div class="sess-actions">
+          <button class="hd-icon" id="bellBtn" aria-label="Notificações" onclick="buttonLink('/notifications')">
+            <i class="fa-regular fa-bell" aria-hidden="true"></i>
+            <span class="hd-dot" id="bellBadge" hidden>0</span>
+          </button>
+          <button class="hd-icon hd-gear" aria-label="Configurações da loja" onclick="goToDashboard('config')">
+            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+          </button>
+          <button class="btn-solid btn-dash" onclick="goToDashboard('dashboard')">
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            <span>Ir para Dashboard</span>
+          </button>
+          <button class="avatar-btn" aria-label="Minha conta" onclick="openAcc()">
+            <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
-	  <div class="logo-div">
-		<button class="logo" onclick="window.location.href = '/sellers'">
-    	  <img src="/images/ecomme-sellers.png" style="position: relative; top: 0px; width: 150px; height: auto; display: block;" alt="Ecomme Sellers">
-    	</button>
-	  </div>
-      <div class="app-hdr-right">
-        <div class="store-badge" id="header-store"></div>
-        <div class="hdr-ico" title="Notificações" onclick="toast('3 novas notificações 🔔','info')">🔔<div class="bdg">3</div></div>
-        <div class="hdr-ico" title="Ajuda" onclick="toast('Central de ajuda','info')">❓</div>
-		<button class="hdr-ico" title="Abrir menu" onclick="openMore()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-		<div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()">
-    	  <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
-  	  	</div>
+    </header>
+
+    <main class="sess-main">
+
+      <!-- SAUDAÇÃO + SUA LOJA -->
+      <section class="sess-hero" aria-label="Boas-vindas">
+        <div class="sess-greet">
+          <h1><span aria-hidden="true">👋</span> <span id="greetPeriod">Boa tarde</span><span id="greetName"></span>!</h1>
+          <p>Aqui está um resumo do desempenho da sua loja hoje.</p>
+          <p class="sess-greet-soft">Continue assim!</p>
+        </div>
+
+        <div class="store-card" aria-label="Sua loja">
+          <span class="store-ico"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+          <div class="store-txt">
+            <strong>Sua Loja</strong>
+            <span class="store-status" id="storeStatus"><i class="dot"></i><span id="storeStatusText">Verificando...</span></span>
+          </div>
+          <button class="store-link" onclick="goToDashboard('loja')">Ver loja <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </section>
+
+      <!-- 4 CARDS -->
+      <section class="sum-grid" aria-label="Resumo da loja">
+        <article class="sum-card" aria-labelledby="lblRevenue">
+          <div class="sum-main">
+            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span><h2 class="sum-label" id="lblRevenue">Faturamento</h2></div>
+            <p class="sum-value" id="valRevenue">—</p>
+            <p class="sum-foot"><span class="delta is-empty" id="dltRevenue">—</span><span class="sum-help">em relação a ontem</span></p>
+          </div>
+          <div class="spark" id="spark1" aria-hidden="true"></div>
+        </article>
+
+        <article class="sum-card" aria-labelledby="lblToday">
+          <div class="sum-main">
+            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span><h2 class="sum-label" id="lblToday">Vendas Hoje</h2></div>
+            <p class="sum-value" id="valToday">—</p>
+            <p class="sum-foot"><span class="delta is-empty" id="dltToday">—</span><span class="sum-help">em relação a ontem</span></p>
+          </div>
+          <div class="spark" id="spark2" aria-hidden="true"></div>
+        </article>
+
+        <article class="sum-card" aria-labelledby="lblTotal">
+          <div class="sum-main">
+            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span><h2 class="sum-label" id="lblTotal">Vendas Gerais</h2></div>
+            <p class="sum-value" id="valTotal">—</p>
+            <p class="sum-foot"><span class="delta is-empty" id="dltTotal">—</span><span class="sum-help">no total</span></p>
+          </div>
+          <div class="spark" id="spark3" aria-hidden="true"></div>
+        </article>
+
+        <article class="sum-card" aria-labelledby="lblReviews">
+          <div class="sum-main">
+            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-star" aria-hidden="true"></i></span><h2 class="sum-label" id="lblReviews">Avaliações</h2></div>
+            <p class="sum-value"><span id="valReviews">—</span><small id="valReviewsCount"></small></p>
+            <p class="sum-foot"><span class="delta is-empty" id="dltReviews">—</span><span class="sum-help">em relação ao mês anterior</span></p>
+          </div>
+          <div class="spark" id="spark4" aria-hidden="true"></div>
+        </article>
+      </section>
+
+      <!-- DESEMPENHO DA LOJA -->
+      <section class="perf-card" aria-labelledby="perfTitle">
+        <header class="perf-hd">
+          <h2 id="perfTitle"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Desempenho da Loja</h2>
+          <button class="store-link" onclick="goToDashboard('detalhes')">Ver detalhes <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </header>
+
+        <div class="perf-body">
+          <div class="perf-main">
+            <div class="donut" role="img" aria-label="Desempenho geral da loja" id="donut">
+              <svg viewBox="0 0 100 100" aria-hidden="true">
+                <circle class="donut-track" cx="50" cy="50" r="42"/>
+                <circle class="donut-val" id="donutVal" cx="50" cy="50" r="42" stroke-dasharray="0 263.9"/>
+              </svg>
+              <div class="donut-center"><strong id="donutText">—</strong><span>desempenho</span></div>
+            </div>
+            <div class="perf-conv">
+              <p class="perf-conv-label">Taxa de conversão</p>
+              <p class="delta is-empty" id="dltConv">—</p>
+              <p class="perf-help">em relação à semana passada</p>
+            </div>
+          </div>
+
+          <div class="perf-metrics">
+            <div class="metric">
+              <span class="metric-ico"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></span>
+              <div>
+                <p class="metric-label">Tempo médio de resposta</p>
+                <p class="metric-value" id="valResponse">—</p>
+                <p class="delta is-empty" id="dltResponse">—</p>
+              </div>
+            </div>
+            <div class="metric">
+              <span class="metric-ico"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+              <div>
+                <p class="metric-label">Pedidos entregues (no prazo)</p>
+                <p class="metric-value" id="valOnTime">—</p>
+                <p class="delta is-empty" id="dltOnTime">—</p>
+              </div>
+            </div>
+            <div class="metric">
+              <span class="metric-ico"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></span>
+              <div>
+                <p class="metric-label">Cancelamentos</p>
+                <p class="metric-value" id="valCancel">—</p>
+                <p class="delta is-empty" id="dltCancel">—</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="perf-trend spark" id="perfTrend" aria-hidden="true"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="demo-tag" id="demoTag" hidden>Dados de demonstração</div>
+
+  <!-- MORE SIDEBAR (tema + atalhos) -->
+  <div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+  <aside class="side-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
+    <div class="side-hd"><h3>Principais Atalhos</h3><button class="side-cls" aria-label="Fechar menu" onclick="closeMore()"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+    <div class="side-body">
+      <p class="side-label">Aparência</p>
+      <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+        <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span></button>
+        <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span></button>
+        <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span></button>
       </div>
+      <button class="side-opt" onclick="goToDashboard('config')"><i class="fa-solid fa-gear"></i><span>Configurações</span></button>
+      <button class="side-opt" onclick="goToDashboard('loja')"><i class="fa-solid fa-store"></i><span>Minha Loja</span></button>
+      <button class="side-opt" onclick="buttonLink('/terms')"><i class="fa-solid fa-file-contract"></i><span>Termos e Condições de Uso</span></button>
+      <button class="side-opt" onclick="buttonLink('/support')"><i class="fa-solid fa-circle-question"></i><span>Suporte</span></button>
     </div>
-  </header>
-  
-  <h1>Boa tarde!</h1>
+  </aside>
+
+  <!-- ACCOUNT SIDEBAR (mesmos ids que o script.js do Dashboard preenche) -->
+  <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+  <aside class="side-sb" id="accSidebar" role="dialog" aria-label="Minha conta" aria-hidden="true">
+    <div class="side-hd"><h3>Minha Conta</h3><button class="side-cls" aria-label="Fechar minha conta" onclick="closeAcc()"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+    <div class="side-body">
+      <div class="acc-sum">
+        <div class="acc-avatar"><img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar"></div>
+        <div class="acc-info"><strong id="accSidebarName"></strong><span id="accSidebarEmail"></span></div>
+      </div>
+      <button class="side-opt" onclick="goToDashboard('dashboard')"><i class="fa-solid fa-gauge-high"></i><span>Ir para Dashboard</span></button>
+      <button class="side-opt" onclick="buttonLink('/settings')"><i class="fa-solid fa-user-pen"></i><span>Editar Perfil</span></button>
+      <button class="side-opt side-danger" onclick="openConfirmLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sair da Conta</span></button>
+    </div>
+  </aside>
+
+  <!-- TOAST (mesmos ids do Dashboard: toast2 / toastMsg2) -->
+  <div class="toast" id="toast2"><span class="toast-ico">✓</span><span id="toastMsg2"></span></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let userId = null;
+    if (!window.supabaseClient) {
+      var SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+      var SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+      window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    var supabaseClient = window.supabaseClient;
   </script>
-  <script src="/files/scripts/auth-session-check.js"></script>
   <script src="/files/scripts/console-warning.js"></script>
-  <script src="script.js"></script>
+  <script src="session.js"></script>
 </body>
 </html>
