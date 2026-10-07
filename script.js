@@ -126,6 +126,7 @@ window.addEventListener('load', () => {
     
     setTimeout(() => {
       preloader.style.display = 'none';
+      startGoogleLogin();
     }, 800);
     
   }, 600); 
