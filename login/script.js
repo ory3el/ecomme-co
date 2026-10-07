@@ -61,11 +61,17 @@ if (typeof SUPABASE_URL && SUPABASE_ANON_KEY === 'undefined') {
   let userId = null;
 }
   
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
+
+  const {data: { user }, error: userError} = supabaseClient.auth.getUser();
+  if (!user || userError) {
+    await startGoogleLogin();
+    return;
+  }
   
   if (redirectParam) {
     localStorage.setItem('ecomme_redirect_url', redirectParam);
@@ -1243,10 +1249,4 @@ if (typeof waitt === 'undefined') {
 function openConfirmLogout() {
   closeAcc();
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
-}
-
-const {data: { user }, error: userError} = supabaseClient.auth.getUser();
-if (!user || userError) {
-  await startGoogleLogin();
-  return;
 }
