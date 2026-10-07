@@ -38,20 +38,53 @@
 </head>
 <body>
 
-<script src="/files/scripts/loading.js"></script>
-<script>showLoadingModal('Carregando dashboard...', 'Verificando sua sessão...');</script>
-  
-<h1>Boa tarde!</h1>
+  <script src="/files/scripts/loading.js"></script>
+  <script>showLoadingModal('Carregando dashboard...', 'Verificando sua sessão...');</script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let userId = null;
-</script>
-<script src="/files/scripts/auth-session-check.js"></script>
-<script src="/files/scripts/console-warning.js"></script>
-<script src="script.js"></script>
+  <header class="app-hdr">
+    <div class="app-hdr-in">
+      <div class="fac gap16">
+		<div class="logo-spacer"></div>
+        <div class="app-breadcrumb" id="appBC">
+          <a href="/" onclick="window.location.href = '/'">Início</a>
+		  <span>›</span>
+		  <a href="/sellers" onclick="window.location.href = '/sellers'">Ecomme Sellers</a>
+          <span>›</span>
+		  <span id="bcText">Resumo Rápido</span>
+        </div>
+      </div>
+	  <div class="logo-div">
+		<button class="logo" onclick="window.location.href = '/sellers'">
+    	  <img src="/images/ecomme-sellers.png" style="position: relative; top: 0px; width: 150px; height: auto; display: block;" alt="Ecomme Sellers">
+    	</button>
+	  </div>
+      <div class="app-hdr-right">
+        <div class="store-badge" id="header-store"></div>
+        <div class="hdr-ico" title="Notificações" onclick="toast('3 novas notificações 🔔','info')">🔔<div class="bdg">3</div></div>
+        <div class="hdr-ico" title="Ajuda" onclick="toast('Central de ajuda','info')">❓</div>
+		<button class="hdr-ico" title="Abrir menu" onclick="openMore()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+		<div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()">
+    	  <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+  	  	</div>
+      </div>
+    </div>
+  </header>
+  
+  <h1>Boa tarde!</h1>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let userId = null;
+  </script>
+  <script src="/files/scripts/auth-session-check.js"></script>
+  <script src="/files/scripts/console-warning.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
