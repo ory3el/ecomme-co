@@ -96,7 +96,6 @@ function showTab(tab){
 }
 
 // ── GOOGLE SIGN-IN ───────────────────────────────────────────
-
 const GOOGLE_CLIENT_ID = '394176278495-nrt3cm60njrv670sjue1idhatqfrjlea.apps.googleusercontent.com';
 let googleCredentialPending = null;
 let googleAccountPending = null;
