@@ -81,7 +81,8 @@ html[data-theme="dark"] {
   --surface0:  rgba(0,0,0,0.5);
   --surface1:  rgba(255,255,255,0.9);
   --surface-2: rgba(0,0,0,.75);
-  --overlay:   rgba(25,100,255,0.1);
+  /*--overlay:   rgba(25,100,255,0.1);*/
+  --overlay:   rgba(0,0,0,0.1);
   --box-shdw:  0 0 52px rgb(255 255 255 / 20%);
   --box-shdw1: rgb(255 255 255 / 20%);
   --ink:       #D7E3FC;
