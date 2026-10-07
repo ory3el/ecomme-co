@@ -67,7 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
 
-  const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+  const {data: { user }, error: userError} = supabaseClient.auth.getUser();
   if (!user || userError) {
     await startGoogleLogin();
     return;
