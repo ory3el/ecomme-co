@@ -53,9 +53,20 @@
 
   <div class="sess-app">
 
-    <!-- Forma azul clara com borda inferior curva -->
-    <svg class="sess-wave" viewBox="0 0 1440 560" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 0H1440V330C1300 420 1000 500 720 500S140 420 0 330Z"/>
+    <!-- Fundo azul claro com borda inferior curva (some suavemente no branco) -->
+    <svg class="sess-wave" viewBox="0 0 1440 360" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="wvGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="wv-top"/>
+          <stop offset="1" class="wv-bot"/>
+        </linearGradient>
+        <radialGradient id="wvGlow" cx="0.92" cy="0" r="0.5">
+          <stop offset="0" class="wv-glow" stop-opacity=".85"/>
+          <stop offset="1" class="wv-glow" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <path d="M0 0H1440V330C1360 326 1180 284 1000 284C820 284 640 340 400 338C220 336 60 312 0 303Z" fill="url(#wvGrad)"/>
+      <path d="M0 0H1440V330C1360 326 1180 284 1000 284C820 284 640 340 400 338C220 336 60 312 0 303Z" fill="url(#wvGlow)"/>
     </svg>
 
     <!-- HEADER -->
@@ -68,12 +79,12 @@
         </div>
 
         <nav class="sess-nav" aria-label="Navegação do vendedor">
-          <button class="is-active" aria-current="page">Resumo</button>
-          <button onclick="goToDashboard('vendas')">Vendas</button>
-          <button onclick="goToDashboard('produtos')">Produtos</button>
-          <button onclick="goToDashboard('avaliacoes')">Avaliações</button>
-          <button onclick="goToDashboard('financeiro')">Financeiro</button>
-          <button onclick="openMore()" aria-haspopup="dialog">Mais <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+          <button class="is-active" aria-current="page"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Resumo</span></button>
+          <button onclick="goToDashboard('vendas')"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i><span>Vendas</span></button>
+          <button onclick="goToDashboard('produtos')"><i class="fa-solid fa-cube" aria-hidden="true"></i><span>Produtos</span></button>
+          <button onclick="goToDashboard('avaliacoes')"><i class="fa-regular fa-star" aria-hidden="true"></i><span>Avaliações</span></button>
+          <button onclick="goToDashboard('financeiro')"><i class="fa-solid fa-wallet" aria-hidden="true"></i><span>Financeiro</span></button>
+          <button class="nav-more" onclick="openMore()" aria-haspopup="dialog"><span>Mais</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
         </nav>
 
         <div class="sess-actions">
@@ -85,13 +96,13 @@
             <i class="fa-solid fa-gear" aria-hidden="true"></i>
           </button>
           <button class="btn-solid btn-dash" onclick="goToDashboard('dashboard')">
-            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
             <span>Ir para Dashboard</span>
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
           </button>
           <button class="avatar-btn" aria-label="Minha conta" onclick="openAcc()">
             <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
-            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
           </button>
+          <i class="fa-solid fa-chevron-down avatar-chev" aria-hidden="true"></i>
         </div>
       </div>
     </header>
@@ -101,9 +112,12 @@
       <!-- SAUDAÇÃO + SUA LOJA -->
       <section class="sess-hero" aria-label="Boas-vindas">
         <div class="sess-greet">
-          <h1><span aria-hidden="true">👋</span> <span id="greetPeriod">Boa tarde</span><span id="greetName"></span>!</h1>
-          <p>Aqui está um resumo do desempenho da sua loja hoje.</p>
-          <p class="sess-greet-soft">Continue assim!</p>
+          <span class="sess-emoji" aria-hidden="true">👋</span>
+          <div>
+            <h1><span id="greetPeriod">Boa tarde</span><span id="greetName"></span>!</h1>
+            <p>Aqui está um resumo do desempenho da sua loja hoje.</p>
+            <p>Continue assim!</p>
+          </div>
         </div>
 
         <div class="store-card" aria-label="Sua loja">
@@ -119,57 +133,82 @@
       <!-- 4 CARDS -->
       <section class="sum-grid" aria-label="Resumo da loja">
         <article class="sum-card" aria-labelledby="lblRevenue">
-          <div class="sum-main">
-            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span><h2 class="sum-label" id="lblRevenue">Faturamento</h2></div>
-            <p class="sum-value" id="valRevenue">—</p>
-            <p class="sum-foot"><span class="delta is-empty" id="dltRevenue">—</span><span class="sum-help">em relação a ontem</span></p>
+          <div class="sum-head">
+            <span class="sum-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg></span>
+            <h2 class="sum-label" id="lblRevenue">Faturamento</h2>
           </div>
-          <div class="spark" id="spark1" aria-hidden="true"></div>
+          <div class="sum-mid">
+            <p class="sum-value" id="valRevenue">—</p>
+            <div class="spark" id="spark1" aria-hidden="true"></div>
+          </div>
+          <p class="sum-foot"><span class="delta is-empty" id="dltRevenue">—</span><span class="sum-help">em relação a ontem</span></p>
         </article>
 
         <article class="sum-card" aria-labelledby="lblToday">
-          <div class="sum-main">
-            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span><h2 class="sum-label" id="lblToday">Vendas Hoje</h2></div>
-            <p class="sum-value" id="valToday">—</p>
-            <p class="sum-foot"><span class="delta is-empty" id="dltToday">—</span><span class="sum-help">em relação a ontem</span></p>
+          <div class="sum-head">
+            <span class="sum-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span>
+            <h2 class="sum-label" id="lblToday">Vendas Hoje</h2>
           </div>
-          <div class="spark" id="spark2" aria-hidden="true"></div>
+          <div class="sum-mid">
+            <p class="sum-value" id="valToday">—</p>
+            <div class="spark" id="spark2" aria-hidden="true"></div>
+          </div>
+          <p class="sum-foot"><span class="delta is-empty" id="dltToday">—</span><span class="sum-help">em relação a ontem</span></p>
         </article>
 
         <article class="sum-card" aria-labelledby="lblTotal">
-          <div class="sum-main">
-            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span><h2 class="sum-label" id="lblTotal">Vendas Gerais</h2></div>
-            <p class="sum-value" id="valTotal">—</p>
-            <p class="sum-foot"><span class="delta is-empty" id="dltTotal">—</span><span class="sum-help">no total</span></p>
+          <div class="sum-head">
+            <span class="sum-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
+            <h2 class="sum-label" id="lblTotal">Vendas Gerais</h2>
           </div>
-          <div class="spark" id="spark3" aria-hidden="true"></div>
+          <div class="sum-mid">
+            <p class="sum-value" id="valTotal">—</p>
+            <div class="spark" id="spark3" aria-hidden="true"></div>
+          </div>
+          <p class="sum-foot"><span class="delta is-empty" id="dltTotal">—</span><span class="sum-help">no total</span></p>
         </article>
 
         <article class="sum-card" aria-labelledby="lblReviews">
-          <div class="sum-main">
-            <div class="sum-head"><span class="sum-ico"><i class="fa-solid fa-star" aria-hidden="true"></i></span><h2 class="sum-label" id="lblReviews">Avaliações</h2></div>
-            <p class="sum-value"><span id="valReviews">—</span><small id="valReviewsCount"></small></p>
-            <p class="sum-foot"><span class="delta is-empty" id="dltReviews">—</span><span class="sum-help">em relação ao mês anterior</span></p>
+          <div class="sum-head">
+            <span class="sum-ico"><i class="fa-regular fa-star" aria-hidden="true"></i></span>
+            <h2 class="sum-label" id="lblReviews">Avaliações</h2>
           </div>
-          <div class="spark" id="spark4" aria-hidden="true"></div>
+          <div class="sum-mid">
+            <div>
+              <p class="sum-value"><span id="valReviews">—</span><i class="fa-solid fa-star star-gold" id="valReviewsStar" aria-hidden="true" hidden></i></p>
+              <p class="sum-count" id="valReviewsCount"></p>
+            </div>
+            <div class="spark" id="spark4" aria-hidden="true"></div>
+          </div>
+          <p class="sum-foot"><span class="delta is-empty" id="dltReviews">—</span><span class="sum-help">em relação ao mês anterior</span></p>
         </article>
       </section>
 
       <!-- DESEMPENHO DA LOJA -->
       <section class="perf-card" aria-labelledby="perfTitle">
         <header class="perf-hd">
-          <h2 id="perfTitle"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Desempenho da Loja</h2>
+          <h2 id="perfTitle">
+            <i class="fa-solid fa-chart-simple perf-ico" aria-hidden="true"></i>
+            Desempenho da Loja
+            <i class="fa-regular fa-circle-info perf-info" title="Indicadores de desempenho da loja" aria-hidden="true"></i>
+          </h2>
           <button class="store-link" onclick="goToDashboard('detalhes')">Ver detalhes <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
         </header>
 
         <div class="perf-body">
           <div class="perf-main">
-            <div class="donut" role="img" aria-label="Desempenho geral da loja" id="donut">
+            <div class="donut" role="img" aria-label="Desempenho geral da loja: sem dados" id="donut">
               <svg viewBox="0 0 100 100" aria-hidden="true">
-                <circle class="donut-track" cx="50" cy="50" r="42"/>
-                <circle class="donut-val" id="donutVal" cx="50" cy="50" r="42" stroke-dasharray="0 263.9"/>
+                <defs>
+                  <linearGradient id="donutGrad" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0" stop-color="#06C8C4"/>
+                    <stop offset="1" stop-color="#2A9DF0"/>
+                  </linearGradient>
+                </defs>
+                <path class="donut-track" d="M50 8A42 42 0 0 1 50 92A42 42 0 0 1 50 8"/>
+                <path class="donut-val" id="donutVal" d="M50 8A42 42 0 0 1 50 92A42 42 0 0 1 50 8" stroke-dasharray="0 263.9"/>
               </svg>
-              <div class="donut-center"><strong id="donutText">—</strong><span>desempenho</span></div>
+              <div class="donut-center"><strong id="donutText">—</strong></div>
             </div>
             <div class="perf-conv">
               <p class="perf-conv-label">Taxa de conversão</p>
@@ -180,28 +219,19 @@
 
           <div class="perf-metrics">
             <div class="metric">
-              <span class="metric-ico"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></span>
-              <div>
-                <p class="metric-label">Tempo médio de resposta</p>
-                <p class="metric-value" id="valResponse">—</p>
-                <p class="delta is-empty" id="dltResponse">—</p>
-              </div>
+              <svg class="metric-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+              <p class="metric-label">Tempo médio de resposta</p>
+              <p class="metric-row"><span class="metric-value" id="valResponse">—</span><span class="delta is-empty" id="dltResponse">—</span></p>
             </div>
             <div class="metric">
-              <span class="metric-ico"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
-              <div>
-                <p class="metric-label">Pedidos entregues (no prazo)</p>
-                <p class="metric-value" id="valOnTime">—</p>
-                <p class="delta is-empty" id="dltOnTime">—</p>
-              </div>
+              <svg class="metric-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+              <p class="metric-label">Pedidos entregues (no prazo)</p>
+              <p class="metric-row"><span class="metric-value" id="valOnTime">—</span><span class="delta is-empty" id="dltOnTime">—</span></p>
             </div>
             <div class="metric">
-              <span class="metric-ico"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></span>
-              <div>
-                <p class="metric-label">Cancelamentos</p>
-                <p class="metric-value" id="valCancel">—</p>
-                <p class="delta is-empty" id="dltCancel">—</p>
-              </div>
+              <svg class="metric-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+              <p class="metric-label">Cancelamentos</p>
+              <p class="metric-row"><span class="metric-value" id="valCancel">—</span><span class="delta is-empty" id="dltCancel">—</span></p>
             </div>
           </div>
 
@@ -247,8 +277,9 @@
     </div>
   </aside>
 
+  <!-- TOAST (mesmos ids do Dashboard: toast2 / toastMsg2) -->
   <div class="toast" id="toast2"><span class="toast-ico">✓</span><span id="toastMsg2"></span></div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     if (!window.supabaseClient) {
