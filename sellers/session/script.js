@@ -1,22 +1,3 @@
-/* ══════════════════════════════════════════════════════════════════
-   ECOMME — /sellers/session  (Resumo Rápido)
-
-   Lógica reaproveitada do script.js do Dashboard (mesmos nomes, mesmas
-   consultas, mesmos ids de perfil/loja):
-     tema ............ systemPrefersDark, effectiveTheme, updateThemeSwitchUI,
-                       applyTheme, initTheme, initThemeToggle (idênticas)
-     helpers ......... $, goToLogin, buttonLink, showToast/toast (idênticas)
-     autenticação .... supabaseClient.auth.getUser()
-     loja ............ lojas (user_id) → fetchInitialStoreStatus,
-                       subscribeToStoreStatus (mesma consulta/canal)
-     perfil .......... profiles (id): full_name, avatar_url
-     menus ........... openMore/closeMore/openAcc/closeAcc
-     sparklines ...... buildSparklines (mesma geometria viewBox 0 0 100 32)
-
-   O script.js NÃO é carregado aqui: ele depende do DOM do Dashboard
-   (appShell, bcText, páginas .page...) e quebraria nesta página.
-   ══════════════════════════════════════════════════════════════════ */
-
 /* ── THEME (idêntico ao script.js) ───────────────────────────────── */
 function systemPrefersDark() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -283,6 +264,7 @@ async function loadProfile(user) {
    delta: { change:number, unit:'%'|'' , positiveIsGood:boolean }
    series: array de números (sparkline)                             */
 const EMPTY_SUMMARY = {
+  notifications: null,
   revenue:    { value: null, delta: null, series: [] },
   salesToday: { value: null, delta: null, series: [] },
   salesTotal: { value: null, delta: null, series: [] },
@@ -299,6 +281,7 @@ const EMPTY_SUMMARY = {
 
 // Valores da imagem de referência — SÓ aparecem com ?demo=1 (e com selo visível).
 const DEMO_SUMMARY = {
+  notifications: 3,
   revenue:    { value: 4892.37, delta: { change: 12.5, unit: '%', positiveIsGood: true }, series: [3,5,4,7,6,8,9] },
   salesToday: { value: 48,      delta: { change: 20,   unit: '%', positiveIsGood: true }, series: [6,5,7,6,8,7,9] },
   salesTotal: { value: 1248,    delta: { change: 8.3,  unit: '%', positiveIsGood: true }, series: [12,13,11,14,13,15,14] },
@@ -309,7 +292,7 @@ const DEMO_SUMMARY = {
     response:   { value: '1h 24min', delta: { change: 32,  unit: '%', positiveIsGood: true } },
     onTime:     { value: 96,        delta: { change: 2,   unit: '%', positiveIsGood: true } },
     cancel:     { value: 1.2,       delta: { change: -0.8, unit: '%', positiveIsGood: false } },  // queda de cancelamentos = bom
-    trend: [2,3,3,4,5,5,6,7,8,9]
+    trend: [0,31,27,53,56,95,95,116]
   }
 };
 
@@ -323,32 +306,54 @@ function orDash(v, fn) { return (v === null || v === undefined) ? '—' : fn(v);
 function setDelta(id, d) {
   const el = $(id);
   if (!el) return;
+  el.textContent = '';
   if (!d || typeof d.change !== 'number') { el.textContent = '—'; el.className = 'delta is-empty'; return; }
   const up = d.change >= 0;
   const good = up === (d.positiveIsGood !== false);
   el.className = 'delta ' + (good ? 'is-good' : 'is-bad');
-  el.textContent = (up ? '↑ +' : '↓ -') + fmtDec(Math.abs(d.change)) + (d.unit === undefined ? '%' : d.unit);
+  const icon = document.createElement('i');
+  icon.className = 'fa-solid fa-arrow-' + (up ? 'up' : 'down');
+  icon.setAttribute('aria-hidden', 'true');
+  el.append(icon, document.createTextNode((up ? '+' : '-') + fmtDec(Math.abs(d.change)) + (d.unit === undefined ? '%' : d.unit)));
 }
 
-/* Sparklines — mesma geometria do buildSparklines() do Dashboard
-   (viewBox 0 0 100 32, polygon .15 + polyline 2px). Mudanças: recebe os
-   dados por parâmetro (o original usa arrays fixos de demonstração) e usa
-   currentColor (azul Ecomme) em vez das 4 cores fixas. */
-function sparkMarkup(d, h) {
+/* Sparklines — mesma base do buildSparklines() do Dashboard (viewBox 0 0 100 32,
+   preserveAspectRatio none, área + linha de 2px). Mudanças: recebe os dados por
+   parâmetro (o original usa arrays fixos de demonstração), usa curva suave,
+   degradê na área, ponto na ponta e currentColor (azul Ecomme) nas quatro. */
+function sparkPoints(d, h) {
   const max = Math.max(...d), min = Math.min(...d);
   const base = h - 4, amp = h - 8;
-  const pts = d.map((v, j) => `${j * (100 / (d.length - 1))},${base - ((v - min) / (max - min || 1)) * amp}`).join(' ');
-  const fillPts = `0,${base} ${pts} 100,${base}`;
-  return `<svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
-    <polygon points="${fillPts}" fill="currentColor" opacity=".15"/>
-    <polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-  </svg>`;
+  return d.map((v, j) => [j * (100 / (d.length - 1)), base - ((v - min) / (max - min || 1)) * amp]);
 }
-function renderSpark(el, d, h) {
+function smoothPath(p) {
+  let out = `M${p[0][0]},${p[0][1]}`;
+  for (let i = 0; i < p.length - 1; i++) {
+    const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    out += ` C${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${p2[0]},${p2[1]}`;
+  }
+  return out;
+}
+function renderSpark(el, d, h, opts) {
   if (!el) return;
+  opts = opts || {};
   if (!Array.isArray(d) || d.length < 2) { el.innerHTML = ''; el.classList.add('is-empty'); return; }
   el.classList.remove('is-empty');
-  el.innerHTML = sparkMarkup(d, h);
+  const uid = (el.id || 'sp') + '-g';
+  const pts = sparkPoints(d, h);
+  const line = smoothPath(pts);
+  const dotIdx = opts.dots === 'all' ? pts.map((_, i) => i).slice(1) : [pts.length - 1];
+  const dots = dotIdx.map(i => `<i class="spark-dot" style="left:${pts[i][0]}%;top:${(pts[i][1] / h) * 100}%"></i>`).join('');
+  el.innerHTML = `<svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="${uid}f" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${h}"><stop offset="0" stop-color="currentColor" stop-opacity=".24"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
+      <linearGradient id="${uid}s" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="${opts.fade ? .25 : 1}"/><stop offset=".4" stop-color="currentColor" stop-opacity="1"/></linearGradient>
+    </defs>
+    <path d="${line} L100,${h} L0,${h} Z" fill="url(#${uid}f)"/>
+    <path d="${line}" fill="none" stroke="url(#${uid}s)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  </svg>${dots}`;
 }
 function buildSparklines(datas) {
   (datas || []).forEach((d, i) => renderSpark($('spark' + (i + 1)), d, 32));
@@ -364,12 +369,21 @@ function renderDonut(score) {
   if (donut) donut.setAttribute('aria-label', has ? `Desempenho geral da loja: ${Math.round(score)}%` : 'Desempenho geral da loja: sem dados');
 }
 
+function setBellBadge(n) {
+  const b = $('bellBadge');
+  if (!b) return;
+  const has = typeof n === 'number' && n > 0;
+  b.hidden = !has;
+  if (has) b.textContent = n > 9 ? '9+' : String(n);
+}
+
 function applySessionSummary(s) {
   s = s || EMPTY_SUMMARY;
   setText('valRevenue', orDash(s.revenue.value, fmtBRL));
   setText('valToday',   orDash(s.salesToday.value, fmtInt));
   setText('valTotal',   orDash(s.salesTotal.value, fmtInt));
-  setText('valReviews', s.reviews.value === null ? '—' : fmtDec(s.reviews.value) + ' ★');
+  setText('valReviews', s.reviews.value === null ? '—' : fmtDec(s.reviews.value));
+  if ($('valReviewsStar')) $('valReviewsStar').hidden = s.reviews.value === null;
   setText('valReviewsCount', s.reviews.count === null ? '' : `(${fmtInt(s.reviews.count)} avaliações)`);
 
   setDelta('dltRevenue', s.revenue.delta);
@@ -388,7 +402,8 @@ function applySessionSummary(s) {
   setDelta('dltOnTime', p.onTime.delta);
   setText('valCancel', orDash(p.cancel.value, v => fmtDec(v) + '%'));
   setDelta('dltCancel', p.cancel.delta);
-  renderSpark($('perfTrend'), p.trend, 32);
+  renderSpark($('perfTrend'), p.trend, 32, { dots: 'all', fade: true });
+  setBellBadge(s.notifications);
 }
 
 async function loadSessionSummary() {
