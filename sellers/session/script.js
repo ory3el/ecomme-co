@@ -103,7 +103,6 @@ function closeAcc() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMore(); closeAcc(); } });
 
-// Logout: mesmo procedimento do doLogout() do Dashboard
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() {
   toast('Saindo da conta... 👋', 'info');
@@ -121,23 +120,18 @@ async function doLogout() {
   await waitt(700);
   window.location.reload();
 }
-// O Dashboard usa um modal próprio (showConfirmRed); aqui, confirmação nativa.
+
 function openConfirmLogout() {
   if (window.confirm('Tem certeza que quer sair? Suas informações não serão perdidas.')) doLogout();
 }
 
-/* ── NAVEGAÇÃO PARA O DASHBOARD COMPLETO ─────────────────────────────
-   O Dashboard persiste a página ativa em localStorage('activePage') e a
-   restaura ao carregar (navigate(savedPage)). Aqui só definimos essa chave
-   e abrimos a rota do Dashboard — sem alterar o navigate() existente.
-   Ajuste SELLER_DASHBOARD_URL se a rota real for outra. */
-const SELLER_DASHBOARD_URL = '/seller/main'; // citada no script.js (hashchange/pageMap)
+const SELLER_DASHBOARD_URL = '/sellers/main';
 const DASHBOARD_PAGES = {
   dashboard:  'dashboard',
   detalhes:   'dashboard',
   vendas:     'pedidos',
   produtos:   'produtos',
-  avaliacoes: 'dashboard',   // o Dashboard ainda não tem página de avaliações
+  avaliacoes: 'dashboard',
   financeiro: 'financas',
   config:     'config',
   loja:       'loja'
@@ -178,10 +172,6 @@ function setGreetingName(fullName) {
   if ($('greetName')) $('greetName').textContent = first ? ', ' + first : '';
 }
 
-/* ── LOJA (mesma consulta/canal do script.js) ────────────────────────
-   renderStoreState() do Dashboard grava em ~20 elementos que não existem
-   aqui; por isso esta versão enxuta tem outro nome e só atualiza o card
-   "Sua Loja". A regra de status é a mesma: 'ativa' | 'active' = ativa. */
 function renderSessionStoreState(status, slug, data) {
   const el = $('storeStatus'), txt = $('storeStatusText');
   if (!el || !txt) return;
@@ -212,7 +202,7 @@ async function fetchInitialStoreStatus() {
       renderSessionStoreState(data.status, data.slug_url, data);
       return data;
     }
-    return null; // autenticado, mas sem loja
+    return null;
   } catch (err) {
     console.error('Erro inesperado ao carregar loja:', err);
     renderSessionStoreState('pendente', '');
@@ -254,15 +244,6 @@ async function loadProfile(user) {
   }
 }
 
-/* ══ DADOS DO RESUMO ═════════════════════════════════════════════════
-   O script.js atual só consulta as tabelas lojas, profiles, products e
-   user_sessions; não existe fonte real de faturamento, vendas ou avaliações
-   (revData, ORDERS e EXTRACT estão vazios/comentados). Portanto nenhuma
-   consulta nova é feita aqui: o resumo nasce vazio ("—") e a interface
-   está pronta para receber dados via applySessionSummary(summary).
-
-   delta: { change:number, unit:'%'|'' , positiveIsGood:boolean }
-   series: array de números (sparkline)                             */
 const EMPTY_SUMMARY = {
   notifications: null,
   revenue:    { value: null, delta: null, series: [] },
@@ -272,14 +253,13 @@ const EMPTY_SUMMARY = {
   performance: {
     score: null,
     conversion: { delta: null },
-    response:   { value: null, delta: null },   // value: texto, ex. '1h 24min'
-    onTime:     { value: null, delta: null },   // value: número (%)
-    cancel:     { value: null, delta: null },   // value: número (%)
+    response:   { value: null, delta: null },
+    onTime:     { value: null, delta: null },
+    cancel:     { value: null, delta: null },
     trend: []
   }
 };
 
-// Valores da imagem de referência — SÓ aparecem com ?demo=1 (e com selo visível).
 const DEMO_SUMMARY = {
   notifications: 3,
   revenue:    { value: 4892.37, delta: { change: 12.5, unit: '%', positiveIsGood: true }, series: [3,5,4,7,6,8,9] },
@@ -291,7 +271,7 @@ const DEMO_SUMMARY = {
     conversion: { delta: { change: 2, unit: '%', positiveIsGood: true } },
     response:   { value: '1h 24min', delta: { change: 32,  unit: '%', positiveIsGood: true } },
     onTime:     { value: 96,        delta: { change: 2,   unit: '%', positiveIsGood: true } },
-    cancel:     { value: 1.2,       delta: { change: -0.8, unit: '%', positiveIsGood: false } },  // queda de cancelamentos = bom
+    cancel:     { value: 1.2,       delta: { change: -0.8, unit: '%', positiveIsGood: false } },
     trend: [0,31,27,53,56,95,95,116]
   }
 };
@@ -317,10 +297,6 @@ function setDelta(id, d) {
   el.append(icon, document.createTextNode((up ? '+' : '-') + fmtDec(Math.abs(d.change)) + (d.unit === undefined ? '%' : d.unit)));
 }
 
-/* Sparklines — mesma base do buildSparklines() do Dashboard (viewBox 0 0 100 32,
-   preserveAspectRatio none, área + linha de 2px). Mudanças: recebe os dados por
-   parâmetro (o original usa arrays fixos de demonstração), usa curva suave,
-   degradê na área, ponto na ponta e currentColor (azul Ecomme) nas quatro. */
 function sparkPoints(d, h) {
   const max = Math.max(...d), min = Math.min(...d);
   const base = h - 4, amp = h - 8;
@@ -407,8 +383,6 @@ function applySessionSummary(s) {
 }
 
 async function loadSessionSummary() {
-  // PONTO DE INTEGRAÇÃO: quando existir uma fonte real de métricas, buscar
-  // aqui e chamar applySessionSummary(dados). Nada é inventado enquanto isso.
   const demo = new URLSearchParams(window.location.search).get('demo') === '1';
   if ($('demoTag')) $('demoTag').hidden = !demo;
   applySessionSummary(demo ? DEMO_SUMMARY : EMPTY_SUMMARY);
