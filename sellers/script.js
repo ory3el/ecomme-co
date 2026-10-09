@@ -64,8 +64,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     .maybeSingle();
   
   if (lojaCheck) {
-    console.warn("Usuário já possui uma loja cadastrada");
-    buttonLink('/sellers/main');
+    //console.warn("Usuário já possui uma loja cadastrada");
+    buttonLink('/sellers/session/');
   }
   
   if (loginBtn) loginBtn.classList.add('hidden');
