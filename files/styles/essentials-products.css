@@ -152,6 +152,18 @@
     .pcard:hover .pimg e { will-change: transform; transform: scale(1.2) translateZ(0); }
     .pcard:hover .pactions { opacity: 1; transform: translateY(0); }
 
+  .pcard {position: relative; overflow: hidden}
+  
+  .pcard::after {
+    content:"";
+    position:absolute;
+    inset: 0;
+    background: linear-gradient(105deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);
+    transform:translateX(-120%);
+    transition:transform 0.8s
+  }
+  .pcard:hover::after {transform:translateX(120%)}
+
     .pimg-wrap {
       position: relative;
       aspect-ratio: 1;
