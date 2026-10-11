@@ -183,6 +183,7 @@ const $ = id => document.getElementById(id);
 const favicon = document.getElementById('favicon');
     
 function checkTheme(e) {
+  if (!favicon) return;
   if (e.matches) {
     favicon.href = '/images/favicon-light.png';
   } else {
@@ -193,591 +194,956 @@ const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
 checkTheme(mqDark);
 mqDark.addEventListener('change', checkTheme);
 
-// ══ DATA ════════════════════════════════════════════════
-const revData = [ /* 12.4,18.2,15.6,21.8,19.2,23.4,26.8,22.1,28.4,24.6,31.2,38.8 */ ];
-const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-let PRODS = [
-  /*
-  {em:'⌚',name:'Smartwatch Pro X7',sku:'TL-001',cat:'Eletrônicos',price:'R$ 189,90',stock:42,sold:94,status:'active'},
-  {em:'🎧',name:'Fone BT ANC Pro',sku:'TL-002',cat:'Eletrônicos',price:'R$ 119,90',stock:28,sold:72,status:'active'},
-  {em:'📷',name:'Câmera Segurança WiFi 2K',sku:'TL-003',cat:'Eletrônicos',price:'R$ 149,90',stock:4,sold:31,status:'active'},
-  {em:'💡',name:'Kit LED Smart RGB 10m',sku:'TL-004',cat:'Casa',price:'R$ 79,90',stock:67,sold:64,status:'active'},
-  {em:'🍶',name:'Garrafa Térmica Inox 1L',sku:'TL-005',cat:'Fitness',price:'R$ 69,90',stock:23,sold:23,status:'active'},
-  {em:'🎒',name:'Mochila Anti-Furto Exec.',sku:'TL-006',cat:'Moda',price:'R$ 159,90',stock:2,sold:18,status:'active'},
-  {em:'💆',name:'Pistola Massagem Percuss.',sku:'TL-007',cat:'Fitness',price:'R$ 129,90',stock:15,sold:41,status:'paused'},
-  {em:'✨',name:'Kit Skincare Vitamina C',sku:'TL-008',cat:'Beleza',price:'R$ 99,90',stock:31,sold:55,status:'active'},
-  */
-];
-const ORDERS = [
-  /*
-  {id:'DS-0042',client:'Ana Carolina',items:[{em:'⌚',name:'Smartwatch Pro X7',var:'Preto P',qty:1}],total:'R$ 189,90',status:'pending',date:'Hoje 14:32',city:'São Paulo, SP'},
-  {id:'DS-0041',client:'Pedro Martins',items:[{em:'💡',name:'Kit LED Smart RGB',var:'10m',qty:2},{em:'🎧',name:'Fone BT ANC',var:'Azul',qty:1}],total:'R$ 319,70',status:'pending',date:'Hoje 11:18',city:'Rio de Janeiro, RJ'},
-  {id:'DS-0040',client:'Carla Souza',items:[{em:'👟',name:'Tênis Running UltraLight',var:'Azul 38',qty:1}],total:'R$ 199,90',status:'transit',date:'Ontem 09:45',city:'Belo Horizonte, MG'},
-  {id:'DS-0039',client:'Lucas Ferreira',items:[{em:'🎒',name:'Mochila Executiva',var:'Preta',qty:1}],total:'R$ 159,90',status:'delivered',date:'10/01',city:'Curitiba, PR'},
-  {id:'DS-0038',client:'Marina Costa',items:[{em:'✨',name:'Kit Skincare Vit. C',var:'Kit completo',qty:1}],total:'R$ 99,90',status:'returned',date:'08/01',city:'Porto Alegre, RS'},
-  */
-];
-const EXTRACT = [
-  /*
-  {ico:'💰',type:'Venda',order:'DS-0042',gross:'R$ 189,90',comm:'R$ 17,09',net:'R$ 172,81',status:'pending',date:'Hoje'},
-  {ico:'💰',type:'Venda',order:'DS-0041',gross:'R$ 319,70',comm:'R$ 28,77',net:'R$ 290,93',status:'pending',date:'Hoje'},
-  {ico:'💰',type:'Venda',order:'DS-0040',gross:'R$ 199,90',comm:'R$ 17,99',net:'R$ 181,91',status:'available',date:'Ontem'},
-  {ico:'💸',type:'Saque',order:'—',gross:'R$ 3.200,00',comm:'—',net:'- R$ 3.200,00',status:'done',date:'10/01'},
-  {ico:'💰',type:'Venda',order:'DS-0039',gross:'R$ 159,90',comm:'R$ 14,39',net:'R$ 145,51',status:'available',date:'09/01'},
-  {ico:'↩️',type:'Devolução',order:'DS-0038',gross:'R$ 99,90',comm:'R$ 0,00',net:'- R$ 99,90',status:'done',date:'09/01'},
-  {ico:'💰',type:'Venda',order:'DS-0037',gross:'R$ 389,80',comm:'R$ 35,08',net:'R$ 354,72',status:'available',date:'08/01'},
-  {ico:'💸',type:'Saque',order:'—',gross:'R$ 5.000,00',comm:'—',net:'- R$ 5.000,00',status:'done',date:'05/01'},
-  */
-];
 
-// EXECUTE DATABASE
-window.addEventListener('DOMContentLoaded', async () => {
+// ══ ESTADO COMPARTILHADO ═══════════════════════════════════
+// Antes: myStoreId/editingProductId eram `let` presos dentro de um DOMContentLoaded e as demais funções
+// só funcionavam porque a atribuição criava globais implícitas. Agora vivem num único escopo declarado.
+// (userId e supabaseClient são declarados no <script> inline do index.html.)
+let myStoreId = null;          // id da loja do usuário, no tipo original do banco (nunca convertido)
+let myStoreData = null;        // última linha de `lojas` confirmada pelo banco
+let editingProductId = null;
+let appReady = false;          // só vira true depois de sessão + loja validadas
+let storeChannel = null;       // canal Realtime único (evita assinaturas duplicadas)
+
+let PRODS = [];
+let ORDERS = [];
+let LEDGER = [];
+let PAYOUTS = [];
+let PAYOUT_ACCOUNT = null;
+let BALANCE = null;
+let ordersModule = 'unknown';  // 'ok' | 'missing' (migração não executada) | 'error'
+let financeModule = 'unknown';
+const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// ══ HELPERS ════════════════════════════════════════════════
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtBRL = n => Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const fmtDateTime = d => d ? new Date(d).toLocaleString('pt-BR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+const onlyDigits = v => String(v ?? '').replace(/\D/g, '');
+const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+
+function isNetworkError(err) {
+  if (!err) return false;
+  const m = String(err.message || err).toLowerCase();
+  return err.name === 'AuthRetryableFetchError' || err.name === 'TypeError' || /failed to fetch|network|load failed|timeout/.test(m);
+}
+// 42P01 / PGRST205 = tabela inexistente; PGRST202 / 42883 = função inexistente → migração SQL ainda não executada
+function isMissingRelation(err) {
+  if (!err) return false;
+  return ['42P01', 'PGRST205', 'PGRST202', '42883'].includes(err.code) || /does not exist|could not find the (table|function)/i.test(err.message || '');
+}
+function hideLoading() {
+  if (typeof hideLoadingModal === 'function') requestAnimationFrame(() => setTimeout(() => hideLoadingModal(), 180));
+}
+
+// Validadores (mesma lógica do cadastro)
+function isValidCPF(d) {
+  if (!/^\d{11}$/.test(d) || /^(\d)\1{10}$/.test(d)) return false;
+  for (let t = 9; t < 11; t++) {
+    let sum = 0;
+    for (let i = 0; i < t; i++) sum += +d[i] * (t + 1 - i);
+    if (((sum * 10) % 11) % 10 !== +d[t]) return false;
+  }
+  return true;
+}
+function isValidCNPJ(d) {
+  if (!/^\d{14}$/.test(d) || /^(\d)\1{13}$/.test(d)) return false;
+  const calc = len => {
+    const w = len === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += +d[i] * w[i];
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(12) === +d[12] && calc(13) === +d[13];
+}
+const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+function isValidPhoneBR(d) {
+  if (d.length < 10 || d.length > 11) return false;
+  const ddd = +d.slice(0, 2);
+  return ddd >= 11 && ddd <= 99 && (d.length === 10 || d[2] === '9');
+}
+function parseBRL(str) {
+  const n = parseFloat(String(str || '').replace(/[^\d,]/g, '').replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+}
+
+// ══ STATUS DA LOJA → AÇÕES PERMITIDAS ══════════════════════
+// Regra adotada (ajuste se sua política for outra):
+//   ativa     → tudo liberado
+//   pendente  → pode configurar a loja e preparar produtos; NÃO pode solicitar saque
+//   suspensa  → somente leitura (nenhuma gravação)
+const ACTIVE_STATUS = ['ativa', 'active'];
+const SUSPENDED_STATUS = ['suspensa', 'suspenso', 'suspended', 'bloqueada', 'bloqueado', 'blocked', 'rejeitada', 'rejected'];
+function storePhase(status) {
+  const s = String(status || 'pendente').toLowerCase().trim();
+  if (ACTIVE_STATUS.includes(s)) return 'active';
+  if (SUSPENDED_STATUS.includes(s)) return 'suspended';
+  return 'pending';
+}
+function storeCan(action) {
+  const phase = storePhase(myStoreData && myStoreData.status);
+  if (phase === 'suspended') return false;
+  if (action === 'payout' || action === 'orders') return phase === 'active';
+  return true;
+}
+function denyAction(action) {
+  const phase = storePhase(myStoreData && myStoreData.status);
+  const msg = phase === 'suspended'
+    ? 'Sua loja está suspensa. Enquanto durar a suspensão, não é possível alterar dados. Fale com o suporte.'
+    : (action === 'payout' ? 'Saques só ficam disponíveis depois que sua loja for aprovada.' : 'Esta ação só fica disponível depois que sua loja for aprovada.');
+  toast(msg, 'err');
+  return false;
+}
+
+// ══ PORTÃO DE ACESSO ═══════════════════════════════════════
+const GATE_PANES = { checking: 'gateChecking', login: 'gateLogin', noStore: 'gateNoStore', error: 'gateError' };
+function showGate(which) {
+  const gate = $('authGate'), shell = $('appShell');
+  Object.values(GATE_PANES).forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
+  if (which === 'app') {
+    gate.classList.add('hidden');
+    shell.removeAttribute('inert');
+    shell.style.visibility = '';
+    shell.style.display = 'flex';
+    shell.style.flexDirection = 'column';
+    hideLoading();
+    return;
+  }
+  const pane = $(GATE_PANES[which]);
+  if (pane) pane.style.display = which === 'checking' ? 'flex' : 'block';
+  gate.style.display = 'flex';
+  gate.classList.remove('hidden');
+  shell.setAttribute('inert', '');
+  shell.style.visibility = 'hidden';
+  if (which !== 'checking') hideLoading();
+}
+
+async function initDashboard() {
   initTheme();
   initThemeToggle();
-  const savedPage = localStorage.getItem('activePage') || 'dashboard';
-  const authGate = document.getElementById('authGate');
-  const gateChecking = document.getElementById('gateChecking');
-  const gateLogin = document.getElementById('gateLogin');
-  const gateNoStore = document.getElementById('gateNoStore');
-  const appShell = document.getElementById('appShell');
+  setText('dashDate', new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }));
+  showGate('checking');
+  try {
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError && isNetworkError(userError)) { showGate('error'); return; }
+    if (!user || userError) { console.warn('User session not active.'); showGate('login'); return; }
+    userId = user.id;
 
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Uma única consulta decide: loja existe? (falha de rede NUNCA é tratada como "sem loja")
+    const store = await fetchInitialStoreStatus();
+    if (store && store.failed) { showGate('error'); return; }
+    if (!store) { console.warn('Usuário autenticado, mas não possui loja.'); showGate('noStore'); return; }
 
-  if (!user || userError) {
-    console.warn("User session not active.");
-    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
-    if (gateLogin) gateLogin.style.display = 'block';
-    
-    if (authGate) {
-      authGate.style.display = 'flex';
-      authGate.classList.remove('hidden');
-    }
-    return;
+    appReady = true;
+    showGate('app');
+    initNavigation();
+    const target = pageFromHash() || localStorage.getItem('activePage') || 'dashboard';
+    navigate(PAGE_LABELS[target] ? target : 'dashboard');
+
+    subscribeToStoreStatus();
+    await loadProfile(user);
+    await loadMyProducts();
+    await Promise.all([loadOrders(), loadFinance()]);
+    refreshDashboardViews();
+  } catch (err) {
+    console.error('Falha ao iniciar o painel:', err);
+    showGate('error');
   }
-  userId = user.id; 
-  let myStoreId = null;
-  let editingProductId = null;
-  
-  const { data: lojaCheck, error: lojaError } = await supabaseClient
-    .from('lojas')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
+}
+window.addEventListener('DOMContentLoaded', initDashboard);
 
-  if (!lojaCheck) {
-    console.warn("Usuário autenticado, mas não possui loja.");
-    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
-    if (gateNoStore) gateNoStore.style.display = 'block';
-    
-    if (authGate) {
-      authGate.style.display = 'flex';
-      authGate.classList.remove('hidden');
+// ══ PERFIL (mesma consulta de antes; sem os resquícios do formulário de cadastro) ═══
+async function loadProfile(user) {
+  try {
+    const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (error) throw error;
+    if (!profile) return;
+    const fullName = profile.full_name || 'Cliente';
+    const email = user.email || '';
+    setText('accSidebarName', fullName);
+    setText('accSidebarEmail', email);
+    if (profile.avatar_url && $('accSidebarAvatar')) $('accSidebarAvatar').src = profile.avatar_url;
+
+    const parts = fullName.trim().split(' ');
+    if ($('profileFirstName')) $('profileFirstName').value = parts[0] || '';
+    if ($('profileLastName')) $('profileLastName').value = parts.slice(1).join(' ') || '';
+    if ($('profileEmail')) $('profileEmail').value = email;
+    if ($('sb-name') && fullName) $('sb-name').textContent = fullName;
+
+    if (profile.avatar_url) {
+      ['profileAvatar', 'headerAvatar'].forEach(id => {
+        const img = $(id);
+        if (!img) return;
+        img.src = profile.avatar_url;
+        Object.assign(img.style, { filter: 'none', width: '100%', height: '100%', borderRadius: '100%', objectFit: 'cover' });
+      });
     }
-    return;
+  } catch (err) {
+    console.warn('Perfil não carregado:', err);
+    toast('Não foi possível carregar seu perfil agora.', 'err');
   }
-  
-  if (authGate) {
-    authGate.classList.add('hidden');
-    if (appShell) appShell.classList.remove('inert');
-    requestAnimationFrame(() => {setTimeout(() => {hideLoadingModal();}, 180);});
-  }
+}
 
-  navigate(savedPage);
-  await fetchInitialStoreStatus();
-  subscribeToStoreStatus();
-  
-  // ============================================================
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-  
-  if (!profileError && profile) {
-    const fullName = profile.full_name || "Cliente";
-    const email = user.email || "";
-
-    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
-    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
-    if (profile.avatar_url && $('accSidebarAvatar')) {
-      $('accSidebarAvatar').src = profile.avatar_url;
-    }
-    
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(' ') || "";
-
-    const inputFirstName = document.getElementById('profileFirstName');
-    const inputLastName = document.getElementById('profileLastName');
-    const inputEmail = document.getElementById('profileEmail');
-    const photoUrl = profile.avatar_url || "";
-
-    if (inputFirstName) inputFirstName.value = firstName;
-    if (inputLastName) inputLastName.value = lastName;
-    if (inputEmail) inputEmail.value = email;
-
-    /* ------------------------------------------------------------------------ */
-    const sbName = document.getElementById('sb-name')
-
-    if (sbName && fullName) {
-      sbName.textContent = fullName;
-    }
-    
-    /* ------------------------------------------------------------------------ */
-    const fldName = document.getElementById('fldNome');
-    const fldEmail = document.getElementById('fldEmail');
-
-    if (fldName && fullName) {
-      fldName.value = fullName;
-    }
-  
-    if (fldEmail && email) {
-      fldEmail.value = email;
-    }
-
-    if (typeof validateStep1 === 'function') validateStep1();
-    if (typeof loadFromSupabase === 'function') {
-      await loadFromSupabase();
-    }
-    
-    const fldPhone = document.getElementById('fldTelefone');
-    const fldCpf = document.getElementById('fldDoc');
-
-    const phone = profile.phone || "";
-    const cpf = profile.cpf || "";
-
-    if (fldPhone) { 
-      fldPhone.value = phone; 
-      if (typeof maskPhone !== 'undefined') maskPhone.updateValue();
-    } 
-
-    if (fldCpf) { 
-      fldCpf.value = cpf; 
-      if (typeof maskDoc !== 'undefined') maskDoc.updateValue();
-    }
-    
-    if (photoUrl) {
-      const avatarImage = document.getElementById('profileAvatar');
-      const sidebarImage = document.getElementById('sidebarAvatar');
-      const headerImage = document.getElementById('headerAvatar');
-      if (avatarImage) {
-        avatarImage.src = photoUrl;
-        avatarImage.style.filter = "none";
-        avatarImage.style.width = "100%";
-        avatarImage.style.height = "100%";
-        avatarImage.style.borderRadius = "100%";
-        avatarImage.style.objectFit = "cover";
-      }
-      /*if (sidebarImage) {
-        sidebarImage.src = photoUrl;
-        sidebarImage.style.filter = "none";
-        sidebarImage.style.width = "100%";
-        sidebarImage.style.height = "100%";
-        sidebarImage.style.borderRadius = "100%";
-        sidebarImage.style.objectFit = "cover";
-      }*/
-      if (headerImage) {
-        headerImage.src = photoUrl;
-        headerImage.style.filter = "none";
-        headerImage.style.width = "100%";
-        headerImage.style.height = "100%";
-        headerImage.style.borderRadius = "100%";
-        headerImage.style.objectFit = "cover";
-      }
-    }
-  }
-});
-
+// ══ PRODUTOS: carregamento ═════════════════════════════════
 async function loadMyProducts() {
-  if (!myStoreId) return;
-
+  if (myStoreId === null || myStoreId === undefined) return;
   const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .eq('loja_id', myStoreId)
-    .order('id', { ascending: false });
-
+    .from('products').select('*').eq('loja_id', myStoreId).order('id', { ascending: false });
   if (error) {
-    console.error("Erro ao carregar produtos:", error);
+    console.error('Erro ao carregar produtos:', error);
+    toast(isNetworkError(error) ? 'Sem conexão: não foi possível carregar seus produtos.' : 'Não foi possível carregar seus produtos.', 'err');
     return;
   }
-
   PRODS = data || [];
-  buildProdTable('all'); 
+  buildProdTable();
+  const bdg = $('sbProdBdg');
+  if (bdg) { bdg.textContent = PRODS.length; bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none'; }
+  buildTopProducts();
+}
+// ══ NAVEGAÇÃO ══════════════════════════════════════════════
+let hasUnsavedChanges = false;
+let dirtySource = null;        // 'config' | 'product' — define o que é descartado
+let pendingPage = null;
+let navBound = false;
 
-  const bdg = document.getElementById('sbProdBdg');
-  if(bdg) {
-    bdg.textContent = PRODS.length;
-    bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none';
+const PAGE_LABELS = { dashboard:'Dashboard', 'novo-produto':'Novo Produto', produtos:'Meus Produtos', pedidos:'Pedidos', financas:'Financeiro', config:'Configurações', loja:'Minha Loja' };
+const HASH_PAGES = { painel:'dashboard', dashboard:'dashboard', produtos:'produtos', 'produtos/novo':'novo-produto', 'novo-produto':'novo-produto', pedidos:'pedidos', financas:'financas', saque:'financas', configuracoes:'config', config:'config', loja:'loja' };
+
+// Antes: '#painel'.replace('/seller/main','') nunca casava com o mapa (a chave não tem '#').
+function pageFromHash() {
+  const h = decodeURIComponent(location.hash || '').replace(/^#\/?/, '').replace(/^sellers?\/main\/?/, '').replace(/\/$/, '');
+  return HASH_PAGES[h] || null;
+}
+
+// Retorna true se a navegação aconteceu. Nunca depende de `event` global.
+function navigate(page, btn, opts) {
+  opts = opts || {};
+  if (!appReady) return false;                          // nada é ativado antes de sessão + loja validadas
+  const panel = $('page-' + page);
+  if (!panel) return false;
+  if (hasUnsavedChanges && !opts.force) {
+    pendingPage = page;
+    showConfirm('Você tem alterações não salvas. <br>Deseja sair sem salvar?', 'Atenção', '⚠️');
+    return false;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn, .mob-btn').forEach(b => b.classList.remove('on'));
+  panel.classList.add('on');
+  document.querySelectorAll(`[data-page="${page}"]`).forEach(b => b.classList.add('on'));
+  setText('bcText', PAGE_LABELS[page] || page);
+  try { localStorage.setItem('activePage', page); } catch (e) {}
+  const mainEl = document.querySelector('.app-main');
+  if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+  return true;
+}
+
+// Um único listener por botão (antes havia dois: um navegava, o outro tentava bloquear).
+function initNavigation() {
+  if (navBound) return;
+  navBound = true;
+  document.querySelectorAll('.nav-btn[data-page], .mob-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.preventDefault();
+      const page = btn.dataset.page;
+      if (navigate(page) && page === 'novo-produto') clearProductForm();
+    });
+  });
+  window.addEventListener('hashchange', () => { const p = pageFromHash(); if (p) navigate(p); });
+
+  // Só campos do formulário de produto e das configurações contam como "alterações" (busca/filtros não).
+  [['#page-config', 'config'], ['#page-novo-produto', 'product']].forEach(([sel, source]) => {
+    document.querySelectorAll(`${sel} .inp, ${sel} .ta, ${sel} .sel, ${sel} input[type="checkbox"]`).forEach(el => {
+      const mark = () => { if (appReady) { hasUnsavedChanges = true; dirtySource = source; } };
+      el.addEventListener('input', mark);
+      el.addEventListener('change', mark);
+    });
+  });
+}
+
+// "Sair sem salvar": descarta de verdade o que estava em edição e só então navega.
+function discardUnsaved() {
+  const src = dirtySource;
+  hasUnsavedChanges = false;
+  dirtySource = null;
+  if (src === 'config' && myStoreData) renderStoreState(myStoreData.status, myStoreData.slug_url, myStoreData);
+  if (src === 'product') clearProductForm();
+}
+function confirmUnsave() {
+  const modal = $('confirmModal');
+  if (modal) modal.classList.remove('active');
+  if (typeof confirmTimerId !== 'undefined' && confirmTimerId) clearInterval(confirmTimerId);
+  discardUnsaved();
+  const dest = pendingPage;
+  pendingPage = null;
+  if (dest) navigate(dest, null, { force: true });
+}
+
+window.addEventListener('beforeunload', event => {
+  if (hasUnsavedChanges) { event.preventDefault(); event.returnValue = ''; }
+});
+// ══ CSV (exportações reais; células que começam com = + - @ são neutralizadas) ═══
+function downloadCsv(filename, rows) {
+  const cell = v => {
+    let s = String(v ?? '');
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const csv = '\uFEFF' + rows.map(r => r.map(cell).join(';')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+// ══ PRODUTOS: lista, filtros, ações ════════════════════════
+let prodFilter = 'all', prodQuery = '', prodCat = '', prodPageNum = 1;
+const PROD_PAGE_SIZE = 20;
+let soldByProduct = {};                       // preenchido a partir dos itens de pedidos reais
+
+const findProd = id => PRODS.find(p => String(p.id) === String(id));   // ids comparados como texto
+const prodIsPaused = p => p.badge === 'paused';
+const prodStock = p => Number(p.stock) || 0;
+const prodCategory = p => Array.isArray(p.cat) ? (p.cat[0] || '') : (p.cat || '');
+
+function getFilteredProds() {
+  const q = prodQuery.trim().toLowerCase();
+  return PRODS.filter(p => {
+    if (prodFilter === 'active' && prodIsPaused(p)) return false;
+    if (prodFilter === 'paused' && !prodIsPaused(p)) return false;
+    if (prodFilter === 'low' && prodStock(p) >= 5) return false;
+    if (prodCat && prodCategory(p) !== prodCat) return false;
+    if (q && !(String(p.name || '').toLowerCase().includes(q) || String(p.id).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function updateProdCounts() {
+  const counts = {
+    all: PRODS.length,
+    active: PRODS.filter(p => !prodIsPaused(p)).length,
+    paused: PRODS.filter(prodIsPaused).length,
+    low: PRODS.filter(p => prodStock(p) < 5).length
+  };
+  document.querySelectorAll('#page-produtos .stab[data-filter]').forEach(tab => {
+    tab.textContent = `${tab.dataset.label} (${counts[tab.dataset.filter] ?? 0})`;
+  });
+  const sel = $('prodCatFilter');
+  if (sel) {
+    const cats = [...new Set(PRODS.map(prodCategory).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">Todas as categorias</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    sel.value = cats.includes(prodCat) ? prodCat : '';
   }
 }
 
-/* ============================================================ MASK HELPERS */
-const onlyDigits = v => v.replace(/\D/g,'');
-const getEl = id => document.getElementById(id);
+function buildProdTable(filter) {
+  if (filter !== undefined) { prodFilter = filter; prodPageNum = 1; }
+  const body = $('prodTbody');
+  if (!body) return;
+  updateProdCounts();
 
-const elDoc = getEl('fldDoc');
-if (elDoc) {
-  const maskDoc = IMask(elDoc, {
-    mask: [
-      { mask: '000.000.000-00', maxLength: 11 },
-      { mask: '00.000.000/0000-00', maxLength: 14 }
-    ],
-    dispatch: function (appended, dynamicMasked) {
-      return typeof personType !== 'undefined' && personType === 'pf' 
-        ? dynamicMasked.compiledMasks[0] 
-        : dynamicMasked.compiledMasks[1];
-    }
-  });
-  maskDoc.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
+  const all = getFilteredProds();
+  const pages = Math.max(1, Math.ceil(all.length / PROD_PAGE_SIZE));
+  if (prodPageNum > pages) prodPageNum = pages;
+  const slice = all.slice((prodPageNum - 1) * PROD_PAGE_SIZE, prodPageNum * PROD_PAGE_SIZE);
+
+  if (!slice.length) {
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:36px;color:var(--muted)">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
+  } else {
+    body.innerHTML = slice.map(p => {
+      const stock = prodStock(p);
+      const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
+      const stTag = !prodIsPaused(p) ? '<span class="tag tag-green">● Ativo</span>' : '<span class="tag tag-gray">⏸ Pausado</span>';
+      const sold = soldByProduct[String(p.id)];
+      const soldTxt = (ordersModule === 'ok') ? `${sold || 0} vendas` : '—';
+      const media = p.image_url
+        ? `<img src="${escapeHtml(p.image_url)}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${escapeHtml(p.name)}">`
+        : '';
+      const id = escapeHtml(p.id);
+      return `<tr>
+      <td class="chk-col"><input type="checkbox" class="chk"></td>
+      <td><div class="fac gap10">
+        <div class="prod-thumb" style="position: relative;">${escapeHtml(p.emoji || '📦')}${media}</div>
+        <div><div class="fs12 fw6">${escapeHtml(p.name)}</div><div class="fs10 muted">ID: ${id}</div></div>
+      </div></td>
+      <td class="fs11 muted">${escapeHtml(p.sku || '—')}</td>
+      <td><span class="tag tag-blue fs10">${escapeHtml(prodCategory(p) || 'Sem categoria')}</span></td>
+      <td class="sora fw7 blue fs13">${fmtBRL(p.price)}</td>
+      <td><span class="stock-val ${stClass}">${stock} un.</span></td>
+      <td class="fs11 muted">${soldTxt}</td>
+      <td>${stTag}</td>
+      <td><div class="fac gap4">
+        <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
+        <div class="action-dots" onclick="toggleMenu(event, this)">⋯
+          <div class="action-menu">
+            <div class="am-item" data-act="dup" data-id="${id}">📋 Duplicar</div>
+            <div class="am-item" data-act="pause" data-id="${id}">${prodIsPaused(p) ? '▶ Reativar' : '⏸ Pausar'}</div>
+            <div class="am-item" data-act="export" data-id="${id}">📤 Exportar (CSV)</div>
+            <div class="am-item red" data-act="del" data-id="${id}">🗑 Excluir</div>
+          </div>
+        </div>
+      </div></td>
+    </tr>`;
+    }).join('');
+  }
+  setText('prodCount', `Mostrando ${slice.length} de ${all.length} produtos`);
+  const prev = $('prodPrev'), next = $('prodNext');
+  if (prev) prev.disabled = prodPageNum <= 1;
+  if (next) next.disabled = prodPageNum >= pages;
 }
 
-const elPhone = getEl('fldTelefone');
-if (elPhone) {
-  const maskPhone = IMask(elPhone, {
-    mask: [
-      { mask: '(00) 0000-0000' }, 
-      { mask: '(00) 00000-0000' }
-    ]
-  });
-  maskPhone.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
-}
-
-const elIE = getEl('fldIE');
-if (elIE) {
-  const maskIEMask = IMask(elIE, {
-    mask: '000.000.000.000'
-  });
-  maskIEMask.on('accept', () => { if (typeof validateStep1 === 'function') validateStep1(); });
-}
-
-const elCep = getEl('fldCep');
-if (elCep) {
-  const maskCep = IMask(elCep, {
-    mask: '00000-000'
-  });
-  maskCep.on('accept', () => {
-    const digits = maskCep.unmaskedValue; 
-    if(digits.length < 8){ 
-      const statCep = getEl('statCep');
-      // Confirme se a função setStatus existe
-      if (statCep && typeof setStatus === 'function') setStatus(statCep, ''); 
-      if (typeof validateStep1 === 'function') validateStep1(); 
-      return; 
-    }
+function initProductsTable() {
+  const tb = $('prodTbody');
+  if (!tb || tb.dataset.bound) return;
+  tb.dataset.bound = '1';
+  tb.addEventListener('click', ev => {
+    const el = ev.target.closest('[data-act]');
+    if (!el) return;
+    document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
+    const id = el.dataset.id;
+    ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
+       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act](id);
   });
 }
-  
-// ══ NAVIGATION ══════════════════════════════════════════
-function showLanding(){ document.getElementById('landing').style.display='block'; document.getElementById('appShell').style.display='none'; window.scrollTo(0,0); }
-function enterPanel(){ document.getElementById('landing').style.display='none'; document.getElementById('appShell').style.display='flex'; document.getElementById('appShell').style.flexDirection='column'; navigate('dashboard'); }
 
-function navigate(page, btn){
-  if (hasUnsavedChanges) {
-    event.preventDefault(); 
-    event.stopPropagation();
+function toggleAll(cb) { document.querySelectorAll('#prodTbody .chk').forEach(c => c.checked = cb.checked); }
+function filterProds(btn, f) {
+  document.querySelectorAll('#page-produtos .stab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildProdTable(f);
+}
+function onProdSearch(el) { prodQuery = el.value; prodPageNum = 1; buildProdTable(); }
+function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTable(); }
+function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
+
+function toggleMenu(e, el) {
+  e.stopPropagation();
+  const m = el.querySelector('.action-menu');
+  document.querySelectorAll('.action-menu.on').forEach(x => { if (x !== m) x.classList.remove('on'); });
+  m.classList.toggle('on');
+}
+document.addEventListener('click', () => document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on')));
+
+function exportProductsCsv(list) {
+  const rows = [['ID', 'Nome', 'Categoria', 'Preço', 'Estoque', 'Status']];
+  (list || PRODS).forEach(p => rows.push([p.id, p.name, prodCategory(p), Number(p.price || 0).toFixed(2).replace('.', ','), prodStock(p), prodIsPaused(p) ? 'Pausado' : 'Ativo']));
+  downloadCsv('produtos.csv', rows);
+}
+
+async function toggleProductPause(id) {
+  const p = findProd(id);
+  if (!p) return;
+  if (!storeCan('products')) return denyAction('products');
+  const next = prodIsPaused(p) ? 'new' : 'paused';        // 'new' é o valor que o próprio painel grava ao publicar
+  const { data, error } = await supabaseClient.from('products').update({ badge: next })
+    .eq('id', p.id).eq('loja_id', myStoreId).select('id');
+  if (error || !data || !data.length) {
+    console.error('Erro ao alterar status do produto:', error);
+    toast(error ? 'Não foi possível alterar o status do produto.' : 'Nenhuma alteração foi feita (sem permissão ou produto removido).', 'err');
     return;
   }
+  await loadMyProducts();
+  toast(next === 'paused' ? 'Produto pausado.' : 'Produto reativado.', 'ok');
+}
 
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-btn, .mob-btn').forEach(b=>b.classList.remove('on'));
-  const panel = document.getElementById('page-'+page);
-  if(panel) panel.classList.add('on');
-  if(btn) btn.classList.add('on');
-  else { const nb = document.querySelector(`[data-page="${page}"]`); if(nb) nb.classList.add('on'); }
-  const labels={dashboard:'Dashboard','novo-produto':'Novo Produto',produtos:'Meus Produtos',pedidos:'Pedidos',financas:'Financeiro',config:'Configurações',loja:'Minha Loja'};
-  document.getElementById('bcText').textContent = labels[page]||page;
-
-  localStorage.setItem('activePage', page);
-  
-  const mainEl = document.querySelector('.app-main');
-  if (mainEl) {
-    mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+async function duplicateProduct(id) {
+  const p = findProd(id);
+  if (!p) return;
+  if (!storeCan('products')) return denyAction('products');
+  toast('Duplicando produto...', 'info');
+  try {
+    const copy = {
+      id: await getUniqueProductId(), loja_id: myStoreId,
+      name: String(p.name || '').slice(0, 110) + ' (cópia)',
+      cat: p.cat, price: p.price, desc: p.desc, shipping: p.shipping,
+      image_url: p.image_url, gallery_urls: p.gallery_urls,          // imagens compartilhadas: a exclusão confere referências
+      badge: 'paused', rating: 0, reviews: 0, features: p.features || []
+    };
+    if ('stock' in p) copy.stock = p.stock;
+    const { data, error } = await supabaseClient.from('products').insert([copy]).select('id');
+    if (error) throw error;
+    if (!data || !data.length) throw new Error('O banco não confirmou a criação da cópia.');
+    await loadMyProducts();
+    toast('Cópia criada como pausada. Revise e reative quando quiser.', 'ok');
+  } catch (err) {
+    console.error('Erro ao duplicar produto:', err);
+    toast('Não foi possível duplicar o produto.', 'err');
   }
-}
-
-const sidebarLinks = document.querySelectorAll('.nav-btn, .mob-btn');
-
-sidebarLinks.forEach(link => {
-  link.addEventListener('click', (event) => {
-    event.preventDefault();
-    
-    const targetId = event.currentTarget.id;
-    
-    if (targetId === 'nav-dashboard') {
-      navigate('dashboard', event.currentTarget);
-    } else if (targetId === 'nav-novo-produto') {
-      navigate('novo-produto', event.currentTarget);
-      clearProductForm();
-    } else if (targetId === 'nav-produtos') {
-      navigate('produtos', event.currentTarget);
-    } else if (targetId === 'nav-pedidos') {
-      navigate('pedidos', event.currentTarget);
-    } else if (targetId === 'nav-financas') {
-      navigate('financas', event.currentTarget);
-    } else if (targetId === 'nav-config') {
-      navigate('config', event.currentTarget);
-    } else if (targetId === 'nav-loja') {
-      navigate('loja', event.currentTarget);
-    }
-  });
-});
-
-// ══ CHART ══════════════════════════════════════════════
-function buildRevChart(){
-  if (!revData || revData.length === 0) return;
-  
-  const max = Math.max(...revData);
-  const html = revData.map((v,i) => {
-    const h = Math.round((v/max)*140);
-    return `<div class="rev-bar-wrap">
-      <div class="rev-bar blue" style="height:${h}px">
-        <div class="rev-bar-tip">R$ ${v.toFixed(1)}K</div>
-      </div>
-      <div class="rev-label">${months[i]}</div>
-    </div>`;
-  }).join('');
-  const el = document.getElementById('revChart');
-  if(el) el.innerHTML = html;
-}
-
-function buildSparklines(){
-  const datas = [[3,5,4,7,6,8,9],[6,5,7,6,8,7,9],[12,13,11,14,13,15,14],[4,5,4,5,5,5,5]];
-  datas.forEach((d,i) => {
-    const el = document.getElementById('spark'+(i+1));
-    if(!el) return;
-    const max = Math.max(...d), min = Math.min(...d);
-    const pts = d.map((v,j) => `${j*(100/6)},${28-((v-min)/(max-min||1))*24}`).join(' ');
-    const fillPts = `0,28 ${pts} ${100},28`;
-    const colors = ['#2563eb','#16a34a','#f97316','#eab308'];
-    el.innerHTML = `<svg viewBox="0 0 100 32" preserveAspectRatio="none">
-      <polygon points="${fillPts}" fill="${colors[i]}" opacity=".15"/>
-      <polyline points="${pts}" fill="none" stroke="${colors[i]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
-  });
-}
-
-// ══ PRODUCTS TABLE ══════════════════════════════════════
-function buildProdTable(filter='all'){
-  const data = filter==='low' ? PRODS.filter(p=> (p.stock||0) < 5) : filter==='paused' ? PRODS.filter(p=> p.badge==='paused') : PRODS;
-  const body = document.getElementById('prodTbody');
-  if(!body) return;
-  
-  body.innerHTML = data.map(p => {
-    const stock = p.stock || 0; 
-    const sold = p.reviews || 0; 
-    
-    const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
-    const stTag = p.badge !== 'paused' ? '<span class="tag tag-green">● Ativo</span>' : '<span class="tag tag-gray">⏸ Pausado</span>';
-    const fmtPrice = 'R$ ' + Number(p.price).toFixed(2).replace('.', ',');
-    const categoria = Array.isArray(p.cat) ? p.cat[0] : (p.cat || 'Sem categoria');
-
-    const mediaHtml = p.image_url 
-      ? `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">` 
-      : '';
-
-    return `<tr>
-      <td class="chk-col"><input type="checkbox" class="chk"></td>
-      <td>
-        <div class="fac gap10">
-          <div class="prod-thumb" style="position: relative;">
-            ${p.emoji || '📦'}
-            ${mediaHtml}
-          </div>
-          <div>
-            <div class="fs12 fw6">${p.name}</div>
-            <div class="fs10 muted">ID: ${p.id}</div>
-          </div>
-        </div>
-      </td>
-      <td class="fs11 muted">TL-00${p.id}</td>
-      <td><span class="tag tag-blue fs10">${categoria}</span></td>
-      <td class="sora fw7 blue fs13">${fmtPrice}</td>
-      <td><span class="stock-val ${stClass}">${stock} un.</span></td>
-      <td class="fs11 muted">${sold} vendas</td>
-      <td>${stTag}</td>
-      <td>
-        <div class="fac gap4">
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" onclick="editProduct('${p.id}')">
-            <i class="fa-solid fa-pen"></i> Editar
-          </button>
-          
-          <div class="action-dots" onclick="toggleMenu(event, this)">⋯
-            <div class="action-menu">
-              <div class="am-item" onclick="toast('Duplicando produto')">📋 Duplicar</div>
-              <div class="am-item" onclick="toast('Produto pausado')">⏸ Pausar</div>
-              <div class="am-item" onclick="toast('Exportando dados','info')">📤 Exportar</div>
-              <div class="am-item red" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑 Excluir</div>
-            </div>
-          </div>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
 }
 
 function editProduct(id) {
-  const p = PRODS.find(x => x.id === id);
+  const p = findProd(id);
   if (!p) return;
+  if (!storeCan('products')) return denyAction('products');
+  if (hasUnsavedChanges) { toast('Salve ou descarte as alterações pendentes antes de editar outro produto.', 'err'); return; }
+  clearProductForm();                                     // zera imagens/estado antes de carregar o produto
   editingProductId = p.id;
 
-  if($('npName')) $('npName').value = p.name;
-  if($('npDesc')) $('npDesc').value = p.desc || '';
-  if($('npPrice')) {
-    $('npPrice').value = 'R$ ' + Number(p.price).toFixed(2).replace('.', ',');
-  }
-  if($('freeShip')) $('freeShip').checked = p.shipping || false;
-  
-  if($('npCat')) {
+  if ($('npName')) $('npName').value = p.name || '';
+  if ($('npDesc')) $('npDesc').value = p.desc || '';
+  if ($('npPrice')) $('npPrice').value = fmtBRL(p.price);
+  if ($('npStock')) $('npStock').value = ('stock' in p) ? prodStock(p) : '';
+  if ($('freeShip')) $('freeShip').checked = !!p.shipping;
+  if ($('npCat')) {
     const catSelect = $('npCat');
-    const catValue = Array.isArray(p.cat) ? p.cat[0] : p.cat;
-    for(let i=0; i < catSelect.options.length; i++) {
-      if(catSelect.options[i].text.includes(catValue)) {
-        catSelect.selectedIndex = i;
-        break;
-      }
+    const catValue = prodCategory(p);
+    for (let i = 0; i < catSelect.options.length; i++) {
+      if (catValue && catSelect.options[i].text.includes(catValue)) { catSelect.selectedIndex = i; break; }
     }
   }
-  
+  const gallery = Array.isArray(p.gallery_urls) ? p.gallery_urls : [];
+  productExistingUrls = [p.image_url || null, gallery[1] || null, gallery[2] || null, gallery[3] || null, gallery[4] || null];
+
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
     btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
   });
+  setText('labelNewProduct', `Editar Produto | ${p.name}`);
 
-  const labelNewProduct = document.getElementById('labelNewProduct');
-  labelNewProduct.textContent = `Editar Produto | ${p.name}`;
-  
-  productImagesFiles = [null, null, null, null, null];
-  currentPreviewFile = null;
-  currentPreviewBlobUrl = null;
-  
   updatePreview();
   updateGalleryUI();
-  
   hasUnsavedChanges = false;
+  dirtySource = null;
   navigate('novo-produto');
   toast('Modo edição ativado', 'info');
 }
 
-// --------------------------------------------------------
-function toggleAll(cb){ document.querySelectorAll('.chk').forEach(c=>c.checked=cb.checked); }
-function filterProds(btn, f){ document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); buildProdTable(f); }
-
-function toggleMenu(e, el){
-  e.stopPropagation();
-  const m = el.querySelector('.action-menu'); 
-  document.querySelectorAll('.action-menu.on').forEach(x=>{if(x!==m)x.classList.remove('on')}); 
-  m.classList.toggle('on'); 
+// ── Imagens do bucket "products": só apaga o que ninguém mais referencia ──
+const PRODUCTS_BUCKET = 'products';
+function storagePathFromUrl(url) {
+  const marker = `/storage/v1/object/public/${PRODUCTS_BUCKET}/`;
+  const s = String(url || '');
+  const i = s.indexOf(marker);
+  if (i === -1) return null;
+  try { return decodeURIComponent(s.slice(i + marker.length).split('?')[0]); } catch (e) { return null; }
+}
+async function isImageReferencedElsewhere(url, excludeProductId) {
+  const a = await supabaseClient.from('products').select('id').eq('image_url', url).neq('id', excludeProductId).limit(1);
+  if (a.error || (a.data && a.data.length)) return true;               // na dúvida, NÃO apaga
+  const b = await supabaseClient.from('products').select('id').contains('gallery_urls', [url]).neq('id', excludeProductId).limit(1);
+  if (b.error || (b.data && b.data.length)) return true;
+  return false;
+}
+async function removeUnreferencedImages(urls, excludeProductId) {
+  const paths = [];
+  for (const u of new Set((urls || []).filter(Boolean))) {
+    const path = storagePathFromUrl(u);
+    if (!path) continue;
+    if (await isImageReferencedElsewhere(u, excludeProductId)) continue;
+    paths.push(path);
+  }
+  if (!paths.length) return;
+  const { error } = await supabaseClient.storage.from(PRODUCTS_BUCKET).remove(paths);
+  if (error) console.warn('Não foi possível remover imagens antigas do Storage:', error);
 }
 
-document.addEventListener('click',()=>document.querySelectorAll('.action-menu.on').forEach(m=>m.classList.remove('on')));
+async function deleteProduct(id) {
+  const p = findProd(id);
+  if (!p) return;
+  if (!storeCan('products')) return denyAction('products');
+  if (!confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o produto "${p.name}"?\nEssa ação não pode ser desfeita.`)) return;
+  toast('Excluindo produto...', 'info');
+  const urls = [p.image_url, ...(Array.isArray(p.gallery_urls) ? p.gallery_urls : [])];
 
-// --------------------------------------------------------
-async function deleteProduct(id, productName) {
-  if (!confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o produto "${productName}"?\nEssa ação não pode ser desfeita.`)) {
+  // 1º o banco (com confirmação de linha apagada); só depois o Storage
+  const { data, error } = await supabaseClient.from('products').delete()
+    .eq('id', p.id).eq('loja_id', myStoreId).select('id');
+  if (error) {
+    console.error('Erro ao excluir produto:', error);
+    toast('Não foi possível excluir o produto. Tente novamente.', 'err');
     return;
   }
-  toast('Excluindo produto...', 'info');
-
-  const p = PRODS.find(x => x.id === id);
-  if (p && p.image_url) {
-    const fileName = p.image_url.split('/').pop();
-    if (fileName) {
-      await supabaseClient.storage.from('products').remove([fileName]);
-    }
+  if (!data || !data.length) {
+    toast('Nenhum produto foi excluído (sem permissão ou já removido).', 'err');
+    await loadMyProducts();
+    return;
   }
-
-  const { error } = await supabaseClient
-    .from('products')
-    .delete()
-    .eq('id', id)
-    .eq('loja_id', myStoreId);
-
-  if (error) {
-    console.error("Erro ao excluir produto:", error);
-    toast('Erro ao excluir: ' + error.message, 'err');
-  } else {
-    toast('Produto excluído permanentemente! 🗑️', 'ok');
-    
-    await loadMyProducts(); 
-  }
+  await removeUnreferencedImages(urls, p.id);
+  await loadMyProducts();
+  toast('Produto excluído permanentemente! 🗑️', 'ok');
 }
 
-// ══ ORDERS ══════════════════════════════════════════════
-function buildOrders(filter='all'){
-  const statusMap = {pending:'⏳ Aguardando Despacho',transit:'🚚 Em Trânsito',delivered:'✅ Entregue',returned:'↩ Devolução Solicitada'};
-  const tagMap = {pending:'tag-orange',transit:'tag-blue',delivered:'tag-green',returned:'tag-yellow'};
-  const data = filter==='all' ? ORDERS : ORDERS.filter(o=>o.status===filter);
-  const wrap = document.getElementById('ordersWrap');
-  if(!wrap) return;
-  wrap.innerHTML = data.map(o => `
+// ══ PEDIDOS (public.store_orders — ver migração SQL) ═══════
+let ordFilter = 'all';
+const ORD_STATUS = { pending:'⏳ Aguardando Despacho', transit:'🚚 Em Trânsito', delivered:'✅ Entregue', returned:'↩ Devolução Solicitada', cancelled:'✖ Cancelado' };
+const ORD_TAG = { pending:'tag-orange', transit:'tag-blue', delivered:'tag-green', returned:'tag-yellow', cancelled:'tag-gray' };
+
+function friendlyRpcError(err) {
+  if (isMissingRelation(err)) return 'Este recurso ainda não está configurado no banco de dados (migração SQL pendente).';
+  if (isNetworkError(err)) return 'Sem conexão com o servidor. Verifique sua internet e tente novamente.';
+  if (['P0002', '22023', '42501'].includes(err && err.code) && err.message) return err.message;
+  return 'Não foi possível concluir a operação. Tente novamente em instantes.';
+}
+
+async function loadOrders() {
+  const { data, error } = await supabaseClient
+    .from('store_orders')
+    .select('id, code, status, customer_name, ship_city, ship_state, total, tracking_code, created_at, return_requested_at, return_approved_at, store_order_items(product_id, name, variant, qty, unit_price)')
+    .eq('loja_id', myStoreId)
+    .neq('status', 'awaiting_payment')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    ORDERS = [];
+    if (isMissingRelation(error)) ordersModule = 'missing';
+    else { ordersModule = 'error'; console.error('Erro ao carregar pedidos:', error); toast('Não foi possível carregar seus pedidos agora.', 'err'); }
+  } else {
+    ordersModule = 'ok';
+    ORDERS = data || [];
+  }
+  soldByProduct = {};
+  ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status)).forEach(o =>
+    (o.store_order_items || []).forEach(it => { const k = String(it.product_id); soldByProduct[k] = (soldByProduct[k] || 0) + (it.qty || 0); }));
+  buildOrders();
+  updateOrderCounts();
+  buildProdTable();
+}
+
+function updateOrderCounts() {
+  const count = s => ORDERS.filter(o => o.status === s).length;
+  const counts = { all: ORDERS.length, pending: count('pending'), transit: count('transit'), delivered: count('delivered'), returned: count('returned') };
+  document.querySelectorAll('#page-pedidos .stab[data-filter]').forEach(tab => {
+    tab.textContent = `${tab.dataset.label} (${counts[tab.dataset.filter] ?? 0})`;
+  });
+  setText('ordersSub', `${counts.pending} pedidos aguardando despacho`);
+  const bdg = $('sbOrdBdg');
+  if (bdg) { bdg.textContent = counts.pending; bdg.style.display = counts.pending > 0 ? 'inline-block' : 'none'; }
+}
+
+function buildOrders(filter) {
+  if (filter !== undefined) ordFilter = filter;
+  const wrap = $('ordersWrap');
+  if (!wrap) return;
+  if (ordersModule === 'missing') {
+    wrap.innerHTML = '<div class="card card-pad" style="text-align:center;color:var(--muted)">O módulo de pedidos ainda não está configurado no banco de dados. Execute a migração SQL (seção 6) para ativá-lo.</div>';
+    return;
+  }
+  if (ordersModule === 'error') {
+    wrap.innerHTML = '<div class="card card-pad" style="text-align:center;color:var(--muted)">Não foi possível carregar os pedidos. Recarregue a página para tentar novamente.</div>';
+    return;
+  }
+  const data = ordFilter === 'all' ? ORDERS : ORDERS.filter(o => o.status === ordFilter);
+  if (!data.length) {
+    wrap.innerHTML = `<div class="card card-pad" style="text-align:center;color:var(--muted)">${ORDERS.length ? 'Nenhum pedido neste filtro.' : 'Você ainda não recebeu pedidos.'}</div>`;
+    return;
+  }
+  wrap.innerHTML = data.map(o => {
+    const id = escapeHtml(o.id);
+    const items = (o.store_order_items || []).map(it => `
+            <div class="fac gap10">
+              <div class="ord-em">📦</div>
+              <div class="ord-info">
+                <div class="ord-item-name">${escapeHtml(it.name)}</div>
+                <div class="ord-item-var">${it.variant ? escapeHtml(it.variant) + ' · ' : ''}Qtd: ${Number(it.qty) || 0} · ${fmtBRL(it.unit_price)}</div>
+              </div>
+            </div>`).join('');
+    const place = [o.ship_city, o.ship_state].filter(Boolean).join(' / ');
+    return `
     <div class="ord">
       <div class="ord-hd">
         <div class="fac gap12">
-          <span class="ord-id">#${o.id}</span>
-          <span class="muted fs11">·</span>
-          <span class="fs11 muted">${o.date}</span>
-          <span class="fs11 muted">·</span>
-          <span class="fs11 muted">📍 ${o.city}</span>
+          <span class="ord-id">#${escapeHtml(o.code)}</span><span class="muted fs11">·</span>
+          <span class="fs11 muted">${fmtDateTime(o.created_at)}</span>
+          ${place ? `<span class="fs11 muted">·</span><span class="fs11 muted">📍 ${escapeHtml(place)}</span>` : ''}
         </div>
-        <span class="tag ${tagMap[o.status]}">${statusMap[o.status]}</span>
+        <span class="tag ${ORD_TAG[o.status] || 'tag-gray'}">${ORD_STATUS[o.status] || escapeHtml(o.status)}</span>
       </div>
       <div class="ord-body">
-        <div class="ord-items">
-          ${o.items.map(it=>`
-            <div class="fac gap10">
-              <div class="ord-em">${it.em}</div>
-              <div class="ord-info">
-                <div class="ord-item-name">${it.name}</div>
-                <div class="ord-item-var">${it.var} · Qtd: ${it.qty}</div>
-              </div>
-            </div>`).join('')}
-        </div>
+        <div class="ord-items">${items}</div>
         <div style="text-align:right;flex-shrink:0">
-          <div class="fs11 muted mb4">👤 ${o.client}</div>
-          <div class="ord-total">${o.total}</div>
+          <div class="fs11 muted mb4">👤 ${escapeHtml(o.customer_name || 'Cliente')}</div>
+          <div class="ord-total">${fmtBRL(o.total)}</div>
         </div>
       </div>
       <div class="ord-ft">
         <div class="fac gap8">
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" onclick="toast('Abrindo detalhes...','info')">👁 Detalhes</button>
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" onclick="toast('Gerando NF...','info')">🧾 Emitir NF</button>
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" onclick="toast('Imprimindo etiqueta...','info')">🖨 Etiqueta</button>
+          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" data-ord-act="details" data-id="${id}">👁 Detalhes</button>
         </div>
         <div class="ord-actions">
-          ${o.status==='pending'?`
-            <input class="tracking-inp" placeholder="Cód. rastreamento (ex: BR123)" id="track-${o.id}">
-            <button class="btn btn-p btn-xs" onclick="dispatch('${o.id}')">🚚 Marcar como Despachado</button>
-          `:''}
-          ${o.status==='transit'?`<span class="tag tag-blue">Rastreando envio...</span>`:''}
-          ${o.status==='returned'?`<button class="btn btn-danger btn-xs" onclick="toast('Aprovando devolução...','info')">Aprovar Devolução</button>`:''}
+          ${o.status === 'pending' ? `
+            <input class="tracking-inp" placeholder="Cód. rastreamento (ex: BR123456789BR)" id="track-${id}" maxlength="40">
+            <button class="btn btn-p btn-xs" data-ord-act="dispatch" data-id="${id}">🚚 Marcar como Despachado</button>` : ''}
+          ${o.status === 'transit' ? `<span class="tag tag-blue">Rastreio: ${escapeHtml(o.tracking_code || '—')}</span>` : ''}
+          ${o.status === 'returned' && !o.return_approved_at ? `<button class="btn btn-danger btn-xs" data-ord-act="return" data-id="${id}">Aprovar Devolução</button>` : ''}
+          ${o.status === 'returned' && o.return_approved_at ? '<span class="tag tag-gray">Devolução aprovada</span>' : ''}
         </div>
       </div>
-    </div>`).join('');
-}
-
-function filterOrds(btn){ document.querySelectorAll('.order-filter-tabs .stab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); buildOrders('all'); toast('Filtro aplicado'); }
-function dispatch(id){ const t=document.getElementById('track-'+id)?.value; if(!t){toast('Digite o código de rastreamento','err');return;} toast(`Pedido #${id} despachado! Código: ${t} 🚚`); const bdg=document.getElementById('sbOrdBdg'); if(bdg&&parseInt(bdg.textContent)>0)bdg.textContent=parseInt(bdg.textContent)-1; buildOrders('all'); }
-
-// ══ EXTRACT TABLE ════════════════════════════════════════
-function buildExtract(){
-  const body = document.getElementById('extractBody');
-  if(!body) return;
-  body.innerHTML = EXTRACT.map(r => {
-    const sTag = r.status==='available'?'<span class="tag tag-green">Disponível</span>':r.status==='pending'?'<span class="tag tag-orange">Pendente</span>':'<span class="tag tag-gray">Concluído</span>';
-    const valClass = r.net.startsWith('-')?'ext-val-neg':'ext-val-pos';
-    return `<tr>
-      <td><div class="fac gap8"><div class="ext-row-icon" style="background:${r.type==='Saque'?'#ffedd5':r.type==='Devolução'?'#fee2e2':'#dcfce7'}">${r.ico}</div><span class="fs12 fw6">${r.type}</span></div></td>
-      <td class="fs11 muted">${r.type}</td>
-      <td class="td-link fs11" onclick="toast('Pedido ${r.order}')">${r.order}</td>
-      <td class="fs12 fw6">${r.gross}</td>
-      <td class="fs11 red">${r.comm}</td>
-      <td class="fs13 fw7 ${valClass}">${r.net}</td>
-      <td>${sTag}</td>
-      <td class="fs11 muted">${r.date}</td>
-    </tr>`;
+      <div class="ord-details" id="ord-details-${id}" style="display:none;padding:12px 16px;border-top:1px solid var(--b2);font-size:12px;color:var(--muted)">
+        Cliente: <strong>${escapeHtml(o.customer_name || '—')}</strong> · Entrega: ${escapeHtml(place || '—')}<br>
+        Rastreio: ${escapeHtml(o.tracking_code || 'ainda não informado')}
+      </div>
+    </div>`;
   }).join('');
 }
 
+function initOrdersWrap() {
+  const wrap = $('ordersWrap');
+  if (!wrap || wrap.dataset.bound) return;
+  wrap.dataset.bound = '1';
+  wrap.addEventListener('click', ev => {
+    const el = ev.target.closest('[data-ord-act]');
+    if (!el) return;
+    const id = el.dataset.id;
+    if (el.dataset.ordAct === 'dispatch') dispatchOrder(id, el);
+    else if (el.dataset.ordAct === 'return') approveReturn(id, el);
+    else if (el.dataset.ordAct === 'details') { const d = $('ord-details-' + id); if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+  });
+}
+
+function filterOrds(btn) {
+  document.querySelectorAll('.order-filter-tabs .stab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildOrders(btn.dataset.filter || 'all');
+}
+
+async function dispatchOrder(id, btn) {
+  if (!storeCan('orders')) return denyAction('orders');
+  const code = ($('track-' + id)?.value || '').trim().toUpperCase();
+  if (!/^[A-Z0-9-]{8,40}$/.test(code)) { toast('Informe um código de rastreamento válido (8 a 40 letras/números).', 'err'); return; }
+  if (btn) btn.disabled = true;
+  const { error } = await supabaseClient.rpc('seller_dispatch_order', { p_order_id: id, p_tracking: code });
+  if (error) {
+    console.error('Erro ao despachar pedido:', error);
+    toast(friendlyRpcError(error), 'err');
+    if (btn) btn.disabled = false;
+    return;
+  }
+  await loadOrders();
+  refreshDashboardViews();
+  toast(`Pedido despachado! Código: ${code} 🚚`, 'ok');
+}
+
+async function approveReturn(id, btn) {
+  if (!storeCan('orders')) return denyAction('orders');
+  if (!confirm('Aprovar esta devolução? O estorno será lançado no seu extrato.')) return;
+  if (btn) btn.disabled = true;
+  const { error } = await supabaseClient.rpc('seller_approve_return', { p_order_id: id });
+  if (error) {
+    console.error('Erro ao aprovar devolução:', error);
+    toast(friendlyRpcError(error), 'err');
+    if (btn) btn.disabled = false;
+    return;
+  }
+  await Promise.all([loadOrders(), loadFinance()]);
+  refreshDashboardViews();
+  toast('Devolução aprovada e estorno lançado.', 'ok');
+}
+
+function exportOrdersCsv() {
+  if (ordersModule !== 'ok' || !ORDERS.length) { toast('Não há pedidos para exportar.', 'info'); return; }
+  const rows = [['Pedido', 'Data', 'Cliente', 'Cidade/UF', 'Status', 'Total', 'Rastreio']];
+  ORDERS.forEach(o => rows.push([o.code, new Date(o.created_at).toLocaleString('pt-BR'), o.customer_name || '', [o.ship_city, o.ship_state].filter(Boolean).join('/'),
+    ORD_STATUS[o.status] || o.status, Number(o.total).toFixed(2).replace('.', ','), o.tracking_code || '']));
+  downloadCsv('pedidos.csv', rows);
+}
+
+// ══ FINANCEIRO (seller_ledger / seller_payout_* / seller_balance) ═══
+async function loadFinance() {
+  const [bal, ledger, payouts, acct] = await Promise.all([
+    supabaseClient.rpc('seller_balance'),
+    supabaseClient.from('seller_ledger').select('id, order_id, kind, gross, commission, net, status, release_at, created_at, store_orders(code)')
+      .eq('loja_id', myStoreId).order('created_at', { ascending: false }).limit(200),
+    supabaseClient.from('seller_payout_requests').select('id, amount, method, status, created_at, processed_at')
+      .eq('loja_id', myStoreId).order('created_at', { ascending: false }).limit(100),
+    supabaseClient.from('seller_payout_accounts').select('*').eq('loja_id', myStoreId).maybeSingle()
+  ]);
+  const errs = [bal.error, ledger.error, payouts.error, acct.error].filter(Boolean);
+  if (errs.length) {
+    BALANCE = null; LEDGER = []; PAYOUTS = []; PAYOUT_ACCOUNT = null;
+    if (errs.some(isMissingRelation)) financeModule = 'missing';
+    else { financeModule = 'error'; console.error('Erro ao carregar financeiro:', errs); toast('Não foi possível carregar os dados financeiros agora.', 'err'); }
+  } else {
+    financeModule = 'ok';
+    BALANCE = (bal.data && bal.data[0]) || { available_amount: 0, pending_amount: 0, paid_amount: 0, refunded_amount: 0, reserved_amount: 0 };
+    LEDGER = ledger.data || [];
+    PAYOUTS = payouts.data || [];
+    PAYOUT_ACCOUNT = acct.data || null;
+  }
+  renderFinance();
+  fillPayoutAccountForm();
+}
+
+function renderFinance() {
+  const ok = financeModule === 'ok';
+  const dash = '—';
+  const b = BALANCE || {};
+  setText('balAvail', ok ? fmtBRL(b.available_amount) : dash);
+  setText('balPending', ok ? fmtBRL(b.pending_amount) : dash);
+  setText('balAvailNote', ok ? `Atualizado em ${fmtDateTime(new Date())}` : (financeModule === 'missing' ? 'Módulo financeiro ainda não configurado no banco' : 'Dados indisponíveis'));
+  setText('balPendingNote', ok ? 'Vendas aguardando liberação' : '');
+  setText('finDate', fmtDateTime(new Date()));
+
+  const now = new Date();
+  const monthSales = LEDGER.filter(g => g.kind === 'sale' && new Date(g.created_at).getMonth() === now.getMonth() && new Date(g.created_at).getFullYear() === now.getFullYear());
+  setText('balMonth', ok ? fmtBRL(monthSales.reduce((s, g) => s + Number(g.gross), 0)) : dash);
+  setText('balMonthNote', ok ? `${months[now.getMonth()]} ${now.getFullYear()} · ${monthSales.length} venda(s)` : '');
+
+  const sub = $('wcSub');
+  if (sub) sub.textContent = ok
+    ? `Disponível: ${fmtBRL(b.available_amount)}${Number(b.reserved_amount) > 0 ? ` · Em análise: ${fmtBRL(b.reserved_amount)}` : ''}`
+    : 'Os dados de saldo não estão disponíveis no momento.';
+
+  const dest = $('saqueDest');
+  if (dest) {
+    const a = PAYOUT_ACCOUNT;
+    let label = null;
+    if (a && (a.pix_key || '').trim()) label = 'PIX — ' + String(a.pix_key).replace(/.(?=.{4})/g, '•');
+    else if (a && (a.agency || '').trim() && (a.account || '').trim()) label = `${a.bank || 'Banco'} — Ag ${a.agency} · Cc ••${String(a.account).slice(-3)}`;
+    dest.innerHTML = `<option>${escapeHtml(label || 'Cadastre seus dados de recebimento (Configurações → Recebimentos)')}</option>`;
+    dest.disabled = true;
+  }
+  const btn = document.querySelector('.btn-withdraw');
+  if (btn) btn.disabled = !ok;
+  buildExtract();
+}
+
+const EXTRACT_ICONS = { 'Venda': ['💰', '#dcfce7'], 'Devolução': ['↩', '#fee2e2'], 'Saque': ['💸', '#ffedd5'], 'Ajuste': ['⚙', '#e0e7ff'] };
+function extractRows() {
+  const rows = [];
+  LEDGER.forEach(g => rows.push({ date: g.created_at, type: g.kind === 'sale' ? 'Venda' : g.kind === 'refund' ? 'Devolução' : 'Ajuste',
+    order: (g.store_orders && g.store_orders.code) || '—', gross: Number(g.gross), comm: Number(g.commission), net: Number(g.net),
+    status: g.status === 'available' ? 'available' : 'pending' }));
+  PAYOUTS.forEach(p => rows.push({ date: p.created_at, type: 'Saque', order: '—', gross: -Number(p.amount), comm: 0, net: -Number(p.amount),
+    status: p.status === 'paid' ? 'done' : p.status === 'rejected' ? 'rejected' : 'processing' }));
+  rows.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const period = $('extractPeriod') ? $('extractPeriod').value : '30';
+  const since = new Date();
+  if (period === 'month') since.setDate(1); else since.setDate(since.getDate() - Number(period));
+  since.setHours(0, 0, 0, 0);
+  return rows.filter(r => new Date(r.date) >= since);
+}
+
+function buildExtract() {
+  const body = $('extractBody');
+  if (!body) return;
+  if (financeModule !== 'ok') {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">${financeModule === 'missing' ? 'O módulo financeiro ainda não está configurado no banco de dados (migração SQL pendente).' : 'Não foi possível carregar o extrato.'}</td></tr>`;
+    setText('extractCount', 'Mostrando 0 de 0 transações'); setText('extractTotal', '—');
+    return;
+  }
+  const rows = extractRows();
+  const tags = { available: '<span class="tag tag-green">Disponível</span>', pending: '<span class="tag tag-orange">Pendente</span>',
+    done: '<span class="tag tag-gray">Concluído</span>', processing: '<span class="tag tag-blue">Em processamento</span>', rejected: '<span class="tag tag-gray">Recusado</span>' };
+  body.innerHTML = rows.length ? rows.map(r => {
+    const [ico, bg] = EXTRACT_ICONS[r.type] || ['•', '#eee'];
+    const neg = r.net < 0;
+    return `<tr>
+      <td><div class="fac gap8"><div class="ext-row-icon" style="background:${bg}">${ico}</div><span class="fs12 fw6">${r.type}</span></div></td>
+      <td class="fs11 muted">${r.type}</td>
+      <td class="fs11">${escapeHtml(r.order)}</td>
+      <td class="fs12 fw6">${fmtBRL(r.gross)}</td>
+      <td class="fs11 red">${r.comm ? '-' + fmtBRL(r.comm) : '—'}</td>
+      <td class="fs13 fw7 ${neg ? 'ext-val-neg' : 'ext-val-pos'}">${fmtBRL(r.net)}</td>
+      <td>${tags[r.status] || ''}</td>
+      <td class="fs11 muted">${fmtDateTime(r.date)}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Nenhuma transação no período.</td></tr>';
+  setText('extractCount', `Mostrando ${rows.length} de ${rows.length} transações`);
+  setText('extractTotal', fmtBRL(rows.reduce((s, r) => s + r.net, 0)));
+}
+
+function exportExtractCsv() {
+  if (financeModule !== 'ok') { toast('O extrato não está disponível no momento.', 'info'); return; }
+  const rows = [['Data', 'Tipo', 'Pedido', 'Bruto', 'Comissão', 'Líquido', 'Status']];
+  extractRows().forEach(r => rows.push([new Date(r.date).toLocaleString('pt-BR'), r.type, r.order, r.gross.toFixed(2).replace('.', ','), r.comm.toFixed(2).replace('.', ','), r.net.toFixed(2).replace('.', ','), r.status]));
+  if (rows.length === 1) { toast('Não há transações no período.', 'info'); return; }
+  downloadCsv('extrato.csv', rows);
+}
+
+function formatSaque(inp) {
+  const v = inp.value.replace(/\D/g, '');
+  inp.value = v ? 'R$ ' + (parseInt(v, 10) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+}
+
+let payoutBusy = false;
+async function doSaque() {
+  if (payoutBusy) return;
+  if (!storeCan('payout')) return denyAction('payout');
+  if (financeModule !== 'ok') { toast('O módulo financeiro não está disponível.', 'err'); return; }
+  const amount = parseBRL($('saqueVal')?.value);
+  if (!(amount > 0)) { toast('Informe o valor do saque.', 'err'); return; }
+  if (amount > Number((BALANCE || {}).available_amount || 0)) { toast('O valor é maior que o saldo disponível.', 'err'); return; }
+  if (!PAYOUT_ACCOUNT) { toast('Cadastre seus dados de recebimento antes de sacar.', 'err'); showCfgFromAnywhere('pagamentos'); return; }
+
+  payoutBusy = true;
+  const btn = document.querySelector('.btn-withdraw');
+  if (btn) btn.disabled = true;
+  try {
+    const { error } = await supabaseClient.rpc('request_payout', { p_amount: amount });
+    if (error) { console.error('Erro ao solicitar saque:', error); toast(friendlyRpcError(error), 'err'); return; }
+    if ($('saqueVal')) $('saqueVal').value = '';
+    await loadFinance();
+    toast('Solicitação de saque registrada. Acompanhe o status no extrato.', 'ok');
+  } finally {
+    payoutBusy = false;
+    if (btn) btn.disabled = financeModule !== 'ok';
+  }
+}
+function showCfgFromAnywhere(panel) {
+  if (!navigate('config')) return;
+  const item = Array.from(document.querySelectorAll('.cfg-nav-item')).find(i => (i.getAttribute('onclick') || '').includes(`'${panel}'`));
+  showCfg(panel, item);
+}
+
+// ══ DASHBOARD (KPIs, gráfico, pedidos recentes e top produtos — somente dados reais) ═══
+function refreshDashboardViews() {
+  const ok = ordersModule === 'ok';
+  const valid = ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status));
+  const now = new Date();
+  const inMonth = valid.filter(o => { const d = new Date(o.created_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+  const revenue = inMonth.reduce((s, o) => s + Number(o.total), 0);
+  setText('kpiRevenue', ok ? fmtBRL(revenue) : '—');
+  setText('kpiOrders', ok ? String(inMonth.length) : '—');
+  setText('kpiTicket', ok ? fmtBRL(inMonth.length ? revenue / inMonth.length : 0) : '—');
+  const rated = PRODS.map(p => Number(p.rating)).filter(r => r > 0);
+  setText('kpiRating', rated.length ? (rated.reduce((a, b) => a + b, 0) / rated.length).toFixed(1).replace('.', ',') : '--');
+  setText('revMonthTag', ok ? `${fmtBRL(revenue)} este mês` : '—');
+  setText('revChartTitle', `📈 Faturamento Mensal (${now.getFullYear()})`);
+  buildRevChart(valid);
+  buildRecentOrders();
+  buildTopProducts();
+}
+
+function buildRevChart(valid) {
+  const el = $('revChart');
+  if (!el) return;
+  const year = new Date().getFullYear();
+  const monthly = new Array(12).fill(0);
+  (valid || []).forEach(o => { const d = new Date(o.created_at); if (d.getFullYear() === year) monthly[d.getMonth()] += Number(o.total); });
+  const max = Math.max(...monthly, 1);
+  el.innerHTML = monthly.map((v, i) => {
+    const h = v > 0 ? Math.max(4, Math.round((v / max) * 140)) : 2;
+    return `<div class="rev-bar-wrap"><div class="rev-bar blue" style="height:${h}px"><div class="rev-bar-tip">${fmtBRL(v)}</div></div><div class="rev-label">${months[i]}</div></div>`;
+  }).join('');
+}
+
+function buildRecentOrders() {
+  const body = $('recentOrdersBody');
+  if (!body) return;
+  if (ordersModule !== 'ok' || !ORDERS.length) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:26px;color:var(--muted)">${ordersModule === 'missing' ? 'Módulo de pedidos ainda não configurado.' : 'Nenhum pedido recebido ainda.'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = ORDERS.slice(0, 5).map(o => {
+    const items = o.store_order_items || [];
+    const prod = items.length ? escapeHtml(items[0].name) + (items.length > 1 ? ` +${items.length - 1}` : '') : '—';
+    return `<tr><td class="td-link fs11">#${escapeHtml(o.code)}</td><td class="fs12">${escapeHtml(o.customer_name || 'Cliente')}</td><td class="fs12">${prod}</td>
+      <td class="fs12 fw6">${fmtBRL(o.total)}</td><td><span class="tag ${ORD_TAG[o.status] || 'tag-gray'}">${ORD_STATUS[o.status] || escapeHtml(o.status)}</span></td>
+      <td class="fs11 muted">${fmtDateTime(o.created_at)}</td></tr>`;
+  }).join('');
+}
+
+function buildTopProducts() {
+  const box = $('topProdsBox');
+  if (!box) return;
+  const qty = {};
+  ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status)).forEach(o =>
+    (o.store_order_items || []).forEach(it => { qty[it.name] = (qty[it.name] || 0) + (it.qty || 0); }));
+  const top = Object.entries(qty).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  box.innerHTML = top.length
+    ? top.map(([name, q], i) => `<div class="fac gap10" style="padding:10px 0;border-bottom:1px solid var(--b2)"><span class="fs12 fw7 blue">${i + 1}º</span><span class="fs12" style="flex:1">${escapeHtml(name)}</span><span class="fs11 muted">${q} un.</span></div>`).join('')
+    : `<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:12px">${ordersModule === 'ok' ? 'Os produtos mais vendidos aparecem aqui assim que houver pedidos.' : 'Disponível quando o módulo de pedidos estiver ativo.'}</div>`;
+}
 // ══ NEW PRODUCT ══════════════════════════════════════════
 let currentPreviewBlobUrl = null;
 let currentPreviewFile = null;
@@ -812,12 +1178,13 @@ function updatePreview() {
       previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
       
     } else if (isEditing) {
-      const p = PRODS.find(x => x.id === editingProductId);
-      if (p && p.image_url) {
+      const p = findProd(editingProductId);
+      const existingMain = productExistingUrls[0];
+      if (p && existingMain) {
         if (previewEl.tagName.toLowerCase() !== 'img') {
-          previewEl.innerHTML = `<img src="${p.image_url}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="${p.name}">`;
+          previewEl.innerHTML = `<img src="${escapeHtml(existingMain)}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="${escapeHtml(p.name)}">`;
         } else {
-          previewEl.src = p.image_url;
+          previewEl.src = existingMain;
         }
       } else {
         previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
@@ -852,33 +1219,40 @@ function updatePreview() {
   set('chk-desc',d&&d.length>10);
 }
   
-function calcMargin(){
-  const el = document.getElementById('marginCalc');
-  if(el) el.style.display='flex';
-  const margin = Math.round(20+Math.random()*30)+'%';
-  const netV = 'R$ '+(Math.random()*100+100).toFixed(2).replace('.',',');
-  const mv = document.getElementById('marginVal'); if(mv) mv.textContent=margin;
-  const nv = document.getElementById('netVal'); if(nv) nv.textContent=netV;
-}
-function addVariation(){ const l=document.getElementById('varList'); if(l){const d=document.createElement('div');d.className='var-item';d.innerHTML=`<span class="fs12">⚫ Preto — G · R$ 189,90 · Est: 5</span><div style="flex:1"></div><div class="var-remove" onclick="this.parentElement.remove()">✕</div>`;l.appendChild(d);}}
 
+// ══ MARGEM (cálculo real; sem números aleatórios e sem percentual inventado) ═══
+// Preencha com a comissão real da Ecomme quando ela for definida (ex.: 0.09 = 9%). null = não exibe o líquido.
+const PLATFORM_COMMISSION_RATE = null;
+
+function maskMoney(el) {
+  const v = onlyDigits(el.value).slice(0, 9);
+  el.value = v ? 'R$ ' + (parseInt(v, 10) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+}
+function calcMargin() {
+  const box = $('marginCalc');
+  if (!box) return;
+  const cost = parseBRL($('npCost') && $('npCost').value);
+  const price = parseBRL($('npPrice') && $('npPrice').value);
+  if (!(cost > 0) || !(price > 0)) { box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  const margin = ((price - cost) / price) * 100;
+  setText('marginVal', `${margin.toFixed(1).replace('.', ',')}% (${fmtBRL(price - cost)})`);
+  const wrap = $('netWrap');
+  if (wrap) {
+    wrap.style.display = PLATFORM_COMMISSION_RATE === null ? 'none' : '';
+    if (PLATFORM_COMMISSION_RATE !== null) setText('netVal', fmtBRL(price * (1 - PLATFORM_COMMISSION_RATE) - cost));
+  }
+}
 /* ---------------- GALERIA DE IMAGENS DO PRODUTO ---------------- */
 let productImagesFiles = [null, null, null, null, null]; 
+// URLs que o produto em edição já possui no banco (uma por slot). Antes a galeria consultava PRODS a cada renderização
+// e a exclusão de uma imagem existente nunca era refletida.
+let productExistingUrls = [null, null, null, null, null];
 let targetSecondarySlot = null;
 let activeImageSlot = 0;
 
 function triggerImageUpload(slotIndex) {
-  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
-  const p = (isEditing && typeof PRODS !== 'undefined') ? PRODS.find(x => x.id === editingProductId) : null;
-
-  const isSlotOccupied = (index) => {
-    if (productImagesFiles[index] !== null) return true;
-    if (p) {
-      if (index === 0 && p.image_url) return true;
-      if (index > 0 && p.gallery_urls && p.gallery_urls[index]) return true;
-    }
-    return false;
-  };
+  const isSlotOccupied = (index) => productImagesFiles[index] !== null || !!productExistingUrls[index];
 
   if (slotIndex > 0 && isSlotOccupied(slotIndex)) {
     openImageActionModal(slotIndex);
@@ -962,6 +1336,9 @@ async function deleteImageSlot(slotIndex, event) {
   
   productImagesFiles.splice(slotIndex, 1);
   productImagesFiles.push(null);
+  productExistingUrls.splice(slotIndex, 1);
+  productExistingUrls.push(null);
+  hasUnsavedChanges = true; dirtySource = 'product';
   
   updatePreview();
   updateGalleryUI();
@@ -979,10 +1356,6 @@ async function deleteImageSlot(slotIndex, event) {
 }
 
 function updateGalleryUI() {
-  const isEditing = typeof editingProductId !== 'undefined' && editingProductId !== null && editingProductId !== '';
-  const hasProds = typeof PRODS !== 'undefined';
-  const p = (isEditing && hasProds) ? PRODS.find(x => x.id === editingProductId) : null;
-
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (!block) continue;
@@ -991,17 +1364,10 @@ function updateGalleryUI() {
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
 
-    let dbImageUrl = null;
-    if (p) {
-      if (i === 0 && p.image_url) {
-        dbImageUrl = p.image_url;
-      } else if (i > 0 && p.gallery_urls && p.gallery_urls[i]) {
-        dbImageUrl = p.gallery_urls[i];
-      }
-    }
+    const dbImageUrl = productExistingUrls[i] || null;
 
     if (file) {
-      const url = URL.createObjectURL(file);
+      const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));   // uma URL por arquivo (antes vazava uma a cada render)
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
@@ -1012,7 +1378,7 @@ function updateGalleryUI() {
     } else if (dbImageUrl) {
       const altText = i === 0 ? "Imagem do Produto" : `Imagem ${i}`;
       innerHtmlContent = `
-        <div class="img-preview-container"><img src="${dbImageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${altText}"></div>
+        <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${altText}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
         ${deleteBtnHTML}
       `;
@@ -1039,6 +1405,12 @@ function openCropModal(event) {
 
   if (file.size > 5 * 1024 * 1024) {
     toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
+    event.target.value = '';
+    return;
+  }
+
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    toast('Formato não suportado. Use JPG, PNG ou WEBP.', 'err');
     event.target.value = '';
     return;
   }
@@ -1115,133 +1487,114 @@ async function executeCrop() {
 // productImagesFiles = [null, null, null, null, null];
 // updateGalleryUI();
 
+
 /* ---------------------------------------------- */
-async function publishProduct() {
-  const editId = typeof editingProductId !== 'undefined' ? editingProductId : null;
-  const isEditing = Boolean(editId);
+// ══ PUBLICAR / SALVAR PRODUTO ═══════════════════════════════
+let isPublishing = false;
+const IMG_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
 
-  const nameRaw = document.getElementById('npName')?.value;
-  const catRaw = document.getElementById('npCat')?.value;
-  const priceRaw = document.getElementById('npPrice')?.value;
-  const descRaw = document.getElementById('npDesc')?.value;
-  const shippingRaw = document.getElementById('freeShip')?.checked || false;
-  const hasMainImage = productImagesFiles[0] !== null;
-
-  if (!nameRaw || !priceRaw || catRaw === 'Selecionar...') {
-    toast('Preencha os campos obrigatórios!', 'err');
-    return;
-  }
-
-  let existingMainUrl = null;
-  let existingGalleryUrls = [];
-
-  if (isEditing) {
-    const p = typeof PRODS !== 'undefined' ? PRODS.find(x => x.id === editId) : null;
-    if (p) {
-      existingMainUrl = p.image_url;
-      existingGalleryUrls = p.gallery_urls || [];
-    }
-  }
-
-  if (!isEditing && !hasMainImage) {
-    toast('Adicione pelo menos uma imagem principal (bloco maior) para o produto!', 'err');
-    return;
-  }
-
-  toast('Enviando imagens e processando...', 'info');
-  let uploadedUrls = [];
-
-  const uploadPromises = productImagesFiles.map(async (file, index) => {
-    if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-slot${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-      const { error: uploadError } = await supabaseClient
-        .storage
-        .from('products')
-        .upload(fileName, file);
-
-      if (uploadError) {
-        console.error(`Erro no upload da imagem ${index}:`, uploadError);
-        return null;
-      }
-
-      const { data: publicUrlData } = supabaseClient
-        .storage
-        .from('products')
-        .getPublicUrl(fileName);
-
-      return publicUrlData.publicUrl;
-    }
-
-    if (isEditing) {
-      if (index === 0 && existingMainUrl) {
-        return existingMainUrl;
-      }
-      if (index > 0 && existingGalleryUrls[index]) {
-        return existingGalleryUrls[index];
-      }
-    }
-    return null;
-  });
-
-  const results = await Promise.all(uploadPromises);
-  uploadedUrls = results;
-  let finalMainImageUrl = uploadedUrls[0] || null;
-  const catText = catRaw.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(); 
-  const catArray = [catText]; 
-  const priceNum = parseFloat(priceRaw.replace('R$', '').replace('.', '').replace(',', '.').trim());
-  
-  const productData = {
-    name: nameRaw,
-    cat: catArray, 
-    price: priceNum, 
-    desc: descRaw, 
-    shipping: shippingRaw,
-    image_url: finalMainImageUrl, 
-    gallery_urls: uploadedUrls 
-  };
-  
-  let error;
-
-  if (isEditing) {
-    const response = await supabaseClient
-      .from('products')
-      .update(productData)
-      .eq('id', editId) 
-      .eq('loja_id', typeof myStoreId !== 'undefined' ? myStoreId : '');
-    error = response.error;
-  } else {
-    toast('Gerando ID do produto...', 'info');
-    const finalId = await getUniqueProductId();
-    
-    productData.id = finalId;
-    productData.loja_id = typeof myStoreId !== 'undefined' ? myStoreId : ''; 
-    productData.badge = 'new'; 
-    productData.rating = 0; 
-    productData.reviews = 0; 
-    productData.features = [];
-
-    const response = await supabaseClient
-      .from('products')
-      .insert([productData]);
-    error = response.error;
-  }
-
-  if (error) {
-    console.error("Erro ao salvar produto:", error);
-    toast('Erro ao processar: ' + error.message, 'err');
-  } else {
-    toast(isEditing ? 'Produto atualizado com sucesso! 💾' : 'Produto publicado com sucesso! 🚀', 'ok');
-    
-    if (typeof clearProductForm === 'function') clearProductForm();
-    if (typeof loadMyProducts === 'function') await loadMyProducts();
-    hasUnsavedChanges = false;
-    
-    if (typeof navigate === 'function') navigate('produtos');
-  }
+function setPublishBusy(busy) {
+  isPublishing = busy;
+  document.querySelectorAll('button[onclick="publishProduct()"]').forEach(b => { b.disabled = busy; });
 }
 
+async function uploadProductImage(file, index) {
+  const ext = IMG_EXT[file.type] || 'jpg';
+  const fileName = `${Date.now()}-slot${index}-${Math.random().toString(36).substring(2)}.${ext}`;
+  const { error } = await supabaseClient.storage.from(PRODUCTS_BUCKET).upload(fileName, file, { contentType: file.type || 'image/jpeg', upsert: false });
+  if (error) throw error;
+  const { data } = supabaseClient.storage.from(PRODUCTS_BUCKET).getPublicUrl(fileName);
+  return { path: fileName, url: data.publicUrl };
+}
+
+async function publishProduct() {
+  if (isPublishing) return;
+  if (!storeCan('products')) return denyAction('products');
+  if (myStoreId === null || myStoreId === undefined) { toast('Sua loja não foi carregada. Recarregue a página.', 'err'); return; }
+
+  const isEditing = editingProductId !== null && editingProductId !== '';
+  const name = ($('npName')?.value || '').trim();
+  const desc = ($('npDesc')?.value || '').trim();
+  const price = parseBRL($('npPrice')?.value);
+  const stockRaw = ($('npStock')?.value || '').trim();
+  const catSel = $('npCat');
+  const shipping = $('freeShip')?.checked || false;
+  const hasMainImage = !!(productImagesFiles[0] || productExistingUrls[0]);
+
+  // Antes: o teste comparava com "Selecionar..." mas o placeholder é "Selecione...": categoria nunca era exigida.
+  if (name.length < 3) { toast('Informe o nome do produto (mínimo 3 caracteres).', 'err'); return; }
+  if (!catSel || catSel.selectedIndex <= 0) { toast('Selecione uma categoria.', 'err'); return; }
+  if (!(price > 0)) { toast('Informe um preço de venda maior que zero.', 'err'); return; }
+  if (desc.length < 10) { toast('A descrição curta precisa ter pelo menos 10 caracteres.', 'err'); return; }
+  if (stockRaw !== '' && !/^\d+$/.test(stockRaw)) { toast('O estoque deve ser um número inteiro (0 ou mais).', 'err'); return; }
+  if (!hasMainImage) { toast('Adicione pelo menos a imagem principal (bloco maior) do produto.', 'err'); return; }
+
+  const editing = isEditing ? findProd(editingProductId) : null;
+  if (isEditing && !editing) { toast('Produto não encontrado. Volte para a lista e tente novamente.', 'err'); return; }
+
+  setPublishBusy(true);
+  const uploaded = [];                       // arquivos novos: removidos se algo falhar depois
+  try {
+    toast('Enviando imagens e processando...', 'info');
+    const finalUrls = [null, null, null, null, null];
+    for (let i = 0; i < 5; i++) {
+      if (productImagesFiles[i]) {
+        const up = await uploadProductImage(productImagesFiles[i], i);
+        uploaded.push(up.path);
+        finalUrls[i] = up.url;
+      } else {
+        finalUrls[i] = productExistingUrls[i] || null;
+      }
+    }
+
+    const catText = catSel.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();   // remove o emoji do texto da opção
+    const productData = {
+      name, cat: [catText], price: Number(price.toFixed(2)), desc, shipping,
+      image_url: finalUrls[0], gallery_urls: finalUrls
+    };
+    if (stockRaw !== '') productData.stock = parseInt(stockRaw, 10);
+
+    const write = async () => {
+      if (isEditing) {
+        return supabaseClient.from('products').update(productData).eq('id', editing.id).eq('loja_id', myStoreId).select('id');
+      }
+      const row = { ...productData, id: await getUniqueProductId(), loja_id: myStoreId, badge: 'new', rating: 0, reviews: 0, features: [] };
+      return supabaseClient.from('products').insert([row]).select('id');
+    };
+
+    let res = await write();
+    // Coluna "stock" ausente (migração não executada): tenta de novo sem ela e avisa claramente.
+    if (res.error && /stock/i.test(res.error.message || '') && ['PGRST204', '42703'].includes(res.error.code)) {
+      delete productData.stock;
+      res = await write();
+      if (!res.error) toast('Produto salvo, mas o estoque NÃO foi gravado: falta a coluna "stock" (execute a migração SQL).', 'err');
+    }
+    if (res.error) throw res.error;
+    if (!res.data || !res.data.length) throw new Error('O banco não confirmou a gravação (nenhuma linha afetada).');
+
+    // Só depois da confirmação: apaga do Storage as imagens que saíram deste produto e ninguém mais usa
+    if (editing) {
+      const oldUrls = [editing.image_url, ...(Array.isArray(editing.gallery_urls) ? editing.gallery_urls : [])].filter(Boolean);
+      const removed = oldUrls.filter(u => !finalUrls.includes(u));
+      await removeUnreferencedImages(removed, editing.id);
+    }
+
+    toast(isEditing ? 'Produto atualizado com sucesso! 💾' : 'Produto publicado com sucesso! 🚀', 'ok');
+    hasUnsavedChanges = false; dirtySource = null;
+    clearProductForm();
+    await loadMyProducts();
+    navigate('produtos');
+  } catch (err) {
+    console.error('Erro ao salvar produto:', err);
+    if (uploaded.length) {
+      const { error: rmErr } = await supabaseClient.storage.from(PRODUCTS_BUCKET).remove(uploaded);
+      if (rmErr) console.warn('Não foi possível limpar imagens enviadas:', rmErr);
+    }
+    toast(isNetworkError(err) ? 'Sem conexão. Nada foi salvo; tente novamente.' : 'Não foi possível salvar o produto. Suas informações continuam no formulário.', 'err');
+  } finally {
+    setPublishBusy(false);
+  }
+}
 // --------------------------------------------------------
 function clearProductForm() {
   if (typeof productImagesFiles !== 'undefined') {
@@ -1253,6 +1606,7 @@ function clearProductForm() {
 
     productImagesFiles = [null, null, null, null, null];
   }
+  productExistingUrls = [null, null, null, null, null];
 
   editingProductId = null;
   if (currentPreviewBlobUrl) {
@@ -1271,6 +1625,9 @@ function clearProductForm() {
 
   if ($('npName')) $('npName').value = '';
   if ($('npPrice')) $('npPrice').value = '';
+  if ($('npStock')) $('npStock').value = '';
+  if ($('npCost')) $('npCost').value = '';
+  if (typeof calcMargin === 'function') calcMargin();
   if ($('npDesc')) $('npDesc').value = '';
   if ($('npCat')) $('npCat').selectedIndex = 0;
   if ($('freeShip')) $('freeShip').checked = false;
@@ -1325,25 +1682,15 @@ function generateCustomId() {
 }
 
 async function getUniqueProductId() {
-  let isUnique = false;
-  let newId = '';
-  
-  while (!isUnique) {
-    newId = generateCustomId();
-    
-    const { data } = await supabaseClient
-      .from('products')
-      .select('id')
-      .eq('id', newId)
-      .maybeSingle();
-      
-    if (!data) {
-      isUnique = true;
-    }
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const newId = generateCustomId();
+    const { data, error } = await supabaseClient.from('products').select('id').eq('id', newId).maybeSingle();
+    if (error) throw error;                 // erro de rede/permissão não é "id livre"
+    if (!data) return newId;
   }
-  
-  return newId;
+  throw new Error('Não foi possível gerar um identificador único para o produto.');
 }
+
 
 // ══ CONFIG ══════════════════════════════════════════════
 function showCfg(id, el){
@@ -1354,340 +1701,348 @@ function showCfg(id, el){
   if(el) el.classList.add('on');
 }
 
-// ══ LANDING ══════════════════════════════════════════════
-function toggleFAQ(el){ el.closest('.faq-item').classList.toggle('open'); }
-function doSellerRegister(){ const v=document.getElementById('ctaEmail')?.value; if(!v||!v.includes('@')){toast('Digite um e-mail válido','err');return;} toast('Conta criada! Redirecionando para o painel... 🚀'); setTimeout(enterPanel,1400); }
 
-// ══ FINANCES ════════════════════════════════════════════
-function formatSaque(inp){ let v=inp.value.replace(/\D/g,''); if(v) inp.value='R$ '+parseInt(v).toLocaleString('pt-BR'); }
-function doSaque(){ const v=document.getElementById('saqueVal')?.value; if(!v||v==='R$ 0,00'){toast('Digite o valor do saque','err');return;} toast(`Saque de ${v} solicitado! Processamento em 1 dia útil 💸`); if(document.getElementById('saqueVal'))document.getElementById('saqueVal').value=''; }
-
-// ══ TOAST ════════════════════════════════════════════════
-/*
-function toast(msg,type='ok'){
-  const t=document.getElementById('toast'),ic=document.getElementById('tIco'),tx=document.getElementById('tMsg');
-  tx.textContent=msg;
-  ic.className='t-dot '+(type==='ok'?'t-ok':type==='err'?'t-err':'t-inf');
-  ic.textContent=type==='ok'?'✓':type==='err'?'!':'ℹ';
-  t.classList.add('on');
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('on'),3000);
-} */
-
-function toast(msg,type='ok') {
-  showToast(msg);
-}
-
-// TOAST
-function showToast(msg) {
-  const t = document.getElementById('toast2');
-  document.getElementById('toastMsg2').textContent = msg;
+// ══ TOAST (um só: antes havia 3 versões e o tipo "err" era ignorado, exibindo erro como sucesso) ═══
+let toastTimer = null;
+function showToast(msg, type) {
+  const t = $('toast2');
+  if (!t) return;
+  const kind = type === 'err' ? 'err' : type === 'info' ? 'info' : 'ok';
+  t.classList.remove('ok', 'err', 'info');
+  t.classList.add(kind);
+  const ico = t.querySelector('.toast2-icon');
+  if (ico) ico.textContent = kind === 'err' ? '!' : kind === 'info' ? 'i' : '✓';
+  setText('toastMsg2', msg);
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), kind === 'err' ? 4200 : 2800);
 }
-function toast2(msg) {
-  showToast(msg);
+function toast(msg, type = 'ok') { showToast(msg, type); }
+function toast2(msg, type = 'info') { showToast(msg, type); }
+
+// Atalho do menu da conta (a lista de desejos fica na vitrine)
+function openFav() { closeAcc(); buttonLink('/'); }
+// ══ LOJA: leitura, estado em tempo real e configurações ═════
+const STORE_COLUMNS = 'id, status, slug_url, nome_loja, slogan, descricao, email, telefone, nome_razao, nome_fantasia, inscricao_estadual, documento, regime_tributario, complemento, endereco, numero, cidade, estado, cep, tipo_pessoa, prazo_envio, formas_envio, frete_gratis_ativo, frete_valor_minimo, politica_devolucao, cor_destaque';
+const STORE_ASSETS_BUCKET = 'store-assets';
+let STORE_IMAGES = { logo: null, capa: null };
+
+const setVal = (id, v) => { const el = $(id); if (el) el.value = v ?? ''; };
+const cleanText = (s, max) => String(s ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max || 500);
+
+function formatDocument(d, tipo) {
+  const x = onlyDigits(d);
+  if (x.length === 11) return x.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  if (x.length === 14) return x.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  return String(d ?? '');
 }
+function formatPhone(d) {
+  const x = onlyDigits(d);
+  if (x.length === 11) return x.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  if (x.length === 10) return x.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  return String(d ?? '');
+}
+const isPJ = () => (myStoreData && myStoreData.tipo_pessoa === 'pj') || (!myStoreData?.tipo_pessoa && onlyDigits($('store-cnpj-cpf')?.value).length === 14);
 
-// ══ INIT ════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded',()=>{
-  const now = new Date();
-  const ds = now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  const dd = document.getElementById('dashDate'); if(dd) dd.textContent=ds;
-  const fd = document.getElementById('finDate'); if(fd) fd.textContent=now.toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-  buildRevChart();
-  buildSparklines();
-  buildProdTable();
-  buildOrders();
-  buildExtract();
-
-  document.getElementById('appShell').style.display='flex'; 
-  document.getElementById('appShell').style.flexDirection='column';
-
-  const hash = location.hash.replace('/seller/main','');
-  const pageMap={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'}; 
-  navigate(pageMap[hash]||'dashboard'); 
-});
-
-window.addEventListener('hashchange',()=>{
-  const hash=location.hash.replace('/seller/main','');
-  const pm={'painel':'dashboard','produtos':'produtos','produtos/novo':'novo-produto','pedidos':'pedidos','financas':'financas','saque':'financas','configuracoes':'config'};
-  navigate(pm[hash]||'dashboard');
-});
-  
-/* -------------------------------------------------------------- */
 function renderStoreState(status, slug, data) {
-  const pendingUI = document.getElementById('store-pending-state');
-  const activeUI = document.getElementById('store-active-state');
-  const iframe = document.getElementById('store-preview-frame');
-  const urlDisplay = document.getElementById('store-url-display');
-  const headerStore = document.getElementById('header-store');
-  const sbStoreName = document.getElementById('sb-storename');
-  const sbStore = document.getElementById('sb-store');
+  data = data || {};
+  const pendingUI = $('store-pending-state'), activeUI = $('store-active-state'), suspendedUI = $('store-suspended-state');
+  if (!pendingUI || !activeUI) { console.error('Erro: elementos de estado da loja não encontrados no HTML.'); return; }
 
-  const cfgStoreName = document.getElementById('cfgStoreName');
-  const cfgStoreSlogan = document.getElementById('cfgStoreSlogan');
-  const cfgStoreDesc = document.getElementById('cfgStoreDesc');
-  const cfgStoreEmail = document.getElementById('cfgStoreEmail');
-  const cfgStorePhone = document.getElementById('cfgStorePhone');
-
-  const storeCnpjCpf = document.getElementById('store-cnpj-cpf');
-  const storeLegalName = document.getElementById('store-legal-name');
-  const storeTradeName = document.getElementById('store-trade-name');
-  const storeTaxRegime = document.getElementById('store-tax-regime');
-  const storeAddress = document.getElementById('store-address');
-  const storeCNAE = document.getElementById('store-cnae');
-  const storeIE = document.getElementById('store-ie');
-
-  const storeName = document.getElementById('storeName');
-  const storeNameBy = document.getElementById('storeNameBy');
-  
-  if (!pendingUI || !activeUI) {
-    console.error("Erro: Um ou mais elementos da loja não foram encontrados no HTML.");
-    return;
-  }
-
-  const safeStatus = (status || 'pendente').toLowerCase().trim();
+  const phase = storePhase(status);
   const safeSlug = slug || 'loja-em-configuracao';
+  const storeLabel = data.nome_loja || 'Minha loja';
 
-  if (safeStatus === 'ativa' || safeStatus === 'active') {
-    pendingUI.style.display = 'none';
-    activeUI.style.display = 'block';
+  pendingUI.style.display = phase === 'pending' ? 'block' : 'none';
+  activeUI.style.display = phase === 'active' ? 'block' : 'none';
+  if (suspendedUI) suspendedUI.style.display = phase === 'suspended' ? 'block' : 'none';
 
-    //const publicStoreUrl = `/store/@${safeSlug}`;
-    //urlDisplay.textContent = publicStoreUrl;
-    headerStore.textContent = `${data.nome_loja}`;
-    headerStore.style.display = 'flex';
-    sbStore.textContent = `${data.nome_loja}`;
-    storeName.textContent = `${data.nome_loja}`;
-    storeNameBy.textContent = `${data.nome_loja}`;
-    sbStoreName.textContent = `@${safeSlug}`;
-
-    cfgStoreName.value = data.nome_loja;
-    cfgStoreSlogan.value = data.slogan;
-    cfgStoreDesc.value = data.descricao;
-    cfgStoreEmail.value = data.email;
-    cfgStorePhone.value = data.telefone;
-
-    storeCnpjCpf.value = data.documento;
-    storeLegalName.value = data.nome_razao;
-    storeTradeName.value = data.nome_fantasia;
-    storeTaxRegime.value = data.regime_tributario;
-    storeAddress.value = `${data.endereco}, ${data.numero} - ${data.complemento} ${data.cidade}/${data.estado} - CEP ${data.cep}`;
-    //storeCNAE.value = data.?;
-    storeIE.value = data.inscricao_estadual;
-    
-    /*if (iframe.src !== publicStoreUrl) {
-      iframe.src = publicStoreUrl;
-    }*/
+  const headerStore = $('header-store');
+  if (phase === 'active') {
+    if (headerStore) { headerStore.textContent = storeLabel; headerStore.style.display = 'flex'; }
+    setText('sb-store', storeLabel);
+    setText('sb-storename', `@${safeSlug}`);
   } else {
-    headerStore.style.display = 'none';
-    pendingUI.style.display = 'block';
-    activeUI.style.display = 'none';
-    sbStore.textContent = 'Loja em Análise..';
-    sbStoreName.textContent = `Aguarde um momento.`;
+    if (headerStore) headerStore.style.display = 'none';
+    setText('sb-store', phase === 'suspended' ? 'Loja suspensa' : 'Loja em Análise..');
+    setText('sb-storename', phase === 'suspended' ? 'Fale com o suporte.' : 'Aguarde um momento.');
   }
+  setText('storeName', storeLabel);
+  setText('storeNameBy', storeLabel);
+
+  // Configurações: preenchidas em QUALQUER estado (antes só quando ativa)
+  setVal('cfgStoreName', data.nome_loja);
+  setVal('cfgStoreSlogan', data.slogan);
+  setVal('cfgStoreDesc', data.descricao);
+  setVal('cfgStoreEmail', data.email);
+  setVal('cfgStorePhone', data.telefone);
+  setVal('store-cnpj-cpf', data.documento);
+  setVal('store-legal-name', data.nome_razao);
+  setVal('store-trade-name', data.nome_fantasia);
+  setVal('store-ie', data.inscricao_estadual);
+  if ($('store-tax-regime') && data.regime_tributario) $('store-tax-regime').value = data.regime_tributario;
+  const compl = data.complemento ? ` ${data.complemento}` : '';
+  setVal('store-address', [data.endereco && `${data.endereco}${data.numero ? ', ' + data.numero : ''}${compl}`, data.cidade && `${data.cidade}${data.estado ? '/' + data.estado : ''}`, data.cep && `CEP ${data.cep}`].filter(Boolean).join(' - '));
+
+  // Frete e política (gravados no cadastro; agora também carregados e editáveis)
+  if ($('cfgPrazo') && data.prazo_envio) $('cfgPrazo').value = data.prazo_envio;
+  const formas = Array.isArray(data.formas_envio) ? data.formas_envio : [];
+  document.querySelectorAll('#cfgFormas input[type="checkbox"]').forEach(cb => { cb.checked = formas.includes(cb.value); });
+  if ($('cfgFreteAtivo')) $('cfgFreteAtivo').checked = !!data.frete_gratis_ativo;
+  setVal('cfgFreteMin', data.frete_valor_minimo);
+  setVal('cfgPolitica', data.politica_devolucao);
+
+  // PF não possui nome fantasia / IE / regime: esses campos ficam desabilitados e não são exigidos
+  const pf = (data.tipo_pessoa || '') === 'pf';
+  ['store-trade-name', 'store-ie', 'store-tax-regime'].forEach(id => { const el = $(id); if (el) el.disabled = pf; });
+
+  setConfigReadOnly(phase === 'suspended');
+  renderStoreImages();
+}
+
+function setConfigReadOnly(ro) {
+  document.querySelectorAll('#page-config .inp, #page-config .ta, #page-config .sel, #page-config input, #page-config textarea, #page-config select').forEach(el => {
+    if (ro) { el.dataset.wasDisabled = el.disabled ? '1' : '0'; el.disabled = true; }
+    else if (el.dataset.wasDisabled !== undefined) { el.disabled = el.dataset.wasDisabled === '1'; delete el.dataset.wasDisabled; }
+  });
+  const save = $('btn-save-config');
+  if (save) save.disabled = ro;
 }
 
 async function fetchInitialStoreStatus() {
-  if (!userId) return;
-
+  if (!userId) return null;
   try {
-    const { data, error } = await supabaseClient
-      .from('lojas')
-      .select('id, status, slug_url, nome_loja, slogan, descricao, email, telefone, nome_razao, nome_fantasia, inscricao_estadual, documento, regime_tributario, complemento, endereco, numero, cidade, estado, cep')
-      .eq('user_id', userId)
-      .maybeSingle();
-
+    const { data, error } = await supabaseClient.from('lojas').select(STORE_COLUMNS).eq('user_id', userId).maybeSingle();
     if (error) {
-      console.error("Erro ao buscar status da loja:", error);
-      renderStoreState('pendente', '');
-      return;
+      console.error('Erro ao buscar a loja:', error);
+      return { failed: true };            // falha NÃO é "sem loja"
     }
-    
-    if (data) {
-      myStoreId = data.id;
-      renderStoreState(data.status, data.slug_url, data);
-      await loadMyProducts();
-    } else {
-      renderStoreState('pendente', '');
-    }
+    if (!data) return null;
+    myStoreId = data.id;
+    myStoreData = data;
+    renderStoreState(data.status, data.slug_url, data);
+    loadStoreImages();
+    return data;
   } catch (err) {
-    console.error("Erro inesperado ao carregar loja:", err);
-    renderStoreState('pendente', '');
+    console.error('Erro inesperado ao carregar loja:', err);
+    return { failed: true };
+  }
+}
+
+// Imagens: logo_url/capa_url (Storage) ou, para cadastros antigos, logo_base64/capa_base64.
+// Consultas tolerantes: se a migração ainda não criou as colunas novas, cai para as antigas.
+async function loadStoreImages() {
+  try {
+    let res = await supabaseClient.from('lojas').select('logo_url, capa_url').eq('id', myStoreId).maybeSingle();
+    if (res.error) res = await supabaseClient.from('lojas').select('logo_base64, capa_base64').eq('id', myStoreId).maybeSingle();
+    if (res.error || !res.data) return;
+    STORE_IMAGES = { logo: res.data.logo_url || res.data.logo_base64 || null, capa: res.data.capa_url || res.data.capa_base64 || null };
+    renderStoreImages();
+  } catch (e) { /* imagens são opcionais */ }
+}
+function renderStoreImages() {
+  const box = $('cfgLogoPreview');
+  if (!box) return;
+  const name = (myStoreData && myStoreData.nome_loja) || '';
+  if (STORE_IMAGES.logo) {
+    box.textContent = '';
+    const img = document.createElement('img');
+    img.src = STORE_IMAGES.logo; img.alt = 'Logotipo da loja';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
+    box.appendChild(img);
+  } else {
+    box.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
   }
 }
 
 function subscribeToStoreStatus() {
-  if (!userId) return;
-
-  supabaseClient
+  if (!userId || storeChannel) return;            // uma única assinatura por sessão
+  storeChannel = supabaseClient
     .channel('store-status-channel')
-    .on(
-      'postgres_changes',
-      { 
-        event: 'UPDATE', 
-        schema: 'public', 
-        table: 'lojas',
-        filter: `user_id=eq.${userId}`
-      },
-      (payload) => {
-        const novoStatus = payload.new.status;
-        const slug = payload.new.slug_url;
-        renderStoreState(novoStatus, slug, payload.new);
-        
-        if (novoStatus === 'ativa' || novoStatus === 'active') {
-          toast('Sua loja foi ativada e já está no ar! 🎉', 'ok');
-        }
-      }
-    )
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lojas', filter: `user_id=eq.${userId}` }, payload => {
+      const before = storePhase(myStoreData && myStoreData.status);
+      myStoreData = { ...(myStoreData || {}), ...payload.new };   // o payload omite colunas grandes inalteradas: mescla
+      const after = storePhase(myStoreData.status);
+      if (!hasUnsavedChanges || after !== before) renderStoreState(myStoreData.status, myStoreData.slug_url, myStoreData);
+      if (before !== 'active' && after === 'active') toast('Sua loja foi ativada e já está no ar! 🎉', 'ok');
+      if (before !== 'suspended' && after === 'suspended') toast('Sua loja foi suspensa. Fale com o suporte.', 'err');
+    })
     .subscribe();
 }
+function unsubscribeFromStoreStatus() {
+  if (storeChannel) { try { supabaseClient.removeChannel(storeChannel); } catch (e) {} storeChannel = null; }
+}
+window.addEventListener('pagehide', unsubscribeFromStoreStatus);
 
-async function saveConfig() {
-  event.preventDefault();
+// ── Recebimentos (public.seller_payout_accounts) ──
+function fillPayoutAccountForm() {
+  const a = PAYOUT_ACCOUNT || {};
+  setVal('dataAgencia', a.agency); setVal('dataConta', a.account); setVal('dataPix', a.pix_key);
+  setVal('dataTitular', a.holder_name); setVal('titular-cnpj-cpf', a.holder_document);
+  if ($('dataBanco') && a.bank) $('dataBanco').value = a.bank;
+  if ($('dataTipoConta') && a.account_type) $('dataTipoConta').value = a.account_type;
+}
+function collectPayoutAccount() {
+  const row = {
+    bank: $('dataBanco') ? $('dataBanco').value : '',
+    account_type: $('dataTipoConta') ? $('dataTipoConta').value : '',
+    agency: cleanText($('dataAgencia')?.value, 20), account: cleanText($('dataConta')?.value, 24),
+    pix_key: cleanText($('dataPix')?.value, 100), holder_name: cleanText($('dataTitular')?.value, 120),
+    holder_document: cleanText($('titular-cnpj-cpf')?.value, 20)
+  };
+  const touched = !!(row.agency || row.account || row.pix_key || row.holder_name || row.holder_document);
+  return { row, touched };
+}
 
-  if (!userId) {
-    console.error("Usuário não autenticado.");
+// ── Salvar configurações: valida → grava → confirma → só então atualiza a tela ──
+function validateConfig() {
+  const fail = (field, msg) => ({ ok: false, field, msg });
+  const name = cleanText($('cfgStoreName')?.value, 60);
+  const slogan = cleanText($('cfgStoreSlogan')?.value, 50);
+  const desc = cleanText($('cfgStoreDesc')?.value, 600);
+  const email = String($('cfgStoreEmail')?.value || '').trim().toLowerCase();
+  const phoneDigits = onlyDigits($('cfgStorePhone')?.value);
+  const docDigits = onlyDigits($('store-cnpj-cpf')?.value);
+  const legal = cleanText($('store-legal-name')?.value, 120);
+  const pj = isPJ();
+
+  if (name.length < 3) return fail('cfgStoreName', 'O nome da loja precisa ter pelo menos 3 caracteres.');
+  if (desc.length < 10) return fail('cfgStoreDesc', 'A descrição da loja precisa ter pelo menos 10 caracteres.');
+  if (!isValidEmail(email)) return fail('cfgStoreEmail', 'Informe um e-mail de contato válido.');
+  if (!isValidPhoneBR(phoneDigits)) return fail('cfgStorePhone', 'Informe um telefone/WhatsApp válido com DDD.');
+  if (pj ? !isValidCNPJ(docDigits) : !isValidCPF(docDigits)) return fail('store-cnpj-cpf', pj ? 'CNPJ inválido.' : 'CPF inválido.');
+  if (legal.length < 3) return fail('store-legal-name', pj ? 'Informe a razão social.' : 'Informe o nome completo.');
+
+  const data = {
+    nome_loja: name, slogan, descricao: desc, email, telefone: formatPhone(phoneDigits),
+    documento: formatDocument(docDigits), nome_razao: legal
+  };
+  if (pj) {
+    const trade = cleanText($('store-trade-name')?.value, 120);
+    const ie = onlyDigits($('store-ie')?.value);
+    const regime = $('store-tax-regime')?.value || '';
+    if (trade.length < 2) return fail('store-trade-name', 'Informe o nome fantasia.');
+    if (ie.length < 8) return fail('store-ie', 'Informe a inscrição estadual.');
+    if (!regime || /selecione/i.test(regime)) return fail('store-tax-regime', 'Selecione o regime tributário.');
+    Object.assign(data, { nome_fantasia: trade, inscricao_estadual: ie, regime_tributario: regime });
+  }
+
+  // Frete / política (colunas gravadas pelo cadastro)
+  if ($('cfgPrazo')) data.prazo_envio = $('cfgPrazo').value;
+  const formas = Array.from(document.querySelectorAll('#cfgFormas input[type="checkbox"]:checked')).map(cb => cb.value);
+  if ($('cfgFormas')) {
+    if (!formas.length) return fail('cfgFormas', 'Selecione pelo menos uma forma de envio.');
+    data.formas_envio = formas;
+  }
+  if ($('cfgFreteAtivo')) {
+    const ativo = $('cfgFreteAtivo').checked;
+    const min = parseBRL($('cfgFreteMin')?.value);
+    if (ativo && !(min > 0)) return fail('cfgFreteMin', 'Informe o valor mínimo para frete grátis.');
+    data.frete_gratis_ativo = ativo;
+    data.frete_valor_minimo = ativo ? 'R$ ' + min.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ($('cfgFreteMin')?.value || '');
+  }
+  if ($('cfgPolitica')) data.politica_devolucao = cleanText($('cfgPolitica').value, 1000);
+
+  // Recebimentos (opcional; se preencher, precisa estar completo)
+  const pay = collectPayoutAccount();
+  if (pay.touched) {
+    const hasPix = !!pay.row.pix_key;
+    const hasBank = !!(pay.row.agency && pay.row.account);
+    if (!hasPix && !hasBank) return fail('dataPix', 'Informe uma chave PIX ou agência e conta.');
+    if (pay.row.holder_name.length < 3) return fail('dataTitular', 'Informe o nome do titular.');
+    const hd = onlyDigits(pay.row.holder_document);
+    if (!(isValidCPF(hd) || isValidCNPJ(hd))) return fail('titular-cnpj-cpf', 'CPF/CNPJ do titular inválido.');
+    pay.row.holder_document = formatDocument(hd);
+  }
+  return { ok: true, data, pay };
+}
+
+let savingConfig = false;
+async function saveConfig(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  if (savingConfig) return;
+  if (!userId || myStoreId === null) { toast('Sua sessão não está ativa. Recarregue a página.', 'err'); return; }
+  if (!storeCan('config')) return denyAction('config');
+
+  const v = validateConfig();
+  if (!v.ok) {
+    showAlert(v.msg, 'Revise os dados', '🚫');
+    const el = $(v.field);
+    if (el && el.focus) { el.focus(); }
     return;
   }
 
-  const safeStoreName = sanitizeInputAbc123(cfgStoreName.value);
-  const safeStoreSlogan = sanitizeInputAbc123(cfgStoreSlogan.value);
-  const safeStoreDesc = sanitizeInputAbc123(cfgStoreDesc.value);
-  const safeStoreEmail = sanitizeInputAbc123(cfgStoreEmail.value);
-  const safeStorePhone = sanitizeInput123(cfgStorePhone.value);
-
-  const safeCnpjCpf = sanitizeInput123(document.getElementById('store-cnpj-cpf').value);
-  const safeLegalName = sanitizeInputAbc123(document.getElementById('store-legal-name').value);
-  const safeTradeName = sanitizeInputAbc123(document.getElementById('store-trade-name').value);
-  const safeIE = sanitizeInput123(document.getElementById('store-ie').value);
-  
-  const cfgStoreNameOK = safeStoreName.length >= 3;
-  const cfgStoreDescOK = safeStoreDesc.length >= 10;
-  const cfgStoreEmailOK = safeStoreEmail.length >= 3;
-  const cfgStorePhoneOK = safeStorePhone.length >= 10;
-
-  const storeCnpjCpfOK = safeCnpjCpf.length >= 11;
-  const storeLegalNameOK = safeLegalName.length >= 3;
-  const storeTradeNameOK = safeTradeName.length >= 3;
-  const storeIEOK = safeIE.length >= 8;
-  
-  if (!cfgStoreNameOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo Nome da Loja.");
-    return;
-  }
-
-  if (!cfgStoreDescOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo Descrição da Loja.");
-    return;
-  }
-
-  if (!cfgStoreEmailOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo E-mail de Contato.");
-    return;
-  }
-
-  if (!cfgStorePhoneOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar. Complete o campo WhatsApp / Telefone.");
-    return;
-  }
-
-  /* ------------------------------------------------------------ */
-      
-  if (!storeCnpjCpfOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar.");
-    return;
-  }
-
-  if (!storeLegalNameOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar.");
-    return;
-  }
-
-  if (!storeTradeNameOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar.");
-    return;
-  }
-
-  if (!storeIEOK) {
-    showAlert('Para salvar e atualizar as informações da sua loja, complete todos os campos marcados com * (asterisco).', 'Complete os campos obrigatórios.', 'ℹ️')
-    console.error("Erro ao salvar.");
-    return;
-  }
-
-  const documentRegex = /^[\d\.\-\/]+$/;
-  if (!documentRegex.test(safeCnpjCpf)) {
-    showAlert('Formato de documento inválido.', 'Revise o CNPJ/CPF.', '🚫');
-    return;
-  }
-
-  if (!documentRegex.test(safeStorePhone)) {
-    showAlert('Formato de documento inválido.', 'Revise o Número de Telefone.', '🚫');
-    return;
-  }
-  
-  const btnSalvar = document.getElementById('btn-save-config');
-  const textoOriginal = btnSalvar.innerText;
-  
-  if (btnSalvar) {
-    btnSalvar.innerText = 'Salvando...';
-    btnSalvar.disabled = true;
-  }
-  
+  const btn = $('btn-save-config');
+  const original = btn ? btn.innerText : '';
+  savingConfig = true;
+  if (btn) { btn.innerText = 'Salvando...'; btn.disabled = true; }
   try {
-    const dadosParaSalvar = {
-      nome_loja: safeStoreName,
-      slogan: safeStoreSlogan,
-      descricao: safeStoreDesc,
-      email: safeStoreEmail,
-      telefone: safeStorePhone,
+    const { data, error } = await supabaseClient.from('lojas').update(v.data)
+      .eq('id', myStoreId).eq('user_id', userId).select(STORE_COLUMNS);
+    if (error) throw error;
+    if (!data || data.length !== 1) throw new Error('O banco não confirmou a atualização (nenhuma linha afetada).');
 
-      documento: safeCnpjCpf,
-      nome_razao: safeLegalName,
-      nome_fantasia: safeTradeName,
-      regime_tributario: document.getElementById('store-tax-regime').value,
-      inscricao_estadual: safeIE,
-      
-      // Exemplos de campos que você pode adicionar futuramente:
-      // cor_primaria: document.getElementById('input-cor-tema').value,
-      // cep_origem: document.getElementById('input-cep').value
-    };
-    
-    const { data, error } = await supabaseClient
-      .from('lojas')
-      .update(dadosParaSalvar)
-      .eq('user_id', userId)
-      .select();
-
-    if (error) {
-      throw error;
+    let payoutFailed = false;
+    if (v.pay.touched) {
+      const { data: acc, error: accErr } = await supabaseClient.from('seller_payout_accounts')
+        .upsert({ loja_id: myStoreId, ...v.pay.row, updated_at: new Date().toISOString() }, { onConflict: 'loja_id' }).select().single();
+      if (accErr) {
+        payoutFailed = true;
+        console.error('Erro ao salvar recebimentos:', accErr);
+      } else { PAYOUT_ACCOUNT = acc; renderFinance(); }
     }
-    hasUnsavedChanges = false;
-    console.log("Configurações salvas com sucesso!", data);
-    toast("As configurações foram salvas com sucesso!");
-    
-    renderStoreState(data[0].status, data[0].slug_url, data[0]);
 
+    myStoreData = { ...myStoreData, ...data[0] };
+    renderStoreState(myStoreData.status, myStoreData.slug_url, myStoreData);   // a tela só muda depois da confirmação
+    if (payoutFailed) {
+      toast('Dados da loja salvos, mas os dados de recebimento NÃO foram gravados. Tente novamente.', 'err');
+    } else {
+      hasUnsavedChanges = false; dirtySource = null;
+      toast('As configurações foram salvas com sucesso!', 'ok');
+    }
   } catch (err) {
-    console.error("Erro ao salvar configurações:", err.message);
-    toast("Ocorreu um erro ao salvar. Verifique sua conexão e tente novamente.");
+    console.error('Erro ao salvar configurações:', err);
+    toast(isNetworkError(err) ? 'Sem conexão. Nada foi salvo; suas alterações continuam na tela.' : 'Não foi possível salvar. Suas alterações continuam na tela.', 'err');
   } finally {
-
-    if (btnSalvar) {
-      btnSalvar.innerText = textoOriginal;
-      btnSalvar.disabled = false;
-    }
+    savingConfig = false;
+    if (btn) { btn.innerText = original; btn.disabled = storePhase(myStoreData && myStoreData.status) === 'suspended'; }
   }
 }
-    
+
+// ── Logotipo da loja (Storage + lojas.logo_url), troca segura ──
+async function onCfgLogoSelected(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (!storeCan('config')) return denyAction('config');
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) { toast('Formato não suportado. Use PNG, JPG ou WEBP.', 'err'); return; }
+  if (file.size > 2 * 1024 * 1024) { toast('O logotipo deve ter no máximo 2 MB.', 'err'); return; }
+
+  const oldUrl = STORE_IMAGES.logo;
+  const path = `${userId}/logo-${Date.now()}.${IMG_EXT[file.type]}`;
+  try {
+    toast('Enviando logotipo...', 'info');
+    const { error: upErr } = await supabaseClient.storage.from(STORE_ASSETS_BUCKET).upload(path, file, { contentType: file.type, cacheControl: '3600', upsert: false });
+    if (upErr) throw upErr;
+    const url = supabaseClient.storage.from(STORE_ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
+    const { data, error } = await supabaseClient.from('lojas').update({ logo_url: url }).eq('id', myStoreId).eq('user_id', userId).select('id');
+    if (error || !data || data.length !== 1) {
+      await supabaseClient.storage.from(STORE_ASSETS_BUCKET).remove([path]);          // sem órfão
+      throw error || new Error('O banco não confirmou a atualização do logotipo.');
+    }
+    STORE_IMAGES.logo = url;
+    renderStoreImages();
+    // remove o arquivo anterior (apenas se estava no nosso bucket)
+    const marker = `/storage/v1/object/public/${STORE_ASSETS_BUCKET}/`;
+    if (oldUrl && oldUrl.includes(marker)) {
+      await supabaseClient.storage.from(STORE_ASSETS_BUCKET).remove([decodeURIComponent(oldUrl.split(marker)[1].split('?')[0])]);
+    }
+    toast('Logotipo atualizado!', 'ok');
+  } catch (err) {
+    console.error('Erro ao atualizar logotipo:', err);
+    toast(isMissingRelation(err) || /bucket|logo_url/i.test(err.message || '') ? 'O armazenamento de logotipos ainda não está configurado (migração SQL pendente).' : 'Não foi possível atualizar o logotipo.', 'err');
+  }
+}
 // ── STYLES INJECTOR ──
 function injectModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
@@ -1890,21 +2245,6 @@ function closeAlert() {
   }
 }
 
-function confirmUnsave() {
-  const confirmModal = document.getElementById('confirmModal');
-  hasUnsavedChanges = false; 
-  fetchInitialStoreStatus();
-  
-  if (confirmModal) {
-    confirmModal.classList.remove('active');
-  }
-  
-  if (pendingDestination) {
-    pendingDestination.click(); 
-    pendingDestination = null;
-  }
-}
-
 function closeConfirm() {
   const confirmModal = document.getElementById('confirmModal');
   if (confirmModal) {
@@ -1973,12 +2313,6 @@ async function showConfirmRed(message, title, icon) {
   confirmRedModal.classList.add('active');
 }
   
-function closeAlert() {
-  const alertModal = document.getElementById('alertModal');
-  if (alertModal) {
-    alertModal.classList.remove('active');
-  }
-}
 
 function confirmLogout() {
   const confirmRedModal = document.getElementById('confirmRedModal');
@@ -2029,8 +2363,6 @@ function closeAcc() {
   document.body.classList.remove("nobodyscroll");
 }
 
-fetchInitialStoreStatus()
-
 // ---------------------------------
 supabaseClient.auth.onAuthStateChange(
   async (event, session) => {
@@ -2041,6 +2373,7 @@ supabaseClient.auth.onAuthStateChange(
       if (typeof stopSessionCheck === 'function') {
         stopSessionCheck();
       }
+      unsubscribeFromStoreStatus();
     }
   }
 );
@@ -2098,35 +2431,3 @@ function sanitizeInput123(input) {
 function openConfirmLogout() {
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
-
-/* ----------------------------------------------------- */
-let hasUnsavedChanges = false;
-let pendingDestination = null;
-
-document.querySelectorAll('.inp, .ta, .sel').forEach(elemento => {
-  elemento.addEventListener('input', () => {
-    hasUnsavedChanges = true;
-  });
-});
-
-// const navButtons = document.querySelectorAll('.nav-btn, .mob-btn, .cfg-nav-item, .config-tab');
-const navButtons = document.querySelectorAll('.nav-btn, .mob-btn');
-
-navButtons.forEach(button => {
-    button.addEventListener('click', (event) => {
-        if (hasUnsavedChanges) {
-            event.preventDefault(); 
-            event.stopPropagation();
-
-            pendingDestination = button; 
-            showConfirm('Você tem alterações não salvas. <br>Deseja sair sem salvar?', 'Atenção', '⚠️');
-        }
-    });
-});
-
-window.addEventListener('beforeunload', (event) => {
-  if (hasUnsavedChanges) {
-    event.preventDefault();
-    event.returnValue = ''; 
-  }
-});
