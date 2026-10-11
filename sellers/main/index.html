@@ -139,9 +139,7 @@
   <div class="app-body">
     <nav class="app-sb">
       <div class="sb-seller-info">
-        <div class="sb-av" onclick="window.location.href = '/settings'" title="Meu Perfil">
-          <img src="/images/icons/full/user.webp" id="sidebarAvatar" style="width: 75%; height: auto; display: block; filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.5));" alt="User"/>
-        </div>
+        <div class="logo-preview" id="sbLogoPreview"></div>
         <div class="sb-name" id="sb-store">Loja em Análise..</div>
 		<div class="sb-store" id="sb-storename">N/A</div>
       </div>
@@ -577,7 +575,7 @@
     			<div class="card-title mb16">Logotipo e Visual</div>
     			<div class="logo-upload" role="button" tabindex="0" onclick="$('cfgLogoInput').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();$('cfgLogoInput').click()}">
 <input type="file" id="cfgLogoInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="onCfgLogoSelected(this)">
-      			<div class="logo-preview" id="cfgLogoPreview">TL</div>
+      			<div class="logo-preview" id="cfgLogoPreview"></div>
       			<h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
       			<p class="fs11 muted mt4">PNG, JPG ou WEBP · até 2 MB</p>
     			</div>
