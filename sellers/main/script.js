@@ -442,6 +442,8 @@ function navigate(page, btn, opts) {
 function initNavigation() {
   if (navBound) return;
   navBound = true;
+  initProductsTable();   // ligação dos cliques da tabela de produtos (Editar/Duplicar/Pausar/Exportar/Excluir)
+  initOrdersWrap();      // ligação dos cliques dos cards de pedidos (Detalhes/Despachar/Aprovar devolução)
   document.querySelectorAll('.nav-btn[data-page], .mob-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', ev => {
       ev.preventDefault();
@@ -618,6 +620,8 @@ function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTab
 function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
 
 function toggleMenu(e, el) {
+  // Clique num ITEM do menu: não interrompe a propagação, para a delegação da tabela (data-act) tratar a ação.
+  if (e.target.closest('.action-menu')) return;
   e.stopPropagation();
   const m = el.querySelector('.action-menu');
   document.querySelectorAll('.action-menu.on').forEach(x => { if (x !== m) x.classList.remove('on'); });
