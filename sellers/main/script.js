@@ -1845,23 +1845,19 @@ async function loadStoreImages() {
   } catch (e) { /* imagens são opcionais */ }
 }
 function renderStoreImages() {
+  renderStoreImages1();
   const box = $('cfgLogoPreview');
-  const sbImage = $('sbLogoPreview');
-  if (!box || !sbImage) return;
+  if (!box) return;
   const name = (myStoreData && myStoreData.nome_loja) || '';
   if (STORE_IMAGES.logo) {
     box.textContent = '';
-    sbImage.textContent = '';
     const img = document.createElement('img');
     img.src = STORE_IMAGES.logo; img.alt = 'Logotipo da loja';
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
     box.appendChild(img);
-    sbImage.appendChild(img);
   } else {
     box.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
-    sbImage.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
   }
-  renderStoreImages1();
 }
 function renderStoreImages1() {
   const sbImage = $('sbLogoPreview');
