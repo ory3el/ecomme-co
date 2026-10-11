@@ -1,6 +1,3 @@
-  /* ============================================================
-     TOKENS
-     ============================================================ */
   :root{
     --white:#FFF;
     --black:#000;
@@ -580,3 +577,12 @@
     .btn-ghost-sm{width:0%;}
     .login-card{padding:30px 24px;}
   }
+
+/* ── Ajustes do fluxo integrado (cadastro ↔ painel) ─────────────── */
+.field-msg.show{height:auto; min-height:14px;}                 /* mensagens longas (slug/documento) não são mais cortadas */
+.field-msg.warn{color:#B7791F;}                                 /* aviso neutro: não é erro, não bloqueia */
+html[data-theme="dark"] .field-msg.warn{color:#F0C36B;}
+.cep-retry{margin-top:6px; background:none; border:none; padding:0; font-size:11.5px; font-weight:600; color:var(--blue); cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
+.cep-retry[hidden]{display:none;}
+.success-countdown{font-size:12.5px; color:var(--slate); margin:-4px 0 18px; min-height:18px;}
+#gateError .btn-login{margin-top:14px;}
