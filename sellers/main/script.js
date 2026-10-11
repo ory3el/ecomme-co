@@ -1861,6 +1861,22 @@ function renderStoreImages() {
     box.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
     sbImage.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
   }
+  renderStoreImages1();
+}
+function renderStoreImages1() {
+  const sbImage = $('sbLogoPreview');
+  if (!sbImage) return;
+  const name1 = (myStoreData && myStoreData.nome_loja) || '';
+  if (STORE_IMAGES.logo) {
+    sbImage.textContent = '';
+    const img1 = document.createElement('img');
+    img1.src = STORE_IMAGES.logo;
+    img1.alt = 'Logotipo da loja';
+    img1.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
+    sbImage.appendChild(img1);
+  } else {
+    sbImage.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
+  }
 }
 
 function subscribeToStoreStatus() {
