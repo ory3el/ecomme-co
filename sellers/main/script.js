@@ -177,7 +177,7 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
-const $ = id => document.getElementById(id);
+// const $ = id => document.getElementById(id);
 
 // FAVICON
 const favicon = document.getElementById('favicon');
