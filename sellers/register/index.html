@@ -46,11 +46,11 @@
     	</button>
 		<div class="dot"></div>
 	</div>
-    <h2>Entre para continuar</h2>
-    <p class="sub">Você precisa estar logado para cadastrar sua loja. Assim que você entrar, <strong>voltamos automaticamente</strong> para o cadastro de vendedor.</p>
+    <h2>Entre ou crie sua conta para continuar</h2>
+    <p class="sub">Você precisa de uma conta para cadastrar sua loja. Entre ou crie uma conta e, assim que terminar, <strong>voltamos automaticamente</strong> para o cadastro de vendedor.</p>
     <button class="btn-login" id="btnLogin" onclick="event.preventDefault(); showToast('success','Redirecionando para o login...'); goToLogin()">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      Ir para página de login
+      Entrar ou criar conta
     </button>
   </div>
 
@@ -67,6 +67,18 @@
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
       Acessar Meu Dashboard
     </button>
+  </div>
+
+  <div class="login-card" id="gateError" style="display:none" role="alert">
+    <div class="login-brand">
+      <button onclick="window.location.href = '/sellers'" style="cursor: pointer; border: none; background: none;">
+        <img src="/images/ecomme-sellers.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
+      </button>
+      <div class="dot"></div>
+    </div>
+    <h2>Não foi possível verificar sua conta</h2>
+    <p class="sub">Houve uma falha de conexão ao consultar seus dados. Por segurança, o cadastro só é liberado depois dessa verificação. Verifique sua internet e tente novamente.</p>
+    <button class="btn-login" onclick="bootRegister()">Tentar novamente</button>
   </div>
 </div>
 
@@ -255,6 +267,7 @@
 				<input class="input has-status" id="fldCep" placeholder="00000-000">
                 <span class="input-status" id="statCep"></span>
               </div>
+              <button type="button" class="cep-retry" id="btnCepRetry" hidden onclick="retryCep()">Tentar buscar o CEP novamente</button>
             </div>
             <div class="field" style="animation-delay:.26s">
               <label>Endereço Fiscal <span class="req">*</span></label>
@@ -366,11 +379,11 @@
             <div class="field full" style="animation-delay:.08s">
               <label>URL da sua loja <span class="req">*</span></label>
               <div class="input-wrap">
-                <input class="input has-status" id="fldSlug" placeholder="tech-store" oninput="onSlugInput(true)">
+                <input class="input has-status" id="fldSlug" placeholder="tech-store" maxlength="40" autocomplete="off" oninput="onSlugInput(true)" onblur="onSlugBlur()">
                 <span class="input-status" id="statSlug"></span>
               </div>
               <div class="field-hint">ecomme.com/seller/<strong id="slugPreviewText">sua-loja</strong></div>
-              <div class="field-msg" id="msgSlug">Esse endereço já está em uso</div>
+              <div class="field-msg" id="msgSlug" role="status" aria-live="polite"></div>
             </div>
           </div>
 
@@ -388,7 +401,7 @@
               <div class="upload-zone" id="dzLogo" onclick="document.getElementById('logoInput').click()">
                 <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 <span class="uz-txt">Logo</span>
-                <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleFile(this,'logo')">
+                <input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleFile(this,'logo')">
               </div>
             </div>
             <div class="field" style="flex:1; animation-delay:.14s">
@@ -397,7 +410,7 @@
                 <div class="upload-zone" id="dzCover" onclick="document.getElementById('coverInput').click()">
                   <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   <span class="uz-txt">Arraste ou clique para enviar a capa</span>
-                  <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="handleFile(this,'cover')">
+                  <input type="file" id="coverInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleFile(this,'cover')">
                 </div>
               </div>
             </div>
@@ -485,7 +498,7 @@
           <div class="form-grid g1" id="wrapValorMinimo" style="margin-top:10px; display:none">
             <div class="field full">
               <label>Valor mínimo para frete grátis</label>
-              <input class="input" id="fldValorMinimo" placeholder="R$ 199,00" oninput="updatePreview()">
+              <input class="input" id="fldValorMinimo" placeholder="R$ 199,00" inputmode="numeric" oninput="onValorMinimoInput()">
             </div>
           </div>
 
@@ -494,7 +507,7 @@
               <label style="display:flex; align-items:flex-start; gap:9px; font-weight:500; color:var(--slate); cursor:pointer">
                 <input type="checkbox" id="chkPrivacy" style="cursor: pointer; margin-top:2px; width:15px; height:15px; accent-color:var(--blue)" onchange="validateStep2()">
                 Concordo em utilizar a 
-				  <a href="/terms" onclick="event.preventDefault();event.stopPropagation();showToast('success','Abrindo política de privacidade...')" style="color:var(--blue)">
+				  <a href="/terms/privacy" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--blue)">
 					  Política de Privacidade
 				  </a>
 				 padrão da Ecomme
@@ -582,10 +595,11 @@
     <h2>Sua loja está quase pronta!</h2>
     <p>As informações da sua loja <strong id="successStoreName">N/A</strong> foram enviadas para a verificação da Ecomme. 
 	   Aguarde a validação dos dados; enviaremos uma notificação assim que o processo for concluído com sucesso.</p>
+	<p class="success-countdown" id="successCountdown" aria-live="polite"></p>
 	<div class="success-btns">
-      <a class="btn-ghost-sm" href="/sellers">Valtar ao início</a>
+      <a class="btn-ghost-sm" href="/sellers">Voltar ao início</a>
       <a class="btn-primary" href="/sellers/main" style="width:auto">
-        Ver status da loja
+        Ir para o painel
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
       </a>
     </div>
@@ -601,7 +615,6 @@
 	
 <div class="toast-stack" id="toastStack"></div>
 
-<script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
@@ -611,7 +624,7 @@
 </script>
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
-<script src="https://unpkg.com/imask"></script>
+<script src="https://unpkg.com/imask@7.6.1/dist/imask.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
