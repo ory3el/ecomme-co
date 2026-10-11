@@ -1584,3 +1584,14 @@ tbody tr:hover td{background: var(--line-2);}
       padding: 30px 20px;
   }
 }
+
+/* ── Ajustes do fluxo integrado (cadastro ↔ painel) ─────────────── */
+.toast2.err .toast2-icon{background:#ef4444;color:#fff;}              /* erros deixam de parecer sucesso */
+.toast2.info .toast2-icon{background:#2563eb;color:#fff;}
+.toast2.err{border-color:rgba(239,68,68,.45);}
+#appShell[inert]{pointer-events:none;user-select:none;}
+.ord-details{line-height:1.7;}
+.cfg-panel .fgrp label.fac{font-weight:500;}
+.stab[data-filter]{user-select:none;}
+.btn-withdraw:disabled,.btn:disabled,.btn-p:disabled{opacity:.55;cursor:not-allowed;}
+#cfgFormas label{cursor:pointer;}
