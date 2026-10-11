@@ -1846,16 +1846,20 @@ async function loadStoreImages() {
 }
 function renderStoreImages() {
   const box = $('cfgLogoPreview');
-  if (!box) return;
+  const sbImage = $('sbLogoPreview');
+  if (!box || !sbImage) return;
   const name = (myStoreData && myStoreData.nome_loja) || '';
   if (STORE_IMAGES.logo) {
     box.textContent = '';
+    sbImage.textContent = '';
     const img = document.createElement('img');
     img.src = STORE_IMAGES.logo; img.alt = 'Logotipo da loja';
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
     box.appendChild(img);
+    sbImage.appendChild(img);
   } else {
     box.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
+    sbImage.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
   }
 }
 
