@@ -2176,3 +2176,22 @@ header {
   .btn-madd {padding: 0 4px}
   .btn-madd i {display: none}
 }
+
+/* ── Produto indisponível (badge "paused") no carrinho e nos favoritos ───── */
+.ci.ci-unavailable {
+  opacity: 0.7;
+}
+.ci-unavailable-msg {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--red);
+  background: var(--bg3);
+  border: 1px solid var(--red);
+  border-radius: 100px;
+  padding: 4px 10px;
+  pointer-events: none;
+}
