@@ -1,4 +1,4 @@
-const $ = id  => document.getElementById(id);
+// const $ = id  => document.getElementById(id);
 
 function goToLogin() {
   const atualPage = window.location.pathname + window.location.search;
