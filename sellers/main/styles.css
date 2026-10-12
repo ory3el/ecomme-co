@@ -340,7 +340,7 @@ body {
   cursor: pointer;
   color:
   var(--blue3);
-  padding: 3px/*18px 7px 7px;;; */;
+  /* padding: 1px; */
   border-radius: 50%;
   font-size: 12px;
   font-weight: 600;
@@ -570,7 +570,7 @@ body {
   text-decoration: none;
 }
 .app-hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-ico{width:36px;height:36px;background: var(--surface0);border-radius:50%;border: 1px solid rgba(0,100,255,0.1);/* backdrop-filter:blur(16px); */box-shadow: var(--sh);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:.18s;position:relative;color:var(--black);}
+.hdr-ico{width:36px;height:36px;background: var(--surface0);border-radius:50%;border: 1px solid rgba(0,100,255,0.1);/* backdrop-filter:blur(16px); */box-shadow: var(--sh);display:flex;align-items:center;justify-content:center;font-size: 16px;cursor:pointer;transition:.18s;position:relative;color: var(--muted);}
 .hdr-ico:hover{border-color:var(--border);background:var(--blueDim);color:var(--blue)}
 .hdr-ico .bdg{position:absolute;top:0;right:0;width:14px;height:14px;background:var(--red);color:#fff;font-size:8px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 .seller-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;cursor:pointer;border:2px solid var(--border)}
@@ -614,7 +614,10 @@ body {
 .sb-seller-info{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
 .sb-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;margin-bottom:10px}
 .sb-name {
-  font-size:13px;font-weight:700;color:var(--black);margin-bottom:2px
+  font-size:13px;
+  font-weight:700;
+  color:var(--black);
+  /* margin-bottom:2px; */
 }
 .sb-store {
   font-size:11px;
@@ -1127,8 +1130,8 @@ tbody tr:hover td{background: var(--line-2);}
 /* logo upload */
 .logo-upload{background: transparent;border: 2px dashed var(--border);border-radius:var(--rl);padding:24px;text-align:center;cursor:pointer;transition:.2s;position:relative}
 .logo-upload:hover{border-color:var(--blue);background:var(--blueDim)}
-.logo-preview{width:80px;height:80px;border-radius:var(--rl);background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:24px;margin:0 auto 10px}
-.logo-sidebar{width: 55px;height: 55px;border-radius: 20px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:24px;margin: 0 0 15px;}
+.logo-preview{width:80px;height:80px;border-radius: 20px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:24px;margin:0 auto 10px}
+.logo-sidebar{width: 55px;height: 55px;border-radius: 15px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size: 19px;margin: 0 0 10px;}
 /* shipping rule */
 .ship-rule{background: transparent;border: 1.5px solid var(--border);border-radius: 16px;padding: 12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
 .ship-rule:hover{border-color:var(--border)}
