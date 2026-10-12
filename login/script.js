@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
   if (!user || userError) {
-    await startGoogleLogin();
+    startGoogleLogin();
     //return;
   }
   
