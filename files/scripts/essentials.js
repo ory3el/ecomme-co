@@ -521,6 +521,8 @@ async function refreshProductsIfNeeded() {
     virtualEndIndex = -1;
     virtualColumns = 0;
     renderProducts();
+    updateCart();   // carrinho/favoritos refletem produtos pausados/reativados
+    updateFav();
   } finally {productRefreshRunning = false;}
 }
 
@@ -939,7 +941,8 @@ function getFilteredList() {
     ''
   ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
-  let list = shuffled;
+  // Produtos pausados (badge "paused") não aparecem na lista; continuam em `products` para carrinho/favoritos
+  let list = shuffled.filter(p => !isProductUnavailable(p));
 
   if (q) {
     list = list.filter(p => {
