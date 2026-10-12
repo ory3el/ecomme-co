@@ -2180,7 +2180,7 @@ header {
 
 /* ── Produto indisponível (badge "paused") no carrinho e nos favoritos ───── */
 .ci.ci-unavailable {
-  filter: grayscale(1);
+  /* filter: grayscale(1); */
   pointer-events: none;
   min-height: 100px;
   opacity: 0.6;
@@ -2203,6 +2203,5 @@ header {
 }
 
 .ci-unavailable .ci-qty,
-.ci-unavailable .cart-item-towish {
-  display: none !important;
-}
+.ci-unavailable .cart-item-towish {display: none !important}
+.ci-unavailable .ci-info {filter: grayscale(1)}
