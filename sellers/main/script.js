@@ -2029,40 +2029,271 @@ async function saveConfig(ev) {
   }
 }
 
-// ── Logotipo da loja (Storage + lojas.logo_url), troca segura ──
-async function onCfgLogoSelected(input) {
+/* ── CROPPER EXCLUSIVO DO LOGOTIPO ── */
+let logoCropperInstance = null;
+let logoCropSelectionId = 0;
+let logoCropProcessing = false;
+
+/* ── Selecionar o logotipo e abrir o recorte ── */
+function onCfgLogoSelected(input) {
   const file = input.files && input.files[0];
+
   input.value = '';
+
   if (!file) return;
   if (!storeCan('config')) return denyAction('config');
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) { toast('Formato não suportado. Use PNG, JPG ou WEBP.', 'err'); return; }
-  if (file.size > 2 * 1024 * 1024) { toast('O logotipo deve ter no máximo 2 MB.', 'err'); return; }
+
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    toast('Formato não suportado. Use PNG, JPG ou WEBP.', 'err');
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    toast('O logotipo deve ter no máximo 2 MB.', 'err');
+    return;
+  }
+
+  if (typeof Cropper === 'undefined') {
+    toast('Não foi possível carregar o recortador de imagens.', 'err');
+    return;
+  }
+
+  const image = $('logoImageToCrop');
+  const modal = $('logoCropModal');
+
+  if (!image || !modal) {
+    toast('Não foi possível abrir o recorte do logotipo.', 'err');
+    return;
+  }
+
+  const selectionId = ++logoCropSelectionId;
+  const reader = new FileReader();
+
+  reader.onerror = () => {
+    if (selectionId !== logoCropSelectionId) return;
+    toast('Não foi possível ler a imagem selecionada.', 'err');
+  };
+
+  reader.onload = () => {
+    if (selectionId !== logoCropSelectionId) return;
+
+    image.onload = () => {
+      if (selectionId !== logoCropSelectionId) return;
+
+      if (logoCropperInstance) {
+        logoCropperInstance.destroy();
+        logoCropperInstance = null;
+      }
+
+      modal.classList.add('active');
+
+      requestAnimationFrame(() => {
+        if (selectionId !== logoCropSelectionId) return;
+
+        logoCropperInstance = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 1,
+          responsive: true,
+          background: false,
+          checkOrientation: true,
+          zoomOnWheel: true,
+          movable: true,
+          zoomable: true,
+          rotatable: false,
+          scalable: false
+        });
+      });
+    };
+
+    image.onerror = () => {
+      if (selectionId !== logoCropSelectionId) return;
+      toast('Não foi possível carregar essa imagem.', 'err');
+    };
+
+    image.src = reader.result;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+/* ── Fechar o recorte do logotipo ── */
+function closeLogoCropModal() {
+  logoCropSelectionId++;
+  logoCropProcessing = false;
+
+  const modal = $('logoCropModal');
+  const image = $('logoImageToCrop');
+  const button = $('btnApplyLogoCrop');
+
+  if (logoCropperInstance) {
+    logoCropperInstance.destroy();
+    logoCropperInstance = null;
+  }
+
+  if (modal) modal.classList.remove('active');
+
+  if (image) {
+    image.onload = null;
+    image.onerror = null;
+    image.removeAttribute('src');
+  }
+
+  if (button) button.disabled = false;
+}
+
+/* ── Aplicar o corte quadrado e enviar o arquivo ── */
+function applyLogoCrop() {
+  if (!logoCropperInstance || logoCropProcessing) return;
+
+  const selectionId = logoCropSelectionId;
+  const button = $('btnApplyLogoCrop');
+
+  const canvas = logoCropperInstance.getCroppedCanvas({
+    width: 600,
+    height: 600,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high'
+  });
+
+  if (!canvas) {
+    toast('Não foi possível processar o recorte.', 'err');
+    return;
+  }
+
+  logoCropProcessing = true;
+  if (button) button.disabled = true;
+
+  canvas.toBlob(async (blob) => {
+    if (selectionId !== logoCropSelectionId) return;
+
+    if (!blob) {
+      logoCropProcessing = false;
+      if (button) button.disabled = false;
+      toast('Não foi possível gerar a imagem recortada.', 'err');
+      return;
+    }
+
+    const outputType = blob.type || 'image/webp';
+    const extension = IMG_EXT[outputType] || 'webp';
+
+    const croppedFile = new File(
+      [blob],
+      `logo-${Date.now()}.${extension}`,
+      {
+        type: outputType,
+        lastModified: Date.now()
+      }
+    );
+
+    if (croppedFile.size > 2 * 1024 * 1024) {
+      logoCropProcessing = false;
+      if (button) button.disabled = false;
+      toast('O recorte ficou acima de 2 MB. Ajuste a imagem e tente novamente.', 'err');
+      return;
+    }
+
+    closeLogoCropModal();
+    await uploadStoreLogo(croppedFile);
+
+  }, 'image/webp', 0.92);
+}
+
+/* ── Upload seguro: Storage + lojas.logo_url ── */
+async function uploadStoreLogo(file) {
+  if (!storeCan('config')) return denyAction('config');
+
+  if (!userId || !myStoreId) {
+    toast('Não foi possível identificar sua loja. Atualize a página e tente novamente.', 'err');
+    return;
+  }
+
+  if (!IMG_EXT[file.type]) {
+    toast('Formato final da imagem não suportado.', 'err');
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    toast('O logotipo deve ter no máximo 2 MB.', 'err');
+    return;
+  }
 
   const oldUrl = STORE_IMAGES.logo;
   const path = `${userId}/logo-${Date.now()}.${IMG_EXT[file.type]}`;
+
   try {
     toast('Enviando logotipo...', 'info');
-    const { error: upErr } = await supabaseClient.storage.from(STORE_ASSETS_BUCKET).upload(path, file, { contentType: file.type, cacheControl: '3600', upsert: false });
+
+    const { error: upErr } = await supabaseClient
+      .storage
+      .from(STORE_ASSETS_BUCKET)
+      .upload(path, file, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
+
     if (upErr) throw upErr;
-    const url = supabaseClient.storage.from(STORE_ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
-    const { data, error } = await supabaseClient.from('lojas').update({ logo_url: url }).eq('id', myStoreId).eq('user_id', userId).select('id');
+
+    const url = supabaseClient
+      .storage
+      .from(STORE_ASSETS_BUCKET)
+      .getPublicUrl(path).data.publicUrl;
+
+    const { data, error } = await supabaseClient
+      .from('lojas')
+      .update({ logo_url: url })
+      .eq('id', myStoreId)
+      .eq('user_id', userId)
+      .select('id');
+
     if (error || !data || data.length !== 1) {
-      await supabaseClient.storage.from(STORE_ASSETS_BUCKET).remove([path]);          // sem órfão
-      throw error || new Error('O banco não confirmou a atualização do logotipo.');
+      await supabaseClient
+        .storage
+        .from(STORE_ASSETS_BUCKET)
+        .remove([path]);
+
+      throw error || new Error(
+        'O banco não confirmou a atualização do logotipo.'
+      );
     }
+
     STORE_IMAGES.logo = url;
     renderStoreImages();
-    // remove o arquivo anterior (apenas se estava no nosso bucket)
+
+    // Remover o arquivo anterior somente se pertencer ao bucket da loja.
     const marker = `/storage/v1/object/public/${STORE_ASSETS_BUCKET}/`;
+
     if (oldUrl && oldUrl.includes(marker)) {
-      await supabaseClient.storage.from(STORE_ASSETS_BUCKET).remove([decodeURIComponent(oldUrl.split(marker)[1].split('?')[0])]);
+      const oldPath = decodeURIComponent(
+        oldUrl.split(marker)[1].split('?')[0]
+      );
+
+      const { error: removeError } = await supabaseClient
+        .storage
+        .from(STORE_ASSETS_BUCKET)
+        .remove([oldPath]);
+
+      if (removeError) {
+        console.warn('O logotipo foi atualizado, mas o arquivo anterior não foi removido:', removeError);
+      }
     }
+
     toast('Logotipo atualizado!', 'ok');
+
   } catch (err) {
     console.error('Erro ao atualizar logotipo:', err);
-    toast(isMissingRelation(err) || /bucket|logo_url/i.test(err.message || '') ? 'O armazenamento de logotipos ainda não está configurado (migração SQL pendente).' : 'Não foi possível atualizar o logotipo.', 'err');
+
+    toast(
+      isMissingRelation(err) || /bucket|logo_url/i.test(err.message || '')
+        ? 'O armazenamento de logotipos ainda não está configurado.'
+        : 'Não foi possível atualizar o logotipo.',
+      'err'
+    );
   }
 }
+
 // ── STYLES INJECTOR ──
 function injectModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
