@@ -162,11 +162,11 @@ async function startGoogleLogin() {
   let ready = await initGoogleIdentity();
   
   if (!ready) {
-    toast('O login do Google ainda está carregando. Tentando novamente...', 'info');
+    //toast('O login do Google ainda está carregando. Tentando novamente...', 'info');
     ready = await waitForGoogleIdentity();
   }
   if (!ready) {
-    toast('Não foi possível carregar o login do Google. Tente novamente.', 'err');
+    //toast('Não foi possível carregar o login do Google. Tente novamente.', 'err');
     return;
   }
 
