@@ -1257,6 +1257,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const redirectParam = urlParams.get('redirect');
 
   const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
-  if (!user || userError) startGoogleLogin();
+  if (!user || userError) await startGoogleLogin();
   if (redirectParam) localStorage.setItem('ecomme_redirect_url', redirectParam);
 });
