@@ -163,7 +163,6 @@ async function startGoogleLogin() {
   //showLoadingModal('Um Momento...', 'Carregando Login com o Google');
   if (!ready) {
     toast('O login do Google ainda está carregando.', 'err');
-    startGoogleLogin();
     return;
   }
 
