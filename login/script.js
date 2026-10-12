@@ -592,7 +592,8 @@ async function loginExistingGoogleAccount(credential, account) {
       if (oauthError) {
         throw oauthError;
         return;
-      } else {
+      }
+      if (!oauthError) {
         if (window.location.pathname === '/login') {
           redirectTo: window.location.origin + window.location.pathname + window.location.search
         } else {
