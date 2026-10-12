@@ -76,19 +76,6 @@ if (typeof SUPABASE_URL && SUPABASE_ANON_KEY === 'undefined') {
   let userId = null;
 }
 
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (event !== 'SIGNED_IN' && event !== 'INITIAL_SESSION') return;
-  const user = session?.user;
-  if (!user) return;
-
-  if (window.location.pathname === '/login') {
-    redirectTo: window.location.origin + window.location.pathname + window.location.search
-  } else {
-    window.location.reload();
-  }
-});
-
 // ── NAV ──
 function buttonLink(url) {
   window.location.href = url;
@@ -207,7 +194,6 @@ function triggerGooglePopupFallback() {
       }
     }
   });
-  window.location.reload();
 }
 
 // -------------------------------
