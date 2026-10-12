@@ -586,7 +586,7 @@ async function loginExistingGoogleAccount(credential, account) {
     ) {
       hideLoadingModal();
       const {data: oauthData, error: oauthError} = await supabaseClient.auth.signInWithOAuth({provider: 'google', options: {
-        window.location.reload(),
+        redirectTo: window.location.origin + window.location.pathname + window.location.search,
         queryParams: {login_hint: account?.email || ''}
         }
       });
