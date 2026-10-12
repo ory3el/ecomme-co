@@ -200,21 +200,21 @@ linear-gradient(
 rgba(255,255,255,.32),
 rgba(255,255,255,.16)
 );
-
-backdrop-filter:blur(18px) saturate(170%);
-
--webkit-backdrop-filter:blur(18px) saturate(170%);
-
-border:1px solid rgba(255,255,255,.25);
-
-box-shadow:
+      backdrop-filter:blur(18px) saturate(170%);
+      -webkit-backdrop-filter:blur(18px) saturate(170%);
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow:
 0 2px 12px rgba(0,0,0,.08),
 inset 0 1px rgba(255,255,255,.55);
-        
-      min-width: 40px; min-height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border2); color: var(--muted);
-    transition:
+      min-width: 40px;
+      min-height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      transition:
     transform .35s,
     box-shadow .35s,
     background .35s;
@@ -258,6 +258,7 @@ inset 0 1px rgba(255,255,255,.55);
     .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
     .btn-register {
+      order: 2;
       width: auto;
       min-height: 40px;
       /* background: var(--blue); */
@@ -291,21 +292,23 @@ inset 0 1px rgba(255,255,255,.55);
     }
     .btn-dashboard:hover { background: var(--blue2); transform: translateY(-1px); }
 
-    .header-profile { 
+    .header-profile {
+      order: 3;
       width: 40px;
       height: 40px;
       background: #fff;
       border: 1px solid var(--bg3, var(--blue3));
       overflow: hidden;
       cursor: pointer;
-      color: var(--blue3); padding: 3px/*18px 7px 7px*/;
+      color: var(--blue2);
+      /* padding: 3px/*18px 7px 7px;;; */ */;
       border-radius: 50%;
       font-size: 12px;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px; 
+      gap: 8px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .header-profile:hover { 
