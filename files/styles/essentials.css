@@ -432,6 +432,7 @@ header {
       height: 28px;
       border-radius: 50%;
       /* background: rgba(0,0,0,0.1); */
+      pointer-events: auto;
       box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
       border: 1px solid var(--border1);
       font-size: 13px;
@@ -2179,8 +2180,12 @@ header {
 
 /* ── Produto indisponível (badge "paused") no carrinho e nos favoritos ───── */
 .ci.ci-unavailable {
-  opacity: 0.7;
+  filter: grayscale(1);
+  pointer-events: none;
+  min-height: 100px;
+  opacity: 0.6;
 }
+
 .ci-unavailable-msg {
   position: absolute;
   right: 14px;
@@ -2188,10 +2193,11 @@ header {
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
-  color: var(--red);
-  background: var(--bg3);
-  border: 1px solid var(--red);
+  color: var(--text);
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 20px var(--box-shdw1);
   border-radius: 100px;
-  padding: 4px 10px;
+  padding: 7px 10px;
   pointer-events: none;
 }
