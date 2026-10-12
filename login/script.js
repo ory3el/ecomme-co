@@ -191,10 +191,10 @@ function triggerGooglePopupFallback() {
       redirectTo: window.location.origin + window.location.pathname + window.location.search,
       queryParams: {
         prompt: 'select_account'
-      };
-      window.location.reload();
+      }
     }
   });
+  window.location.reload();
 }
 
 // -------------------------------
