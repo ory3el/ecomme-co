@@ -159,10 +159,14 @@ async function initGoogleIdentity() {
 
 const selectWait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function startGoogleLogin() {
-  const ready = await initGoogleIdentity();
-  //showLoadingModal('Um Momento...', 'Carregando Login com o Google');
+  let ready = await initGoogleIdentity();
+  
   if (!ready) {
-    toast('O login do Google ainda está carregando.', 'err');
+    toast('O login do Google ainda está carregando. Tentando novamente...', 'info');
+    ready = await waitForGoogleIdentity();
+  }
+  if (!ready) {
+    toast('Não foi possível carregar o login do Google. Tente novamente.', 'err');
     return;
   }
 
@@ -198,32 +202,18 @@ function triggerGooglePopupFallback() {
 
 // -------------------------------
 
-function waitForGoogleIdentity() {
-  return new Promise(resolve => {
+async function waitForGoogleIdentity(maxAttempts = 100, interval = 100) {
+  for (let tries = 0; tries < maxAttempts; tries++) {
     if (
       typeof google !== 'undefined' &&
       google.accounts?.id
     ) {
-      resolve(initGoogleIdentity());
-      return;
+      const ready = await initGoogleIdentity();
+      if (ready) return true;
     }
-    let tries = 0;
-    const timer = setInterval(() => {
-      tries++;
-      if (
-        typeof google !== 'undefined' &&
-        google.accounts?.id
-      ) {
-        clearInterval(timer);
-        resolve(initGoogleIdentity());
-        return;
-      }
-      if (tries >= 100) {
-        clearInterval(timer);
-        resolve(false);
-      }
-    }, 100);
-  });
+    await selectWait(interval);
+  }
+  return false;
 }
 
 // ------------------------------------------------
