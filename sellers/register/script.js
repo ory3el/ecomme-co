@@ -3,7 +3,7 @@ function goToLogin() {
   window.location.href = '/login?redirect=' + encodeURIComponent(atualPage);
 }
 
-const $ = id => document.getElementById(id);
+// const $ = id => document.getElementById(id);
 let personType = 'pf';
 let isSubmitting = false;     // declarado aqui para existir antes de qualquer validação
 
