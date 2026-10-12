@@ -75,23 +75,6 @@ if (typeof SUPABASE_URL && SUPABASE_ANON_KEY === 'undefined') {
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let userId = null;
 }
-  
-window.addEventListener('DOMContentLoaded', async () => {
-  initTheme();
-  initThemeToggle();
-  const urlParams = new URLSearchParams(window.location.search);
-  const redirectParam = urlParams.get('redirect');
-
-  const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
-  if (!user || userError) {
-    startGoogleLogin();
-    //return;
-  }
-  
-  if (redirectParam) {
-    localStorage.setItem('ecomme_redirect_url', redirectParam);
-  }
-});
 
 // ── NAV ──
 function buttonLink(url) {
@@ -1265,3 +1248,14 @@ function openConfirmLogout() {
   closeAcc();
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
+
+window.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
+  initThemeToggle();
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectParam = urlParams.get('redirect');
+
+  const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
+  if (!user || userError) startGoogleLogin();
+  if (redirectParam) localStorage.setItem('ecomme_redirect_url', redirectParam);
+});
