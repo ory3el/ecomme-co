@@ -70,7 +70,7 @@ html.theme-transition, html.theme-transition * {
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+body {background: var(--bg);color: var(--text);font-family: 'DM Sans', sans-serif;font-size: 14px;line-height: 1.5;overflow-x: hidden;overflow-y: hidden;}
 button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
 img { max-width: 100%; display: block; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
@@ -78,17 +78,28 @@ body.nobodyscroll { overflow: hidden; }
 [hidden] { display: none !important; }
 
 /* ── AUTH GATE ───────────────────────────────────────────────────── */
-.auth-gate { position: fixed; inset: 0; z-index: 6000; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 24px; }
+.auth-gate {position: fixed;inset: 0;z-index: 6000;display: flex;align-items: center;justify-content: center;background: var(--bg);padding: 24px;}
 .auth-gate.hidden { display: none; }
-.gate-pane { display: none; text-align: center; max-width: 380px; color: var(--muted); }
+.gate-pane {padding: 40px;background: var(--surface);border-radius: 30px;box-shadow: 0 0 30px rgb(0 0 0 / 10%);display: none;text-align: center;max-width: 380px;color: var(--muted);}
 .gate-pane h2 { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 600; color: var(--text); margin: 14px 0 8px; }
-.gate-pane p { margin-bottom: 18px; }
+.gate-pane p {margin: 0 auto 18px;text-align: center;max-width: 280px;}
 .gate-ico { width: 56px; height: 56px; margin: 0 auto; border-radius: 18px; background: var(--blue-dim); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 22px; }
 .gate-spinner { width: 34px; height: 34px; margin: 0 auto 14px; border-radius: 50%; border: 3px solid var(--border2); border-top-color: var(--blue); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.btn-solid { background: var(--blue); color: #fff; padding: 11px 20px; border-radius: 14px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; transition: background .2s, transform .2s, box-shadow .2s; box-shadow: 0 8px 20px rgba(21,115,248,.24); }
-.btn-solid:hover { background: var(--blue2); transform: translateY(-1px); }
+.btn-solid {background: var(--blue);color: #fff;padding: 11px 20px;border-radius: 14px;font-size: 13.5px;font-weight: 600;display: inline-flex;align-items: center;gap: 10px;transition: background .2s, transform .2s, box-shadow .2s;box-shadow: 0 8px 20px rgba(21,115,248,.24);position: relative;overflow: hidden;}
+.btn-solid:hover {background: var(--blue2);transform: /*translateY(-1px)*/ scale(1.05);}
+.btn-solid::after {
+  content:"";
+  position:absolute;
+  inset: 0;
+  background: linear-gradient(105deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);
+  transform:translateX(-120%);
+  transition:transform 0.7s
+}
+.btn-solid:hover::after {
+  transform:translateX(120%)
+}
 
 /* ── SHELL + FUNDO AZUL CURVO ────────────────────────────────────── */
 .sess-app { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
