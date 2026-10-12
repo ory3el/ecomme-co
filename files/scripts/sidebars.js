@@ -1202,6 +1202,33 @@ let modalImageIndex = 0;
 let products = [];
 let shuffled = [];
 
+/* ─── PRODUTOS INDISPONÍVEIS ─────────────────────────────────────────────
+   badge "paused" (definido no Supabase pelo vendedor):
+   • não aparece na lista de produtos (filtro em getFilteredList → essentials.js)
+   • continua em `products`, então carrinho/favoritos ainda o encontram
+   • aparece em carrinho/favoritos como "Indisponível", sempre por último
+   • não pode ser comprado (addToCart / addAllFavToCart / total / checkout) */
+const UNAVAILABLE_BADGE = 'paused';
+
+function isProductUnavailable(product) {
+  return !!product && product.badge === UNAVAILABLE_BADGE;
+}
+
+// Partição estável usada só para EXIBIR: disponíveis primeiro, indisponíveis por último.
+// Não altera o array `cart`/`fav` (a ordem salva no Supabase continua a mesma).
+function sortUnavailableLast(items) {
+  return [
+    ...items.filter(item => !isProductUnavailable(item)),
+    ...items.filter(item => isProductUnavailable(item))
+  ];
+}
+
+function unavailableMsgHtml(item) {
+  return isProductUnavailable(item)
+    ? '<span class="ci-unavailable-msg">Indisponível</span>'
+    : '';
+}
+
 const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
 const EDGE_IMAGE_PRESETS = {
   grid: 'grid',
@@ -1419,6 +1446,8 @@ async function refreshProductsIfNeeded() {
     virtualStartIndex = -1;
     virtualEndIndex = -1;
     virtualColumns = 0;
+    updateCart();   // o vendedor pode ter pausado/reativado um produto
+    updateFav();
   } finally {productRefreshRunning = false;}
 }
 
@@ -1596,6 +1625,10 @@ function addToCart(id, qty = 1) {
     console.error("Produto não encontrado para o carrinho:", normalizedId);
     return;
   }
+  if (isProductUnavailable(p)) {
+    showToast(`${p.name} está indisponível no momento.`, 'err');
+    return;
+  }
   const ex = cart.find(
     x => String(x.id) === normalizedId
   );
@@ -1657,12 +1690,15 @@ function updateCart() {
 
   cart = validCart;
 
-  const total = cart.reduce(
+  // Itens indisponíveis ficam na lista, mas não entram no total nem na contagem
+  const buyableCart = cart.filter(item => !isProductUnavailable(item));
+
+  const total = buyableCart.reduce(
     (sum, item) => sum + item.price * item.qty,
     0
   );
 
-  const count = cart.reduce(
+  const count = buyableCart.reduce(
     (sum, item) => sum + item.qty,
     0
   );
@@ -1689,13 +1725,13 @@ function updateCart() {
   }
 
   if ($('cartSidebar')) {
-  el.innerHTML = cart.map(item => {
+  el.innerHTML = sortUnavailableLast(cart).map(item => {
     const images = getProductImages(item);
     const image = images[0] || null;
     const optimizedImage = image ? getOptimizedImageUrl( image, EDGE_IMAGE_PRESETS.thumbnail ) : null;
 
     return `
-      <div class="ci">
+      <div class="ci${isProductUnavailable(item) ? ' ci-unavailable' : ''}">
         <div class="ci-img" onclick="openProduct('${item.id}'); closeCart()">
           ${
             image
@@ -1739,6 +1775,7 @@ function updateCart() {
           title="${fav.some(f => String(f.id) === String(item.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
           <i class="fa-regular fa-heart"></i>
         </button>
+        ${unavailableMsgHtml(item)}
       </div>
     `;
   }).join('');
@@ -1776,6 +1813,10 @@ function closeCart() {
 function checkout() {
   if (!cart.length) {
     showAlert("Para finalizar a compra, é necessário adicionar produtos ao carrinho primeiro!", "Sem Itens no Carrinho", "ℹ️");
+    return;
+  }
+  if (!cart.some(item => !isProductUnavailable(item))) {
+    showAlert("Todos os produtos do seu carrinho estão indisponíveis no momento. Remova-os ou aguarde a volta ao estoque.", "Produtos Indisponíveis", "ℹ️");
     return;
   }
   showToast('Redirecionando para o pagamento... 🔒');
@@ -1912,10 +1953,13 @@ function updateFav() {
 
   fav = validFav;
 
-  const total = fav.reduce(
-    (sum, item) => sum + item.price * item.qty,
-    0
-  );
+  // O total considera apenas o que pode ser adicionado ao carrinho
+  const total = fav
+    .filter(item => !isProductUnavailable(item))
+    .reduce(
+      (sum, item) => sum + item.price * item.qty,
+      0
+    );
 
   const count = fav.reduce(
     (sum, item) => sum + item.qty,
@@ -1944,13 +1988,13 @@ function updateFav() {
   }
 
   if ($('favItems') && $('favSidebar')) {
-   el.innerHTML = fav.map(item => {
+   el.innerHTML = sortUnavailableLast(fav).map(item => {
     const images = getProductImages(item);
     const image = images[0] || null;
     const optimizedImage = image ? getOptimizedImageUrl(image, EDGE_IMAGE_PRESETS.thumbnail) : null;
 
     return `
-      <div class="ci">
+      <div class="ci${isProductUnavailable(item) ? ' ci-unavailable' : ''}">
         <div class="ci-img" onclick="openProduct('${item.id}'); closeFav()">
           ${
             image
@@ -1969,6 +2013,7 @@ function updateFav() {
           <div class="ci-price" data-no-translate>
             ${window.ecommeFormatPrice(item.price)}
           </div>
+          ${isProductUnavailable(item) ? '' : `
           <button
             class="btn-madd"
             onclick="
@@ -1979,7 +2024,7 @@ function updateFav() {
             "
           >
             Adicionar ao Carrinho
-          </button>
+          </button>`}
         </div>
         <button
           class="del"
@@ -1987,6 +2032,7 @@ function updateFav() {
         >
           <i class="fa-regular fa-trash-can"></i>
         </button>
+        ${unavailableMsgHtml(item)}
       </div>
     `;
    }).join('');
@@ -2014,14 +2060,22 @@ function addAllFavToCart() {
     showToast('Adicione produtos primeiro! 😊');
     return;
   }
-  fav.forEach(produto => {
+  const availableFav = fav.filter(produto => !isProductUnavailable(produto));
+  if (!availableFav.length) {
+    showToast('Nenhum dos itens salvos está disponível no momento.', 'err');
+    return;
+  }
+  availableFav.forEach(produto => {
     addToCart(String(produto.id), 1);
   });
-  fav = [];
+  const hadUnavailable = fav.length > availableFav.length;
+  fav = fav.filter(produto => isProductUnavailable(produto));   // indisponíveis continuam nos favoritos
   updateFav();
   closeFav();
   openCart();
-  showToast('Todos os itens foram para o carrinho! 🛒');
+  showToast(hadUnavailable
+    ? 'Os itens disponíveis foram para o carrinho! 🛒'
+    : 'Todos os itens foram para o carrinho! 🛒');
 }
 
 function moveFromCartToFav(id) {
