@@ -159,12 +159,13 @@ async function initGoogleIdentity() {
 
 const selectWait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function startGoogleLogin() {
-  /*const ready = */await initGoogleIdentity();
+  const ready = await initGoogleIdentity();
   //showLoadingModal('Um Momento...', 'Carregando Login com o Google');
-  /*if (!ready) {
+  if (!ready) {
     toast('O login do Google ainda está carregando.', 'err');
+    startGoogleLogin();
     return;
-  }*/
+  }
 
   google.accounts.id.prompt(notification => {
     console.log('Google Prompt Notification:', notification);
