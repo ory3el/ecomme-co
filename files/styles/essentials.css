@@ -2201,3 +2201,8 @@ header {
   padding: 7px 10px;
   pointer-events: none;
 }
+
+.ci-unavailable .ci-qty,
+.ci-unavailable .cart-item-towish {
+  display: none !important;
+}
