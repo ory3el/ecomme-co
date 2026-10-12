@@ -178,7 +178,7 @@ async function startGoogleLogin() {
     if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
       const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
       console.warn('One Tap não exibido pelo motivo:', reason);
-      triggerGooglePopupFallback();
+      //triggerGooglePopupFallback();
     }
   });
   await selectWait(5000);
