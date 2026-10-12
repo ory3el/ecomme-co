@@ -189,6 +189,7 @@ function triggerGooglePopupFallback() {
     provider: 'google',
     options: {
       redirectTo: window.location.origin + window.location.pathname + window.location.search,
+      window.location.reload(),
       queryParams: {
         prompt: 'select_account'
       }
@@ -585,6 +586,7 @@ async function loginExistingGoogleAccount(credential, account) {
     ) {
       hideLoadingModal();
       const {data: oauthData, error: oauthError} = await supabaseClient.auth.signInWithOAuth({provider: 'google', options: {
+        window.location.reload(),
         queryParams: {login_hint: account?.email || ''}
         }
       });
