@@ -584,18 +584,21 @@ async function loginExistingGoogleAccount(credential, account) {
       )
     ) {
       hideLoadingModal();
-      const {data: oauthData, error: oauthError} =
-        await supabaseClient.auth
-          .signInWithOAuth({
-            provider: 'google',
-            options: {
-              redirectTo: window.location.origin + window.location.pathname + window.location.search,
-              queryParams: {login_hint: account?.email || ''}
-            }
-          });
+      const {data: oauthData, error: oauthError} = await supabaseClient.auth.signInWithOAuth({provider: 'google', options: {
+        queryParams: {login_hint: account?.email || ''}
+        }
+      });
 
-      if (oauthError) throw oauthError;
-      return;
+      if (oauthError) {
+        throw oauthError;
+        return;
+      } else {
+        if (window.location.pathname === '/login') {
+          redirectTo: window.location.origin + window.location.pathname + window.location.search
+        } else {
+          window.location.reload();
+        }
+      }
     }
     throw error;
   } catch (error) {
