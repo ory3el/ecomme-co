@@ -2153,6 +2153,7 @@ function applyLogoCrop() {
   const canvas = logoCropperInstance.getCroppedCanvas({
     width: 600,
     height: 600,
+    fillColor: '#ffffff',
     imageSmoothingEnabled: true,
     imageSmoothingQuality: 'high'
   });
