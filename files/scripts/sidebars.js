@@ -1755,7 +1755,7 @@ function updateCart() {
             >
               −
             </button>
-            <span class="qn">${item.qty}</span>
+            <span class="qn">${item.qty}x</span>
             <button
               class="qb"
               onclick="changeCartQty('${item.id}', 1)"
