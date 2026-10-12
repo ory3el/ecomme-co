@@ -914,6 +914,30 @@
   </div>
 </div>
 
+<div id="logoCropModal" class="crop-modal">
+  <div class="crop-modal-content">
+    <div class="crop-hd">
+      <h3>Ajustar Foto da Loja</h3>
+      <button type="button" class="cart-cls" onclick="closeLogoCropModal()" aria-label="Fechar recorte">
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <p class="fs11 muted" style="margin-bottom:12px">
+      Ajuste o logotipo dentro do quadrado. A imagem final terá proporção 1:1.
+    </p>
+    <div class="img-container logo-crop-container">
+      <img id="logoImageToCrop" src="" alt="Logotipo da loja para recortar">
+    </div>
+    <div class="av-btns logo-crop-actions" style="justify-content:flex-end;margin-top:15px">
+      <button type="button" class="btn-xs gray" onclick="closeLogoCropModal()">Cancelar</button>
+      <button type="button" class="btn-xs blue" id="btnApplyLogoCrop" onclick="applyLogoCrop()"><span style="font-weight:bold">✓&nbsp;</span>Aplicar recorte</button>
+    </div>
+  </div>
+</div>
+	
 <div id="imageActionModal" class="m-alert-container">
   <div class="m-alert-content" style="max-width: 320px;">
     <div class="m-alert-icon"><i class="fa-solid fa-image"></i></div>
