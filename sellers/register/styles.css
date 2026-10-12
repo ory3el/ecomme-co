@@ -494,7 +494,7 @@
   .login-foot a:hover{text-decoration:underline;}
 
   /* ============================================================ CONFIRM MODAL (exit) */
-  .confirm-ov{position:fixed; inset:0; z-index:4000; background:rgba(14,22,38,.4); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px);}
+  .confirm-ov{position:fixed;inset:0;z-index:4000;background:rgba(14,22,38,.4);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;/* backdrop-filter:blur(4px); */}
   .confirm-ov.on{opacity:1; pointer-events:all;}
   .confirm-card{background:#fff; border-radius:var(--r-lg); padding:30px; max-width:360px; width:100%; /*box-shadow:var(--shadow-3);*/ transform:scale(.9); transition:transform .3s var(--spring);}
   .confirm-ov.on .confirm-card{transform:scale(1);}
