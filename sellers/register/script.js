@@ -57,7 +57,6 @@ function showGate(which){
   $('gateChecking').style.display = 'flex';
   gate.style.display = 'flex';
   gate.classList.remove('hidden');
-  $('gateChecking').style.display = 'none';
   shell.classList.add('inert');
 }
 
@@ -122,6 +121,7 @@ async function prefillFromProfile(user){
   validateStep1();
 }
 
+$('gateChecking').style.display = 'none';
 window.addEventListener('DOMContentLoaded', bootRegister);
 
 /* ============================================================ MASK HELPERS */
