@@ -1871,7 +1871,7 @@ function renderStoreImages1() {
     img1.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
     sbImage.appendChild(img1);
   } else {
-    sbImage.textContent = (name.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
+    sbImage.textContent = (name1.match(/\p{L}/gu) || []).slice(0, 2).join('').toUpperCase() || '🏪';
   }
 }
 
