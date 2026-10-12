@@ -589,7 +589,7 @@ async function loginExistingGoogleAccount(credential, account) {
         }
       });
 
-      if (window.location.pathname === '/login') {
+      if (window.location.pathname === '/products') {
         window.location.reload();
         //redirectTo: window.location.origin + window.location.pathname + window.location.search
       /*} else {
