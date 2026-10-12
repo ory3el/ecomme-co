@@ -54,8 +54,10 @@ function showGate(which){
   }
   const pane = $(GATE_PANES[which]);
   if (pane) pane.style.display = 'block';
+  $('gateChecking').style.display = 'flex';
   gate.style.display = 'flex';
   gate.classList.remove('hidden');
+  $('gateChecking').style.display = 'none';
   shell.classList.add('inert');
 }
 
