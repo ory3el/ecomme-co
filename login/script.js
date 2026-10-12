@@ -589,16 +589,16 @@ async function loginExistingGoogleAccount(credential, account) {
         }
       });
 
+      if (window.location.pathname === '/login') {
+        window.location.reload();
+        //redirectTo: window.location.origin + window.location.pathname + window.location.search
+      /*} else {
+        window.location.reload();
+      */}
+      
       if (oauthError) {
         throw oauthError;
         return;
-      }
-      if (!oauthError) {
-        if (window.location.pathname === '/login') {
-          redirectTo: window.location.origin + window.location.pathname + window.location.search
-        } else {
-          window.location.reload();
-        }
       }
     }
     throw error;
