@@ -1227,6 +1227,55 @@ tbody tr:hover td{background: var(--line-2);}
   100% { transform: scale(1); opacity: 1; }
 }
 
+
+/* ── CROP DO LOGOTIPO DA LOJA ── */
+#logoCropModal .crop-modal-content {
+  width: 90%;
+  max-width: 520px;
+}
+
+#logoCropModal .logo-crop-container {
+  width: 100%;
+  height: min(55vh, 420px);
+  max-height: none;
+  overflow: hidden;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+#logoImageToCrop {
+  display: block;
+  max-width: 100%;
+}
+
+#logoCropModal .logo-crop-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#btnApplyLogoCrop:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 480px) {
+  #logoCropModal {
+    padding: 16px;
+  }
+
+  #logoCropModal .crop-modal-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  #logoCropModal .logo-crop-container {
+    height: min(50vh, 340px);
+  }
+}
+
 /* ── MENU SIDEBAR ────────────────────────────────────────── */
     /* Theme switch, inside the More sidebar */
     .theme-switch-wrap { padding: 6px 10px 14px; }
@@ -1583,7 +1632,7 @@ tbody tr:hover td{background: var(--line-2);}
     }
   }
     
-  .login-card {
+  .login-card {f
       max-width: 350;
       padding: 30px 20px;
   }
