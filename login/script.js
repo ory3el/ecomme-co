@@ -76,6 +76,19 @@ if (typeof SUPABASE_URL && SUPABASE_ANON_KEY === 'undefined') {
   let userId = null;
 }
 
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event !== 'SIGNED_IN' && event !== 'INITIAL_SESSION') return;
+  const user = session?.user;
+  if (!user) return;
+
+  if (window.location.pathname === '/login') {
+    redirectTo: window.location.origin + window.location.pathname + window.location.search
+  } else {
+    window.location.reload();
+  }
+});
+
 // ── NAV ──
 function buttonLink(url) {
   window.location.href = url;
@@ -590,13 +603,6 @@ async function loginExistingGoogleAccount(credential, account) {
         queryParams: {login_hint: account?.email || ''}
         }
       });
-
-      if (window.location.pathname === '/products') {
-        window.location.reload();
-        //redirectTo: window.location.origin + window.location.pathname + window.location.search
-      /*} else {
-        window.location.reload();
-      */}
       
       if (oauthError) {
         throw oauthError;
