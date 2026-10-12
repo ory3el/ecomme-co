@@ -189,10 +189,10 @@ function triggerGooglePopupFallback() {
     provider: 'google',
     options: {
       redirectTo: window.location.origin + window.location.pathname + window.location.search,
-      window.location.reload(),
       queryParams: {
         prompt: 'select_account'
-      }
+      };
+      window.location.reload();
     }
   });
 }
