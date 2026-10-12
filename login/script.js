@@ -568,12 +568,15 @@ async function loginExistingGoogleAccount(credential, account) {
   hideLoadingModal();
   showLoadingModal('Entrando...', 'Verificando sua conta');
   try {
+    sessionStorage.setItem('ecomme_google_onetap_login', '1');
     const { data, error } = await supabaseClient.auth.signInWithIdToken({
-      provider: 'google', 
+      provider: 'google',
       token: credential
     });
-    
+
     if (!error && data?.session) return;
+    sessionStorage.removeItem('ecomme_google_onetap_login');
+    
     console.error('Erro no signInWithIdToken:', error);
     if (
       error &&
@@ -1059,6 +1062,17 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       }
 
       localStorage.removeItem('ecomme_redirect_url');
+
+      const isGoogleOneTapLogin = event === 'SIGNED_IN' && sessionStorage.getItem('ecomme_google_onetap_login') === '1';
+      if (isGoogleOneTapLogin) {
+        sessionStorage.removeItem('ecomme_google_onetap_login');
+        const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+        if (currentPath !== '/login') {
+          window.location.reload();
+          return;
+        }
+      }
+ 
       if (
         document.getElementById('formLogin')
       ) {
