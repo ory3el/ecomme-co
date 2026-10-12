@@ -1632,8 +1632,8 @@ tbody tr:hover td{background: var(--line-2);}
     }
   }
     
-  .login-card {f
-      max-width: 350;
+  .login-card {
+      max-width: 350px;
       padding: 30px 20px;
   }
 }
