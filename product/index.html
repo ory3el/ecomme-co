@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smartwatch Pro X7 | Ecomme</title>
+  <title>[Product] | Ecomme</title>
 
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="icon" id="favicon" type="image/png" href="../images/favicon-light.png">
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   
 </head>
 <body>
 
 <!-- TOPBAR -->
-<div class="topbar" id="topbar">
+<!--<div class="topbar" id="topbar">
   🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
   <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
-</div>
+</div>-->
 
   <!-- HEADER -->
   <header>
@@ -74,9 +74,9 @@
     <span class="sep">/</span>
     <a href="/products">Produtos</a>
     <span class="sep">/</span>
-    <a href="/products?cat=Eletrônicos">Eletrônicos</a>
+    <a href="/products?cat=Eletrônicos">[Category]</a>
     <span class="sep">/</span>
-    <span class="cur">Smartwatch Pro X7</span>
+    <span class="cur">[Product]</span>
   </div>
 </div>
 
@@ -93,7 +93,7 @@
       <button class="gallery-fav" id="galFav" onclick="toggleWishlist(0)">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
-      <span class="gmain-emoji" id="gmainEmoji">⌚</span>
+      <span class="gmain-emoji" id="gmainEmoji"></span>
       <div class="gallery-zoom-hint">
         <svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         Passe o mouse para ampliar
@@ -110,22 +110,22 @@
       <span class="info-cat">Eletrônicos</span>
       <span class="info-sku">ID: 0000-0000-0000</span>
     </div>
-    <h1 class="info-name">Smartwatch Pro X7</h1>
+    <h1 class="info-name">[Product]</h1>
 
     <div class="info-rating-row">
       <span class="stars-lg">★★★★★</span>
-      <span class="rating-val">4.9</span>
-      <a class="rating-link" onclick="goToTab('reviews')">2.847 avaliações</a>
+      <span class="rating-val">0.0</span>
+      <a class="rating-link" onclick="goToTab('reviews')">0 avaliações</a>
       <div class="rating-sep"></div>
-      <span class="sold-count">+12.400 vendidos</span>
+      <span class="sold-count">+0 vendidos</span>
     </div>
 
     <div class="info-price-row">
-      <span class="info-price">R$ 189,90</span>
-      <span class="info-old">R$ 299,00</span>
-      <span class="info-disc-pill">-36%</span>
+      <span class="info-price">R$ 0,00</span>
+      <span class="info-old">R$ 0,00</span>
+      <span class="info-disc-pill">-0%</span>
     </div>
-    <div class="info-installment">ou em <strong>10x de R$ 18,99</strong> sem juros · via Pix <strong>5% de desconto</strong></div>
+    <div class="info-installment">ou em <strong>10x de R$ 0,00</strong> sem juros · via Pix <strong>5% de desconto</strong></div>
 
     <p class="info-desc-short">
       Smartwatch com monitor cardíaco, SpO2, GPS integrado e resistência à água 5ATM.
@@ -150,13 +150,13 @@
       </div>
       <span class="stock-note">
         <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-        Restam apenas 8 unidades!
+        Restam apenas [ ] unidades!
       </span>
     </div>
 
     <div class="stock-bar-wrap">
       <div class="stock-bar-track"><div class="stock-bar-fill" style="width:18%"></div></div>
-      <div class="stock-bar-txt"><strong>82% já vendido</strong> — corra antes que acabe</div>
+      <div class="stock-bar-txt"><strong>[ ]% já vendido</strong> — corra antes que acabe</div>
     </div>
 
     <div class="main-btns">
@@ -705,8 +705,11 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let userId = null;
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
+<script src="/files/scripts/sidebars.js"></script>
+<script src="/files/scripts/loading.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
