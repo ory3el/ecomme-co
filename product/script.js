@@ -43,21 +43,6 @@ function chgQty(d) {
 /* ─── SHARE ──────────────────────────────────────────────────────────── */
 function shareToast() { showToast('Link copiado para a área de transferência! 🔗'); }
 
-/* ─── TOAST ──────────────────────────────────────────────────────────── */
-function showToast(msg) {
-  $('toastMsg').textContent = msg;
-  $('toast').classList.add('on');
-  setTimeout(() => $('toast').classList.remove('on'), 2800);
-}
-
-/* ─── BACK TO TOP + STICKY BUY ───────────────────────────────────────── */
-window.addEventListener('scroll', () => {
-  $('btt').classList.toggle('on', window.scrollY > 300);
-});
-
-/* ─── ESC ────────────────────────────────────────────────────────────── */
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
-
 /* ─── INIT ───────────────────────────────────────────────────────────── */
 renderThumbs();
 renderRelated();
