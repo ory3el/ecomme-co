@@ -1,3 +1,9 @@
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadProductsFromSupabase();
+  let shuffled = [...products];
+});
+
 /* ─── CURRENT PRODUCT ────────────────────────────────────────────────── */
 const currentProduct = {
   id: 0, name: 'Smartwatch Pro X7', cat: 'Eletrônicos',
