@@ -240,7 +240,7 @@
       left: 0;
       right: 0;
       padding: 14px;
-      /* background: linear-gradient(transparent, rgba(235,242,255,.97)); */
+      background: none;
       opacity: 0;
       transform: translateY(8px);
       transition: transform 0.3s, opacity 0.3s;
