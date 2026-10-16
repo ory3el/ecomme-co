@@ -4,3 +4,8 @@
 /product/ /products/ 302
 /product/:id /product/ 200
 /product/:id/ /product/ 200
+
+/product /products 302
+/product/ /products 302
+/product/:id /product 200
+/product/:id/ /product 200
