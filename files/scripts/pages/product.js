@@ -9,8 +9,9 @@ async function initProductPage() {
   const match = location.pathname.match(/^\/product\/([^/]+)\/?$/i);
 
   if (!match) {
-    location.replace('/products');
-    return;
+    /*location.replace('/products');
+    return;*/
+    console.error('Erro ao carregar página do produto:', error);
   }
 
   let id;
