@@ -135,9 +135,12 @@ html.theme-transition, html.theme-transition *{
 html { scroll-behavior: smooth; }
 body {
   background: var(--white);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-family: 'Poppins';
+  color: var(
+  --text);
+  font-family:
+  'DM Sans', sans-serif;
+  font-family:
+  'Poppins';
   font-size: 14px;
   line-height: 1.6;
   overflow-x: hidden;
@@ -186,6 +189,8 @@ header {
   background: var(--white);
   -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
   backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none;
   border-bottom: 1px solid var(--borderW);
   border-radius: 0 0 24px 24px;
   box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.15), inset 0 -1px rgba(255,255,255,.05);
@@ -407,7 +412,7 @@ header {
       height: 25px;
       aspect-ratio: 1;
       border-radius: 10px;
-      background: var(--nbg);
+      background: var(--white);
       border: 1px solid rgba(0,0,0,0.2);
       display: none;
       align-items: center;
