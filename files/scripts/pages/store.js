@@ -1,23 +1,9 @@
-/* ══════════════════════════════════════════════════════════════════
-   ECOMME — /store/@slug  (página pública da loja)
-
-   Fluxo:  URL → slug → loja pública no Supabase → produtos da loja → tela.
-   • Só lojas ATIVAS são exibidas (pendente/suspensa = "loja não encontrada").
-   • Só dados reais: nada de seguidores, vendas ou avaliações inventados.
-   • Produtos com badge "paused" não aparecem na lista (mas ficam disponíveis
-     para o carrinho/favoritos do shell compartilhado).
-   • Carrinho, favoritos e modal usam o shell global (addToCart, toggleFav,
-     openProduct); aqui só chamamos essas funções.
-   ══════════════════════════════════════════════════════════════════ */
-
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
 const fmt = p => 'R$ ' + Number(p || 0).toFixed(2).replace('.', ',');
 
 /* ─── CONFIG ─────────────────────────────────────────────────────── */
-// A página tenta primeiro a view pública (somente colunas seguras, só lojas ativas)
-// e cai para a tabela `lojas` se a view ainda não existir.
 const STORE_SOURCES = ['lojas_public', 'lojas'];
 const STORE_COLUMN_SETS = [
   'id, nome_loja, slug_url, slogan, descricao, categoria, cor_destaque, prazo_envio, formas_envio, frete_gratis_ativo, frete_valor_minimo, politica_devolucao, cidade, estado, criado_em, status, logo_url, capa_url',
@@ -358,7 +344,7 @@ function renderProds(resetPage) {
       const img = safeImageUrl(p.image_url);
       const media = img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">` : escapeHtml(p.emoji);
       const id = escapeHtml(p.id);
-      return `<div class="pcard" data-pid="${id}" style="animation:fadeInUp .4s var(--ease) ${Math.min(i, 8) * .05}s backwards">
+      return `<div class="pcard" data-pid="${id}" style="animation:fadeInUp .4s var(--ease) ${Math.min(i, 8) * .05}s backwards" onclick="window.location.href='/product/${encodeURIComponent(String(p.id))}'">
       <div class="pc-img-wrap">
         <div class="pc-img">${media}</div>
         <div class="pc-badges">${badgeHtml(p)}</div>
