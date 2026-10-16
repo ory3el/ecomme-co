@@ -34,7 +34,7 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     background: #fff;
     flex-shrink: 0;
     border: 1px solid var(--border2);
