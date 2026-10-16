@@ -1,5 +1,5 @@
     /* ── BREADCRUMB ──────────────────────────────────────────── */
-    .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border2); }
+    .breadcrumb-bar {background: var(--white);border-bottom: 1px solid var(--border2);}
     .breadcrumb {max-width: 1440px;margin: 0 auto;padding: 14px 28px;display: none;align-items: center;gap: 8px;font-size: 12px;color: var(--muted);flex-wrap: wrap;}
     .breadcrumb a { transition: color .2s; }
     .breadcrumb a:hover { color: var(--blue); }
@@ -34,8 +34,8 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    box-shadow: var(--box-shdw);
-    background: var(--white);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    background: #fff;
     flex-shrink: 0;
     border: 1px solid var(--border2);
     display: flex;
@@ -155,8 +155,8 @@
     .btn-addcart svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; }
     .btn-buynow {
       flex: 1;
-      background: var(--text);
-      color: #fff;
+      background: var(--black);
+      color: var(--textW);
       padding: 16px;
       border-radius: 100px;
       font-weight: 500;
@@ -168,14 +168,14 @@
       transition: all .2s;
       max-height: 45px;
     }
-    .btn-buynow:hover { background: #1E293B; transform: translateY(-1px); }
+    .btn-buynow:hover { background: var(--bg); color: var(--text); transform: translateY(-1px); }
     .btn-fav-lg {
       width: 45px;
       height: 45px;
       border-radius: 50%;
-      box-shadow: var(--box-shdw);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       flex-shrink: 0;
-      border: 1px solid var(--border2);
+      border: 1px solid var(--border1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -197,8 +197,8 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      border: 1px solid var(--border2);
-      box-shadow: var(--box-shdw);
+      border: 1px solid var(--border1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -298,7 +298,7 @@
     .pwish-btn:hover, .pwish-btn.on { background: #FEE2E2; border-color: var(--red); }
     .pwish-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
     .pwish-btn.on svg { stroke: var(--red); fill: var(--red); }
-    .pactions { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px; background: linear-gradient(transparent, rgba(235,242,255,.97)); opacity: 0; transform: translateY(8px); transition: all .3s; display: flex; gap: 8px; }
+    .pactions {position: absolute;bottom: 0;left: 0;right: 0;padding: 14px;background: linear-gradient(transparent, rgba(235,242,255,.97));opacity: 0;transform: translateY(8px);transition: all .3s;display: flex;gap: 8px;}
     .btn-ac { flex: 1; background: var(--blue); color: #fff; padding: 10px; border-radius: var(--radius); font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s; }
     .btn-ac:hover { background: var(--blue2); }
     .btn-ac svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
