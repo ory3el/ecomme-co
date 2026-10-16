@@ -152,7 +152,6 @@ function escapeHtml(value) {
 
 function getProductImage(product, origin) {
   const candidates = [];
-
   if (product?.image_url) candidates.push(product.image_url);
 
   if (Array.isArray(product?.gallery_urls)) {
