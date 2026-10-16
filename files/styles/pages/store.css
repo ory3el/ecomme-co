@@ -312,6 +312,7 @@ button {
 /* ── SELLER HERO BANNER ────────────────────────────────── */
 .seller-banner {
     position: relative;
+    margin-top: -21px;
     overflow: hidden;
     background: linear-gradient(135deg, #0F172A 0%, var(--blue) 50%, var(--blue) 100%);
     height: 220px;
