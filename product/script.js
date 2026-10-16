@@ -1,8 +1,18 @@
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
-  await loadProductsFromSupabase();
-  let shuffled = [...products];
-  renderThumbs();
+  const productsLoaded = await loadProductsFromSupabase();
+
+  if (!productsLoaded) {
+    const grid = document.getElementById('relatedGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted)">
+          Não foi possível carregar os produtos recomendados.
+        </p>
+      `;
+    }
+    return;
+  }
   renderRelated();
 });
 
@@ -179,3 +189,6 @@ function renderRelated() {
 
 /* ─── SHARE ──────────────────────────────────────────────────────────── */
 function shareToast() { showToast('Link copiado para a área de transferência! 🔗'); }
+
+/* ─── INIT ──────────────────────────────────────────────────────────── */
+renderThumbs();
