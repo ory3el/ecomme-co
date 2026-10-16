@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "include": ["/product/*"],
+  "exclude": [
+    "/product/index.html",
+    "/files/styles/pages/product.css",
+    "/files/scripts/pages/product.js"
+  ]
+}
