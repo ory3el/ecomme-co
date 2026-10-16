@@ -271,8 +271,16 @@ header {
   padding: 0 2px;
 }
 .btn-account {
-  background: var(--blue); color: #fff; padding: 8px 20px; border-radius: 100px;
-  font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px;
+  background: var(--blue);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 100px;
+  min-height: 40px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: background .2s, transform .2s;
 }
 .btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
