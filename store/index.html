@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carregando Loja | Ecomme</title>
+  <title>Carregando loja | Ecomme</title>
 
   <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
-  <link rel="stylesheet" href="/store.css">
-  <link rel="stylesheet" href="/files/no-login/styles/styles.css">
-  <link rel="stylesheet" href="/files/login-on/styles/styles.css">
+  <link rel="stylesheet" href="/files/styles/pages/store.css">
+  <link rel="stylesheet" href="/files/styles/essentials-products.css">
+  <link rel="stylesheet" href="/files/styles/essentials.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@
       </nav>
       <div class="search-bar">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
+        <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="onHeaderSearch(this)">
       </div>
       <div class="header-actions">
         <button class="icon-btn hidden" id="bellBtn" title="Notificações" onclick="openNotif()">
@@ -77,8 +77,7 @@
   <div class="breadcrumb">
     <a href="/">Início</a><span class="sep">/</span>
     <a href="/products">Produtos</a><span class="sep">/</span>
-    <a href="#">Vendedores</a><span class="sep">/</span>
-    <span class="cur">TechPrime Store</span>
+    <span class="cur" id="crumbStore">Loja</span>
   </div>
 </div>
 
@@ -97,27 +96,17 @@
     <div class="pi-top">
       <!-- Avatar -->
       <div class="pi-avatar-wrap">
-        <div class="pi-avatar">TP</div>
-        <div class="pi-badge-verified">
-          <img class="imgg" src="/images/icons/full/verified.png">
-        </div>
+        <div class="pi-avatar"></div>
+        
       </div>
 
       <!-- Info -->
       <div class="pi-info">
         <div class="pi-name-row">
-          <span class="pi-name">TechPrime Store</span>
-          <span class="pi-verified">
-            <img src="/images/icons/full/verified.png">
-            Verificado
-          </span>
-          <span class="pi-tier">
-            <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:#fff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Vendedor Ouro
-          </span>
+          <span class="pi-name">Carregando...</span>
         </div>
-        <div class="pi-handle">@techprime · Membro desde junho 2024</div>
-        <div class="pi-desc">Especialistas em eletrônicos, gadgets e acessórios tech de alta qualidade. Entrega rápida, atendimento dedicado e garantia em todos os produtos.</div>
+        <div class="pi-handle"></div>
+        <div class="pi-desc"></div>
       </div>
 
       <!-- Actions -->
@@ -126,58 +115,11 @@
         <button class="btn-share" onclick="handleShare()" title="Compartilhar perfil">
           <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
-
-        <!-- BELL -->
-        <div style="position:relative">
-          <button class="btn-bell" id="bellBtn" onclick="toggleBell()" title="">
-            <div class="bell-tooltip" id="bellTooltip">Ativar notificações</div>
-            <svg viewBox="0 0 24 24" id="bellSvg">
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <div class="bell-notif-dot"></div>
-          </button>
-        </div>
-
-        <!-- FOLLOW -->
-        <button class="btn-follow" id="followBtn" onclick="handleFollow()">
-          <svg class="bf-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-          <div class="bf-spinner"></div>
-          <svg class="bf-check" viewBox="0 0 24 24"><path d="M20 6 9 17 4 12" stroke-dasharray="40" stroke-dashoffset="40"/></svg>
-          <svg class="bf-icon-x" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="18" y1="18" x2="23" y2="23"/><line x1="23" y1="18" x2="18" y2="23"/></svg>
-          <span id="followLabel">Seguir</span>
-        </button>
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="pi-stats">
-      <div class="pi-stat">
-        <span class="pi-stat-val" id="statFollowers">4.820</span>
-        <span class="pi-stat-lbl">Seguidores</span>
-        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> +124 esta semana</div>
-      </div>
-      <div class="pi-stat" style="transition-delay:.05s">
-        <span class="pi-stat-val">348</span>
-        <span class="pi-stat-lbl">Produtos</span>
-        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 12 novos este mês</div>
-      </div>
-      <div class="pi-stat" style="transition-delay:.1s">
-        <span class="pi-stat-val">18.400</span>
-        <span class="pi-stat-lbl">Vendas realizadas</span>
-        <div class="pi-stat-sub" style="color:var(--blue)">Top 1% de vendedores</div>
-      </div>
-      <div class="pi-stat" style="transition-delay:.15s">
-        <span class="pi-stat-val">4.9★</span>
-        <span class="pi-stat-lbl">Avaliação média</span>
-        <div class="pi-stat-sub"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 2.847 avaliações</div>
-      </div>
-      <div class="pi-stat" style="transition-delay:.2s">
-        <span class="pi-stat-val">99%</span>
-        <span class="pi-stat-lbl">Satisfação</span>
-        <div class="pi-stat-sub" style="color:var(--green)">Entrega no prazo</div>
-      </div>
-    </div>
+    <div class="pi-stats" id="storeStats"></div>
   </div>
 </div>
 
@@ -186,10 +128,10 @@
   <div class="tab-inner" id="tabBar">
     <span class="tab-pill-bg" id="tabPill"></span>
     <button class="tab-btn on" data-tab="products" onclick="switchTab(this,'products')">
-      Produtos <span class="tab-badge">348</span>
+      Produtos <span class="tab-badge" id="tabCountProducts">0</span>
     </button>
     <button class="tab-btn" data-tab="reviews" onclick="switchTab(this,'reviews')">
-      Avaliações <span class="tab-badge">2.847</span>
+      Avaliações <span class="tab-badge" id="tabCountReviews">0</span>
     </button>
     <button class="tab-btn" data-tab="about" onclick="switchTab(this,'about')">
       Sobre o Vendedor <span class="tab-badge">ℹ</span>
@@ -220,133 +162,20 @@
 
   <!-- ── REVIEWS PANEL ────────────────────────────────────── -->
   <div class="panel" id="panel-reviews">
-    <div class="rev-layout">
-      <div class="rev-summary reveal">
-        <div class="rs-avg">
-          <span class="rs-num">4.9</span>
-          <div class="rs-stars">★★★★★</div>
-          <div class="rs-total">baseado em 2.847 avaliações</div>
-        </div>
-        <div class="rs-bars">
-          <div class="rs-bar-row"><span class="rbl">5★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="84"></div></div><span class="rbp">84%</span></div>
-          <div class="rs-bar-row"><span class="rbl">4★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="11"></div></div><span class="rbp">11%</span></div>
-          <div class="rs-bar-row"><span class="rbl">3★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="3"></div></div><span class="rbp">3%</span></div>
-          <div class="rs-bar-row"><span class="rbl">2★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="1"></div></div><span class="rbp">1%</span></div>
-          <div class="rs-bar-row"><span class="rbl">1★</span><div class="rs-bar-track"><div class="rs-bar-fill" data-w="1"></div></div><span class="rbp">1%</span></div>
-        </div>
-      </div>
-      <div class="rev-list">
-        <div class="rev-item reveal"><div class="rv-head"><div class="rv-ava">MF</div><div><div class="rv-name">Mariana Ferreira <span class="rv-verif">Compra verificada</span></div><div class="rv-date">20 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Comprei o Smartwatch Pro X7 e chegou em perfeito estado, em apenas 5 dias úteis. Embalagem impecável e produto 100% original. Com certeza vou comprar mais vezes!</div><div class="rv-prod"><div class="rv-prod-img">⌚</div><span class="rv-prod-name">Smartwatch Pro X7</span></div></div>
-        <div class="rev-item reveal" style="transition-delay:.08s"><div class="rv-head"><div class="rv-ava" style="background:rgba(139,92,246,.1);color:var(--purple)">RC</div><div><div class="rv-name">Rodrigo Castro <span class="rv-verif">Compra verificada</span></div><div class="rv-date">15 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Vendedor excelente! Atendimento rápido, produto original e entrega antes do prazo. Fone chegou com nota fiscal e manual em português. Recomendo muito!</div><div class="rv-prod"><div class="rv-prod-img">🎧</div><span class="rv-prod-name">Fone Bluetooth ANC Pro</span></div></div>
-        <div class="rev-item reveal" style="transition-delay:.16s"><div class="rv-head"><div class="rv-ava" style="background:rgba(16,185,129,.1);color:var(--green)">JS</div><div><div class="rv-name">Juliana Santos <span class="rv-verif">Compra verificada</span></div><div class="rv-date">10 de junho de 2026</div></div></div><div class="rv-stars">★★★★☆</div><div class="rv-text">Produto muito bom, câmera funciona perfeitamente. Tirei uma estrela porque a embalagem veio um pouco amassada, mas o produto em si estava sem defeito.</div><div class="rv-prod"><div class="rv-prod-img">📷</div><span class="rv-prod-name">Câmera de Segurança WiFi</span></div></div>
-        <div class="rev-item reveal" style="transition-delay:.24s"><div class="rv-head"><div class="rv-ava" style="background:rgba(245,158,11,.1);color:var(--amber)">PA</div><div><div class="rv-name">Pedro Almeida <span class="rv-verif">Compra verificada</span></div><div class="rv-date">05 de junho de 2026</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">Segunda compra com esse vendedor e novamente impecável. Entrega super rápida, embalagem cuidadosa. O Kit LED é incrível, fácil de instalar e com cores lindas.</div><div class="rv-prod"><div class="rv-prod-img">💡</div><span class="rv-prod-name">Kit Luzes LED Smart RGB</span></div></div>
-      </div>
+      <div id="reviewsContent"></div>
     </div>
-  </div>
 
   <!-- ── ABOUT PANEL ──────────────────────────────────────── -->
   <div class="panel" id="panel-about">
-    <div class="about-grid">
-      <div class="about-card reveal">
-        <h4><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Sobre o Vendedor</h4>
-        <p>A TechPrime Store é uma empresa especializada em eletrônicos e gadgets de alta performance. Operamos desde 2024 com foco em curadoria de produtos tech de qualidade, parceria com marcas homologadas e atendimento pós-venda dedicado. Todos os nossos produtos passam por inspeção de qualidade antes de serem despachados.</p>
-      </div>
-      <div class="about-card reveal" style="transition-delay:.08s">
-        <h4><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Informações</h4>
-        <div class="info-row"><span class="lbl">Membro desde</span><span class="val">Junho de 2024</span></div>
-        <div class="info-row"><span class="lbl">Localização</span><span class="val">São Paulo, SP</span></div>
-        <div class="info-row"><span class="lbl">Tempo de resposta</span><span class="val" style="color:var(--green)">~1 hora</span></div>
-        <div class="info-row"><span class="lbl">Despacho em</span><span class="val">1 dia útil</span></div>
-        <div class="info-row"><span class="lbl">CNPJ verificado</span><span class="val" style="color:var(--green)">✓ Sim</span></div>
-      </div>
-      <div class="about-card reveal" style="transition-delay:.16s">
-        <h4><svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Categorias</h4>
-        <div class="tag-wrap">
-          <span class="cat-tag">📱 Eletrônicos</span>
-          <span class="cat-tag">🎧 Áudio</span>
-          <span class="cat-tag">⌚ Wearables</span>
-          <span class="cat-tag">📷 Câmeras</span>
-          <span class="cat-tag">💡 Smart Home</span>
-          <span class="cat-tag">🎮 Gaming</span>
-          <span class="cat-tag">🔋 Acessórios</span>
-        </div>
-      </div>
-      <div class="about-card reveal" style="transition-delay:.24s">
-        <h4><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Garantias Oferecidas</h4>
-        <div class="info-row"><span class="lbl">Política de devolução</span><span class="val">30 dias</span></div>
-        <div class="info-row"><span class="lbl">Garantia de produto</span><span class="val">12 meses</span></div>
-        <div class="info-row"><span class="lbl">Produto original</span><span class="val" style="color:var(--green)">✓ Garantido</span></div>
-        <div class="info-row"><span class="lbl">Nota fiscal</span><span class="val" style="color:var(--green)">✓ Sempre inclusa</span></div>
-      </div>
-    </div>
+    <div class="about-grid" id="aboutGrid"></div>
   </div>
 
   <!-- ── SIDEBAR ───────────────────────────────────────────── -->
-  <div class="sidebar-col">
-    <!-- Contact -->
-    <div class="sc-card reveal">
-      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Contato</div>
-      <div class="sc-actions">
-        <button class="btn-contact-seller" onclick="showToast('Abrindo chat com o vendedor... 💬')">
-          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          Enviar Mensagem
-        </button>
-        <button class="btn-report" onclick="showToast('Obrigado pelo reporte. Vamos analisar! 🔍')">
-          <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Reportar Vendedor
-        </button>
-      </div>
-    </div>
-
-    <!-- Trust badges -->
-    <div class="sc-card reveal" style="transition-delay:.08s">
-      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Selos de Confiança</div>
-      <div class="trust-list">
-        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg></div><div class="tl-text"><strong>Vendedor Verificado</strong><span>Identidade e CNPJ confirmados</span></div></div>
-        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="tl-text"><strong>Vendedor Ouro</strong><span>Top 1% da plataforma</span></div></div>
-        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="tl-text"><strong>Entrega Expressa</strong><span>Despacho em 1 dia útil</span></div></div>
-        <div class="tl-row"><div class="tl-ico"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><div class="tl-text"><strong>Devolução Garantida</strong><span>30 dias sem perguntas</span></div></div>
-      </div>
-    </div>
-
-    <!-- Similar sellers -->
-    <div class="sc-card reveal" style="transition-delay:.16s">
-      <div class="sc-card-head"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Vendedores Similares</div>
-      <div class="ss-list">
-        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
-          <div class="ss-ava" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">GX</div>
-          <div>
-            <div class="ss-name">GadgetXpress</div>
-            <div class="ss-rating"><span class="ss-stars-sm">★★★★★</span> 4.8 · 11.2K vendas</div>
-          </div>
-          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo GadgetXpress! 🔔')">Seguir</button>
-        </div>
-        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
-          <div class="ss-ava" style="background:linear-gradient(135deg,#10B981,#059669)">EL</div>
-          <div>
-            <div class="ss-name">ElectroLab</div>
-            <div class="ss-rating"><span class="ss-stars-sm">★★★★★</span> 4.9 · 8.7K vendas</div>
-          </div>
-          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo ElectroLab! 🔔')">Seguir</button>
-        </div>
-        <div class="ss-row" onclick="showToast('Abrindo perfil do vendedor...')">
-          <div class="ss-ava" style="background:linear-gradient(135deg,#F59E0B,#D97706)">SM</div>
-          <div>
-            <div class="ss-name">SmartMais</div>
-            <div class="ss-rating"><span class="ss-stars-sm">★★★★☆</span> 4.7 · 6.1K vendas</div>
-          </div>
-          <button class="ss-follow" onclick="event.stopPropagation();this.textContent='✓ Seguindo';this.style.background='var(--blue)';this.style.color='#fff';showToast('Seguindo SmartMais! 🔔')">Seguir</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="sidebar-col" id="sidebarCol" hidden></div>
 </div>
 
 <!-- FLOATING BELL PILL -->
-<div class="bell-pill" id="bellPill">
-  <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-  <span id="bellPillText">Notificações ativadas para TechPrime Store</span>
-</div>
+
 
   <!-- FOOTER -->
   <footer>
@@ -694,6 +523,18 @@
       </div>
     </div>
   </div>
+  <!-- CARREGANDO / ERRO DA LOJA -->
+  <div id="storeLoader" class="store-loader" role="status" aria-live="polite">
+    <div class="store-loader-spinner"></div><p>Carregando loja...</p>
+  </div>
+  <div id="storeError" class="store-error" role="alert" hidden>
+    <div class="store-error-card">
+      <h2>Não foi possível carregar a loja</h2>
+      <p id="storeErrorMsg">Tente novamente em instantes.</p>
+      <button class="btn-retry-store" onclick="retryLoadStore()">Tentar novamente</button>
+    </div>
+  </div>
+
 
   <!-- TOAST -->
   <div class="toast" id="toast">
@@ -756,15 +597,9 @@
 </script>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let userId = null;
-</script>
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
-<script src="https://unpkg.com/imask"></script>
-<script src="/store.js"></script>
+<script src="/files/scripts/sidebars.js"></script>
+<script src="/files/scripts/pages/store.js"></script>
 </body>
 </html>
