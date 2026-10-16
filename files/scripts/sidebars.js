@@ -2576,6 +2576,19 @@ function addFromModal2() {
   openFav();
 }
 
+
+function openProductPage() {
+  if (curId === null || curId === undefined || String(curId).trim() === '') {
+    console.error('Nenhum produto selecionado para abrir a página.');
+    showToast('Nenhum produto selecionado para abrir a página.', 'err')
+    return;
+  }
+  if (typeof stopModalAutoPlay === 'function') stopModalAutoPlay();
+  const productId = encodeURIComponent(String(curId));
+  window.location.href = `/product/${productId}`;
+}
+
+
 // ── HYDRATE USER SAVED ITEMS ──
 function hydrateUserItems(savedItems) {
   if (!Array.isArray(savedItems)) return [];
