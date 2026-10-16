@@ -209,8 +209,10 @@ function renderStoreHeader(store, legacy) {
   if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
   canonical.href = `${window.location.origin}/store/@${store.slug_url}`;
 
-  if (accent) document.documentElement.style.setProperty('--blue', accent);
-
+  if (accent) {
+    //document.documentElement.style.setProperty('--blue', accent);
+  }
+    
   setText('#crumbStore', name);
   setText('.pi-name', name);
   const since = formatMemberSince(store.criado_em);
