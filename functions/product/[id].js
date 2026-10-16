@@ -39,8 +39,8 @@ export async function onRequest(context) {
     return pageResponse;
   }
 
-  const supabaseUrl = String(env.E_SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, '');
-  const publishableKey = String(env.E_SUPABASE_PUBLISHABLE_KEY || '').trim();
+  const supabaseUrl = String(env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, '');
+  const publishableKey = String(env.SUPABASE_PUBLISHABLE_KEY || '').trim();
   let product = null;
 
   if (!publishableKey) {
