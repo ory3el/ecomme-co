@@ -1,5 +1,6 @@
-/store/404 /store/404.html/ 200
-/store/* /store/index.html/ 200
+/store /store/ 302
+/store/ /store/ 302
+/store/* /store/ 200
 
 /product /products/ 302
 /product/ /products/ 302
