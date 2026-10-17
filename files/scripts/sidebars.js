@@ -1196,55 +1196,26 @@ async function syncEcommeDisplaySettings() {
   const header = document.querySelector('header');
   if (!header) return;
 
-  const hideButton = header.querySelector('.hide-btn');
-  if (!hideButton) {
-    console.warn('Ecomme: botão .hide-btn não encontrado.');
-    return;
-  }
-
-  if (header.dataset.gestureController === 'active') return;
-  header.dataset.gestureController = 'active';
+  // Evita instalar o controlador mais de uma vez.
+  if (header.dataset.scrollHeaderController === 'active') return;
+  header.dataset.scrollHeaderController = 'active';
 
   header.classList.add('header-gesture-enabled');
-
-  const SWIPE_THRESHOLD = 55;
-  const ANIMATION_FALLBACK_MS = 380;
+  header.classList.remove('header-gesture-hidden');
 
   let state = 'sticky';
   let finishTimer = null;
-  let startX = 0;
-  let startY = 0;
-  let startedOnHeader = false;
-  let hasTouchStart = false;
+  let scrollFramePending = false;
 
-  function setButtonIcon(hidden) {
-    const icon = hideButton.querySelector('i');
-    if (!icon) return;
+  let lastScrollY = Math.max(0, window.scrollY || 0);
+  let downDistance = 0;
+  let upDistance = 0;
 
-    icon.classList.toggle('fa-chevron-up', !hidden);
-    icon.classList.toggle('fa-chevron-down', hidden);
-
-    hideButton.setAttribute(
-      'aria-label',
-      hidden ? 'Mostrar header' : 'Ocultar header'
-    );
-
-    hideButton.title = hidden ? 'Mostrar header' : 'Ocultar header';
-  }
-
-  function detachButton() {
-    // Reutiliza o próprio botão original.
-    document.body.appendChild(hideButton);
-    hideButton.classList.add('is-detached');
-    setButtonIcon(true);
-  }
-
-  function attachButton() {
-    // Devolve o botão ao seu lugar original no header.
-    hideButton.classList.remove('is-detached');
-    header.insertBefore(hideButton, header.firstChild);
-    setButtonIcon(false);
-  }
+  // Distâncias de rolagem necessárias para alternar o header.
+  const HIDE_AFTER = 90;
+  const SHOW_AFTER = 45;
+  const SHOW_NEAR_TOP = 120;
+  const ANIMATION_FALLBACK_MS = 380;
 
   function finishTransition() {
     if (state !== 'hiding' && state !== 'showing') return;
@@ -1253,28 +1224,30 @@ async function syncEcommeDisplaySettings() {
     finishTimer = null;
 
     if (state === 'hiding') {
+      // A posição muda somente após a animação de saída.
       header.style.position = 'relative';
       header.style.top = 'auto';
       state = 'relative';
-
-      // Só o movemos depois de a animação terminar.
-      detachButton();
     } else {
+      // Restaura o sticky após a animação de entrada.
       header.style.position = 'sticky';
       header.style.top = '0';
       state = 'sticky';
-      attachButton();
     }
   }
 
   function hideHeader() {
-    if (state === 'relative' || state === 'hiding') return;
+    if (state !== 'sticky') return;
 
     clearTimeout(finishTimer);
     state = 'hiding';
 
+    downDistance = 0;
+    upDistance = 0;
+
     header.classList.add('header-gesture-hidden');
 
+    // Segurança caso transitionend não seja disparado.
     finishTimer = setTimeout(
       finishTransition,
       ANIMATION_FALLBACK_MS
@@ -1282,17 +1255,19 @@ async function syncEcommeDisplaySettings() {
   }
 
   function showHeader() {
-    if (state === 'sticky' || state === 'showing') return;
+    if (state !== 'relative' && state !== 'hiding') return;
 
     clearTimeout(finishTimer);
 
+    // Restaura o sticky antes da animação de entrada.
     header.style.position = 'sticky';
     header.style.top = '0';
     state = 'showing';
 
-    // Recoloca o botão antes de animar o header para aparecer.
-    attachButton();
+    downDistance = 0;
+    upDistance = 0;
 
+    // Garante que o navegador registre os dois estados visuais.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         header.classList.remove('header-gesture-hidden');
@@ -1305,15 +1280,7 @@ async function syncEcommeDisplaySettings() {
     );
   }
 
-  // O onclick do HTML precisa acessar a função globalmente.
-  window.toggleHeader = function () {
-    if (state === 'sticky' || state === 'showing') {
-      hideHeader();
-    } else {
-      showHeader();
-    }
-  };
-
+  // Finaliza a transição quando a animação CSS termina.
   header.addEventListener('transitionend', event => {
     if (
       event.target === header &&
@@ -1323,57 +1290,61 @@ async function syncEcommeDisplaySettings() {
     }
   });
 
-  // Mantém os gestos apenas em dispositivos de toque.
-  if (!window.matchMedia('(pointer: coarse)').matches) return;
+  function processScroll() {
+    scrollFramePending = false;
 
-  document.addEventListener('touchstart', event => {
-    if (event.touches.length !== 1) {
-      hasTouchStart = false;
+    const currentScrollY = Math.max(0, window.scrollY || 0);
+    const delta = currentScrollY - lastScrollY;
+
+    lastScrollY = currentScrollY;
+
+    // Próximo do topo, o header deve estar visível.
+    if (currentScrollY <= SHOW_NEAR_TOP) {
+      downDistance = 0;
+      upDistance = 0;
+
+      if (state === 'relative' || state === 'hiding') {
+        showHeader();
+      }
+
       return;
     }
 
-    const touch = event.touches[0];
+    // Ignora oscilações mínimas da rolagem.
+    if (Math.abs(delta) < 2) return;
 
-    startX = touch.clientX;
-    startY = touch.clientY;
-    startedOnHeader = header.contains(event.target);
-    hasTouchStart = true;
-  }, { passive: true });
+    if (delta > 0) {
+      // Rolagem para baixo.
+      downDistance += delta;
+      upDistance = 0;
 
-  document.addEventListener('touchend', event => {
-    if (!hasTouchStart || !event.changedTouches.length) return;
+      if (
+        state === 'sticky' &&
+        downDistance >= HIDE_AFTER
+      ) {
+        hideHeader();
+      }
+    } else {
+      // Rolagem para cima.
+      upDistance += Math.abs(delta);
+      downDistance = 0;
 
-    hasTouchStart = false;
-
-    const touch = event.changedTouches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-
-    if (
-      Math.abs(deltaY) < SWIPE_THRESHOLD ||
-      Math.abs(deltaY) < Math.abs(deltaX) * 1.2
-    ) {
-      return;
+      if (
+        (state === 'relative' || state === 'hiding') &&
+        upDistance >= SHOW_AFTER
+      ) {
+        showHeader();
+      }
     }
+  }
 
-    if (deltaY < 0 && startedOnHeader) {
-      hideHeader();
-      return;
-    }
+  window.addEventListener('scroll', () => {
+    if (scrollFramePending) return;
 
-    if (
-      deltaY > 0 &&
-      (state === 'relative' || state === 'hiding')
-    ) {
-      showHeader();
-    }
-  }, { passive: true });
-
-  document.addEventListener('touchcancel', () => {
-    hasTouchStart = false;
+    scrollFramePending = true;
+    requestAnimationFrame(processScroll);
   }, { passive: true });
 })();
-
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
