@@ -64,6 +64,10 @@
     
   <!-- HEADER -->
   <header>
+	  <!--<button id="showHeaderBtn" class="hide-btn" type="button" onclick="toggleHeader()" aria-label="Mostrar cabeçalho" title="Mostrar cabeçalho" aria-hidden="true" tabindex="-1">
+		<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+  	  </button>
+	  <div class="in-header">-->
 	    <div class="header-inner">
 	      <div class="logo">
 	        <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -71,8 +75,8 @@
 	        </button>
 	      </div>
 	      <nav class="nav-main">
-	        <a href="/" class="active">Início</a>
-	        <a href="/products">Produtos</a>
+	        <a href="/">Início</a>
+	        <a href="/products" class="active">Produtos</a>
 	        <a href="/categories">Categorias</a>
 	        <a href="/offers">Ofertas</a>
 	        <a href="/about-us">Sobre</a>
@@ -107,12 +111,8 @@
 	          <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
 	        </div>
 	      </div>
-	    </div>
+	    <!--</div>-->
   </header>
-
-  <button id="showHeaderBtn" class="show-header-btn" type="button" onclick="toggleHeader()" aria-label="Mostrar cabeçalho" title="Mostrar cabeçalho" aria-hidden="true" tabindex="-1">
-	<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-  </button>
 	
 <!-- ══ TOP BANNER ════════════════════════════════════════ -->
 <section class="hero">
