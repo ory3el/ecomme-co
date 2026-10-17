@@ -1,4 +1,4 @@
-    header {position: relative !important}
+header {position: relative !important}
 
     /* ── BREADCRUMB ──────────────────────────────────────────── */
     .breadcrumb-bar {background: var(--white);/* border-bottom: 1px solid var(--border2); */}
@@ -537,6 +537,12 @@
   -webkit-overflow-scrolling: touch;
 }
 #relatedGrid.products-grid::-webkit-scrollbar { display: none; }
+/* Desativa temporariamente os snap points durante os cliques de navegação.
+   Alterações incrementais no DOM deixam de interromper a rolagem suave. */
+#relatedGrid.products-grid.is-programmatic-scrolling {
+  scroll-snap-type: none !important;
+  scroll-behavior: auto;
+}
 #relatedGrid .pcard,
 #relatedGrid .related-skeleton-card {
   flex: 0 0 calc((100% - 66px) / 4);
