@@ -3,9 +3,50 @@ let currentProduct = null;
 let productPageQty = 1;
 let productPageImages = [];
 
+function setProductPageLoading(isLoading) {
+  ['.product-main', '.tabs-section', '.related-section'].forEach(selector => {
+    const element = document.querySelector(selector);
+    if (!element) return;
+
+    element.classList.toggle('is-loading', isLoading);
+    element.setAttribute('aria-busy', String(isLoading));
+  });
+}
+
+function waitForMainProductImage(timeout = 2200) {
+  const image = document.getElementById('productMainImage');
+
+  if (!image || !productPageImages.length || image.complete) {
+    return Promise.resolve();
+  }
+
+  return new Promise(resolve => {
+    let timer;
+    let finished = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      image.removeEventListener('load', finish);
+      image.removeEventListener('error', finish);
+      resolve();
+    };
+
+    image.addEventListener('load', finish, { once: true });
+    image.addEventListener('error', finish, { once: true });
+    timer = setTimeout(finish, timeout);
+
+    // A imagem pode ter sido carregada do cache entre a verificação e os listeners.
+    if (image.complete) finish();
+  });
+}
+
 window.addEventListener('DOMContentLoaded', initProductPage, { once: true });
 
 async function initProductPage() {
+  setProductPageLoading(true);
+
   const match = location.pathname.match(/^\/product\/([^/]+)\/?$/i);
 
   if (!match) {
@@ -19,6 +60,7 @@ async function initProductPage() {
     id = decodeURIComponent(match[1]);
   } catch {
     showProductError('Link inválido', 'O endereço do produto não é válido.');
+    setProductPageLoading(false);
     return;
   }
 
@@ -60,6 +102,9 @@ async function initProductPage() {
     if (typeof updateCart === 'function') {
       updateCart();
     }
+
+    // Mantém o skeleton até a imagem principal carregar (com limite para não travar).
+    await waitForMainProductImage();
   } catch (error) {
     console.error('Erro ao carregar página do produto:', error);
 
@@ -67,6 +112,8 @@ async function initProductPage() {
       'Não foi possível carregar o produto',
       'Verifique sua conexão e tente novamente.'
     );
+  } finally {
+    setProductPageLoading(false);
   }
 }
 
@@ -85,6 +132,8 @@ function showProductError(title, message) {
     `;
   }
 
+  document.querySelector('.tabs-section')?.setAttribute('hidden', '');
+  document.querySelector('.related-section')?.setAttribute('hidden', '');
   document.getElementById('relatedGrid')?.replaceChildren();
 }
 
