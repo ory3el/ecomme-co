@@ -181,7 +181,20 @@ body.nobodyscroll { overflow: hidden; }
 .topbar-close:hover { color: #fff; }
 
 /* ── HEADER ──────────────────────────────────────────────────────── */
-
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background: var(--white);
+  -webkit-backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
+  backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--borderW);
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.15), inset 0 -1px rgba(255,255,255,.05);
+}
 
 .header-inner {
   max-width: 1440px; margin: 0 auto; padding: 0 28px;
