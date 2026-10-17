@@ -200,17 +200,16 @@ header {
   max-width: 1440px; margin: 0 auto; padding: 0 28px;
   display: flex; align-items: center; gap: 24px; height: 68px;
 }
-.logo { 
-  flex-shrink: 0; display: flex; align-items: center; 
-  gap: 5px; border-radius: 200px; padding: 5px 10px; 
-  filter: var(--img-filter);
-}
-.footerLogo { 
-  flex-shrink: 0; display: flex; align-items: center;
-  gap: 5px; position: relative; bottom: 25px;
-  filter: var(--img-filter);
-}
 
+.nav-main { display: flex; gap: 2px; }
+.nav-main a {
+  background: var(--glass-bg);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
+  padding: 7px 14px; font-size: 13px; font-weight: 500;
+  color: var(--muted); border-radius: 911px; transition: color .2s, background .2s;
+}
+.nav-main a:hover { color: var(--text); background: var(--bg3); }
+.nav-main a.active {color: var(--blue-deep);background: var(--surface);border: 1px solid var(--blue-deep);font-weight: 600;}
 
 .header-actions { display: flex; align-items: center; gap: 6px; }
 .search-bar {
