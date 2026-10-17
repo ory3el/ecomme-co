@@ -1827,7 +1827,7 @@ header {
    ========================================================================== */
 @media (max-width: 768px) {
   header {box-shadow: none !important}
-  icon-btn, .nav-main a {box-shadow: none !important; border: 1px solid var(--border) !important}
+  .icon-btn, .nav-main a {box-shadow: none !important; border: 1px solid var(--border) !important}
 
   .products-grid *, 
   .categories-grid *,
