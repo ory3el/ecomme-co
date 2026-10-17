@@ -1190,6 +1190,108 @@ async function syncEcommeDisplaySettings() {
   }
 }
 
+// ---------------------------------------------------------
+(() => {
+  if (!window.matchMedia('(pointer: coarse)').matches) return;
+  const header = document.querySelector('header');
+  if (!header) return;
+
+  if (header.dataset.gestureController === 'active') return;
+  header.dataset.gestureController = 'active';
+  header.classList.add('header-gesture-enabled');
+
+  let startX = 0;
+  let startY = 0;
+  let startedOnHeader = false;
+  let hasTouchStart = false;
+  let state = 'sticky';
+  let finishTimer = null;
+  const SWIPE_THRESHOLD = 55;
+  const ANIMATION_FALLBACK_MS = 350;
+
+  function finishTransition() {
+    clearTimeout(finishTimer);
+    finishTimer = null;
+
+    if (state === 'hiding') {
+      header.style.position = 'relative';
+      header.style.top = 'auto';
+      state = 'relative';
+    } else if (state === 'showing') {
+      header.style.position = 'sticky';
+      header.style.top = '0';
+      state = 'sticky';
+    }
+  }
+
+  function hideHeader() {
+    if (state === 'relative' || state === 'hiding') return;
+    clearTimeout(finishTimer);
+    state = 'hiding';
+    header.classList.add('header-gesture-hidden');
+    finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
+  }
+
+  function showHeader() {
+    if (state === 'sticky' || state === 'showing') return;
+    clearTimeout(finishTimer);
+    header.style.position = 'sticky';
+    header.style.top = '0';
+    state = 'showing';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        header.classList.remove('header-gesture-hidden');
+      });
+    });
+    finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
+  }
+
+  header.addEventListener('transitionend', event => {
+    if (event.target !== header || event.propertyName !== 'transform') return;
+    finishTransition();
+  });
+
+  document.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) {
+      hasTouchStart = false;
+      return;
+    }
+
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startedOnHeader = header.contains(event.target);
+    hasTouchStart = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', event => {
+    if (!hasTouchStart || !event.changedTouches.length) return;
+    hasTouchStart = false;
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    if (
+      Math.abs(deltaY) < SWIPE_THRESHOLD ||
+      Math.abs(deltaY) < Math.abs(deltaX) * 1.2
+    ) {
+      return;
+    }
+    
+    if (deltaY < 0 && startedOnHeader) {
+      hideHeader();
+      return;
+    }
+    
+    if (deltaY > 0 && (state === 'relative' || state === 'hiding')) {
+      showHeader();
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', () => {
+    hasTouchStart = false;
+  }, { passive: true });
+})();
+
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
 let fav = [];
