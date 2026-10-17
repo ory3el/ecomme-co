@@ -1212,9 +1212,9 @@ async function syncEcommeDisplaySettings() {
   let upDistance = 0;
 
   // Distâncias de rolagem necessárias para alternar o header.
-  const HIDE_AFTER = 90;
-  const SHOW_AFTER = 45;
-  const SHOW_NEAR_TOP = 120;
+  const HIDE_AFTER = 200;
+  const SHOW_AFTER = 200;
+  const SHOW_NEAR_TOP = 500;
   const ANIMATION_FALLBACK_MS = 380;
 
   function finishTransition() {
