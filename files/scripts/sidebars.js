@@ -1191,48 +1191,90 @@ async function syncEcommeDisplaySettings() {
 }
 
 // ---------------------------------------------------------
+
 (() => {
   const header = document.querySelector('header');
   if (!header) return;
+
+  const hideButton = header.querySelector('.hide-btn');
+  if (!hideButton) {
+    console.warn('Ecomme: botão .hide-btn não encontrado.');
+    return;
+  }
+
   if (header.dataset.gestureController === 'active') return;
   header.dataset.gestureController = 'active';
-  const showButton = document.getElementById('showHeaderBtn');
+
   header.classList.add('header-gesture-enabled');
+
+  const SWIPE_THRESHOLD = 55;
+  const ANIMATION_FALLBACK_MS = 380;
+
   let state = 'sticky';
   let finishTimer = null;
-  const ANIMATION_FALLBACK_MS = 380;
-  const SWIPE_THRESHOLD = 55;
+  let startX = 0;
+  let startY = 0;
+  let startedOnHeader = false;
+  let hasTouchStart = false;
 
-  function setShowButtonVisible(visible) {
-    if (!showButton) return;
-    showButton.classList.toggle('is-visible', visible);
-    showButton.setAttribute('aria-hidden', String(!visible));
-    showButton.tabIndex = visible ? 0 : -1;
+  function setButtonIcon(hidden) {
+    const icon = hideButton.querySelector('i');
+    if (!icon) return;
+
+    icon.classList.toggle('fa-chevron-up', !hidden);
+    icon.classList.toggle('fa-chevron-down', hidden);
+
+    hideButton.setAttribute(
+      'aria-label',
+      hidden ? 'Mostrar header' : 'Ocultar header'
+    );
+
+    hideButton.title = hidden ? 'Mostrar header' : 'Ocultar header';
+  }
+
+  function detachButton() {
+    // Reutiliza o próprio botão original.
+    document.body.appendChild(hideButton);
+    hideButton.classList.add('is-detached');
+    setButtonIcon(true);
+  }
+
+  function attachButton() {
+    // Devolve o botão ao seu lugar original no header.
+    hideButton.classList.remove('is-detached');
+    header.insertBefore(hideButton, header.firstChild);
+    setButtonIcon(false);
   }
 
   function finishTransition() {
     if (state !== 'hiding' && state !== 'showing') return;
+
     clearTimeout(finishTimer);
     finishTimer = null;
-    
+
     if (state === 'hiding') {
       header.style.position = 'relative';
       header.style.top = 'auto';
       state = 'relative';
-      setShowButtonVisible(true);
+
+      // Só o movemos depois de a animação terminar.
+      detachButton();
     } else {
       header.style.position = 'sticky';
       header.style.top = '0';
       state = 'sticky';
-      setShowButtonVisible(false);
+      attachButton();
     }
   }
 
   function hideHeader() {
     if (state === 'relative' || state === 'hiding') return;
+
     clearTimeout(finishTimer);
     state = 'hiding';
+
     header.classList.add('header-gesture-hidden');
+
     finishTimer = setTimeout(
       finishTransition,
       ANIMATION_FALLBACK_MS
@@ -1241,12 +1283,15 @@ async function syncEcommeDisplaySettings() {
 
   function showHeader() {
     if (state === 'sticky' || state === 'showing') return;
+
     clearTimeout(finishTimer);
+
     header.style.position = 'sticky';
     header.style.top = '0';
     state = 'showing';
 
-    setShowButtonVisible(false);
+    // Recoloca o botão antes de animar o header para aparecer.
+    attachButton();
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -1260,6 +1305,7 @@ async function syncEcommeDisplaySettings() {
     );
   }
 
+  // O onclick do HTML precisa acessar a função globalmente.
   window.toggleHeader = function () {
     if (state === 'sticky' || state === 'showing') {
       hideHeader();
@@ -1270,20 +1316,15 @@ async function syncEcommeDisplaySettings() {
 
   header.addEventListener('transitionend', event => {
     if (
-      event.target !== header ||
-      event.propertyName !== 'transform'
+      event.target === header &&
+      event.propertyName === 'transform'
     ) {
-      return;
+      finishTransition();
     }
-
-    finishTransition();
   });
 
+  // Mantém os gestos apenas em dispositivos de toque.
   if (!window.matchMedia('(pointer: coarse)').matches) return;
-  let startX = 0;
-  let startY = 0;
-  let startedOnHeader = false;
-  let hasTouchStart = false;
 
   document.addEventListener('touchstart', event => {
     if (event.touches.length !== 1) {
@@ -1301,7 +1342,9 @@ async function syncEcommeDisplaySettings() {
 
   document.addEventListener('touchend', event => {
     if (!hasTouchStart || !event.changedTouches.length) return;
+
     hasTouchStart = false;
+
     const touch = event.changedTouches[0];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
@@ -1330,6 +1373,7 @@ async function syncEcommeDisplaySettings() {
     hasTouchStart = false;
   }, { passive: true });
 })();
+
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
