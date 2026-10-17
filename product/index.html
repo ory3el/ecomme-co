@@ -411,29 +411,41 @@
 <div class="related-section is-loading" aria-busy="true">
   <div class="related-head">
     <h2>Você também pode gostar</h2>
-    <a href="/products">Ver todos →</a>
+    <div class="related-head-actions">
+      <a href="/products">Ver todos →</a>
+      <div class="related-nav" aria-label="Navegar pelos produtos recomendados">
+        <button type="button" id="relatedPrev" class="related-nav-btn" aria-label="Produto anterior" disabled>
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" id="relatedNext" class="related-nav-btn" aria-label="Próximo produto">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="products-grid" id="relatedGrid">
-    <div class="related-skeleton-card" aria-hidden="true">
-      <div class="skeleton-shimmer rsk-image"></div>
-      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
-    </div>
-    <div class="related-skeleton-card" aria-hidden="true">
-      <div class="skeleton-shimmer rsk-image"></div>
-      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
-    </div>
-    <div class="related-skeleton-card" aria-hidden="true">
-      <div class="skeleton-shimmer rsk-image"></div>
-      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
-    </div>
-    <div class="related-skeleton-card" aria-hidden="true">
-      <div class="skeleton-shimmer rsk-image"></div>
-      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+  <div class="related-carousel">
+    <div class="products-grid related-track" id="relatedGrid" aria-label="Produtos recomendados">
+      <div class="related-skeleton-card" aria-hidden="true">
+        <div class="skeleton-shimmer rsk-image"></div>
+        <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+      </div>
+      <div class="related-skeleton-card" aria-hidden="true">
+        <div class="skeleton-shimmer rsk-image"></div>
+        <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+      </div>
+      <div class="related-skeleton-card" aria-hidden="true">
+        <div class="skeleton-shimmer rsk-image"></div>
+        <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+      </div>
+      <div class="related-skeleton-card" aria-hidden="true">
+        <div class="skeleton-shimmer rsk-image"></div>
+        <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+      </div>
     </div>
   </div>
 </div>
 
-  <!-- FOOTER -->
+<!-- FOOTER -->
   <footer>
     <div class="footer-grid">
       <div class="footer-brand">
