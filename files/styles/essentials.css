@@ -254,24 +254,21 @@ header {
 }
 .icon-btn:hover {transform: translateY(-2px);background: var(--bg3);color: var(--blue-deep);border-color: var(--blue-deep);}
 .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-.hd-badge {
-  position: absolute;
-  top: 1px;
-  right: 1px;
-  width: 17px;
-  height: 17px;
-  aspect-ratio: 1;
+
+.btn-account {
   background: var(--blue);
   color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 50%;
+  padding: 8px 20px;
+  border-radius: 100px;
+  min-height: 37px;
+  font-size: 12px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 2px;
+  gap: 6px;
+  transition: background .2s, transform .2s;
 }
-
+.btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
 
 .header-profile {
   width: 40px;
