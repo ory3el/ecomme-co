@@ -236,25 +236,24 @@ header {
 .search-bar input::placeholder { color: var(--muted); font-size: 14px; font-weight: 400; }
 .search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; }
 
-.icon-btn {
-  position: relative;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
-  backdrop-filter: /*blur(18px)*/ saturate(170%);
-  border: 1px solid var(--border2);
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
-  width: 37px;
-  height: 37px;
+
+.hd-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 17px;
+  height: 17px;
+  aspect-ratio: 1;
+  background: var(--blue);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
-  transition: transform 0.35s, box-shadow 0.35s, background 0.35s, border-color 0.35s;
+  padding: 0 2px;
 }
-.icon-btn:hover {transform: translateY(-2px);background: var(--bg3);color: var(--blue-deep);border-color: var(--blue-deep);}
-.icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-
 .btn-account {
   background: var(--blue);
   color: #fff;
