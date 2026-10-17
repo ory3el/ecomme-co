@@ -187,8 +187,8 @@ header {
   z-index: 1000;
   overflow: hidden;
   background: var(--white);
-  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
+  backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none;
   border-bottom: 1px solid var(--borderW);
@@ -1826,7 +1826,7 @@ header {
    TRAVA ANTIFLICKER E ANTI-LAG ULTRA-ESTABILIZADA (MOBILE)
    ========================================================================== */
 @media (max-width: 768px) {
-
+  header {box-shadow: none !important}
   .products-grid *, 
   .categories-grid *,
   .product-card,
