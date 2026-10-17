@@ -464,9 +464,68 @@ async function syncEcommeDisplaySettings() {
 
 // ============================================================
 
+function isEcommeProductDetailRoute() {
+  return /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
+}
+
+async function loadEcommeCurrentProductOnly() {
+  const match = window.location.pathname.match(/^\/product\/([^/]+)\/?$/i);
+  if (!match) return false;
+
+  let id;
+  try { id = decodeURIComponent(match[1]); }
+  catch { return false; }
+
+  if (!window.__ecommeProductDetailLoadPromise) {
+    window.__ecommeProductDetailLoadPromise = (async () => {
+      const { data, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (error) throw error;
+      return data || null;
+    })();
+  }
+
+  let raw;
+  try {
+    raw = await window.__ecommeProductDetailLoadPromise;
+  } catch (error) {
+    console.error('Erro ao carregar o produto atual:', error);
+    window.__ecommeProductDetailLoadPromise = null;
+    return false;
+  }
+
+  if (!raw) return false;
+
+  const normalized = typeof normalizeProduct === 'function'
+    ? normalizeProduct(raw)
+    : raw;
+
+  const existing = typeof products !== 'undefined' && Array.isArray(products)
+    ? products
+    : [];
+  const merged = new Map(existing.map(item => [String(item.id), item]));
+  merged.set(String(normalized.id), normalized);
+  products = [...merged.values()];
+  shuffled = [...products];
+
+  if (typeof productCache !== 'undefined' && productCache?.set) {
+    productCache.set(String(normalized.id), normalized);
+  }
+  if (typeof createProductsSignature === 'function') {
+    productDataSignature = createProductsSignature(products);
+  }
+
+  return true;
+}
+
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     await syncEcommeDisplaySettings();
+    // A página de produto carrega apenas o produto atual e lotes incrementais de recomendações.
+    if (isEcommeProductDetailRoute()) return;
     const productsLoaded = await loadProductsFromSupabase();
     if (!productsLoaded) return;
     loadShuffleAndRender();
@@ -478,6 +537,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ============================================================
 
 async function refreshProductsIfNeeded() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
   if (
     !pageIsVisible ||
     productRefreshRunning
@@ -528,6 +588,10 @@ async function refreshProductsIfNeeded() {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+    return loadEcommeCurrentProductOnly();
+  }
+
   const {data, error} = await supabaseClient
     .from('products')
     .select('*')
