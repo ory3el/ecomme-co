@@ -186,6 +186,7 @@ body.nobodyscroll { overflow: hidden; }
   position: relative;
   display: flex;
   opacity: 0;
+  margin-bottom: 10px;
   pointer-events: none;
   order: 2;
   width: 100px;
@@ -201,8 +202,9 @@ body.nobodyscroll { overflow: hidden; }
   border-radius: 0 0 12px 12px;
   border-top: none !important;
   border: 1px solid var(--blue);
-  transition: opacity 0.25s;
+  transition: transform 0.25s, opacity 0.25s;
 }
+.hide-btn:hover{transform: scaleX(1.1);}
 
 header {
   position: sticky;
