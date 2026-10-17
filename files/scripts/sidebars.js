@@ -1192,7 +1192,7 @@ async function syncEcommeDisplaySettings() {
 
 // ---------------------------------------------------------
 (() => {
-  if (!window.matchMedia('(pointer: coarse)').matches) return;
+  /*if (!window.matchMedia('(pointer: coarse)').matches) return;*/
   const header = document.querySelector('header');
   if (!header) return;
 
@@ -1246,7 +1246,7 @@ async function syncEcommeDisplaySettings() {
     finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
   }
 
-  funtion toggleHeader() {
+  function toggleHeader() {
     if (state === 'sticky' || state === 'showing') {
       hideHeader();
     } else if (state === 'relative' || state === 'hiding') {
