@@ -577,15 +577,28 @@ function relatedProductImageUrl(product) {
 }
 
 function preloadRelatedProduct(product, state) {
+  const id = String(product.id);
   const src = relatedProductImageUrl(product);
-  if (!src || state.preloadedIds.has(String(product.id))) return;
+  if (!src || state.preloadedIds.has(id)) return state.preloadedImages.get(id) || null;
 
-  state.preloadedIds.add(String(product.id));
+  state.preloadedIds.add(id);
   const image = new Image();
   image.decoding = 'async';
-  image.fetchPriority = 'low';
+  // Só pré-carregamos a imagem do próximo produto, então ela pode ter prioridade alta.
+  image.fetchPriority = 'high';
+  const decodeWhenReady = () => {
+    if (image.naturalWidth <= 0 || typeof image.decode !== 'function') return;
+    image.decode().catch(() => {});
+  };
+  image.addEventListener('load', decodeWhenReady, { once: true });
+  image.addEventListener('error', () => {}, { once: true });
+
   image.src = src;
-  state.preloadedImages.set(String(product.id), image);
+  state.preloadedImages.set(id, image);
+
+  // A imagem pode vir do cache e já estar completa quando src é definido.
+  if (image.complete && image.naturalWidth > 0) decodeWhenReady();
+  return image;
 }
 
 async function loadRelatedBatch(state) {
@@ -779,19 +792,84 @@ function bindRelatedCard(card, product, state) {
   }
 }
 
-async function appendNextRelatedCard(state) {
-  if (state.appending || state.exhausted && !state.reservedNext && !state.pool.length) {
+function relatedPendingCardHTML() {
+  return `
+    <div class="related-skeleton-card related-pending-card" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info">
+        <span class="skeleton-shimmer rsk-line"></span>
+        <span class="skeleton-shimmer rsk-line rsk-line-short"></span>
+        <span class="skeleton-shimmer rsk-price"></span>
+      </div>
+    </div>`;
+}
+
+function ensureRelatedPendingCard(state) {
+  if (state.pendingPlaceholder && state.pendingPlaceholder.isConnected) {
+    return state.pendingPlaceholder;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = relatedPendingCardHTML().trim();
+  const placeholder = wrapper.firstElementChild;
+  state.grid.appendChild(placeholder);
+  state.pendingPlaceholder = placeholder;
+  return placeholder;
+}
+
+function prepareRelatedCardImages(card) {
+  // Usa o mesmo controlador de revelação empregado em /products.
+  if (typeof prepareProductImageAnimations === 'function') {
+    prepareProductImageAnimations(card);
+    return;
+  }
+
+  // Fallback seguro caso a função compartilhada não esteja disponível.
+  card.querySelectorAll('img.product-image-reveal').forEach(img => {
+    const markLoaded = () => requestAnimationFrame(() => img.classList.add('is-loaded'));
+    if (img.complete) {
+      markLoaded();
+    } else {
+      img.addEventListener('load', markLoaded, { once: true });
+      img.addEventListener('error', markLoaded, { once: true });
+    }
+  });
+}
+
+function relatedCarouselStep(state) {
+  const card = state.grid.querySelector('.pcard, .related-skeleton-card');
+  if (!card) return state.grid.clientWidth;
+  const styles = getComputedStyle(state.grid);
+  const gap = parseFloat(styles.columnGap || styles.gap) || 0;
+  return card.getBoundingClientRect().width + gap;
+}
+
+async function appendNextRelatedCard(state, suppliedPlaceholder = null) {
+  if (state.appending) return;
+  if (state.exhausted && !state.reservedNext && !state.pool.length && !state.loadingPromise && !state.reservingNext) {
     updateRelatedControls(state);
     return;
   }
 
   state.appending = true;
+  let placeholder = suppliedPlaceholder || (state.pendingPlaceholder?.isConnected ? state.pendingPlaceholder : null);
+
   try {
     let product = state.reservedNext;
     state.reservedNext = null;
+
+    // Ao adicionar depois do primeiro lote, insere um cartão de tamanho fixo ANTES
+    // de aguardar a consulta. O scroll pode começar imediatamente e não pula depois.
+    if (!product && state.hasRendered && !placeholder) {
+      placeholder = ensureRelatedPendingCard(state);
+    }
+
     if (!product) product = await takeNextRelatedProduct(state);
 
     if (!product) {
+      if (placeholder?.isConnected) placeholder.remove();
+      if (state.pendingPlaceholder === placeholder) state.pendingPlaceholder = null;
+
       if (!state.grid.querySelector('.pcard')) {
         state.grid.innerHTML = '<p class="related-empty">Não há outros produtos disponíveis para recomendar.</p>';
       }
@@ -802,23 +880,37 @@ async function appendNextRelatedCard(state) {
     }
 
     if (!state.hasRendered) {
-      state.grid.replaceChildren();
+      // Remove apenas os skeletons iniciais, preservando eventual placeholder de navegação.
+      state.grid.querySelectorAll('.related-skeleton-card').forEach(skeleton => {
+        if (skeleton !== placeholder) skeleton.remove();
+      });
       state.hasRendered = true;
     }
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = relatedProductCardHTML(product).trim();
     const card = wrapper.firstElementChild;
-    state.grid.appendChild(card);
+
+    if (placeholder?.isConnected) {
+      placeholder.replaceWith(card);
+    } else {
+      state.grid.appendChild(card);
+    }
+    if (state.pendingPlaceholder === placeholder) state.pendingPlaceholder = null;
+
     state.renderedCount++;
     bindRelatedCard(card, product, state);
+    prepareRelatedCardImages(card);
 
-    // Puxa a próxima página em background antes de o usuário chegar ao final do trilho.
+    // Continua a buscar em segundo plano; nunca bloqueia o início da animação.
     if (state.pool.length <= 2 && !state.exhausted) {
       loadRelatedBatch(state).catch(() => {});
     }
-
-    await reserveNextRelatedProduct(state);
+    reserveNextRelatedProduct(state).catch(() => {});
+  } catch (error) {
+    if (placeholder?.isConnected) placeholder.remove();
+    if (state.pendingPlaceholder === placeholder) state.pendingPlaceholder = null;
+    console.error('Erro ao adicionar produto recomendado:', error);
   } finally {
     state.appending = false;
     updateRelatedControls(state);
@@ -845,25 +937,26 @@ function bindRelatedCarouselControls(state) {
   if (prev && prev.dataset.bound !== 'true') {
     prev.dataset.bound = 'true';
     prev.addEventListener('click', () => {
-      const card = state.grid.querySelector('.pcard');
-      if (!card) return;
-      const gap = parseFloat(getComputedStyle(state.grid).columnGap || getComputedStyle(state.grid).gap) || 0;
-      state.grid.scrollBy({ left: -(card.getBoundingClientRect().width + gap), behavior: 'smooth' });
+      const step = relatedCarouselStep(state);
+      state.grid.scrollBy({ left: -step, behavior: 'smooth' });
     });
   }
 
   if (next && next.dataset.bound !== 'true') {
     next.dataset.bound = 'true';
-    next.addEventListener('click', async () => {
-      const card = state.grid.querySelector('.pcard');
-      if (!card) return;
-      const gap = parseFloat(getComputedStyle(state.grid).columnGap || getComputedStyle(state.grid).gap) || 0;
-      const step = card.getBoundingClientRect().width + gap;
-      const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 1.4;
-      if (nearEnd) await appendNextRelatedCard(state);
+    next.addEventListener('click', () => {
+      const step = relatedCarouselStep(state);
+      const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.55;
+
+      if (nearEnd) {
+        // Não use await aqui: o placeholder reserva o espaço imediatamente,
+        // e a animação suave começa antes de terminar a próxima consulta.
+        appendNextRelatedCard(state).catch(() => {});
+      }
+
       state.grid.scrollBy({ left: step, behavior: 'smooth' });
-      // Mantém um produto em reserva, com a imagem já requisitada.
-      reserveNextRelatedProduct(state);
+      // Se o próximo item ainda não estiver reservado, a busca prossegue em background.
+      reserveNextRelatedProduct(state).catch(() => {});
     });
   }
 
@@ -874,11 +967,9 @@ function bindRelatedCarouselControls(state) {
       if (state.scrollCheckFrame) return;
       state.scrollCheckFrame = requestAnimationFrame(() => {
         state.scrollCheckFrame = 0;
-        const card = state.grid.querySelector('.pcard');
-        if (!card) return;
-        const step = card.getBoundingClientRect().width + 22;
+        const step = relatedCarouselStep(state);
         const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.5;
-        if (nearEnd) appendNextRelatedCard(state);
+        if (nearEnd) appendNextRelatedCard(state).catch(() => {});
       });
     }, { passive: true });
   }
@@ -908,6 +999,7 @@ async function renderRelatedProducts(currentId) {
     preloadedImages: new Map(),
     reservedNext: null,
     reservingNext: false,
+    pendingPlaceholder: null,
     appending: false,
     hasRendered: false,
     renderedCount: 0,
@@ -938,7 +1030,8 @@ async function renderRelatedProducts(currentId) {
   }
 
   // Pré-carrega um produto adicional (dados e imagem) antes de o usuário avançar.
-  reserveNextRelatedProduct(state);
+  // Reserva o próximo item em segundo plano, sem bloquear a página.
+  reserveNextRelatedProduct(state).catch(() => {});
 }
 
 /* ── BOTÕES ───────────────────────────────────────────────── */
