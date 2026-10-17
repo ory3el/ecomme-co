@@ -4,7 +4,7 @@ let productPageQty = 1;
 let productPageImages = [];
 
 function setProductPageLoading(isLoading) {
-  ['.product-main', '.tabs-section', '.related-section'].forEach(selector => {
+  ['.product-main', '.tabs-section'].forEach(selector => {
     const element = document.querySelector(selector);
     if (!element) return;
 
@@ -552,126 +552,393 @@ function selectProductImage(index) {
     });
 }
 
-/* ── PRODUTOS RECOMENDADOS ────────────────────────────────── */
+/* ── PRODUTOS RECOMENDADOS: CARROSSEL INCREMENTAL ───────────── */
+const RELATED_FETCH_BATCH_SIZE = 12;
+let relatedCarouselState = null;
 
-function renderRelatedProducts(currentId) {
-  const grid = document.getElementById('relatedGrid');
-  if (!grid) return;
+function relatedVisibleCount() {
+  if (window.matchMedia('(max-width: 768px)').matches) return 2;
+  if (window.matchMedia('(max-width: 1100px)').matches) return 3;
+  return 4;
+}
 
-  const list = (
-    typeof products !== 'undefined' && Array.isArray(products)
-      ? products
-      : []
-  )
-    .filter(p => String(p.id) !== String(currentId))
-    .filter(p => !(
-      typeof isProductUnavailable === 'function' &&
-      isProductUnavailable(p)
-    ))
-    .slice(0, 8);
+function shuffleRelatedBatch(items) {
+  const list = [...items];
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
 
-  if (!list.length) {
-    grid.innerHTML =
-      '<p style="grid-column:1/-1;text-align:center;padding:24px;">' +
-      'Não há outros produtos disponíveis para recomendar.</p>';
+function relatedProductImageUrl(product) {
+  const original = imageList(product)[0];
+  return original ? (optimizedImage(original, 'grid') || original) : '';
+}
+
+function preloadRelatedProduct(product, state) {
+  const src = relatedProductImageUrl(product);
+  if (!src || state.preloadedIds.has(String(product.id))) return;
+
+  state.preloadedIds.add(String(product.id));
+  const image = new Image();
+  image.decoding = 'async';
+  image.fetchPriority = 'low';
+  image.src = src;
+  state.preloadedImages.set(String(product.id), image);
+}
+
+async function loadRelatedBatch(state) {
+  if (state.loadingPromise) return state.loadingPromise;
+  if (state.exhausted) return;
+
+  state.loadingPromise = (async () => {
+    try {
+      if (state.total === null && !state.countChecked) {
+        state.countChecked = true;
+        const countResult = await supabaseClient
+          .from('products')
+          .select('id', { count: 'exact', head: true });
+
+        if (countResult.error) {
+          console.warn('Não foi possível contar os produtos recomendados; usando paginação sequencial.', countResult.error);
+          state.cursor = 0;
+        } else {
+          state.total = Number(countResult.count) || 0;
+          if (state.total <= 0) {
+            state.exhausted = true;
+            return;
+          }
+          // Começa em um ponto aleatório sem baixar o catálogo inteiro.
+          state.cursor = Math.floor(Math.random() * state.total);
+        }
+      }
+
+      const from = Math.max(0, state.cursor);
+      const to = state.total === null
+        ? from + RELATED_FETCH_BATCH_SIZE - 1
+        : Math.min(from + RELATED_FETCH_BATCH_SIZE - 1, state.total - 1);
+
+      const { data, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+        .range(from, to);
+
+      if (error) throw error;
+
+      const rows = Array.isArray(data) ? data : [];
+      state.scannedRows += rows.length;
+
+      if (state.total !== null) {
+        state.cursor = to >= state.total - 1 ? 0 : to + 1;
+        if (state.scannedRows >= state.total || rows.length === 0) {
+          state.exhausted = true;
+        }
+      } else {
+        state.cursor = from + rows.length;
+        if (rows.length < RELATED_FETCH_BATCH_SIZE) state.exhausted = true;
+      }
+
+      const candidates = shuffleRelatedBatch(rows)
+        .map(raw => typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw)
+        .filter(product => product && String(product.id) !== state.currentId)
+        .filter(product => !(typeof isProductUnavailable === 'function' && isProductUnavailable(product)))
+        .filter(product => !state.knownIds.has(String(product.id)));
+
+      candidates.forEach(product => {
+        const id = String(product.id);
+        state.knownIds.add(id);
+        state.pool.push(product);
+      });
+
+      // Nunca faz uma requisição sem fim se todos os registros já foram varridos.
+      if (state.total !== null && state.scannedRows >= state.total) {
+        state.exhausted = true;
+      }
+    } catch (error) {
+      state.fetchError = error;
+      state.exhausted = true;
+      console.error('Erro ao carregar produtos recomendados:', error);
+    } finally {
+      state.loadingPromise = null;
+      updateRelatedControls(state);
+    }
+  })();
+
+  return state.loadingPromise;
+}
+
+async function takeNextRelatedProduct(state) {
+  while (!state.pool.length && !state.exhausted) {
+    await loadRelatedBatch(state);
+  }
+  return state.pool.shift() || null;
+}
+
+async function reserveNextRelatedProduct(state) {
+  if (state.reservedNext || state.reservingNext || (state.exhausted && !state.pool.length)) return;
+  state.reservingNext = true;
+
+  try {
+    const product = await takeNextRelatedProduct(state);
+    if (!product) return;
+
+    state.reservedNext = product;
+    preloadRelatedProduct(product, state);
+  } finally {
+    state.reservingNext = false;
+    updateRelatedControls(state);
+  }
+}
+
+function relatedProductCardHTML(product) {
+  const id = safeHtml(product.id);
+  const name = safeHtml(product.name || 'Produto sem nome');
+  const img = relatedProductImageUrl(product);
+
+  const picture = img
+    ? `<img class="product-image-reveal" src="${safeHtml(img)}" alt="${name}" loading="eager" decoding="async" fetchpriority="low" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
+    : safeHtml(product.emoji || '📦');
+
+  const inFav = typeof fav !== 'undefined' && Array.isArray(fav) &&
+    fav.some(item => String(item.id) === String(product.id));
+
+  const badge = product.badge === 'hot'
+    ? '<span class="bpill bhot">🔥 Hot</span>'
+    : product.badge === 'new'
+      ? '<span class="bpill bnew">Novo</span>'
+      : Number(product.discount) > 0
+        ? `<span class="bpill bsale">-${Number(product.discount)}%</span>`
+        : '';
+
+  const old = Number(product.old) > Number(product.price)
+    ? `<span class="pold">${safeHtml(priceText(product.old))}</span>`
+    : '';
+
+  const discount = Number(product.discount) > 0
+    ? `<span class="pdisc">-${Number(product.discount)}%</span>`
+    : '';
+
+  return `
+    <div class="pcard related-product-card" data-related-product="${id}" tabindex="0" role="link" aria-label="Ver ${name}">
+      <div class="pimg-wrap">
+        <div class="pimg" style="position:relative;">${picture}</div>
+        <div class="pbadges">${badge}</div>
+        <button type="button" class="pwish-btn ${inFav ? 'on' : ''}" data-related-fav="${id}" aria-label="Favoritar ${name}" title="Favoritar">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="pactions">
+          <button type="button" class="btn-ac" data-related-cart="${id}">Carrinho</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcat">${safeHtml(categoryText(product))}</div>
+        <div class="pname" data-no-translate>${name}</div>
+        <div class="prating"><span class="pstars">${starsText(product.rating)}</span><span class="prcnt">(${(Number(product.reviews) || 0).toLocaleString('pt-BR')})</span></div>
+        <div class="price-row"><span class="pprice">${safeHtml(priceText(product.price))}</span>${old}${discount}</div>
+      </div>
+    </div>`;
+}
+
+function bindRelatedCard(card, product, state) {
+  // Mantém somente produtos efetivamente exibidos no cache global usado pelo carrinho/favoritos.
+  if (typeof products !== 'undefined' && Array.isArray(products) &&
+      !products.some(item => String(item.id) === String(product.id))) {
+    products.push(product);
+  }
+
+  card.addEventListener('click', event => {
+    if (event.target.closest('button')) return;
+    location.href = `/product/${encodeURIComponent(String(product.id))}`;
+  });
+
+  card.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('button')) {
+      event.preventDefault();
+      location.href = `/product/${encodeURIComponent(String(product.id))}`;
+    }
+  });
+
+  const favButton = card.querySelector('[data-related-fav]');
+  if (favButton) {
+    favButton.addEventListener('click', event => {
+      event.stopPropagation();
+      if (typeof toggleFav === 'function') toggleFav(favButton.dataset.relatedFav);
+      setTimeout(updateProductFavoriteButtons, 0);
+      favButton.classList.toggle('on', Array.isArray(fav) && fav.some(item => String(item.id) === String(product.id)));
+    });
+  }
+
+  const cartButton = card.querySelector('[data-related-cart]');
+  if (cartButton) {
+    cartButton.addEventListener('click', event => {
+      event.stopPropagation();
+      if (typeof addToCart === 'function') addToCart(cartButton.dataset.relatedCart, 1);
+    });
+  }
+}
+
+async function appendNextRelatedCard(state) {
+  if (state.appending || state.exhausted && !state.reservedNext && !state.pool.length) {
+    updateRelatedControls(state);
     return;
   }
 
-  grid.innerHTML = list.map(p => {
-    const id = safeHtml(p.id);
-    const name = safeHtml(p.name || 'Produto sem nome');
-    const img = imageList(p)[0];
+  state.appending = true;
+  try {
+    let product = state.reservedNext;
+    state.reservedNext = null;
+    if (!product) product = await takeNextRelatedProduct(state);
 
-    const picture = img
-      ? `<img class="product-image-reveal"
-           src="${safeHtml(optimizedImage(img, 'grid'))}"
-           alt="${name}" loading="lazy" decoding="async"
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
-      : safeHtml(p.emoji || '📦');
-
-    const inFav = typeof fav !== 'undefined' &&
-      Array.isArray(fav) &&
-      fav.some(x => String(x.id) === String(p.id));
-
-    const badge = p.badge === 'hot'
-      ? '<span class="bpill bhot">🔥 Hot</span>'
-      : p.badge === 'new'
-        ? '<span class="bpill bnew">Novo</span>'
-        : Number(p.discount) > 0
-          ? `<span class="bpill bsale">-${Number(p.discount)}%</span>`
-          : '';
-
-    const old = Number(p.old) > Number(p.price)
-      ? `<span class="pold">${safeHtml(priceText(p.old))}</span>`
-      : '';
-
-    const disc = Number(p.discount) > 0
-      ? `<span class="pdisc">-${Number(p.discount)}%</span>`
-      : '';
-
-    return `
-      <div class="pcard" data-related-product="${id}">
-        <div class="pimg-wrap">
-          <div class="pimg" style="position:relative;">${picture}</div>
-          <div class="pbadges">${badge}</div>
-
-          <button type="button"
-            class="pwish-btn ${inFav ? 'on' : ''}"
-            data-related-fav="${id}" aria-label="Favoritar">
-            <svg viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-          </button>
-
-          <div class="pactions">
-            <button type="button" class="btn-ac"
-              data-related-cart="${id}">Carrinho</button>
-          </div>
-        </div>
-
-        <div class="pinfo">
-          <div class="pcat">${safeHtml(categoryText(p))}</div>
-          <div class="pname" data-no-translate>${name}</div>
-          <div class="prating">
-            <span class="pstars">${starsText(p.rating)}</span>
-            <span class="prcnt">(${(Number(p.reviews) || 0).toLocaleString('pt-BR')})</span>
-          </div>
-          <div class="price-row">
-            <span class="pprice">${safeHtml(priceText(p.price))}</span>
-            ${old}${disc}
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  grid.querySelectorAll('[data-related-product]').forEach(card => {
-    card.addEventListener('click', () => {
-      location.href =
-        `/product/${encodeURIComponent(card.dataset.relatedProduct)}`;
-    });
-  });
-
-  grid.querySelectorAll('[data-related-fav]').forEach(button => {
-    button.addEventListener('click', event => {
-      event.stopPropagation();
-
-      if (typeof toggleFav === 'function') {
-        toggleFav(button.dataset.relatedFav);
+    if (!product) {
+      if (!state.grid.querySelector('.pcard')) {
+        state.grid.innerHTML = '<p class="related-empty">Não há outros produtos disponíveis para recomendar.</p>';
       }
+      state.section.classList.remove('is-loading');
+      state.section.setAttribute('aria-busy', 'false');
+      updateRelatedControls(state);
+      return;
+    }
 
-      setTimeout(updateProductFavoriteButtons, 0);
+    if (!state.hasRendered) {
+      state.grid.replaceChildren();
+      state.hasRendered = true;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = relatedProductCardHTML(product).trim();
+    const card = wrapper.firstElementChild;
+    state.grid.appendChild(card);
+    state.renderedCount++;
+    bindRelatedCard(card, product, state);
+
+    // Puxa a próxima página em background antes de o usuário chegar ao final do trilho.
+    if (state.pool.length <= 2 && !state.exhausted) {
+      loadRelatedBatch(state).catch(() => {});
+    }
+
+    await reserveNextRelatedProduct(state);
+  } finally {
+    state.appending = false;
+    updateRelatedControls(state);
+  }
+}
+
+function updateRelatedControls(state) {
+  if (!state || !state.grid) return;
+
+  const prev = document.getElementById('relatedPrev');
+  const next = document.getElementById('relatedNext');
+  const atStart = state.grid.scrollLeft <= 3;
+  const atEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - 4;
+  const noMore = state.exhausted && !state.reservedNext && !state.pool.length && !state.loadingPromise && !state.reservingNext;
+
+  if (prev) prev.disabled = atStart;
+  if (next) next.disabled = noMore && atEnd;
+}
+
+function bindRelatedCarouselControls(state) {
+  const prev = document.getElementById('relatedPrev');
+  const next = document.getElementById('relatedNext');
+
+  if (prev && prev.dataset.bound !== 'true') {
+    prev.dataset.bound = 'true';
+    prev.addEventListener('click', () => {
+      const card = state.grid.querySelector('.pcard');
+      if (!card) return;
+      const gap = parseFloat(getComputedStyle(state.grid).columnGap || getComputedStyle(state.grid).gap) || 0;
+      state.grid.scrollBy({ left: -(card.getBoundingClientRect().width + gap), behavior: 'smooth' });
     });
-  });
+  }
 
-  grid.querySelectorAll('[data-related-cart]').forEach(button => {
-    button.addEventListener('click', event => {
-      event.stopPropagation();
-
-      if (typeof addToCart === 'function') {
-        addToCart(button.dataset.relatedCart, 1);
-      }
+  if (next && next.dataset.bound !== 'true') {
+    next.dataset.bound = 'true';
+    next.addEventListener('click', async () => {
+      const card = state.grid.querySelector('.pcard');
+      if (!card) return;
+      const gap = parseFloat(getComputedStyle(state.grid).columnGap || getComputedStyle(state.grid).gap) || 0;
+      const step = card.getBoundingClientRect().width + gap;
+      const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 1.4;
+      if (nearEnd) await appendNextRelatedCard(state);
+      state.grid.scrollBy({ left: step, behavior: 'smooth' });
+      // Mantém um produto em reserva, com a imagem já requisitada.
+      reserveNextRelatedProduct(state);
     });
-  });
+  }
+
+  if (state.grid.dataset.scrollBound !== 'true') {
+    state.grid.dataset.scrollBound = 'true';
+    state.grid.addEventListener('scroll', () => {
+      updateRelatedControls(state);
+      if (state.scrollCheckFrame) return;
+      state.scrollCheckFrame = requestAnimationFrame(() => {
+        state.scrollCheckFrame = 0;
+        const card = state.grid.querySelector('.pcard');
+        if (!card) return;
+        const step = card.getBoundingClientRect().width + 22;
+        const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.5;
+        if (nearEnd) appendNextRelatedCard(state);
+      });
+    }, { passive: true });
+  }
+
+  updateRelatedControls(state);
+}
+
+async function renderRelatedProducts(currentId) {
+  const grid = document.getElementById('relatedGrid');
+  const section = document.querySelector('.related-section');
+  if (!grid || !section || typeof supabaseClient === 'undefined') return;
+
+  const state = {
+    currentId: String(currentId),
+    section,
+    grid,
+    total: null,
+    cursor: 0,
+    scannedRows: 0,
+    countChecked: false,
+    exhausted: false,
+    loadingPromise: null,
+    fetchError: null,
+    pool: [],
+    knownIds: new Set([String(currentId)]),
+    preloadedIds: new Set(),
+    preloadedImages: new Map(),
+    reservedNext: null,
+    reservingNext: false,
+    appending: false,
+    hasRendered: false,
+    renderedCount: 0,
+    scrollCheckFrame: 0
+  };
+
+  relatedCarouselState = state;
+  section.classList.add('is-loading');
+  section.setAttribute('aria-busy', 'true');
+  bindRelatedCarouselControls(state);
+
+  try {
+    // A primeira busca traz somente um pequeno lote, nunca o catálogo completo.
+    const initialCount = relatedVisibleCount() + 1;
+    for (let i = 0; i < initialCount; i++) {
+      if (state.exhausted && !state.reservedNext && !state.pool.length) break;
+      await appendNextRelatedCard(state);
+      if (!state.renderedCount) break;
+    }
+
+    if (!state.renderedCount) {
+      grid.innerHTML = '<p class="related-empty">Não há outros produtos disponíveis para recomendar.</p>';
+    }
+  } finally {
+    section.classList.remove('is-loading');
+    section.setAttribute('aria-busy', 'false');
+    updateRelatedControls(state);
+  }
+
+  // Pré-carrega um produto adicional (dados e imagem) antes de o usuário avançar.
+  reserveNextRelatedProduct(state);
 }
 
 /* ── BOTÕES ───────────────────────────────────────────────── */
