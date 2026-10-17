@@ -1,3 +1,5 @@
+header {position: fixed !important}
+
     /* ── BREADCRUMB ──────────────────────────────────────────── */
     .breadcrumb-bar {background: var(--white);/* border-bottom: 1px solid var(--border2); */}
     .breadcrumb {max-width: 1440px;margin: 0 auto;padding: 14px 28px;display: none;align-items: center;gap: 8px;font-size: 12px;color: var(--muted);flex-wrap: wrap;}
