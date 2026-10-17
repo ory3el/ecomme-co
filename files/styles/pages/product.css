@@ -1,4 +1,4 @@
-header {position: relative !important}
+    header {position: relative !important}
 
     /* ── BREADCRUMB ──────────────────────────────────────────── */
     .breadcrumb-bar {background: var(--white);/* border-bottom: 1px solid var(--border2); */}
@@ -477,4 +477,126 @@ header {position: relative !important}
 }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer::after { animation: none; transform: none; opacity: .35; }
+}
+
+
+/* ── CARROSSEL INCREMENTAL DE PRODUTOS RECOMENDADOS ───────────── */
+.related-head {
+  gap: 18px;
+}
+.related-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.related-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.related-nav-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: color .2s, background .2s, border-color .2s, opacity .2s;
+}
+.related-nav-btn:hover:not(:disabled) {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.related-nav-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+.related-carousel {
+  position: relative;
+  min-width: 0;
+}
+#relatedGrid.products-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  grid-template-columns: none;
+  align-items: stretch;
+  gap: 22px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 16px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 2px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#relatedGrid.products-grid::-webkit-scrollbar { display: none; }
+#relatedGrid .pcard,
+#relatedGrid .related-skeleton-card {
+  flex: 0 0 calc((100% - 66px) / 4);
+  width: calc((100% - 66px) / 4);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+#relatedGrid .pcard {
+  height: auto;
+}
+#relatedGrid .pinfo {
+  min-width: 0;
+  flex: 1;
+}
+#relatedGrid .pname {
+  overflow-wrap: anywhere;
+}
+#relatedGrid .related-skeleton-card {
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  border-radius: var(--rad-lg);
+  background: var(--white);
+}
+.related-empty {
+  flex: 1 0 100%;
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  #relatedGrid .pcard,
+  #relatedGrid .related-skeleton-card {
+    flex-basis: calc((100% - 44px) / 3);
+    width: calc((100% - 44px) / 3);
+  }
+}
+@media (max-width: 768px) {
+  .related-head {
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .related-head h2 { font-size: 24px; }
+  .related-head-actions { margin-left: auto; gap: 10px; }
+  .related-nav { gap: 6px; }
+  .related-nav-btn { width: 34px; height: 34px; }
+  #relatedGrid.products-grid { gap: 12px; }
+  #relatedGrid .pcard,
+  #relatedGrid .related-skeleton-card {
+    flex-basis: calc((100% - 12px) / 2);
+    width: calc((100% - 12px) / 2);
+  }
+}
+@media (max-width: 480px) {
+  .related-head h2 { font-size: 21px; }
+  .related-head-actions { gap: 8px; }
+  #relatedGrid .pcard,
+  #relatedGrid .related-skeleton-card {
+    flex-basis: 78%;
+    width: 78%;
+  }
 }
