@@ -106,7 +106,46 @@
 </div>
 
 <!-- PRODUCT MAIN -->
-<div class="product-main">
+<div class="product-main is-loading" aria-busy="true">
+  <!-- Skeleton visível enquanto os dados e a imagem principal são carregados -->
+  <div class="product-skeleton" aria-hidden="true">
+    <div class="pskeleton-gallery">
+      <div class="skeleton-shimmer psk-main-image"></div>
+      <div class="psk-thumbs">
+        <span class="skeleton-shimmer psk-thumb"></span>
+        <span class="skeleton-shimmer psk-thumb"></span>
+        <span class="skeleton-shimmer psk-thumb"></span>
+        <span class="skeleton-shimmer psk-thumb"></span>
+      </div>
+    </div>
+    <div class="pskeleton-info">
+      <div class="psk-meta">
+        <span class="skeleton-shimmer psk-category"></span>
+        <span class="skeleton-shimmer psk-id"></span>
+      </div>
+      <span class="skeleton-shimmer psk-title psk-title-wide"></span>
+      <span class="skeleton-shimmer psk-title psk-title-short"></span>
+      <div class="psk-rating">
+        <span class="skeleton-shimmer psk-rating-stars"></span>
+        <span class="skeleton-shimmer psk-rating-count"></span>
+      </div>
+      <span class="skeleton-shimmer psk-price"></span>
+      <span class="skeleton-shimmer psk-line psk-line-wide"></span>
+      <span class="skeleton-shimmer psk-line psk-line-medium"></span>
+      <span class="skeleton-shimmer psk-line psk-line-short"></span>
+      <div class="psk-spacer"></div>
+      <span class="skeleton-shimmer psk-action"></span>
+      <span class="skeleton-shimmer psk-action psk-action-secondary"></span>
+      <div class="psk-trust">
+        <span class="skeleton-shimmer psk-trust-icon"></span>
+        <span class="skeleton-shimmer psk-trust-line"></span>
+      </div>
+      <div class="psk-trust">
+        <span class="skeleton-shimmer psk-trust-icon"></span>
+        <span class="skeleton-shimmer psk-trust-line"></span>
+      </div>
+    </div>
+  </div>
 
   <!-- GALLERY -->
   <div class="gallery">
@@ -228,7 +267,27 @@
 </div>
 
 <!-- TABS -->
-<div class="tabs-section">
+<div class="tabs-section is-loading" aria-busy="true">
+  <div class="product-tabs-skeleton" aria-hidden="true">
+    <div class="pts-nav">
+      <span class="skeleton-shimmer pts-tab pts-tab-active"></span>
+      <span class="skeleton-shimmer pts-tab"></span>
+      <span class="skeleton-shimmer pts-tab"></span>
+    </div>
+    <div class="pts-content">
+      <span class="skeleton-shimmer pts-line pts-line-wide"></span>
+      <span class="skeleton-shimmer pts-line pts-line-wide"></span>
+      <span class="skeleton-shimmer pts-line pts-line-medium"></span>
+      <span class="skeleton-shimmer pts-line pts-line-wide"></span>
+      <span class="skeleton-shimmer pts-line pts-line-short"></span>
+      <div class="pts-feature-grid">
+        <span class="skeleton-shimmer pts-feature"></span>
+        <span class="skeleton-shimmer pts-feature"></span>
+        <span class="skeleton-shimmer pts-feature"></span>
+        <span class="skeleton-shimmer pts-feature"></span>
+      </div>
+    </div>
+  </div>
   <div class="tabs-nav">
     <button class="tab-btn on" data-tab="desc" onclick="goToTab('desc')">Descrição</button>
     <button class="tab-btn" data-tab="specs" onclick="goToTab('specs')">Especificações</button>
@@ -271,6 +330,7 @@
     </table>
   </div>
 
+ 
   <!-- REVIEWS -->
   <div class="tab-panel" id="tab-reviews">
     <div class="reviews-layout">
@@ -348,14 +408,30 @@
 </div>
 
 <!-- RELATED PRODUCTS -->
-<div class="related-section">
+<div class="related-section is-loading" aria-busy="true">
   <div class="related-head">
     <h2>Você também pode gostar</h2>
     <a href="/products">Ver todos →</a>
   </div>
-  <div class="products-grid" id="relatedGrid"></div>
+  <div class="products-grid" id="relatedGrid">
+    <div class="related-skeleton-card" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+    </div>
+    <div class="related-skeleton-card" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+    </div>
+    <div class="related-skeleton-card" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+    </div>
+    <div class="related-skeleton-card" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info"><span class="skeleton-shimmer rsk-line"></span><span class="skeleton-shimmer rsk-line rsk-line-short"></span><span class="skeleton-shimmer rsk-price"></span></div>
+    </div>
+  </div>
 </div>
-
 
   <!-- FOOTER -->
   <footer>
@@ -659,6 +735,7 @@
       </div>
     </div>
   </div>
+    
     
   <!-- PRODUCT MODAL -->
   <div class="modal-ov" id="modalOverlay" onclick="handleModalClick(event)">
