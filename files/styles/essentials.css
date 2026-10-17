@@ -1971,6 +1971,7 @@ header:hover .hide-btn {
    TRAVA SÉRIE OURO: DETECÇÃO DE TELA DE TOQUE (Mesmo em Modo Desktop)
    ========================================================================== */
 @media (pointer: coarse) {
+  .hide-btn {display: none !important}
   .mArrows {display: flex !important; opacity: 1;}
   .pArrow1 {transform: scale(1);}
   .pArrow2 {transform: scale(1);}
