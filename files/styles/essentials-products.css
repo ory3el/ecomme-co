@@ -226,7 +226,7 @@
       transition: border 0.2s, background 0.2s;
       /*backdrop-filter: blur(4px);*/
     }
-    .pwish-btn:hover, .pwish-btn.on {background: var(--surface-2);border-color: var(--red);}
+    .pwish-btn:hover, .pwish-btn.on {background: var(--white);border-color: var(--red);}
     .pwish-btn svg { 
         width: 14px; height: 14px; fill: none; 
         stroke: var(--muted); stroke-width: 2; 
