@@ -193,7 +193,7 @@ body.nobodyscroll { overflow: hidden; }
   height: 20px;
   z-index: 200;
   cursor: pointer;
-  margin-top: -1px;
+  margin-top: -2px;
   margin-left: 25px;
   align-items: center;
   color: var(--blue);
@@ -216,10 +216,16 @@ header {
   backdrop-filter: blur(16px) saturate(180%) brightness(1.04);*/
   /*box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.15), inset 0 -1px rgba(255,255,255,.05);*/
 }
-header:hover .header-inner {border-color: var(--blue)}
+header:hover .in-header {border-color: var(--blue)}
 header:hover .hide-btn {
   opacity: 1;
   pointer-events: auto
+}
+.in-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0 0 24px 24px;
+  transition: border-color 0.25s;
 }
 .header-inner {
   max-width: 1440px;
@@ -230,10 +236,6 @@ header:hover .hide-btn {
   align-items: center;
   gap: 24px;
   height: 68px;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  border-radius: 0 0 24px 24px;
-  transition: border-color 0.25s;
 }
 .logo { 
   flex-shrink: 0; display: flex; align-items: center; 
