@@ -930,6 +930,80 @@ function updateRelatedControls(state) {
   if (next) next.disabled = noMore && atEnd;
 }
 
+function finalizeRelatedProgrammaticScroll(state, token) {
+  if (token !== state.programmaticScrollToken) return;
+
+  clearTimeout(state.scrollSnapFallbackTimer);
+  state.scrollSnapFallbackTimer = null;
+
+  if (state.scrollEndHandler) {
+    state.grid.removeEventListener('scrollend', state.scrollEndHandler);
+    state.scrollEndHandler = null;
+  }
+
+  state.isProgrammaticScrolling = false;
+
+  // Reabilita o snap apenas depois que a rolagem suave terminou.
+  requestAnimationFrame(() => {
+    if (token !== state.programmaticScrollToken) return;
+    state.grid.classList.remove('is-programmatic-scrolling');
+    updateRelatedControls(state);
+  });
+}
+
+function scrollRelatedGrid(state, amount, beforeScroll = null) {
+  const grid = state.grid;
+  state.programmaticScrollToken = (state.programmaticScrollToken || 0) + 1;
+  const token = state.programmaticScrollToken;
+
+  clearTimeout(state.scrollSnapFallbackTimer);
+  if (state.scrollEndHandler) {
+    grid.removeEventListener('scrollend', state.scrollEndHandler);
+    state.scrollEndHandler = null;
+  }
+
+  // Impede que o scroll-snap altere o destino no meio da animação.
+  state.isProgrammaticScrolling = true;
+  grid.classList.add('is-programmatic-scrolling');
+
+  // O espaço do próximo cartão é reservado antes de iniciar o movimento.
+  if (typeof beforeScroll === 'function') beforeScroll();
+
+  const onScrollEnd = () => finalizeRelatedProgrammaticScroll(state, token);
+  state.scrollEndHandler = onScrollEnd;
+  grid.addEventListener('scrollend', onScrollEnd, { once: true });
+
+  const before = grid.scrollLeft;
+  const maxScroll = Math.max(0, grid.scrollWidth - grid.clientWidth);
+  const expectedTarget = Math.max(0, Math.min(maxScroll, before + amount));
+  const shouldMove = Math.abs(expectedTarget - before) > 1;
+
+  grid.scrollBy({ left: amount, behavior: 'smooth' });
+
+  // Fallback para navegadores sem scrollend ou quando o destino já foi atingido.
+  // Não use o scrollLeft imediatamente após scrollBy: em uma animação suave,
+  // ele normalmente ainda não mudou nesse instante.
+  state.scrollSnapFallbackTimer = setTimeout(() => {
+    finalizeRelatedProgrammaticScroll(state, token);
+  }, shouldMove ? 850 : 80);
+}
+
+function reserveSlotBeforeRelatedNavigation(state, step) {
+  const grid = state.grid;
+  const maxScroll = Math.max(0, grid.scrollWidth - grid.clientWidth);
+  const projectedLeft = Math.min(maxScroll, grid.scrollLeft + step);
+  const willReachEnd = projectedLeft + grid.clientWidth >= grid.scrollWidth - step * 0.55;
+  const hasPotential = Boolean(
+    state.reservedNext || state.pool.length || state.loadingPromise ||
+    state.reservingNext || !state.exhausted
+  );
+
+  if (!willReachEnd || !hasPotential) return;
+
+  const placeholder = ensureRelatedPendingCard(state);
+  if (!state.appending) appendNextRelatedCard(state, placeholder).catch(() => {});
+}
+
 function bindRelatedCarouselControls(state) {
   const prev = document.getElementById('relatedPrev');
   const next = document.getElementById('relatedNext');
@@ -938,7 +1012,7 @@ function bindRelatedCarouselControls(state) {
     prev.dataset.bound = 'true';
     prev.addEventListener('click', () => {
       const step = relatedCarouselStep(state);
-      state.grid.scrollBy({ left: -step, behavior: 'smooth' });
+      scrollRelatedGrid(state, -step);
     });
   }
 
@@ -946,16 +1020,10 @@ function bindRelatedCarouselControls(state) {
     next.dataset.bound = 'true';
     next.addEventListener('click', () => {
       const step = relatedCarouselStep(state);
-      const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.55;
-
-      if (nearEnd) {
-        // Não use await aqui: o placeholder reserva o espaço imediatamente,
-        // e a animação suave começa antes de terminar a próxima consulta.
-        appendNextRelatedCard(state).catch(() => {});
-      }
-
-      state.grid.scrollBy({ left: step, behavior: 'smooth' });
-      // Se o próximo item ainda não estiver reservado, a busca prossegue em background.
+      scrollRelatedGrid(state, step, () => {
+        reserveSlotBeforeRelatedNavigation(state, step);
+      });
+      // Os dados e a imagem do próximo produto continuam sendo preparados em background.
       reserveNextRelatedProduct(state).catch(() => {});
     });
   }
@@ -964,13 +1032,31 @@ function bindRelatedCarouselControls(state) {
     state.grid.dataset.scrollBound = 'true';
     state.grid.addEventListener('scroll', () => {
       updateRelatedControls(state);
-      if (state.scrollCheckFrame) return;
+      if (state.isProgrammaticScrolling || state.scrollCheckFrame) return;
+
       state.scrollCheckFrame = requestAnimationFrame(() => {
         state.scrollCheckFrame = 0;
+        updateRelatedControls(state);
+      });
+
+      // Não insere cartões durante uma animação de rolagem: isso muda os snap points
+      // e pode fazer o navegador interromper o movimento pela metade.
+      clearTimeout(state.nearEndFallbackTimer);
+      state.nearEndFallbackTimer = setTimeout(() => {
+        if (state.isProgrammaticScrolling) return;
         const step = relatedCarouselStep(state);
         const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.5;
         if (nearEnd) appendNextRelatedCard(state).catch(() => {});
-      });
+      }, 140);
+    }, { passive: true });
+
+    // Em navegadores que suportam scrollend, carrega o próximo item só depois do movimento.
+    state.grid.addEventListener('scrollend', () => {
+      if (state.isProgrammaticScrolling) return;
+      clearTimeout(state.nearEndFallbackTimer);
+      const step = relatedCarouselStep(state);
+      const nearEnd = state.grid.scrollLeft + state.grid.clientWidth >= state.grid.scrollWidth - step * 0.5;
+      if (nearEnd) appendNextRelatedCard(state).catch(() => {});
     }, { passive: true });
   }
 
@@ -1003,7 +1089,12 @@ async function renderRelatedProducts(currentId) {
     appending: false,
     hasRendered: false,
     renderedCount: 0,
-    scrollCheckFrame: 0
+    scrollCheckFrame: 0,
+    isProgrammaticScrolling: false,
+    programmaticScrollToken: 0,
+    scrollEndHandler: null,
+    scrollSnapFallbackTimer: null,
+    nearEndFallbackTimer: null
   };
 
   relatedCarouselState = state;
