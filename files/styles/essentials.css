@@ -206,6 +206,34 @@ body.nobodyscroll { overflow: hidden; }
 }
 .hide-btn:hover{transform: scaleX(1.1);}
 
+.hide-btn.is-detached {
+  position: fixed !important;
+  top: 0 !important;
+  left: 25px !important;
+  margin: 0 !important;
+  order: initial;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 1101 !important;
+  display: flex !important;
+  transform: none;
+}
+
+.hide-btn.is-detached:hover {transform: scaleX(1.1);}
+header.header-gesture-enabled {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease;
+}
+header.header-gesture-enabled.header-gesture-hidden {
+  transform: translateY(calc(-100% - 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (pointer: coarse) {.hide-btn.is-detached {display: none !important;}}
+@media (prefers-reduced-motion: reduce) {header.header-gesture-enabled {transition: none;}}
+
 header {
   position: sticky;
   display: grid;
@@ -1999,7 +2027,6 @@ header.header-gesture-enabled.header-gesture-hidden {
    TRAVA SÉRIE OURO: DETECÇÃO DE TELA DE TOQUE (Mesmo em Modo Desktop)
    ========================================================================== */
 @media (pointer: coarse) {
-  .hide-btn {display: none !important}
   .mArrows {display: flex !important; opacity: 1;}
   .pArrow1 {transform: scale(1);}
   .pArrow2 {transform: scale(1);}
