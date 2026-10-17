@@ -210,18 +210,23 @@ header {
   gap: 5px; position: relative; bottom: 25px;
   filter: var(--img-filter);
 }
-.nav-main { display: flex; gap: 2px; }
-.nav-main a {
-  background: var(--glass-bg);
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
-  padding: 7px 14px; font-size: 13px; font-weight: 500;
-  color: var(--muted); border-radius: 911px; transition: color .2s, background .2s;
-}
-.nav-main a:hover { color: var(--text); background: var(--bg3); }
-.nav-main a.active {color: var(--blue-deep);background: var(--surface);border: 1px solid var(--blue-deep);font-weight: 600;}
+
 
 .header-actions { display: flex; align-items: center; gap: 6px; }
-
+.search-bar {
+  flex: 1; max-width: 420px; display: flex; align-items: center;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
+  backdrop-filter: /*blur(18px)*/ saturate(170%);
+  border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px;
+  transition: border-color 0.25s, background 0.25s, transition: 0.25s;
+}
+.search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
+.search-bar:focus-within input {color: var(--black)}
+.search-bar:focus-within svg {stroke: var(--black)}
+.search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
+.search-bar input::placeholder { color: var(--muted); font-size: 14px; font-weight: 400; }
+.search-bar svg { width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; flex-shrink: 0; }
 
 /* ----------------------------------------------------------------------------------- */
 .icon-btn {
