@@ -187,13 +187,11 @@ header {
   z-index: 1000;
   overflow: hidden;
   background: var(--white);
-  -webkit-backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
-  backdrop-filter: /*blur(16px)*/ saturate(180%) brightness(1.04);
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none;
-  border-bottom: 1px solid var(--borderW);
+  /*-webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.04);
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.04);*/
+  border-bottom: 1px solid var(--border);
   border-radius: 0 0 24px 24px;
-  box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.15), inset 0 -1px rgba(255,255,255,.05);
+  /*box-shadow: 0 12px 45px rgba(37,99,235,.12), inset 0 1px rgba(255,255,255,.15), inset 0 -1px rgba(255,255,255,.05);*/
 }
 
 .header-inner {
@@ -213,21 +211,26 @@ header {
 .nav-main { display: flex; gap: 2px; }
 .nav-main a {
   background: var(--glass-bg);
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
-  padding: 7px 14px; font-size: 13px; font-weight: 500;
-  color: var(--muted); border-radius: 911px; transition: color .2s, background .2s;
+  /* box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2); */
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  border-radius: 911px;
+  transition: color .2s, background .2s;
+  border: 1px solid var(--border2);
 }
-.nav-main a:hover { color: var(--text); background: var(--bg3); }
+.nav-main a:hover {border-color: var(--blue3); color: var(--text);/* background: var(--bg3); */}
 .nav-main a.active {color: var(--blue-deep);background: var(--surface);border: 1px solid var(--blue-deep);font-weight: 600;}
 
 .header-actions { display: flex; align-items: center; gap: 6px; }
 .search-bar {
   flex: 1; max-width: 420px; display: flex; align-items: center;
   background: var(--glass-bg);
-  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
-  backdrop-filter: /*blur(18px)*/ saturate(170%);
+  /*-webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);*/
   border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px;
-  transition: border-color 0.25s, background 0.25s, transition: 0.25s;
+  transition: 0.25s;
 }
 .search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
 .search-bar:focus-within input {color: var(--black)}
@@ -240,10 +243,10 @@ header {
 .icon-btn {
   position: relative;
   background: var(--glass-bg);
-  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
-  backdrop-filter: /*blur(18px)*/ saturate(170%);
+  /*-webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);*/
   border: 1px solid var(--border2);
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
+  /* box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2); */
   width: 37px;
   height: 37px;
   border-radius: 50%;
@@ -253,7 +256,7 @@ header {
   color: var(--muted);
   transition: transform 0.35s, box-shadow 0.35s, background 0.35s, border-color 0.35s;
 }
-.icon-btn:hover {transform: translateY(-2px);background: var(--bg3);color: var(--blue-deep);border-color: var(--blue-deep);}
+.icon-btn:hover {transform: translateY(-2px);/* background: var(--bg3); */color: var(--blue-deep);border-color: var(--blue-deep);}
 .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 /* ----------------------------------------------------------------------------------- */
 .hd-badge {
@@ -2165,18 +2168,18 @@ header {
 /* ============================================================ */
 
 .product-image-reveal {
-  opacity: 0;
+  opacity: 1;
   transform: scale(1.025);
-  filter: blur(16px);
+  filter: saturate(0) blur(16px);
   transition:
     opacity .45s cubic-bezier(.22,1,.36,1),
     transform .6s cubic-bezier(.22,1,.36,1),
     filter .6s cubic-bezier(.22,1,.36,1);
 }
 .product-image-reveal.is-loaded {
-  opacity: 1;
+  /* opacity: 1; */
   transform: scale(1);
-  filter: blur(0);
+  filter: saturate(1) blur(0);
 }
 .product-image-reveal.is-cached {
   transition:
