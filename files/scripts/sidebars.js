@@ -1191,8 +1191,8 @@ async function syncEcommeDisplaySettings() {
 }
 
 // ---------------------------------------------------------
-//(() => {
-  if (!window.matchMedia('(pointer: coarse)').matches) return;
+(() => {
+  //if (!window.matchMedia('(pointer: coarse)').matches) return;
   const header = document.querySelector('header');
   if (!header) return;
 
@@ -1298,7 +1298,7 @@ async function syncEcommeDisplaySettings() {
   document.addEventListener('touchcancel', () => {
     hasTouchStart = false;
   }, { passive: true });
-//})();
+})();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
