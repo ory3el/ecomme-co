@@ -271,22 +271,32 @@ header {
   justify-content: center;
   padding: 0 2px;
 }
-.btn-account {
+
+
+.header-profile {
+  width: 40px;
+  height: 40px;
   background: var(--blue);
-  color: #fff;
-  padding: 8px 20px;
-  border-radius: 100px;
-  min-height: 37px;
-  font-size: 12px;
-  font-weight: 600;
+  border: 1px solid var(--bg3);
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--blue3);
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: background .2s, transform .2s;
+  justify-content: center;
+  padding: 1px;
+  gap: 8px;
+  transition: transform .2s ease, box-shadow .2s ease, background 0.2s;
 }
-.btn-account:hover { background: var(--blue2); transform: translateY(-1px); }
-
-
+.header-profile:hover {transform: translateY(-2px);background: var(--blue2);}
+.header-profile img {
+  width: 30px;height: 30px;border-radius: 50%;
+  filter: brightness(0) invert(1);align-items: center;
+  justify-content: center;background: transparent;
+  color: var(--blue);display: flex;font-size: 10px;
+  font-weight: 700;flex-shrink: 0;
+}
 
 @media (pointer: coarse) {
   header.header-gesture-enabled {
