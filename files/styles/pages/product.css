@@ -1,4 +1,4 @@
-header {position: fixed !important}
+header {position: relative !important}
 
     /* ── BREADCRUMB ──────────────────────────────────────────── */
     .breadcrumb-bar {background: var(--white);/* border-bottom: 1px solid var(--border2); */}
