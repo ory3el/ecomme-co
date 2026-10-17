@@ -1192,35 +1192,39 @@ async function syncEcommeDisplaySettings() {
 
 // ---------------------------------------------------------
 (() => {
-  //if (!window.matchMedia('(pointer: coarse)').matches) return;
   const header = document.querySelector('header');
   if (!header) return;
-
   if (header.dataset.gestureController === 'active') return;
   header.dataset.gestureController = 'active';
+  const showButton = document.getElementById('showHeaderBtn');
   header.classList.add('header-gesture-enabled');
-
-  let startX = 0;
-  let startY = 0;
-  let startedOnHeader = false;
-  let hasTouchStart = false;
   let state = 'sticky';
   let finishTimer = null;
+  const ANIMATION_FALLBACK_MS = 380;
   const SWIPE_THRESHOLD = 55;
-  const ANIMATION_FALLBACK_MS = 350;
+
+  function setShowButtonVisible(visible) {
+    if (!showButton) return;
+    showButton.classList.toggle('is-visible', visible);
+    showButton.setAttribute('aria-hidden', String(!visible));
+    showButton.tabIndex = visible ? 0 : -1;
+  }
 
   function finishTransition() {
+    if (state !== 'hiding' && state !== 'showing') return;
     clearTimeout(finishTimer);
     finishTimer = null;
-
+    
     if (state === 'hiding') {
       header.style.position = 'relative';
       header.style.top = 'auto';
       state = 'relative';
-    } else if (state === 'showing') {
+      setShowButtonVisible(true);
+    } else {
       header.style.position = 'sticky';
       header.style.top = '0';
       state = 'sticky';
+      setShowButtonVisible(false);
     }
   }
 
@@ -1229,7 +1233,10 @@ async function syncEcommeDisplaySettings() {
     clearTimeout(finishTimer);
     state = 'hiding';
     header.classList.add('header-gesture-hidden');
-    finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
   }
 
   function showHeader() {
@@ -1238,26 +1245,45 @@ async function syncEcommeDisplaySettings() {
     header.style.position = 'sticky';
     header.style.top = '0';
     state = 'showing';
+
+    setShowButtonVisible(false);
+
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         header.classList.remove('header-gesture-hidden');
       });
     });
-    finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
+
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
   }
 
-  function toggleHeader() {
+  window.toggleHeader = function () {
     if (state === 'sticky' || state === 'showing') {
       hideHeader();
-    } else if (state === 'relative' || state === 'hiding') {
+    } else {
       showHeader();
     }
-  }
-  
+  };
+
   header.addEventListener('transitionend', event => {
-    if (event.target !== header || event.propertyName !== 'transform') return;
+    if (
+      event.target !== header ||
+      event.propertyName !== 'transform'
+    ) {
+      return;
+    }
+
     finishTransition();
   });
+
+  if (!window.matchMedia('(pointer: coarse)').matches) return;
+  let startX = 0;
+  let startY = 0;
+  let startedOnHeader = false;
+  let hasTouchStart = false;
 
   document.addEventListener('touchstart', event => {
     if (event.touches.length !== 1) {
@@ -1266,6 +1292,7 @@ async function syncEcommeDisplaySettings() {
     }
 
     const touch = event.touches[0];
+
     startX = touch.clientX;
     startY = touch.clientY;
     startedOnHeader = header.contains(event.target);
@@ -1278,19 +1305,23 @@ async function syncEcommeDisplaySettings() {
     const touch = event.changedTouches[0];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
+
     if (
       Math.abs(deltaY) < SWIPE_THRESHOLD ||
       Math.abs(deltaY) < Math.abs(deltaX) * 1.2
     ) {
       return;
     }
-    
+
     if (deltaY < 0 && startedOnHeader) {
       hideHeader();
       return;
     }
-    
-    if (deltaY > 0 && (state === 'relative' || state === 'hiding')) {
+
+    if (
+      deltaY > 0 &&
+      (state === 'relative' || state === 'hiding')
+    ) {
       showHeader();
     }
   }, { passive: true });
