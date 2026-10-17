@@ -1246,6 +1246,14 @@ async function syncEcommeDisplaySettings() {
     finishTimer = setTimeout(finishTransition, ANIMATION_FALLBACK_MS);
   }
 
+  funtion toggleHeader() {
+    if (state === 'sticky' || state === 'showing') {
+      hideHeader();
+    } else if (state === 'relative' || state === 'hiding') {
+      showHeader();
+    }
+  }
+  
   header.addEventListener('transitionend', event => {
     if (event.target !== header || event.propertyName !== 'transform') return;
     finishTransition();
