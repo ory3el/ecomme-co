@@ -1569,6 +1569,7 @@ function createProductsSignature(
 // ============================================================
 
 async function refreshProductsIfNeeded() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
   if (
     !pageIsVisible ||
     productRefreshRunning
@@ -1610,6 +1611,7 @@ async function refreshProductsIfNeeded() {
 // ============================================================
 
 function startProductRefresh() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
   if (productRefreshTimer) {
     clearInterval(productRefreshTimer);
   }
@@ -1623,6 +1625,7 @@ function startProductRefresh() {
 // ============================================================
 
 function startProductsRealtime() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
   if (
     productRealtimeChannel
   ) {
@@ -2241,6 +2244,10 @@ function moveFromCartToFav(id) {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+    return loadEcommeCurrentProductOnly();
+  }
+
   const {data, error} = await supabaseClient
     .from('products')
     .select('*')
@@ -2811,12 +2818,37 @@ async function loadFromSupabase() {
     );
     return;
   }
-  cart = hydrateUserItems(
-    data?.cart
-  );
-  fav = hydrateUserItems(
-    data?.fav
-  );
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+    const savedIds = [...new Set(
+      [...(Array.isArray(data?.cart) ? data.cart : []), ...(Array.isArray(data?.fav) ? data.fav : [])]
+        .map(item => item && item.id != null ? String(item.id) : '')
+        .filter(Boolean)
+    )];
+
+    if (savedIds.length) {
+      const { data: savedProducts, error: savedProductsError } = await supabaseClient
+        .from('products')
+        .select('*')
+        .in('id', savedIds);
+
+      if (savedProductsError) {
+        console.warn('Não foi possível carregar os detalhes dos itens salvos na página do produto:', savedProductsError);
+      } else {
+        const merged = new Map(
+          (Array.isArray(products) ? products : []).map(product => [String(product.id), product])
+        );
+        (savedProducts || []).forEach(raw => {
+          const item = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
+          merged.set(String(item.id), item);
+        });
+        products = [...merged.values()];
+        shuffled = [...products];
+      }
+    }
+  }
+
+  cart = hydrateUserItems(data?.cart);
+  fav = hydrateUserItems(data?.fav);
   updateCart();
   updateFav();
 }
