@@ -223,8 +223,8 @@ header {
 .search-bar {
   flex: 1; max-width: 420px; display: flex; align-items: center;
   background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
+  backdrop-filter: /*blur(18px)*/ saturate(170%);
   border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px;
   transition: border-color 0.25s, background 0.25s, transition: 0.25s;
 }
@@ -238,8 +238,8 @@ header {
 .icon-btn {
   position: relative;
   background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: /*blur(18px)*/ saturate(170%);
+  backdrop-filter: /*blur(18px)*/ saturate(170%);
   border: 1px solid var(--border2);
   box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px rgba(255,255,255,.2);
   width: 37px;
@@ -1827,7 +1827,8 @@ header {
    ========================================================================== */
 @media (max-width: 768px) {
   header {box-shadow: none !important}
-  .nav-main a {box-shadow: none !important; border: 1px solid var(--border) !important}
+  icon-btn, .nav-main a {box-shadow: none !important; border: 1px solid var(--border) !important}
+
   .products-grid *, 
   .categories-grid *,
   .product-card,
