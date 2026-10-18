@@ -137,7 +137,128 @@ function showPanel(id, btn) {
   localStorage.setItem('ecomme_settings_section', id);
   window.scrollTo({top: 0, behavior: 'smooth'});
   updateProtectedPanel(id);
-  if (userId) {if (id === 'wishlist') loadWishlist(); if (id === 'cart') loadCart();}
+  if (userId) {if (id === 'wishlist') loadWishlist(); if (id === 'cart') loadCart(); if (id === 'reviews') loadSettingsMyReviews();}
+}
+
+// ── MINHAS AVALIAÇÕES (SUPABASE) ───────────────────────────────────
+let settingsReviewsRequest = null;
+
+function settingsReviewEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function settingsReviewDate(value) {
+  if (!value) return 'Data não informada';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Data não informada';
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function settingsReviewSafeImage(value) {
+  if (!value || typeof value !== 'string') return '';
+  try {
+    const url = new URL(value, window.location.origin);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function settingsReviewEmoji(category) {
+  const c = String(category || '').toLowerCase();
+  if (/eletr|comput|tech|celular/.test(c)) return '📱';
+  if (/moda|roup|calçado|tênis/.test(c)) return '👟';
+  if (/beleza|skin|cosm/.test(c)) return '✨';
+  if (/casa|decora|cozinha/.test(c)) return '🏡';
+  if (/fitness|esport|academ/.test(c)) return '🏃';
+  return '🛍️';
+}
+
+function renderSettingsMyReviews(rows) {
+  const list = document.getElementById('settingsMyReviewsList');
+  if (!list) return;
+
+  if (!rows.length) {
+    list.innerHTML = `
+      <div class="settings-review-state">
+        <div>
+          <span class="settings-review-state-title">Você ainda não avaliou nenhum produto</span>
+          <span>Suas avaliações aparecerão aqui depois que você publicar a primeira.</span><br>
+          <a class="settings-review-empty-link" href="/products">Explorar produtos</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = rows.map(row => {
+    const id = String(row.id || '');
+    const productId = String(row.product_id || '');
+    const productName = row.product_name || 'Produto';
+    const category = row.product_category || 'Categoria não informada';
+    const imageUrl = settingsReviewSafeImage(row.product_image);
+    const image = imageUrl
+      ? `<img class="settings-review-prod-img" src="${settingsReviewEscape(imageUrl)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.hidden=false"> <span class="settings-review-image-placeholder" hidden>${settingsReviewEmoji(category)}</span>`
+      : `<span class="settings-review-image-placeholder">${settingsReviewEmoji(category)}</span>`;
+    const stars = '★'.repeat(Math.max(0, Math.min(5, Number(row.rating) || 0))) + '☆'.repeat(5 - Math.max(0, Math.min(5, Number(row.rating) || 0)));
+    const title = row.title ? `<div class="settings-review-title">${settingsReviewEscape(row.title)}</div>` : '';
+    const comment = settingsReviewEscape(row.comment || '');
+    const editUrl = `/review/?product_id=${encodeURIComponent(productId)}&edit=1`;
+    const productUrl = `/product/${encodeURIComponent(productId)}/`;
+
+    return `<article class="rev-card" data-review-id="${settingsReviewEscape(id)}">
+      <div class="rev-hd">
+        <div class="rev-prod-ico">${image}</div>
+        <div style="min-width:0; flex:1">
+          <div class="rev-prod-name">${settingsReviewEscape(productName)}</div>
+          <div class="rev-prod-cat">${settingsReviewEscape(category)}</div>
+        </div>
+        <div class="settings-review-actions">
+          <a class="btn-xs blue" href="${settingsReviewEscape(editUrl)}" aria-label="Editar avaliação de ${settingsReviewEscape(productName)}">
+            <i class="fa-solid fa-pencil" aria-hidden="true"></i> Editar
+          </a>
+        </div>
+      </div>
+      <div class="rev-stars" aria-label="${Number(row.rating) || 0} de 5 estrelas">${stars}</div>
+      ${title}
+      <div class="settings-review-text">${comment}</div>
+      <div class="rev-meta">
+        <span>${settingsReviewEscape(settingsReviewDate(row.created_at || row.updated_at))}</span>
+        <a class="settings-review-view" href="${settingsReviewEscape(productUrl)}">Ver produto →</a>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function loadSettingsMyReviews() {
+  const list = document.getElementById('settingsMyReviewsList');
+  if (!list || !userId || typeof supabaseClient === 'undefined') return;
+  if (settingsReviewsRequest) return settingsReviewsRequest;
+
+  const requestedUserId = String(userId);
+  list.innerHTML = '<div class="settings-review-state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Carregando suas avaliações…</div>';
+
+  settingsReviewsRequest = (async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from('product_reviews')
+        .select('id,product_id,product_name,product_category,product_image,rating,title,comment,created_at,updated_at')
+        .eq('user_id', requestedUserId)
+        .order('created_at', { ascending: false });
+
+      if (String(userId) !== requestedUserId) return;
+      if (error) throw error;
+
+      renderSettingsMyReviews(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro ao carregar Minhas Avaliações:', error);
+      const missingTable = /product_reviews|relation .* does not exist/i.test(error?.message || '') || error?.code === '42P01';
+      list.innerHTML = `<div class="settings-review-state error"><div><span class="settings-review-state-title">Não foi possível carregar suas avaliações</span><span>${missingTable ? 'A tabela de avaliações ainda não está configurada. Execute supabase/product-reviews.sql no SQL Editor do Supabase.' : 'Confira sua conexão e as permissões RLS da tabela product_reviews no Supabase.'}</span></div></div>`;
+    }
+  })().finally(() => { settingsReviewsRequest = null; });
+
+  return settingsReviewsRequest;
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
