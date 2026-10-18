@@ -509,10 +509,11 @@ function applyProductReviewSummary(summary) {
   });
 }
 
-function renderProductReviewItems(items) {
+function renderProductReviewItems(items, ownReviewId = null) {
   const list = document.querySelector('.rev-list');
   if (!list) return;
 
+  ensureProductReviewInteractionHandlers(list);
   list.replaceChildren();
 
   if (!items.length) {
@@ -582,6 +583,32 @@ function renderProductReviewItems(items) {
     comment.textContent = review.comment || '';
     item.appendChild(comment);
 
+    const actions = document.createElement('div');
+    actions.className = 'rev-interaction-actions';
+
+    const likeButton = document.createElement('button');
+    likeButton.type = 'button';
+    likeButton.className = `rev-interaction-btn rev-like-btn${review.liked_by_me ? ' is-liked' : ''}`;
+    likeButton.dataset.reviewLike = 'true';
+    likeButton.dataset.reviewId = String(review.id);
+    likeButton.setAttribute('aria-pressed', String(Boolean(review.liked_by_me)));
+    likeButton.setAttribute('aria-label', `${review.liked_by_me ? 'Remover curtida' : 'Curtir'} avaliação de ${review.reviewer_name || 'Cliente Ecomme'}`);
+    likeButton.innerHTML = `<span class="rev-like-heart" aria-hidden="true">♥</span><span class="rev-like-label">${review.liked_by_me ? 'Curtido' : 'Curtir'}</span><span class="rev-like-count">${Math.max(0, Number(review.likes_count) || 0)}</span>`;
+    actions.appendChild(likeButton);
+
+    // Não exibe denúncia na própria avaliação do usuário.
+    if (String(review.id) !== String(ownReviewId || '')) {
+      const reportButton = document.createElement('button');
+      reportButton.type = 'button';
+      reportButton.className = 'rev-interaction-btn rev-report-btn';
+      reportButton.dataset.reviewReport = 'true';
+      reportButton.dataset.reviewId = String(review.id);
+      reportButton.setAttribute('aria-label', `Denunciar avaliação de ${review.reviewer_name || 'Cliente Ecomme'}`);
+      reportButton.innerHTML = '<span aria-hidden="true">⚑</span><span>Denunciar</span>';
+      actions.appendChild(reportButton);
+    }
+
+    item.appendChild(actions);
     list.appendChild(item);
   });
 }
@@ -631,10 +658,36 @@ async function loadProductReviews(product) {
       ? summaryResult.data[0]
       : summaryResult.data;
 
-    applyProductReviewSummary(summary || {});
-    renderProductReviewItems(Array.isArray(reviewsResult.data) ? reviewsResult.data : []);
-
     const ownReview = ownReviewResult?.data || null;
+    const reviewRows = Array.isArray(reviewsResult.data) ? reviewsResult.data : [];
+    const engagementById = new Map();
+
+    // Curtidas ficam em uma tabela privada e são lidas por uma RPC que retorna
+    // somente contagens e se o usuário atual já curtiu cada avaliação.
+    if (reviewRows.length) {
+      try {
+        const engagementResult = await supabaseClient.rpc(
+          'get_product_review_engagement',
+          { p_review_ids: reviewRows.map(review => review.id) }
+        );
+        if (engagementResult.error) throw engagementResult.error;
+        (Array.isArray(engagementResult.data) ? engagementResult.data : []).forEach(row => {
+          engagementById.set(String(row.review_id), {
+            likes_count: Number(row.likes_count) || 0,
+            liked_by_me: Boolean(row.liked_by_me)
+          });
+        });
+      } catch (engagementError) {
+        // Falha nas interações não deve esconder as avaliações.
+        console.warn('Não foi possível carregar curtidas das avaliações. Execute supabase/product-review-interactions.sql:', engagementError);
+      }
+    }
+
+    applyProductReviewSummary(summary || {});
+    renderProductReviewItems(reviewRows.map(review => ({
+      ...review,
+      ...(engagementById.get(String(review.id)) || { likes_count: 0, liked_by_me: false })
+    })), ownReview?.id);
     const writeButton = document.querySelector('.btn-write-rev');
     if (writeButton) {
       writeButton.textContent = ownReview ? 'Editar minha avaliação' : 'Escrever avaliação';
@@ -655,6 +708,252 @@ async function loadProductReviews(product) {
       list.appendChild(message);
     }
   }
+}
+
+/* ── CURTIDAS E DENÚNCIAS DE AVALIAÇÕES ───────────────────────── */
+function productReviewToast(message, type = 'info') {
+  if (typeof window.showToast === 'function') {
+    window.showToast(message, type === 'success' ? 'ok' : type === 'error' ? 'err' : 'info');
+  } else {
+    console.info(`[Ecomme avaliações] ${message}`);
+  }
+}
+
+function redirectToLoginForReviewAction() {
+  const redirect = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.href = `/login?redirect=${encodeURIComponent(redirect)}`;
+}
+
+function ensureProductReviewInteractionHandlers(list) {
+  if (list.dataset.interactionsBound === 'true') return;
+  list.dataset.interactionsBound = 'true';
+
+  list.addEventListener('click', async event => {
+    const likeButton = event.target.closest('[data-review-like]');
+    if (likeButton && list.contains(likeButton)) {
+      await toggleProductReviewLike(likeButton);
+      return;
+    }
+
+    const reportButton = event.target.closest('[data-review-report]');
+    if (reportButton && list.contains(reportButton)) {
+      openProductReviewReport(reportButton.dataset.reviewId, reportButton);
+    }
+  });
+}
+
+async function toggleProductReviewLike(button) {
+  if (!button || button.disabled) return;
+
+  if (typeof supabaseClient === 'undefined') {
+    productReviewToast('Não foi possível conectar ao serviço de avaliações.', 'error');
+    return;
+  }
+
+  button.disabled = true;
+  try {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      productReviewToast('Entre na sua conta para curtir esta avaliação.');
+      redirectToLoginForReviewAction();
+      return;
+    }
+
+    const { data, error } = await supabaseClient.rpc('toggle_product_review_like', {
+      p_review_id: button.dataset.reviewId
+    });
+    if (error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result) throw new Error('O Supabase não retornou o estado da curtida.');
+
+    const liked = Boolean(result.is_liked);
+    const count = Math.max(0, Number(result.likes_count) || 0);
+    button.classList.toggle('is-liked', liked);
+    button.setAttribute('aria-pressed', String(liked));
+    button.setAttribute('aria-label', `${liked ? 'Remover curtida' : 'Curtir'} avaliação`);
+    const label = button.querySelector('.rev-like-label');
+    const countEl = button.querySelector('.rev-like-count');
+    if (label) label.textContent = liked ? 'Curtido' : 'Curtir';
+    if (countEl) countEl.textContent = String(count);
+  } catch (error) {
+    console.error('Erro ao registrar curtida:', error);
+    if (error?.code === '42P01' || /toggle_product_review_like|product_review_likes/i.test(error?.message || '')) {
+      productReviewToast('Ative primeiro as interações executando supabase/product-review-interactions.sql no Supabase.', 'error');
+    } else if (error?.code === '28000' || /AUTH_REQUIRED/i.test(error?.message || '')) {
+      redirectToLoginForReviewAction();
+    } else {
+      productReviewToast('Não foi possível registrar sua curtida. Tente novamente.', 'error');
+    }
+  } finally {
+    button.disabled = false;
+  }
+}
+
+let activeReportReviewId = null;
+let activeReportButton = null;
+let reportSubmitting = false;
+
+function ensureProductReviewReportModal() {
+  let modal = document.getElementById('productReviewReportModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'productReviewReportModal';
+  modal.className = 'pr-report-overlay';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <section class="pr-report-dialog" role="dialog" aria-modal="true" aria-labelledby="prReportTitle">
+      <button type="button" class="pr-report-close" data-report-close aria-label="Fechar denúncia">×</button>
+      <p class="pr-report-eyebrow">SEGURANÇA DA COMUNIDADE</p>
+      <h2 id="prReportTitle">Denunciar avaliação</h2>
+      <p class="pr-report-intro">Conte por que esta avaliação deve ser analisada. A denúncia é privada e não mostra seus dados ao autor.</p>
+      <form id="prReportForm">
+        <label class="pr-report-field" for="prReportReason">Motivo da denúncia <span>*</span>
+          <select id="prReportReason" required>
+            <option value="">Selecione um motivo</option>
+            <option value="spam">Spam ou propaganda</option>
+            <option value="offensive">Conteúdo ofensivo ou discurso de ódio</option>
+            <option value="false_information">Informação falsa ou enganosa</option>
+            <option value="irrelevant">Conteúdo não relacionado ao produto</option>
+            <option value="fake_review">Suspeita de avaliação falsa</option>
+            <option value="other">Outro motivo</option>
+          </select>
+        </label>
+        <label class="pr-report-field" for="prReportDetails">Detalhes <small>opcional</small>
+          <textarea id="prReportDetails" rows="4" maxlength="1000" placeholder="Adicione contexto para ajudar na análise (até 1000 caracteres)."></textarea>
+        </label>
+        <p id="prReportStatus" class="pr-report-status" role="status" aria-live="polite" hidden></p>
+        <div class="pr-report-actions">
+          <button type="button" class="pr-report-cancel" data-report-close>Cancelar</button>
+          <button type="submit" class="pr-report-submit" id="prReportSubmit">Enviar denúncia</button>
+        </div>
+      </form>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal || event.target.closest('[data-report-close]')) {
+      closeProductReviewReport();
+    }
+  });
+  modal.querySelector('#prReportForm').addEventListener('submit', submitProductReviewReport);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !modal.hidden) closeProductReviewReport();
+  });
+  return modal;
+}
+
+function openProductReviewReport(reviewId, button) {
+  if (!reviewId) return;
+  activeReportReviewId = String(reviewId);
+  activeReportButton = button || null;
+  reportSubmitting = false;
+
+  const modal = ensureProductReviewReportModal();
+  modal.querySelector('#prReportForm').reset();
+  const status = modal.querySelector('#prReportStatus');
+  status.hidden = true;
+  status.textContent = '';
+  const submit = modal.querySelector('#prReportSubmit');
+  submit.disabled = false;
+  submit.textContent = 'Enviar denúncia';
+  modal.hidden = false;
+  document.body.classList.add('pr-report-open');
+  requestAnimationFrame(() => modal.querySelector('#prReportReason')?.focus());
+}
+
+function closeProductReviewReport() {
+  const modal = document.getElementById('productReviewReportModal');
+  if (!modal || reportSubmitting) return;
+  modal.hidden = true;
+  document.body.classList.remove('pr-report-open');
+  activeReportReviewId = null;
+  if (activeReportButton?.isConnected) activeReportButton.focus();
+  activeReportButton = null;
+}
+
+async function submitProductReviewReport(event) {
+  event.preventDefault();
+  if (reportSubmitting || !activeReportReviewId) return;
+
+  const modal = ensureProductReviewReportModal();
+  const reason = modal.querySelector('#prReportReason').value;
+  const details = modal.querySelector('#prReportDetails').value.trim();
+  const status = modal.querySelector('#prReportStatus');
+  const submit = modal.querySelector('#prReportSubmit');
+  if (!reason) {
+    modal.querySelector('#prReportReason').focus();
+    return;
+  }
+  if (details.length > 1000) {
+    status.textContent = 'Os detalhes devem ter no máximo 1000 caracteres.';
+    status.hidden = false;
+    return;
+  }
+
+  reportSubmitting = true;
+  submit.disabled = true;
+  submit.textContent = 'Enviando…';
+  status.hidden = true;
+
+  try {
+    if (typeof supabaseClient === 'undefined') throw new Error('SUPABASE_UNAVAILABLE');
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      closeProductReviewReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    }
+
+    const { data, error } = await supabaseClient.rpc('report_product_review', {
+      p_review_id: activeReportReviewId,
+      p_reason: reason,
+      p_details: details || null
+    });
+    if (error) throw error;
+
+    closeProductReviewReportAfterRequest();
+    if (data === true) {
+      productReviewToast('Denúncia enviada. Obrigado por ajudar a manter a comunidade segura.', 'success');
+    } else {
+      productReviewToast('Você já enviou uma denúncia para esta avaliação.', 'info');
+    }
+  } catch (error) {
+    console.error('Erro ao enviar denúncia de avaliação:', error);
+    const message = error?.message || '';
+    const missingRpc = error?.code === '42883' || /report_product_review|product_review_reports/i.test(message);
+    if (missingRpc) {
+      status.textContent = 'A função de denúncias ainda não está configurada. Execute supabase/product-review-interactions.sql no SQL Editor do Supabase.';
+    } else if (error?.code === '28000' || /AUTH_REQUIRED/i.test(message)) {
+      closeProductReviewReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    } else if (/CANNOT_REPORT_OWN_REVIEW/i.test(message)) {
+      status.textContent = 'Você não pode denunciar sua própria avaliação.';
+    } else if (/REVIEW_NOT_FOUND/i.test(message)) {
+      status.textContent = 'Esta avaliação não está mais disponível.';
+    } else {
+      status.textContent = 'Não foi possível enviar a denúncia. Verifique sua conexão e tente novamente.';
+    }
+    status.hidden = false;
+  } finally {
+    reportSubmitting = false;
+    if (modal.isConnected && !modal.hidden) {
+      submit.disabled = false;
+      submit.textContent = 'Enviar denúncia';
+    }
+  }
+}
+
+function closeProductReviewReportAfterRequest() {
+  const modal = document.getElementById('productReviewReportModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('pr-report-open');
+  activeReportReviewId = null;
+  activeReportButton = null;
 }
 
 function addBadge(parent, text, style) {
