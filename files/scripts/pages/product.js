@@ -593,7 +593,7 @@ function renderProductReviewItems(items, ownReviewId = null) {
     likeButton.dataset.reviewId = String(review.id);
     likeButton.setAttribute('aria-pressed', String(Boolean(review.liked_by_me)));
     likeButton.setAttribute('aria-label', `${review.liked_by_me ? 'Remover curtida' : 'Curtir'} avaliação de ${review.reviewer_name || 'Cliente Ecomme'}`);
-    likeButton.innerHTML = `<span class="rev-like-heart" aria-hidden="true">♥</span><span class="rev-like-label">${review.liked_by_me ? 'Curtido' : 'Curtir'}</span><span class="rev-like-count">${Math.max(0, Number(review.likes_count) || 0)}</span>`;
+    likeButton.innerHTML = `<span class="rev-like-heart" aria-hidden="true"><i class="fa-regular fa-heart"></i></span><span class="rev-like-label">${review.liked_by_me ? 'Curtido' : 'Curtir'}</span><span class="rev-like-count">${Math.max(0, Number(review.likes_count) || 0)}</span>`;
     actions.appendChild(likeButton);
 
     // Não exibe denúncia na própria avaliação do usuário.
