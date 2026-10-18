@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F3F7FF">
+  <title>Avaliar produto | Ecomme</title>
+  <link rel="icon" type="image/png" href="/images/favicon-blue.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/review/styles.css">
+  <script>
+    (() => {
+      try {
+        const pref = localStorage.getItem('ecomme-theme') || 'auto';
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = pref === 'auto' ? (dark ? 'dark' : 'light') : pref;
+      } catch (_) {}
+    })();
+  </script>
+</head>
+<body>
+  <header class="review-header">
+    <a class="brand" href="/" aria-label="Ecomme — página inicial">
+      <img src="/images/mainlogo.png" alt="Ecomme">
+    </a>
+    <nav>
+      <a id="backProductLink" href="/products">Voltar ao produto</a>
+      <a href="/reviews">Minhas avaliações</a>
+    </nav>
+  </header>
+
+  <main class="review-page">
+    <div class="eyebrow"><span></span> COMUNIDADE ECOMME</div>
+    <h1 id="pageTitle">Avalie sua experiência</h1>
+    <p class="intro">Sua opinião ajuda outras pessoas a escolher com mais confiança. Conte como foi sua experiência com este produto.</p>
+
+    <section class="review-layout">
+      <aside class="product-card" aria-label="Produto que será avaliado">
+        <div class="product-image-wrap">
+          <img id="reviewProductImage" alt="" hidden>
+          <div id="reviewProductFallback" class="product-image-fallback">✦</div>
+        </div>
+        <div class="product-copy">
+          <span class="product-label">PRODUTO AVALIADO</span>
+          <h2 id="reviewProductName">Carregando produto…</h2>
+          <p id="reviewProductCategory"></p>
+          <span id="reviewProductPrice" class="product-price"></span>
+        </div>
+      </aside>
+
+      <form id="reviewForm" class="review-form" novalidate>
+        <div class="form-heading">
+          <div>
+            <span class="form-kicker">SUA AVALIAÇÃO</span>
+            <h2>Como você avalia este produto?</h2>
+          </div>
+          <span id="reviewMode" class="mode-pill">Nova avaliação</span>
+        </div>
+
+        <fieldset class="rating-field">
+          <legend>Sua nota <span>*</span></legend>
+          <div class="rating-stars" id="ratingStars" role="radiogroup" aria-label="Nota de 1 a 5 estrelas">
+            <button type="button" class="rate-star" data-rating="1" role="radio" aria-checked="false" aria-label="1 estrela">★</button>
+            <button type="button" class="rate-star" data-rating="2" role="radio" aria-checked="false" aria-label="2 estrelas">★</button>
+            <button type="button" class="rate-star" data-rating="3" role="radio" aria-checked="false" aria-label="3 estrelas">★</button>
+            <button type="button" class="rate-star" data-rating="4" role="radio" aria-checked="false" aria-label="4 estrelas">★</button>
+            <button type="button" class="rate-star" data-rating="5" role="radio" aria-checked="false" aria-label="5 estrelas">★</button>
+          </div>
+          <p id="ratingHint" class="field-hint">Selecione de 1 a 5 estrelas.</p>
+        </fieldset>
+
+        <label class="field">
+          <span>Título <small>opcional</small></span>
+          <input id="reviewTitle" name="title" type="text" maxlength="120" placeholder="Resuma sua experiência">
+          <span class="field-foot"><span></span><span id="titleCount">0/120</span></span>
+        </label>
+
+        <label class="field">
+          <span>Seu comentário <small>obrigatório</small></span>
+          <textarea id="reviewComment" name="comment" rows="6" minlength="5" maxlength="3000" required placeholder="O que você mais gostou? O produto correspondeu às expectativas?"></textarea>
+          <span class="field-foot"><span>Use pelo menos 5 caracteres.</span><span id="commentCount">0/3000</span></span>
+        </label>
+
+        <p id="reviewStatus" class="review-status" role="status" aria-live="polite" hidden></p>
+
+        <div class="form-actions">
+          <a id="cancelReview" class="btn-secondary" href="/products">Cancelar</a>
+          <button id="submitReview" class="btn-primary" type="submit" disabled>
+            <span id="submitLabel">Carregando…</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <p class="privacy-note"><span>🔒</span> Sua avaliação será publicada com o nome exibido na sua conta Ecomme. Você pode editá-la ou removê-la depois em Minhas Avaliações.</p>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/files/scripts/auth-session-check.js"></script>
+  <script src="/review/script.js"></script>
+</body>
+</html>
