@@ -271,14 +271,12 @@ function renderSkeleton() {
 /* Editor */
 function openEditModal(id) {
   const review = reviews.find(row => String(row.id) === String(id));
-  if (!review) return;
-  editingId = String(review.id);
-  editingRatingValue = review.rating;
-  $('editModalTitle').textContent = review.product;
-  $('editTextarea').value = review.comment;
-  renderStarPicker();
-  $('editModal').classList.add('on');
-  document.body.style.overflow = 'hidden';
+  if (!review || !review.productId) return;
+
+  // /review identifica a avaliação pela combinação produto + usuário autenticado
+  // e abre o formulário já preenchido para edição.
+  const target = `/review/?product_id=${encodeURIComponent(review.productId)}&edit=1`;
+  window.location.href = target;
 }
 function closeEditModal() {
   $('editModal').classList.remove('on');
