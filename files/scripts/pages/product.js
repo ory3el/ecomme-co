@@ -94,6 +94,10 @@ async function initProductPage() {
       : raw;
 
     renderProductDetails(currentProduct);
+    // Carrega as avaliações reais sem bloquear a renderização do produto.
+    loadProductReviews(currentProduct).catch(error => {
+      console.error('Não foi possível carregar as avaliações deste produto:', error);
+    });
     renderProductGallery(currentProduct);
     renderRelatedProducts(currentProduct.id);
     bindProductActions();
@@ -382,7 +386,7 @@ function renderProductDetails(p) {
   const bars = document.querySelector('.rev-bars');
 
   if (bars) {
-    bars.style.display = 'none';
+    bars.style.display = 'flex';
   }
 
   const reviewList = document.querySelector('.rev-list');
@@ -393,9 +397,7 @@ function renderProductDetails(p) {
     const msg = document.createElement('p');
     msg.className = 'rev-text';
 
-    msg.textContent = reviews
-      ? 'As avaliações individuais ainda não estão conectadas a esta página.'
-      : 'Este produto ainda não possui avaliações.';
+    msg.textContent = 'Carregando avaliações deste produto...';
 
     reviewList.appendChild(msg);
   }
@@ -410,6 +412,249 @@ function renderProductDetails(p) {
 
   const stockBar = document.querySelector('.stock-bar-wrap');
   if (stockBar) stockBar.style.display = 'none';
+}
+
+
+/* ── AVALIAÇÕES REAIS DO PRODUTO ───────────────────────────── */
+
+function writeProductReview() {
+  if (!currentProduct?.id) {
+    showToast('Carregue o produto antes de escrever uma avaliação.');
+    return;
+  }
+
+  const target = `/review/?product_id=${encodeURIComponent(String(currentProduct.id))}`;
+  window.location.href = target;
+}
+
+function reviewEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
+
+function formatReviewDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Data não informada';
+
+  return date.toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
+function initialsForReviewName(value) {
+  const parts = String(value || 'Cliente Ecomme').trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'CE';
+}
+
+function applyProductReviewSummary(summary) {
+  const average = Number(summary?.avg_rating) || 0;
+  const total = Number(summary?.total_reviews) || 0;
+  const counts = {
+    1: Number(summary?.one_star) || 0,
+    2: Number(summary?.two_star) || 0,
+    3: Number(summary?.three_star) || 0,
+    4: Number(summary?.four_star) || 0,
+    5: Number(summary?.five_star) || 0
+  };
+
+  if (currentProduct) {
+    currentProduct.rating = average;
+    currentProduct.reviews = total;
+  }
+
+  setText('.stars-lg', starsText(average));
+  setText('.rating-val', average.toFixed(1));
+  setText('.rating-link', `${total.toLocaleString('pt-BR')} avaliações`);
+
+  const reviewTab = document.querySelector('.tabs-nav .tab-btn[data-tab="reviews"]');
+  if (reviewTab) reviewTab.textContent = `Avaliações (${total.toLocaleString('pt-BR')})`;
+
+  setText('.rev-avg-num', average.toFixed(1));
+  setText('.rev-avg-stars', starsText(average));
+  setText('.rev-avg-total', `baseado em ${total.toLocaleString('pt-BR')} avaliações`);
+
+  const specs = document.querySelector('#tab-specs .specs-table');
+  if (specs) {
+    specs.querySelectorAll('tr').forEach(row => {
+      if (row.cells?.[0]?.textContent?.trim() === 'Avaliação' && row.cells[1]) {
+        row.cells[1].textContent =
+          `${average.toFixed(1)} de 5 (${total.toLocaleString('pt-BR')} avaliações)`;
+      }
+    });
+  }
+
+  const bars = document.querySelector('.rev-bars');
+  if (!bars) return;
+
+  bars.style.display = 'flex';
+  bars.querySelectorAll('.rev-bar-row').forEach(row => {
+    const label = row.querySelector('.rb-lbl')?.textContent || '';
+    const rating = Number(label.match(/[1-5]/)?.[0]);
+    if (!rating) return;
+
+    const count = counts[rating] || 0;
+    const percentage = total ? Math.round((count / total) * 100) : 0;
+    const fill = row.querySelector('.rev-bar-fill');
+    const pct = row.querySelector('.rb-pct');
+
+    if (fill) fill.style.width = `${percentage}%`;
+    if (pct) pct.textContent = `${percentage}%`;
+  });
+}
+
+function renderProductReviewItems(items) {
+  const list = document.querySelector('.rev-list');
+  if (!list) return;
+
+  list.replaceChildren();
+
+  if (!items.length) {
+    const empty = document.createElement('p');
+    empty.className = 'rev-text rev-empty';
+    empty.textContent = 'Este produto ainda não possui avaliações. Seja a primeira pessoa a compartilhar sua experiência.';
+    list.appendChild(empty);
+    return;
+  }
+
+  items.forEach(review => {
+    const item = document.createElement('article');
+    item.className = 'rev-item';
+
+    const head = document.createElement('div');
+    head.className = 'rev-head';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'rev-avatar';
+
+    if (review.reviewer_avatar) {
+      const imageUrl = String(review.reviewer_avatar);
+      const image = document.createElement('img');
+      image.src = imageUrl;
+      image.alt = '';
+      image.loading = 'lazy';
+      image.referrerPolicy = 'no-referrer';
+      image.addEventListener('error', () => {
+        avatar.textContent = initialsForReviewName(review.reviewer_name);
+      }, { once: true });
+      avatar.appendChild(image);
+    } else {
+      avatar.textContent = initialsForReviewName(review.reviewer_name);
+    }
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'rev-name-row';
+
+    const name = document.createElement('span');
+    name.className = 'rev-name';
+    name.textContent = review.reviewer_name || 'Cliente Ecomme';
+
+    const date = document.createElement('span');
+    date.className = 'rev-date';
+    date.textContent = formatReviewDate(review.created_at);
+
+    nameRow.append(name, date);
+    head.append(avatar, nameRow);
+
+    const stars = document.createElement('div');
+    stars.className = 'rev-stars-sm';
+    stars.textContent = '★'.repeat(Number(review.rating) || 0) +
+      '☆'.repeat(5 - (Number(review.rating) || 0));
+    stars.setAttribute('aria-label', `${review.rating} de 5 estrelas`);
+
+    item.append(head, stars);
+
+    if (review.title) {
+      const title = document.createElement('h4');
+      title.className = 'rev-user-title';
+      title.textContent = review.title;
+      item.appendChild(title);
+    }
+
+    const comment = document.createElement('p');
+    comment.className = 'rev-text';
+    comment.textContent = review.comment || '';
+    item.appendChild(comment);
+
+    list.appendChild(item);
+  });
+}
+
+async function loadProductReviews(product) {
+  if (!product?.id || typeof supabaseClient === 'undefined') return;
+
+  const productId = String(product.id);
+  const list = document.querySelector('.rev-list');
+
+  try {
+    const userResult = await supabaseClient.auth.getUser();
+    const user = userResult?.data?.user || null;
+
+    const requests = [
+      supabaseClient.rpc('product_review_summary', {
+        p_product_id: productId
+      }),
+      supabaseClient
+        .from('product_reviews')
+        .select('id, product_id, rating, title, comment, created_at, reviewer_name, reviewer_avatar')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+    ];
+
+    // Procura a avaliação do usuário separadamente, porque ela pode ser mais antiga
+    // do que as 20 avaliações recentes exibidas na página.
+    if (user) {
+      requests.push(
+        supabaseClient
+          .from('product_reviews')
+          .select('id')
+          .eq('product_id', productId)
+          .eq('user_id', user.id)
+          .maybeSingle()
+      );
+    }
+
+    const [summaryResult, reviewsResult, ownReviewResult] = await Promise.all(requests);
+
+    if (summaryResult.error) throw summaryResult.error;
+    if (reviewsResult.error) throw reviewsResult.error;
+    if (ownReviewResult?.error) throw ownReviewResult.error;
+
+    const summary = Array.isArray(summaryResult.data)
+      ? summaryResult.data[0]
+      : summaryResult.data;
+
+    applyProductReviewSummary(summary || {});
+    renderProductReviewItems(Array.isArray(reviewsResult.data) ? reviewsResult.data : []);
+
+    const ownReview = ownReviewResult?.data || null;
+    const writeButton = document.querySelector('.btn-write-rev');
+    if (writeButton) {
+      writeButton.textContent = ownReview ? 'Editar minha avaliação' : 'Escrever avaliação';
+      writeButton.setAttribute('aria-label', ownReview ? 'Editar minha avaliação' : 'Escrever avaliação');
+    }
+
+    if (window.location.hash === '#tab-reviews') {
+      requestAnimationFrame(() => goToTab('reviews'));
+    }
+  } catch (error) {
+    console.error('Erro ao consultar avaliações no Supabase:', error);
+
+    if (list) {
+      list.replaceChildren();
+      const message = document.createElement('p');
+      message.className = 'rev-text';
+      message.textContent = 'Não foi possível carregar as avaliações agora. Tente novamente em instantes.';
+      list.appendChild(message);
+    }
+  }
 }
 
 function addBadge(parent, text, style) {
