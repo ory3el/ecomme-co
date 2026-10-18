@@ -436,69 +436,14 @@
       </div>
     </div>
 
-    <!-- ════ AVALIAÇÕES ════ -->
+    <!-- ════ AVALIAÇÕES REAIS ════ -->
     <div class="panel" id="panel-reviews">
       <div class="panel-hd">
         <div class="panel-hd-left"><h2>Minhas Avaliações</h2><p>Produtos que você avaliou</p></div>
       </div>
       <div class="card">
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">⌚</div><div><div class="rev-prod-name">Smartwatch Pro X7</div><div class="rev-prod-cat">Eletrônicos · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
-            <i class="fa-solid fa-pencil"></i>
-            Editar
-          </button></div></div>
-          <div class="rev-stars">★★★★★</div>
-          <div class="rev-text">"Melhor smartwatch que já tive! Chegou em 8 dias, embalagem impecável e a qualidade está acima do esperado. A bateria realmente dura 14 dias como anunciado. Recomendo muito!"</div>
-          <div class="rev-meta"><span>20 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
-            <i class="fa-regular fa-thumbs-up"></i>
-            42 pessoas acharam útil
-          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
-            <i class="fa-regular fa-thumbs-up"></i>
-            Útil
-          </button></div></div>
-        </div>
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">🎒</div><div><div class="rev-prod-name">Mochila Anti-Furto Executiva</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
-            <i class="fa-solid fa-pencil"></i>
-            Editar
-          </button></div></div>
-          <div class="rev-stars">★★★★☆</div>
-          <div class="rev-text">"Ótima mochila, muito espaçosa e o compartimento USB é muito prático. Tirei uma estrela porque o zíper poderia ser mais resistente. De resto, excelente custo-benefício."</div>
-          <div class="rev-meta"><span>19 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
-            <i class="fa-regular fa-thumbs-up"></i>
-            18 pessoas acharam útil
-          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
-            <i class="fa-regular fa-thumbs-up"></i>
-            Útil
-          </button></div></div>
-        </div>
-        <div class="rev-card">
-          <div class="rev-hd"><div class="rev-prod-ico">👟</div><div><div class="rev-prod-name">Tênis Running UltraLight</div><div class="rev-prod-cat">Moda · Pedido DS-2024-0195</div></div><div style="margin-left:auto"><button class="btn-xs blue" onclick="toast('Editando avaliação','info')">
-            <i class="fa-solid fa-pencil"></i>
-            Editar
-          </button></div></div>
-          <div class="rev-stars">★★★★★</div>
-          <div class="rev-text">"Levíssimo e muito confortável! Uso para corrida de 5km diariamente. O amortecimento é excelente. Numeração precisa, peça o seu tamanho normal."</div>
-          <div class="rev-meta"><span>15 Jan 2025</span><div style="display:flex;align-items:center;gap:6px"><span>
-            <i class="fa-regular fa-thumbs-up"></i>
-            31 pessoas acharam útil
-          </span><button class="rev-helpful" onclick="toast('Obrigada pelo voto!')">
-            <i class="fa-regular fa-thumbs-up"></i>
-            Útil
-          </button></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="ct-ico">
-          <i class="fa-solid fa-hourglass-half"></i>
-        </span> Aguardando sua Avaliação</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:#f8fafd;border:1.5px solid #e2e8f0;border-radius:12px">
-          <div class="card-waiting" style="display:flex;align-items:center;gap:12px"><div style="font-size:28px">💡</div><div><div style="font-size:13px;font-weight:600">Kit LED Smart RGB 10m</div><div style="font-size:11px;color:#64748b">Entregue em 10 Jan 2025</div></div></div>
-          <button class="btn-primary" style="font-size:12px" onclick="toast('Abrindo formulário de avaliação ⭐','info')">
-            <i class="fa-solid fa-star"></i>
-            Avaliar agora
-          </button>
+        <div id="settingsMyReviewsList" class="settings-review-list" aria-live="polite">
+          <div class="settings-review-state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Carregando suas avaliações…</div>
         </div>
       </div>
     </div>
