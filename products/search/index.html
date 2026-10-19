@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ecomme | Buscar Produto</title>
 
-<link rel="icon" type="image/png" href="../images/favicon.png">
+<link rel="icon" type="image/png" href="/images/favicon-blue.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1046,6 +1046,53 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
 /* skeleton loader */
 .skeleton { background:linear-gradient(90deg, var(--ghost) 25%, var(--sky) 50%, var(--ghost) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* Resultados reais do Supabase: imagens e estado de carregamento */
+.pimg { position: relative; overflow: hidden; }
+.pimg-placeholder {
+  display: flex; width: 100%; height: 100%;
+  align-items: center; justify-content: center;
+  font-size: 48px; opacity: 1; transition: opacity .25s ease;
+}
+.pimg.has-image .pimg-placeholder { opacity: 0; }
+.pimg-photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; padding: 12px;
+  object-fit: contain;
+  opacity: 0;
+  filter: blur(12px) saturate(0);
+  transition: opacity .3s ease, filter .35s ease;
+}
+.pimg-photo.is-loaded {
+  opacity: 1;
+  filter: blur(0) saturate(1);
+}
+.pcard { text-decoration: none; color: inherit; }
+.search-loading {
+  grid-column: 1 / -1;
+  min-height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; color: var(--slate); font-weight: 600;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: var(--r14);
+}
+.search-spinner {
+  width: 22px; height: 22px; border: 3px solid var(--ghost);
+  border-top-color: var(--blue); border-radius: 50%;
+  animation: ecommeSearchSpin .7s linear infinite;
+}
+.search-skeleton {
+  min-height: 310px; border-radius: var(--r14);
+  background: linear-gradient(90deg,var(--ghost) 25%,var(--sky) 50%,var(--ghost) 75%);
+  background-size: 200% 100%; animation: shimmer 1.2s infinite;
+}
+.search-error { color: var(--red); }
+@keyframes ecommeSearchSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .search-spinner, .search-skeleton { animation: none; }
+  .pimg-photo { transition: none; }
+}
+
 </style>
 </head>
 <body>
@@ -1081,11 +1128,11 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
 <!-- ═══════════ HEADER ═══════════ -->
 <header class="site-hdr">
   <div class="hdr-in">
-    <a href="../" class="logo">Drop<em>Shop</em><span class="logo-tag">MKT</span></a>
+    <a href="/" class="logo">Ecomme<span class="logo-tag">MARKETPLACE</span></a>
 
     <div class="hdr-search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="searchInput" value="notebook" placeholder="Buscar produtos, marcas, categorias..." oninput="onSearchInput(this)" onkeydown="onSearchKey(event)">
+      <input type="text" id="searchInput" value="" placeholder="Buscar produtos, marcas, categorias..." oninput="onSearchInput(this)" onkeydown="onSearchKey(event)">
       <div class="search-kbd"><span>↵</span> Enter</div>
       <button class="hdr-search-btn" onclick="doSearch()">
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
@@ -1109,7 +1156,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
         <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <div class="hdr-bdg" id="cartBdg">3</div>
       </button>
-      <a href="dropshop-auth.html" class="btn-account">
+      <a href="/login/" class="btn-account">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Entrar
       </a>
@@ -1121,16 +1168,16 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
 <div class="search-meta-bar">
   <div class="sml-in">
     <div class="breadcrumb">
-      <a href="../">Início</a>
+      <a href="/">Início</a>
       <span>›</span>
-      <a href="#">Produtos</a>
+      <a href="/products/">Produtos</a>
       <span>›</span>
       <span>Resultados para <span id="queryTerm"></span></span>
     </div>
     <div class="search-query-info">
       <span class="query-label">Resultados para</span>
-      <span class="query-term" id="queryTerm"></span>
-      <span class="result-count" id="resultCount">247 produtos encontrados</span>
+      <span class="query-term" id="queryTermBadge"></span>
+      <span class="result-count" id="resultCount">Aguardando busca</span>
     </div>
   </div>
 </div>
@@ -1304,8 +1351,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <div class="toolbar-title" id="toolbarTitle">Resultados para <em>"notebook"</em></div>
-        <div class="toolbar-sub" id="toolbarSub">247 produtos encontrados · Ordenado por relevância</div>
+        <div class="toolbar-title" id="toolbarTitle">Pesquise produtos na Ecomme</div>
+        <div class="toolbar-sub" id="toolbarSub">Digite um produto no campo de busca para começar.</div>
       </div>
       <div class="toolbar-right">
         <select class="sort-sel" id="sortSel" onchange="doSort(this.value)">
@@ -1338,7 +1385,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
     <div class="no-results" id="noResults">
       <div class="nr-ico">🔍</div>
       <div class="nr-title">Nenhum produto encontrado</div>
-      <div class="nr-sub">Não encontramos resultados para <strong id="noResultsQuery">"notebook"</strong>. Tente termos diferentes ou explore as categorias abaixo.</div>
+      <div class="nr-sub">Não encontramos resultados para <strong id="noResultsQuery">sua busca</strong>. Tente termos diferentes ou explore as categorias abaixo.</div>
       <div class="nr-suggestions" id="noResultsSug"></div>
       <button class="btn btn-p" onclick="clearAllFilters();doSearch('notebook')">Ver todos os produtos</button>
     </div>
@@ -1358,7 +1405,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
 <!-- ═══ RELATED PRODUCTS ═══ -->
 <div class="related-section">
   <div class="sec-title-row">
-    <div class="sec-title">Quem buscou "notebook" também viu</div>
+    <div class="sec-title">Produtos relacionados à sua busca</div>
     <a href="#" class="sec-link">Ver todos →</a>
   </div>
   <div class="related-scroll" id="relatedScroll"></div>
@@ -1368,75 +1415,27 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
 // ════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════
-const PRODUCTS = [
-  { id:0, em:'💻', name:'Notebook Gamer ASUS ROG Strix G15 — RTX 4060 · 16GB · 512GB', cat:'Notebooks', brand:'ASUS', price:6499.90, old:7999, disc:18, rat:4.9, reviews:1847, ship:true, stock:12, badge:'hot', featured:true,
-    feats:['Intel Core i7-13700H','RTX 4060 8GB GDDR6','16GB DDR5 · 512GB NVMe','Tela 165Hz FHD 15.6"','Teclado RGB per-key'] },
-  { id:1, em:'💻', name:'Notebook Dell Inspiron 15 3520 — i5 12ª gen · 8GB · 256GB SSD', cat:'Notebooks', brand:'Dell', price:2799.90, old:3499, disc:20, rat:4.7, reviews:3201, ship:true, stock:28, badge:'sale',
-    feats:['Intel Core i5-1235U','Tela FHD IPS 15.6"','SSD 256GB NVMe','Windows 11 Home','Bateria 54Wh'] },
-  { id:2, em:'💻', name:'MacBook Air M2 — 8GB · 256GB · Midnight Blue', cat:'Notebooks', brand:'Apple', price:7999.00, old:8999, disc:11, rat:4.9, reviews:5621, ship:true, stock:6, badge:'top',
-    feats:['Chip Apple M2 8-core','GPU 8 núcleos','Tela Liquid Retina 13.6"','Bateria até 18h','Peso: 1.24 kg'] },
-  { id:3, em:'🎒', name:'Mochila para Notebook 15.6" Anti-Furto RFID · USB · 30L', cat:'Mochilas', brand:'Samsonite', price:189.90, old:299, disc:36, rat:4.8, reviews:892, ship:true, stock:45, badge:'sale',
-    feats:['Compatível até 15.6"','Bolso anti-RFID','Porta USB externa','Material impermeável','30 litros de capacidade'] },
-  { id:4, em:'⌨️', name:'Teclado Mecânico TKL Wireless Keychron K8 Pro — Switch Red', cat:'Periféricos', brand:'Keychron', price:479.90, old:599, disc:20, rat:4.8, reviews:2104, ship:false, stock:19, badge:'new',
-    feats:['Switch Gateron Red','Conexão 2.4GHz + BT','Bateria 4000mAh','Retroiluminação RGB','Layout ABNT2'] },
-  { id:5, em:'🖱️', name:'Mouse Gamer Logitech G502 X Plus — Sem Fio · 25600 DPI', cat:'Periféricos', brand:'Logitech', price:699.90, old:849, disc:17, rat:4.9, reviews:3447, ship:true, stock:31, badge:'hot',
-    feats:['25600 DPI ajustável','LightSpeed 2.4GHz','Bateria 140h','11 botões programáveis','RGB LIGHTSYNC'] },
-  { id:6, em:'🖥️', name:'Monitor 4K IPS 27" LG UltraGear 27UK850 — USB-C · HDR400', cat:'Monitores', brand:'LG', price:2299.90, old:2999, disc:23, rat:4.7, reviews:1123, ship:false, stock:8, badge:'sale',
-    feats:['4K UHD 3840×2160','Painel IPS 99% sRGB','USB-C 60W PD','HDR400','Tempo resposta 5ms'] },
-  { id:7, em:'🔌', name:'Dock Station USB-C 12-em-1 · HDMI 4K · 100W PD · RJ45', cat:'Acessórios', brand:'Anker', price:349.90, old:499, disc:29, rat:4.6, reviews:766, ship:true, stock:22, badge:'sale',
-    feats:['12 portas totais','HDMI 4K@60Hz','Power Delivery 100W','Ethernet Gigabit','Compatível Mac/Win'] },
-  { id:8, em:'💻', name:'Notebook Samsung Galaxy Book3 Pro 360 — i7 · 16GB · 512GB · Tela AMOLED', cat:'Notebooks', brand:'Samsung', price:5299.90, old:6499, disc:18, rat:4.8, reviews:433, ship:true, stock:5, badge:'new',
-    feats:['Intel Core i7-1360P','Tela AMOLED 360° 13.3"','Stylus S Pen inclusa','Windows 11 Home','Peso: 1.06 kg'] },
-  { id:9, em:'🎧', name:'Headset Gamer HyperX Cloud III Wireless — 7.1 DTS · USB-C', cat:'Periféricos', brand:'HyperX', price:699.90, old:899, disc:22, rat:4.8, reviews:2891, ship:true, stock:14, badge:'hot',
-    feats:['7.1 DTS Spatial Audio','Wireless 2.4GHz','Bateria 120h','Microfone retrátil','Drivers 53mm titanium'] },
-  { id:10, em:'📦', name:'Suporte Ergonômico para Notebook Alumínio · 6 alturas · Antiderrapante', cat:'Suportes', brand:'Multilaser', price:149.90, old:229, disc:34, rat:4.5, reviews:2234, ship:true, stock:67, badge:'sale',
-    feats:['Alumínio aeronáutico','6 posições de altura','Base antiderrapante','Compatível 10"–17"','Dobra flat para viagem'] },
-  { id:11, em:'⚡', name:'Carregador Notebook Universal 65W GaN USB-C + USB-A · Bivolt', cat:'Acessórios', brand:'Baseus', price:189.90, old:279, disc:31, rat:4.7, reviews:1567, ship:true, stock:89, badge:'sale',
-    feats:['GaN 65W compacto','USB-C + USB-A','PD 3.0 + Quick Charge','Bivolt 100–240V','Compatível Macbook/Dell/Lenovo'] },
-];
+let PRODUCTS = [];
 
-const BRANDS = [
-  {name:'Apple', count:34, rating:4.9},
-  {name:'ASUS', count:28, rating:4.8},
-  {name:'Dell', count:22, rating:4.7},
-  {name:'Lenovo', count:19, rating:4.6},
-  {name:'Samsung', count:18, rating:4.8},
-  {name:'LG', count:15, rating:4.7},
-  {name:'Logitech', count:14, rating:4.8},
-  {name:'Anker', count:12, rating:4.6},
-  {name:'HyperX', count:11, rating:4.7},
-  {name:'Keychron', count:9, rating:4.8},
-  {name:'Baseus', count:8, rating:4.5},
-  {name:'Multilaser', count:7, rating:4.3},
-];
+let BRANDS = [];
 
-const RELATED_PRODS = [
-  {em:'💻',name:'Ultrabook Lenovo IdeaPad 5i',price:'R$ 3.299'},
-  {em:'🖱️',name:'Mouse MX Master 3S',price:'R$ 549'},
-  {em:'⌨️',name:'Teclado Slim Magic Keyboard',price:'R$ 399'},
-  {em:'🎧',name:'Fone Bose QuietComfort 45',price:'R$ 1.599'},
-  {em:'📱',name:'iPhone 15 Pro Max 256GB',price:'R$ 8.499'},
-  {em:'🖥️',name:'Monitor Ultrawide 34"',price:'R$ 2.899'},
-  {em:'🔌',name:'Hub USB-C 7-em-1 Slim',price:'R$ 129'},
-  {em:'🎒',name:'Mochila Peak Design 20L',price:'R$ 649'},
-];
+let RELATED_PRODS = [];
 
 const RELATED_TAGS = [
-  {ico:'💻', label:'notebook gamer'},
-  {ico:'💻', label:'notebook i5 8gb'},
-  {ico:'🍎', label:'macbook air m2'},
-  {ico:'💻', label:'notebook dell'},
-  {ico:'💻', label:'notebook lenovo'},
-  {ico:'🖥️', label:'monitor 4k'},
-  {ico:'⌨️', label:'teclado mecânico'},
-  {ico:'🖱️', label:'mouse sem fio'},
-  {ico:'🎒', label:'mochila notebook'},
-  {ico:'🔌', label:'dock station usb-c'},
-  {ico:'💻', label:'chromebook'},
-  {ico:'🎧', label:'headset gamer'},
+  {ico:'📱', label:'iPhone'},
+  {ico:'🎧', label:'fone bluetooth'},
+  {ico:'💻', label:'notebook'},
+  {ico:'⌚', label:'smartwatch'},
+  {ico:'📷', label:'câmera'},
+  {ico:'👟', label:'tênis'},
+  {ico:'🎒', label:'mochila'},
+  {ico:'🪑', label:'cadeira gamer'},
 ];
 
-const AC_SUGGESTIONS = ['notebook gamer rtx','notebook para estudantes','notebook apple macbook','notebook dell inspiron','notebook menos de 3000'];
+const AC_SUGGESTIONS = [
+  'iPhone', 'Fone Bluetooth', 'Notebook', 'Smartwatch',
+  'Câmera', 'Tênis', 'Mochila', 'Cadeira Gamer'
+];
 
 // ════════════════════════════════════════
 // STATE
@@ -1444,7 +1443,7 @@ const AC_SUGGESTIONS = ['notebook gamer rtx','notebook para estudantes','noteboo
 let wishlist = [], cmpList = [], cartCount = 3;
 let activeFilters = {};
 let currentView = 'g';
-let currentQuery = 'notebook';
+let currentQuery = '';
 let qvQty = 1;
 
 // ════════════════════════════════════════
@@ -1525,7 +1524,7 @@ function renderGrid(data){
         ${p.ship?`<div class="pship"><svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><polygon points="9,21 15,21 15,17 9,17"/></svg>Frete grátis</div>`:''}
         <div class="pseller">
           <div class="pseller-av">DS</div>
-          <span>TechLab Store</span>
+          <span>Marketplace Ecomme</span>
           <span class="pseller-verified">✓</span>
           ${p.stock<5?`<span class="tag-red" style="margin-left:auto;background:rgba(220,38,38,.1);color:var(--red);font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px">⚠ ${p.stock} restantes</span>`:''}
         </div>
@@ -1561,7 +1560,7 @@ function doSearch(q){
   document.getElementById('queryTerm').textContent = `"${v}"`;
   document.getElementById('toolbarTitle').innerHTML = `Resultados para <em>"${v}"</em>`;
   document.getElementById('searchInput').value = v;
-  document.title = `DropShop — Resultados: "${v}"`;
+  document.title = `Ecomme — Resultados: "${v}"`;
   renderGrid(PRODUCTS);
   toast(`Buscando por "${v}"…`,'inf');
 }
@@ -1834,23 +1833,27 @@ function toast(msg,type='ok'){
 // ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
-renderBrands();
-renderRatings();
-renderRelated();
-
-// NOVA LÓGICA: Lê a URL e faz a busca automaticamente
+// O módulo search-results-live.js carrega resultados reais do Supabase.
 const urlParams = new URLSearchParams(window.location.search);
-const query = urlParams.get('q');
-
-if (query) {
-  doSearch(query); // Se vier da página inicial, já faz a busca
-} else {
-  renderGrid(PRODUCTS); // Se não vier termo nenhum, mostra todos
-}
+const initialQuery = urlParams.get('q') || '';
+document.getElementById('searchInput').value = initialQuery;
+document.getElementById('pgrid').innerHTML = `
+  <div class="search-loading" role="status" aria-live="polite">
+    <span class="search-spinner" aria-hidden="true"></span>
+    <span>Carregando produtos da Ecomme...</span>
+  </div>
+`;
+document.getElementById('resultCount').textContent = 'Carregando...';
+document.getElementById('toolbarSub').textContent = 'Consultando catálogo...';
 
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeQV(); if(e.key==='/'&&e.target.tagName!=='INPUT'){e.preventDefault();document.getElementById('searchInput').focus();} });
 window.addEventListener('click',e=>{ if(!document.getElementById('qvOverlay').contains(e.target)) return; if(e.target===document.getElementById('qvOverlay')) closeQV(); });
 </script>
    
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/files/scripts/pages/search-results-live.js"></script>
+<script src="/files/scripts/global-search.js"></script>
+
 </body>
 </html>
