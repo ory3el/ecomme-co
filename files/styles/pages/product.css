@@ -704,7 +704,7 @@
 .rev-like-count { min-width: 1ch; font-variant-numeric: tabular-nums; }
 
 .rev-report-btn { margin-left: auto; }
-.rev-report-btn:hover:not(:disabled) { color: var(--red); border-color: var(--red); background: rgba(239, 68, 68, .06); }
+.rev-report-btn:hover:not(:disabled) {color: var(--red);border-color: var(--red);/* background: rgba(239, 68, 68, .06); */}
 
 .pr-report-overlay {
   position: fixed;
@@ -748,16 +748,18 @@ body.pr-report-open { overflow: hidden; }
   color: var(--muted);
   font-size: 23px;
   line-height: 1;
+  transition: color 0.25s, border-color 0.25s;
 }
 .pr-report-close:hover { color: var(--red); border-color: var(--red); }
-.pr-report-eyebrow { margin: 0 35px 7px 0; color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: 1.3px; }
-.pr-report-dialog h2 { margin: 0 0 8px; font-size: 23px; line-height: 1.25; }
+.pr-report-eyebrow {margin: 0 35px 7px 0;color: var(--blue);font-size: 10px;font-weight: 500;letter-spacing: 1.3px;}
+.pr-report-dialog h2 {font-weight: 500;margin: 0 0 8px;font-size: 23px;line-height: 1.25;}
 .pr-report-intro { margin: 0 0 22px; color: var(--muted); font-size: 13px; line-height: 1.65; }
-.pr-report-field { display: flex; flex-direction: column; gap: 8px; margin: 0 0 17px; font-size: 12px; font-weight: 700; }
+.pr-report-field {display: block;flex-direction: column;gap: 8px;margin-bottom: 30px;font-size: 12px;font-weight: 500;}
 .pr-report-field > span { color: var(--red); display: inline; }
-.pr-report-field small { color: var(--muted); font-weight: 400; }
+.pr-report-field small {color: var(--muted);font-weight: 400;}
 .pr-report-field select,
 .pr-report-field textarea {
+  margin-top: 10px;
   width: 100%;
   box-sizing: border-box;
   min-height: 43px;
@@ -769,14 +771,15 @@ body.pr-report-open { overflow: hidden; }
   font: inherit;
   font-size: 13px;
   outline: none;
+  transition: border-color 0.25s;
 }
-.pr-report-field textarea { resize: vertical; min-height: 100px; }
+.pr-report-field textarea {margin-top: 10px;resize: vertical;min-height: 100px;}
 .pr-report-field select:focus,
 .pr-report-field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
 .pr-report-status { padding: 10px 12px; border-radius: 10px; margin: 0 0 14px; background: rgba(239, 68, 68, .08); color: var(--red); font-size: 12px; line-height: 1.5; }
 .pr-report-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
 .pr-report-cancel,
-.pr-report-submit { min-height: 40px; padding: 9px 16px; border-radius: 100px; font: inherit; font-size: 12px; font-weight: 700; }
+.pr-report-submit {min-height: 40px;padding: 9px 16px;border-radius: 100px;font: inherit;font-size: 12px;font-weight: 500;}
 .pr-report-cancel { border: 1px solid var(--border2); color: var(--muted); }
 .pr-report-submit { background: var(--blue); color: #fff; }
 .pr-report-submit:disabled { opacity: .6; cursor: wait; }
