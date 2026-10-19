@@ -2469,3 +2469,58 @@ header:hover .hide-btn {
 .ci-unavailable .ci-qty,
 .ci-unavailable .cart-item-towish {display: none !important}
 .ci-unavailable .ci-info {filter: grayscale(1)}
+
+
+/* ── GLOBAL SEARCH SUBMIT ───────────────────────────────────────────── */
+/* Botão universal de envio da busca do Ecomme */
+.search-bar .ecomme-search-submit {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  margin: 0 -7px 0 0;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--blue, #2563EB);
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.search-bar .ecomme-search-submit:hover {
+  background: var(--blue2, #3B82F6);
+  transform: scale(1.06);
+}
+
+.search-bar .ecomme-search-submit:focus-visible {
+  outline: 2px solid var(--blue, #2563EB);
+  outline-offset: 3px;
+}
+
+.search-bar .ecomme-search-submit svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.search-bar input {
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .search-bar .ecomme-search-submit {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    flex-basis: 30px;
+  }
+}
