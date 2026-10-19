@@ -3309,3 +3309,18 @@ function openConfirmLogout() {
   closeAcc();
   showConfirmRed('Tem certeza que quer sair? <br>Suas informações não serão perdidas.', 'Sair da Conta', '<i class="fa-solid fa-right-from-bracket"></i>');
 }
+
+
+// ── ECOMME GLOBAL HEADER SEARCH ─────────────────────────────────────
+(function loadEcommeGlobalSearch() {
+  if (window.__ecommeGlobalSearchScriptRequested) return;
+  window.__ecommeGlobalSearchScriptRequested = true;
+
+  if (document.querySelector('script[data-ecomme-global-search]')) return;
+
+  const script = document.createElement('script');
+  script.src = '/files/scripts/global-search.js';
+  script.dataset.ecommeGlobalSearch = 'true';
+  script.async = true;
+  document.head.appendChild(script);
+})();
