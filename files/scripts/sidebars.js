@@ -3622,7 +3622,12 @@ function openConfirmLogout() {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
-  window.addEventListener('ecomme:sidebars-ready', () => renderSidebar());
+  window.addEventListener('ecomme:sidebars-ready', () => {
+    renderSidebar();
+    // Os sidebars são inseridos via fetch em algumas páginas; se a primeira
+    // inicialização ocorreu antes da inserção, tente inicializar novamente.
+    if (!started) init();
+  });
 
   function renderSidebar() {
     const body = document.querySelector('#notifSidebar .notif-body');
@@ -3792,7 +3797,6 @@ function openConfirmLogout() {
     renderSidebar
   };
 
-  // Estilo leve do preview no sidebar (fica centralizado para todas as páginas).
   if (!document.getElementById('ecomme-notification-preview-style')) {
     const style = document.createElement('style');
     style.id = 'ecomme-notification-preview-style';
@@ -3811,17 +3815,3 @@ function openConfirmLogout() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
-
-// ── ECOMME NOTIFICATIONS ──
-/*(function loadEcommeNotificationsModule() {
-  if (window.__ecommeNotificationsLoaderStarted) return;
-  window.__ecommeNotificationsLoaderStarted = true;
-  if (document.querySelector('script[data-ecomme-notifications]')) return;
-  const script = document.createElement('script');
-  script.src = '/files/scripts/notifications.js';
-  script.dataset.ecommeNotifications = 'true';
-  script.async = true;
-  script.onerror = () => console.error('Falha ao carregar o módulo de notificações da Ecomme.');
-  document.head.appendChild(script);
-})();*/
-
