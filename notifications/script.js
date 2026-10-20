@@ -186,22 +186,6 @@ async function markAllRead() {
   }
 }
 
-async function simulateNewNotification() {
-  try {
-    await window.EcommeNotifications.createForCurrentUser({
-      type: 'system',
-      title: 'Notificação de teste',
-      body: 'Esta notificação foi salva no Supabase. Ela continua disponível após atualizar a página e aparece no sidebar.',
-      target_url: '/notifications',
-      metadata: { source: 'test', action_label: 'Ver notificações' }
-    });
-    showToast('Notificação de teste salva no Supabase 🔔');
-  } catch (error) {
-    console.error('Não foi possível criar a notificação de teste:', error);
-    showToast(error.message || 'Não foi possível criar a notificação. Confira login, SQL e RLS.', 'err');
-  }
-}
-
 function openSettings() {
   $('settingsPanel')?.classList.add('on');
   $('settingsOverlay')?.classList.add('on');
@@ -244,7 +228,7 @@ document.querySelectorAll('.ftab').forEach(button => {
 function initNotificationPage() {
   const api = window.EcommeNotifications;
   if (!api) {
-    if ($('notifSection')) $('notifSection').innerHTML = '<div class="empty-notif"><h3>Não foi possível inicializar as notificações</h3><p>Confira se /files/scripts/notifications.js foi carregado e se o Supabase está inicializado.</p></div>';
+    if ($('notifSection')) $('notifSection').innerHTML = '<div class="empty-notif"><h3>Não foi possível inicializar as notificações</h3><p>Confira se /files/scripts/sidebars.js e o cliente Supabase foram carregados.</p></div>';
     return;
   }
   api.loadNotifications().then(() => renderNotifications(true));
