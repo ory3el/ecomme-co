@@ -740,8 +740,8 @@ iframe {
   transition: opacity .28s ease;
 }
 .google-confirm-overlay.active {
-  /* opacity: 1; */
-  /* pointer-events: auto; */
+  opacity: 1;
+  pointer-events: auto;
 }
 .google-confirm-modal {
   width: min(500px, 100%);
