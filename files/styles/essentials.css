@@ -574,7 +574,7 @@ header:hover .hide-btn {
     .cart-sb.on { opacity: 1; transform: translateX(0); }
 
     .cart-hd {
-      padding: 24px;
+      padding: 0 24px;
       background: var(--white);
       border-bottom: 1px solid var(--border2);
       display: flex;
@@ -892,7 +892,7 @@ header:hover .hide-btn {
   .notif-sb.on { opacity: 1; transform: translateX(0); }
 
     .notif-hd {
-    padding: 24px;
+    padding: 0 24px;
     background: var(--white);
     border-bottom: 1px solid var(--border2);
     display: flex;
@@ -971,7 +971,7 @@ header:hover .hide-btn {
 
     .more-hd {
       margin-bottom: 5px;
-      padding: 24px;
+      padding: 0 24px;
       background: var(--white);
       border-bottom: 1px solid var(--border2);
       display: flex;
@@ -1096,7 +1096,7 @@ header:hover .hide-btn {
 .acc-sb.on { opacity: 1; transform: translateX(0); }
 
 .acc-hd {
-  padding: 24px;
+  padding: 0 24px;
   background: var(--white);
   border-bottom: 1px solid var(--border2);
   display: flex;
