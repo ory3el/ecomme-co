@@ -38,13 +38,13 @@
       </div>
       <div class="nh-title">
         <h1>Notificações</h1>
-        <p><strong id="unreadCountText">4</strong> não lidas · acompanhe pedidos, ofertas e novidades</p>
+        <p><strong id="unreadCountText">0</strong> não lidas · acompanhe pedidos, ofertas e novidades</p>
       </div>
     </div>
     <div class="nh-actions">
       <button class="btn-demo" onclick="simulateNewNotification()">
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span class="dt">Simular nova notificação</span>
+        <span class="dt">Criar notificação de teste</span>
       </button>
       <button class="btn-settings" onclick="openSettings()" title="Preferências">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -148,9 +148,19 @@
       sidebarScript.src = '/files/no-login/scripts/script.js';
       document.body.appendChild(sidebarScript);
 
-      const mainScript = document.createElement('script');
-      mainScript.src = 'script.js';
-      document.body.appendChild(mainScript);
+      // O módulo comum deve carregar antes do script desta página, pois os dois
+      // utilizam a mesma tabela, as mesmas preferências e a mesma assinatura Realtime.
+      const notificationsScript = document.createElement('script');
+      notificationsScript.src = '/files/scripts/notifications.js';
+      notificationsScript.onload = () => {
+        const mainScript = document.createElement('script');
+        mainScript.src = 'script.js';
+        document.body.appendChild(mainScript);
+      };
+      notificationsScript.onerror = () => {
+        console.error('Não foi possível carregar /files/scripts/notifications.js');
+      };
+      document.body.appendChild(notificationsScript);
 
     } catch (error) {
       console.error("Erro no carregamento dos componentes:", error);
