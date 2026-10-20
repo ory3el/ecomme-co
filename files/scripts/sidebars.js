@@ -1,4 +1,4 @@
-function injectEcommeUI() {
+async function injectEcommeUI() {
   if (document.getElementById('cartSidebar')) return;
 
   document.body.insertAdjacentHTML('afterbegin', `
@@ -274,7 +274,7 @@ function injectEcommeUI() {
   </div>
   `);
 }
-initEcommeUI();
+await initEcommeUI();
 //function initEcommeUI() {
 
 /* ────────────────────────────────────────────────────────────────── */
