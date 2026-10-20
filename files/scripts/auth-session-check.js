@@ -114,12 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-(function loadEcommeNotificationsModule() {
+/*(function loadEcommeNotificationsModule() {
   if (document.querySelector('script[data-ecomme-notifications]')) return;
   const script = document.createElement('script');
-  script.src = '/files/scripts/notifications.js';
+  script.src = '/files/scripts/sidebars.js';
   script.dataset.ecommeNotifications = 'true';
   script.async = true;
   script.onerror = () => console.error('Falha ao carregar o módulo de notificações da Ecomme.');
   document.head.appendChild(script);
-})();
+})();*/
