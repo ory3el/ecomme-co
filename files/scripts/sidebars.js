@@ -3326,6 +3326,491 @@ function openConfirmLogout() {
 
 //initEssentialsJS();
 
+// --------------------------------------------------------
+(function () {
+  if (window.EcommeNotifications) return;
+
+  const DEFAULT_PREFERENCES = {
+    pedidos: true,
+    pedido_entrega: true,
+    pedido_entregue: true,
+    devolucao: false,
+    ofertas_relampago: true,
+    cupons_exclusivos: true,
+    novidades_semanais: false,
+    favoritos_promocao: true,
+    novidades_produtos: false,
+    solicitacoes_avaliacao: true,
+    seguranca_conta: true,
+    canal_email: true,
+    canal_whatsapp: true,
+    canal_push: false
+  };
+
+  const MINI_GROUPS = {
+    pedidos: ['pedidos', 'pedido_entrega', 'pedido_entregue', 'devolucao'],
+    promo: ['ofertas_relampago', 'cupons_exclusivos'],
+    produtos: ['novidades_produtos', 'favoritos_promocao'],
+    review: ['solicitacoes_avaliacao'],
+    seguranca: ['seguranca_conta'],
+    newsletter: ['novidades_semanais']
+  };
+
+  const $ = id => document.getElementById(id);
+  let currentUser = null;
+  let notifications = [];
+  let preferences = { ...DEFAULT_PREFERENCES };
+  let realtimeChannel = null;
+  let started = false;
+  let initRetries = 0;
+  let preferencesLoading = false;
+  let notificationsLoading = false;
+
+  function getClient() {
+    try {
+      return typeof supabaseClient !== 'undefined' ? supabaseClient : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[ch]);
+  }
+
+  function safeInternalHref(href) {
+    if (!href) return '';
+    try {
+      const url = new URL(String(href), window.location.origin);
+      if (url.origin !== window.location.origin) return '';
+      return url.pathname + url.search + url.hash;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function emitChange() {
+    window.dispatchEvent(new CustomEvent('ecomme:notifications-changed', {
+      detail: { notifications: [...notifications], preferences: { ...preferences } }
+    }));
+    renderSidebar();
+  }
+
+  function showMessage(message, type = 'info') {
+    if (typeof window.showToast === 'function') {
+      try { window.showToast(message, type); return; } catch (_) {}
+    }
+    console.info('[Ecomme notificações]', message);
+  }
+
+  function typePreference(type, metadata = {}) {
+    const explicit = metadata && metadata.preference_key;
+    if (explicit && Object.prototype.hasOwnProperty.call(DEFAULT_PREFERENCES, explicit)) return explicit;
+    const map = {
+      order: 'pedidos',
+      shipped: 'pedido_entrega',
+      delivered: 'pedido_entregue',
+      return: 'devolucao',
+      promo: 'ofertas_relampago',
+      coupon: 'cupons_exclusivos',
+      product: 'novidades_produtos',
+      wishlist: 'favoritos_promocao',
+      review: 'solicitacoes_avaliacao',
+      account: 'seguranca_conta',
+      security: 'seguranca_conta',
+      newsletter: 'novidades_semanais'
+    };
+    return map[type] || null;
+  }
+
+  function isAllowedByPreferences(type, metadata = {}) {
+    const key = typePreference(type, metadata);
+    if (!key) return true;
+    if (['pedido_entrega', 'pedido_entregue', 'devolucao'].includes(key) && !preferences.pedidos) return false;
+    return preferences[key] !== false;
+  }
+
+  function readGuestPreferences() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('ecomme_notification_preferences_guest') || '{}');
+      preferences = { ...DEFAULT_PREFERENCES, ...(parsed && typeof parsed === 'object' ? parsed : {}) };
+    } catch (_) {
+      preferences = { ...DEFAULT_PREFERENCES };
+    }
+  }
+
+  async function loadPreferences() {
+    if (preferencesLoading) return preferences;
+    preferencesLoading = true;
+    try {
+      if (!currentUser) {
+        readGuestPreferences();
+        applyPreferencesToUI();
+        return preferences;
+      }
+      const client = getClient();
+      if (!client) throw new Error('Cliente Supabase não foi inicializado.');
+      const { data, error } = await client
+        .from('user_notification_preferences')
+        .select('preferences')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+      if (error) throw error;
+      preferences = { ...DEFAULT_PREFERENCES, ...(data?.preferences || {}) };
+      applyPreferencesToUI();
+      return preferences;
+    } catch (error) {
+      console.error('Não foi possível carregar as preferências de notificações:', error);
+      showMessage('Não foi possível carregar as preferências. Confira se executou supabase/notifications.sql.', 'err');
+      applyPreferencesToUI();
+      return preferences;
+    } finally {
+      preferencesLoading = false;
+    }
+  }
+
+  async function savePreferences(nextPreferences) {
+    preferences = { ...DEFAULT_PREFERENCES, ...(nextPreferences || {}) };
+    if (!currentUser) {
+      try {
+        localStorage.setItem('ecomme_notification_preferences_guest', JSON.stringify(preferences));
+      } catch (_) {}
+      applyPreferencesToUI();
+      return { ok: true, localOnly: true };
+    }
+
+    const client = getClient();
+    if (!client) throw new Error('Cliente Supabase não foi inicializado.');
+    const { error } = await client
+      .from('user_notification_preferences')
+      .upsert({
+        user_id: currentUser.id,
+        preferences,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    if (error) throw error;
+    applyPreferencesToUI();
+    return { ok: true, localOnly: false };
+  }
+
+  function applyPreferencesToUI() {
+    document.querySelectorAll('[data-notification-pref]').forEach(input => {
+      const key = input.dataset.notificationPref;
+      if (key && Object.prototype.hasOwnProperty.call(preferences, key)) {
+        input.checked = Boolean(preferences[key]);
+      }
+    });
+
+    document.querySelectorAll('.sp-row .toggle[data-pref]').forEach(button => {
+      const keys = MINI_GROUPS[button.dataset.pref] || [];
+      const enabled = keys.length > 0 && keys.every(key => preferences[key] !== false);
+      button.classList.toggle('on', enabled);
+      button.setAttribute('aria-pressed', String(enabled));
+    });
+  }
+
+  async function loadNotifications() {
+    if (notificationsLoading) return notifications;
+    notificationsLoading = true;
+    try {
+      if (!currentUser) {
+        notifications = [];
+        emitChange();
+        return notifications;
+      }
+      const client = getClient();
+      if (!client) throw new Error('Cliente Supabase não foi inicializado.');
+      const { data, error } = await client
+        .from('user_notifications')
+        .select('id,user_id,type,title,body,target_url,metadata,created_at,read_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      notifications = Array.isArray(data) ? data : [];
+      emitChange();
+      return notifications;
+    } catch (error) {
+      console.error('Não foi possível carregar as notificações:', error);
+      notifications = [];
+      emitChange();
+      window.dispatchEvent(new CustomEvent('ecomme:notifications-error', { detail: { error } }));
+      return notifications;
+    } finally {
+      notificationsLoading = false;
+    }
+  }
+
+  async function createForCurrentUser({ type = 'system', title, body = '', target_url = null, metadata = {} } = {}) {
+    if (!currentUser) throw new Error('Entre na sua conta para guardar notificações.');
+    if (!title || !String(title).trim()) throw new Error('O título da notificação é obrigatório.');
+    if (!isAllowedByPreferences(type, metadata)) return { skipped: true };
+
+    const client = getClient();
+    const payload = {
+      user_id: currentUser.id,
+      type: String(type).slice(0, 40),
+      title: String(title).trim().slice(0, 180),
+      body: String(body || '').trim().slice(0, 2000),
+      target_url: safeInternalHref(target_url) || null,
+      metadata: metadata && typeof metadata === 'object' ? metadata : {}
+    };
+    const { data, error } = await client
+      .from('user_notifications')
+      .insert(payload)
+      .select('id,user_id,type,title,body,target_url,metadata,created_at,read_at')
+      .single();
+    if (error) throw error;
+    notifications = [data, ...notifications.filter(item => item.id !== data.id)].slice(0, 100);
+    emitChange();
+    return { data };
+  }
+
+  async function markRead(id) {
+    if (!currentUser) return;
+    const item = notifications.find(row => String(row.id) === String(id));
+    if (!item || item.read_at) return;
+    const readAt = new Date().toISOString();
+    const { error } = await getClient()
+      .from('user_notifications')
+      .update({ read_at: readAt })
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+    if (error) throw error;
+    notifications = notifications.map(row => String(row.id) === String(id) ? { ...row, read_at: readAt } : row);
+    emitChange();
+  }
+
+  async function markAllRead() {
+    if (!currentUser) return;
+    const unreadIds = notifications.filter(row => !row.read_at).map(row => row.id);
+    if (!unreadIds.length) return;
+    const readAt = new Date().toISOString();
+    const { error } = await getClient()
+      .from('user_notifications')
+      .update({ read_at: readAt })
+      .eq('user_id', currentUser.id)
+      .is('read_at', null);
+    if (error) throw error;
+    notifications = notifications.map(row => ({ ...row, read_at: row.read_at || readAt }));
+    emitChange();
+  }
+
+  async function deleteNotification(id) {
+    if (!currentUser) return;
+    const { error } = await getClient()
+      .from('user_notifications')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+    if (error) throw error;
+    notifications = notifications.filter(row => String(row.id) !== String(id));
+    emitChange();
+  }
+
+  function formatTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const now = new Date();
+    const sameDay = date.toDateString() === now.toDateString();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (sameDay) return 'Hoje · ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    if (date.toDateString() === yesterday.toDateString()) return 'Ontem · ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  window.addEventListener('ecomme:sidebars-ready', () => renderSidebar());
+
+  function renderSidebar() {
+    const body = document.querySelector('#notifSidebar .notif-body');
+    const count = $('notifCount');
+    const badge = $('bellBadge');
+    const unread = notifications.filter(row => !row.read_at).length;
+    if (count) count.textContent = `(${notifications.length})`;
+    if (badge) {
+      badge.textContent = unread > 99 ? '99+' : String(unread);
+      badge.style.display = unread ? 'flex' : 'none';
+    }
+    if (!body) return;
+
+    if (!currentUser) {
+      body.innerHTML = '<div class="ecomme-notif-empty">Entre na sua conta para ver suas notificações.</div>';
+      return;
+    }
+    if (!notifications.length) {
+      body.innerHTML = '<div class="ecomme-notif-empty">Você ainda não tem notificações.</div>';
+      return;
+    }
+
+    body.innerHTML = notifications.slice(0, 5).map(row => {
+      const href = safeInternalHref(row.target_url);
+      return `<button type="button" class="ecomme-notif-preview ${row.read_at ? '' : 'is-unread'}" data-notification-id="${escapeHTML(row.id)}">
+        <span class="ecomme-notif-preview-title">${escapeHTML(row.title)}</span>
+        <span class="ecomme-notif-preview-body">${escapeHTML(row.body || '')}</span>
+        <span class="ecomme-notif-preview-time">${escapeHTML(formatTime(row.created_at))}</span>
+        ${href ? `<span class="ecomme-notif-preview-hint">Abrir notificação ↗</span>` : ''}
+      </button>`;
+    }).join('');
+
+    body.querySelectorAll('[data-notification-id]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = button.dataset.notificationId;
+        const item = notifications.find(row => String(row.id) === String(id));
+        try { await markRead(id); } catch (error) { console.error(error); }
+        const href = safeInternalHref(item?.target_url);
+        if (href) window.location.href = href;
+      });
+    });
+  }
+
+  function startRealtime() {
+    const client = getClient();
+    if (!client || !currentUser) return;
+    if (realtimeChannel) client.removeChannel(realtimeChannel);
+    realtimeChannel = client
+      .channel(`ecomme-notifications-${currentUser.id}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'user_notifications',
+        filter: `user_id=eq.${currentUser.id}`
+      }, () => { loadNotifications(); })
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'user_notification_preferences',
+        filter: `user_id=eq.${currentUser.id}`
+      }, () => { loadPreferences(); })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn('Realtime de notificações não conectou:', status);
+        }
+      });
+  }
+
+  async function initializeForUser(user) {
+    if (realtimeChannel && getClient()) {
+      getClient().removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+    currentUser = user || null;
+    notifications = [];
+    if (!currentUser) {
+      readGuestPreferences();
+      applyPreferencesToUI();
+      emitChange();
+      return;
+    }
+    await Promise.all([loadPreferences(), loadNotifications()]);
+    startRealtime();
+  }
+
+  async function init() {
+    if (started) return;
+    const hasNotificationsUI = document.querySelector('#notifSidebar, #bellBtn, #notifSection, [data-notification-pref]');
+    if (!hasNotificationsUI) return;
+    const client = getClient();
+    if (!client) {
+      if (initRetries++ < 30) window.setTimeout(init, 100);
+      else console.warn('Sistema de notificações: supabaseClient não foi inicializado.');
+      return;
+    }
+    started = true;
+    try {
+      const { data, error } = await client.auth.getUser();
+      if (error && error.name !== 'AuthSessionMissingError') console.warn('Verificação de sessão das notificações:', error.message);
+      await initializeForUser(data?.user || null);
+    } catch (error) {
+      console.error('Falha ao inicializar notificações:', error);
+      await initializeForUser(null);
+    }
+
+    client.auth.onAuthStateChange((_event, session) => {
+      // Evita executar operações Supabase diretamente dentro do callback de auth.
+      window.setTimeout(() => initializeForUser(session?.user || null), 0);
+    });
+  }
+
+  async function saveFromSettings() {
+    const next = { ...preferences };
+    document.querySelectorAll('[data-notification-pref]').forEach(input => {
+      const key = input.dataset.notificationPref;
+      if (key && Object.prototype.hasOwnProperty.call(DEFAULT_PREFERENCES, key)) next[key] = Boolean(input.checked);
+    });
+    try {
+      const result = await savePreferences(next);
+      showMessage(result.localOnly ? 'Preferências salvas neste navegador. Entre na conta para sincronizar entre dispositivos.' : 'Preferências de notificações salvas na sua conta.', 'ok');
+      return result;
+    } catch (error) {
+      console.error('Erro ao salvar preferências de notificações:', error);
+      showMessage('Não foi possível salvar as preferências. Confira a conexão e as políticas RLS.', 'err');
+      throw error;
+    }
+  }
+
+  async function saveFromMiniPanel() {
+    const next = { ...preferences };
+    document.querySelectorAll('.sp-row .toggle[data-pref]').forEach(button => {
+      const keys = MINI_GROUPS[button.dataset.pref] || [];
+      keys.forEach(key => { next[key] = button.classList.contains('on'); });
+    });
+    try {
+      const result = await savePreferences(next);
+      showMessage(result.localOnly ? 'Preferências salvas neste navegador.' : 'Preferências salvas na sua conta.', 'ok');
+      return result;
+    } catch (error) {
+      console.error('Erro ao salvar preferências da página de notificações:', error);
+      showMessage('Não foi possível salvar as preferências. Confira o banco de dados.', 'err');
+      throw error;
+    }
+  }
+
+  async function activateAllSettings() {
+    preferences = Object.fromEntries(Object.keys(DEFAULT_PREFERENCES).map(key => [key, true]));
+    document.querySelectorAll('#panel-notifications [data-notification-pref]').forEach(input => { input.checked = true; });
+    applyPreferencesToUI();
+    return saveFromSettings();
+  }
+
+  window.EcommeNotifications = {
+    init,
+    getUser: () => currentUser,
+    isAuthenticated: () => Boolean(currentUser),
+    getNotifications: () => [...notifications],
+    getPreferences: () => ({ ...preferences }),
+    loadNotifications,
+    loadPreferences,
+    createForCurrentUser,
+    markRead,
+    markAllRead,
+    deleteNotification,
+    savePreferences,
+    saveFromSettings,
+    saveFromMiniPanel,
+    activateAllSettings,
+    applyPreferencesToUI,
+    formatTime,
+    renderSidebar
+  };
+
+  // Estilo leve do preview no sidebar (fica centralizado para todas as páginas).
+  if (!document.getElementById('ecomme-notification-preview-style')) {
+    const style = document.createElement('style');
+    style.id = 'ecomme-notification-preview-style';
+    style.textContent = `
+      .ecomme-notif-preview{display:flex;width:100%;flex-direction:column;gap:5px;text-align:left;padding:13px 15px;border:0;border-bottom:1px solid var(--border,#e5e7eb);background:transparent;color:inherit;cursor:pointer}
+      .ecomme-notif-preview:hover{background:var(--blue-dim,rgba(37,99,235,.06))}
+      .ecomme-notif-preview.is-unread .ecomme-notif-preview-title{font-weight:700}
+      .ecomme-notif-preview-title{font-size:13px;font-weight:600;line-height:1.35}
+      .ecomme-notif-preview-body{font-size:12px;line-height:1.45;color:var(--muted,#64748b);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      .ecomme-notif-preview-time,.ecomme-notif-preview-hint{font-size:10px;color:var(--muted,#64748b)}
+      .ecomme-notif-empty{padding:22px 16px;text-align:center;font-size:13px;color:var(--muted,#64748b)}
+    `;
+    document.head.appendChild(style);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  else init();
+})();
 
 // ── ECOMME NOTIFICATIONS ──
 (function loadEcommeNotificationsModule() {
