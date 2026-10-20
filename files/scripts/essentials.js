@@ -1,4 +1,4 @@
-function initEssentialsJS() {
+//function initEssentialsJS() {
 
 /* --------------------------- */
 let isScrolling = false;
@@ -934,7 +934,7 @@ function filterByCategory(event, category) {
     document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
   }
 }
-}
+//}
   
 /*
 const script1 = document.createElement('script');
