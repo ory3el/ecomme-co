@@ -836,7 +836,7 @@ header:hover .hide-btn {
       color: var(--blue);
       padding: 14px;
       border-radius: 100px;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 16px;
       display: flex;
       align-items: center;
@@ -845,9 +845,9 @@ header:hover .hide-btn {
       transition: box-shadow 0.25s, transform 0.25s, background 0.25s, color 0.25s;
       margin-bottom: 10px;
     }
-    .btn-ckout:hover { 
+    .btn-ckout:hover {
       box-shadow: 0px 0px 10px rgba(25,100,255,0.5);
-      transform: scale(1.05);
+      transform: scale(1.02);
       background: var(--blue2);
       color: var(--white);
     }
@@ -861,10 +861,10 @@ header:hover .hide-btn {
       font-size: 16px;
       transition: border-color 0.25s, color 0.25s, transform 0.25s, box-shadow 0.25s;
     }
-    .btn-cont:hover { 
+    .btn-cont:hover {
       border-color: var(--blue);
-      color: var(--blue); 
-      transform: scale(1.05);
+      color: var(--blue);
+      transform: scale(1.02);
       box-shadow: 0px 0px 10px rgba(25,100,255,0.5);
     }
 
@@ -931,7 +931,7 @@ header:hover .hide-btn {
     }
     .notif-empty-st { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); gap: 12px; }
     .notif-empty-st span { font-size: 48px; }
-    .notif-ft {width: 100%;padding: 20px;border-top: 1px solid var(--border2);background: var(--white);border-radius: 30px 30px 0px 20px;}
+    .notif-ft {max-width: 100%;padding: 20px;border-top: 1px solid var(--border2);background: var(--white);border-radius: 30px 30px 0px 20px;}
 
     /* ── MENU SIDEBAR ────────────────────────────────────────── */
     /* Theme switch, inside the More sidebar */
@@ -1171,14 +1171,14 @@ header:hover .hide-btn {
   border-radius: 150px;
   background: var(--white);
   color: var(--red);
-  border: 1px solid var(--border1);
+  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   font-weight: 600;
   font-size: 14px;
-  transition: background 0.2s, transform 0.2s;
+  transition: background 0.25s, transform 0.25s;
 }
 .btn-logout-sb:hover {background: rgba(255,0,0);transform: scale(1.02);color: #fff;/* border-color: var(--red); */}
 
