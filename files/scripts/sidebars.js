@@ -273,6 +273,7 @@ async function injectEcommeUI() {
     </div>
   </div>
   `);
+  window.dispatchEvent(new Event('ecomme:sidebars-ready'));
 }
 //function initEcommeUI() {
 
@@ -3324,3 +3325,18 @@ function openConfirmLogout() {
 })();
 
 //initEssentialsJS();
+
+
+// ── ECOMME NOTIFICATIONS ──
+(function loadEcommeNotificationsModule() {
+  if (window.__ecommeNotificationsLoaderStarted) return;
+  window.__ecommeNotificationsLoaderStarted = true;
+  if (document.querySelector('script[data-ecomme-notifications]')) return;
+  const script = document.createElement('script');
+  script.src = '/files/scripts/notifications.js';
+  script.dataset.ecommeNotifications = 'true';
+  script.async = true;
+  script.onerror = () => console.error('Falha ao carregar o módulo de notificações da Ecomme.');
+  document.head.appendChild(script);
+})();
+
