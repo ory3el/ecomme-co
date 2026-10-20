@@ -1414,7 +1414,9 @@ function injectPrefetch(url) {
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     await syncEcommeDisplaySettings();
-	await injectEcommeUI();
+	if (typeof injectEcommeUI === 'function') {
+      await injectEcommeUI();
+    }
     initTheme();
     initThemeToggle();
     setupModalSwipe();
@@ -1439,7 +1441,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     userId = user.id;
-    await loadFromSupabase();
+    await loadSidebarSavedItemsFromSupabase();
     if (loginBtn) {
       loginBtn.classList.add('hidden');
     }
@@ -2776,7 +2778,7 @@ async function syncToSupabase() {
 }
 
 //--------------------------------------------------------
-async function loadFromSupabase() {
+async function loadSidebarSavedItemsFromSupabase() {
   if (!userId) return;
   const {
     data,
@@ -2802,24 +2804,44 @@ async function loadFromSupabase() {
     )];
 
     if (savedIds.length) {
-      const { data: savedProducts, error: savedProductsError } = await supabaseClient
-        .from('products')
-        .select('*')
-        .in('id', savedIds);
+      // Loteia os IDs para evitar URLs de consulta muito grandes quando o
+      // usuário possui muitos produtos salvos. A rota /product não carrega o
+      // catálogo inteiro, somente o produto atual e os itens realmente salvos.
+      const merged = new Map(
+        (Array.isArray(products) ? products : []).map(product => [String(product.id), product])
+      );
+      const chunks = [];
+      for (let i = 0; i < savedIds.length; i += 100) {
+        chunks.push(savedIds.slice(i, i + 100));
+      }
 
-      if (savedProductsError) {
-        console.warn('Não foi possível carregar os detalhes dos itens salvos na página do produto:', savedProductsError);
-      } else {
-        const merged = new Map(
-          (Array.isArray(products) ? products : []).map(product => [String(product.id), product])
-        );
-        (savedProducts || []).forEach(raw => {
+      const results = await Promise.all(chunks.map(ids =>
+        supabaseClient
+          .from('products')
+          .select('*')
+          .in('id', ids)
+      ));
+
+      let failedChunks = 0;
+      for (const result of results) {
+        if (result.error) {
+          failedChunks++;
+          console.warn('Falha ao carregar um lote de produtos do carrinho/favoritos:', result.error);
+          continue;
+        }
+
+        (result.data || []).forEach(raw => {
           const item = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
           merged.set(String(item.id), item);
         });
-        products = [...merged.values()];
-        shuffled = [...products];
       }
+
+      if (failedChunks) {
+        console.warn(`Não foi possível carregar ${failedChunks} lote(s) de produtos salvos na página do produto.`);
+      }
+
+      products = [...merged.values()];
+      shuffled = [...products];
     }
   }
 
