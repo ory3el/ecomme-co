@@ -1,5 +1,5 @@
 // ── STYLES INJECTOR ──
-function injectModalStyles() {
+function injectModalStyles0() {
   if (document.getElementById('modal-loading-styles')) return;
 
   const style = document.createElement('style');
@@ -98,7 +98,7 @@ function injectModalStyles() {
 
 // ── LOADING MODAL ──
 function showLoadingModal(title, message) {
-  injectModalStyles();
+  injectModalStyles0();
   
   let modal = document.getElementById('loadingModal');
   if (!modal) {modal = document.createElement('div');
