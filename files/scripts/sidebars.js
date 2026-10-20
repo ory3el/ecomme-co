@@ -3301,4 +3301,4 @@ function openConfirmLogout() {
   document.head.appendChild(script);
 })();
 
-initEssentialsJS();
+//initEssentialsJS();
