@@ -274,7 +274,7 @@ async function injectEcommeUI() {
   </div>
   `);
 }
-await initEcommeUI();
+await injectEcommeUI();
 //function initEcommeUI() {
 
 /* ────────────────────────────────────────────────────────────────── */
