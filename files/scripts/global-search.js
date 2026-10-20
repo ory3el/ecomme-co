@@ -81,15 +81,26 @@
     return value.trim();
   }
 
+  function normalizeSuggestionRows(rows) {
+    return (Array.isArray(rows) ? rows : [])
+      .filter(row => row && row.name)
+      .map(row => ({
+        id: String(row.id ?? ''),
+        name: String(row.name).trim(),
+        category: cleanCategory(row.cat)
+      }))
+      .filter(row => row.name);
+  }
+
   async function fetchSuggestions(query, signal) {
     const cacheKey = query.toLocaleLowerCase('pt-BR');
     if (suggestionCache.has(cacheKey)) return suggestionCache.get(cacheKey);
 
+    // Pesquisa principal somente em colunas textuais. Usar cat.ilike no mesmo
+    // filtro OR pode invalidar a consulta inteira quando cat for text[]/jsonb.
     const url = new URL('/rest/v1/products', SUPABASE_URL);
     url.searchParams.set('select', 'id,name,cat');
-    // Sugere produtos que correspondem pelo nome, descrição ou categoria.
-    // O termo já foi sanitizado para não quebrar a sintaxe do filtro PostgREST.
-    url.searchParams.set('or', `(name.ilike.*${query}*,desc.ilike.*${query}*,cat.ilike.*${query}*)`);
+    url.searchParams.set('or', `(name.ilike.*${query}*,desc.ilike.*${query}*)`);
     url.searchParams.set('limit', String(SUGGESTION_LIMIT));
     url.searchParams.set('order', 'name.asc');
 
@@ -106,15 +117,50 @@
       throw new Error(`Sugestões Supabase: HTTP ${response.status}`);
     }
 
-    const rows = await response.json();
-    const results = (Array.isArray(rows) ? rows : [])
-      .filter(row => row && row.name)
-      .map(row => ({
-        id: String(row.id ?? ''),
-        name: String(row.name).trim(),
-        category: cleanCategory(row.cat)
-      }))
-      .filter(row => row.name);
+    const primaryRows = normalizeSuggestionRows(await response.json());
+    const results = [...primaryRows];
+    const seenIds = new Set(results.map(row => row.id).filter(Boolean));
+    const seenNames = new Set(results.map(row => row.name.toLocaleLowerCase('pt-BR')));
+
+    // Se ainda houver espaço, tenta encontrar produtos pela categoria usando
+    // contains (cs), compatível com categorias armazenadas como arrays/jsonb.
+    // A tentativa é opcional: se o tipo da coluna não suportar contains, as
+    // sugestões por nome/descrição continuam funcionando normalmente.
+    if (results.length < SUGGESTION_LIMIT) {
+      const categoryQuery = query.replace(/[{}"\\]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (categoryQuery) {
+        try {
+          const categoryUrl = new URL('/rest/v1/products', SUPABASE_URL);
+          categoryUrl.searchParams.set('select', 'id,name,cat');
+          categoryUrl.searchParams.set('cat', `cs.{${categoryQuery}}`);
+          categoryUrl.searchParams.set('limit', String(SUGGESTION_LIMIT));
+          categoryUrl.searchParams.set('order', 'name.asc');
+
+          const categoryResponse = await fetch(categoryUrl.toString(), {
+            method: 'GET',
+            headers: {
+              apikey: SUPABASE_PUBLISHABLE_KEY,
+              Accept: 'application/json'
+            },
+            signal
+          });
+
+          if (categoryResponse.ok) {
+            for (const row of normalizeSuggestionRows(await categoryResponse.json())) {
+              const nameKey = row.name.toLocaleLowerCase('pt-BR');
+              if ((row.id && seenIds.has(row.id)) || seenNames.has(nameKey)) continue;
+              results.push(row);
+              if (row.id) seenIds.add(row.id);
+              seenNames.add(nameKey);
+              if (results.length >= SUGGESTION_LIMIT) break;
+            }
+          }
+        } catch (error) {
+          if (error?.name === 'AbortError') throw error;
+          // Categoria é uma busca complementar; falha nela não invalida a busca principal.
+        }
+      }
+    }
 
     suggestionCache.set(cacheKey, results);
     // Limita o cache para não crescer indefinidamente em sessões longas.
@@ -363,10 +409,11 @@
       if (input.value.trim().length >= MIN_QUERY_LENGTH) updateSuggestions();
     });
 
-    // Remover somente os handlers antigos do campo especializado /products/search,
-    // pois ele tinha sugestões de demonstração baseadas num array local.
+    // O controlador universal passa a ser responsável pela barra do header.
+    // Remove handlers inline legados que filtravam a página atual ou lançavam
+    // ReferenceError em páginas sem renderProducts()/onHeaderSearch().
+    input.removeAttribute('oninput');
     if (container.classList.contains('hdr-search')) {
-      input.removeAttribute('oninput');
       input.removeAttribute('onkeydown');
     }
 
@@ -451,27 +498,24 @@
   function start() {
     init(document);
 
-    // Header pode ser injetado dinamicamente nas páginas compartilhadas.
-    if (!document.querySelector('.search-bar, .hdr-search')) {
-      const mount = document.getElementById('index-header')
-        || document.getElementById('headerMount')
-        || document.querySelector('[data-header-mount]');
-
-      if (mount && !window.__ecommeSearchMutationObserver) {
-        window.__ecommeSearchMutationObserver = new MutationObserver(records => {
-          for (const record of records) {
-            record.addedNodes.forEach(node => {
-              if (node.nodeType !== Node.ELEMENT_NODE) return;
-              if (node.matches?.('.search-bar, .hdr-search')) bindSearchContainer(node);
-              else if (node.querySelector) init(node);
-            });
-          }
-        });
-        window.__ecommeSearchMutationObserver.observe(mount, {
-          childList: true,
-          subtree: true
-        });
-      }
+    // Observa o body inteiro: alguns headers são carregados posteriormente
+    // por fetch() e inseridos no DOM depois de DOMContentLoaded.
+    if (document.body && !window.__ecommeSearchMutationObserver) {
+      window.__ecommeSearchMutationObserver = new MutationObserver(records => {
+        for (const record of records) {
+          record.addedNodes.forEach(node => {
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            if (node.matches?.('.search-bar, .hdr-search')) {
+              bindSearchContainer(node);
+            }
+            if (node.querySelector) init(node);
+          });
+        }
+      });
+      window.__ecommeSearchMutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
     }
   }
 
