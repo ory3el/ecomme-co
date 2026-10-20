@@ -454,6 +454,7 @@ header:hover .hide-btn {
   transition: 0.25s;
 }
 .search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
+.search-bar:focus-within .ecomme-search-submit {background: var(--blue2); color: #fff}
 .search-bar:focus-within input {color: var(--black)}
 .search-bar:focus-within svg {stroke: var(--black)}
 .search-bar input { background: none; border: none; outline: none; color: var(--text); font-size: 15px; font-weight: 600; flex: 1; padding: 9px 0; }
@@ -1682,7 +1683,7 @@ header:hover .hide-btn {
   .toast-icon.info { background:#2563eb }
 
   /* ── FOOTER ──────────────────────────────────────────────── */
-  footer {background: var(--white);position: relative;top: 50px;/* border-top: 1px solid var(--border2); *//* box-shadow: 0px 0px 50px rgba(0,0,0,0.1); */border-radius: 50px 50px 0px 0px;padding: 60px 24px 0;}
+  footer {background: var(--white);position: relative;top: 50px;border-top: 1px solid var(--border2);/* box-shadow: 0px 0px 50px rgba(0,0,0,0.1); */border-radius: 50px 50px 0px 0px;padding: 60px 24px 0;}
   .footer-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 48px; border-bottom: 1px solid var(--border2); }
   .footer-brand .logo { font-size: 24px; margin-bottom: 14px; }
   .footer-brand p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 240px; margin-bottom: 20px; }
