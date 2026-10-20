@@ -6,7 +6,7 @@ function injectModalStyles() {
   style.id = 'modal-loading-styles';
   style.textContent = `
 
-:root,[data-theme=light]{
+/*:root,[data-theme=light]{
   --text:        #0F172A;
   --muted:       #64748B;
   --surface:     #FFFFFF;
@@ -23,7 +23,7 @@ function injectModalStyles() {
   --sidebar-bg:  rgba(15,23,42,0.80);
   --box-shdw:    0 0 15px rgb(255 255 255 / 30%);
   color-scheme:  dark
-}
+}*/
   
 .loading-modal-container {
   position: fixed;
