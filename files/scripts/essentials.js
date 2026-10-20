@@ -1,3 +1,19 @@
+// ── ECOMME GLOBAL SEARCH: loader universal para páginas que usam essentials.js ──
+(function loadEcommeGlobalSearchFromEssentials() {
+  if (window.__ecommeGlobalSearchInitialized || window.__ecommeGlobalSearchScriptRequested) return;
+  if (document.querySelector('script[data-ecomme-global-search]')) {
+    window.__ecommeGlobalSearchScriptRequested = true;
+    return;
+  }
+
+  window.__ecommeGlobalSearchScriptRequested = true;
+  const script = document.createElement('script');
+  script.src = '/files/scripts/global-search.js';
+  script.dataset.ecommeGlobalSearch = 'true';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+
 //function initEssentialsJS() {
 
 /* --------------------------- */
