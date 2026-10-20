@@ -323,6 +323,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let userId = null;
+
+  const favicon = document.getElementById('favicon');
+  function verificarTema(e) if (e.matches) favicon.href = '/images/favicon-light.png'; else favicon.href = '/images/favicon-blue.png';
+  const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
+  verificarTema(mqEscuro);
+  mqEscuro.addEventListener('change', verificarTema);
 </script>
 <script src="/files/scripts/console-warning.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
