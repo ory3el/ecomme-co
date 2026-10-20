@@ -2710,3 +2710,11 @@ header:hover .hide-btn {
     transition: none;
   }
 }
+
+.ecomme-notif-preview{display:flex;width:100%;flex-direction:column;gap:5px;text-align:left;padding:13px 15px;border:0;border-bottom:1px solid var(--border,#e5e7eb);background:transparent;color:inherit;cursor:pointer}
+.ecomme-notif-preview:hover{background:var(--blue-dim,rgba(37,99,235,.06))}
+.ecomme-notif-preview.is-unread .ecomme-notif-preview-title{font-weight:700}
+.ecomme-notif-preview-title{font-size:13px;font-weight:600;line-height:1.35}
+.ecomme-notif-preview-body{font-size:12px;line-height:1.45;color:var(--muted,#64748b);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ecomme-notif-preview-time,.ecomme-notif-preview-hint{font-size:10px;color:var(--muted,#64748b)}
+.ecomme-notif-empty{padding:22px 16px;text-align:center;font-size:13px;color:var(--muted,#64748b)}
