@@ -1,265 +1,260 @@
 const $ = id => document.getElementById(id);
- 
-/* ─── NOTIFICATIONS DATA ─────────────────────────────────────────────── */
-let notifications = [
-  {
-    id: 'n1', type: 'order', read: false, group: 'hoje', time: '08:15',
-    title: 'Seu pedido saiu para entrega 🚚',
-    text: 'Pedido <strong>#EC2026-48271</strong> está com o entregador e chega ainda hoje à tarde.',
-    cta: { label: 'Rastrear Pedido', href: 'track-order.html?order=EC2026-48271&email=mariana.ferreira@exemplo.com', icon: 'order' }
-  },
-  {
-    id: 'n2', type: 'promo', read: false, group: 'hoje', time: '07:02',
-    title: 'Oferta relâmpago: 40% OFF ⚡',
-    text: 'Eletrônicos selecionados com desconto especial só até meia-noite. Não perca!',
-    cta: { label: 'Ver Ofertas', href: 'products.html', icon: 'ghost' }
-  },
-  {
-    id: 'n3', type: 'review', read: false, group: 'ontem', time: 'Ontem · 19:40',
-    title: 'O que achou do seu Smartwatch Pro X7?',
-    text: 'Avalie sua compra e ajude outros clientes a decidir. Leva menos de 1 minuto.',
-    cta: { label: 'Avaliar Produto', href: 'product-example.html', icon: 'ghost' }
-  },
-  {
-    id: 'n4', type: 'account', read: false, group: 'ontem', time: 'Ontem · 11:15',
-    title: 'Novo login detectado',
-    text: 'Identificamos um acesso à sua conta a partir de um novo dispositivo em Curitiba, PR.',
-    cta: null
-  },
-  {
-    id: 'n5', type: 'delivered', read: true, group: 'semana', time: 'Segunda · 14:22',
-    title: 'Pedido entregue com sucesso ✓',
-    text: 'Pedido <strong>#EC2026-47950</strong> foi entregue. Esperamos que aproveite sua compra!',
-    cta: { label: 'Ver Pedido', href: 'my-orders.html', icon: 'ghost' }
-  },
-  {
-    id: 'n6', type: 'promo', read: true, group: 'semana', time: 'Domingo · 09:00',
-    title: 'Frete grátis em toda a loja esse fim de semana',
-    text: 'Aproveite frete grátis sem valor mínimo de compra até domingo às 23h59.',
-    cta: { label: 'Explorar Produtos', href: 'products.html', icon: 'ghost' }
-  },
-  {
-    id: 'n7', type: 'system', read: true, group: 'semana', time: 'Sábado · 16:30',
-    title: 'Atualizamos nossos Termos de Uso',
-    text: 'Fizemos pequenos ajustes na nossa política de privacidade e termos de uso.',
-    cta: { label: 'Ler Termos', href: 'terms.html', icon: 'ghost' }
-  },
-  {
-    id: 'n8', type: 'order', read: true, group: 'antigas', time: '12 de junho',
-    title: 'Pagamento aprovado',
-    text: 'O pagamento do pedido <strong>#EC2026-47950</strong> foi aprovado via Pix.',
-    cta: { label: 'Rastrear Pedido', href: 'track-order.html?order=EC2026-47950&email=mariana.ferreira@exemplo.com', icon: 'order' }
-  },
-  {
-    id: 'n9', type: 'system', read: true, group: 'antigas', time: '05 de junho',
-    title: 'Bem-vinda à Ecomme! 🎉',
-    text: 'Sua conta foi criada com sucesso. Explore nosso catálogo e aproveite o frete grátis de lançamento.',
-    cta: { label: 'Explorar Produtos', href: 'products.html', icon: 'ghost' }
-  },
-];
- 
-const iconMap = {
-  order:     `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
-  promo:     `<svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
-  system:    `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
-  review:    `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-  account:   `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  delivered: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>`,
-};
- 
-const groupLabels = { hoje: 'Hoje', ontem: 'Ontem', semana: 'Esta Semana', antigas: 'Mais Antigas' };
-const groupOrder  = ['hoje', 'ontem', 'semana', 'antigas'];
- 
+let notifications = [];
 let currentFilter = 'todas';
- 
-/* ─── RENDER ─────────────────────────────────────────────────────────── */
-function renderNotifications(skipAnim) {
+
+const iconMap = {
+  order: `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  shipped: `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  delivered: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>`,
+  return: `<svg viewBox="0 0 24 24"><path d="M3 7h13a5 5 0 0 1 0 10h-2"/><polyline points="7 3 3 7 7 11"/></svg>`,
+  promo: `<svg viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+  coupon: `<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 0 0 4v2a2 2 0 0 0 0 4h18v-4a2 2 0 0 1 0-4V5H3z"/><path d="M13 5v14"/></svg>`,
+  product: `<svg viewBox="0 0 24 24"><path d="M20 7.5 12 3 4 7.5v9L12 21l8-4.5z"/><path d="M4.5 7.7 12 12l7.5-4.3M12 12v9"/></svg>`,
+  wishlist: `<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"/></svg>`,
+  system: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+  review: `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  account: `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  security: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><polyline points="9 12 11 14 15 10"/></svg>`
+};
+
+const groupLabels = { hoje: 'Hoje', ontem: 'Ontem', semana: 'Esta Semana', antigas: 'Mais Antigas' };
+const groupOrder = ['hoje', 'ontem', 'semana', 'antigas'];
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+}
+
+function safeHref(href) {
+  if (!href) return '';
+  try {
+    const url = new URL(String(href), window.location.origin);
+    return url.origin === window.location.origin ? url.pathname + url.search + url.hash : '';
+  } catch (_) { return ''; }
+}
+
+function getGroup(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  if (Number.isNaN(date.getTime())) return 'antigas';
+  if (date.toDateString() === now.toDateString()) return 'hoje';
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) return 'ontem';
+  const weekAgo = new Date(now);
+  weekAgo.setDate(now.getDate() - 7);
+  return date >= weekAgo ? 'semana' : 'antigas';
+}
+
+function normalizeItem(row) {
+  return {
+    ...row,
+    read: Boolean(row.read_at),
+    group: getGroup(row.created_at),
+    time: window.EcommeNotifications?.formatTime(row.created_at) || '',
+    text: row.body || '',
+    href: safeHref(row.target_url),
+    ctaLabel: row.metadata?.action_label || 'Abrir',
+    iconType: iconMap[row.type] ? row.type : (['order', 'shipped', 'delivered', 'return', 'promo', 'coupon', 'product', 'wishlist', 'review', 'account', 'security'].includes(row.type) ? row.type : 'system')
+  };
+}
+
+function setActiveTab(btn) {
+  document.querySelectorAll('.ftab').forEach(tab => tab.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (btn) movePill(btn);
+}
+
+function movePill(btn) {
+  const bg = $('filterPillBg');
+  const wrap = $('filterTabs');
+  if (!bg || !wrap || !btn) return;
+  const wrapRect = wrap.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  bg.style.left = (btnRect.left - wrapRect.left) + 'px';
+  bg.style.width = btnRect.width + 'px';
+}
+
+function matchesFilter(n) {
+  if (currentFilter === 'todas') return true;
+  if (currentFilter === 'nao-lidas') return !n.read;
+  if (currentFilter === 'order') return ['order', 'shipped', 'delivered', 'return'].includes(n.type);
+  if (currentFilter === 'promo') return ['promo', 'coupon', 'wishlist'].includes(n.type);
+  if (currentFilter === 'system') return ['system', 'account', 'security'].includes(n.type);
+  return n.type === currentFilter;
+}
+
+function renderNotifications(skipAnim = false) {
+  const api = window.EcommeNotifications;
+  notifications = (api?.getNotifications?.() || []).map(normalizeItem);
   updateCounts();
   const wrap = $('notifSection');
- 
-  let list = notifications.filter(n => {
-    if (currentFilter === 'todas') return true;
-    if (currentFilter === 'nao-lidas') return !n.read;
-    return n.type === currentFilter;
-  });
- 
-  if (!list.length) {
-    wrap.innerHTML = `
-      <div class="empty-notif">
-        <div class="ico">🔔</div>
-        <h3>Tudo em dia por aqui</h3>
-        <p>Não há notificações para este filtro no momento.</p>
-      </div>`;
+  if (!wrap) return;
+
+  if (api && !api.isAuthenticated()) {
+    wrap.innerHTML = `<div class="empty-notif"><div class="ico">🔔</div><h3>Acesse sua conta</h3><p>Entre na Ecomme para sincronizar suas notificações entre dispositivos.</p><a class="ni-cta primary" href="/login?redirect=%2Fnotifications">Entrar na conta</a></div>`;
     return;
   }
- 
+
+  const list = notifications.filter(matchesFilter);
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty-notif"><div class="ico">🔔</div><h3>Tudo em dia por aqui</h3><p>Não há notificações para este filtro no momento.</p></div>`;
+    return;
+  }
+
   let html = '';
-  let delayIdx = 0;
-  groupOrder.forEach(g => {
-    const items = list.filter(n => n.group === g);
+  let delayIndex = 0;
+  groupOrder.forEach(group => {
+    const items = list.filter(item => item.group === group);
     if (!items.length) return;
-    html += `<div class="group-label">${groupLabels[g]}</div>`;
-    items.forEach(n => {
-      const delay = skipAnim ? 0 : (delayIdx * 0.05);
-      delayIdx++;
-      html += renderItem(n, delay);
+    html += `<div class="group-label">${groupLabels[group]}</div>`;
+    items.forEach(item => {
+      html += renderItem(item, skipAnim ? 0 : delayIndex * 0.04);
+      delayIndex++;
     });
   });
- 
   wrap.innerHTML = html;
 }
 
 function renderItem(n, delay) {
-  const safeTitle = DOMPurify.sanitize(n.title);
-  const safeText  = DOMPurify.sanitize(n.text);
-
-  const ctaHtml = n.cta
-    ? `<div class="ni-cta-row">
-         <a class="ni-cta ${n.cta.icon === 'order' ? 'primary' : 'ghost'}" href="${n.cta.href}" onclick="event.stopPropagation()">${n.cta.label}</a>
-       </div>`
-    : '';
-
+  const href = safeHref(n.href);
+  const ctaHtml = href ? `<div class="ni-cta-row"><a class="ni-cta ${['order', 'shipped', 'delivered'].includes(n.type) ? 'primary' : 'ghost'}" href="${esc(href)}" onclick="event.stopPropagation()">${esc(n.ctaLabel || 'Abrir')}</a></div>` : '';
   return `
-    <div class="notif-item ${n.read ? '' : 'unread'} ${n._isNew ? 'new-arrival' : ''}" id="ni-${n.id}"
-         style="animation-delay:${delay}s" onclick="openNotification('${n.id}')">
-      <div class="ni-icon ${n.type}">${iconMap[n.type]}</div>
+    <div class="notif-item ${n.read ? '' : 'unread'}" id="ni-${esc(n.id)}" data-notification-id="${esc(n.id)}" style="animation-delay:${delay}s">
+      <div class="ni-icon ${esc(n.iconType)}">${iconMap[n.iconType] || iconMap.system}</div>
       <div class="ni-body">
-        <div class="ni-top">
-          <span class="ni-title">${safeTitle}</span>
-          <span class="ni-time">${n.time}</span>
-        </div>
-        <div class="ni-text">${safeText}</div>
-        ${ctaHtml}
+        <div class="ni-top"><span class="ni-title">${esc(n.title)}</span><span class="ni-time">${esc(n.time)}</span></div>
+        <div class="ni-text">${esc(n.text)}</div>${ctaHtml}
       </div>
-      <div class="ni-side">
-        <span class="ni-dot ${n.read ? 'hidden-dot' : ''}" id="dot-${n.id}"></span>
-        <button class="ni-del" onclick="event.stopPropagation();deleteNotification('${n.id}')" title="Remover">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-      </div>
+      <div class="ni-side"><span class="ni-dot ${n.read ? 'hidden-dot' : ''}" id="dot-${esc(n.id)}"></span><button class="ni-del" onclick="event.stopPropagation();deleteNotification('${esc(n.id)}')" title="Remover" aria-label="Remover notificação"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>`;
 }
- 
-/* ─── COUNTS ─────────────────────────────────────────────────────────── */
+
 function updateCounts() {
-  const total   = notifications.length;
-  const unread  = notifications.filter(n => !n.read).length;
-  const order   = notifications.filter(n => n.type === 'order' || n.type === 'delivered').length;
-  const promo   = notifications.filter(n => n.type === 'promo').length;
-  const system  = notifications.filter(n => n.type === 'system' || n.type === 'account').length;
- 
-  $('cnt-todas').textContent      = total;
-  $('cnt-nao-lidas').textContent  = unread;
-  $('cnt-order').textContent      = order;
-  $('cnt-promo').textContent      = promo;
-  $('cnt-system').textContent     = system;
- 
-  $('unreadCountText').textContent = unread;
-  $('bellBadge').textContent = unread;
-  $('bellBadge').style.display = unread ? 'flex' : 'none';
-  $('readAllBtn').disabled = unread === 0;
+  const total = notifications.length;
+  const unread = notifications.filter(item => !item.read).length;
+  const order = notifications.filter(item => ['order', 'shipped', 'delivered', 'return'].includes(item.type)).length;
+  const promo = notifications.filter(item => ['promo', 'coupon', 'wishlist'].includes(item.type)).length;
+  const system = notifications.filter(item => ['system', 'account', 'security'].includes(item.type)).length;
+  if ($('cnt-todas')) $('cnt-todas').textContent = total;
+  if ($('cnt-nao-lidas')) $('cnt-nao-lidas').textContent = unread;
+  if ($('cnt-order')) $('cnt-order').textContent = order;
+  if ($('cnt-promo')) $('cnt-promo').textContent = promo;
+  if ($('cnt-system')) $('cnt-system').textContent = system;
+  if ($('unreadCountText')) $('unreadCountText').textContent = unread;
+  if ($('bellBadge')) {
+    $('bellBadge').textContent = unread;
+    $('bellBadge').style.display = unread ? 'flex' : 'none';
+  }
+  if ($('readAllBtn')) $('readAllBtn').disabled = unread === 0;
+  const sidebarCount = $('notifCount');
+  if (sidebarCount) sidebarCount.textContent = `(${total})`;
 }
- 
-/* ─── INTERACTIONS ───────────────────────────────────────────────────── */
-function openNotification(id) {
-  const n = notifications.find(x => x.id === id);
-  if (!n) return;
-  if (!n.read) {
-    n.read = true;
-    const el = $('ni-' + id);
-    const dot = $('dot-' + id);
-    if (el) el.classList.remove('unread');
-    if (dot) dot.classList.add('hidden-dot');
-    updateCounts();
-    // re-render if filter is "não lidas" so it animates out
-    if (currentFilter === 'nao-lidas') {
-      setTimeout(() => renderNotifications(true), 250);
-    }
+
+async function openNotification(id) {
+  const api = window.EcommeNotifications;
+  const row = notifications.find(item => String(item.id) === String(id));
+  if (!row || !api) return;
+  try {
+    await api.markRead(id);
+    showToast('Notificação marcada como lida.', 'ok');
+    if (row.href) window.location.href = row.href;
+    else if (currentFilter === 'nao-lidas') renderNotifications(true);
+  } catch (error) {
+    console.error('Erro ao marcar notificação como lida:', error);
+    showToast('Não foi possível atualizar a notificação.', 'err');
   }
 }
- 
-function deleteNotification(id) {
+
+async function deleteNotification(id) {
   const el = $('ni-' + id);
-  if (!el) return;
-  el.classList.add('removing');
-  setTimeout(() => {
-    notifications = notifications.filter(n => n.id !== id);
+  if (el) el.classList.add('removing');
+  try {
+    await window.EcommeNotifications.deleteNotification(id);
+    showToast('Notificação removida.');
+  } catch (error) {
+    console.error('Erro ao remover notificação:', error);
+    showToast('Não foi possível remover a notificação.', 'err');
+  }
+}
+
+async function markAllRead() {
+  try {
+    await window.EcommeNotifications.markAllRead();
+    showToast('Todas as notificações foram marcadas como lidas ✓');
+  } catch (error) {
+    console.error('Erro ao marcar notificações:', error);
+    showToast('Não foi possível marcar as notificações.', 'err');
+  }
+}
+
+async function simulateNewNotification() {
+  try {
+    await window.EcommeNotifications.createForCurrentUser({
+      type: 'system',
+      title: 'Notificação de teste',
+      body: 'Esta notificação foi salva no Supabase. Ela continua disponível após atualizar a página e aparece no sidebar.',
+      target_url: '/notifications',
+      metadata: { source: 'test', action_label: 'Ver notificações' }
+    });
+    showToast('Notificação de teste salva no Supabase 🔔');
+  } catch (error) {
+    console.error('Não foi possível criar a notificação de teste:', error);
+    showToast(error.message || 'Não foi possível criar a notificação. Confira login, SQL e RLS.', 'err');
+  }
+}
+
+function openSettings() {
+  $('settingsPanel')?.classList.add('on');
+  $('settingsOverlay')?.classList.add('on');
+  window.EcommeNotifications?.applyPreferencesToUI();
+}
+function closeSettings() {
+  $('settingsPanel')?.classList.remove('on');
+  $('settingsOverlay')?.classList.remove('on');
+}
+function toggleSwitch(button) {
+  const enabled = !button.classList.contains('on');
+  button.classList.toggle('on', enabled);
+  button.setAttribute('aria-pressed', String(enabled));
+}
+async function savePrefs() {
+  try {
+    await window.EcommeNotifications.saveFromMiniPanel();
+    closeSettings();
+  } catch (_) {}
+}
+
+// Mantém a interface sincronizada quando uma notificação chega em tempo real.
+window.addEventListener('ecomme:notifications-changed', () => renderNotifications(true));
+window.addEventListener('ecomme:notifications-error', event => {
+  const error = event.detail?.error;
+  if (error) console.error('Falha na camada de notificações:', error);
+  const message = String(error?.message || '');
+  const missingTable = /user_notifications|user_notification_preferences|relation .* does not exist/i.test(message) || error?.code === '42P01';
+  const wrap = $('notifSection');
+  if (wrap) wrap.innerHTML = `<div class="empty-notif"><div class="ico">🔔</div><h3>Não foi possível carregar as notificações</h3><p>${missingTable ? 'Execute o arquivo supabase/notifications.sql no SQL Editor do Supabase e confirme as políticas RLS.' : 'Confira a conexão com o Supabase e as permissões de sua conta. Tente novamente.'}</p></div>`;
+});
+document.querySelectorAll('.ftab').forEach(button => {
+  button.addEventListener('click', () => {
+    currentFilter = button.dataset.filter || 'todas';
+    setActiveTab(button);
     renderNotifications(true);
-    showToast('Notificação removida');
-  }, 320);
-}
- 
-function markAllRead() {
-  const hadUnread = notifications.some(n => !n.read);
-  if (!hadUnread) return;
-  notifications.forEach(n => n.read = true);
-  document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
-  document.querySelectorAll('.ni-dot').forEach(d => d.classList.add('hidden-dot'));
-  updateCounts();
-  showToast('Todas as notificações foram marcadas como lidas ✓');
-  setTimeout(() => renderNotifications(true), 300);
-}
- 
-/* ─── DEMO: simulate a new incoming notification ────────────────────── */
-function simulateNewNotification() {
-  const demoPool = [
-    { type: 'promo', title: 'Cupom exclusivo liberado 🎁', text: 'Use <strong>BEMVINDA10</strong> e ganhe 10% OFF na próxima compra.', cta: { label: 'Usar Cupom', href: 'products.html', icon: 'ghost' } },
-    { type: 'order', title: 'Pedido confirmado ✓', text: 'Recebemos seu pedido <strong>#EC2026-49120</strong> e já estamos preparando tudo.', cta: { label: 'Rastrear Pedido', href: 'track-order.html', icon: 'order' } },
-    { type: 'system', title: 'Nova funcionalidade disponível', text: 'Agora você pode acompanhar pedidos em tempo real direto pela página de notificações.', cta: null },
-  ];
-  const pick = demoPool[Math.floor(Math.random() * demoPool.length)];
-  const newNotif = {
-    id: 'demo-' + Date.now(),
-    type: pick.type, read: false, group: 'hoje', time: 'Agora mesmo',
-    title: pick.title, text: pick.text, cta: pick.cta, _isNew: true
-  };
-  notifications.unshift(newNotif);
-  currentFilter = 'todas';
-  setActiveTab(document.querySelector('.ftab[data-filter="todas"]'));
-  renderNotifications(true);
- 
-  $('bellBtn').classList.add('ring');
-  $('bellBadge').classList.add('pop');
-  setTimeout(() => { $('bellBtn').classList.remove('ring'); $('bellBadge').classList.remove('pop'); }, 700);
- 
-  showToast('Nova notificação recebida 🔔');
-}
- 
-/* ─── FILTER TABS ────────────────────────────────────────────────────── */
-function setActiveTab(btn) {
-  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  movePill(btn);
-}
- 
-function movePill(btn) {
-  const bg = $('filterPillBg');
-  const wrapRect = $('filterTabs').getBoundingClientRect();
-  const btnRect  = btn.getBoundingClientRect();
-  bg.style.left  = (btnRect.left - wrapRect.left) + 'px';
-  bg.style.width = btnRect.width + 'px';
-}
- 
-document.querySelectorAll('.ftab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentFilter = btn.dataset.filter;
-    setActiveTab(btn);
-    renderNotifications();
   });
 });
- 
-/* ─── SETTINGS PANEL ─────────────────────────────────────────────────── */
-function openSettings()  { $('settingsPanel').classList.add('on'); $('settingsOverlay').classList.add('on'); }
-function closeSettings() { $('settingsPanel').classList.remove('on'); $('settingsOverlay').classList.remove('on'); }
-function toggleSwitch(btn) { btn.classList.toggle('on'); }
-function savePrefs() {
-  showToast('Preferências salvas com sucesso! ⚙️');
-  closeSettings();
+
+function initNotificationPage() {
+  const api = window.EcommeNotifications;
+  if (!api) {
+    if ($('notifSection')) $('notifSection').innerHTML = '<div class="empty-notif"><h3>Não foi possível inicializar as notificações</h3><p>Confira se /files/scripts/notifications.js foi carregado e se o Supabase está inicializado.</p></div>';
+    return;
+  }
+  api.loadNotifications().then(() => renderNotifications(true));
+  api.loadPreferences().then(() => api.applyPreferencesToUI());
+  requestAnimationFrame(() => {
+    const active = document.querySelector('.ftab.active');
+    if (active) movePill(active);
+  });
 }
- 
-/* ─── INIT ───────────────────────────────────────────────────────────── */
-renderNotifications(true);
-requestAnimationFrame(() => {
-  const active = document.querySelector('.ftab.active');
-  if (active) movePill(active);
-});
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNotificationPage, { once: true });
+else initNotificationPage();
