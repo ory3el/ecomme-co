@@ -37,9 +37,6 @@
     .btn-settings { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .3s var(--ease); flex-shrink: 0; }
     .btn-settings:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); transform: rotate(45deg); }
     .btn-settings svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .btn-demo { display: flex; align-items: center; gap: 7px; background: var(--bg3); border: 1px dashed var(--border); color: var(--blue); padding: 9px 16px; border-radius: 100px; font-weight: 600; font-size: 12px; transition: all .2s; }
-    .btn-demo:hover { background: var(--blue-dim); }
-    .btn-demo svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
     /* ── FILTER TABS ─────────────────────────────────────────── */
     .filters-wrap { background: #fff; border-bottom: 1px solid var(--border2); position: sticky; top: 68px; z-index: 90; }
@@ -163,5 +160,4 @@
       .cart-sb { width: 100%; }
       .ft-inner { flex-direction: column; text-align: center; }
       .ft-links { justify-content: center; }
-      .btn-demo span.dt { display: none; }
     }
