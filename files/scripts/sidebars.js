@@ -274,7 +274,6 @@ async function injectEcommeUI() {
   </div>
   `);
 }
-await injectEcommeUI();
 //function initEcommeUI() {
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -1415,6 +1414,7 @@ function injectPrefetch(url) {
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
     await syncEcommeDisplaySettings();
+	await injectEcommeUI();
     initTheme();
     initThemeToggle();
     setupModalSwipe();
