@@ -3813,7 +3813,7 @@ function openConfirmLogout() {
 })();
 
 // ── ECOMME NOTIFICATIONS ──
-(function loadEcommeNotificationsModule() {
+/*(function loadEcommeNotificationsModule() {
   if (window.__ecommeNotificationsLoaderStarted) return;
   window.__ecommeNotificationsLoaderStarted = true;
   if (document.querySelector('script[data-ecomme-notifications]')) return;
@@ -3823,5 +3823,5 @@ function openConfirmLogout() {
   script.async = true;
   script.onerror = () => console.error('Falha ao carregar o módulo de notificações da Ecomme.');
   document.head.appendChild(script);
-})();
+})();*/
 
