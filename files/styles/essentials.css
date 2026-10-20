@@ -2472,7 +2472,6 @@ header:hover .hide-btn {
 
 
 /* ── GLOBAL SEARCH SUBMIT ───────────────────────────────────────────── */
-/* Botão universal de envio da busca do Ecomme */
 .search-bar .ecomme-search-submit {
   width: 32px;
   height: 32px;
@@ -2522,5 +2521,192 @@ header:hover .hide-btn {
     height: 30px;
     min-width: 30px;
     flex-basis: 30px;
+  }
+}
+
+.search-bar .ecomme-search-submit {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  margin: 0 -7px 0 0;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--blue, #2563EB);
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.search-bar .ecomme-search-submit:hover {
+  background: var(--blue2, #3B82F6);
+  transform: scale(1.06);
+}
+
+.search-bar .ecomme-search-submit:focus-visible {
+  outline: 2px solid var(--blue, #2563EB);
+  outline-offset: 3px;
+}
+
+.search-bar .ecomme-search-submit svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.search-bar input {
+  min-width: 0;
+}
+
+.ecomme-search-suggestions {
+  position: fixed;
+  z-index: 9000;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 7px;
+  border: 1px solid var(--border, rgba(37, 99, 235, .16));
+  border-radius: 16px;
+  background: var(--white, #fff);
+  color: var(--text, #0f172a);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, .18);
+  opacity: 0;
+  transform: translateY(-4px);
+  transform-origin: top center;
+  transition: opacity .14s ease, transform .14s ease;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ecomme-search-suggestions[hidden] {
+  display: none !important;
+}
+
+.ecomme-search-suggestions.is-open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ecomme-suggest-heading {
+  padding: 8px 10px 5px;
+  color: var(--muted, #64748b);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .9px;
+}
+
+.ecomme-suggest-item {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s ease;
+}
+
+.ecomme-suggest-item:hover,
+.ecomme-suggest-item.is-active,
+.ecomme-suggest-item[aria-selected="true"] {
+  background: var(--blue-dim, rgba(37, 99, 235, .08));
+}
+
+.ecomme-suggest-icon {
+  display: flex;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--bg3, #eff6ff);
+  color: var(--blue, #2563eb);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.ecomme-suggest-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.ecomme-suggest-title {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ecomme-suggest-subtitle {
+  overflow: hidden;
+  color: var(--muted, #64748b);
+  font-size: 11px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ecomme-suggest-enter {
+  display: inline-flex;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border2, rgba(15, 23, 42, .10));
+  border-radius: 6px;
+  color: var(--muted, #64748b);
+  font-size: 12px;
+}
+
+.ecomme-suggest-status {
+  padding: 10px;
+  color: var(--muted, #64748b);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .search-bar .ecomme-search-submit {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    flex-basis: 30px;
+  }
+
+  .ecomme-search-suggestions {
+    border-radius: 13px;
+    padding: 5px;
+  }
+
+  .ecomme-suggest-item {
+    min-height: 44px;
+    padding: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecomme-search-suggestions,
+  .ecomme-suggest-item {
+    transition: none;
   }
 }
