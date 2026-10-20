@@ -580,16 +580,16 @@
         <div class="notif-list">
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-box-open"></i>
-          </div><div class="notif-info"><h4>Atualização de pedido</h4><p>Notificações de status, envio e entrega</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Atualização de pedido</h4><p>Notificações de status, envio e entrega</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="pedidos" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-truck"></i>
-          </div><div class="notif-info"><h4>Saiu para entrega</h4><p>Avise quando o pedido estiver a caminho</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Saiu para entrega</h4><p>Avise quando o pedido estiver a caminho</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="pedido_entrega" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-check"></i>
-          </div><div class="notif-info"><h4>Pedido entregue</h4><p>Confirmação de entrega bem-sucedida</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Pedido entregue</h4><p>Confirmação de entrega bem-sucedida</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="pedido_entregue" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-reply"></i>
-          </div><div class="notif-info"><h4>Status de devolução</h4><p>Atualizações sobre solicitações de troca/devolução</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Status de devolução</h4><p>Atualizações sobre solicitações de troca/devolução</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="devolucao"><div class="toggle-lbl"></div></label></div>
         </div>
       </div>
       <div class="card">
@@ -599,16 +599,16 @@
         <div class="notif-list">
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-bolt"></i>
-          </div><div class="notif-info"><h4>Ofertas relâmpago</h4><p>Flash sales e descontos por tempo limitado</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Ofertas relâmpago</h4><p>Flash sales e descontos por tempo limitado</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="ofertas_relampago" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-ticket"></i>
-          </div><div class="notif-info"><h4>Cupons exclusivos</h4><p>Novos cupons e promoções personalizadas</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Cupons exclusivos</h4><p>Novos cupons e promoções personalizadas</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="cupons_exclusivos" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-envelope"></i>
-          </div><div class="notif-info"><h4>Novidades semanais</h4><p>Tendências e novidades por e-mail</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Novidades semanais</h4><p>Tendências e novidades por e-mail</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="novidades_semanais"><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-heart"></i>
-          </div><div class="notif-info"><h4>Itens favoritos em promoção</h4><p>Alerte quando um produto salvo entrar em oferta</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Itens favoritos em promoção</h4><p>Alerte quando um produto salvo entrar em oferta</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="favoritos_promocao" checked><div class="toggle-lbl"></div></label></div>
         </div>
       </div>
       <div class="card">
@@ -618,14 +618,19 @@
         <div class="notif-list">
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-envelope"></i>
-          </div><div class="notif-info"><h4>E-mail</h4><p>seu.email@email.com</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>E-mail</h4><p>seu.email@email.com</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="canal_email" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-comment"></i>
-          </div><div class="notif-info"><h4>SMS / WhatsApp</h4><p></p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" checked><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>SMS / WhatsApp</h4><p></p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="canal_whatsapp" checked><div class="toggle-lbl"></div></label></div>
           <div class="notif-row"><div class="notif-left"><div class="notif-ico">
             <i class="fa-solid fa-bell"></i>
-          </div><div class="notif-info"><h4>Push no navegador</h4><p>Notificações em tempo real</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp"><div class="toggle-lbl"></div></label></div>
+          </div><div class="notif-info"><h4>Push no navegador</h4><p>Alertas nativos do navegador (requer permissão)</p></div></div><label class="toggle-wrap"><input type="checkbox" class="toggle-inp" data-notification-pref="canal_push"><div class="toggle-lbl"></div></label></div>
         </div>
+      </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px">
+        <button class="btn-primary" type="button" onclick="saveNotificationPreferences()">
+          <i class="fa-solid fa-floppy-disk"></i> Salvar preferências de notificações
+        </button>
       </div>
     </div>
 
