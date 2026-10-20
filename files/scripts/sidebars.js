@@ -1782,7 +1782,7 @@ function addToCart(id, qty = 1) {
     });
   }
   updateCart();
-  showToast(`${p.name} adicionado ao carrinho! 🛒`);
+  showToast(`${p.name} adicionado ao carrinho 🛒`);
   syncToSupabase();
 }
 
@@ -1829,8 +1829,6 @@ function updateCart() {
     .filter(Boolean);
 
   cart = validCart;
-
-  // Itens indisponíveis ficam na lista, mas não entram no total nem na contagem
   const buyableCart = cart.filter(item => !isProductUnavailable(item));
 
   const total = buyableCart.reduce(
@@ -1857,7 +1855,7 @@ function updateCart() {
   if (!cart.length && $('cartSidebar')) {
     el.innerHTML = `
       <div class="cart-empty-st">
-        <span>🛒</span>
+        <span><i class="fa-solid fa-cart-shopping"></i></span>
         <p>Seu carrinho está vazio</p>
       </div>
     `;
@@ -1990,7 +1988,7 @@ function toggleFav(id) {
   if (ex) {
     removeFromFav(normalizedId);
     showToast(
-      'Removido da Lista de Desejos! 💔'
+      'Removido da Lista de Desejos 💔'
     );
   } else {
     addToFav(normalizedId, 1);
@@ -2045,7 +2043,7 @@ function addToFav(id, qty = 1) {
     });
   }
   updateFav();
-  showToast(`${p.name} salvo nos favoritos! ❤️`);
+  showToast(`${p.name} salvo nos favoritos ❤️`);
   syncToSupabase();
 }
 
@@ -2093,7 +2091,6 @@ function updateFav() {
 
   fav = validFav;
 
-  // O total considera apenas o que pode ser adicionado ao carrinho
   const total = fav
     .filter(item => !isProductUnavailable(item))
     .reduce(
@@ -2120,7 +2117,7 @@ function updateFav() {
   if (!fav.length && $('favSidebar')) {
     el.innerHTML = `
       <div class="fav-empty-st">
-        <span>❤️</span>
+        <span><i class="fa-regular fa-heart"></i></span>
         <p>Nenhum produto salvo no momento</p>
       </div>
     `;
