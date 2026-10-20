@@ -275,7 +275,27 @@ function removeWish(btn, name){
   setTimeout(() => { card.remove(); toast(`${name} removido dos favoritos`); }, 300);
 }
 function setTheme(btn, theme){ document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('on')); btn.classList.add('on'); toast(`Tema ${theme==='light'?'claro':theme==='dark'?'escuro':'automático'} ativado`); }
-function setAllNotifs(){ document.querySelectorAll('.toggle-inp').forEach(t => t.checked = true); toast('Todas as notificações ativadas! 🔔'); }
+async function setAllNotifs(){
+  document.querySelectorAll('#panel-notifications [data-notification-pref]').forEach(t => { t.checked = true; });
+  if (window.EcommeNotifications) {
+    try { await window.EcommeNotifications.activateAllSettings(); toast('Todas as preferências de notificações foram ativadas e salvas! 🔔', 'ok'); }
+    catch (_) { toast('Não foi possível salvar as preferências de notificações.', 'err'); }
+  } else {
+    toast('O módulo de notificações ainda está carregando. Tente novamente.', 'err');
+  }
+}
+
+async function saveNotificationPreferences(){
+  if (!window.EcommeNotifications) {
+    toast('O módulo de notificações não foi carregado.', 'err');
+    return;
+  }
+  try {
+    await window.EcommeNotifications.saveFromSettings();
+  } catch (_) {
+    // O módulo já apresenta a mensagem detalhada de erro.
+  }
+}
 function filterOrders(btn, filter){ document.querySelectorAll('.btn-xs.blue, .btn-xs.gray').forEach(b => { if(b.closest('.card') && b.closest('.card').querySelector('.btn-xs')){ b.className = 'btn-xs gray'; } }); btn.className = 'btn-xs blue'; toast(`Filtro aplicado: ${btn.textContent}`,'info'); }
 function copyCoupon(code){ navigator.clipboard?.writeText(code); toast(`Cupom ${code} copiado! 📋`); }
 
