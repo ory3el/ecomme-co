@@ -688,6 +688,13 @@ async function saveSettings() {
   }
 }
 
+// Mostra o e-mail real do Supabase Auth no canal de notificações.
+// O endereço nunca é informado pelo navegador para o envio: o backend o consulta pelo user_id.
+function updateNotificationAccountEmail(email) {
+  const element = document.getElementById('notificationAccountEmail');
+  if (element) element.textContent = email || 'Nenhum e-mail cadastrado na conta';
+}
+
 // -----------------------------------------------------------
 window.addEventListener('DOMContentLoaded', async () => {
     initTheme();
@@ -703,6 +710,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
     if (!user || userError) {
       userId = null;
+      updateNotificationAccountEmail('');
       await loadSavedEcommeSettings(null);
       const savedSection = localStorage.getItem('ecomme_settings_section');
       if (savedSection) showPanel(savedSection);
@@ -710,6 +718,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     userId = user.id;
+    updateNotificationAccountEmail(user.email || '');
     await loadSavedEcommeSettings(user.id);
     const savedSection = localStorage.getItem('ecomme_settings_section');
     if (savedSection) showPanel(savedSection);
@@ -766,6 +775,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     }
 
     const email = user.email || "";
+    updateNotificationAccountEmail(email);
     const fullName = profile.full_name || "Cliente";
     const phone = profile.phone || "";
     
