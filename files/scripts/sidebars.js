@@ -3300,3 +3300,5 @@ function openConfirmLogout() {
   script.async = true;
   document.head.appendChild(script);
 })();
+
+initEssentialsJS();
