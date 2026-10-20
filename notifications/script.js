@@ -1,4 +1,3 @@
-const $ = id => document.getElementById(id);
 let notifications = [];
 let currentFilter = 'todas';
 
