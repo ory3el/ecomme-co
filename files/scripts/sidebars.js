@@ -1,4 +1,6 @@
 async function injectEcommeUI() {
+  const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (currentPath === '/settings' || currentPath.startsWith('/settings/')) return;
   if (document.getElementById('cartSidebar')) return;
 
   document.body.insertAdjacentHTML('afterbegin', `
