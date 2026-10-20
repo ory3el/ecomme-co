@@ -797,7 +797,9 @@ header:hover .hide-btn {
       align-items: center;
       justify-content: space-between;
     }
-    .fav-hd h3 {font-family: 'Outfit';font-size: 22px;font-weight: 500;margin: 0;}
+    .fav-hd h3 i {cursor: pointer;margin-right: 10px;position: relative;top: 3px;transition: color 0.25s, transform 0.25s;}
+    .fav-hd h3 {cursor: pointer;font-family: 'Outfit';font-size: 22px;font-weight: 500;margin: 0;}
+    .fav-hd:hover h3 i {color: var(--blue); transform: scale(1.15)}
     .fav-cls {
       width: 34px;
       height: 34px;
