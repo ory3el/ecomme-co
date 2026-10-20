@@ -1,4 +1,4 @@
-/*function injectEcommeUI() {
+function injectEcommeUI() {
   if (document.getElementById('cartSidebar')) return;
 
   document.body.insertAdjacentHTML('afterbegin', `
@@ -209,7 +209,7 @@
     <div class="modal">
       <div class="modal-img-area">
         <div class="modal-img" id="modalImg">
-          <button class="btn-mwish1" id="mWish" onclick="addFromModal2()">
+          <button class="btn-mwish1" id="mWish1" onclick="event.stopPropagation(); toggleFav(String(curId));">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
           </button>
           <button class="mcls" onclick="closeProductModal()">
@@ -232,15 +232,19 @@
         <div class="modal-gallery" id="modalGallery"></div>
       </div>
       <div class="modal-info">
+	   <div style="align-self: flex-start">
         <div class="m-cat" id="mCat"></div>
         <div class="m-name" id="mName"></div>
         <div class="m-desc" id="mDesc"></div>
+	   </div>
+
+	   <div style="align-self: end">
+		<div class="m-feats" id="mFeats"></div>
         <div class="m-price-row">
           <span class="m-price" id="mPrice"></span>
           <span class="m-old" id="mOld"></span>
           <span class="m-disc" id="mDisc"></span>
         </div>
-        <div class="m-feats" id="mFeats"></div>
         <hr class="m-div">
         <div class="m-qty-row">
           <span class="m-qty-lbl">Quantidade:</span>
@@ -249,57 +253,29 @@
             <span class="m-qty-num" id="mQty">1</span>
             <button class="qb" onclick="chgQty(1)">+</button>
           </div>
-        </div>
+        </div>  
         <div class="m-btns">
           <span class="m-price1" id="mPrice1"></span>
-          <button class="btn-madd" onclick="addFromModal()">
-            <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-              <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-            </svg>
-            Adicionar ao Carrinho
+          <button class="btn-madd" onclick="openProductPage()">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            Ver Mais Informações
           </button>
-          <button class="btn-mwish" id="mWish" onclick="addFromModal2()">
+		  <button class="btn-mcart" id="mCart" onclick="addFromModal()">
+          	<svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+		  </button>
+          <button class="btn-mwish" id="mWish" onclick="event.stopPropagation(); toggleFav(String(curId));">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
       </div>
+	 </div>
     </div>
   </div>
-
-  <!-- TOAST -->
-  <div class="toast" id="toast">
-    <div class="toast-icon">✓</div>
-    <span id="toastMsg">Produto adicionado!</span>
-  </div>
-
-  <!-- BACK TO TOP -->
-  <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-  </button>
-
-  <!-- QUICKLINK -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
-  <script>
-    // Start the Quicklink
-    window.addEventListener('load', () => {
-      quicklink.listen();
-    });
-  </script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let userId = null;
-</script>
-<script src="/files/scripts/auth-session-check.js"></script>
-<script src="/files/scripts/console-warning.js"></script>
   `);
-  initEcommeUI()
 }
-function initEcommeUI() {*/
+initEcommeUI();
+//function initEcommeUI() {
 
 /* ────────────────────────────────────────────────────────────────── */
 
