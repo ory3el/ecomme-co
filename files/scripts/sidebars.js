@@ -2100,10 +2100,9 @@ function updateFav() {
       0
     );
 
-  const count = fav.reduce(
-    (sum, item) => sum + item.qty,
-    0
-  );
+  const count = fav
+  .filter(item => !isProductUnavailable(item))
+  .reduce((sum, item) => sum + item.qty, 0);
 
   if ($('wishBadge')) {
     $('wishBadge').textContent = count;
