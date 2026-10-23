@@ -545,6 +545,7 @@ function productCardHtml(p) {
     return `
       <div
         class="pcard"
+        data-product-id="${p.id}"
         onclick="openProduct('${p.id}')"
       >
         <div class="pimg-wrap">
@@ -618,6 +619,7 @@ function productCardHtml(p) {
   return `
     <div
       class="pcard"
+      data-product-id="${p.id}"
       onclick="openProduct('${p.id}')"
     >
       <div class="pimg-wrap">
@@ -633,15 +635,9 @@ function productCardHtml(p) {
         </div>
         <button
           class="pwish-btn ${inW ? 'on' : ''}"
-          onclick="
-            event.stopPropagation();
-            toggleFav('${p.id}');
-          "
-          title="${
-            inW
-              ? 'Remover dos favoritos'
-              : 'Adicionar aos favoritos'
-          }"
+          data-product-action="favorite"
+          onclick="event.stopPropagation(); toggleFav('${p.id}');"
+          title="${inW ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
         >
           <svg viewBox="0 0 24 24">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -650,10 +646,8 @@ function productCardHtml(p) {
         <div class="pactions">
           <button
             class="btn-ac"
-            onclick="
-              event.stopPropagation();
-              addToCart('${p.id}');
-            "
+            data-product-action="cart"
+            onclick="event.stopPropagation(); addToCart('${p.id}');"
           >
             <svg viewBox="0 0 24 24">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -948,6 +942,63 @@ function filterByCategory(event, category) {
     searchInput.value = category;
     renderProducts();
     document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ------------------------------------
+function updateProductActionUI(id) {
+  const productId = String(id);
+
+  const isFav = fav.some(
+    item => String(item.id) === productId
+  );
+
+  const isInCart = cart.some(
+    item => String(item.id) === productId
+  );
+
+  document.querySelectorAll('.pcard[data-product-id]').forEach(card => {
+    if (String(card.dataset.productId) !== productId) return;
+
+    const favButton = card.querySelector(
+      '[data-product-action="favorite"]'
+    );
+
+    if (favButton) {
+      favButton.classList.toggle('on', isFav);
+      favButton.title = isFav
+        ? 'Remover dos favoritos'
+        : 'Adicionar aos favoritos';
+
+      favButton.setAttribute('aria-pressed', String(isFav));
+    }
+
+    const cartButton = card.querySelector(
+      '[data-product-action="cart"]'
+    );
+
+    if (cartButton) {
+      cartButton.classList.toggle('in-cart', isInCart);
+      cartButton.title = isInCart
+        ? 'Produto já está no carrinho'
+        : 'Adicionar ao carrinho';
+
+      cartButton.setAttribute('aria-pressed', String(isInCart));
+    }
+  });
+
+  document.querySelectorAll('.cart-item-towish[data-product-id]').forEach(button => {
+    if (String(button.dataset.productId) !== productId) return;
+
+    button.classList.toggle('on', isFav);
+    button.title = isFav
+      ? 'Remover dos favoritos'
+      : 'Adicionar aos favoritos';
+  });
+
+  if (String(curId) === productId) {
+    document.getElementById('mWish')?.classList.toggle('on', isFav);
+    document.getElementById('mWish1')?.classList.toggle('on', isFav);
   }
 }
 //}
