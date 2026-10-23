@@ -1,24 +1,28 @@
 // ===============================================
 
-const script = document.createElement('script');
-script.src = '/files/scripts/confirm-modal.js';
-script.async = true;
-document.head.appendChild(script);
+const supabaseSrc = document.createElement('script');
+supabaseSrc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+document.head.appendChild(supabaseSrc);
 
-const script1 = document.createElement('script');
-script1.src = '/files/scripts/loading.js';
-script1.async = true;
-document.head.appendChild(script1);
+const confirmModal = document.createElement('script');
+confirmModal.src = '/files/scripts/confirm-modal.js';
+confirmModal.async = true;
+document.head.appendChild(confirmModal);
 
-const script2 = document.createElement('script');
-script2.src = '/files/scripts/auth-session-check.js';
-script2.async = true;
-document.head.appendChild(script2);
+const loading = document.createElement('script');
+loading.src = '/files/scripts/loading.js';
+loading.async = true;
+document.head.appendChild(loading);
 
-const script3 = document.createElement('script');
-script3.src = '/files/scripts/console-warning.js';
-script3.async = true;
-document.head.appendChild(script3);
+const authSessionCheck = document.createElement('script');
+authSessionCheck.src = '/files/scripts/auth-session-check.js';
+authSessionCheck.async = true;
+document.head.appendChild(authSessionCheck);
+
+const consoleWarning = document.createElement('script');
+consoleWarning.src = '/files/scripts/console-warning.js';
+consoleWarning.async = true;
+document.head.appendChild(consoleWarning);
 
 // ===============================================
 
