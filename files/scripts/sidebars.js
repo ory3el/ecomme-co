@@ -1,7 +1,16 @@
+// ===============================================
+
 const script = document.createElement('script');
 script.src = '/files/scripts/confirm-modal.js';
 script.async = true;
 document.head.appendChild(script);
+
+const script1 = document.createElement('script');
+script1.src = '/files/scripts/loading.js';
+script1.async = true;
+document.head.appendChild(script1);
+
+// ===============================================
 
 async function injectEcommeUI() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
