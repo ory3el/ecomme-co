@@ -10,6 +10,11 @@ script1.src = '/files/scripts/loading.js';
 script1.async = true;
 document.head.appendChild(script1);
 
+const script2 = document.createElement('script');
+script2.src = '/files/scripts/auth-session-check.js';
+script2.async = true;
+document.head.appendChild(script2);
+
 // ===============================================
 
 async function injectEcommeUI() {
