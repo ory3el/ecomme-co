@@ -466,9 +466,11 @@ async function loadProductsFromSupabase() {
   }
 }
 
-function hydrateCartItems(
-  savedCart
-) {
+function isCheckoutProductUnavailable(product) {
+  return String(product?.badge || '').toLowerCase() === 'paused';
+}
+  
+function hydrateCartItems(savedCart) {
   if (
     !Array.isArray(
       savedCart
@@ -500,11 +502,12 @@ function hydrateCartItems(
         );
 
       if (!product) {
-        console.warn(
-          'Produto do carrinho não encontrado:',
-          savedId
-        );
+        console.warn('Produto do carrinho não encontrado:', savedId);
+        return null;
+      }
 
+      if (isCheckoutProductUnavailable(product)) {
+        console.info('Produto indisponível ignorado no checkout:', savedId);
         return null;
       }
 
@@ -972,6 +975,11 @@ function renderSummary() {
 function goStep(n) {
   if (n < 1 || n > 4) return;
   if (currentStep === 4 && n !== 4) return;
+
+  if (n > currentStep && cartItems.length === 0) {
+    toast('Não há produtos disponíveis para finalizar a compra.', 'err');
+    return;
+  }
   
   const isGoingBack = n <= furthestStep;
   const isGoingForward = n === currentStep + 1;
