@@ -377,6 +377,14 @@ function initThemeToggle() {
 
 // ============================================================
 
+function renderGridProducts() {
+  if ($('productsGrid');) {
+    renderproducts();
+  }	
+}
+
+// ============================================================
+
 window.ecommeLanguage = 'pt-BR';
 const ecommeOriginalTextNodes = new WeakMap();
 const ecommeOriginalAttributes = new WeakMap();
@@ -2044,6 +2052,7 @@ function addToFav(id, qty = 1) {
   }
   updateFav();
   showToast(`${p.name} salvo nos favoritos ❤️`);
+  renderGridProducts();
   syncToSupabase();
 }
 
