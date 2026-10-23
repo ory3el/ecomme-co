@@ -65,7 +65,7 @@ function injectModalStyles() {
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      transition: transform 0.2s, background 0.2s;
+      transition: transform 0.25s, background 0.25s;
     }
     .btn-alert-confirm:hover {
       background: var(--blue2);
@@ -80,24 +80,25 @@ function injectModalStyles() {
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.2s;
+      transition: background 0.25s;
     }
     .btn-alert-confirm-red:hover {
       background: #d81d1d;
     }
     .btn-alert-cancel {
       background: var(--white);
-      border: 1px solid var(--text1);
+      border: 1px solid var(--muted2);
       color: var(--black);
       padding: 11px 24px;
       border-radius: 250px;
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.2s;
+      transition: background 0.25s, border-color 0.25s;
     }
     .btn-alert-cancel:hover {
       background: var(--surface);
+      border-color: var(--text1);
     }
   `;
   document.head.appendChild(style);
