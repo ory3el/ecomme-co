@@ -378,7 +378,7 @@ function initThemeToggle() {
 // ============================================================
 
 function renderGridProducts() {
-  if ($('productsGrid');) {
+  if ($('productsGrid')) {
     renderproducts();
   }	
 }
