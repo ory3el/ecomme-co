@@ -377,18 +377,6 @@ function initThemeToggle() {
 
 // ============================================================
 
-function renderGridProducts() {
-  if (!$('productsGrid')) return;
-
-  if (typeof window.renderproducts === 'function') {
-    renderproducts();
-  } else {
-	return;
-  }
-}
-
-// ============================================================
-
 window.ecommeLanguage = 'pt-BR';
 const ecommeOriginalTextNodes = new WeakMap();
 const ecommeOriginalAttributes = new WeakMap();
@@ -1794,16 +1782,17 @@ function addToCart(id, qty = 1) {
     });
   }
   updateCart();
+  updateProductActionUI(normalizedId);
   showToast(`${p.name} adicionado ao carrinho 🛒`);
   syncToSupabase();
 }
 
 function removeFromCart(id) {
   const normalizedId = String(id);
-  cart = cart.filter(
-    x => String(x.id) !== normalizedId
-  );
+  cart = cart.filter(item => String(item.id) !== normalizedId);
+
   updateCart();
+  updateProductActionUI(normalizedId);
   syncToSupabase();
 }
 
@@ -2055,17 +2044,17 @@ function addToFav(id, qty = 1) {
     });
   }
   updateFav();
+  updateProductActionUI(normalizedId);
   showToast(`${p.name} salvo nos favoritos ❤️`);
-  renderGridProducts();
   syncToSupabase();
 }
 
 function removeFromFav(id) {
   const normalizedId = String(id);
-  fav = fav.filter(
-    x => String(x.id) !== normalizedId
-  );
+  fav = fav.filter(item => String(item.id) !== normalizedId);
+
   updateFav();
+  updateProductActionUI(normalizedId);
   syncToSupabase();
 }
 
