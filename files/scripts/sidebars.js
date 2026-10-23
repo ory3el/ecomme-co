@@ -379,7 +379,12 @@ function initThemeToggle() {
 
 function renderGridProducts() {
   if (!$('productsGrid')) return;
-  renderproducts();
+
+  if (typeof window.renderproducts === 'function') {
+    renderproducts();
+  } else {
+	return;
+  }
 }
 
 // ============================================================
