@@ -797,7 +797,7 @@ function normalizeProduct(p) {
 }
 
 /* ------------------------------- */
-async function renderProducts() {
+function renderProducts() {
   pLoadingFlex();
   const grid = $('productsGrid');
   if (!grid) return;
