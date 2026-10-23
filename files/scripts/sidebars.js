@@ -377,12 +377,9 @@ function initThemeToggle() {
 
 // ============================================================
 
-import { renderproducts } from '/files/scripts/essentials.js';
-
 function renderGridProducts() {
-  if ($('productsGrid')) {
-    renderproducts();
-  }	
+  if (!$('productsGrid')) return;
+  renderproducts();
 }
 
 // ============================================================
