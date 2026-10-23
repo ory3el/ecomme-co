@@ -15,6 +15,11 @@ script2.src = '/files/scripts/auth-session-check.js';
 script2.async = true;
 document.head.appendChild(script2);
 
+const script3 = document.createElement('script');
+script3.src = '/files/scripts/console-warning.js';
+script3.async = true;
+document.head.appendChild(script3);
+
 // ===============================================
 
 async function injectEcommeUI() {
