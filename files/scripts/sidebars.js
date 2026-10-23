@@ -1,3 +1,5 @@
+import '/files/scripts/confirm-modal.js';
+
 async function injectEcommeUI() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
   if (currentPath === '/settings' || currentPath.startsWith('/settings/')) return;
