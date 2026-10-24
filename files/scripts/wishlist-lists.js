@@ -442,6 +442,34 @@
     renderModal();
   }
 
+  async function openSidebarListSelector() {
+    // O seletor do cabeçalho não adiciona produto: apenas troca a lista exibida no sidebar.
+    state.modalProductId = null;
+    state.modalFormMode = null;
+    state.modalEditListId = null;
+    openModal();
+
+    const title = document.getElementById('ewlModalTitle');
+    const subtitle = document.getElementById('ewlModalSubtitle');
+    if (title) title.textContent = 'Escolher lista de desejos';
+    if (subtitle) subtitle.textContent = 'Selecione qual lista deseja visualizar no sidebar.';
+    renderModal(true);
+
+    try {
+      await ensureClient();
+      const user = await resolveUser();
+      await refreshState({ user, showError: true });
+    } catch (error) {
+      state.schemaError = error;
+      console.error('[Ecomme listas de desejos] Não foi possível abrir o seletor de listas:', error);
+    }
+
+    // refreshState atualiza os dados; mantemos o título específico deste modal.
+    if (title) title.textContent = 'Escolher lista de desejos';
+    if (subtitle) subtitle.textContent = 'Selecione qual lista deseja visualizar no sidebar.';
+    renderModal();
+  }
+
   function openListCreator() {
     state.modalProductId = null;
     state.modalFormMode = 'create';
@@ -643,9 +671,21 @@
     notify('Lista excluída.', 'ok');
   }
 
+  function updateSidebarListTitle() {
+    const title = document.getElementById('favListTitle');
+    if (!title) return;
+    const selectedList = state.lists.find(item => String(item.id) === String(state.activeSidebarListId))
+      || state.lists.find(item => item.is_default)
+      || state.lists[0];
+    title.textContent = state.user && selectedList
+      ? `${selectedList.emoji || '❤️'} ${selectedList.name || 'Lista de Desejos'}`
+      : 'Lista de Desejos';
+  }
+
   function renderSidebar() {
     const el = document.getElementById('favItems');
     if (!el || !document.getElementById('favSidebar')) return;
+    updateSidebarListTitle();
     if (state.schemaError) {
       el.innerHTML = `<div class="ewl-empty"><span>🗂️</span>Para usar várias listas de desejos, execute a migração SQL do projeto no Supabase.</div>`;
       return;
@@ -660,6 +700,7 @@
     }
     if (!state.lists.some(list => String(list.id) === String(state.activeSidebarListId))) state.activeSidebarListId = defaultListId();
     const list = state.lists.find(item => String(item.id) === String(state.activeSidebarListId));
+    updateSidebarListTitle();
     const items = listItems(state.activeSidebarListId);
     const selects = state.lists.map(item => `<option value="${escapeHtml(item.id)}" ${String(item.id) === String(state.activeSidebarListId) ? 'selected' : ''}>${escapeHtml(item.emoji || '❤️')} ${escapeHtml(item.name)} (${listItems(item.id).length})</option>`).join('');
     const toolbar = `<div class="ewl-sidebar-tools"><select aria-label="Selecionar lista de desejos" data-ewl-sidebar-select>${selects}</select><button type="button" class="ewl-btn" data-ewl-action="sidebar-create" title="Criar lista" aria-label="Criar lista">＋</button></div>`;
@@ -830,8 +871,13 @@
     window.EcommeWishlists = {
       refresh: refreshState,
       openPicker,
+      openListSelector: openSidebarListSelector,
       createList: openListCreator,
-      selectSidebarList: id => { state.activeSidebarListId = String(id); renderSidebar(); },
+      selectSidebarList: id => {
+        state.activeSidebarListId = String(id);
+        if (state.user) safeStorageSet('ecomme:wishlist:sidebar:' + state.user.id, state.activeSidebarListId);
+        renderSidebar();
+      },
       getLists: () => state.lists.slice(),
       getItems: () => state.items.slice(),
       removeFromActiveList,
@@ -849,6 +895,7 @@
     window.updateCartWishButtons = syncFavoriteUI;
     window.openFav = openFavSidebar;
     window.closeFav = closeFavSidebar;
+    window.openToggleFav = openSidebarListSelector;
     window.addAllFavToCart = function () { return addSelectedListToCart(state.activeSidebarListId || defaultListId()); };
     window.loadWishlist = async function () { await refreshState(); renderSettingsManager(); };
     window.removeWishlistProduct = function (productId, productNameValue) {
