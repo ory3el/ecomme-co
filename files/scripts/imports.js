@@ -52,7 +52,7 @@
     const login = document.createElement('script');
     login.id = 'login-script';
     login.src = '/login/script.js';
-    login.async = false;
+    login.async = true;
     document.head.appendChild(login);
   }
 })();
