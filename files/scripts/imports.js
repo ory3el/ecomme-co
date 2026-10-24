@@ -24,6 +24,10 @@ const sidebars = document.createElement('script');
 sidebars.src = '/files/scripts/sidebars.js';
 document.head.appendChild(sidebars);
 
+const sidebars = document.createElement('script');
+sidebars.src = '/files/scripts/essentials.js';
+document.head.appendChild(sidebars);
+
 const wishlistLists = document.createElement('script');
 wishlistLists.src = '/files/scripts/wishlist-lists.js';
 document.head.appendChild(wishlistLists);
