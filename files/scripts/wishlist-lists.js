@@ -334,7 +334,7 @@
     });
   }
 
-  function ensureStyles() {
+/*  function ensureStyles() {
     if (document.getElementById('ecomme-wishlist-lists-styles')) return;
     const style = document.createElement('style');
     style.id = 'ecomme-wishlist-lists-styles';
@@ -351,10 +351,10 @@
       @media(max-width:520px){.ewl-modal{padding:17px;border-radius:20px}.ewl-choice{align-items:flex-start}.ewl-choice .ewl-btn{padding:8px 9px}.ewl-settings-toolbar{align-items:stretch}.ewl-settings-toolbar>.ewl-btn{width:100%}}
     `;
     document.head.appendChild(style);
-  }
+  }*/
 
   function ensureModal() {
-    ensureStyles();
+    //ensureStyles();
     if (document.getElementById('ecommeWishlistModal')) return;
     const overlay = document.createElement('div');
     overlay.className = 'ewl-overlay';
