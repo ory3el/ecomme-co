@@ -986,7 +986,7 @@
   async function initialize() {
     if (state.initialized) return;
     state.initialized = true;
-    ensureStyles();
+    //ensureStyles();
     installOverrides();
     document.addEventListener('click', handleGlobalClick);
     document.addEventListener('change', handleGlobalChange);
