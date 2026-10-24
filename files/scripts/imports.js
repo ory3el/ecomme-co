@@ -24,4 +24,18 @@
     .join('\n');
 
   document.write(tags);
+
+  // ------------------------------------------------------------------------
+  const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  const pagesWithEssentials = ['/', '/products', '/product'];
+  if (
+    pagesWithEssentials.includes(currentPath) &&
+    !document.getElementById('ecomme-essentials-script')
+  ) {
+    const script = document.createElement('script');
+    script.id = 'ecomme-essentials-script';
+    script.src = '/files/scripts/essentials.js';
+    script.async = false;
+    document.head.appendChild(script);
+  }
 })();
