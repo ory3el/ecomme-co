@@ -6,22 +6,18 @@ document.head.appendChild(supabaseSrc);
 
 const confirmModal = document.createElement('script');
 confirmModal.src = '/files/scripts/confirm-modal.js';
-confirmModal.async = true;
 document.head.appendChild(confirmModal);
 
 const loading = document.createElement('script');
 loading.src = '/files/scripts/loading.js';
-loading.async = true;
 document.head.appendChild(loading);
 
 const authSessionCheck = document.createElement('script');
 authSessionCheck.src = '/files/scripts/auth-session-check.js';
-authSessionCheck.async = true;
 document.head.appendChild(authSessionCheck);
 
 const consoleWarning = document.createElement('script');
 consoleWarning.src = '/files/scripts/console-warning.js';
-consoleWarning.async = true;
 document.head.appendChild(consoleWarning);
 
 const wishlistLists = document.createElement('script');
