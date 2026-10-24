@@ -1,3 +1,6 @@
+(function () {
+  'use strict';
+
 async function injectEcommeUI() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
   if (currentPath === '/settings' || currentPath.startsWith('/settings/')) return;
@@ -3493,4 +3496,5 @@ function openConfirmLogout() {
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
+})();
 })();
