@@ -1,6 +1,3 @@
-(function () {
-  'use strict';
-
 // ── STYLES INJECTOR ──
 function injectModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
@@ -307,5 +304,3 @@ function closeConfirmRed() {
   }
   if (confirmRedTimerId) clearInterval(confirmRedTimerId);
 }
-
-})();
