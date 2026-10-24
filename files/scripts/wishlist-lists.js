@@ -364,7 +364,7 @@
       <section class="ewl-modal" role="dialog" aria-modal="true" aria-labelledby="ewlModalTitle">
         <div class="ewl-modal-head">
           <div><div class="ewl-eyebrow">Ecomme · listas de desejos</div><h2 id="ewlModalTitle">Adicionar aos favoritos</h2><p id="ewlModalSubtitle">Escolha onde quer guardar este produto.</p></div>
-          <button type="button" class="ewl-close" data-ewl-action="close" aria-label="Fechar">×</button>
+          <button type="button" class="ewl-close" data-ewl-action="close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="ewlModalContent"></div>
       </section>`;
@@ -580,7 +580,7 @@
       return `<div class="ewl-choice"><div class="ewl-choice-main"><span class="ewl-emoji">${escapeHtml(list.emoji || '❤️')}</span><div style="min-width:0"><div class="ewl-choice-title">${escapeHtml(list.name)}</div><div class="ewl-choice-meta">${listItemsSummary}${already ? ' · Este produto já está salvo aqui' : ''}${list.is_default ? ' · Lista padrão' : ''}</div></div></div><button type="button" class="ewl-btn ${already ? 'ewl-btn-danger' : 'ewl-btn-primary'}" data-ewl-action="${action}" data-list-id="${escapeHtml(list.id)}" ${state.modalFormMode ? 'disabled' : ''}>${buttonText}</button></div>`;
     }).join('');
 
-    content.innerHTML = `${productLine}${formHtml}${state.lists.length ? `<div class="ewl-list-stack">${listsHtml}</div>` : '<div class="ewl-empty">Nenhuma lista encontrada.</div>'}${state.modalFormMode ? '' : '<button type="button" class="ewl-btn ewl-full" data-ewl-action="create-toggle"><span style="font-size:16px">＋</span> Criar mais uma lista</button>'}`;
+    content.innerHTML = `${productLine}${formHtml}${state.lists.length ? `<div class="ewl-list-stack">${listsHtml}</div>` : '<div class="ewl-empty">Nenhuma lista encontrada.</div>'}${state.modalFormMode ? '' : '<div class="chBottom"><button type="button" class="ewl-btn ewl-full" data-ewl-action="create-toggle"><span style="font-size:16px">＋</span> Criar nova lista</button></div>'}`;
     const nameInput = document.getElementById('ewlListName');
     if (nameInput && state.modalFormMode) nameInput.focus({ preventScroll: true });
   }
