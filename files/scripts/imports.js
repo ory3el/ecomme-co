@@ -1,6 +1,12 @@
 (function () {
   'use strict';
 
+  const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  const pagesWithEssentials = ['/', '/products', '/product'];
+  const shouldLoadEssentials = pagesWithEssentials.includes(currentPath);
+
+  const pageScript = currentPath === '/products' ? '/products/script.js' : '/script.js';
+
   const scripts = [
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
     '/files/scripts/auth-session-check.js',
@@ -9,7 +15,8 @@
     '/files/scripts/sidebars.js',
     '/files/scripts/confirm-modal.js',
     '/files/scripts/wishlist-lists.js',
-    'script.js'
+    ...(shouldLoadEssentials ? ['/files/scripts/essentials.js'] : []),
+    pageScript
   ];
 
   if (document.readyState !== 'loading') {
@@ -17,27 +24,14 @@
     return;
   }
 
-  const tags = scripts
-    .map(src => `<script defer src="${src}"><\/script>`)
-    .join('\n');
-
+  const tags = scripts.map(src => `<script defer src="${src}"><\/script>`).join('\n');
   document.write(tags);
 
-  // ------------------------------------------------------------------------
-  const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-  const pagesWithEssentials = ['/', '/products', '/product'];
-  if (
-    pagesWithEssentials.includes(currentPath) &&
-    !document.getElementById('essentials-script')
-  ) {
-    const essentials = document.createElement('script');
-    essentials.id = 'essentials-script';
-    essentials.src = '/files/scripts/essentials.js';
-    essentials.async = false;
-    document.head.appendChild(essentials);
-  }
-  
-  const pagesWithDynamicLogin = ['/', '/products', '/product', '/categories', '/offers', '/about', '/sellers', '/sellers/register', '/settings'];
+  const pagesWithDynamicLogin = [
+    '/', '/products', '/product', '/categories', '/offers', '/about',
+    '/sellers', '/sellers/register', '/settings'
+  ];
+
   if (
     pagesWithDynamicLogin.includes(currentPath) &&
     !document.getElementById('login-script')
@@ -48,11 +42,11 @@
     googleAcc.async = true;
     googleAcc.defer = true;
     document.head.appendChild(googleAcc);
-    
+
     const login = document.createElement('script');
     login.id = 'login-script';
     login.src = '/login/script.js';
-    login.async = false;
+    login.async = true;
     document.head.appendChild(login);
   }
 })();
