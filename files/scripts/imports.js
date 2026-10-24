@@ -1,39 +1,26 @@
-// ===============================================
+(function () {
+  'use strict';
 
-const supabaseSrc = document.createElement('script');
-supabaseSrc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-document.head.appendChild(supabaseSrc);
+  const scripts = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+    '/files/scripts/auth-session-check.js',
+    '/files/scripts/console-warning.js',
+    '/files/scripts/confirm-modal.js',
+    '/files/scripts/loading.js',
+    '/files/scripts/sidebars.js',
+    '/files/scripts/essentials.js',
+    '/files/scripts/wishlist-lists.js',
+    '/products/script.js'
+  ];
 
-const authSessionCheck = document.createElement('script');
-authSessionCheck.src = '/files/scripts/auth-session-check.js';
-document.head.appendChild(authSessionCheck);
+  if (document.readyState !== 'loading') {
+    console.error('[Ecomme] imports.js precisa ser incluído diretamente no HTML antes de DOMContentLoaded.');
+    return;
+  }
 
-const consoleWarning = document.createElement('script');
-consoleWarning.src = '/files/scripts/console-warning.js';
-document.head.appendChild(consoleWarning);
+  const tags = scripts
+    .map(src => `<script defer src="${src}"><\/script>`)
+    .join('\n');
 
-const confirmModal = document.createElement('script');
-confirmModal.src = '/files/scripts/confirm-modal.js';
-document.head.appendChild(confirmModal);
-
-const loading = document.createElement('script');
-loading.src = '/files/scripts/loading.js';
-document.head.appendChild(loading);
-
-const sidebars = document.createElement('script');
-sidebars.src = '/files/scripts/sidebars.js';
-document.head.appendChild(sidebars);
-
-const essentials = document.createElement('script');
-essentials.src = '/files/scripts/essentials.js';
-document.head.appendChild(essentials);
-
-const wishlistLists = document.createElement('script');
-wishlistLists.src = '/files/scripts/wishlist-lists.js';
-document.head.appendChild(wishlistLists);
-
-const script = document.createElement('script');
-script.src = 'script.js';
-document.head.appendChild(script);
-
-// ===============================================
+  document.write(tags);
+})();
