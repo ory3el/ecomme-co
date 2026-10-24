@@ -10,7 +10,8 @@
     '/files/scripts/sidebars.js',
     '/files/scripts/essentials.js',
     '/files/scripts/wishlist-lists.js',
-    '/products/script.js'
+    '/login/script.js',
+    'script.js'
   ];
 
   if (document.readyState !== 'loading') {
