@@ -6,7 +6,7 @@
   const shouldLoadEssentials = pagesWithEssentials.includes(currentPath);
 
   const pagesWithLogin = [
-    '/', '/products', '/product', '/categories', '/offers', '/about',
+    '/', '/products', '/product', '/categories', '/offers', '/about-us',
     '/about-us', '/sellers', '/sellers/register', '/settings'
   ];
   const shouldLoadLogin = pagesWithLogin.includes(currentPath);
