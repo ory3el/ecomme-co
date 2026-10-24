@@ -24,6 +24,10 @@ consoleWarning.src = '/files/scripts/console-warning.js';
 consoleWarning.async = true;
 document.head.appendChild(consoleWarning);
 
+const wishlistLists = document.createElement('script');
+consoleWarning.src = '/files/scripts/wishlist-lists.js';
+document.head.appendChild(consoleWarning);
+
 // ===============================================
 
 async function injectEcommeUI() {
