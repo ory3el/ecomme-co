@@ -14,6 +14,8 @@
     modalProductId: null,
     modalFormMode: null,
     modalEditListId: null,
+    modalFormName: '',
+    modalBusy: false,
     selectedEmoji: DEFAULT_LIST.emoji,
     schemaError: null,
     initialized: false,
@@ -337,12 +339,15 @@
     const style = document.createElement('style');
     style.id = 'ecomme-wishlist-lists-styles';
     style.textContent = `
-      .ewl-overlay{position:fixed;inset:0;z-index:999990;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,15,31,.52);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-      .ewl-overlay.open{display:flex}.ewl-modal{width:min(560px,100%);max-height:min(84vh,780px);overflow:auto;color:var(--text,#111827);background:var(--card,#fff);border:1px solid color-mix(in srgb,var(--border,#dbe4f0) 75%,transparent);border-radius:24px;box-shadow:0 28px 90px rgba(0,0,0,.26);padding:22px}
+      .ewl-overlay{position:fixed;inset:0;z-index:999990;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,15,31,.52);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease}
+      .ewl-overlay.open{opacity:1;visibility:visible;pointer-events:auto}.ewl-modal{width:min(560px,100%);max-height:min(84vh,780px);overflow:auto;color:var(--text,#111827);background:var(--card,#fff);border:1px solid color-mix(in srgb,var(--border,#dbe4f0) 75%,transparent);border-radius:24px;box-shadow:0 28px 90px rgba(0,0,0,.26);padding:22px;opacity:0;transform:translateY(14px) scale(.975);transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1);will-change:opacity,transform}
+      .ewl-overlay.open .ewl-modal{opacity:1;transform:translateY(0) scale(1)}
       .ewl-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.ewl-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--blue,#2563eb);text-transform:uppercase}.ewl-modal h2{font-size:22px;line-height:1.25;margin:5px 0 6px;font-weight:800}.ewl-modal p{margin:0;color:var(--muted,#64748b);font-size:13px;line-height:1.55}.ewl-close{border:0;background:var(--bg2,#eef3fb);color:var(--text,#111827);height:36px;width:36px;border-radius:12px;font-size:22px;cursor:pointer;flex-shrink:0}
       .ewl-list-stack{display:grid;gap:9px}.ewl-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border,#dbe4f0);border-radius:16px;background:var(--card,#fff);transition:border-color .16s,transform .16s}.ewl-choice:hover{border-color:var(--blue,#2563eb);transform:translateY(-1px)}.ewl-choice-main{display:flex;align-items:center;gap:12px;min-width:0}.ewl-emoji{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:44px;border-radius:13px;background:var(--bg2,#f1f5fb);font-size:23px}.ewl-choice-title{font-weight:750;font-size:14px;overflow-wrap:anywhere}.ewl-choice-meta{font-size:11px;color:var(--muted,#64748b);margin-top:3px}.ewl-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border,#dbe4f0);border-radius:12px;padding:9px 12px;font-weight:750;font-size:12px;background:var(--card,#fff);color:var(--text,#111827);cursor:pointer;white-space:nowrap}.ewl-btn-primary{background:var(--blue,#2563eb);color:white;border-color:var(--blue,#2563eb)}.ewl-btn-danger{color:#dc2626;border-color:#fecaca}.ewl-btn:disabled{opacity:.45;cursor:not-allowed}.ewl-full{width:100%;margin-top:13px}.ewl-form{display:grid;gap:13px;padding:14px;border:1px solid var(--border,#dbe4f0);background:var(--bg,#f8fbff);border-radius:16px;margin:12px 0}.ewl-label{font-size:12px;font-weight:750;display:block;margin-bottom:6px}.ewl-input{width:100%;min-height:43px;border:1px solid var(--border,#dbe4f0);border-radius:11px;padding:10px 12px;background:var(--card,#fff);color:var(--text,#111827);font:inherit;font-size:13px;box-sizing:border-box}.ewl-emoji-grid{display:flex;flex-wrap:wrap;gap:7px}.ewl-emoji-option{width:38px;height:38px;border-radius:11px;border:1px solid var(--border,#dbe4f0);background:var(--card,#fff);font-size:19px;cursor:pointer}.ewl-emoji-option.selected{border-color:var(--blue,#2563eb);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue,#2563eb) 25%,transparent);background:var(--bg,#f8fbff)}.ewl-form-actions{display:flex;gap:8px;justify-content:flex-end}.ewl-error{padding:12px;border-radius:12px;background:rgba(220,38,38,.08);color:#b91c1c;font-size:12px;line-height:1.5;margin-bottom:12px}.ewl-muted{font-size:12px;color:var(--muted,#64748b);line-height:1.5}
+      .ewl-loading{display:grid;gap:11px}.ewl-skeleton-stack{display:grid;gap:9px}.ewl-skeleton-choice{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border,#dbe4f0);border-radius:16px;background:var(--card,#fff)}.ewl-skeleton-main{display:grid;gap:8px;flex:1;min-width:0}.ewl-skeleton{position:relative;display:block;overflow:hidden;background:color-mix(in srgb,var(--muted,#94a3b8) 13%,var(--card,#fff));border-radius:9px}.ewl-skeleton::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(148,163,184,.22),transparent);animation:ewl-skeleton-shimmer 1.25s ease-in-out infinite}.ewl-skeleton-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:13px}.ewl-skeleton-line{height:10px;width:70%}.ewl-skeleton-line.wide{width:88%}.ewl-skeleton-line.short{width:44%;height:8px}.ewl-skeleton-button{width:76px;height:32px;border-radius:11px;flex:0 0 76px}.ewl-skeleton-product{height:46px;width:100%;border-radius:13px;margin-bottom:2px}.ewl-skeleton-create{height:40px;width:100%;border-radius:12px;margin-top:2px}.ewl-skeleton-message{font-size:12px;color:var(--muted,#64748b);text-align:center;padding:2px 0 0}.ewl-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@keyframes ewl-skeleton-shimmer{100%{transform:translateX(100%)}}.ewl-modal[aria-busy="true"]{cursor:progress}.ewl-btn.is-busy{position:relative;overflow:hidden;pointer-events:none;opacity:.8}.ewl-btn.is-busy::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:ewl-skeleton-shimmer 1.1s ease-in-out infinite}
       .ewl-sidebar-tools{display:flex;align-items:center;gap:8px;padding:10px 10px 13px;border-bottom:1px solid var(--border,#dbe4f0);margin-bottom:10px}.ewl-sidebar-tools select{min-width:0;flex:1;background:var(--card,#fff);color:var(--text,#111827);border:1px solid var(--border,#dbe4f0);border-radius:11px;padding:9px 8px;font:inherit;font-size:12px}.ewl-sidebar-tools .ewl-btn{padding:8px 10px}.ewl-side-product{display:flex;align-items:center;gap:10px;padding:11px 9px;border-bottom:1px solid var(--border,#dbe4f0)}.ewl-side-img{width:58px;height:58px;flex-shrink:0;border-radius:12px;overflow:hidden;background:var(--bg2,#f1f5fb);display:flex;align-items:center;justify-content:center}.ewl-side-img img{width:100%;height:100%;object-fit:cover}.ewl-side-info{min-width:0;flex:1}.ewl-side-name{font-size:12px;font-weight:750;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.ewl-side-price{font-size:12px;font-weight:800;margin-top:4px}.ewl-side-actions{display:flex;flex-direction:column;gap:6px}.ewl-icon-btn{border:1px solid var(--border,#dbe4f0);border-radius:9px;width:30px;height:30px;background:var(--card,#fff);color:var(--text,#111827);cursor:pointer}.ewl-empty{padding:32px 14px;text-align:center;color:var(--muted,#64748b);font-size:13px;line-height:1.6}.ewl-empty span{font-size:31px;display:block;margin-bottom:8px}
       .ewl-settings-toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;margin:0 0 16px}.ewl-settings-lists{display:flex;flex-wrap:wrap;gap:8px;min-width:0}.ewl-list-chip{display:flex;align-items:center;gap:7px;max-width:100%;border:1px solid var(--border,#dbe4f0);border-radius:13px;padding:8px 11px;background:var(--card,#fff);color:var(--text,#111827);cursor:pointer;font-size:12px;font-weight:750}.ewl-list-chip.selected{border-color:var(--blue,#2563eb);background:color-mix(in srgb,var(--blue,#2563eb) 8%,var(--card,#fff));box-shadow:0 0 0 1px var(--blue,#2563eb) inset}.ewl-list-chip span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ewl-settings-detail{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;border:1px solid var(--border,#dbe4f0);border-radius:14px;background:var(--bg,#f8fbff)}.ewl-settings-detail .ewl-emoji{width:40px;height:40px}.ewl-settings-detail-main{flex:1;min-width:150px}.ewl-settings-detail-main strong{display:block;font-size:14px}.ewl-settings-detail-main small{color:var(--muted,#64748b);font-size:11px}.ewl-settings-actions{display:flex;gap:7px;flex-wrap:wrap}.ewl-settings-product-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}.ewl-settings-product-actions .ewl-btn{padding:7px 9px}
+      @media(prefers-reduced-motion:reduce){.ewl-overlay,.ewl-modal{transition-duration:.01ms!important}.ewl-skeleton::after,.ewl-btn.is-busy::after{animation-duration:2.8s}}
       @media(max-width:520px){.ewl-modal{padding:17px;border-radius:20px}.ewl-choice{align-items:flex-start}.ewl-choice .ewl-btn{padding:8px 9px}.ewl-settings-toolbar{align-items:stretch}.ewl-settings-toolbar>.ewl-btn{width:100%}}
     `;
     document.head.appendChild(style);
@@ -354,6 +359,7 @@
     const overlay = document.createElement('div');
     overlay.className = 'ewl-overlay';
     overlay.id = 'ecommeWishlistModal';
+    overlay.setAttribute('aria-hidden', 'true');
     overlay.innerHTML = `
       <section class="ewl-modal" role="dialog" aria-modal="true" aria-labelledby="ewlModalTitle">
         <div class="ewl-modal-head">
@@ -367,9 +373,10 @@
       const actionButton = event.target.closest('[data-ewl-action]');
       if (!actionButton) return;
       const action = actionButton.dataset.ewlAction;
-      if (action === 'create-toggle') { state.modalFormMode = 'create'; state.modalEditListId = null; state.selectedEmoji = '❤️'; renderModal(); }
-      else if (action === 'edit-list') { state.modalFormMode = 'edit'; state.modalEditListId = actionButton.dataset.listId; const list = state.lists.find(x => String(x.id) === String(state.modalEditListId)); state.selectedEmoji = list ? list.emoji : '❤️'; renderModal(); }
-      else if (action === 'cancel-form') { state.modalFormMode = null; state.modalEditListId = null; renderModal(); }
+      if (state.modalBusy && action !== 'close') return;
+      if (action === 'create-toggle') { state.modalFormMode = 'create'; state.modalEditListId = null; state.modalFormName = ''; state.selectedEmoji = '❤️'; renderModal(); }
+      else if (action === 'edit-list') { state.modalFormMode = 'edit'; state.modalEditListId = actionButton.dataset.listId; const list = state.lists.find(x => String(x.id) === String(state.modalEditListId)); state.modalFormName = list ? list.name : ''; state.selectedEmoji = list ? list.emoji : '❤️'; renderModal(); }
+      else if (action === 'cancel-form') { state.modalFormMode = null; state.modalEditListId = null; state.modalFormName = ''; renderModal(); }
       else if (action === 'choose-list') chooseList(actionButton.dataset.listId);
       else if (action === 'remove-item') removeItem(actionButton.dataset.listId, actionButton.dataset.productId);
       else if (action === 'save-list') saveListForm();
@@ -393,67 +400,88 @@
   function openModal() {
     ensureModal();
     const modal = document.getElementById('ecommeWishlistModal');
-    if (modal) modal.classList.add('open');
+    if (!modal) return;
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.remove('open');
+    window.requestAnimationFrame(() => {
+      if (document.getElementById('ecommeWishlistModal') === modal && modal.getAttribute('aria-hidden') === 'false') modal.classList.add('open');
+    });
   }
 
   function closeModal() {
     const modal = document.getElementById('ecommeWishlistModal');
-    if (modal) modal.classList.remove('open');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    state.modalBusy = false;
     state.modalFormMode = null;
     state.modalEditListId = null;
+    state.modalFormName = '';
   }
 
   async function openPicker(productId) {
     const id = safeId(productId);
     if (!id) return;
-    let client = null;
-    try { client = await ensureClient(); }
-    catch (error) {
-      console.error('[Ecomme listas de desejos] Falha ao iniciar Supabase:', error);
+
+    state.modalProductId = id;
+    state.modalFormMode = null;
+    state.modalEditListId = null;
+    state.modalFormName = '';
+    state.modalBusy = false;
+    state.schemaError = null;
+    openModal();
+    const title = document.getElementById('ewlModalTitle');
+    const subtitle = document.getElementById('ewlModalSubtitle');
+    if (title) title.textContent = 'Adicionar aos favoritos';
+    if (subtitle) subtitle.textContent = 'Escolha a lista onde deseja guardar este produto. Você pode salvar o mesmo produto em listas diferentes.';
+    renderModal(true, 'Carregando suas listas...');
+
+    try {
+      await ensureClient();
+      state.user = await resolveUser();
+    } catch (error) {
+      state.schemaError = error;
+      console.error('[Ecomme listas de desejos] Falha ao carregar a sessão ou o Supabase:', error);
+      renderModal(false);
       notify('Não foi possível conectar ao Supabase nesta página.', 'err');
       return;
     }
-    try {
-      state.user = await resolveUser();
-    } catch (error) {
-      console.error('[Ecomme listas de desejos] Falha na sessão:', error);
-    }
+
     if (!state.user) {
+      closeModal();
       try {
         if (typeof showAuth === 'function') {
           showAuth('Entre na sua conta para salvar produtos em listas de desejos.', 'Conta necessária', '🔒');
         } else {
           window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
         }
-      } catch (_) { window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search); }
+      } catch (_) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      }
       return;
     }
-    state.modalProductId = id;
-    state.modalFormMode = null;
-    state.modalEditListId = null;
-    openModal();
-    const title = document.getElementById('ewlModalTitle');
-    const subtitle = document.getElementById('ewlModalSubtitle');
-    if (title) title.textContent = 'Adicionar aos favoritos';
-    if (subtitle) subtitle.textContent = 'Escolha a lista onde deseja guardar este produto. Você pode salvar o mesmo produto em listas diferentes.';
-    renderModal(true);
+
     await refreshState({ user: state.user, showError: true });
     await hydrateProducts([id]);
+    if (state.modalProductId !== id) return;
     renderModal();
   }
 
   async function openSidebarListSelector() {
-    // O seletor do cabeçalho não adiciona produto: apenas troca a lista exibida no sidebar.
     state.modalProductId = null;
     state.modalFormMode = null;
     state.modalEditListId = null;
+    state.modalFormName = '';
+    state.modalBusy = false;
+    state.schemaError = null;
     openModal();
 
     const title = document.getElementById('ewlModalTitle');
     const subtitle = document.getElementById('ewlModalSubtitle');
     if (title) title.textContent = 'Escolher lista de desejos';
     if (subtitle) subtitle.textContent = 'Selecione qual lista deseja visualizar no sidebar.';
-    renderModal(true);
+    renderModal(true, 'Carregando suas listas...');
 
     try {
       await ensureClient();
@@ -464,7 +492,6 @@
       console.error('[Ecomme listas de desejos] Não foi possível abrir o seletor de listas:', error);
     }
 
-    // refreshState atualiza os dados; mantemos o título específico deste modal.
     if (title) title.textContent = 'Escolher lista de desejos';
     if (subtitle) subtitle.textContent = 'Selecione qual lista deseja visualizar no sidebar.';
     renderModal();
@@ -474,6 +501,8 @@
     state.modalProductId = null;
     state.modalFormMode = 'create';
     state.modalEditListId = null;
+    state.modalFormName = '';
+    state.modalBusy = false;
     state.selectedEmoji = '❤️';
     openModal();
     const title = document.getElementById('ewlModalTitle');
@@ -483,7 +512,23 @@
     renderModal();
   }
 
-  function renderModal(loading) {
+  function modalSkeletonMarkup(message) {
+    const product = state.modalProductId
+      ? '<div class="ewl-skeleton ewl-skeleton-product" aria-hidden="true"></div>'
+      : '';
+    const rows = [0, 1, 2].map((index) => `
+      <div class="ewl-skeleton-choice" aria-hidden="true">
+        <span class="ewl-skeleton ewl-skeleton-avatar"></span>
+        <div class="ewl-skeleton-main">
+          <span class="ewl-skeleton ewl-skeleton-line ${index === 1 ? '' : 'wide'}"></span>
+          <span class="ewl-skeleton ewl-skeleton-line short"></span>
+        </div>
+        <span class="ewl-skeleton ewl-skeleton-button"></span>
+      </div>`).join('');
+    return `<div class="ewl-loading" role="status" aria-live="polite"><span class="ewl-sr-only">${escapeHtml(message || 'Carregando...')}</span>${product}<div class="ewl-skeleton-stack">${rows}</div><span class="ewl-skeleton ewl-skeleton-create" aria-hidden="true"></span><div class="ewl-skeleton-message">${escapeHtml(message || 'Carregando...')}</div></div>`;
+  }
+
+  function renderModal(loading, loadingMessage) {
     const overlay = document.getElementById('ecommeWishlistModal');
     const content = document.getElementById('ewlModalContent');
     const title = document.getElementById('ewlModalTitle');
@@ -494,9 +539,13 @@
       if (subtitle) subtitle.textContent = 'Escolha a lista onde deseja guardar este produto.';
     }
     if (loading) {
-      content.innerHTML = '<div class="ewl-empty"><span>⏳</span>Carregando suas listas...</div>';
+      overlay.setAttribute('aria-busy', 'true');
+      content.setAttribute('aria-busy', 'true');
+      content.innerHTML = modalSkeletonMarkup(loadingMessage || 'Carregando suas listas...');
       return;
     }
+    overlay.setAttribute('aria-busy', 'false');
+    content.removeAttribute('aria-busy');
     if (state.schemaError) {
       content.innerHTML = `<div class="ewl-error">As listas de desejos ainda não estão disponíveis no banco. Execute o arquivo <strong>supabase/migrations/20261024_multi_wishlist_lists.sql</strong> no SQL Editor do Supabase e recarregue a página.</div>`;
       return;
@@ -510,7 +559,7 @@
     if (state.modalFormMode === 'create' || state.modalFormMode === 'edit') {
       const editing = state.modalFormMode === 'edit';
       const list = editing ? state.lists.find(x => String(x.id) === String(state.modalEditListId)) : null;
-      const name = editing && list ? list.name : '';
+      const name = state.modalFormName || (editing && list ? list.name : '');
       const emoji = editing && list ? list.emoji : state.selectedEmoji;
       formHtml = `
         <form class="ewl-form" id="ewlListForm">
@@ -560,20 +609,33 @@
       notify('Este produto já está nessa lista.', 'info');
       return;
     }
-    const { error } = await client.from('wishlist_items').insert({ list_id: listId, product_id: id });
-    if (error) {
-      if (error.code === '23505') notify('Este produto já está nessa lista.', 'info');
-      else {
-        console.error('[Ecomme listas de desejos] Erro ao adicionar produto:', error);
-        notify('Não foi possível adicionar o produto. Verifique as permissões do Supabase.', 'err');
+
+    state.modalBusy = true;
+    renderModal(true, 'Adicionando produto à lista...');
+    try {
+      const { error } = await client.from('wishlist_items').insert({ list_id: listId, product_id: id });
+      if (error) {
+        if (error.code === '23505') notify('Este produto já está nessa lista.', 'info');
+        else {
+          console.error('[Ecomme listas de desejos] Erro ao adicionar produto:', error);
+          notify('Não foi possível adicionar o produto. Verifique as permissões do Supabase.', 'err');
+        }
+        state.modalBusy = false;
+        renderModal();
+        return;
       }
-      return;
+      await refreshState({ user: state.user });
+      state.activeSidebarListId = String(listId);
+      safeStorageSet('ecomme:wishlist:sidebar:' + state.user.id, listId);
+      state.modalBusy = false;
+      notify(`${productName(state.products.get(id))} adicionado à lista ${getListName(listId)}.`, 'ok');
+      closeModal();
+    } catch (error) {
+      state.modalBusy = false;
+      console.error('[Ecomme listas de desejos] Erro inesperado ao adicionar produto:', error);
+      renderModal();
+      notify('Não foi possível adicionar o produto agora.', 'err');
     }
-    state.activeSidebarListId = String(listId);
-    safeStorageSet('ecomme:wishlist:sidebar:' + state.user.id, listId);
-    await refreshState({ user: state.user });
-    notify(`${productName(state.products.get(id))} adicionado à lista ${getListName(listId)}.`, 'ok');
-    closeModal();
   }
 
   function getListName(listId) {
@@ -596,8 +658,10 @@
   }
 
   async function saveListForm() {
+    if (state.modalBusy) return;
     const input = document.getElementById('ewlListName');
-    const name = String(input && input.value || '').trim().replace(/\s+/g, ' ');
+    const name = String(input && input.value || state.modalFormName || '').trim().replace(/\s+/g, ' ');
+    state.modalFormName = name;
     if (name.length < 2 || name.length > 50) {
       notify('Digite um nome de 2 a 50 caracteres.', 'err');
       if (input) input.focus();
@@ -607,47 +671,56 @@
     const client = db();
     if (!client || !state.user) return;
 
-    if (state.modalFormMode === 'edit') {
-      const listId = state.modalEditListId;
-      const { error } = await client.from('wishlist_lists').update({ name, emoji: state.selectedEmoji }).eq('id', listId).eq('user_id', state.user.id);
-      if (error) {
-        notify(error.code === '23505' ? 'Você já tem uma lista com esse nome.' : 'Não foi possível atualizar a lista.', 'err');
-        console.error('[Ecomme listas de desejos] Erro ao editar lista:', error);
+    state.modalBusy = true;
+    renderModal(true, state.modalFormMode === 'edit' ? 'Salvando alterações...' : 'Criando sua lista...');
+    try {
+      if (state.modalFormMode === 'edit') {
+        const listId = state.modalEditListId;
+        const { error } = await client.from('wishlist_lists').update({ name, emoji: state.selectedEmoji }).eq('id', listId).eq('user_id', state.user.id);
+        if (error) throw error;
+        await refreshState({ user: state.user });
+        state.modalBusy = false;
+        state.modalFormMode = null;
+        state.modalEditListId = null;
+        state.modalFormName = '';
+        renderModal();
+        notify('Lista atualizada.', 'ok');
         return;
       }
-      await refreshState({ user: state.user });
-      state.modalFormMode = null;
-      state.modalEditListId = null;
-      renderModal();
-      notify('Lista atualizada.', 'ok');
-      return;
-    }
 
-    if (state.lists.length >= 30) {
-      notify('Você atingiu o limite de 30 listas de desejos.', 'err');
-      return;
+      if (state.lists.length >= 30) {
+        state.modalBusy = false;
+        renderModal();
+        notify('Você atingiu o limite de 30 listas de desejos.', 'err');
+        return;
+      }
+      const { data, error } = await client.from('wishlist_lists').insert({ user_id: state.user.id, name, emoji: state.selectedEmoji, is_default: false }).select('id,name,emoji,is_default').single();
+      if (error) throw error;
+      const newListId = data.id;
+      await refreshState({ user: state.user });
+      state.modalBusy = false;
+      if (state.modalProductId) {
+        state.modalFormMode = null;
+        state.modalFormName = '';
+        await addItem(newListId, state.modalProductId);
+        return;
+      }
+      state.settingsListId = String(newListId);
+      state.activeSidebarListId = String(newListId);
+      safeStorageSet('ecomme:wishlist:settings:' + state.user.id, newListId);
+      safeStorageSet('ecomme:wishlist:sidebar:' + state.user.id, newListId);
+      state.modalFormMode = null;
+      state.modalFormName = '';
+      closeModal();
+      renderSettingsManager();
+      renderSidebar();
+      notify(`Lista “${name}” criada.`, 'ok');
+    } catch (error) {
+      state.modalBusy = false;
+      console.error('[Ecomme listas de desejos] Erro ao salvar lista:', error);
+      renderModal();
+      notify(error && error.code === '23505' ? 'Você já tem uma lista com esse nome.' : (state.modalFormMode === 'edit' ? 'Não foi possível atualizar a lista.' : 'Não foi possível criar a lista.'), 'err');
     }
-    const { data, error } = await client.from('wishlist_lists').insert({ user_id: state.user.id, name, emoji: state.selectedEmoji, is_default: false }).select('id,name,emoji,is_default').single();
-    if (error) {
-      notify(error.code === '23505' ? 'Você já tem uma lista com esse nome.' : 'Não foi possível criar a lista.', 'err');
-      console.error('[Ecomme listas de desejos] Erro ao criar lista:', error);
-      return;
-    }
-    const newListId = data.id;
-    await refreshState({ user: state.user });
-    if (state.modalProductId) {
-      await addItem(newListId, state.modalProductId);
-      return;
-    }
-    state.settingsListId = String(newListId);
-    state.activeSidebarListId = String(newListId);
-    safeStorageSet('ecomme:wishlist:settings:' + state.user.id, newListId);
-    safeStorageSet('ecomme:wishlist:sidebar:' + state.user.id, newListId);
-    state.modalFormMode = null;
-    closeModal();
-    renderSettingsManager();
-    renderSidebar();
-    notify(`Lista “${name}” criada.`, 'ok');
   }
 
   async function deleteList(listId) {
@@ -843,7 +916,7 @@
       if (state.user) safeStorageSet('ecomme:wishlist:settings:' + state.user.id, state.settingsListId);
       renderSettingsManager();
     }
-    else if (action === 'settings-edit-list') { event.preventDefault(); state.modalProductId = null; state.modalFormMode = 'edit'; state.modalEditListId = actionButton.dataset.listId; const list = state.lists.find(x => String(x.id) === String(state.modalEditListId)); state.selectedEmoji = list ? list.emoji : '❤️'; openModal(); const title = document.getElementById('ewlModalTitle'); const subtitle = document.getElementById('ewlModalSubtitle'); if (title) title.textContent = 'Editar lista'; if (subtitle) subtitle.textContent = 'Altere o nome ou o emoji da sua lista.'; renderModal(); }
+    else if (action === 'settings-edit-list') { event.preventDefault(); state.modalProductId = null; state.modalFormMode = 'edit'; state.modalEditListId = actionButton.dataset.listId; const list = state.lists.find(x => String(x.id) === String(state.modalEditListId)); state.modalFormName = list ? list.name : ''; state.modalBusy = false; state.selectedEmoji = list ? list.emoji : '❤️'; openModal(); const title = document.getElementById('ewlModalTitle'); const subtitle = document.getElementById('ewlModalSubtitle'); if (title) title.textContent = 'Editar lista'; if (subtitle) subtitle.textContent = 'Altere o nome ou o emoji da sua lista.'; renderModal(); }
     else if (action === 'settings-delete-list') { event.preventDefault(); deleteList(actionButton.dataset.listId); }
     else if (action === 'settings-remove-item') { event.preventDefault(); removeItem(state.settingsListId, actionButton.dataset.productId).then(() => renderSettingsManager()); }
   }
