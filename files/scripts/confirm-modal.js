@@ -1,5 +1,5 @@
 // ── STYLES INJECTOR ──
-function injectModalStyles() {
+function injectConfirmModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
 
   const style = document.createElement('style');
@@ -106,7 +106,7 @@ function injectModalStyles() {
 
 // ── POP-UP WARNING ──
 async function showAlert(message, title, icon) {
-  injectModalStyles();
+  injectConfirmModalStyles();
   
   let alertModal = document.getElementById('alertModal');
   
@@ -140,7 +140,7 @@ async function showAlert(message, title, icon) {
 let confirmTimerId = null;
 
 async function showConfirm(message, title, icon) { 
-  injectModalStyles();
+  injectConfirmModalStyles();
   
   let confirmModal = document.getElementById('confirmModal');
   if (!confirmModal) {
@@ -225,7 +225,7 @@ function closeConfirm() {
 let confirmRedTimerId = null;
 
 async function showConfirmRed(message, title, icon) { 
-  injectModalStyles();
+  injectConfirmModalStyles();
   
   let confirmRedModal = document.getElementById('confirmRedModal');
   
