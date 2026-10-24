@@ -1251,7 +1251,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (redirectParam) localStorage.setItem('ecomme_redirect_url', redirectParam);
 });
 
-function injectModalStyles() {
+function injectLoginModalStyles() {
   if (document.getElementById('modal-aboutAcc-styles')) return;
 
   const style = document.createElement('style');
