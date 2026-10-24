@@ -5,9 +5,9 @@
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
     '/files/scripts/auth-session-check.js',
     '/files/scripts/console-warning.js',
-    '/files/scripts/confirm-modal.js',
     '/files/scripts/loading.js',
     '/files/scripts/sidebars.js',
+    '/files/scripts/confirm-modal.js',
     '/files/scripts/wishlist-lists.js',
     'script.js'
   ];
