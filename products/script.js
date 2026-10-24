@@ -113,7 +113,7 @@ function toast(msg) {
 }
 
 // ── STYLES INJECTOR ──
-function injectModalStyles() {
+function injectProductModalStyles() {
   if (document.getElementById('modal-alert-styles')) return;
 
   const style = document.createElement('style');
@@ -217,7 +217,7 @@ function injectModalStyles() {
 
 // ── POP-UP WARNING ──
 async function showAlert(message, title, icon) {
-  injectModalStyles();
+  injectProductModalStyles();
 
   let alertModal = document.getElementById('alertModal');
   if (!alertModal) {
@@ -247,7 +247,7 @@ async function showAlert(message, title, icon) {
 
 // ── POP-UP AUTH ──
 async function showAuth(message, title, icon) {
-  injectModalStyles();
+  injectProductModalStyles();
 
   let authModal = document.getElementById('authModal');
 
