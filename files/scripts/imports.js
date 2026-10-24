@@ -8,7 +8,6 @@
     '/files/scripts/confirm-modal.js',
     '/files/scripts/loading.js',
     '/files/scripts/sidebars.js',
-    '/files/scripts/essentials.js',
     '/files/scripts/wishlist-lists.js',
     '/login/script.js',
     'script.js'
