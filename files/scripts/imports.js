@@ -9,7 +9,6 @@
     '/files/scripts/loading.js',
     '/files/scripts/sidebars.js',
     '/files/scripts/wishlist-lists.js',
-    '/login/script.js',
     'script.js'
   ];
 
@@ -29,12 +28,31 @@
   const pagesWithEssentials = ['/', '/products', '/product'];
   if (
     pagesWithEssentials.includes(currentPath) &&
-    !document.getElementById('ecomme-essentials-script')
+    !document.getElementById('essentials-script')
   ) {
-    const script = document.createElement('script');
-    script.id = 'ecomme-essentials-script';
-    script.src = '/files/scripts/essentials.js';
-    script.async = false;
-    document.head.appendChild(script);
+    const essentials = document.createElement('script');
+    essentials.id = 'essentials-script';
+    essentials.src = '/files/scripts/essentials.js';
+    essentials.async = false;
+    document.head.appendChild(essentials);
+  }
+  
+  const pagesWithDynamicLogin = ['/', '/products', '/product', '/categories', '/offers', '/about', '/sellers', '/sellers/register', '/settings'];
+  if (
+    pagesWithDynamicLogin.includes(currentPath) &&
+    !document.getElementById('login-script')
+  ) {
+    const googleAcc = document.createElement('script');
+    googleAcc.id = 'google-acc-script';
+    googleAcc.src = 'https://accounts.google.com/gsi/client';
+    googleAcc.async = true;
+    googleAcc.defer = true;
+    document.head.appendChild(googleAcc);
+    
+    const login = document.createElement('script');
+    login.id = 'login-script';
+    login.src = '/login/script.js';
+    login.async = true;
+    document.head.appendChild(login);
   }
 })();
