@@ -2755,7 +2755,7 @@ header:hover .hide-btn {
     position: relative;
     max-height: min(84vh,780px);
     min-height: 500px;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
     color: var(--text,#111827);
     background: var(--white);
@@ -2796,6 +2796,8 @@ header:hover .hide-btn {
     line-height: 1.55;
 }
 .ewl-list-stack {
+    max-height: 330px;
+    overflow-y: auto;
     display: grid;
     gap: 9px;
     margin-bottom: 50px;
@@ -2876,9 +2878,10 @@ header:hover .hide-btn {
 .ewl-full:hover {background: var(--blue); color: #fff}
 .chBottom {
     background: var(--white);
-    position: sticky;
+    position: absolute;
     bottom: -1px !important;
-    margin: -22px;
+    margin-left: -22px;
+    width: 100%;
     height: 70px;
     display: flex;
     white-space: nowrap;
