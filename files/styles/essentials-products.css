@@ -348,7 +348,7 @@
     .pcat  { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; }
     .pname {font-weight: 500;font-family: 'poppins';font-size: 14px;line-height: 1.4;margin-bottom: 8px;flex: 1;}
     .prating { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-    .pstars { color: #F59E0B; font-size: 12px; line-height: 1; }
+    .pstars {color: var(--blue);font-size: 12px;line-height: 1;}
     .prcnt  { font-size: 11px; color: var(--muted); font-weight: 600; }
     .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
     .pprice {font-family: 'Outfit', serif;font-size: 19px;font-weight: 500;color: var(--blue);}
