@@ -751,7 +751,7 @@
       || state.lists.find(item => item.is_default)
       || state.lists[0];
     title.textContent = state.user && selectedList
-      ? `${selectedList.emoji || '❤️'} ${selectedList.name || 'Lista de Desejos'}`
+      ? `<!--${selectedList.emoji || '❤️'}--> ${selectedList.name || 'Lista de Desejos'}`
       : 'Lista de Desejos';
   }
 
