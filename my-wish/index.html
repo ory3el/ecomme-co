@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Veja uma lista de desejos compartilhada na Ecomme.">
+  <title>Lista de desejos | Ecomme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="mw-topbar">
+    <a class="mw-brand" href="/" aria-label="Ecomme início"><img src="/images/mainlogo.png" alt="Ecomme" onerror="this.style.display='none'"><span>Ecomme</span></a>
+    <nav><a href="/products">Explorar produtos</a><a class="mw-nav-cta" href="/">Início</a></nav>
+  </header>
+
+  <main class="mw-page">
+    <section id="loadingState" class="mw-loading" aria-live="polite">
+      <div class="mw-hero-skeleton"></div>
+      <div class="mw-profile-skeleton"><span class="mw-shimmer mw-avatar-skeleton"></span><div><span class="mw-shimmer mw-line wide"></span><span class="mw-shimmer mw-line"></span></div></div>
+      <div class="mw-grid" aria-hidden="true"> 
+        <div class="mw-card-skeleton"><span class="mw-shimmer mw-product-skeleton"></span><span class="mw-shimmer mw-line wide"></span><span class="mw-shimmer mw-line short"></span></div>
+        <div class="mw-card-skeleton"><span class="mw-shimmer mw-product-skeleton"></span><span class="mw-shimmer mw-line wide"></span><span class="mw-shimmer mw-line short"></span></div>
+        <div class="mw-card-skeleton"><span class="mw-shimmer mw-product-skeleton"></span><span class="mw-shimmer mw-line wide"></span><span class="mw-shimmer mw-line short"></span></div>
+      </div>
+    </section>
+
+    <section id="publicState" hidden>
+      <div class="mw-list-banner"><span class="mw-banner-orb orb-one"></span><span class="mw-banner-orb orb-two"></span><span class="mw-banner-tag">LISTA COMPARTILHADA</span><div class="mw-list-icon" id="publicListEmoji">❤️</div></div>
+      <div class="mw-list-heading">
+        <div class="mw-list-title-wrap"><p class="mw-eyebrow">Uma seleção especial</p><h1 id="publicListName">Lista de desejos</h1><p class="mw-list-meta"><span id="publicItemCount">0 produtos</span><span class="mw-dot">•</span><span id="publicPublishedAt">Publicada na Ecomme</span></p></div>
+        <button class="mw-btn mw-btn-outline" id="copyPublicLink" type="button"><span aria-hidden="true">↗</span> Compartilhar</button>
+      </div>
+      <div class="mw-owner" id="publicOwner">
+        <span class="mw-owner-avatar" id="publicOwnerAvatar">E</span>
+        <span class="mw-owner-info"><strong id="publicOwnerName">Usuário Ecomme</strong><span id="publicOwnerUsername">Lista publicada na Ecomme</span></span>
+        <span class="mw-owner-badge">Criada na Ecomme</span>
+      </div>
+      <div class="mw-section-heading"><div><h2>Produtos desta lista</h2><p>Itens que esta pessoa salvou para encontrar depois.</p></div></div>
+      <div class="mw-grid" id="publicProducts"></div>
+      <div class="mw-bottom-cta"><div><strong>Encontre seus próximos favoritos</strong><span>Explore milhares de produtos na Ecomme.</span></div><a href="/products" class="mw-btn mw-btn-primary">Explorar produtos <span aria-hidden="true">→</span></a></div>
+    </section>
+
+    <section id="manageState" hidden>
+      <div class="mw-manage-hero"><span class="mw-eyebrow">SEUS LINKS PÚBLICOS</span><h1>Compartilhe suas listas de desejos</h1><p>Gere um link para qualquer lista. Só quem tiver o endereço poderá visualizar os produtos compartilhados; você pode desativar o link quando quiser.</p></div>
+      <div class="mw-owner mw-manage-owner"><span class="mw-owner-avatar" id="manageAvatar">E</span><span class="mw-owner-info"><strong id="manageName">Sua conta Ecomme</strong><span id="manageUsername"></span></span></div>
+      <div id="manageLists" class="mw-manage-list"></div>
+    </section>
+
+    <section id="stateMessage" class="mw-state-message" hidden>
+      <div class="mw-state-icon" id="stateIcon">♡</div><h1 id="stateTitle">Lista não encontrada</h1><p id="stateDescription">Este link não está disponível. Confira o endereço ou peça um novo link a quem compartilhou.</p><a class="mw-btn mw-btn-primary" href="/products">Explorar produtos</a>
+    </section>
+  </main>
+
+  <footer class="mw-footer"><span>© <span id="footerYear"></span> Ecomme</span><span>Suas descobertas, do seu jeito.</span></footer>
+  <div id="mwToast" class="mw-toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
