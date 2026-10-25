@@ -225,7 +225,7 @@
 
       let { data: lists, error: listsError } = await client
         .from('wishlist_lists')
-        .select('id,user_id,name,emoji,is_default,created_at,updated_at')
+        .select('id,user_id,name,emoji,is_default,created_at,updated_at,share_token,is_shared,published_at')
         .eq('user_id', state.user.id)
         .order('is_default', { ascending: false })
         .order('created_at', { ascending: true });
@@ -235,7 +235,7 @@
         await ensureDefaultList();
         const result = await client
           .from('wishlist_lists')
-          .select('id,user_id,name,emoji,is_default,created_at,updated_at')
+          .select('id,user_id,name,emoji,is_default,created_at,updated_at,share_token,is_shared,published_at')
           .eq('user_id', state.user.id)
           .order('is_default', { ascending: false })
           .order('created_at', { ascending: true });
@@ -334,7 +334,7 @@
     });
   }
 
-/*  function ensureStyles() {
+  function ensureStyles() {
     if (document.getElementById('ecomme-wishlist-lists-styles')) return;
     const style = document.createElement('style');
     style.id = 'ecomme-wishlist-lists-styles';
@@ -351,10 +351,10 @@
       @media(max-width:520px){.ewl-modal{padding:17px;border-radius:20px}.ewl-choice{align-items:flex-start}.ewl-choice .ewl-btn{padding:8px 9px}.ewl-settings-toolbar{align-items:stretch}.ewl-settings-toolbar>.ewl-btn{width:100%}}
     `;
     document.head.appendChild(style);
-  }*/
+  }
 
   function ensureModal() {
-    //ensureStyles();
+    ensureStyles();
     if (document.getElementById('ecommeWishlistModal')) return;
     const overlay = document.createElement('div');
     overlay.className = 'ewl-overlay';
@@ -744,6 +744,131 @@
     notify('Lista excluída.', 'ok');
   }
 
+  function makeShareToken(length = 12) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') {
+      throw new Error('Este navegador não oferece geração segura de links. Atualize o navegador e tente novamente.');
+    }
+    let token = '';
+    while (token.length < length) {
+      const bytes = new Uint8Array(Math.max(16, length - token.length));
+      window.crypto.getRandomValues(bytes);
+      for (const byte of bytes) {
+        if (byte >= 248) continue;
+        token += alphabet[byte % alphabet.length];
+        if (token.length === length) break;
+      }
+    }
+    return token;
+  }
+
+  function shareUrl(list) {
+    if (!list || !list.share_token) return '';
+    return `${window.location.origin}/my-wish/${encodeURIComponent(list.share_token)}`;
+  }
+
+  async function copyText(text) {
+    if (!text) throw new Error('Link de compartilhamento indisponível.');
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    if (!copied) throw new Error('Não foi possível copiar automaticamente. Copie o link exibido na tela.');
+  }
+
+  async function shareList(listId) {
+    if (!state.user) {
+      notify('Entre na sua conta para compartilhar uma lista.', 'info');
+      return;
+    }
+    const list = state.lists.find(item => String(item.id) === String(listId));
+    if (!list) { notify('Não encontramos essa lista. Atualize a página e tente novamente.', 'err'); return; }
+    if (list.is_shared && list.share_token) {
+      await copyShareLink(listId);
+      return;
+    }
+
+    const client = db();
+    if (!client) { notify('O Supabase não está disponível.', 'err'); return; }
+    const actionButtons = document.querySelectorAll(`[data-ewl-action="share-list"][data-list-id="${CSS.escape(String(listId))}"], [data-ewl-action="sidebar-share"][data-list-id="${CSS.escape(String(listId))}"]`);
+    actionButtons.forEach(button => { button.disabled = true; button.dataset.originalText = button.textContent; button.textContent = 'Gerando link…'; });
+    try {
+      let result = null;
+      let lastError = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const token = makeShareToken(12);
+        const { data, error } = await client.from('wishlist_lists')
+          .update({ share_token: token, is_shared: true, published_at: new Date().toISOString() })
+          .eq('id', listId)
+          .eq('user_id', state.user.id)
+          .select('id,share_token,is_shared,published_at')
+          .maybeSingle();
+        if (!error && data) { result = data; break; }
+        lastError = error || new Error('A lista não foi atualizada. Verifique se você ainda tem acesso a ela.');
+        if (error && error.code === '23505') continue;
+        throw lastError;
+      }
+      if (!result) throw lastError || new Error('Não foi possível gerar um link exclusivo. Tente novamente.');
+      await refreshState({ user: state.user });
+      const updated = state.lists.find(item => String(item.id) === String(listId));
+      const link = shareUrl(updated || { share_token: result.share_token });
+      try { await copyText(link); notify('Link público criado e copiado. Qualquer pessoa com o link poderá ver esta lista.', 'ok'); }
+      catch (_) { notify('Link criado. Copie-o na seção de compartilhamento da lista.', 'info'); }
+      renderSettingsManager();
+      renderSidebar();
+    } catch (error) {
+      console.error('[Ecomme listas de desejos] Erro ao compartilhar lista:', error);
+      notify(error && error.code === '42501' ? 'O Supabase bloqueou a alteração. Confira as políticas RLS da tabela wishlist_lists.' : 'Não foi possível compartilhar a lista. Confira se aplicou a migração SQL de compartilhamento.', 'err');
+    } finally {
+      actionButtons.forEach(button => { button.disabled = false; if (button.dataset.originalText) button.textContent = button.dataset.originalText; delete button.dataset.originalText; });
+    }
+  }
+
+  async function copyShareLink(listId) {
+    const list = state.lists.find(item => String(item.id) === String(listId));
+    if (!list || !list.is_shared || !list.share_token) {
+      return shareList(listId);
+    }
+    const link = shareUrl(list);
+    try {
+      await copyText(link);
+      notify('Link da lista copiado.', 'ok');
+    } catch (error) {
+      console.warn('[Ecomme listas de desejos] Não foi possível copiar o link:', error);
+      notify(`Link da lista: ${link}`, 'info');
+    }
+  }
+
+  async function revokeShare(listId) {
+    if (!state.user) return;
+    const list = state.lists.find(item => String(item.id) === String(listId));
+    if (!list || !list.is_shared) return;
+    const confirmed = window.confirm(`Desativar o link público da lista “${list.name}”? Quem tiver o link deixará de conseguir visualizar a lista.`);
+    if (!confirmed) return;
+    const client = db();
+    try {
+      const { error } = await client.from('wishlist_lists')
+        .update({ is_shared: false, share_token: null, published_at: null })
+        .eq('id', listId)
+        .eq('user_id', state.user.id);
+      if (error) throw error;
+      await refreshState({ user: state.user });
+      notify('Compartilhamento desativado.', 'ok');
+    } catch (error) {
+      console.error('[Ecomme listas de desejos] Não foi possível desativar o link:', error);
+      notify('Não foi possível desativar o link. Tente novamente.', 'err');
+    }
+  }
+
   function updateSidebarListTitle() {
     const title = document.getElementById('favListTitle');
     if (!title) return;
@@ -775,8 +900,7 @@
     const list = state.lists.find(item => String(item.id) === String(state.activeSidebarListId));
     updateSidebarListTitle();
     const items = listItems(state.activeSidebarListId);
-    const selects = state.lists.map(item => `<option value="${escapeHtml(item.id)}" ${String(item.id) === String(state.activeSidebarListId) ? 'selected' : ''}>${escapeHtml(item.emoji || '❤️')} ${escapeHtml(item.name)} (${listItems(item.id).length})</option>`).join('');
-    //const toolbar = `<div class="ewl-sidebar-tools"><select aria-label="Selecionar lista de desejos" data-ewl-sidebar-select>${selects}</select><button type="button" class="ewl-btn" data-ewl-action="sidebar-create" title="Criar lista" aria-label="Criar lista">＋</button></div>`;
+    const toolbar = `<div class="ewl-share-inline" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 10px 12px;border-bottom:1px solid var(--border,#dbe4f0);margin-bottom:10px"><button type="button" class="ewl-btn ewl-btn-primary" data-ewl-action="${list && list.is_shared ? 'share-copy' : 'sidebar-share'}" data-list-id="${escapeHtml(list ? list.id : '')}"><i class="fa-solid fa-link" aria-hidden="true"></i> ${list && list.is_shared ? 'Copiar link público' : 'Compartilhar esta lista'}</button>${list && list.is_shared ? '<span style="align-self:center;font-size:11px;color:var(--muted,#64748b)">Link ativo</span>' : ''}</div>`;
     const content = items.map(item => {
       const product = state.products.get(String(item.product_id)) || { id: item.product_id, name: 'Produto indisponível', price: 0, emoji: '📦' };
       const image = productImage(product);
@@ -828,7 +952,8 @@
     toolbar.innerHTML = `<div class="ewl-settings-lists">${state.lists.map(list => `<button type="button" class="ewl-list-chip ${String(list.id) === String(state.settingsListId) ? 'selected' : ''}" data-ewl-action="settings-select-list" data-list-id="${escapeHtml(list.id)}"><span>${escapeHtml(list.emoji || '❤️')}</span><span>${escapeHtml(list.name)}</span><small>${listItems(list.id).length}</small></button>`).join('')}</div><button type="button" class="ewl-btn ewl-btn-primary" data-ewl-action="settings-create"><span>＋</span> Criar lista</button>`;
     const detail = document.createElement('div');
     detail.className = 'ewl-settings-detail';
-    detail.innerHTML = `<span class="ewl-emoji">${escapeHtml(selected.emoji || '❤️')}</span><div class="ewl-settings-detail-main"><strong>${escapeHtml(selected.name)}</strong><small>${items.length} ${items.length === 1 ? 'produto salvo' : 'produtos salvos'}${selected.is_default ? ' · Lista padrão' : ''}</small></div><div class="ewl-settings-actions"><button type="button" class="ewl-btn" data-ewl-action="settings-edit-list" data-list-id="${escapeHtml(selected.id)}">Renomear / emoji</button>${selected.is_default ? '' : `<button type="button" class="ewl-btn ewl-btn-danger" data-ewl-action="settings-delete-list" data-list-id="${escapeHtml(selected.id)}">Excluir lista</button>`}</div>`;
+    const selectedShareUrl = selected.is_shared && selected.share_token ? shareUrl(selected) : '';
+    detail.innerHTML = `<span class="ewl-emoji">${escapeHtml(selected.emoji || '❤️')}</span><div class="ewl-settings-detail-main"><strong>${escapeHtml(selected.name)}</strong><small>${items.length} ${items.length === 1 ? 'produto salvo' : 'produtos salvos'}${selected.is_default ? ' · Lista padrão' : ''}${selected.is_shared && selected.published_at ? ` · Publicada em ${escapeHtml(new Date(selected.published_at).toLocaleDateString('pt-BR'))}` : ''}</small></div><div class="ewl-settings-actions"><button type="button" class="ewl-btn ewl-btn-primary" data-ewl-action="${selected.is_shared ? 'share-copy' : 'share-list'}" data-list-id="${escapeHtml(selected.id)}"><i class="fa-solid fa-link" aria-hidden="true"></i> ${selected.is_shared ? 'Copiar link' : 'Compartilhar lista'}</button>${selected.is_shared ? `<button type="button" class="ewl-btn" data-ewl-action="share-open" data-list-id="${escapeHtml(selected.id)}">Abrir página</button><button type="button" class="ewl-btn ewl-btn-danger" data-ewl-action="share-revoke" data-list-id="${escapeHtml(selected.id)}">Desativar link</button>` : ''}<button type="button" class="ewl-btn" data-ewl-action="settings-edit-list" data-list-id="${escapeHtml(selected.id)}">Renomear / emoji</button>${selected.is_default ? '' : `<button type="button" class="ewl-btn ewl-btn-danger" data-ewl-action="settings-delete-list" data-list-id="${escapeHtml(selected.id)}">Excluir lista</button>`}</div>${selectedShareUrl ? `<div class="ewl-share-link-row"><span>Link público</span><a href="${escapeHtml(selectedShareUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(selectedShareUrl)}</a></div>` : ''}`;
     const oldDetail = document.getElementById('ewlSettingsDetail');
     if (oldDetail) oldDetail.remove();
     detail.id = 'ewlSettingsDetail';
@@ -902,7 +1027,11 @@
     const actionButton = event.target.closest('[data-ewl-action]');
     if (!actionButton) return;
     const action = actionButton.dataset.ewlAction;
-    if (action === 'sidebar-create' || action === 'settings-create') { event.preventDefault(); openListCreator(); }
+    if (action === 'share-list' || action === 'sidebar-share') { event.preventDefault(); shareList(actionButton.dataset.listId); }
+    else if (action === 'share-copy') { event.preventDefault(); copyShareLink(actionButton.dataset.listId); }
+    else if (action === 'share-revoke') { event.preventDefault(); revokeShare(actionButton.dataset.listId); }
+    else if (action === 'share-open') { event.preventDefault(); const list = state.lists.find(item => String(item.id) === String(actionButton.dataset.listId)); if (list && list.share_token) window.open(shareUrl(list), '_blank', 'noopener,noreferrer'); }
+    else if (action === 'sidebar-create' || action === 'settings-create') { event.preventDefault(); openListCreator(); }
     else if (action === 'sidebar-remove') { event.preventDefault(); removeFromActiveList(actionButton.dataset.productId); }
     else if (action === 'sidebar-cart' || action === 'settings-add-cart') {
       event.preventDefault();
@@ -953,6 +1082,9 @@
       },
       getLists: () => state.lists.slice(),
       getItems: () => state.items.slice(),
+      shareList,
+      copyShareLink,
+      revokeShare,
       removeFromActiveList,
       openFav: openFavSidebar,
       closeFav: closeFavSidebar,
@@ -983,10 +1115,19 @@
     window.toggleWish = function (id) { return openPicker(id); };
   }
 
+  function ensureShareStyles() {
+    if (document.getElementById('ecomme-wishlist-share-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'ecomme-wishlist-share-styles';
+    style.textContent = `.ewl-share-link-row{display:flex;flex-direction:column;gap:5px;flex-basis:100%;min-width:0;padding:10px 12px;border:1px solid var(--border,#dbe4f0);border-radius:11px;background:var(--card,#fff)}.ewl-share-link-row span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted,#64748b)}.ewl-share-link-row a{font-size:12px;color:var(--blue,#2563eb);overflow-wrap:anywhere;text-decoration:none}.ewl-share-link-row a:hover{text-decoration:underline}.ewl-share-inline .ewl-btn{white-space:normal}`;
+    document.head.appendChild(style);
+  }
+
   async function initialize() {
     if (state.initialized) return;
     state.initialized = true;
-    //ensureStyles();
+    ensureStyles();
+    ensureShareStyles();
     installOverrides();
     document.addEventListener('click', handleGlobalClick);
     document.addEventListener('change', handleGlobalChange);
