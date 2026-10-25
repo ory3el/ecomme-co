@@ -851,7 +851,7 @@ function renderProducts() {
     window.__ecommeProductsInitialLoadComplete !== true
   ) return;
   grid.setAttribute('aria-busy', 'false');
-  pLoadingFlex();
+  //pLoadingFlex();
   const q = (
     $('heroSearch')?.value ||
     $('headerSearch')?.value ||
