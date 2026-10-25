@@ -366,10 +366,10 @@ async function loadProductsFromSupabase() {
 
     products = [];
     shuffled = [];
+    window.__ecommeProductsInitialLoadComplete = true;
+    showProductsGridLoadError();
     return false;
   }
-  window.__ecommeProductsInitialLoadComplete = true;
-  showProductsGridLoadError();
   
   products = (data || []).map(normalizeProduct);
   shuffled = [...products];
@@ -837,17 +837,19 @@ function normalizeProduct(p) {
 function renderProducts() {
   const grid = $('productsGrid');
   if (!grid) return;
-  const q = (
-    $('heroSearch')?.value ||
-    $('headerSearch')?.value ||
-    ''
-  ).toLowerCase().trim();
+  
   if (
     grid.dataset.ecommeSkeletonLoading === 'true' &&
     window.__ecommeProductsInitialLoadComplete !== true
   ) return;
   grid.setAttribute('aria-busy', 'false');
   pLoadingFlex();
+  
+  const q = (
+    $('heroSearch')?.value ||
+    $('headerSearch')?.value ||
+    ''
+  ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
   const renderState =
     `${view}|${q}|${sort}`;
