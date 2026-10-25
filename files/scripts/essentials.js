@@ -726,7 +726,7 @@ function productCardHtml(p) {
           ${p.name}
         </div>
         <div class="prating" aria-label="Média das avaliações: ${averageRating} de 5">
-          <i class="fa-solid fa-star pstars" aria-hidden="true"></i>
+          <i class="fa-regular fa-star pstars" aria-hidden="true"></i>
           <span class="prcnt">${averageRating}</span>
         </div>
         <div class="price-row">
