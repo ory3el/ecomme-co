@@ -4,3 +4,7 @@
 
 /product /products/ 302
 /product/ /products/ 302
+
+/my-wish/* /my-wish/index.html 200
+/my-wish /my-wish/index.html 200
+/my-wish/ /my-wish/index.html 200
