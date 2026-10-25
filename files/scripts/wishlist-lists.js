@@ -364,7 +364,7 @@
       <section class="ewl-modal" role="dialog" aria-modal="true" aria-labelledby="ewlModalTitle">
         <div class="ewl-modal-head">
           <div><div class="ewl-eyebrow">Ecomme · listas de desejos</div><h2 id="ewlModalTitle">Adicionar aos favoritos</h2><p id="ewlModalSubtitle">Escolha onde quer guardar este produto.</p></div>
-          <button type="button" class="ewl-close" data-ewl-action="close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+          <button type="button" class="fav-cls" data-ewl-action="close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="ewlModalContent"></div>
       </section>`;
