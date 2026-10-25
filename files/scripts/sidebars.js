@@ -2899,7 +2899,7 @@ function getProductImages(product) {
   return images.slice(0, 5);
 }
 
-const pLoading = document.getElementById('pLoading');
+/*const pLoading = document.getElementById('pLoading');
 function pLoadingNone() {
   if (pLoading) {
     pLoading.style.display = 'none';
@@ -2912,7 +2912,7 @@ function pLoadingFlex() {
 }
 
 // TOAST
-/*function showToast(msg) {
+function showToast(msg) {
   const t = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
   if (toastMsg) toastMsg.textContent = msg;
