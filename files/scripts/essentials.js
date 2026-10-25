@@ -179,6 +179,52 @@ async function syncEcommeDisplaySettings() {
 
 // ============================================================
 
+// ── SKELETON ──────────────────────────────────────────────────────────
+if (typeof window.__ecommeProductsInitialLoadComplete !== 'boolean') {
+  window.__ecommeProductsInitialLoadComplete = false;
+}
+
+function showProductsGridSkeleton() {
+  const grid = document.getElementById('productsGrid');
+  if (!grid || grid.dataset.ecommeSkeletonLoading === 'true') return;
+
+  grid.dataset.ecommeSkeletonLoading = 'true';
+  grid.setAttribute('aria-busy', 'true');
+  grid.innerHTML = Array.from({ length: 10 }, () => `
+    <div class="related-skeleton-card products-grid-skeleton" aria-hidden="true">
+      <div class="skeleton-shimmer rsk-image"></div>
+      <div class="rsk-info">
+        <span class="skeleton-shimmer rsk-line"></span>
+        <span class="skeleton-shimmer rsk-line rsk-line-short"></span>
+        <span class="skeleton-shimmer rsk-price"></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function finishProductsGridSkeleton() {
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+  grid.dataset.ecommeSkeletonLoading = 'false';
+  grid.setAttribute('aria-busy', 'false');
+}
+
+function showProductsGridLoadError() {
+  const grid = document.getElementById('productsGrid');
+  if (!grid || grid.dataset.ecommeSkeletonLoading !== 'true') return;
+
+  grid.dataset.ecommeSkeletonLoading = 'false';
+  grid.setAttribute('aria-busy', 'false');
+  grid.innerHTML = `
+    <div class="products-grid-load-error" role="status">
+      <strong>Não foi possível carregar os produtos.</strong>
+      <span>Verifique sua conexão e atualize a página para tentar novamente.</span>
+    </div>
+  `;
+}
+
+showProductsGridSkeleton();
+
 function isEcommeProductDetailRoute() {
   return /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
 }
