@@ -368,10 +368,14 @@ async function loadProductsFromSupabase() {
     shuffled = [];
     return false;
   }
-
+  window.__ecommeProductsInitialLoadComplete = true;
+  showProductsGridLoadError();
+  
   products = (data || []).map(normalizeProduct);
   shuffled = [...products];
   productDataSignature = createProductsSignature(products);
+  window.__ecommeProductsInitialLoadComplete = true;
+  finishProductsGridSkeleton();
   return true;
 }
 
@@ -831,7 +835,6 @@ function normalizeProduct(p) {
 
 /* ------------------------------- */
 function renderProducts() {
-  pLoadingFlex();
   const grid = $('productsGrid');
   if (!grid) return;
   const q = (
@@ -839,6 +842,12 @@ function renderProducts() {
     $('headerSearch')?.value ||
     ''
   ).toLowerCase().trim();
+  if (
+    grid.dataset.ecommeSkeletonLoading === 'true' &&
+    window.__ecommeProductsInitialLoadComplete !== true
+  ) return;
+  grid.setAttribute('aria-busy', 'false');
+  pLoadingFlex();
   const sort = $('sortSelect')?.value || 'random';
   const renderState =
     `${view}|${q}|${sort}`;
