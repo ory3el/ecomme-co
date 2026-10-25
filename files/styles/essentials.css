@@ -803,7 +803,9 @@ header:hover .hide-btn {
     .fav-cls {
       width: 34px;
       height: 34px;
+      font-size: 15px;
       border-radius: 50%;
+      position: relative;
       border: 1px solid var(--border);
       display: flex;
       align-items: center;
