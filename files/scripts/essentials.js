@@ -179,54 +179,6 @@ async function syncEcommeDisplaySettings() {
 
 // ============================================================
 
-// ── SKELETON INICIAL DA GRADE DE PRODUTOS ────────────────────────────────
-// Reutiliza o desenho dos cards skeleton de produtos recomendados da página /product.
-// essentials.js é defer e executa após o HTML ser analisado, antes de DOMContentLoaded.
-if (typeof window.__ecommeProductsInitialLoadComplete !== 'boolean') {
-  window.__ecommeProductsInitialLoadComplete = false;
-}
-
-function showProductsGridSkeleton() {
-  const grid = document.getElementById('productsGrid');
-  if (!grid || grid.dataset.ecommeSkeletonLoading === 'true') return;
-
-  grid.dataset.ecommeSkeletonLoading = 'true';
-  grid.setAttribute('aria-busy', 'true');
-  grid.innerHTML = Array.from({ length: 10 }, () => `
-    <div class="related-skeleton-card products-grid-skeleton" aria-hidden="true">
-      <div class="skeleton-shimmer rsk-image"></div>
-      <div class="rsk-info">
-        <span class="skeleton-shimmer rsk-line"></span>
-        <span class="skeleton-shimmer rsk-line rsk-line-short"></span>
-        <span class="skeleton-shimmer rsk-price"></span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function finishProductsGridSkeleton() {
-  const grid = document.getElementById('productsGrid');
-  if (!grid) return;
-  grid.dataset.ecommeSkeletonLoading = 'false';
-  grid.setAttribute('aria-busy', 'false');
-}
-
-function showProductsGridLoadError() {
-  const grid = document.getElementById('productsGrid');
-  if (!grid || grid.dataset.ecommeSkeletonLoading !== 'true') return;
-
-  grid.dataset.ecommeSkeletonLoading = 'false';
-  grid.setAttribute('aria-busy', 'false');
-  grid.innerHTML = `
-    <div class="products-grid-load-error" role="status">
-      <strong>Não foi possível carregar os produtos.</strong>
-      <span>Verifique sua conexão e atualize a página para tentar novamente.</span>
-    </div>
-  `;
-}
-
-showProductsGridSkeleton();
-
 function isEcommeProductDetailRoute() {
   return /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
 }
@@ -368,16 +320,12 @@ async function loadProductsFromSupabase() {
 
     products = [];
     shuffled = [];
-    window.__ecommeProductsInitialLoadComplete = true;
-    showProductsGridLoadError();
     return false;
   }
 
   products = (data || []).map(normalizeProduct);
   shuffled = [...products];
   productDataSignature = createProductsSignature(products);
-  window.__ecommeProductsInitialLoadComplete = true;
-  finishProductsGridSkeleton();
   return true;
 }
 
@@ -510,6 +458,8 @@ function productCardHtml(p) {
   const mainImage = images[0] || null;
   const inW = fav.some(x => String(x.id) === String(p.id));
   const category = Array.isArray(p.cat) ? p.cat.join(', ') : String(p.cat || '');
+  const ratingNumber = Number(p.rating);
+  const averageRating = (Number.isFinite(ratingNumber) ? ratingNumber : 0).toFixed(1);
   
   let badgeH = '';
   if (p.badge === 'hot') {
@@ -619,14 +569,9 @@ function productCardHtml(p) {
           <div class="pname">
             ${p.name}
           </div>
-          <div class="prating">
-            <span class="pstars">
-              ${starsHtml(p.rating)}
-            </span>
-            <span class="prcnt">
-              ${p.rating}
-              (${p.reviews.toLocaleString('pt-BR')} avaliações)
-            </span>
+          <div class="prating" aria-label="Média das avaliações: ${averageRating} de 5">
+            <i class="fa-solid fa-star pstars" aria-hidden="true"></i>
+            <span class="prcnt">${averageRating}</span>
           </div>
           <div
             style="
@@ -730,13 +675,9 @@ function productCardHtml(p) {
         <div class="pname" data-no-translate>
           ${p.name}
         </div>
-        <div class="prating">
-          <span class="pstars">
-            ${starsHtml(p.rating)}
-          </span>
-          <span class="prcnt">
-            (${p.reviews.toLocaleString('pt-BR')})
-          </span>
+        <div class="prating" aria-label="Média das avaliações: ${averageRating} de 5">
+          <i class="fa-solid fa-star pstars" aria-hidden="true"></i>
+          <span class="prcnt">${averageRating}</span>
         </div>
         <div class="price-row">
           <span class="pprice">
@@ -844,14 +785,9 @@ function normalizeProduct(p) {
 
 /* ------------------------------- */
 function renderProducts() {
+  pLoadingFlex();
   const grid = $('productsGrid');
   if (!grid) return;
-  if (
-    grid.dataset.ecommeSkeletonLoading === 'true' &&
-    window.__ecommeProductsInitialLoadComplete !== true
-  ) return;
-  grid.setAttribute('aria-busy', 'false');
-  pLoadingFlex();
   const q = (
     $('heroSearch')?.value ||
     $('headerSearch')?.value ||
