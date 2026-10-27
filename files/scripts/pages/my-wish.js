@@ -107,7 +107,7 @@
       showMessage('Link inválido', 'O endereço dessa lista não está no formato esperado. Confira o link recebido.', '🔗');
       return;
     }
-    const { data, error } = await state.client.rpc('ecomme_get_shared_wishlist', { p_token: token });
+    const { data, error } = await user.rpc('ecomme_get_shared_wishlist', { p_token: token });
     if (error) {
       console.error('[Ecomme lista pública] Falha ao carregar lista compartilhada:', error);
       showMessage('Não foi possível carregar a lista', 'O compartilhamento pode não estar configurado no Supabase. Execute a migração SQL incluída no pacote e tente novamente.', '⚠');
@@ -159,7 +159,7 @@
   }
 
   async function loadMyLists() {
-    const { data: authData, error: authError } = await state.client.auth.getUser();
+    const { data: authData, error: authError } = await user.auth.getUser();
     if (authError) throw authError;
     const user = authData && authData.user;
     if (!user) {
@@ -169,8 +169,8 @@
       return;
     }
     const [profileResult, listResult] = await Promise.all([
-      state.client.from('profiles').select('id,username,full_name,avatar_url').eq('id', user.id).maybeSingle(),
-      state.client.from('wishlist_lists').select('id,user_id,name,emoji,is_default,created_at,share_token,is_shared,published_at').eq('user_id', user.id).order('created_at', { ascending: true })
+      user.from('profiles').select('id,username,full_name,avatar_url').eq('id', user.id).maybeSingle(),
+      user.from('wishlist_lists').select('id,user_id,name,emoji,is_default,created_at,share_token,is_shared,published_at').eq('user_id', user.id).order('created_at', { ascending: true })
     ]);
     if (listResult.error) throw listResult.error;
     const profile = profileResult.data || { id: user.id, username: user.email ? user.email.split('@')[0] : '', full_name: user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name), avatar_url: user.user_metadata && (user.user_metadata.avatar_url || user.user_metadata.picture) };
@@ -206,7 +206,7 @@
           await createShareLink(list, user);
         } else if (button.dataset.action === 'revoke') {
           if (!window.confirm(`Desativar o link público de “${list.name}”?`)) return;
-          const { error } = await state.client.from('wishlist_lists').update({ is_shared: false, share_token: null, published_at: null }).eq('id', list.id).eq('user_id', user.id);
+          const { error } = await user.from('wishlist_lists').update({ is_shared: false, share_token: null, published_at: null }).eq('id', list.id).eq('user_id', user.id);
           if (error) { console.error(error); showToast('Não foi possível desativar o link.'); return; }
           showToast('Link desativado.'); await loadMyLists();
         }
@@ -222,7 +222,7 @@
       let lastError = null;
       for (let attempt = 0; attempt < 5; attempt++) {
         const token = createToken(12);
-        const { data, error } = await state.client.from('wishlist_lists').update({ share_token: token, is_shared: true, published_at: new Date().toISOString() }).eq('id', list.id).eq('user_id', user.id).select('id,share_token,is_shared,published_at').maybeSingle();
+        const { data, error } = await user.from('wishlist_lists').update({ share_token: token, is_shared: true, published_at: new Date().toISOString() }).eq('id', list.id).eq('user_id', user.id).select('id,share_token,is_shared,published_at').maybeSingle();
         if (!error && data) { updated = { ...list, ...data }; break; }
         lastError = error || new Error('A lista não foi encontrada.');
         if (error && error.code === '23505') continue;
@@ -243,12 +243,12 @@
     if (!window.supabase || typeof window.supabase.createClient !== 'function') {
       showMessage('Serviço temporariamente indisponível', 'Não foi possível inicializar o serviço de listas. Atualize a página e tente novamente.', '⚠'); return;
     }
-    state.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const user = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     state.token = tokenFromPath();
     try {
       if (state.token) await loadPublicList(state.token);
       else await loadMyLists();
-      if (!state.client) {
+      if (!user) {
         showMessage('Entre ou crie uma conta', 'Para acessar suas listas de desejos publicadas, é necessário fazer login em uma conta na Ecomme', '⚠');
         return;
       }
