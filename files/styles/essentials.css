@@ -16,6 +16,7 @@
   --bg:        #F3F7FF;
   --bg2:       #FFFFFF;
   --bg3:       #EBF2FF;
+  --tbg:       rgba(255,255,255,0.7);
   --surface:   #FFFFFF;
   --surface0:  rgba(255,255,255,0.5);
   --surface1:  #FFFFFF;
@@ -85,6 +86,7 @@ html[data-theme="dark"] {
   --bg:        #0C1220;
   --bg2:       #0F172A;
   --bg3:       #111C31;
+  --tbg:       rgba(0,0,0,0.15);
   --surface:   #000d2b;
   --surface0:
   rgba(0,0,0,0.5);
