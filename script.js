@@ -1,5 +1,5 @@
 const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-if (currentPath !== '/') return;
+if (currentPath !== '/') throw new Error(" "); 
 
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 /* document.addEventListener("DOMContentLoaded", () => {
