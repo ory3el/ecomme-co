@@ -1,3 +1,6 @@
+const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+if (currentPath !== '/') return;
+
 /* ─── SUPABASE ──────────────────────────────────────────────────────── */
 /* document.addEventListener("DOMContentLoaded", () => {
   const modalPerfo = document.getElementById('performanceModal');
