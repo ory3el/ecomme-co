@@ -20,6 +20,7 @@
   --surface0:  rgba(255,255,255,0.5);
   --surface1:  #FFFFFF;
   --surface-2: rgba(255,255,255,.75);
+  --surface3:  #FFFFFF;
   --overlay:   rgba(255,255,255,0.1);
   --box-shdw:  0 4px 12px rgb(0 0 0 / 10%);
   --box-shdw1: rgb(0 0 0 / 20%);
@@ -75,31 +76,45 @@ html[data-theme="dark"] {
   --blueL:     #60a5fa;
   --blueTxt:   #eaf4ff;
   --blueBg:    #4387fa;
-  --blue-dim:  rgba(37,99,235,0.07);
-  --blue-mid:  rgba(37,99,235,0.14);
+  --blue-dim:
+  rgba(37,99,235,0.07);
+  --blue-mid:
+  rgba(37,99,235,0.14);
   --white:     #000000;
   --black:     #FFFFFF;
   --bg:        #0C1220;
   --bg2:       #0F172A;
   --bg3:       #111C31;
   --surface:   #000d2b;
-  --surface0:  rgba(0,0,0,0.5);
-  --surface1:  rgba(255,255,255,0.9);
-  --surface-2: rgba(0,0,0,.75);
+  --surface0:
+  rgba(0,0,0,0.5);
+  --surface1:
+  rgba(255,255,255,0.9);
+  --surface-2:
+  rgba(0,0,0,.75);
+  --surface3: #0b0b0b;
   /*--overlay:   rgba(25,100,255,0.1);*/
-  --overlay:   rgba(0,0,0,0.1);
-  --box-shdw:  0 0 15px rgb(255 255 255 / 30%);
-  --box-shdw1: rgb(255 255 255 / 20%);
+  --overlay:
+  rgba(0,0,0,0.1);
+  --box-shdw:  0 0 15px
+  rgb(255 255 255 / 30%);
+  --box-shdw1:
+  rgb(255 255 255 / 20%);
   --ink:       #D7E3FC;
   --text:      #F8FAFC;
-  --text1:     rgba(255,255,255,0.75);
+  --text1:
+  rgba(255,255,255,0.75);
   --textW:     #000000;
   --muted:     #94A3B8;
   --muted2:    #475569;
-  --border1:   rgba(255,255,255,0.2);
-  --border:    rgba(96,165,250,0.28);
-  --border2:   rgba(248,250,252,0.08);
-  --borderW:   rgba(0,0,0,0.15);
+  --border1:
+  rgba(255,255,255,0.2);
+  --border:
+  rgba(96,165,250,0.28);
+  --border2:
+  rgba(248,250,252,0.08);
+  --borderW:
+  rgba(0,0,0,0.15);
   --red:       #EF4444;
   --red1:      #c0392b;
   --red11:     #0C1220;
@@ -112,22 +127,32 @@ html[data-theme="dark"] {
   --light:     #94a3b8;
   --radius:    8px;
   --rad-lg:    16px;
-  --shadow:    0 4px 24px rgba(0,0,0,0.25);
-  --shadow-hv: 0 20px 56px rgba(0,0,0,0.40);
-  --glass-bg:     linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-  --glass-border: rgba(255,255,255,.12);
-  --overlay-bg:   rgba(255,255,255,0.16);
-  --nbg:          rgba(255,255,255,0.16);
-  --sidebar-bg:   rgba(15,23,42,.80);
+  --shadow:    0 4px 24px
+  rgba(0,0,0,0.25);
+  --shadow-hv: 0 20px 56px
+  rgba(0,0,0,0.40);
+  --glass-bg:
+  linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  --glass-border:
+  rgba(255,255,255,.12);
+  --overlay-bg:
+  rgba(255,255,255,0.16);
+  --nbg:
+  rgba(255,255,255,0.16);
+  --sidebar-bg:
+  rgba(15,23,42,.80);
   --sidebar-edge: #000000;
   --toast-bg:     #E8EDF5;
   --toast-text:   #10141A;
   --input-text:   #F8FAFC;
-  --selected:     var(--blue);
+  --selected:
+  var(--blue);
   --selected1:    #fff;
-  --img-filter:   brightness(0) invert(1);
+  --img-filter:
+  brightness(0) invert(1);
   --bd-filter:    none;
-  --timing:       cubic-bezier(0.42, 0, 0.34, 0.98);
+  --timing:
+  cubic-bezier(0.42, 0, 0.34, 0.98);
   color-scheme:   dark;
 }
 
@@ -140,7 +165,7 @@ html.theme-transition, html.theme-transition *{
 *, *::before, *::after {/* box-sizing: border-box; *//* margin: 0; *//* padding: 0; */}
 html { scroll-behavior: smooth; }
 body {
-  background: var(--white);
+  background: var(--surface3);
   color: var(
   --text);
   font-family:
