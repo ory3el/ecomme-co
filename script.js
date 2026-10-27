@@ -44,6 +44,7 @@
 /* ─── PARTICLES ──────────────────────────────────────────────────────── */
 (function spawnParticles() {
   const wrap = $('particles');
+  if (!wrap) return;
   for (let i = 0; i < 22; i++) {
     const p = document.createElement('div');
     p.className = 'sb-p';
