@@ -248,7 +248,7 @@
     try {
       if (state.token) await loadPublicList(state.token);
       else await loadMyLists();
-      if (state.client) {
+      if (!state.client) {
         showMessage('Entre ou crie uma conta', 'Para acessar suas listas de desejos publicadas, é necessário fazer login em uma conta na Ecomme', '⚠');
         return;
       }
