@@ -7,6 +7,9 @@
   const state = { client: null, token: null, toastTimer: null };
   const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+  const sClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  state.token = tokenFromPath();
+  
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
   }
@@ -243,8 +246,7 @@
     if (!window.supabase || typeof window.supabase.createClient !== 'function') {
       showMessage('Serviço temporariamente indisponível', 'Não foi possível inicializar o serviço de listas. Atualize a página e tente novamente.', '⚠'); return;
     }
-    const sClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    state.token = tokenFromPath();
+    
     try {
       if (state.token) await loadPublicList(state.token);
       else await loadMyLists();
