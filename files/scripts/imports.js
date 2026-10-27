@@ -32,7 +32,7 @@
 
   const tags = scripts
     //.map(src => `<script defer src="${src}"><\/script>`)
-    .join('\n');
+    //.join('\n');
 
   document.write(tags);
 })();
