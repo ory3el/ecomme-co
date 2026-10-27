@@ -30,9 +30,9 @@
     return;
   }
 
-  //const tags = scripts
-    //.map(src => `<script defer src="${src}"><\/script>`)
-    //.join('\n');
+  const tags = scripts
+    .map(src => `<script defer src="${src}"><\/script>`)
+    .join('\n');
 
-  //document.write(tags);
+  document.write(tags);
 })();
