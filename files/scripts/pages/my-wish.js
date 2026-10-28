@@ -200,7 +200,7 @@
         return `<article class="mw-product-card"><a class="mw-product-image" href="${productHref}" aria-label="Ver ${escapeHtml(name)}">${imageMarkup}</a><div class="mw-product-info"><div class="mw-product-category">${escapeHtml(Array.isArray(category) ? category.join(', ') : category)}</div><h3 class="mw-product-name">${escapeHtml(name)}</h3><div><span class="mw-product-price">${formatPrice(price)}</span>${oldPrice > price ? `<span class="mw-product-old">${formatPrice(oldPrice)}</span>` : ''}</div><a class="mw-product-cta" href="${productHref}">Ver produto <span aria-hidden="true">→</span></a></div></article>`;
       }).join('');
     }
-    document.title = `${text(data.emoji, '❤️')} ${text(data.name, 'Lista de desejos')} | Ecomme`;
+    document.title = /*${text(data.emoji, '❤️')}*/ `${text(data.name, 'Lista de desejos')} | Ecomme`;
     const copyButton = $('copyPublicLink');
     if (copyButton) {
       copyButton.onclick = async () => {
