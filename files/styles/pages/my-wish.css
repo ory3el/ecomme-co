@@ -350,7 +350,6 @@ a { color: inherit; }
 .mw-state-message p { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0 auto 21px; max-width: 420px; }
 
 .mw-footer {
-  height: 76px;
   border-top: 1px solid var(--border2);
   display: flex;
   align-items: center;
@@ -360,6 +359,7 @@ a { color: inherit; }
   color: var(--mw-muted);
   background: var(--borderW);
   gap: 15px;
+  min-height: 75px;
 }
 
 .mw-loading { display: block; }
