@@ -2,7 +2,7 @@ async function loadComponents() {
   try {
     const paths = [
       '/files/no-login/index-files/topbar.html',
-      '/files/login-on/index-files/header.html',
+      '/files/index/header.html',
       '/files/no-login/index-files/footer.html',
       //'/files/no-login/index-files/sidebars.html'
     ];
