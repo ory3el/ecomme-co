@@ -36,7 +36,7 @@ a { color: inherit; }
   z-index: 5;
 }
 .mw-brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
@@ -97,7 +97,7 @@ a { color: inherit; }
   border: 1px solid rgba(255,255,255,.22);
   border-radius: 50%;
   background: rgba(255,255,255,.09);
-  backdrop-filter: blur(4px);
+  /* backdrop-filter: blur(4px); */
 }
 .orb-one { width: 310px; height: 310px; right: 7%; top: -170px; }
 .orb-two { width: 220px; height: 220px; right: 26%; bottom: -168px; }
@@ -417,7 +417,6 @@ a { color: inherit; }
   .mw-topbar nav { gap: 11px; }
   .mw-topbar nav a { font-size: 11px; }
   .mw-brand { font-size: 21px; }
-  .mw-brand img { width: 29px; height: 29px; }
   .mw-page { width: calc(100% - 28px); margin: 20px auto 45px; }
   .mw-list-banner { height: 135px; padding: 20px; border-radius: 21px; }
   .mw-list-icon { width: 76px; height: 76px; border-radius: 22px; font-size: 36px; }
@@ -443,19 +442,14 @@ a { color: inherit; }
   .mw-footer { padding: 0 16px; font-size: 10px; }
 }
 
-@media (max-width: 370px) {
-  .mw-grid { gap: 8px; }
-  .mw-product-info { padding: 9px; }
-  .mw-topbar nav a:first-child { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,*:before,*:after {
-    scroll-behavior: auto !important;
-    animation-duration: .01ms !important;
-    transition-duration: .01ms !important;
-  }
-}
+@media (max-width: 458px) {.mw-brand img {width:150px}}
+@media (max-width: 432px) {.mw-brand img {width:150px} nav a {display: none} .mw-nav-cta {display: block}}
+@media (max-width: 414px) {.mw-eyebrow{display:none}}
+@media (max-width: 370px) {.mw-grid { gap: 8px; } .mw-product-info { padding: 9px; } .mw-topbar nav a:first-child { display: none; }}
+@media (max-width: 325px) {.mw-nav-cta {display: none}}
+@media (max-width: 317px) {#publicItemCount{display:none} .mw-dot{display:none}}
+@media (max-width: 292px) {.mw-list-icon{display:none}}
+@media (prefers-reduced-motion: reduce) {*,*:before,*:after {scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important;}}
 
 a.mw-product-cta:hover { background: var(--blue2); color: #fff; }
 .mw-topbar nav .mw-nav-cta:hover { background: var(--blueTxt); color: var(--blueBg); transform: scale(1.03); }
