@@ -1,5 +1,16 @@
 (function () {
   'use strict';
+  
+  try {
+    var saved = localStorage.getItem('ecomme-theme') || 'auto';
+    var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var effective = saved === 'auto' ? (systemDark ? 'dark' : 'light') : saved;
+    document.documentElement.setAttribute('data-theme', effective);
+    document.documentElement.setAttribute('data-theme-pref', saved);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  
   const SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
   const $ = id => document.getElementById(id);
