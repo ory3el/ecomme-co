@@ -335,7 +335,7 @@ input,select,textarea{font-family:inherit}
 
 /* ── MAIN CONTENT ────────────────────────────────────────── */
 .main{display:flex;flex-direction:column;gap:0}
-.panel{display:none;animation:panelIn .25s ease both}
+.panel{display:none;max-width: 1000px;animation:panelIn .25s ease both}
 .panel.active{display:block;}
 @keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -381,7 +381,7 @@ input,select,textarea{font-family:inherit}
 
 /* card */
 .card{background: var(--white);border-radius:18px;border:1px solid rgba(37,99,235,.1);padding:24px 28px;margin-bottom:16px;box-shadow:0 4px 20px rgba(37,99,235,.06)}
-.card:last-child{margin-bottom:0}
+.card:last-child{margin-bottom:0;}
 .card-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .card-title .ct-ico{font-size:16px}
 
@@ -448,7 +448,7 @@ textarea.finput{resize:vertical;min-height:80px}
 .track-step.done .ts-lbl,.track-step.curr .ts-lbl{color:#2563eb;font-weight:600}
 
 /* wishlist grid */
-.wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.wish-grid{display: flex;overflow: auto;grid-template-columns:repeat(3,1fr);gap:14px}
 .wcard{background: var(--white) !important;border:1.5px solid var(--muted2);justify-content: center;justify-items: center;border-radius:14px;min-height: 320px;/* overflow:hidden; */transition: all 0.25s;display: grid;cursor:pointer;position:relative}
 .wcard:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(37,99,235,.1);transform:translateY(-2px)}
 .wcard-img{aspect-ratio:1;background: var(--white) !important;display:flex;align-items:center;justify-content:center;border-radius: 14px;font-size:52px;position:relative;min-width: 100%;min-height: 100%;/* min-width: 228.77px; *//* min-height: 228.77px; */}
