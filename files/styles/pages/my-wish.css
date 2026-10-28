@@ -13,6 +13,9 @@
 * { box-sizing: border-box; }
 html { min-height: 100%; scroll-behavior: smooth; }
 body {
+  min-height: 94.4vh;;
+  grid-template-rows: auto 1fr auto;
+  display: grid;
   margin: 0;
   background: radial-gradient(ellipse at 7% 0%,rgba(66,135,245,.10),transparent 34rem),var(--mw-bg);
   color: var(--mw-ink);
