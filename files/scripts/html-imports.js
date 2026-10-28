@@ -4,7 +4,7 @@ async function loadComponents() {
       '/files/no-login/index-files/topbar.html',
       '/files/login-on/index-files/header.html',
       '/files/no-login/index-files/footer.html',
-      '/files/no-login/index-files/sidebars.html'
+      //'/files/no-login/index-files/sidebars.html'
     ];
 
     const responses = await Promise.all(paths.map(url => fetch(url)));
