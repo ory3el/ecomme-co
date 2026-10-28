@@ -43,10 +43,11 @@ a { color: inherit; }
   font-family: Outfit,sans-serif;
   font-size: 23px;
   font-weight: 800;
-  letter-spacing: -.7px;
+  letter-spacing: -0.7px;
   background: var(--surface-2);
+  box-shadow: 0 0 20px var(--surface);
   border-radius: 16px;
-  padding: 6px;
+  padding: 7px 15px;
 }
 .mw-brand img { width: 175px; height: auto; object-fit: contain; filter: var(--img-filter); }
 .mw-brand span {
@@ -57,11 +58,12 @@ a { color: inherit; }
   color: transparent;
 }
 .mw-topbar nav { display: flex; align-items: center; gap: 22px; }
-.mw-topbar nav a { font-size: 13px; font-weight: 500; text-decoration: none; color: var(--muted); }
+.mw-topbar nav a {font-size: 13px;font-weight: 500;text-decoration: none;color: var(--text);text-shadow: 0 0 20px var(--white);}
 .mw-topbar nav .mw-nav-cta {
   padding: 10px 15px;
   /* border: 1px solid var(--blue); */
   background: var(--blueBg);
+  text-shadow: none;
   border-radius: 150px;
   color: var(--blueTxt);
   transition: background .25s var(--timing),color .2s,transform .25s var(--timing);
