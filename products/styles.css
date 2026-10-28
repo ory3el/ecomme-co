@@ -30,7 +30,7 @@ body.nobodyscroll { overflow: hidden; }
 
     /* ── PAGE HERO ───────────────────────────────────────────── */
     .page-hero {
-      background: var(--white);
+      background: var(--surface3);
       padding: 72px 28px 56px;
       position: relative;
       overflow: hidden;
