@@ -18,13 +18,13 @@ async function loadComponents() {
     document.body.insertAdjacentHTML('afterbegin', `${topbarHTML}\n${headerHTML}`);
     document.body.insertAdjacentHTML('beforeend', `${footerHTML}\n${sidebarsHTML}`);
 
-    await new Promise((resolve, reject) => {
+    /*await new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = '/files/no-login/scripts/script.js';
       script.onload = resolve;
       script.onerror = () => reject(new Error('Não foi possível carregar o script dos sidebars.'));
       document.body.appendChild(script);
-    });
+    });*/
 
     window.dispatchEvent(new CustomEvent('ecomme:sidebars-ready'));
     if (window.EcommeNotifications && typeof window.EcommeNotifications.init === 'function') {
