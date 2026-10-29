@@ -1810,6 +1810,7 @@ header:hover .hide-btn {
   .header-actions {
     order: 2;
     display: flex;
+    margin: 0;
     gap: 10px;
   }
 
@@ -1820,8 +1821,8 @@ header:hover .hide-btn {
   }
 
   .search-bar {
-    order: 4;
-    max-width: 100%;
+    order: 3;
+    max-width: 50%;
     margin: auto;
     width: 100%;
   }
@@ -1935,10 +1936,11 @@ header:hover .hide-btn {
 
 @media (max-width: 768px) {
   .nav-main {
-    order: 3;
+    order: 4;
     overflow-x: auto;
     padding-bottom: 5px;
     justify-content: center;
+    /* max-width: 300px; */
   }
 }
 
