@@ -161,3 +161,45 @@
       .ft-inner { flex-direction: column; text-align: center; }
       .ft-links { justify-content: center; }
     }
+
+
+:root { --ease: var(--timing, cubic-bezier(.22,.61,.36,1)); --amber: #f59e0b; --purple: #8b5cf6; }
+body { min-height: 100vh; }
+.notif-hero, .filters-wrap { background: var(--bg2); border-color: var(--border2); }
+.notif-item, .skeleton-item { background: var(--bg2); border-color: var(--border2); color: var(--text); }
+.notif-item.unread { background: var(--blue-dim); border-color: var(--border); }
+.settings-panel { background: var(--bg2); color: var(--text); border-color: var(--border2); box-shadow: -18px 0 55px rgba(15,23,42,.12); }
+.sp-hd, .sp-ft, .sp-row { border-color: var(--border2); }
+.sp-close { background: var(--bg2); }
+.sp-row-text strong { color: var(--text); }
+.empty-notif { max-width: 760px; margin: 24px auto; padding: clamp(36px,5vw,60px) 24px; border: 1px solid var(--border2); border-radius: 22px; background: var(--bg2); box-shadow: var(--shadow); }
+.empty-notif .ico { width: 70px; height: 70px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 22px; background: var(--blue-dim); color: var(--blue); font-size: 30px; }
+.empty-notif h3 { color: var(--text); font-family: 'Outfit',sans-serif; font-weight: 600; }
+.empty-notif p { max-width: 470px; margin: 0 auto 18px; color: var(--muted); line-height: 1.7; }
+.empty-notif .ni-cta { display: inline-flex; align-items: center; justify-content: center; border: 0; cursor: pointer; text-decoration: none; }
+.ni-icon.shipped, .ni-icon.product, .ni-icon.wishlist { background: var(--blue-dim); }
+.ni-icon.shipped svg, .ni-icon.product svg, .ni-icon.wishlist svg { stroke: var(--blue); }
+.ni-icon.coupon, .ni-icon.return { background: rgba(139,92,246,.10); }
+.ni-icon.coupon svg, .ni-icon.return svg { stroke: var(--purple); }
+.ni-icon.security svg { stroke: var(--green); }
+.ni-icon:has(svg) { outline: 0; }
+.notif-item:focus-visible, .btn-readall:focus-visible, .btn-settings:focus-visible, .ftab:focus-visible, .ni-cta:focus-visible, .ni-del:focus-visible, .toggle:focus-visible, .sp-close:focus-visible, .btn-save-prefs:focus-visible { outline: 3px solid rgba(37,99,235,.45); outline-offset: 3px; }
+.ni-del { opacity: .55; }
+.ni-del:focus-visible, .notif-item:hover .ni-del { opacity: 1; }
+.notifications-skeleton { display: grid; gap: 10px; }
+.notifications-skeleton .skeleton-item { margin-bottom: 0; }
+#notifSection[aria-busy="true"] { min-height: 300px; }
+#notifSection[aria-busy="true"] .skeleton-item { animation: fadeIn .25s ease; }
+.ecomme-components-error { margin: 12px auto; width: min(1100px,calc(100% - 32px)); padding: 14px 18px; border: 1px solid rgba(239,68,68,.24); border-radius: 12px; color: var(--red); background: var(--bg2); }
+@media (max-width: 768px) {
+  .empty-notif { margin: 12px 0; padding: 38px 20px; }
+  .notif-item { gap: 11px; padding: 14px 12px; }
+  .ni-icon { width: 38px; height: 38px; border-radius: 11px; }
+  .ni-title { font-size: 13px; }
+  .ni-text { font-size: 12px; }
+  .ni-side { gap: 7px; }
+  .ni-del { opacity: .8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notif-item, .ni-dot, .empty-notif .ico, .settings-panel, .settings-overlay, .filter-pill-bg { animation: none !important; transition: none !important; }
+}
