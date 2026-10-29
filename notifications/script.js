@@ -1,5 +1,14 @@
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let notificationLoadError = null;
 let notifications = [];
 let currentFilter = 'todas';
+
+function notify(message, type = 'ok') {
+  if (typeof window.showToast === 'function') window.showToast(message, type);
+  else console.info('[Ecomme notificações]', message);
+}
 
 const iconMap = {
   order: `<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
@@ -88,6 +97,8 @@ function renderNotifications(skipAnim = false) {
   updateCounts();
   const wrap = $('notifSection');
   if (!wrap) return;
+  wrap.setAttribute('aria-busy', 'false');
+  if (notificationLoadError) { renderLoadError(); return; }
 
   if (api && !api.isAuthenticated()) {
     wrap.innerHTML = `<div class="empty-notif"><div class="ico">🔔</div><h3>Acesse sua conta</h3><p>Entre na Ecomme para sincronizar suas notificações entre dispositivos.</p><a class="ni-cta primary" href="/login?redirect=%2Fnotifications">Entrar na conta</a></div>`;
@@ -112,20 +123,34 @@ function renderNotifications(skipAnim = false) {
     });
   });
   wrap.innerHTML = html;
+  wrap.querySelectorAll('.notif-item[data-notification-id]').forEach(item => {
+    item.addEventListener('click', event => {
+      const id = item.dataset.notificationId;
+      const actionLink = event.target.closest('[data-open-notification]');
+      if (actionLink) { event.preventDefault(); openNotification(id); return; }
+      if (event.target.closest('button, a')) return;
+      openNotification(id);
+    });
+    item.addEventListener('keydown', event => {
+      if (event.target !== item || !['Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      openNotification(item.dataset.notificationId);
+    });
+  });
 }
 
 function renderItem(n, delay) {
   const href = safeHref(n.href);
-  const ctaHtml = href ? `<div class="ni-cta-row"><a class="ni-cta ${['order', 'shipped', 'delivered'].includes(n.type) ? 'primary' : 'ghost'}" href="${esc(href)}" onclick="event.stopPropagation()">${esc(n.ctaLabel || 'Abrir')}</a></div>` : '';
+  const ctaHtml = href ? `<div class="ni-cta-row"><a class="ni-cta ${['order', 'shipped', 'delivered'].includes(n.type) ? 'primary' : 'ghost'}" href="${esc(href)}" data-open-notification>${esc(n.ctaLabel || 'Abrir')}</a></div>` : '';
   return `
-    <div class="notif-item ${n.read ? '' : 'unread'}" id="ni-${esc(n.id)}" data-notification-id="${esc(n.id)}" style="animation-delay:${delay}s">
+    <article class="notif-item ${n.read ? '' : 'unread'}" id="ni-${esc(n.id)}" data-notification-id="${esc(n.id)}" tabindex="0" aria-label="Abrir notificação: ${esc(n.title)}" style="animation-delay:${delay}s">
       <div class="ni-icon ${esc(n.iconType)}">${iconMap[n.iconType] || iconMap.system}</div>
       <div class="ni-body">
         <div class="ni-top"><span class="ni-title">${esc(n.title)}</span><span class="ni-time">${esc(n.time)}</span></div>
         <div class="ni-text">${esc(n.text)}</div>${ctaHtml}
       </div>
       <div class="ni-side"><span class="ni-dot ${n.read ? 'hidden-dot' : ''}" id="dot-${esc(n.id)}"></span><button class="ni-del" onclick="event.stopPropagation();deleteNotification('${esc(n.id)}')" title="Remover" aria-label="Remover notificação"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    </div>`;
+  </article>`;
 }
 
 function updateCounts() {
@@ -155,12 +180,12 @@ async function openNotification(id) {
   if (!row || !api) return;
   try {
     await api.markRead(id);
-    showToast('Notificação marcada como lida.', 'ok');
+    notify('Notificação marcada como lida.', 'ok');
     if (row.href) window.location.href = row.href;
     else if (currentFilter === 'nao-lidas') renderNotifications(true);
   } catch (error) {
     console.error('Erro ao marcar notificação como lida:', error);
-    showToast('Não foi possível atualizar a notificação.', 'err');
+    notify('Não foi possível atualizar a notificação.', 'err');
   }
 }
 
@@ -169,31 +194,39 @@ async function deleteNotification(id) {
   if (el) el.classList.add('removing');
   try {
     await window.EcommeNotifications.deleteNotification(id);
-    showToast('Notificação removida.');
+    notify('Notificação removida.');
   } catch (error) {
     console.error('Erro ao remover notificação:', error);
-    showToast('Não foi possível remover a notificação.', 'err');
+    notify('Não foi possível remover a notificação.', 'err');
   }
 }
 
 async function markAllRead() {
   try {
     await window.EcommeNotifications.markAllRead();
-    showToast('Todas as notificações foram marcadas como lidas ✓');
+    notify('Todas as notificações foram marcadas como lidas ✓');
   } catch (error) {
     console.error('Erro ao marcar notificações:', error);
-    showToast('Não foi possível marcar as notificações.', 'err');
+    notify('Não foi possível marcar as notificações.', 'err');
   }
 }
 
 function openSettings() {
-  $('settingsPanel')?.classList.add('on');
-  $('settingsOverlay')?.classList.add('on');
+  const panel = $('settingsPanel');
+  const overlay = $('settingsOverlay');
+  panel?.classList.add('on');
+  overlay?.classList.add('on');
+  panel?.setAttribute('aria-hidden', 'false');
+  overlay?.setAttribute('aria-hidden', 'false');
   window.EcommeNotifications?.applyPreferencesToUI();
+  panel?.querySelector('.sp-close')?.focus();
 }
 function closeSettings() {
   $('settingsPanel')?.classList.remove('on');
   $('settingsOverlay')?.classList.remove('on');
+  $('settingsPanel')?.setAttribute('aria-hidden', 'true');
+  $('settingsOverlay')?.setAttribute('aria-hidden', 'true');
+  $('settingsButton')?.focus();
 }
 function toggleSwitch(button) {
   const enabled = !button.classList.contains('on');
@@ -209,13 +242,31 @@ async function savePrefs() {
 
 // Mantém a interface sincronizada quando uma notificação chega em tempo real.
 window.addEventListener('ecomme:notifications-changed', () => renderNotifications(true));
-window.addEventListener('ecomme:notifications-error', event => {
-  const error = event.detail?.error;
-  if (error) console.error('Falha na camada de notificações:', error);
-  const message = String(error?.message || '');
-  const missingTable = /user_notifications|user_notification_preferences|relation .* does not exist/i.test(message) || error?.code === '42P01';
+function renderLoadError() {
   const wrap = $('notifSection');
-  if (wrap) wrap.innerHTML = `<div class="empty-notif"><div class="ico">🔔</div><h3>Não foi possível carregar as notificações</h3><p>${missingTable ? 'Execute o arquivo supabase/notifications.sql no SQL Editor do Supabase e confirme as políticas RLS.' : 'Confira a conexão com o Supabase e as permissões de sua conta. Tente novamente.'}</p></div>`;
+  if (!wrap || !notificationLoadError) return;
+  const message = String(notificationLoadError.message || '');
+  const missingTable = /user_notifications|user_notification_preferences|relation .* does not exist/i.test(message) || notificationLoadError.code === '42P01';
+  wrap.setAttribute('aria-busy', 'false');
+  wrap.innerHTML = `<div class="empty-notif error-state"><div class="ico">⚠️</div><h3>Não foi possível carregar as notificações</h3><p>${missingTable ? 'Execute o arquivo supabase/notifications.sql no SQL Editor do Supabase e confirme as políticas RLS.' : 'Confira a conexão com o Supabase e as permissões da sua conta.'}</p><button type="button" class="ni-cta primary" id="retryNotificationsBtn">Tentar novamente</button></div>`;
+  $('retryNotificationsBtn')?.addEventListener('click', retryNotifications);
+}
+async function retryNotifications() {
+  const api = window.EcommeNotifications;
+  if (!api) return;
+  notificationLoadError = null;
+  const wrap = $('notifSection');
+  if (wrap) {
+    wrap.setAttribute('aria-busy', 'true');
+    wrap.innerHTML = `<div class="skeleton-item"><span class="sk-circle"></span><div class="sk-lines"><span class="sk-line w60"></span><span class="sk-line w90"></span></div></div><div class="skeleton-item"><span class="sk-circle"></span><div class="sk-lines"><span class="sk-line w60"></span><span class="sk-line w90"></span></div></div>`;
+  }
+  await api.loadNotifications();
+  if (!notificationLoadError) renderNotifications(true);
+}
+window.addEventListener('ecomme:notifications-error', event => {
+  notificationLoadError = event.detail?.error || new Error('Falha ao carregar notificações.');
+  console.error('Falha na camada de notificações:', notificationLoadError);
+  renderLoadError();
 });
 document.querySelectorAll('.ftab').forEach(button => {
   button.addEventListener('click', () => {
@@ -225,19 +276,34 @@ document.querySelectorAll('.ftab').forEach(button => {
   });
 });
 
-function initNotificationPage() {
+async function initNotificationPage() {
   const api = window.EcommeNotifications;
   if (!api) {
-    if ($('notifSection')) $('notifSection').innerHTML = '<div class="empty-notif"><h3>Não foi possível inicializar as notificações</h3><p>Confira se /files/scripts/sidebars.js e o cliente Supabase foram carregados.</p></div>';
+    const wrap = $('notifSection');
+    if (wrap) {
+      wrap.setAttribute('aria-busy', 'false');
+      wrap.innerHTML = '<div class="empty-notif error-state"><div class="ico">⚠️</div><h3>Não foi possível inicializar as notificações</h3><p>Confira se os scripts compartilhados e o cliente Supabase foram carregados.</p></div>';
+    }
     return;
   }
-  api.loadNotifications().then(() => renderNotifications(true));
-  api.loadPreferences().then(() => api.applyPreferencesToUI());
+  try {
+    await api.init();
+    api.applyPreferencesToUI();
+    if (!notificationLoadError) renderNotifications(true);
+  } catch (error) {
+    console.error('[Ecomme] Erro ao inicializar a página de notificações:', error);
+    notificationLoadError = error;
+    renderLoadError();
+  }
   requestAnimationFrame(() => {
     const active = document.querySelector('.ftab.active');
     if (active) movePill(active);
   });
 }
 
+Object.assign(window, { openNotification, deleteNotification, markAllRead, openSettings, closeSettings, toggleSwitch, savePrefs, retryNotifications });
+window.addEventListener('keydown', event => { if (event.key === 'Escape' && $('settingsPanel')?.classList.contains('on')) closeSettings(); });
+window.addEventListener('resize', () => { const active = document.querySelector('.ftab.active'); if (active) movePill(active); });
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNotificationPage, { once: true });
 else initNotificationPage();
+})();
