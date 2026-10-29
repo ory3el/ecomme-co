@@ -3057,6 +3057,7 @@ function openConfirmLogout() {
   let preferences = { ...DEFAULT_PREFERENCES };
   let realtimeChannel = null;
   let started = false;
+  let initPromise = null;
   let initRetries = 0;
   let preferencesLoading = false;
   let notificationsLoading = false;
@@ -3405,29 +3406,34 @@ function openConfirmLogout() {
   }
 
   async function init() {
-    if (started) return;
+    if (initPromise) return initPromise;
     const hasNotificationsUI = document.querySelector('#notifSidebar, #bellBtn, #notifSection, [data-notification-pref]');
     if (!hasNotificationsUI) return;
     const client = getClient();
     if (!client) {
-      if (initRetries++ < 30) window.setTimeout(init, 100);
-      else console.warn('Sistema de notificações: supabaseClient não foi inicializado.');
+      if (initRetries++ < 30) {
+        await new Promise(resolve => window.setTimeout(resolve, 100));
+        return init();
+      }
+      console.warn('Sistema de notificações: supabaseClient não foi inicializado.');
       return;
     }
     started = true;
-    try {
-      const { data, error } = await client.auth.getUser();
-      if (error && error.name !== 'AuthSessionMissingError') console.warn('Verificação de sessão das notificações:', error.message);
-      await initializeForUser(data?.user || null);
-    } catch (error) {
-      console.error('Falha ao inicializar notificações:', error);
-      await initializeForUser(null);
-    }
-
-    client.auth.onAuthStateChange((_event, session) => {
-      // Evita executar operações Supabase diretamente dentro do callback de auth.
-      window.setTimeout(() => initializeForUser(session?.user || null), 0);
-    });
+    initPromise = (async () => {
+      try {
+        const { data, error } = await client.auth.getUser();
+        if (error && error.name !== 'AuthSessionMissingError') console.warn('Verificação de sessão das notificações:', error.message);
+        await initializeForUser(data?.user || null);
+      } catch (error) {
+        console.error('Falha ao inicializar notificações:', error);
+        await initializeForUser(null);
+      }
+      client.auth.onAuthStateChange((_event, session) => {
+        // Evita executar operações Supabase diretamente dentro do callback de auth.
+        window.setTimeout(() => initializeForUser(session?.user || null), 0);
+      });
+    })();
+    return initPromise;
   }
 
   async function saveFromSettings() {
