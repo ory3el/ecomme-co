@@ -1,6 +1,6 @@
 async function loadComponents() {
   const components = [
-    { url: '/files/no-login/index-files/topbar.html', slot: 'index-topbar' },
+    /*{ url: '/files/no-login/index-files/topbar.html', slot: 'index-topbar' },*/
     { url: '/files/index/header.html', slot: 'index-header' },
     { url: '/files/no-login/index-files/footer.html', slot: 'index-footer' }
   ];
