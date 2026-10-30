@@ -1,8 +1,6 @@
   :root{
     --white:      #FFFFFF;
     --page-bg:    #F7F9FE;
-    --blue:       #4287F5;
-    --blue-deep:  #2E6BDE;
     --blue-soft:  #EFF4FE;
     --blue-mist:  #E4ECFD;
     --ink:        #0F1729;
@@ -60,36 +58,6 @@
   @keyframes starPop{0%{transform:scale(0.4) rotate(-15deg);opacity:0}60%{transform:scale(1.18) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes cardCollapse{to{opacity:0;transform:scale(.9) translateY(6px);max-height:0;margin-bottom:0;padding-top:0;padding-bottom:0}}
   @keyframes countBadgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-
-  /* ============================================================ TOPBAR / HEADER (site shell) */
-  .topbar{background:var(--blue);color:#fff;text-align:center;padding:8px 20px;font-size:12px;font-weight:500;letter-spacing:.3px;position:relative;}
-  .topbar span{opacity:.55;margin:0 10px;}
-  .topbar-close{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.65);font-size:18px;}
-  .topbar-close:hover{color:#fff;}
-
-  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000;}
-  .header-inner{max-width:1440px;margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:24px;height:66px;}
-  .logo{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;color:var(--blue);flex-shrink:0;display:flex;align-items:center;gap:5px;}
-  .logo-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;margin-top:2px;}
-  .nav-main{display:flex;gap:2px;}
-  .nav-main a{padding:7px 14px;font-size:13px;font-weight:500;color:var(--slate);border-radius:8px;transition:all .2s var(--ease);}
-  .nav-main a:hover{color:var(--ink);background:var(--blue-soft);}
-  .header-spacer{flex:1;}
-  .header-actions{display:flex;align-items:center;gap:6px;}
-  .icon-btn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--slate);transition:all .25s var(--spring);position:relative;}
-  .icon-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);transform:translateY(-1px);}
-  .icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;}
-  .hd-badge{position:absolute;top:0px;right:0px;min-width:16px;height:16px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-  .btn-account{background:var(--blue-soft);border:1px solid var(--blue-mist);color:var(--blue-deep);padding:7px 16px 7px 6px;border-radius:100px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all .25s var(--spring);}
-  .btn-account:hover{background:var(--blue);color:#fff;transform:translateY(-1px);}
-  .acc-avatar{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;}
-  .btn-account:hover .acc-avatar{background:#fff;color:var(--blue);}
-
-  .breadcrumb-bar{background:#fff;border-bottom:1px solid var(--line);}
-  .breadcrumb{max-width:1440px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--slate-2);}
-  .breadcrumb a:hover{color:var(--blue);}
-  .breadcrumb .sep{opacity:.5;}
-  .breadcrumb .cur{color:var(--ink);font-weight:500;}
 
   /* ============================================================ HERO — pure white, generous whitespace */
   .hero{background:var(--white);position:relative;overflow:hidden;padding:76px 28px 0;}
