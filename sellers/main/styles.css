@@ -316,7 +316,7 @@ body {
   cursor: pointer;
   background: none;
   -webkit-backdrop-filter: var(--bd-filter);
-  backdrop-filter: var(--bd-filter);
+  /* backdrop-filter: var(--bd-filter); */
   /*box-shadow: var(--sh);*/
   margin: 5px;
   right: 0px;
