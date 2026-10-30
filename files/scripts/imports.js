@@ -8,10 +8,10 @@
   const pageScripts = { '/': '/script.js', '/products': '/products/script.js', '/notifications': '/notifications/script.js' };
   const pageScript = pageScripts[currentPath] || null;
   const styles = [
-    ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
-    ...(currentPath === '/notifications' ? ['/notifications/styles.css'] : []),
     '/files/styles/essentials.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
+    //...(currentPath === '/notifications' ? ['/notifications/styles.css'] : [])
   ];
   const scripts = [
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
