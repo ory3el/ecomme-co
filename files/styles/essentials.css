@@ -458,11 +458,13 @@ header:hover .hide-btn {
   gap: 5px; border-radius: 200px; padding: 5px 10px; 
   filter: var(--img-filter);
 }
+.logo img {width: 170px !important}
 .footerLogo { 
   flex-shrink: 0; display: flex; align-items: center;
   gap: 5px; position: relative; bottom: 25px;
   filter: var(--img-filter);
 }
+.footerLogo img {width: 170px !important}
 .nav-main { display: flex; gap: 2px; }
 .nav-main a {
   background: var(--glass-bg);
