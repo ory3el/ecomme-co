@@ -15,9 +15,6 @@
   <script src="/files/scripts/html-imports.js"></script>
 </head>
 <body>
-
-<div id="index-topbar"></div>
-<header id="index-header"></header>
 	
 <!-- ══ HERO ══════════════════════════════════════════════════ -->
 <section class="support-hero">
@@ -421,73 +418,7 @@
   </div>
 </section>
 
-<footer id="index-footer"></footer>
-<div id="index-sidebars"></div>
-	
-<script>
-    fetch('/files/no-login/index-files/topbar.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-topbar').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-topbar').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
-
-// ----------------------------------------------------------------
-	
-    fetch('/files/no-login/index-files/header.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-header').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-header').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
-
-// ----------------------------------------------------------------
-	
-	fetch('/files/no-login/index-files/footer.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-footer').innerHTML = data;
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-footer').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
-
-// ----------------------------------------------------------------
-	
-	fetch('/files/no-login/index-files/sidebars.html')
-        .then(response => {
-            if (!response.ok) throw new Error("Erro ao carregar o arquivo");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('index-sidebars').innerHTML = data;
-			
-            const script = document.createElement('script');
-            script.src = '/files/no-login/scripts/script.js';
-            document.body.appendChild(script);
-        })
-        .catch(error => {
-            console.error("Erro no carregamento:", error);
-            document.getElementById('index-sidebars').innerHTML = "<h1>Erro ao carregar a página. Verifique o console.</h1>";
-        });
-</script>
-
 <script src="/files/scripts/imports.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
