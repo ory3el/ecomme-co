@@ -358,39 +358,6 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar" id="topbar">
-  🚚 Frete Grátis em compras acima de R$199 <span>|</span> Entrega em 7–15 dias úteis <span>|</span> 30 dias de garantia de devolução
-  <button class="topbar-close" onclick="document.getElementById('topbar').style.display='none'">×</button>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <a class="logo" href="/"><span>Ecomme</span><div class="logo-dot"></div></a>
-    <nav class="nav-main">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/categories">Categorias</a>
-      <a href="/offers">Ofertas</a>
-      <a href="/about">Sobre</a>
-    </nav>
-    <div class="header-spacer"></div>
-    <div class="header-actions">
-      <button class="icon-btn" onclick="showToast('success','Nenhuma notificação nova')">
-        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="hd-badge">2</span>
-      </button>
-      <button class="icon-btn" onclick="showToast('success','Seu carrinho está vazio')">
-        <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      </button>
-      <button class="btn-account">
-        <span class="acc-avatar">MF</span>Mariana Ferreira
-      </button>
-    </div>
-  </div>
-</header>
-
 <!-- BREADCRUMB -->
 <div class="breadcrumb-bar">
   <div class="breadcrumb">
@@ -462,21 +429,6 @@
   </div>
   <div class="reviews-grid" id="reviewsGrid"></div>
 </div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="ft-inner">
-    <a class="ft-logo" href="/">Ecomme<span style="color:var(--blue);font-size:6px;vertical-align:super">●</span></a>
-    <div class="ft-links">
-      <a href="/">Início</a>
-      <a href="/products">Produtos</a>
-      <a href="/my-orders">Meus Pedidos</a>
-      <a href="/support">Suporte</a>
-      <a href="/reviews">Minhas Avaliações</a>
-    </div>
-    <p class="ft-copy">© 2026 Ecomme Place. Todos os direitos reservados.</p>
-  </div>
-</footer>
 
 <!-- ══ EDIT MODAL ════════════════════════════════════════════ -->
 <div class="modal-ov" id="editModal" onclick="if(event.target===this) closeEditModal()">
