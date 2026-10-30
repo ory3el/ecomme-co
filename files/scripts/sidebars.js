@@ -1478,49 +1478,97 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 );
 
-// HEADER
-function initHeaderAuthListener() {
+// HEADER — inicializa também quando o HTML do cabeçalho é inserido dinamicamente.
+let headerAuthSubscription = null;
+let headerAvatarRequest = 0;
+
+function getHeaderSupabaseClient() {
+  try {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient?.auth) return supabaseClient;
+  } catch (_) {}
+  return window.supabaseClient?.auth ? window.supabaseClient : null;
+}
+
+async function applyHeaderAuthState(session) {
   const loginBtn = document.getElementById('authLoginBtn');
   const profileContainer = document.getElementById('headerProfileContainer');
   const bellBtn = document.getElementById('bellBtn');
   const headerAvatar = document.getElementById('headerAvatar');
-
   if (!loginBtn || !profileContainer) return;
-  
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (session && session.user) {
-      loginBtn.classList.add('hidden');
-      bellBtn.classList.remove('hidden');
-      profileContainer.classList.remove('hidden');
 
-      try {
-        const { data: profileData, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('avatar_url')
-          .eq('id', session.user.id)
-          .single();
+  const requestId = ++headerAvatarRequest;
+  const user = session?.user;
+  if (!user) {
+    loginBtn.classList.remove('hidden');
+    profileContainer.classList.add('hidden');
+    bellBtn?.classList.add('hidden');
+    if (headerAvatar) headerAvatar.src = '/images/icons/full/user.webp';
+    return;
+  }
 
-        if (!profileError && profileData && profileData.avatar_url) {
-          headerAvatar.src = profileData.avatar_url;      
-          headerAvatar.style.filter = 'none';
-          headerAvatar.style.width = '100%';
-          headerAvatar.style.height = '100%';
-          headerAvatar.style.borderRadius = '100%';
-          headerAvatar.style.objectFit = 'cover';
-        } else {
-          headerAvatar.src = "/images/icons/full/user.webp";
-        }
-      } catch (err) {
-        console.error("Erro ao carregar o avatar do header:", err);
-      }
-    } else {
-      loginBtn.classList.remove('hidden');
-      profileContainer.classList.add('hidden');
-      bellBtn.classList.add('hidden');
-      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
-    }
-  });
+  loginBtn.classList.add('hidden');
+  bellBtn?.classList.remove('hidden');
+  profileContainer.classList.remove('hidden');
+  if (!headerAvatar) return;
+
+  const fallbackAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '/images/icons/full/user.webp';
+  headerAvatar.style.width = '100%';
+  headerAvatar.style.height = '100%';
+  headerAvatar.style.borderRadius = '100%';
+  headerAvatar.style.objectFit = 'cover';
+  headerAvatar.style.filter = fallbackAvatar === '/images/icons/full/user.webp' ? '' : 'none';
+  headerAvatar.alt = `Foto de perfil de ${user.user_metadata?.full_name || user.user_metadata?.name || 'usuário'}`;
+  headerAvatar.onerror = () => {
+    headerAvatar.onerror = null;
+    headerAvatar.src = '/images/icons/full/user.webp';
+  };
+  headerAvatar.src = fallbackAvatar;
+
+  const client = getHeaderSupabaseClient();
+  if (!client) return;
+  try {
+    const { data: profileData, error: profileError } = await client
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (requestId !== headerAvatarRequest) return;
+    if (profileError) throw profileError;
+    const avatarUrl = profileData?.avatar_url || fallbackAvatar;
+    headerAvatar.style.filter = avatarUrl === '/images/icons/full/user.webp' ? '' : 'none';
+    headerAvatar.src = avatarUrl;
+  } catch (error) {
+    if (requestId === headerAvatarRequest) console.error('Erro ao carregar o avatar do header:', error);
+  }
 }
+
+function initHeaderAuthListener() {
+  const loginBtn = document.getElementById('authLoginBtn');
+  const profileContainer = document.getElementById('headerProfileContainer');
+  if (!loginBtn || !profileContainer) return;
+  const client = getHeaderSupabaseClient();
+  if (!client) {
+    console.warn('[Ecomme] Cliente Supabase ainda não está disponível para o header.');
+    return;
+  }
+  if (!headerAuthSubscription) {
+    const { data } = client.auth.onAuthStateChange((_event, session) => {
+      // Evita executar consultas Supabase diretamente dentro do callback de autenticação.
+      window.setTimeout(() => applyHeaderAuthState(session), 0);
+    });
+    headerAuthSubscription = data?.subscription || null;
+  }
+  client.auth.getSession()
+    .then(({ data, error }) => {
+      if (error) throw error;
+      return applyHeaderAuthState(data?.session || null);
+    })
+    .catch(error => console.error('[Ecomme] Não foi possível identificar a sessão do header:', error));
+}
+
+// O cabeçalho é buscado e inserido pelo html-imports.js após DOMContentLoaded.
+window.addEventListener('ecomme:components-ready', initHeaderAuthListener);
+window.addEventListener('ecomme:sidebars-ready', initHeaderAuthListener);
 initHeaderAuthListener();
 
 // ============================================================
@@ -3320,8 +3368,6 @@ function openConfirmLogout() {
 
   window.addEventListener('ecomme:sidebars-ready', () => {
     renderSidebar();
-    // Os sidebars são inseridos via fetch em algumas páginas; se a primeira
-    // inicialização ocorreu antes da inserção, tente inicializar novamente.
     if (!started) init();
   });
 
@@ -3429,7 +3475,6 @@ function openConfirmLogout() {
         await initializeForUser(null);
       }
       client.auth.onAuthStateChange((_event, session) => {
-        // Evita executar operações Supabase diretamente dentro do callback de auth.
         window.setTimeout(() => initializeForUser(session?.user || null), 0);
       });
     })();
