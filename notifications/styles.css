@@ -5,6 +5,7 @@
     button { cursor: pointer; border: none; background: none; font-family: inherit; }
     img { max-width: 100%; display: block; }
     input { font-family: inherit; }
+    .breadcrumb-bar { display: none }
 
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg3); }
