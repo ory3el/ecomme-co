@@ -151,6 +151,9 @@ a { color: inherit; }
   margin: 0;
   color: var(--black);
 }
+body.mw-public-list .mw-list-heading h1, .mw-manage-hero h1 { color: #fff; }
+body.mw-public-list .mw-eyebrow { color: var(--muted2); }
+
 .mw-list-meta { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 12px; margin: 11px 0 0; }
 .mw-dot { color: #9eabc0; }
 
