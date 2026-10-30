@@ -353,7 +353,7 @@
     }
   }
 
-  // Inicialização.
+  // Init.
   async function initialize() {
     const footerYear = $('footerYear');
     if (footerYear) footerYear.textContent = String(new Date().getFullYear());
@@ -363,6 +363,7 @@
       return;
     }
     state.token = tokenFromPath();
+    document.body.classList.toggle('mw-public-list', Boolean(state.token));
     try {
       if (state.token) await loadPublicList(state.token);
       else await loadMyLists();
