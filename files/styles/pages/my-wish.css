@@ -79,7 +79,7 @@ a { color: inherit; }
   position: relative;
   overflow: hidden;
   border-radius: 27px;
-  background: linear-gradient(115deg,#153d9a 0%,#2563eb 46%,#77b8ff 100%);
+  background: linear-gradient(115deg,var(--blue2) 0%,#2563eb 46%,#77b8ff 100%);
   box-shadow: 0 0 50px rgb(37 99 235 / 50%);
   display: flex;
   align-items: center;
