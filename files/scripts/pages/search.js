@@ -1,0 +1,433 @@
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+let PRODUCTS = [];
+let BRANDS = [];
+let RELATED_PRODS = [];
+const RELATED_TAGS = [
+  {ico:'📱', label:'iPhone'},
+  {ico:'🎧', label:'fone bluetooth'},
+  {ico:'💻', label:'notebook'},
+  {ico:'⌚', label:'smartwatch'},
+  {ico:'📷', label:'câmera'},
+  {ico:'👟', label:'tênis'},
+  {ico:'🎒', label:'mochila'},
+  {ico:'🪑', label:'cadeira gamer'},
+];
+
+const AC_SUGGESTIONS = [
+  'iPhone', 'Fone Bluetooth', 'Notebook', 'Smartwatch',
+  'Câmera', 'Tênis', 'Mochila', 'Cadeira Gamer'
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let wishlist = [], cmpList = [], cartCount = 3;
+let activeFilters = {};
+let currentView = 'g';
+let currentQuery = '';
+let qvQty = 1;
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function fp(p){ return 'R$ '+p.toFixed(2).replace('.',',') }
+function stars(r){
+  let s='';
+  for(let i=1;i<=5;i++){
+    if(i<=Math.floor(r)) s+=`<span class="pstar on">★</span>`;
+    else if(i-r<1) s+=`<span class="pstar half">★</span>`;
+    else s+=`<span class="pstar off">☆</span>`;
+  }
+  return s;
+}
+
+function badgeHtml(b){
+  const map={hot:'<span class="pbadge pb-hot">🔥 Hot</span>',new:'<span class="pbadge pb-new">Novo</span>',sale:'<span class="pbadge pb-sale">Sale</span>',top:'<span class="pbadge pb-top">⭐ Top</span>'};
+  return map[b]||'';
+}
+
+function renderGrid(data){
+  const g = document.getElementById('pgrid');
+  const nr = document.getElementById('noResults');
+
+  if(!data.length){
+    g.innerHTML=''; nr.classList.add('on');
+    document.getElementById('noResultsQuery').textContent=`"${currentQuery}"`;
+    document.getElementById('noResultsSug').innerHTML=AC_SUGGESTIONS.map(s=>`<span class="nr-sug-chip" onclick="doSearch('${s}')">${s}</span>`).join('');
+    return;
+  }
+  nr.classList.remove('on');
+
+  const lv = currentView==='l';
+  const isFeatured = id => data[0]?.id===id && !lv && currentView==='g';
+
+  g.innerHTML = data.map((p,i) => {
+    const isFeat = i===0 && !lv && currentView==='g';
+    const stockPct = Math.min(100,Math.round(p.stock/80*100));
+    const stockColor = stockPct<20?'#dc2626':stockPct<50?'#d97706':'#059669';
+    const inW = wishlist.includes(p.id);
+    const inC = cmpList.find(x=>x.id===p.id);
+
+    return `<div class="pcard ${isFeat?'pcard-featured':''}" onclick="openQV(${p.id})" data-id="${p.id}">
+      <div class="pimg-wrap">
+        <div class="pimg">${p.em}</div>
+        <div class="pcard-badges">${badgeHtml(p.badge)}${p.ship?'<span class="pbadge pb-free">✈ Frete Grátis</span>':''}</div>
+        <button class="pcard-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${p.id})">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="pcard-cmp ${inC?'on':''}" onclick="event.stopPropagation();toggleCmp(${p.id})" title="Comparar">⚖️</button>
+        <div class="pcard-actions">
+          <button class="btn-ac" onclick="event.stopPropagation();addCart(${p.id})">
+            <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Adicionar
+          </button>
+          <button class="btn-qv" onclick="event.stopPropagation();openQV(${p.id})" title="Ver detalhes">👁️</button>
+        </div>
+        ${p.stock<10?`<div class="stock-bar-wrap"><div class="stock-bar-fill" style="width:${stockPct}%;background:${stockColor}"></div></div>`:''}
+      </div>
+      <div class="pcard-info">
+        <div class="pcat-row">
+          <span class="pcat">${p.cat}</span>
+          ${p.brand?`<span class="tag-ghost" style="background:rgba(148,163,184,.12);color:var(--stone);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px">${p.brand}</span>`:''}
+        </div>
+        <div class="pname">${p.name}</div>
+        <div class="prat">
+          <div class="pstars">${stars(p.rat)}</div>
+          <span class="prat-score">${p.rat}</span>
+          <span class="prat-count">(${p.reviews.toLocaleString('pt-BR')})</span>
+          ${p.reviews>1000?'<span class="prat-verified">✓ Verificado</span>':''}
+        </div>
+        <div class="pprice-row">
+          <span class="pprice">${fp(p.price)}</span>
+          ${p.old?`<span class="pold-price">${fp(p.old)}</span><span class="pdisc">-${p.disc}%</span>`:''}
+        </div>
+        <div class="pinstall">ou <strong>${Math.ceil(p.price/12)} × ${fp(p.price/12)}</strong> sem juros</div>
+        ${p.ship?`<div class="pship"><svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><polygon points="9,21 15,21 15,17 9,17"/></svg>Frete grátis</div>`:''}
+        <div class="pseller">
+          <div class="pseller-av">DS</div>
+          <span>Marketplace Ecomme</span>
+          <span class="pseller-verified">✓</span>
+          ${p.stock<5?`<span class="tag-red" style="margin-left:auto;background:rgba(220,38,38,.1);color:var(--red);font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px">⚠ ${p.stock} restantes</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderPagination(data.length);
+}
+
+function renderPagination(total){
+  const pages = Math.ceil(total/12)||1;
+  const el = document.getElementById('pagination');
+  let html = `<button class="pgbtn" ${1===1?'disabled':''}>←</button>`;
+  for(let i=1;i<=Math.min(pages,7);i++){
+    if(i===4 && pages>7) html+=`<span class="pgdots">…</span>`;
+    html+=`<button class="pgbtn ${i===1?'on':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if(pages>7) html+=`<button class="pgbtn" onclick="goPage(${pages})">${pages}</button>`;
+  html+=`<button class="pgbtn">→</button>`;
+  html+=`<div class="per-page"><span>Por página:</span><select onchange="toast('Exibindo '+this.value+' itens','inf')"><option>12</option><option>24</option><option>48</option></select></div>`;
+  el.innerHTML=html;
+}
+function goPage(n){ toast(`Página ${n}`,'inf'); window.scrollTo({top:document.querySelector('.page-body').offsetTop-80,behavior:'smooth'}); }
+
+// ════════════════════════════════════════
+// SEARCH & FILTER
+// ════════════════════════════════════════
+function doSearch(q){
+  const v = q || document.getElementById('searchInput').value.trim();
+  if(!v) return;
+  currentQuery = v;
+  document.getElementById('queryTerm').textContent = `"${v}"`;
+  document.getElementById('toolbarTitle').innerHTML = `Resultados para <em>"${v}"</em>`;
+  document.getElementById('searchInput').value = v;
+  document.title = `Ecomme — Resultados: "${v}"`;
+  renderGrid(PRODUCTS);
+  toast(`Buscando por "${v}"…`,'inf');
+}
+
+function onSearchInput(inp){
+  const v = inp.value.toLowerCase();
+  const ac = document.getElementById('acDrop');
+  if(!v){ ac.style.display='none'; return; }
+  ac.style.display='';
+
+  // suggestions
+  const sug = AC_SUGGESTIONS.filter(s=>s.includes(v));
+  document.getElementById('acSugTags').innerHTML = sug.map(s=>`<div class="ac-tag" onclick="doSearch('${s}')">🔍 ${s}</div>`).join('');
+
+  // products preview
+  const prods = PRODUCTS.filter(p=>p.name.toLowerCase().includes(v)||p.cat.toLowerCase().includes(v)||p.brand.toLowerCase().includes(v)).slice(0,4);
+  document.getElementById('acItems').innerHTML = prods.map(p=>`
+    <div class="ac-item" onclick="openQV(${p.id})">
+      <div class="ac-item-ico">${p.em}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ac-item-name">${p.name.slice(0,50)}${p.name.length>50?'…':''}</div>
+        <div class="ac-item-cat">${p.cat} · ${p.brand}</div>
+      </div>
+      <div class="ac-item-price">${fp(p.price)}</div>
+    </div>`).join('');
+}
+
+function onSearchKey(e){ if(e.key==='Enter') doSearch(); }
+
+function doSort(v){
+  let data=[...PRODUCTS];
+  if(v==='asc') data.sort((a,b)=>a.price-b.price);
+  else if(v==='desc') data.sort((a,b)=>b.price-a.price);
+  else if(v==='rat') data.sort((a,b)=>b.rat-a.rat);
+  else if(v==='new') data.sort((a,b)=>b.id-a.id);
+  else if(v==='disc') data.sort((a,b)=>b.disc-a.disc);
+  else if(v==='pop') data.sort((a,b)=>b.reviews-a.reviews);
+  renderGrid(data);
+  const labels={rel:'relevância',pop:'popularidade',new:'novidades',asc:'menor preço',desc:'maior preço',rat:'melhor avaliados',disc:'maior desconto'};
+  document.getElementById('toolbarSub').textContent=`${data.length} produtos encontrados · Ordenado por ${labels[v]}`;
+  toast(`Ordenado por ${labels[v]}`,'inf');
+}
+
+function filterByCat(cat, btn){
+  if(btn){ document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+  const data = cat==='Todos' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===cat);
+  renderGrid(data);
+  document.getElementById('pgTitle')&&(document.getElementById('pgTitle').textContent=cat);
+  document.getElementById('resultCount').textContent=`${data.length} produtos encontrados`;
+  document.getElementById('toolbarSub').textContent=`${data.length} produtos em ${cat}`;
+  addActiveFilter('Categoria',cat);
+}
+
+function clearCatFilter(){ document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on')); document.querySelector('.cat-btn').classList.add('on'); renderGrid(PRODUCTS); removeActiveFilter('Categoria'); }
+
+// price
+function updatePriceRange(){
+  let lo=parseInt(document.getElementById('rangeMin').value);
+  let hi=parseInt(document.getElementById('rangeMax').value);
+  if(lo>hi){let t=lo;lo=hi;hi=t;}
+  document.getElementById('priceMin').textContent=`R$ ${lo.toLocaleString('pt-BR')}`;
+  document.getElementById('priceMax').textContent=`R$ ${hi.toLocaleString('pt-BR')}`;
+  const data=PRODUCTS.filter(p=>p.price>=lo&&p.price<=hi);
+  renderGrid(data);
+  if(lo>0||hi<8000) addActiveFilter('Preço',`R$${lo}–R$${hi}`);
+  else removeActiveFilter('Preço');
+}
+function resetPrice(){ document.getElementById('rangeMin').value=0; document.getElementById('rangeMax').value=8000; updatePriceRange(); document.querySelectorAll('.price-preset').forEach(b=>b.classList.remove('on')); }
+function setPreset(lo,hi,btn){ document.getElementById('rangeMin').value=lo; document.getElementById('rangeMax').value=hi; document.querySelectorAll('.price-preset').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); updatePriceRange(); }
+
+// brands
+function renderBrands(){
+  document.getElementById('brandList').innerHTML=BRANDS.map(b=>`
+    <label class="brand-item">
+      <input type="checkbox" onchange="onBrandChange(this,'${b.name}')">
+      <span class="brand-name">${b.name}</span>
+      <span class="brand-rating">${'★'.repeat(Math.round(b.rating))}</span>
+      <span class="brand-count">(${b.count})</span>
+    </label>`).join('');
+}
+function filterBrands(q){ document.querySelectorAll('.brand-item').forEach(el=>{ el.style.display=el.querySelector('.brand-name').textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none'; }); }
+function onBrandChange(cb,brand){ if(cb.checked){addActiveFilter('Marca:'+brand,brand);}else{removeActiveFilter('Marca:'+brand);} const checked=[...document.querySelectorAll('.brand-item input:checked')].map(i=>i.closest('.brand-item').querySelector('.brand-name').textContent); const data=checked.length?PRODUCTS.filter(p=>checked.includes(p.brand)):PRODUCTS; renderGrid(data); }
+
+// rating
+function renderRatings(){
+  const rows=[{stars:5,count:1248,pct:72},{stars:4,count:389,pct:22},{stars:3,count:87,pct:5},{stars:2,count:18,pct:1},{stars:1,count:12,pct:0}];
+  document.getElementById('ratingList').innerHTML=rows.map(r=>`
+    <div class="rating-item" onclick="onRatingFilter(${r.stars},this)">
+      <input type="radio" name="rat" style="accent-color:var(--blue)">
+      <div class="stars-row">${Array.from({length:5},(x,i)=>`<span class="star ${i<r.stars?'on':'off'}">★</span>`).join('')}</div>
+      <span class="rat-count">(${r.count.toLocaleString('pt-BR')})</span>
+      <div class="rat-bar"><div class="rat-bar-fill" style="width:${r.pct}%"></div></div>
+    </div>`).join('');
+}
+function onRatingFilter(n,el){ document.querySelectorAll('.rating-item').forEach(r=>r.classList.remove('on')); el.classList.add('on'); const data=PRODUCTS.filter(p=>p.rat>=n); renderGrid(data); addActiveFilter('Avaliação',`${n}+ ★`); }
+
+function toggleShipOpt(el){ el.classList.toggle('on'); const active=[...document.querySelectorAll('.ship-opt.on')]; if(active.length) addActiveFilter('Envio','Filtrado'); else removeActiveFilter('Envio'); }
+function toggleCond(btn){ document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+
+// active filters
+function addActiveFilter(key, val){
+  activeFilters[key]=val;
+  renderActiveFilters();
+}
+function removeActiveFilter(key){
+  delete activeFilters[key];
+  renderActiveFilters();
+}
+function renderActiveFilters(){
+  const bar=document.getElementById('activeFiltersBar');
+  const chips=document.getElementById('activeChips');
+  const entries=Object.entries(activeFilters).filter(([k,v])=>v!=='Todos');
+  if(!entries.length){bar.classList.remove('has-filters');return;}
+  bar.classList.add('has-filters');
+  chips.innerHTML=entries.map(([k,v])=>`<span class="af-chip" onclick="removeActiveFilter('${k}');renderGrid(PRODUCTS)">${v}<span class="af-chip-x">✕</span></span>`).join('');
+}
+function clearAllFilters(){
+  activeFilters={};
+  renderActiveFilters();
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.cat-btn').classList.add('on');
+  document.querySelectorAll('.ship-opt').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.rating-item').forEach(r=>{r.classList.remove('on');r.querySelector('input').checked=false;});
+  resetPrice();
+  renderGrid(PRODUCTS);
+  toast('Filtros removidos','inf');
+}
+
+// ════════════════════════════════════════
+// WISHLIST & CART & COMPARE
+// ════════════════════════════════════════
+function toggleWish(id){
+  const idx=wishlist.indexOf(id);
+  if(idx>-1){wishlist.splice(idx,1);toast('Removido dos favoritos');}
+  else{wishlist.push(id);toast('Adicionado aos favoritos ❤️');}
+  const bdg=document.getElementById('wishBdg');
+  bdg.textContent=wishlist.length;
+  bdg.style.display=wishlist.length?'flex':'none';
+  renderGrid(PRODUCTS);
+}
+
+function addCart(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  cartCount++;
+  document.getElementById('cartBdg').textContent=cartCount;
+  toast(`${p.name.split(' ').slice(0,4).join(' ')}… adicionado! 🛒`);
+  renderGrid(PRODUCTS);
+}
+
+function toggleCmp(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  const idx=cmpList.findIndex(x=>x.id===id);
+  if(idx>-1){ cmpList.splice(idx,1); toast('Removido da comparação'); }
+  else{ if(cmpList.length>=3){toast('Máximo 3 produtos para comparar','err');return;} cmpList.push(p); toast(`${p.name.split('—')[0].trim()} adicionado à comparação`,'inf'); }
+  document.getElementById('cmpBar').classList.toggle('on',cmpList.length>0);
+  renderCmpSlots();
+  renderGrid(PRODUCTS);
+}
+function renderCmpSlots(){
+  document.getElementById('cmpSlots').innerHTML=cmpList.map(p=>`<div class="cmp-slot">${p.em}<div class="cmp-slot-x" onclick="toggleCmp(${p.id})">✕</div></div>`).join('')+Array(3-cmpList.length).fill('<div class="cmp-slot"><span class="cmp-slot-empty">+</span></div>').join('');
+}
+function clearCmp(){ cmpList=[]; document.getElementById('cmpBar').classList.remove('on'); renderGrid(PRODUCTS); }
+function doCmp(){ if(cmpList.length<2){toast('Adicione pelo menos 2 produtos','err');return;} toast(`Comparando: ${cmpList.map(p=>p.brand).join(' × ')}`,'inf'); }
+
+// ════════════════════════════════════════
+// QUICK VIEW
+// ════════════════════════════════════════
+let currentQvId = null;
+function openQV(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  currentQvId=id; qvQty=1;
+  document.getElementById('qvEm').innerHTML=`<button class="qv-close" onclick="closeQV()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>${p.em}`;
+  document.getElementById('qvContent').innerHTML=`
+    <div class="qv-cat">${p.cat} · ${p.brand}</div>
+    <div class="qv-name">${p.name}</div>
+    <div class="prat fac gap6 mb12"><div class="pstars">${stars(p.rat)}</div><span class="prat-score">${p.rat}</span><span class="prat-count">(${p.reviews.toLocaleString('pt-BR')} avaliações)</span></div>
+    <div class="qv-price-row">
+      <span class="qv-price">${fp(p.price)}</span>
+      ${p.old?`<span class="qv-old">${fp(p.old)}</span><span class="qv-disc">-${p.disc}%</span>`:''}
+    </div>
+    <div class="qv-feats">${p.feats.map(f=>`<div class="qv-feat">${f}</div>`).join('')}</div>
+    <hr class="qv-divider">
+    <div class="qv-qty-row">
+      <span class="fs12 fw6">Quantidade:</span>
+      <div class="qv-qty-ctrl">
+        <button class="qbtn" onclick="chgQvQty(-1)">−</button>
+        <span class="qn" id="qvQtyN">1</span>
+        <button class="qbtn" onclick="chgQvQty(1)">+</button>
+      </div>
+      ${p.stock<10?`<span class="tag tag-amber">⚠ ${p.stock} restantes</span>`:'<span class="tag tag-green">✓ Em estoque</span>'}
+    </div>
+    <div class="qv-btns">
+      <button class="qv-cart" onclick="addCartFromQV()">
+        <svg style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Adicionar ao Carrinho
+      </button>
+      <button class="qv-wish-btn" onclick="toggleWish(${p.id})">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+    <div class="fac gap8 mt12">
+      <span style="font-size:11px;color:var(--stone)">🔒 Compra segura SSL · ↩ 30 dias de garantia</span>
+    </div>`;
+  document.getElementById('qvOverlay').classList.add('on');
+}
+function closeQV(e){ if(!e||e.target===document.getElementById('qvOverlay')||e.currentTarget?.classList?.contains('qv-close')){ document.getElementById('qvOverlay').classList.remove('on'); } }
+function chgQvQty(d){ qvQty=Math.max(1,qvQty+d); document.getElementById('qvQtyN').textContent=qvQty; }
+function addCartFromQV(){ const p=PRODUCTS.find(x=>x.id===currentQvId); cartCount+=qvQty; document.getElementById('cartBdg').textContent=cartCount; toast(`${qvQty}× ${p.name.split('—')[0].trim()}… 🛒`); document.getElementById('qvOverlay').classList.remove('on'); }
+
+// ════════════════════════════════════════
+// VIEW TOGGLE
+// ════════════════════════════════════════
+function setView(v){
+  currentView=v;
+  const g=document.getElementById('pgrid');
+  g.className='pgrid'+(v==='l'?' lv':v==='g4'?' grd4':'');
+  document.getElementById('gBtn').classList.toggle('on',v==='g');
+  document.getElementById('g4Btn').classList.toggle('on',v==='g4');
+  document.getElementById('lBtn').classList.toggle('on',v==='l');
+  renderGrid(PRODUCTS);
+}
+
+// ════════════════════════════════════════
+// COUNTDOWN
+// ════════════════════════════════════════
+let cdSecs = 8*3600+47*60+32;
+function tick(){
+  if(cdSecs<=0){document.getElementById('cdH').textContent=document.getElementById('cdM').textContent=document.getElementById('cdS').textContent='00';return;}
+  cdSecs--;
+  const h=Math.floor(cdSecs/3600),m=Math.floor((cdSecs%3600)/60),s=cdSecs%60;
+  document.getElementById('cdH').textContent=String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent=String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent=String(s).padStart(2,'0');
+}
+setInterval(tick,1000);
+
+// ════════════════════════════════════════
+// RELATED & TAGS
+// ════════════════════════════════════════
+function renderRelated(){
+  document.getElementById('relatedScroll').innerHTML=RELATED_PRODS.map(p=>`
+    <div class="rcard" onclick="toast('Abrindo ${p.name}','inf')">
+      <div class="rcard-img">${p.em}</div>
+      <div class="rcard-info">
+        <div class="rcard-name">${p.name}</div>
+        <div class="rcard-price">${p.price}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('relatedTags').innerHTML=RELATED_TAGS.map(t=>`
+    <button class="stag-chip" onclick="doSearch('${t.label}')">
+      <span class="stag-ico">${t.ico}</span>${t.label}
+    </button>`).join('');
+}
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  document.getElementById('tMsg').textContent=msg;
+  const ic=document.getElementById('tIco');
+  ic.className='t-dot '+(type==='ok'?'t-ok':type==='err'?'t-err':'t-inf');
+  ic.textContent=type==='ok'?'✓':type==='err'?'!':'ℹ';
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('on'),3000);
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+// O módulo search-results-live.js carrega resultados reais do Supabase.
+const urlParams = new URLSearchParams(window.location.search);
+const initialQuery = urlParams.get('q') || '';
+document.getElementById('searchInput').value = initialQuery;
+document.getElementById('pgrid').innerHTML = `
+  <div class="search-loading" role="status" aria-live="polite">
+    <span class="search-spinner" aria-hidden="true"></span>
+    <span>Carregando produtos da Ecomme...</span>
+  </div>
+`;
+document.getElementById('resultCount').textContent = 'Carregando...';
+document.getElementById('toolbarSub').textContent = 'Consultando catálogo...';
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeQV(); if(e.key==='/'&&e.target.tagName!=='INPUT'){e.preventDefault();document.getElementById('searchInput').focus();} });
+window.addEventListener('click',e=>{ if(!document.getElementById('qvOverlay').contains(e.target)) return; if(e.target===document.getElementById('qvOverlay')) closeQV(); });
