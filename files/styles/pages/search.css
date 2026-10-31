@@ -50,7 +50,7 @@ input,select { font-family:inherit }
 ::-webkit-scrollbar-track { background:var(--bg) }
 ::-webkit-scrollbar-thumb { background:var(--blueXL); border-radius:3px }
 
-.search-bar { display: block !important }
+.search-bar { display: flex !important }
 
 /* ── typography ── */
 .display { font-family:'Clash Display',sans-serif }
