@@ -17,7 +17,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       const fullName = profile.full_name || 'Cliente';
       const email = user.email || '';
       if (document.getElementById('fName')) document.getElementById('fName').value = fullName;
-      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').value = email;
+      if (document.getElementById('fEmail')) document.getElementById('fEmail').value = email;
+      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').value = document.getElementById('fEmail').value;
     }
   }
 );
