@@ -168,7 +168,6 @@ input { font-family: inherit; }
 .noscroll { overflow: hidden; scrollbar-gutter: stable; }
 body.nobodyscroll { overflow: hidden; }
 .hidden { display: none !important; }
-.search-bar { display: flex; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg3); }
