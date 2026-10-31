@@ -9,6 +9,7 @@
   const pageScript = pageScripts[currentPath] || null;
   const styles = [
     '/files/styles/essentials.css',
+    '/files/styles/hide-search-bar.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
     //...(currentPath === '/notifications' ? ['/notifications/styles.css'] : [])
