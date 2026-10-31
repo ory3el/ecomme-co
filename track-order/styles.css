@@ -64,7 +64,7 @@
     .track-spacer {height: 28px;background: var(--bg);}
 
     /* ── EMPTY HINT SECTION ──────────────────────────────────── */
-    .hint-section {background: var(--surface3);padding: 0 28px 70px;}
+    .hint-section {margin-top: 50px;background: var(--surface3);padding: 0 28px 70px;}
     .hint-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     .hint-card {background: var(--white);border: 1px solid var(--border2);border-radius: var(--rad-lg);padding: 22px 20px;text-align: center;}
     .hint-ico { width: 44px; height: 44px; border-radius: 12px; background: var(--blue-dim); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
