@@ -295,7 +295,7 @@ verificarTema(mqEscuro);
 mqEscuro.addEventListener('change', verificarTema);
 
 // ------------------------------------------------
-/*if (typeof systemPrefersDark === 'undefined') {
+if (typeof systemPrefersDark === 'undefined') {
   function systemPrefersDark() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
@@ -362,7 +362,7 @@ mqEscuro.addEventListener('change', verificarTema);
       else if (mq.addListener) mq.addListener(onChange);
     }
   }
-}*/
+}
 
 /* ── THEME ───────────────────────────────────────────────────────── */
 function initThemeToggle() {
