@@ -551,22 +551,22 @@ function buildProdTable(filter) {
   const slice = all.slice((prodPageNum - 1) * PROD_PAGE_SIZE, prodPageNum * PROD_PAGE_SIZE);
 
   if (!slice.length) {
-    body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:36px;color:var(--muted)">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
+    body.innerHTML = `<tr class="empty-row"><td colspan="9">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
   } else {
     body.innerHTML = slice.map(p => {
       const stock = prodStock(p);
       const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
-      const stTag = !prodIsPaused(p) ? '<span class="tag tag-green">● Ativo</span>' : '<span class="tag tag-gray">⏸ Pausado</span>';
+      const stTag = !prodIsPaused(p) ? '<span class="tag tag-green"><i class="fa-solid fa-circle"></i> Ativo</span>' : '<span class="tag tag-gray"><i class="fa-solid fa-pause"></i> Pausado</span>';
       const sold = soldByProduct[String(p.id)];
       const soldTxt = (ordersModule === 'ok') ? `${sold || 0} vendas` : '—';
       const media = p.image_url
-        ? `<img src="${escapeHtml(p.image_url)}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${escapeHtml(p.name)}">`
+        ? `<img src="${escapeHtml(p.image_url)}" loading="lazy" alt="${escapeHtml(p.name)}">`
         : '';
       const id = escapeHtml(p.id);
       return `<tr>
       <td class="chk-col"><input type="checkbox" class="chk"></td>
       <td><div class="fac gap10">
-        <div class="prod-thumb" style="position: relative;">${escapeHtml(p.emoji || '📦')}${media}</div>
+        <div class="prod-thumb">${escapeHtml(p.emoji || '📦')}${media}</div>
         <div><div class="fs12 fw6">${escapeHtml(p.name)}</div><div class="fs10 muted">ID: ${id}</div></div>
       </div></td>
       <td class="fs11 muted">${escapeHtml(p.sku || '—')}</td>
@@ -575,14 +575,14 @@ function buildProdTable(filter) {
       <td><span class="stock-val ${stClass}">${stock} un.</span></td>
       <td class="fs11 muted">${soldTxt}</td>
       <td>${stTag}</td>
-      <td><div class="fac gap4">
-        <button class="btn btn-ghost btn-xs" style="border-radius:var(--r); display:flex; align-items:center; gap:4px;" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
-        <div class="action-dots" onclick="toggleMenu(event, this)">⋯
-          <div class="action-menu">
-            <div class="am-item" data-act="dup" data-id="${id}">📋 Duplicar</div>
-            <div class="am-item" data-act="pause" data-id="${id}">${prodIsPaused(p) ? '▶ Reativar' : '⏸ Pausar'}</div>
-            <div class="am-item" data-act="export" data-id="${id}">📤 Exportar (CSV)</div>
-            <div class="am-item red" data-act="del" data-id="${id}">🗑 Excluir</div>
+      <td><div class="fac gap4 row-acts">
+        <button class="btn btn-ghost btn-xs" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
+        <div class="action-dots" role="button" tabindex="0" aria-label="Mais ações" aria-haspopup="menu" onclick="toggleMenu(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i>
+          <div class="action-menu" role="menu">
+            <div class="am-item" role="menuitem" data-act="dup" data-id="${id}"><i class="fa-regular fa-copy"></i> Duplicar</div>
+            <div class="am-item" role="menuitem" data-act="pause" data-id="${id}">${prodIsPaused(p) ? '<i class="fa-solid fa-play"></i> Reativar' : '<i class="fa-solid fa-pause"></i> Pausar'}</div>
+            <div class="am-item" role="menuitem" data-act="export" data-id="${id}"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</div>
+            <div class="am-item red" role="menuitem" data-act="del" data-id="${id}"><i class="fa-regular fa-trash-can"></i> Excluir</div>
           </div>
         </div>
       </div></td>
@@ -700,7 +700,7 @@ function editProduct(id) {
   productExistingUrls = [p.image_url || null, gallery[1] || null, gallery[2] || null, gallery[3] || null, gallery[4] || null];
 
   document.querySelectorAll('button[onclick="publishProduct()"]').forEach(btn => {
-    btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('🚀', '💾');
+    btn.innerHTML = btn.innerHTML.replace('Publicar Produto', 'Salvar Produto').replace('fa-rocket', 'fa-floppy-disk');
   });
   setText('labelNewProduct', `Editar Produto | ${p.name}`);
 
@@ -771,6 +771,12 @@ async function deleteProduct(id) {
 let ordFilter = 'all';
 const ORD_STATUS = { pending:'⏳ Aguardando Despacho', transit:'🚚 Em Trânsito', delivered:'✅ Entregue', returned:'↩ Devolução Solicitada', cancelled:'✖ Cancelado' };
 const ORD_TAG = { pending:'tag-orange', transit:'tag-blue', delivered:'tag-green', returned:'tag-yellow', cancelled:'tag-gray' };
+// Só exibição (ORD_STATUS, com emoji, continua alimentando a exportação CSV sem mudanças)
+const ORD_BADGE = { pending:['clock','Aguardando despacho'], transit:['truck-fast','Em trânsito'], delivered:['circle-check','Entregue'], returned:['rotate-left','Devolução solicitada'], cancelled:['ban','Cancelado'] };
+function ordBadge(status) {
+  const b = ORD_BADGE[status];
+  return `<span class="tag ${ORD_TAG[status] || 'tag-gray'}">${b ? `<i class="fa-solid fa-${b[0]}"></i> ${b[1]}` : escapeHtml(status)}</span>`;
+}
 
 function friendlyRpcError(err) {
   if (isMissingRelation(err)) return 'Este recurso ainda não está configurado no banco de dados (migração SQL pendente).';
@@ -819,23 +825,23 @@ function buildOrders(filter) {
   const wrap = $('ordersWrap');
   if (!wrap) return;
   if (ordersModule === 'missing') {
-    wrap.innerHTML = '<div class="card card-pad" style="text-align:center;color:var(--muted)">O módulo de pedidos ainda não está configurado no banco de dados. Execute a migração SQL (seção 6) para ativá-lo.</div>';
+    wrap.innerHTML = '<div class="card card-pad empty-box">O módulo de pedidos ainda não está configurado no banco de dados. Execute a migração SQL (seção 6) para ativá-lo.</div>';
     return;
   }
   if (ordersModule === 'error') {
-    wrap.innerHTML = '<div class="card card-pad" style="text-align:center;color:var(--muted)">Não foi possível carregar os pedidos. Recarregue a página para tentar novamente.</div>';
+    wrap.innerHTML = '<div class="card card-pad empty-box">Não foi possível carregar os pedidos. Recarregue a página para tentar novamente.</div>';
     return;
   }
   const data = ordFilter === 'all' ? ORDERS : ORDERS.filter(o => o.status === ordFilter);
   if (!data.length) {
-    wrap.innerHTML = `<div class="card card-pad" style="text-align:center;color:var(--muted)">${ORDERS.length ? 'Nenhum pedido neste filtro.' : 'Você ainda não recebeu pedidos.'}</div>`;
+    wrap.innerHTML = `<div class="card card-pad empty-box">${ORDERS.length ? 'Nenhum pedido neste filtro.' : 'Você ainda não recebeu pedidos.'}</div>`;
     return;
   }
   wrap.innerHTML = data.map(o => {
     const id = escapeHtml(o.id);
     const items = (o.store_order_items || []).map(it => `
             <div class="fac gap10">
-              <div class="ord-em">📦</div>
+              <div class="ord-em"><i class="fa-solid fa-box"></i></div>
               <div class="ord-info">
                 <div class="ord-item-name">${escapeHtml(it.name)}</div>
                 <div class="ord-item-var">${it.variant ? escapeHtml(it.variant) + ' · ' : ''}Qtd: ${Number(it.qty) || 0} · ${fmtBRL(it.unit_price)}</div>
@@ -848,31 +854,31 @@ function buildOrders(filter) {
         <div class="fac gap12">
           <span class="ord-id">#${escapeHtml(o.code)}</span><span class="muted fs11">·</span>
           <span class="fs11 muted">${fmtDateTime(o.created_at)}</span>
-          ${place ? `<span class="fs11 muted">·</span><span class="fs11 muted">📍 ${escapeHtml(place)}</span>` : ''}
+          ${place ? `<span class="fs11 muted">·</span><span class="fs11 muted"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(place)}</span>` : ''}
         </div>
-        <span class="tag ${ORD_TAG[o.status] || 'tag-gray'}">${ORD_STATUS[o.status] || escapeHtml(o.status)}</span>
+        ${ordBadge(o.status)}
       </div>
       <div class="ord-body">
         <div class="ord-items">${items}</div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="fs11 muted mb4">👤 ${escapeHtml(o.customer_name || 'Cliente')}</div>
+        <div class="ord-side">
+          <div class="fs11 muted mb4"><i class="fa-regular fa-user"></i> ${escapeHtml(o.customer_name || 'Cliente')}</div>
           <div class="ord-total">${fmtBRL(o.total)}</div>
         </div>
       </div>
       <div class="ord-ft">
         <div class="fac gap8">
-          <button class="btn btn-ghost btn-xs" style="border-radius:var(--r)" data-ord-act="details" data-id="${id}">👁 Detalhes</button>
+          <button class="btn btn-ghost btn-xs" data-ord-act="details" data-id="${id}"><i class="fa-regular fa-eye"></i> Detalhes</button>
         </div>
         <div class="ord-actions">
           ${o.status === 'pending' ? `
             <input class="tracking-inp" placeholder="Cód. rastreamento (ex: BR123456789BR)" id="track-${id}" maxlength="40">
-            <button class="btn btn-p btn-xs" data-ord-act="dispatch" data-id="${id}">🚚 Marcar como Despachado</button>` : ''}
-          ${o.status === 'transit' ? `<span class="tag tag-blue">Rastreio: ${escapeHtml(o.tracking_code || '—')}</span>` : ''}
+            <button class="btn btn-p btn-xs" data-ord-act="dispatch" data-id="${id}"><i class="fa-solid fa-truck-fast"></i> Marcar como despachado</button>` : ''}
+          ${o.status === 'transit' ? `<span class="tag tag-blue"><i class="fa-solid fa-barcode"></i> Rastreio: ${escapeHtml(o.tracking_code || '—')}</span>` : ''}
           ${o.status === 'returned' && !o.return_approved_at ? `<button class="btn btn-danger btn-xs" data-ord-act="return" data-id="${id}">Aprovar Devolução</button>` : ''}
           ${o.status === 'returned' && o.return_approved_at ? '<span class="tag tag-gray">Devolução aprovada</span>' : ''}
         </div>
       </div>
-      <div class="ord-details" id="ord-details-${id}" style="display:none;padding:12px 16px;border-top:1px solid var(--b2);font-size:12px;color:var(--muted)">
+      <div class="ord-details" id="ord-details-${id}" style="display:none">
         Cliente: <strong>${escapeHtml(o.customer_name || '—')}</strong> · Entrega: ${escapeHtml(place || '—')}<br>
         Rastreio: ${escapeHtml(o.tracking_code || 'ainda não informado')}
       </div>
@@ -1001,7 +1007,7 @@ function renderFinance() {
   buildExtract();
 }
 
-const EXTRACT_ICONS = { 'Venda': ['💰', '#dcfce7'], 'Devolução': ['↩', '#fee2e2'], 'Saque': ['💸', '#ffedd5'], 'Ajuste': ['⚙', '#e0e7ff'] };
+const EXTRACT_ICONS = { 'Venda': ['<i class="fa-solid fa-arrow-trend-up"></i>', 'ext-sale'], 'Devolução': ['<i class="fa-solid fa-rotate-left"></i>', 'ext-refund'], 'Saque': ['<i class="fa-solid fa-money-bill-transfer"></i>', 'ext-payout'], 'Ajuste': ['<i class="fa-solid fa-sliders"></i>', 'ext-adjust'] };
 function extractRows() {
   const rows = [];
   LEDGER.forEach(g => rows.push({ date: g.created_at, type: g.kind === 'sale' ? 'Venda' : g.kind === 'refund' ? 'Devolução' : 'Ajuste',
@@ -1021,7 +1027,7 @@ function buildExtract() {
   const body = $('extractBody');
   if (!body) return;
   if (financeModule !== 'ok') {
-    body.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">${financeModule === 'missing' ? 'O módulo financeiro ainda não está configurado no banco de dados (migração SQL pendente).' : 'Não foi possível carregar o extrato.'}</td></tr>`;
+    body.innerHTML = `<tr class="empty-row"><td colspan="8">${financeModule === 'missing' ? 'O módulo financeiro ainda não está configurado no banco de dados (migração SQL pendente).' : 'Não foi possível carregar o extrato.'}</td></tr>`;
     setText('extractCount', 'Mostrando 0 de 0 transações'); setText('extractTotal', '—');
     return;
   }
@@ -1029,10 +1035,10 @@ function buildExtract() {
   const tags = { available: '<span class="tag tag-green">Disponível</span>', pending: '<span class="tag tag-orange">Pendente</span>',
     done: '<span class="tag tag-gray">Concluído</span>', processing: '<span class="tag tag-blue">Em processamento</span>', rejected: '<span class="tag tag-gray">Recusado</span>' };
   body.innerHTML = rows.length ? rows.map(r => {
-    const [ico, bg] = EXTRACT_ICONS[r.type] || ['•', '#eee'];
+    const [ico, cls] = EXTRACT_ICONS[r.type] || ['•', 'ext-adjust'];
     const neg = r.net < 0;
     return `<tr>
-      <td><div class="fac gap8"><div class="ext-row-icon" style="background:${bg}">${ico}</div><span class="fs12 fw6">${r.type}</span></div></td>
+      <td><div class="fac gap8"><div class="ext-row-icon ${cls}">${ico}</div><span class="fs12 fw6">${r.type}</span></div></td>
       <td class="fs11 muted">${r.type}</td>
       <td class="fs11">${escapeHtml(r.order)}</td>
       <td class="fs12 fw6">${fmtBRL(r.gross)}</td>
@@ -1041,7 +1047,7 @@ function buildExtract() {
       <td>${tags[r.status] || ''}</td>
       <td class="fs11 muted">${fmtDateTime(r.date)}</td>
     </tr>`;
-  }).join('') : '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Nenhuma transação no período.</td></tr>';
+  }).join('') : '<tr class="empty-row"><td colspan="8">Nenhuma transação no período.</td></tr>';
   setText('extractCount', `Mostrando ${rows.length} de ${rows.length} transações`);
   setText('extractTotal', fmtBRL(rows.reduce((s, r) => s + r.net, 0)));
 }
@@ -1101,38 +1107,22 @@ function refreshDashboardViews() {
   setText('kpiTicket', ok ? fmtBRL(inMonth.length ? revenue / inMonth.length : 0) : '—');
   const rated = PRODS.map(p => Number(p.rating)).filter(r => r > 0);
   setText('kpiRating', rated.length ? (rated.reduce((a, b) => a + b, 0) / rated.length).toFixed(1).replace('.', ',') : '--');
-  setText('revMonthTag', ok ? `${fmtBRL(revenue)} este mês` : '—');
-  setText('revChartTitle', `📈 Faturamento Mensal (${now.getFullYear()})`);
-  buildRevChart(valid);
   buildRecentOrders();
   buildTopProducts();
-}
-
-function buildRevChart(valid) {
-  const el = $('revChart');
-  if (!el) return;
-  const year = new Date().getFullYear();
-  const monthly = new Array(12).fill(0);
-  (valid || []).forEach(o => { const d = new Date(o.created_at); if (d.getFullYear() === year) monthly[d.getMonth()] += Number(o.total); });
-  const max = Math.max(...monthly, 1);
-  el.innerHTML = monthly.map((v, i) => {
-    const h = v > 0 ? Math.max(4, Math.round((v / max) * 140)) : 2;
-    return `<div class="rev-bar-wrap"><div class="rev-bar blue" style="height:${h}px"><div class="rev-bar-tip">${fmtBRL(v)}</div></div><div class="rev-label">${months[i]}</div></div>`;
-  }).join('');
 }
 
 function buildRecentOrders() {
   const body = $('recentOrdersBody');
   if (!body) return;
   if (ordersModule !== 'ok' || !ORDERS.length) {
-    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:26px;color:var(--muted)">${ordersModule === 'missing' ? 'Módulo de pedidos ainda não configurado.' : 'Nenhum pedido recebido ainda.'}</td></tr>`;
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">${ordersModule === 'missing' ? 'Módulo de pedidos ainda não configurado.' : 'Nenhum pedido recebido ainda.'}</td></tr>`;
     return;
   }
   body.innerHTML = ORDERS.slice(0, 5).map(o => {
     const items = o.store_order_items || [];
     const prod = items.length ? escapeHtml(items[0].name) + (items.length > 1 ? ` +${items.length - 1}` : '') : '—';
     return `<tr><td class="td-link fs11">#${escapeHtml(o.code)}</td><td class="fs12">${escapeHtml(o.customer_name || 'Cliente')}</td><td class="fs12">${prod}</td>
-      <td class="fs12 fw6">${fmtBRL(o.total)}</td><td><span class="tag ${ORD_TAG[o.status] || 'tag-gray'}">${ORD_STATUS[o.status] || escapeHtml(o.status)}</span></td>
+      <td class="fs12 fw6">${fmtBRL(o.total)}</td><td>${ordBadge(o.status)}</td>
       <td class="fs11 muted">${fmtDateTime(o.created_at)}</td></tr>`;
   }).join('');
 }
@@ -1145,8 +1135,8 @@ function buildTopProducts() {
     (o.store_order_items || []).forEach(it => { qty[it.name] = (qty[it.name] || 0) + (it.qty || 0); }));
   const top = Object.entries(qty).sort((a, b) => b[1] - a[1]).slice(0, 5);
   box.innerHTML = top.length
-    ? top.map(([name, q], i) => `<div class="fac gap10" style="padding:10px 0;border-bottom:1px solid var(--b2)"><span class="fs12 fw7 blue">${i + 1}º</span><span class="fs12" style="flex:1">${escapeHtml(name)}</span><span class="fs11 muted">${q} un.</span></div>`).join('')
-    : `<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:12px">${ordersModule === 'ok' ? 'Os produtos mais vendidos aparecem aqui assim que houver pedidos.' : 'Disponível quando o módulo de pedidos estiver ativo.'}</div>`;
+    ? top.map(([name, q], i) => `<div class="top-prod"><span class="top-rank r${i + 1}">${i + 1}</span><span class="top-prod-name">${escapeHtml(name)}</span><span class="top-prod-sales">${q} un.</span></div>`).join('')
+    : `<div class="empty-box">${ordersModule === 'ok' ? 'Os produtos mais vendidos aparecem aqui assim que houver pedidos.' : 'Disponível quando o módulo de pedidos estiver ativo.'}</div>`;
 }
 // ══ NEW PRODUCT ══════════════════════════════════════════
 let currentPreviewBlobUrl = null;
@@ -1179,14 +1169,14 @@ function updatePreview() {
         currentPreviewBlobUrl = URL.createObjectURL(mainImageFile);
         currentPreviewFile = mainImageFile;
       }
-      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="Preview">`;
+      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" class="pv-img" alt="Preview">`;
       
     } else if (isEditing) {
       const p = findProd(editingProductId);
       const existingMain = productExistingUrls[0];
       if (p && existingMain) {
         if (previewEl.tagName.toLowerCase() !== 'img') {
-          previewEl.innerHTML = `<img src="${escapeHtml(existingMain)}" style="position:absolute; top:0; left:0; width:100%; object-fit:cover; border-radius:inherit;" alt="${escapeHtml(p.name)}">`;
+          previewEl.innerHTML = `<img src="${escapeHtml(existingMain)}" class="pv-img" alt="${escapeHtml(p.name)}">`;
         } else {
           previewEl.src = existingMain;
         }
@@ -1649,7 +1639,7 @@ function clearProductForm() {
     if (btn.innerHTML.includes('Salvar')) {
       btn.innerHTML = btn.innerHTML
         .replace('Salvar Produto', 'Publicar Produto')
-        .replace('💾', '🚀');
+        .replace('fa-floppy-disk', 'fa-rocket');
     }
   });
 
