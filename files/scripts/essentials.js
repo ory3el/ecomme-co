@@ -338,6 +338,7 @@ async function refreshProductsIfNeeded() {
     
     products = updatedProducts;
     shuffled = [...products];
+    if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
     virtualStartIndex = -1;
     virtualEndIndex = -1;
     virtualColumns = 0;
@@ -373,6 +374,7 @@ async function loadProductsFromSupabase() {
   
   products = (data || []).map(normalizeProduct);
   shuffled = [...products];
+  if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
   productDataSignature = createProductsSignature(products);
   window.__ecommeProductsInitialLoadComplete = true;
   finishProductsGridSkeleton();
@@ -778,6 +780,10 @@ function getFilteredList() {
     });
   }
 
+  if (window.EcommeCategoryFilters?.filter) {
+    list = window.EcommeCategoryFilters.filter(list);
+  }
+
   if (sort === 'price_asc') {
     return [...list].sort(
       (a, b) => a.price - b.price
@@ -792,6 +798,16 @@ function getFilteredList() {
     return [...list].sort(
       (a, b) => b.rating - a.rating
     );
+  }
+  if (sort === 'popular') {
+    return [...list].sort((a, b) => (Number(b.reviews) || 0) - (Number(a.reviews) || 0) || (Number(b.rating) || 0) - (Number(a.rating) || 0));
+  }
+  if (sort === 'new') {
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || Number(a.id) || 0;
+      const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || Number(b.id) || 0;
+      return dateB - dateA;
+    });
   }
   if (sort === 'discount') {
     return [...list].sort(
@@ -851,8 +867,8 @@ function renderProducts() {
     ''
   ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
-  const renderState =
-    `${view}|${q}|${sort}`;
+  const categoryState = window.EcommeCategoryFilters?.getStateKey?.() || '';
+  const renderState = `${view}|${q}|${sort}|${categoryState}`;
   if (renderState !== lastRenderState) {
     visibleCount = PAGE_SIZE;
     lastRenderState = renderState;
@@ -863,6 +879,9 @@ function renderProducts() {
   }
   loadingMoreProducts = false;
   const list = getFilteredList();
+  const countElement = $('productsCount');
+  if (countElement) countElement.textContent = `${list.length} ${list.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+  if (window.EcommeCategoryFilters?.onRender) window.EcommeCategoryFilters.onRender(list.length, products.length);
 
   if (!list.length) {
     pLoadingNone();
@@ -879,12 +898,16 @@ function renderProducts() {
           <button
             class="btn-clear"
             onclick="
-              if($('headerSearch')) $('headerSearch').value='';
-              if($('heroSearch')) $('heroSearch').value='';
-              renderProducts();
+              if (window.EcommeCategoryFilters?.reset) {
+                window.EcommeCategoryFilters.reset();
+              } else {
+                if ($('headerSearch')) $('headerSearch').value = '';
+                if ($('heroSearch')) $('heroSearch').value = '';
+                renderProducts();
+              }
             "
           >
-            Limpar busca
+            Limpar filtros
           </button>
         </p>
       </div>
@@ -968,30 +991,30 @@ function searchFor(term) {
 /* ------------------------------------------------------------ */
 
 function setView(v) {
-  if (v !== 'grid' && v !== 'list') {
-    return;
-  }
+  if (v !== 'grid' && v !== 'list') return;
   view = v;
-  $('productsGrid').className =
-    'products-grid' +
-    (v === 'list' ? ' lv' : '');
-  $('gridBtn').classList.toggle(
-    'on',
-    v === 'grid'
-  );
-  $('listBtn').classList.toggle(
-    'on',
-    v === 'list'
-  );
+  const grid = $('productsGrid');
+  const gridButton = $('gridBtn') || $('gridViewBtn');
+  const listButton = $('listBtn') || $('listViewBtn');
+  if (grid) grid.className = 'products-grid' + (v === 'list' ? ' lv' : '');
+  gridButton?.classList.toggle('on', v === 'grid');
+  gridButton?.classList.toggle('active', v === 'grid');
+  listButton?.classList.toggle('on', v === 'list');
+  listButton?.classList.toggle('active', v === 'list');
   renderProducts();
 }
 
 function filterByCategory(event, category) {
+  const selectedCategory = category !== undefined ? category : (typeof event === 'string' ? event : 'Todos');
+  if (window.EcommeCategoryFilters?.setCategory) {
+    window.EcommeCategoryFilters.setCategory(selectedCategory);
+    return;
+  }
   const searchInput = document.getElementById('headerSearch');
   if (searchInput) {
-    searchInput.value = category;
+    searchInput.value = selectedCategory;
     renderProducts();
-    document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('produtos')?.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
