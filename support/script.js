@@ -1,3 +1,5 @@
+const $ = id => document.getElementById(id);
+
 /* ─── SCROLL REVEAL ──────────────────────────────────────────────────── */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in','visible'); observer.unobserve(e.target); } });
