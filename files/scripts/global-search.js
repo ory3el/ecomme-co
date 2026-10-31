@@ -5,8 +5,8 @@
   window.__ecommeGlobalSearchInitialized = true;
 
   const SEARCH_PATH = '/products/search/';
-  const SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
+//  const SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
+//  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
   const SUGGESTION_LIMIT = 7;
   const MIN_QUERY_LENGTH = 2;
   const DEBOUNCE_MS = 190;
