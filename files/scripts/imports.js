@@ -1,6 +1,8 @@
 (function () {
   'use strict';
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  const pagesWithSearch = ['/', '/products', '/categories', '/offers', '/about', '/product', '/products/search'];
+  const shouldLoadSearch = pagesWithSearch.includes(currentPath);
   const pagesWithEssentials = ['/', '/products', '/product'];
   const shouldLoadEssentials = pagesWithEssentials.includes(currentPath);
   const pagesWithLogin = ['/', '/products', '/product', '/categories', '/offers', '/about-us', '/sellers', '/sellers/register', '/settings'];
@@ -9,8 +11,8 @@
   const pageScript = pageScripts[currentPath] || null;
   const styles = [
     '/files/styles/essentials.css',
-    '/files/styles/hide-search-bar.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    ...(!shouldLoadSearch ? ['/files/styles/hide-search-bar.css',] : []),
     ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
     //...(currentPath === '/notifications' ? ['/notifications/styles.css'] : [])
   ];
