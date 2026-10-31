@@ -5,8 +5,8 @@
   window.__ecommeGlobalSearchInitialized = true;
 
   const SEARCH_PATH = '/products/search/';
-//  const SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
-//  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
+  const SUPABASE_URL_1 = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY_1 = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
   const SUGGESTION_LIMIT = 7;
   const MIN_QUERY_LENGTH = 2;
   const DEBOUNCE_MS = 190;
@@ -98,7 +98,7 @@
 
     // Pesquisa principal somente em colunas textuais. Usar cat.ilike no mesmo
     // filtro OR pode invalidar a consulta inteira quando cat for text[]/jsonb.
-    const url = new URL('/rest/v1/products', SUPABASE_URL);
+    const url = new URL('/rest/v1/products', SUPABASE_URL_1);
     url.searchParams.set('select', 'id,name,cat');
     url.searchParams.set('or', `(name.ilike.*${query}*,desc.ilike.*${query}*)`);
     url.searchParams.set('limit', String(SUGGESTION_LIMIT));
@@ -107,7 +107,7 @@
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        apikey: SUPABASE_PUBLISHABLE_KEY,
+        apikey: SUPABASE_PUBLISHABLE_KEY_1,
         Accept: 'application/json'
       },
       signal
@@ -130,7 +130,7 @@
       const categoryQuery = query.replace(/[{}"\\]/g, ' ').replace(/\s+/g, ' ').trim();
       if (categoryQuery) {
         try {
-          const categoryUrl = new URL('/rest/v1/products', SUPABASE_URL);
+          const categoryUrl = new URL('/rest/v1/products', SUPABASE_URL_1);
           categoryUrl.searchParams.set('select', 'id,name,cat');
           categoryUrl.searchParams.set('cat', `cs.{${categoryQuery}}`);
           categoryUrl.searchParams.set('limit', String(SUGGESTION_LIMIT));
@@ -139,7 +139,7 @@
           const categoryResponse = await fetch(categoryUrl.toString(), {
             method: 'GET',
             headers: {
-              apikey: SUPABASE_PUBLISHABLE_KEY,
+              apikey: SUPABASE_PUBLISHABLE_KEY_1,
               Accept: 'application/json'
             },
             signal
