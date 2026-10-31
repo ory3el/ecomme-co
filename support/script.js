@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const email = user.email || '';
       if (document.getElementById('fName')) document.getElementById('fName').value = fullName;
       if (document.getElementById('fEmail')) document.getElementById('fEmail').value = email;
-      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').value = document.getElementById('fEmail').value;
+      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').textContent = document.getElementById('fEmail').value;
     }
   }
 );
