@@ -244,8 +244,8 @@
       <div class="cw-header">
         <div class="cw-agent-ava">AC</div>
         <div class="cw-head-text">
-          <strong>Ana Costa — Suporte Ecomme</strong>
-          <span>Online agora</span>
+          <strong>Suporte Ecomme</strong>
+          <span>Disponível</span>
         </div>
         <div class="cw-actions">
           <div class="cw-act-btn"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
@@ -254,30 +254,30 @@
       </div>
       <div class="cw-body" id="chatBody">
         <div class="cw-msg in" style="animation-delay:.1s">
-          <div class="msg-ava agent">AC</div>
+          <div class="msg-ava agent">EC</div>
           <div>
-            <div class="msg-bubble">Olá! 👋 Seja bem-vinda ao suporte Ecomme. Como posso te ajudar hoje?</div>
+            <div class="msg-bubble">Olá! 👋 Seja bem-vindo ao suporte Ecomme. Como posso te ajudar hoje?</div>
             <div class="msg-time">08:14</div>
           </div>
         </div>
         <div class="cw-msg out" style="animation-delay:.3s">
-          <div class="msg-ava user">MF</div>
+          <div class="msg-ava user">AC</div>
           <div>
             <div class="msg-bubble">Oi! Quero saber onde está meu pedido #EC2026-48271</div>
             <div class="msg-time">08:15</div>
           </div>
         </div>
         <div class="cw-msg in" style="animation-delay:.5s">
-          <div class="msg-ava agent">AC</div>
+          <div class="msg-ava agent">EC</div>
           <div>
-            <div class="msg-bubble">Claro! Já verificando para você… 🔍</div>
+            <div class="msg-bubble">Claro! Já estou verificando para você… 🔍</div>
             <div class="msg-time">08:15</div>
           </div>
         </div>
         <div class="cw-msg in" style="animation-delay:.7s">
-          <div class="msg-ava agent">AC</div>
+          <div class="msg-ava agent">EC</div>
           <div>
-            <div class="msg-bubble">Seu pedido <strong>#EC2026-48271</strong> saiu para entrega hoje às 08:15 e tem previsão de chegada no período da tarde! 🚚</div>
+            <div class="msg-bubble">Seu pedido <strong>#EC2026-48271</strong> saiu para entrega hoje às 07:52 e tem previsão de chegada no período da tarde! 🚚</div>
             <div class="msg-time">08:16</div>
           </div>
         </div>
@@ -370,11 +370,11 @@
         <div class="form-row-2">
           <div class="form-row" style="margin-bottom:0">
             <label class="form-label">Nome completo</label>
-            <input class="form-inp" id="fName" type="text" placeholder="Mariana Ferreira" value="Mariana Ferreira">
+            <input class="form-inp" id="fName" type="text" placeholder="Seu nome" value="">
           </div>
           <div class="form-row" style="margin-bottom:0">
             <label class="form-label">E-mail</label>
-            <input class="form-inp" id="fEmail" type="email" placeholder="seu@email.com" value="mariana.ferreira@exemplo.com">
+            <input class="form-inp" id="fEmail" type="email" placeholder="seu@email.com" value="">
           </div>
         </div>
         <div style="height:18px"></div>
@@ -411,7 +411,7 @@
       <div class="form-success" id="formSuccess">
         <div class="fs-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <h3>Chamado aberto!</h3>
-        <p>Protocolo: <strong id="ticketProtocol">#SUP-000</strong><br>Você receberá uma resposta em <strong>mariana.ferreira@exemplo.com</strong> em até 4 horas úteis.</p>
+        <p>Protocolo: <strong id="ticketProtocol">#SUP-000</strong><br>Você receberá uma resposta em <strong id="ffEmail"></strong>até 4 horas úteis.</p>
         <button style="margin-top:18px;color:var(--blue);font-weight:600;font-size:13px;text-decoration:underline" onclick="resetForm()">Abrir outro chamado</button>
       </div>
     </div>
