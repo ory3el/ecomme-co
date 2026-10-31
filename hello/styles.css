@@ -622,7 +622,9 @@
   @media (max-width: 640px) {
     .countries { grid-template-columns: repeat(2, 1fr); }
     .brand-name { display: none; } /* keep header compact on phones */
+    .brand img { width: 170px !important }
     .lang-toggle .lang-code { display: inline; }
+    .subtitle { max-width: 360px; }
   }
   @media (max-width: 380px) {
     .countries { grid-template-columns: 1fr; }
