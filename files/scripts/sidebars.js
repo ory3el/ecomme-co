@@ -996,7 +996,7 @@ window.ecommeFormatPrice =
 // ------------------------------------------
 async function syncEcommeDisplaySettings() {
   window.ecommeDisplaySettings = {
-    theme: 'auto',
+    //theme: 'auto',
     language: 'pt-BR',
     currency: 'BRL'
   };
@@ -1007,7 +1007,7 @@ async function syncEcommeDisplaySettings() {
     if (user) {
       const {data, error} = await supabaseClient
         .from('user_settings')
-        .select('theme, language, currency')
+        .select(/*theme,*/'language, currency')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -1022,11 +1022,11 @@ async function syncEcommeDisplaySettings() {
       }
       
       if (data) {
-        if (
+        /*if (
           ['light', 'dark', 'auto'].includes(data.theme)
         ) {
           window.ecommeDisplaySettings.theme = data.theme;
-        }
+        }*/
 
         if (
           ['BRL', 'USD', 'EUR'].includes(data.currency)
@@ -1044,7 +1044,7 @@ async function syncEcommeDisplaySettings() {
             'ecomme_settings',
             JSON.stringify({
               ...localSettings,
-              theme: window.ecommeDisplaySettings.theme,
+              /*theme: window.ecommeDisplaySettings.theme,*/
               currency: window.ecommeDisplaySettings.currency
             })
           );
@@ -1064,11 +1064,11 @@ async function syncEcommeDisplaySettings() {
         if (localRaw) {
           const localSettings = JSON.parse(localRaw);
 
-          if (
+          /*if (
             ['light', 'dark', 'auto'].includes(localSettings?.theme)
           ) {
             window.ecommeDisplaySettings.theme = localSettings.theme;
-          }
+          }*/
 
           if (
             ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
@@ -1084,14 +1084,7 @@ async function syncEcommeDisplaySettings() {
       }
     }
 
-    applyTheme(
-      window.ecommeDisplaySettings.theme || 'auto',
-      {
-        silent: true,
-        saveToSupabase: false
-      }
-    );
-
+    /*applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});*/
     window.ecommeLanguage = window.ecommeDisplaySettings.language || 'pt-BR';
     await translatePage(window.ecommeLanguage);
     
@@ -1155,16 +1148,9 @@ async function syncEcommeDisplaySettings() {
       error
     );
 
-    window.ecommeDisplaySettings.theme = 'light';
+    /*window.ecommeDisplaySettings.theme = 'light';*/
     window.ecommeDisplaySettings.currency = 'BRL';
-
-    applyTheme(
-      window.ecommeDisplaySettings.theme || 'auto',
-      {
-        silent: true,
-        saveToSupabase: false
-      }
-    );
+    //applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});
   }
 }
 
