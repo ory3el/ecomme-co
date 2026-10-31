@@ -7,19 +7,23 @@
 
   <link rel="prefetch" href="/">
   <link rel="prefetch" href="/sellers/">
-	
+
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <link rel="icon" id="favicon" type="image/png" sizes="144x144" href="/images/favicon-light.png">
-	
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-	
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Os estilos dos modais de alerta/confirmação agora vivem em styles.css.
+       Este <style> com o mesmo id impede que o script.js injete a versão antiga (cores fixas). -->
+  <style id="modal-alert-styles"></style>
 
   <script>
     (function () {
@@ -40,7 +44,7 @@
 
 <script src="/files/scripts/loading.js"></script>
 <script>showLoadingModal('Carregando dashboard...', 'Verificando sua sessão...');</script>
-	
+
 <div class="toast-stack">
   <div class="toast" id="toast">
     <div class="t-dot t-ok" id="tIco">✓</div>
@@ -48,11 +52,12 @@
   </div>
 </div>
 
-<div class="toast2" id="toast2">
+<div class="toast2" id="toast2" role="status" aria-live="polite">
   <div class="toast2-icon">✓</div>
   <span id="toastMsg2">Hello!</span>
 </div>
-	
+
+<!-- ═══ PORTÃO DE ACESSO ═══ -->
 <div class="auth-gate" id="authGate">
   <div class="gate-checking" style="display:none" id="gateChecking">
     <div class="gate-ring"></div>
@@ -61,855 +66,895 @@
 
   <div class="login-card" id="gateLogin" style="display:none">
     <div class="login-brand">
-		<button style="cursor: pointer; border: none; background: none; font-family: inherit;" onclick="window.location.href = '/sellers'">
-    		<img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
-    	</button>
-		<div class="dot"></div>
-	</div>
+      <button type="button" onclick="window.location.href = '/sellers'" aria-label="Ir para Ecomme Sellers">
+        <img src="/images/mainlogo.png" alt="Ecomme">
+      </button>
+      <div class="dot"></div>
+    </div>
     <h2>Entre para continuar</h2>
     <p class="sub">Você precisa estar logado para acessar o dashboard da sua loja. Assim que você entrar, <strong>voltamos automaticamente</strong> para essa página.</p>
     <button class="btn-login" id="btnLogin" onclick="event.preventDefault(); toast2('Redirecionando para o login...', 'info'); goToLogin()">
-      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <i class="fa-solid fa-arrow-right-to-bracket"></i>
       Ir para página de login
     </button>
   </div>
 
   <div class="login-card" id="gateError" style="display:none" role="alert">
-  <div class="login-brand">
-    <button style="cursor: pointer; border: none; background: none; font-family: inherit;" onclick="window.location.href = '/sellers'">
-      <img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
-    </button>
-    <div class="dot"></div>
-  </div>
-  <h2>Não foi possível carregar sua loja</h2>
-  <p class="sub">Houve uma falha de conexão ao verificar sua conta. Por segurança, o painel só abre depois dessa verificação. Verifique sua internet e tente novamente.</p>
-  <button class="btn-login" onclick="initDashboard()">Tentar novamente</button>
-</div>
-
-<div class="login-card" id="gateNoStore" style="display:none">
     <div class="login-brand">
-		<button style="cursor: pointer; border: none; background: none; font-family: inherit;" onclick="window.location.href = '/sellers'">
-    		<img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 200px; height: auto; display: block;" alt="Ecomme"/>
-    	</button>
-		<div class="dot"></div>
-	</div>
+      <button type="button" onclick="window.location.href = '/sellers'" aria-label="Ir para Ecomme Sellers">
+        <img src="/images/mainlogo.png" alt="Ecomme">
+      </button>
+      <div class="dot"></div>
+    </div>
+    <h2>Não foi possível carregar sua loja</h2>
+    <p class="sub">Houve uma falha de conexão ao verificar sua conta. Por segurança, o painel só abre depois dessa verificação. Verifique sua internet e tente novamente.</p>
+    <button class="btn-login" onclick="initDashboard()">Tentar novamente</button>
+  </div>
+
+  <div class="login-card" id="gateNoStore" style="display:none">
+    <div class="login-brand">
+      <button type="button" onclick="window.location.href = '/sellers'" aria-label="Ir para Ecomme Sellers">
+        <img src="/images/mainlogo.png" alt="Ecomme">
+      </button>
+      <div class="dot"></div>
+    </div>
     <h2>Você ainda não tem uma loja</h2>
     <p class="sub">Para acessar o painel de vendas, você precisa primeiro cadastrar a sua loja na plataforma. É rápido e prático!</p>
-    <button class="btn-login" onclick="event.preventDefault(); toast2('Indo para o cadastro...', 'info'); window.location.href = '/sellers/register'"> 
-      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <button class="btn-login" onclick="event.preventDefault(); toast2('Indo para o cadastro...', 'info'); window.location.href = '/sellers/register'">
+      <i class="fa-solid fa-store"></i>
       Criar minha loja agora
     </button>
   </div>
 </div>
-	
-<div id="appShell" inert style="visibility:hidden">
-  <header class="app-hdr">
-    <div class="app-hdr-in">
-      <div class="fac gap16">
-		<div class="logo-spacer"></div>
-        <div class="app-breadcrumb" id="appBC">
-          <a href="/" onclick="window.location.href = '/'">Início</a>
-		  <span>›</span>
-		  <a href="/sellers" onclick="window.location.href = '/sellers'">Ecomme Sellers</a>
-          <span>›</span>
-		  <span id="bcText">Dashboard</span>
-        </div>
-      </div>
-	  <div class="logo-div">
-		<button class="logo" onclick="window.location.href = '/sellers'">
-    	  <img src="/images/mainlogo.png" style="position: relative; top: 0px; width: 150px; height: auto; display: block;" alt="Ecomme">
-    	</button>
-	  </div>
-      <div class="app-hdr-right">
-        <div class="store-badge" id="header-store"></div>
-        <button class="hdr-ico" title="Notificações" aria-label="Notificações" onclick="buttonLink('/notifications')">
-		  <i class="fa-solid fa-bell"></i>
-		</button>
-        <button class="hdr-ico" title="Ajuda" aria-label="Ajuda" onclick="buttonLink('/support')">
-		  <i class="fa-solid fa-question"></i>
-		</button>
-		<button class="hdr-ico" title="Abrir menu" onclick="openMore()">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-		<div id="headerProfileContainer" class="header-profile hidden" onclick="openAcc()">
-    	  <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
-  	  	</div>
-      </div>
-    </div>
-  </header>
 
+<!-- ═══ APLICAÇÃO ═══ -->
+<div id="appShell" inert style="visibility:hidden">
   <div class="app-body">
-    <nav class="app-sb">
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="app-sb" id="appSidebar" aria-label="Navegação principal">
+      <div class="sb-head">
+        <button type="button" class="sb-brand" onclick="window.location.href = '/sellers'" aria-label="Ecomme Sellers">
+          <img class="sb-logo" src="/images/mainlogo.png" alt="Ecomme">
+          <span class="sb-brand-tag">Sellers</span>
+        </button>
+        <button type="button" class="sb-toggle" id="sbToggle" aria-label="Recolher menu" aria-expanded="true">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+
       <div class="sb-seller-info">
         <div class="logo-sidebar" id="sbLogoPreview"></div>
-        <div class="sb-name" id="sb-store">Loja em Análise..</div>
-		<div class="sb-store" id="sb-storename">N/A</div>
+        <div class="sb-meta">
+          <div class="sb-name" id="sb-store">Loja em Análise..</div>
+          <div class="sb-store" id="sb-storename">N/A</div>
+        </div>
       </div>
+
       <div class="sb-nav">
-        <div class="sb-sec-label">Principal</div>
-        <button class="nav-btn on" id="nav-dashboard" data-page="dashboard"><span class="nav-ico">
-			<i class="fa-solid fa-chart-simple"></i>
-		</span><span class="nav-lbl">Dashboard</span></button>
+        <button class="nav-btn on" id="nav-dashboard" data-page="dashboard">
+          <span class="nav-ico"><i class="fa-solid fa-chart-pie"></i></span><span class="nav-lbl">Dashboard</span>
+        </button>
 
-        <div class="sb-sec-label" style="margin-top:8px">Produtos</div>
-        <button class="nav-btn" id="nav-produtos" data-page="produtos"><span class="nav-ico">
-			<i class="fa-solid fa-tag"></i>
-		</span><span class="nav-lbl">Meus Produtos</span><span class="nav-bdg" style="background:var(--blue); display: none;" id="sbProdBdg">0</span></button>
-        <button class="nav-btn" id="nav-novo-produto" data-page="novo-produto"><span class="nav-ico">
-			<i class="fa-solid fa-plus"></i>
-		</span><span class="nav-lbl">Novo Produto</span><span class="nav-new-bdg" style="display: none;">Novo</span></button>
+        <div class="nav-group open" data-group="produtos">
+          <button type="button" class="nav-grp-btn" aria-expanded="true" aria-controls="grp-produtos">
+            <span class="nav-ico"><i class="fa-solid fa-tag"></i></span><span class="nav-lbl">Produtos</span>
+            <i class="fa-solid fa-chevron-down nav-chev"></i>
+          </button>
+          <div class="nav-sub" id="grp-produtos">
+            <div class="nav-sub-in">
+            <button class="nav-btn" id="nav-produtos" data-page="produtos">
+              <span class="nav-ico"><i class="fa-solid fa-box-open"></i></span><span class="nav-lbl">Meus Produtos</span>
+              <span class="nav-bdg" id="sbProdBdg" style="display:none">0</span>
+            </button>
+            <button class="nav-btn" id="nav-novo-produto" data-page="novo-produto">
+              <span class="nav-ico"><i class="fa-solid fa-plus"></i></span><span class="nav-lbl">Novo Produto</span>
+              <span class="nav-new-bdg" style="display:none">Novo</span>
+            </button>
+            </div>
+          </div>
+        </div>
 
-        <div class="sb-sec-label" style="margin-top:8px">Vendas</div>
-        <button class="nav-btn" id="nav-pedidos" data-page="pedidos"><span class="nav-ico">
-			<i class="fa-solid fa-truck"></i>
-		</span><span class="nav-lbl">Pedidos</span><span class="nav-bdg" id="sbOrdBdg" style="display: none;">0</span></button>
-        <button class="nav-btn" id="nav-financas" data-page="financas"><span class="nav-ico">
-			<i class="fa-solid fa-sack-dollar"></i>
-		</span><span class="nav-lbl">Financeiro</span></button>
-		  
-        <div class="sb-sec-label" style="margin-top:8px">Loja</div>
-        <button class="nav-btn" id="nav-config" data-page="config"><span class="nav-ico">
-			<i class="fa-solid fa-gear"></i>
-		</span><span class="nav-lbl">Configurações</span></button>
+        <div class="nav-group open" data-group="vendas">
+          <button type="button" class="nav-grp-btn" aria-expanded="true" aria-controls="grp-vendas">
+            <span class="nav-ico"><i class="fa-solid fa-bag-shopping"></i></span><span class="nav-lbl">Vendas</span>
+            <i class="fa-solid fa-chevron-down nav-chev"></i>
+          </button>
+          <div class="nav-sub" id="grp-vendas">
+            <div class="nav-sub-in">
+            <button class="nav-btn" id="nav-pedidos" data-page="pedidos">
+              <span class="nav-ico"><i class="fa-solid fa-truck-fast"></i></span><span class="nav-lbl">Pedidos</span>
+              <span class="nav-bdg" id="sbOrdBdg" style="display:none">0</span>
+            </button>
+            <button class="nav-btn" id="nav-financas" data-page="financas">
+              <span class="nav-ico"><i class="fa-solid fa-sack-dollar"></i></span><span class="nav-lbl">Financeiro</span>
+            </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="nav-btn" id="nav-loja" data-page="loja">
+          <span class="nav-ico"><i class="fa-solid fa-store"></i></span><span class="nav-lbl">Minha Loja</span>
+        </button>
       </div>
+
       <div class="sb-footer">
-		<button class="nav-btn" id="nav-loja" data-page="loja">
-  			<span class="nav-ico">
-				<i class="fa-solid fa-store"></i>
-			</span><span class="nav-lbl">Minha Loja</span>
-		</button>
-        <button class="nav-btn danger" onclick="openConfirmLogout()" style="color:rgba(255,0,0,1)">
-			<span class="nav-ico">
-				<i class="fa-solid fa-right-from-bracket"></i>
-			</span><span class="nav-lbl">Sair</span></button>
+        <button class="nav-btn" id="nav-config" data-page="config">
+          <span class="nav-ico"><i class="fa-solid fa-gear"></i></span><span class="nav-lbl">Configurações</span>
+        </button>
+        <button type="button" class="nav-btn" onclick="buttonLink('/support')">
+          <span class="nav-ico"><i class="fa-solid fa-life-ring"></i></span><span class="nav-lbl">Suporte</span>
+        </button>
+        <button type="button" class="nav-btn danger" onclick="openConfirmLogout()">
+          <span class="nav-ico"><i class="fa-solid fa-right-from-bracket"></i></span><span class="nav-lbl">Sair da conta</span>
+        </button>
+        <button type="button" class="sb-user" onclick="openAcc()" aria-label="Abrir minha conta">
+          <span class="sb-user-ico"><i class="fa-solid fa-user"></i></span>
+          <span class="sb-user-txt"><strong id="sb-name">Minha conta</strong><small>Ver perfil e atalhos</small></span>
+        </button>
       </div>
     </nav>
+    <div class="sb-scrim" id="sbScrim"></div>
 
-    <main class="app-main" style="padding-top: 100px; top: -70px;">
+    <!-- ── COLUNA PRINCIPAL ── -->
+    <div class="app-col">
+      <header class="app-hdr">
+        <div class="app-hdr-in">
+          <button type="button" class="hdr-ico hdr-burger" id="sbOpen" aria-label="Abrir menu de navegação" aria-controls="appSidebar" aria-expanded="false">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+          <button type="button" class="hdr-logo" onclick="window.location.href = '/sellers'" aria-label="Ecomme Sellers">
+            <img src="/images/mainlogo.png" alt="Ecomme">
+          </button>
 
-      <div class="page on" id="page-dashboard">
-        <div class="page-hd">
-          <div><h2>Dashboard</h2><p>Visão geral da <span id="storeName">N/A</span> · Hoje, <span id="dashDate"></span></p></div>
-          <div class="fac gap8">
-            <button class="btn btn-o btn-sm" onclick="exportOrdersCsv()">📄 Exportar pedidos (CSV)</button>
+          <nav class="app-breadcrumb" id="appBC" aria-label="Você está em">
+            <a href="/" onclick="window.location.href = '/'">Início</a>
+            <i class="fa-solid fa-chevron-right bc-sep" aria-hidden="true"></i>
+            <a href="/sellers" onclick="window.location.href = '/sellers'">Ecomme Sellers</a>
+            <i class="fa-solid fa-chevron-right bc-sep" aria-hidden="true"></i>
+            <span id="bcText" aria-current="page">Dashboard</span>
+          </nav>
+
+          <div class="gsearch" id="gSearch" role="search">
+            <i class="fa-solid fa-magnifying-glass gs-ico" aria-hidden="true"></i>
+            <input id="gSearchInput" type="search" placeholder="Buscar produto, pedido ou página…" autocomplete="off" aria-label="Busca global" aria-controls="gsResults" aria-expanded="false">
+            <kbd class="gs-kbd" aria-hidden="true">/</kbd>
+            <div class="gs-results" id="gsResults" role="listbox" hidden></div>
+          </div>
+
+          <div class="app-hdr-right">
+            <div class="store-badge" id="header-store"></div>
+            <button class="hdr-ico" title="Notificações" aria-label="Notificações" onclick="buttonLink('/notifications')">
+              <i class="fa-solid fa-bell"></i>
+            </button>
+            <button class="hdr-ico" title="Ajuda" aria-label="Ajuda" onclick="buttonLink('/support')">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+            <button class="hdr-ico" title="Atalhos e aparência" aria-label="Atalhos e aparência" onclick="openMore()">
+              <i class="fa-solid fa-grip"></i>
+            </button>
+            <div id="headerProfileContainer" class="header-profile" onclick="openAcc()" role="button" tabindex="0" aria-label="Minha conta" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAcc()}">
+              <img id="headerAvatar" src="/images/icons/full/user.webp" alt="Perfil">
+            </div>
           </div>
         </div>
+      </header>
 
-        <div class="kpi-grid mb16">
-          <div class="kpi kpi-blue">
-            <div class="kpi-ico blue">💰</div>
-            <div class="kpi-label">Faturamento Bruto (mês)</div>
-            <div class="kpi-val sora" id="kpiRevenue">—</div>
-            <div class="kpi-trend trend-up"></div>
-          </div>
-          <div class="kpi kpi-green">
-            <div class="kpi-ico green">📦</div>
-            <div class="kpi-label">Pedidos Recebidos (mês)</div>
-            <div class="kpi-val sora" id="kpiOrders">—</div>
-            <div class="kpi-trend trend-up"></div>
-          </div>
-          <div class="kpi kpi-orange">
-            <div class="kpi-ico orange">🛒</div>
-            <div class="kpi-label">Ticket Médio</div>
-            <div class="kpi-val sora" id="kpiTicket">—</div>
-            <div class="kpi-trend trend-up"></div>
-          </div>
-          <div class="kpi kpi-purple">
-            <div class="kpi-ico purple">⭐</div>
-            <div class="kpi-label">Avaliação Média</div>
-            <div class="kpi-val sora" id="kpiRating">--</div>
-            <div class="kpi-trend trend-up" style="color:var(--yellow)"></div>
-          </div>
-        </div>
+      <main class="app-main" id="appMain">
 
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
-          <div class="card">
-            <div class="card-hd">
-              <h4 id="revChartTitle">📈 Faturamento Mensal</h4>
-              <div class="fac gap8">
-                <span class="tag tag-green" id="revMonthTag">—</span>
+        <!-- ═══ DASHBOARD ═══ -->
+        <div class="page on" id="page-dashboard">
+          <div class="page-hd">
+            <div>
+              <h2>Dashboard</h2>
+              <p>Visão geral da <span id="storeName">N/A</span> · Hoje, <span id="dashDate"></span></p>
+              <p class="page-upd" id="dashUpdated">Atualizando…</p>
+            </div>
+            <div class="page-actions">
+              <div class="fld-float">
+                <label for="dashPeriod">Período</label>
+                <select class="sel" id="dashPeriod" aria-label="Período dos gráficos">
+                  <option value="7d">Últimos 7 dias</option>
+                  <option value="30d" selected>Últimos 30 dias</option>
+                  <option value="90d">Últimos 90 dias</option>
+                  <option value="12m">Últimos 12 meses</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-o" id="dashRefresh"><span>Atualizar</span><i class="fa-solid fa-rotate-right"></i></button>
+              <button type="button" class="btn btn-p" onclick="exportOrdersCsv()"><i class="fa-solid fa-file-arrow-down"></i> Exportar pedidos</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid kpi-grid-2">
+            <div class="kpi kpi-green kpi-duo">
+              <button type="button" class="kpi-eye" aria-label="Ocultar valores" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+              <div class="kpi-cell">
+                <div class="kpi-label">Faturamento bruto (mês) <i class="fa-regular fa-circle-question kpi-help" tabindex="0" data-tip="Soma dos pedidos em despacho, em trânsito e entregues criados neste mês."></i></div>
+                <div class="kpi-val sora" id="kpiRevenue">—</div>
+                <div class="kpi-trend" id="kpiRevenueTrend"></div>
+              </div>
+              <div class="kpi-cell">
+                <div class="kpi-label">Pedidos recebidos (mês) <i class="fa-regular fa-circle-question kpi-help" tabindex="0" data-tip="Quantidade de pedidos válidos criados neste mês."></i></div>
+                <div class="kpi-val sora" id="kpiOrders">—</div>
+                <div class="kpi-trend" id="kpiOrdersTrend"></div>
               </div>
             </div>
-            <div class="card-pad">
-              <div class="rev-chart-container">
-                <div class="rev-grid">
+            <div class="kpi kpi-blue kpi-duo">
+              <button type="button" class="kpi-eye" aria-label="Ocultar valores" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+              <div class="kpi-cell">
+                <div class="kpi-label">Ticket médio <i class="fa-regular fa-circle-question kpi-help" tabindex="0" data-tip="Faturamento do mês dividido pelo número de pedidos do mês."></i></div>
+                <div class="kpi-val sora" id="kpiTicket">—</div>
+                <div class="kpi-trend" id="kpiTicketTrend"></div>
+              </div>
+              <div class="kpi-cell">
+                <div class="kpi-label">Avaliação média <i class="fa-regular fa-circle-question kpi-help" tabindex="0" data-tip="Média das notas dos seus produtos que já foram avaliados."></i></div>
+                <div class="kpi-val sora" id="kpiRating">--</div>
+                <div class="kpi-trend" id="kpiRatingTrend"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-grid kpi-grid-3">
+            <div class="kpi kpi-green">
+              <button type="button" class="kpi-eye" aria-label="Ocultar valores" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+              <div class="kpi-label">Produtos cadastrados</div>
+              <div class="kpi-val sora" id="kpiProds">—</div>
+              <div class="kpi-trend" id="kpiProdsSub"></div>
+            </div>
+            <div class="kpi kpi-yellow">
+              <button type="button" class="kpi-eye" aria-label="Ocultar valores" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+              <div class="kpi-label">Produtos ativos</div>
+              <div class="kpi-val sora" id="kpiActive">—</div>
+              <div class="kpi-trend" id="kpiActiveSub"></div>
+            </div>
+            <div class="kpi kpi-orange">
+              <button type="button" class="kpi-eye" aria-label="Ocultar valores" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+              <div class="kpi-label">Pedidos a despachar</div>
+              <div class="kpi-val sora" id="kpiPending">—</div>
+              <div class="kpi-trend" id="kpiPendingSub"></div>
+            </div>
+          </div>
+
+          <div class="dash-grid">
+            <div class="card">
+              <div class="card-hd">
+                <div>
+                  <h4 id="chartTitle">Evolução do faturamento</h4>
+                  <p class="card-sub" id="chartSub">—</p>
                 </div>
-                <div class="rev-chart" id="revChart"></div>
+                <div class="card-tools">
+                  <div class="seg" id="chartMetric" role="radiogroup" aria-label="Métrica do gráfico">
+                    <button type="button" class="on" role="radio" aria-checked="true" data-metric="rev">Faturamento</button>
+                    <button type="button" role="radio" aria-checked="false" data-metric="ord">Pedidos</button>
+                  </div>
+                  <button type="button" class="seg-btn" id="chartTableBtn" aria-pressed="false" title="Alternar entre gráfico e tabela"><i class="fa-solid fa-table-list"></i> Tabela</button>
+                </div>
+              </div>
+              <div class="card-pad">
+                <div class="rev-chart" id="revChart" tabindex="0"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-hd">
+                <div>
+                  <h4>Vendas por categoria</h4>
+                  <p class="card-sub" id="catSub">Itens vendidos no período</p>
+                </div>
+              </div>
+              <div class="card-pad" id="catBox"></div>
+            </div>
+          </div>
+
+          <div class="dash-grid dash-grid-b">
+            <div class="card">
+              <div class="card-hd">
+                <h4>Pedidos recentes</h4>
+                <button class="btn btn-ghost btn-xs" onclick="navigate('pedidos')">Ver todos <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+              <div class="tbl-wrap">
+                <table class="rt" id="recentTable">
+                  <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
+                  <tbody id="recentOrdersBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="dash-col">
+              <div class="card">
+                <div class="card-hd"><h4>Mais vendidos</h4></div>
+                <div class="card-pad" id="topProdsBox"></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div>
+                    <h4>Desempenho da loja</h4>
+                    <p class="card-sub">Status dos pedidos no período</p>
+                  </div>
+                </div>
+                <div class="card-pad" id="ordStatusBox"></div>
               </div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-hd"><h4>📂 Vendas por Categoria</h4></div>
-            <div class="card-pad">
-              <div class="donut-wrap mb16">
-                <div class="donut" style="background: rgba(225, 225, 225, 1);/*background:conic-gradient(var(--blue) 0% 42%,var(--orange) 42% 70%,var(--green) 70% 88%,var(--purple) 88% 100%)*/"></div>
-                <div class="donut-legend">
-                </div>
-              </div>
-              <div class="cat-chart">
-			  </div>
+
+          <div class="card card-pad">
+            <div class="sec-t">Ações rápidas</div>
+            <div class="quick-grid">
+              <button type="button" class="quick-card" onclick="navigate('novo-produto')"><span class="quick-ico"><i class="fa-solid fa-plus"></i></span><span class="quick-lbl">Novo produto</span></button>
+              <button type="button" class="quick-card" onclick="navigate('pedidos')"><span class="quick-ico"><i class="fa-solid fa-truck-fast"></i></span><span class="quick-lbl">Despachar pedidos</span></button>
+              <button type="button" class="quick-card" onclick="navigate('financas')"><span class="quick-ico"><i class="fa-solid fa-money-bill-transfer"></i></span><span class="quick-lbl">Solicitar saque</span></button>
+              <button type="button" class="quick-card" onclick="exportOrdersCsv()"><span class="quick-ico"><i class="fa-solid fa-file-csv"></i></span><span class="quick-lbl">Exportar relatório</span></button>
             </div>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:16px">
-          <div class="card">
-            <div class="card-hd">
-              <h4>🛒 Pedidos Recentes</h4>
-              <button class="btn btn-ghost btn-xs" onclick="navigate('pedidos')">Ver todos →</button>
+        <!-- ═══ MEUS PRODUTOS ═══ -->
+        <div class="page" id="page-produtos">
+          <div class="page-hd">
+            <div><h2>Meus Produtos</h2><p>Gerencie o catálogo da sua loja</p></div>
+            <div class="page-actions">
+              <button class="btn btn-o" onclick="exportProductsCsv()"><i class="fa-solid fa-file-arrow-down"></i> Exportar CSV</button>
+              <button class="btn btn-p" onclick="navigate('novo-produto')"><i class="fa-solid fa-plus"></i> Novo Produto</button>
+            </div>
+          </div>
+
+          <div class="card tbl-card">
+            <div class="tbl-bar">
+              <div class="search-field">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input class="inp" type="search" id="prodSearch" aria-label="Buscar produto" placeholder="Pesquisar" oninput="onProdSearch(this)">
+              </div>
+              <select class="sel sel-auto" id="prodCatFilter" aria-label="Filtrar por categoria" onchange="onProdCatChange(this)"><option value="">Todas as categorias</option></select>
+            </div>
+            <div class="status-tabs">
+              <div class="stab on" data-filter="all" data-label="Todos" onclick="filterProds(this,'all')">Todos (0)</div>
+              <div class="stab" data-filter="active" data-label="Ativos" onclick="filterProds(this,'active')">Ativos (0)</div>
+              <div class="stab" data-filter="paused" data-label="Pausados" onclick="filterProds(this,'paused')">Pausados (0)</div>
+              <div class="stab" data-filter="low" data-label="Estoque baixo" onclick="filterProds(this,'low')">Estoque baixo (0)</div>
             </div>
             <div class="tbl-wrap">
-              <table>
-                <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
-                <tbody id="recentOrdersBody"></tbody>
+              <table class="rt" id="prodTable">
+                <thead><tr><th class="chk-col"><input type="checkbox" class="chk" aria-label="Selecionar todos" onchange="toggleAll(this)"></th><th>Produto</th><th>SKU</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Vendas</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="prodTbody"></tbody>
               </table>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-hd"><h4>🏆 Top Produtos</h4></div>
-            <div class="card-pad" style="min-height: 400px;" id="topProdsBox"></div>
-          </div>
-        </div>
-
-        <div class="card card-pad">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px">Ações Rápidas</div>
-          <div class="quick-grid">
-            <div class="quick-card" onclick="navigate('novo-produto')"><div class="quick-ico">➕</div><div class="quick-lbl">Novo Produto</div></div>
-            <div class="quick-card" onclick="navigate('pedidos')"><div class="quick-ico">🚚</div><div class="quick-lbl">Despachar Pedidos</div></div>
-            <div class="quick-card" onclick="navigate('financas')"><div class="quick-ico">💸</div><div class="quick-lbl">Solicitar Saque</div></div>
-            <div class="quick-card" onclick="exportOrdersCsv()"><div class="quick-ico">📊</div><div class="quick-lbl">Exportar Relatório</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="page" id="page-produtos">
-        <div class="page-hd">
-          <div><h2>Meus Produtos</h2><p>Nenhum produto cadastrado</p></div>
-          <div class="fac gap8">
-            <button class="btn btn-o btn-sm" onclick="exportProductsCsv()">📤 Exportar CSV</button>
-            <button class="btn btn-p btn-sm" onclick="navigate('novo-produto')">+ Novo Produto</button>
-          </div>
-        </div>
-        <div class="filter-bar">
-          <input class="inp" style="flex:1;max-width:240px" type="search" id="prodSearch" aria-label="Buscar produto" placeholder="🔍  Buscar produto..." oninput="onProdSearch(this)">
-          <div class="status-tabs">
-            <div class="stab on" data-filter="all" data-label="Todos" onclick="filterProds(this,'all')">Todos (0)</div>
-            <div class="stab" data-filter="active" data-label="Ativos" onclick="filterProds(this,'active')">Ativos (0)</div>
-            <div class="stab" data-filter="paused" data-label="Pausados" onclick="filterProds(this,'paused')">Pausados (0)</div>
-            <div class="stab" data-filter="low" data-label="⚠ Estoque Baixo" onclick="filterProds(this,'low')">⚠ Estoque Baixo (0)</div>
-          </div>
-          <select class="sel" id="prodCatFilter" aria-label="Filtrar por categoria" style="width:auto;font-size:12px;padding:7px 26px 7px 10px" onchange="onProdCatChange(this)"><option value="">Todas as categorias</option></select>
-        </div>
-        <div class="card">
-          <div class="tbl-wrap">
-            <table id="prodTable">
-              <thead><tr><td class="chk-col"><input type="checkbox" class="chk" onchange="toggleAll(this)"></td><th>Produto</th><th>SKU</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Vendas</th><th>Status</th><th>Ações</th></tr></thead>
-              <tbody id="prodTbody"></tbody>
-            </table>
-          </div>
-          <div style="padding:14px 16px;border-top:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between" class="fs11 muted">
-            <span id="prodCount">Mostrando 0 de 0 produtos</span>
-            <div class="fac gap4">
-              <button class="btn btn-ghost btn-xs" id="prodPrev" style="border-radius:var(--r)" onclick="prodPage(-1)">← Ant</button>
-              <button class="btn btn-xs" style="background:var(--blue);color:#fff;border-radius:var(--r);padding:5px 10px">1</button>
-              <button class="btn btn-ghost btn-xs" id="prodNext" style="border-radius:var(--r)" onclick="prodPage(1)">Próx →</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="page" id="page-novo-produto">
-        <div class="page-hd">
-          <div><h2 id="labelNewProduct">Cadastrar Novo Produto</h2><p>Preencha as informações do produto para publicar</p></div>
-          <div class="fac gap8">
-            <button class="btn btn-p btn-sm" onclick="publishProduct()">🚀 Publicar Produto</button>
-          </div>
-        </div>
-        <div class="np-layout">
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="card card-pad">
-              <div style="font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">1</span> Informações Básicas</div>
-              <div style="display:flex;flex-direction:column;gap:13px">
-                <div class="fgrp"><label>Nome do Produto *</label><input class="inp" id="npName" placeholder="Ex: Smartwatch Pro X8 Ultra" oninput="updatePreview()"></div>
-                <div class="fgrid2">
-                  <div class="fgrp"><label>Categoria *</label><select class="sel" id="npCat" onchange="updatePreview()"><option disabled selected>Selecione...</option><option>📱 Eletrônicos</option><option>👗 Moda</option><option>🏠 Casa</option><option>💪 Fitness</option><option>💄 Beleza</option><option>🐾 Pets</option><option>📦 Diversos</option></select></div>
-                  <div class="fgrp"><label>Marca</label><input class="inp" placeholder="Ex: Samsung, Nike, própria"></div>
-                </div>
-                <div class="fgrp"><label>Descrição Curta *</label><textarea class="inp ta" placeholder="Descrição que aparece na listagem (máx 200 caracteres)" id="npDesc" oninput="updatePreview()"></textarea></div>
-                <div class="fgrp"><label>Descrição Completa</label><textarea class="inp" style="min-height:120px;resize:vertical" placeholder="Descrição detalhada com especificações, diferenciais e cuidados..."></textarea></div>
-              </div>
-            </div>
-            <div class="card card-pad">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">2</span> Imagens do Produto</div>
-              <div style="display:grid;/*grid-template-columns:1fr 1fr 1fr;*/gap:10px">
-                <div class="product-gallery">
- 				 <input type="file" id="npImage" accept="image/*" style="display: none;" onchange="openCropModal(event)">
-  
- 				 <div class="img-block main-block" id="img-block-0" onclick="triggerImageUpload(0)">
- 				   <div class="img-preview-container" id="imgPreviewContainer">
-   				   		<div class="fs24" style="font-size: 50px;">
-					  		<i class="fa-solid fa-image"></i>
-				   		</div>
-    				</div>
-    				<div class="img-edit-overlay">
-      					<i class="fa-solid fa-pen"></i>
-    				</div>
-    				<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem">
-      					<i class="fa-solid fa-trash"></i>
-    				</button>
-  				</div>
-
-  				<div class="secondary-blocks">
-    				<div class="img-block small-block" id="img-block-1" onclick="triggerImageUpload(1)">
-      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    			</div>
-    			<div class="img-block small-block" id="img-block-2" onclick="triggerImageUpload(2)">
-      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    			</div>
-    			<div class="img-block small-block" id="img-block-3" onclick="triggerImageUpload(3)">
-      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    			</div>
-    			<div class="img-block small-block" id="img-block-4" onclick="triggerImageUpload(4)">
-      				<div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
-      				<div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-    			</div>
-  			</div>
-			</div>
-            </div>
-            </div>
-            <div class="card card-pad">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">3</span> Preço e Estoque</div>
-              <div class="fgrid3" style="margin-bottom:12px">
-                <div class="fgrp"><label>Preço de Custo</label><input class="inp mono" id="npCost" placeholder="R$ 0,00" inputmode="numeric" oninput="maskMoney(this);calcMargin()"></div>
-                <div class="fgrp"><label>Preço de Venda *</label><input class="inp mono" id="npPrice" placeholder="R$ 0,00" oninput="maskMoney(this);calcMargin();updatePreview();calcMargin()"></div>
-                <div class="fgrp"><label>Preço Promocional</label><input class="inp mono" placeholder="R$ 0,00"></div>
-              </div>
-              <div class="fgrid3" style="margin-bottom:12px">
-                <div class="fgrp"><label>SKU / Cód. Interno</label><input class="inp mono" placeholder="TL-SKU-001"></div>
-                <div class="fgrp"><label>Estoque Inicial *</label><input class="inp" type="number" id="npStock" placeholder="0" min="0" step="1"></div>
-                <div class="fgrp"><label>Estoque Mínimo (Alerta)</label><input class="inp" type="number" placeholder="5" min="0"></div>
-              </div>
-              <div class="fgrid2">
-                <div class="fgrp"><label>Peso (g)</label><input class="inp" type="number" placeholder="Ex: 350"></div>
-                <div class="fgrp"><label>Dimensões (cm) LxAxP</label><input class="inp" placeholder="Ex: 20 x 15 x 8"></div>
-              </div>
-              <div id="marginCalc" style="display:none;margin-top:12px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:10px 14px;font-size:12px" class="fac gap16">
-                <span>💡 Margem estimada: <strong id="marginVal" class="blue">—</strong></span>
-                <span class="muted" id="netWrap" style="display:none">Após comissão: <strong id="netVal" class="green">—</strong></span>
-              </div>
-            </div>
-            <!-- Variações removidas: não há coluna correspondente em public.products (o botão inseria dados falsos). -->
-            <div class="card card-pad">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">5</span> Frete e Logística</div>
-              <div class="fgrid2">
-                <div class="fgrp"><label>Prazo de Despacho</label><select class="sel"><option>Até 1 dia útil</option><option>Até 2 dias úteis</option><option>Até 3 dias úteis</option></select></div>
-                <div class="fgrp"><label>Frete Grátis?</label>
-                  <div class="fac gap10" style="margin-top:6px; justify-content: left"><label class="tog-wrap"><input type="checkbox" class="tog-inp" id="freeShip"><div class="tog-lbl"></div></label><span class="fs12 muted">Oferecer frete grátis</span></div>
-                </div>
-              </div>
-            </div>
-            <div class="card card-pad">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="width:24px;height:24px;background:var(--blueDim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">6</span> SEO e Visibilidade</div>
-              <div style="display:flex;flex-direction:column;gap:12px">
-                <div class="fgrp"><label>Tags de Busca</label><input class="inp" placeholder="Ex: smartwatch, relógio inteligente, fitness (separado por vírgula)"></div>
-                <div class="fgrp"><label>Título SEO</label><input class="inp" placeholder="Título para mecanismos de busca"></div>
+            <div class="tbl-ft">
+              <span id="prodCount">Mostrando 0 de 0 produtos</span>
+              <div class="pager">
+                <button class="btn btn-ghost btn-xs" id="prodPrev" onclick="prodPage(-1)"><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+                <button class="btn btn-xs pg-cur" tabindex="-1">1</button>
+                <button class="btn btn-ghost btn-xs" id="prodNext" onclick="prodPage(1)">Próxima <i class="fa-solid fa-chevron-right"></i></button>
               </div>
             </div>
           </div>
-          <div class="np-preview">
-            <div style="font-size:11px;font-weight:700;margin-left: 20px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Preview do Produto</div>
-            <div class="preview-card">
-              <div class="preview-img" id="previewImg">📦</div>
-              <div class="preview-info">
-                <div class="tag tag-blue fs10 mb8" id="previewCat">Categoria</div>
-                <div class="preview-name" id="previewName">Nome do produto</div>
-                <div class="muted fs11 mt4 mb8" style="display:none" id="previewDesc">Descrição curta aqui...</div>
-				<div class="prating">
-            		<span class="pstars">★★★★☆</span>
-            		<span class="prcnt">(2.231)</span>
-          		</div>
-                <div class="preview-price" id="previewPrice">R$ 0,00</div>
-                <div class="muted fs10 mt4">por <span id="storeNameBy">N/A</span></div>
-                <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--b2);display:flex;flex-direction:column;gap:6px">
-                  <div class="fs11 muted fac gap6">
-					  <i class="fa-solid fa-check"></i> 
-					  Frete grátis acima de R$199
-				  </div>
-                  <div class="fs11 muted fac gap6" style="display: none">⭐ Loja verificada</div>
-                  <div class="fs11 muted fac gap6">🔒 Compra 100% segura</div>
-                </div>
-              </div>
-            </div>
-            <div class="card card-pad mt12" style="max-width: 250px;margin-left: 20px">
-              <div class="fs11 fw7 mb8">📋 Checklist</div>
-              <div style="display:flex;flex-direction:column;gap:6px" id="publishChecklist">
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name">
-					<i class="fa-solid fa-xmark"></i> 
-					Nome do produto
-				</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-cat">
-					<i class="fa-solid fa-xmark"></i> 
-					Categoria selecionada
-				</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-price">
-					<i class="fa-solid fa-xmark"></i> 
-					Preço de venda
-				</div>
-                <div class="fs11 fac gap6" style="color:var(--red)" id="chk-desc">
-					<i class="fa-solid fa-xmark"></i> 
-					Descrição curta
-				</div>
-                <div class="fs11 fac gap6" style="color:var(--green); display: none">
-					<i class="fa-solid fa-check"></i> 
-					Loja verificada
-				</div>
-              </div>
-              <button class="btn mt12 btn-checklist" style="width:100%" onclick="publishProduct()">
-				  <i class="fa-solid fa-rocket"></i> 
-				  Publicar Produto
-			  </button>
+        </div>
+
+        <!-- ═══ NOVO PRODUTO ═══ -->
+        <div class="page" id="page-novo-produto">
+          <div class="page-hd">
+            <div><h2 id="labelNewProduct">Cadastrar Novo Produto</h2><p>Preencha as informações do produto para publicar</p></div>
+            <div class="page-actions">
+              <button class="btn btn-p" onclick="publishProduct()"><i class="fa-solid fa-rocket"></i> Publicar Produto</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="page" id="page-pedidos">
-        <div class="page-hd">
-          <div><h2>Pedidos Recebidos</h2><p id="ordersSub">0 pedidos aguardando despacho</p></div>
-          <div class="fac gap8">
-            <button class="btn btn-ghost btn-sm" onclick="exportOrdersCsv()">📥 Exportar (CSV)</button>
-          </div>
-        </div>
-        <div class="order-filter-tabs">
-          <div class="stab on" data-filter="all" data-label="Todos" onclick="filterOrds(this)">Todos (0)</div>
-          <div class="stab" data-filter="pending" data-label="⏳ Despachar" onclick="filterOrds(this)">⏳ Despachar (0)</div>
-          <div class="stab" data-filter="transit" data-label="🚚 Em trânsito" onclick="filterOrds(this)">🚚 Em trânsito (0)</div>
-          <div class="stab" data-filter="delivered" data-label="✅ Entregues" onclick="filterOrds(this)">✅ Entregues (0)</div>
-          <div class="stab" data-filter="returned" data-label="↩ Devoluções" onclick="filterOrds(this)">↩ Devoluções (0)</div>
-        </div>
-        <div class="order-card-wrap" id="ordersWrap"></div>
-      </div>
-
-      <div class="page" id="page-financas">
-        <div class="page-hd">
-          <div><h2>Financeiro & Saques</h2><p style="font-style: italic;">Saldo atualizado em <span id="finDate">10 de ago. 15:17</span> 
-			  
-		  </p></div>
-          <div class="fac gap8">
-            <button class="btn btn-ghost btn-sm" onclick="exportExtractCsv()">📄 Extrato (CSV)</button>
-          </div>
-        </div>
-
-        <div class="bal-grid">
-          <div class="bal-card bc-main">
-            <div class="bal-ico bi-blue">💰</div>
-            <div class="bal-lbl">Disponível para Saque</div>
-            <div class="bal-val bv-blue" id="balAvail">—</div>
-<div class="bal-note" id="balAvailNote"></div>
-          </div>
-          <div class="bal-card bc-pend">
-            <div class="bal-ico bi-orange">⏳</div>
-            <div class="bal-lbl">Saldo Pendente</div>
-            <div class="bal-val bv-orange" id="balPending">—</div>
-<div class="bal-note" id="balPendingNote"></div>
-          </div>
-          <div class="bal-card bc-total">
-            <div class="bal-ico bi-green">📊</div>
-            <div class="bal-lbl">Faturamento Total (Mês)</div>
-            <div class="bal-val bv-green" id="balMonth">—</div>
-<div class="bal-note" id="balMonthNote"></div>
-          </div>
-        </div>
-
-        <div class="withdraw-card">
-          <div class="wc-title">💸 Solicitar Saque</div>
-          <div class="wc-sub" id="wcSub">Disponível: —</div>
-          <div class="wc-row">
-            <input class="wc-inp" id="saqueVal" placeholder="R$ 0,00" type="text" oninput="formatSaque(this)">
-            <select class="wc-inp2" id="saqueDest" aria-label="Destino do saque" disabled><option>Carregando...</option></select>
-            <button class="btn-withdraw" onclick="doSaque()">Solicitar Saque</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-hd">
-            <h4>📋 Extrato de Transações</h4>
-            <div class="fac gap8">
-              <select class="sel" id="extractPeriod" aria-label="Período do extrato" style="width:auto;font-size:11px;padding:6px 22px 6px 9px" onchange="buildExtract()"><option value="30">Últimos 30 dias</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option>
-              </select>
-            </div>
-          </div>
-          <div class="tbl-wrap">
-            <table id="extractTable">
-              <thead><tr><th>Transação</th><th>Tipo</th><th>Pedido</th><th>Bruto</th><th>Comissão</th><th>Líquido</th><th>Status</th><th>Data</th></tr></thead>
-              <tbody id="extractBody"></tbody>
-            </table>
-          </div>
-          <div style="padding:12px 16px;border-top:1px solid var(--b2);font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
-            <span id="extractCount">Mostrando 0 de 0 transações</span>
-            <span>Total líquido no período: <strong class="green" id="extractTotal">—</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="page" id="page-config">
-        <div class="page-hd">
-          <div><h2>Configurações da Loja</h2><p>Gerencie informações, frete e preferências da TechLab Store</p></div>
-          <button class="btn btn-p btn-sm" id="btn-save-config" onclick="saveConfig()">💾 Salvar alterações</button>
-        </div>
-        <div class="cfg-grid">
-          <div class="cfg-sb">
-            <div style="padding:14px 16px;border-bottom:1px solid var(--b2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--light)">Seções</div>
-            <div class="cfg-nav-item on" onclick="showCfg('identidade',this)">🏪 Identidade da Loja</div>
-            <div class="cfg-nav-item" onclick="showCfg('fiscal',this)">📋 Dados Fiscais</div>
-            <div class="cfg-nav-item" onclick="showCfg('frete',this)">🚚 Configurações de Frete</div>
-            <div class="cfg-nav-item" onclick="showCfg('pagamentos',this)">💳 Recebimentos</div>
-            <div class="cfg-nav-item" onclick="showCfg('notificacoes',this)">🔔 Notificações</div>
-            <div class="cfg-nav-item" onclick="showCfg('politicas',this)">📜 Políticas da Loja</div>
-            <div class="cfg-nav-item" style="color:var(--red)" onclick="showCfg('danger',this)">⚠ Zona de Perigo</div>
-          </div>
-          <div>
-			<div class="cfg-panel on" id="cfg-identidade">
-  			<div class="card card-pad mb16">
-    			<div class="card-title mb16">Logotipo e Visual</div>
-    			<div class="logo-upload" role="button" tabindex="0" onclick="$('cfgLogoInput').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();$('cfgLogoInput').click()}">
-<input type="file" id="cfgLogoInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="onCfgLogoSelected(this)">
-      			<div class="logo-preview" id="cfgLogoPreview"></div>
-      			<h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
-      			<p class="fs11 muted mt4">PNG, JPG ou WEBP · até 2 MB</p>
-    			</div>
-  			</div>
-  			<div class="card card-pad mb16">
-    			<div class="card-title mb16">Informações da Loja</div>
-    			<div style="display:flex;flex-direction:column;gap:13px">
-      			<div class="fgrid2">
-        			<div class="fgrp"><label>Nome da Loja *</label><input class="inp" id="cfgStoreName" value=""></div>
-        			<div class="fgrp"><label>Slogan</label><input pattern="[a-zA-Z0-9,.#()+-/]+" class="inp" id="cfgStoreSlogan" value=""></div>
-      			</div>
-      			<div class="fgrp"><label>Descrição da Loja *</label><textarea class="inp ta" id="cfgStoreDesc"></textarea></div>
-      			<div class="fgrid2">
-        			<div class="fgrp"><label>E-mail de Contato *</label><input pattern="[a-zA-Z0-9@.]+" class="inp" type="email" id="cfgStoreEmail" value=""></div>
-        			<div class="fgrp"><label>WhatsApp / Telefone *</label><input maxlength="11" class="inp" id="cfgStorePhone" value=""></div>
-      			</div>
-    			</div>
-  			</div>
-			</div>
-            <div class="cfg-panel" id="cfg-fiscal">
+          <div class="np-layout">
+            <div class="np-form">
               <div class="card card-pad">
-                <div class="card-title mb16">Dados Fiscais e Legais</div>
-                <div style="display:flex;flex-direction:column;gap:13px">
-                  <div class="fgrid2"><div class="fgrp"><label>CNPJ / CPF *</label><input pattern="[0-9.\-\/]+" maxlength="14" class="inp mono" id="store-cnpj-cpf" value=""></div>
-					  <div class="fgrp"><label>Razão Social *</label><input class="inp" id="store-legal-name" value=""></div></div>
-                  <div class="fgrid2"><div class="fgrp"><label>Nome Fantasia *</label><input class="inp" id="store-trade-name" value=""></div>
-					  <div class="fgrp"><label>Inscrição Estadual *</label><input maxlength="14" class="inp" id="store-ie" value=""></div></div>
-                  <div class="fgrid2"><div class="fgrp"><label>Regime Tributário *</label><select class="sel" id="store-tax-regime"><option disabled>Selecione..</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div>
-					  <div class="fgrp"><label>CNAE Principal</label><input class="inp" id="store-cnae" value=""></div></div>
-                  <div class="fgrp"><label>Endereço Fiscal *</label><input class="inp" id="store-address" value=""></div>
-                </div>
-              </div>
-            </div>
-            <div class="cfg-panel" id="cfg-frete">
-<div class="card card-pad mb16">
-<div class="card-title mb16">Envio da Loja</div>
-<div class="fgrp mb16"><label>Prazo de envio</label>
-<select class="sel" id="cfgPrazo"><option>1-2 dias úteis</option><option>3-5 dias úteis</option><option>5-10 dias úteis</option><option>10-15 dias úteis</option></select></div>
-<div class="fgrp mb16"><label>Formas de envio *</label>
-<div id="cfgFormas" class="fac gap12" style="flex-wrap:wrap">
-<label class="fac gap8 fs12"><input type="checkbox" value="correios"> Correios</label>
-<label class="fac gap8 fs12"><input type="checkbox" value="transportadora"> Transportadora</label>
-<label class="fac gap8 fs12"><input type="checkbox" value="retirada"> Retirada na loja</label>
-</div></div>
-<div class="fgrid2">
-<div class="fgrp"><label>Frete grátis acima de um valor?</label><label class="fac gap8 fs12"><input type="checkbox" id="cfgFreteAtivo"> Ativar frete grátis</label></div>
-<div class="fgrp"><label>Valor mínimo para frete grátis</label><input class="inp mono" id="cfgFreteMin" placeholder="R$ 199,00" inputmode="numeric" oninput="maskMoney(this)"></div>
-</div>
-</div>
-</div>
-
-<div class="cfg-panel" id="cfg-pagamentos">
-              <div class="card card-pad">
-                <div class="card-title mb16">Dados para Recebimento</div>
-                <div style="display:flex;flex-direction:column;gap:13px">
+                <div class="sec-t"><span class="sec-n">1</span> Informações básicas</div>
+                <div class="form-col">
+                  <div class="fgrp"><label>Nome do produto *</label><input class="inp" id="npName" placeholder="Ex: Smartwatch Pro X8 Ultra" oninput="updatePreview()"></div>
                   <div class="fgrid2">
-					  <div class="fgrp">
-						  <label>Banco</label>
-						  <select class="sel" id="dataBanco">
-							  <option>Banco do Brasil</option>
-							  <option>Bradesco</option>
-							  <option>Itaú</option>
-							  <option>Nubank</option>
-							  <option>Inter</option>
-							  <option>Outro</option>
-						  </select>
-					  </div>
-					  <div class="fgrp">
-						  <label>Tipo de Conta</label>
-						  <select class="sel" id="dataTipoConta">
-							  <option>Conta Corrente</option>
-							  <option>Conta Poupança</option>
-						  </select>
-					  </div>
-				  </div>
-                  <div class="fgrid3">
-					  <div class="fgrp">
-						  <label>Agência</label>
-						  <input class="inp mono" id="dataAgencia" placeholder="0000-0" value="">
-					  </div>
-					  <div class="fgrp">
-						  <label>Conta</label>
-						  <input class="inp mono" id="dataConta" placeholder="00000-0" value="">
-					  </div>
-					  <div class="fgrp">
-						  <label>Chave PIX</label>
-						  <input class="inp mono" id="dataPix" placeholder="CPF/CNPJ, Email ou Telefone" value="">
-					  </div>
-				  </div>
-                  <div class="fgrp">
-					  <label>Titular da Conta</label>
-					  <input class="inp" id="dataTitular" pattern="[a-zA-Z0-9.]+" placeholder="TechLab Comércio LTDA" value="">
-				  </div>
-                  <div class="fgrp">
-					  <label>CNPJ/CPF do Titular</label>
-					  <input class="inp mono" id="titular-cnpj-cpf" pattern="[a-zA-Z0-9,.#()+-/]+" placeholder="00.000.000/0000-00" value="">
-				  </div>
+                    <div class="fgrp"><label>Categoria *</label><select class="sel" id="npCat" onchange="updatePreview()"><option disabled selected>Selecione...</option><option>📱 Eletrônicos</option><option>👗 Moda</option><option>🏠 Casa</option><option>💪 Fitness</option><option>💄 Beleza</option><option>🐾 Pets</option><option>📦 Diversos</option></select></div>
+                    <div class="fgrp"><label>Marca</label><input class="inp" placeholder="Ex: Samsung, Nike, própria"></div>
+                  </div>
+                  <div class="fgrp"><label>Descrição curta *</label><textarea class="inp ta" placeholder="Descrição que aparece na listagem (máx 200 caracteres)" id="npDesc" oninput="updatePreview()"></textarea></div>
+                  <div class="fgrp"><label>Descrição completa</label><textarea class="inp ta ta-lg" placeholder="Descrição detalhada com especificações, diferenciais e cuidados..."></textarea></div>
                 </div>
               </div>
-            </div>
-            <div class="cfg-panel" id="cfg-notificacoes">
+
               <div class="card card-pad">
-                <div class="card-title mb16">Notificações da Loja</div><p class="fs11 muted mb16">Estas preferências ainda não são gravadas no banco de dados.</p>
-                <div style="display:flex;flex-direction:column;gap:0">
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Novo pedido recebido</div><div class="fs11 muted">E-mail + Push imediato</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Estoque abaixo do mínimo</div><div class="fs11 muted">Alerta quando produto < mín</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Avaliação recebida</div><div class="fs11 muted">Notificar quando cliente avalia</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f1f5f9"><div><div class="fs13 fw6">Saldo disponível para saque</div><div class="fs11 muted">Lembrete quando saldo ≥ R$100</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp"><div class="tog-lbl"></div></label></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0"><div><div class="fs13 fw6">Relatório semanal de vendas</div><div class="fs11 muted">Resumo às segundas-feiras</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                <div class="sec-t"><span class="sec-n">2</span> Imagens do produto</div>
+                <div class="product-gallery">
+                  <input type="file" id="npImage" accept="image/*" style="display:none" onchange="openCropModal(event)">
+
+                  <div class="img-block main-block" id="img-block-0" onclick="triggerImageUpload(0)">
+                    <div class="img-preview-container" id="imgPreviewContainer">
+                      <div class="fs24 img-ph"><i class="fa-solid fa-image"></i></div>
+                    </div>
+                    <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                    <button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+
+                  <div class="secondary-blocks">
+                    <div class="img-block small-block" id="img-block-1" onclick="triggerImageUpload(1)">
+                      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+                      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                    </div>
+                    <div class="img-block small-block" id="img-block-2" onclick="triggerImageUpload(2)">
+                      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+                      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                    </div>
+                    <div class="img-block small-block" id="img-block-3" onclick="triggerImageUpload(3)">
+                      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+                      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                    </div>
+                    <div class="img-block small-block" id="img-block-4" onclick="triggerImageUpload(4)">
+                      <div class="img-preview-container"><i class="fa-solid fa-plus fs20 muted"></i></div>
+                      <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card card-pad">
+                <div class="sec-t"><span class="sec-n">3</span> Preço e estoque</div>
+                <div class="form-col">
+                  <div class="fgrid3">
+                    <div class="fgrp"><label>Preço de custo</label><input class="inp mono" id="npCost" placeholder="R$ 0,00" inputmode="numeric" oninput="maskMoney(this);calcMargin()"></div>
+                    <div class="fgrp"><label>Preço de venda *</label><input class="inp mono" id="npPrice" placeholder="R$ 0,00" oninput="maskMoney(this);calcMargin();updatePreview();calcMargin()"></div>
+                    <div class="fgrp"><label>Preço promocional</label><input class="inp mono" placeholder="R$ 0,00"></div>
+                  </div>
+                  <div class="fgrid3">
+                    <div class="fgrp"><label>SKU / Cód. interno</label><input class="inp mono" placeholder="TL-SKU-001"></div>
+                    <div class="fgrp"><label>Estoque inicial *</label><input class="inp" type="number" id="npStock" placeholder="0" min="0" step="1"></div>
+                    <div class="fgrp"><label>Estoque mínimo (alerta)</label><input class="inp" type="number" placeholder="5" min="0"></div>
+                  </div>
+                  <div class="fgrid2">
+                    <div class="fgrp"><label>Peso (g)</label><input class="inp" type="number" placeholder="Ex: 350"></div>
+                    <div class="fgrp"><label>Dimensões (cm) LxAxP</label><input class="inp" placeholder="Ex: 20 x 15 x 8"></div>
+                  </div>
+                  <div id="marginCalc" class="callout fac gap16" style="display:none">
+                    <span><i class="fa-solid fa-lightbulb"></i> Margem estimada: <strong id="marginVal" class="blue">—</strong></span>
+                    <span class="muted" id="netWrap" style="display:none">Após comissão: <strong id="netVal" class="green">—</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Variações removidas: não há coluna correspondente em public.products (o botão inseria dados falsos). -->
+              <div class="card card-pad">
+                <div class="sec-t"><span class="sec-n">4</span> Frete e logística</div>
+                <div class="fgrid2">
+                  <div class="fgrp"><label>Prazo de despacho</label><select class="sel"><option>Até 1 dia útil</option><option>Até 2 dias úteis</option><option>Até 3 dias úteis</option></select></div>
+                  <div class="fgrp"><label>Frete grátis?</label>
+                    <div class="fac gap10 row-tog"><label class="tog-wrap"><input type="checkbox" class="tog-inp" id="freeShip"><div class="tog-lbl"></div></label><span class="fs12 muted">Oferecer frete grátis</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card card-pad">
+                <div class="sec-t"><span class="sec-n">5</span> SEO e visibilidade</div>
+                <div class="form-col">
+                  <div class="fgrp"><label>Tags de busca</label><input class="inp" placeholder="Ex: smartwatch, relógio inteligente, fitness (separado por vírgula)"></div>
+                  <div class="fgrp"><label>Título SEO</label><input class="inp" placeholder="Título para mecanismos de busca"></div>
                 </div>
               </div>
             </div>
-            <div class="cfg-panel" id="cfg-politicas">
-<div class="card card-pad mb16"><div class="card-title mb16">Política de Troca e Devolução</div>
-<textarea class="inp" id="cfgPolitica" maxlength="1000" style="min-height:140px;resize:vertical" aria-label="Política de troca e devolução"></textarea></div>
-</div>
 
-<div class="cfg-panel" id="cfg-danger">
-              <div class="danger-zone">
-<div class="fs13 fw7" style="color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px">⚠️ Zona de Perigo</div>
-<p class="fs12 muted mb16" style="line-height:1.7">Pausar a loja, excluir todos os produtos e encerrar a conta de vendedor são ações permanentes e verificadas pelo suporte da Ecomme, para proteger seus pedidos e seu saldo.</p>
-<button class="btn btn-danger btn-sm" onclick="buttonLink('/support')">Falar com o suporte</button>
-</div>
+            <aside class="np-preview">
+              <div class="sec-t">Preview do produto</div>
+              <div class="preview-card">
+                <div class="preview-img" id="previewImg">📦</div>
+                <div class="preview-info">
+                  <div class="tag tag-blue fs10 mb8" id="previewCat">Categoria</div>
+                  <div class="preview-name" id="previewName">Nome do produto</div>
+                  <div class="muted fs11 mt4 mb8" style="display:none" id="previewDesc">Descrição curta aqui...</div>
+                  <div class="prating">
+                    <span class="pstars">★★★★☆</span>
+                    <span class="prcnt">(2.231)</span>
+                  </div>
+                  <div class="preview-price" id="previewPrice">R$ 0,00</div>
+                  <div class="muted fs10 mt4">por <span id="storeNameBy">N/A</span></div>
+                  <div class="preview-perks">
+                    <div class="fs11 muted fac gap6"><i class="fa-solid fa-check"></i> Frete grátis acima de R$199</div>
+                    <div class="fs11 muted fac gap6" style="display:none"><i class="fa-solid fa-star"></i> Loja verificada</div>
+                    <div class="fs11 muted fac gap6"><i class="fa-solid fa-lock"></i> Compra 100% segura</div>
+                  </div>
+                </div>
+              </div>
+              <div class="checklist">
+                <div class="fs11 fw7 mb8"><i class="fa-solid fa-list-check"></i> Checklist</div>
+                <div class="chk-list" id="publishChecklist">
+                  <div class="fs11 fac gap6" style="color:var(--red)" id="chk-name"><i class="fa-solid fa-xmark"></i> Nome do produto</div>
+                  <div class="fs11 fac gap6" style="color:var(--red)" id="chk-cat"><i class="fa-solid fa-xmark"></i> Categoria selecionada</div>
+                  <div class="fs11 fac gap6" style="color:var(--red)" id="chk-price"><i class="fa-solid fa-xmark"></i> Preço de venda</div>
+                  <div class="fs11 fac gap6" style="color:var(--red)" id="chk-desc"><i class="fa-solid fa-xmark"></i> Descrição curta</div>
+                  <div class="fs11 fac gap6" style="color:var(--green);display:none"><i class="fa-solid fa-check"></i> Loja verificada</div>
+                </div>
+                <button class="btn btn-checklist" onclick="publishProduct()"><i class="fa-solid fa-rocket"></i> Publicar Produto</button>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- ═══ PEDIDOS ═══ -->
+        <div class="page" id="page-pedidos">
+          <div class="page-hd">
+            <div><h2>Pedidos Recebidos</h2><p id="ordersSub">0 pedidos aguardando despacho</p></div>
+            <div class="page-actions">
+              <button class="btn btn-o" onclick="exportOrdersCsv()"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</button>
+            </div>
+          </div>
+          <div class="order-filter-tabs">
+            <div class="stab on" data-filter="all" data-label="Todos" onclick="filterOrds(this)">Todos (0)</div>
+            <div class="stab" data-filter="pending" data-label="Despachar" onclick="filterOrds(this)">Despachar (0)</div>
+            <div class="stab" data-filter="transit" data-label="Em trânsito" onclick="filterOrds(this)">Em trânsito (0)</div>
+            <div class="stab" data-filter="delivered" data-label="Entregues" onclick="filterOrds(this)">Entregues (0)</div>
+            <div class="stab" data-filter="returned" data-label="Devoluções" onclick="filterOrds(this)">Devoluções (0)</div>
+          </div>
+          <div class="order-card-wrap" id="ordersWrap"></div>
+        </div>
+
+        <!-- ═══ FINANCEIRO ═══ -->
+        <div class="page" id="page-financas">
+          <div class="page-hd">
+            <div><h2>Financeiro & Saques</h2><p>Saldo atualizado em <span id="finDate">—</span></p></div>
+            <div class="page-actions">
+              <button class="btn btn-o" onclick="exportExtractCsv()"><i class="fa-solid fa-file-arrow-down"></i> Extrato (CSV)</button>
+            </div>
+          </div>
+
+          <div class="bal-grid">
+            <div class="bal-card bc-main">
+              <div class="bal-lbl"><i class="fa-solid fa-wallet"></i> Disponível para saque</div>
+              <div class="bal-val bv-blue" id="balAvail">—</div>
+              <div class="bal-note" id="balAvailNote"></div>
+            </div>
+            <div class="bal-card bc-pend">
+              <div class="bal-lbl"><i class="fa-solid fa-hourglass-half"></i> Saldo pendente</div>
+              <div class="bal-val bv-orange" id="balPending">—</div>
+              <div class="bal-note" id="balPendingNote"></div>
+            </div>
+            <div class="bal-card bc-total">
+              <div class="bal-lbl"><i class="fa-solid fa-chart-line"></i> Faturamento total (mês)</div>
+              <div class="bal-val bv-green" id="balMonth">—</div>
+              <div class="bal-note" id="balMonthNote"></div>
+            </div>
+          </div>
+
+          <div class="withdraw-card">
+            <div class="wc-title"><i class="fa-solid fa-money-bill-transfer"></i> Solicitar saque</div>
+            <div class="wc-sub" id="wcSub">Disponível: —</div>
+            <div class="wc-row">
+              <input class="wc-inp" id="saqueVal" placeholder="R$ 0,00" type="text" inputmode="numeric" aria-label="Valor do saque" oninput="formatSaque(this)">
+              <select class="wc-inp2" id="saqueDest" aria-label="Destino do saque" disabled><option>Carregando...</option></select>
+              <button class="btn-withdraw" onclick="doSaque()">Solicitar Saque</button>
+            </div>
+          </div>
+
+          <div class="card tbl-card">
+            <div class="card-hd">
+              <h4>Extrato de transações</h4>
+              <select class="sel sel-auto" id="extractPeriod" aria-label="Período do extrato" onchange="buildExtract()"><option value="30">Últimos 30 dias</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option></select>
+            </div>
+            <div class="tbl-wrap">
+              <table class="rt" id="extractTable">
+                <thead><tr><th>Transação</th><th>Tipo</th><th>Pedido</th><th>Bruto</th><th>Comissão</th><th>Líquido</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody id="extractBody"></tbody>
+              </table>
+            </div>
+            <div class="tbl-ft">
+              <span id="extractCount">Mostrando 0 de 0 transações</span>
+              <span>Total líquido no período: <strong class="green" id="extractTotal">—</strong></span>
             </div>
           </div>
         </div>
-      </div>
 
-	  <div class="page" id="page-loja">
-  		<div class="page-hd">
-    		<div><h2>Visão Geral da Loja</h2><p>Acompanhe o status e visualize sua loja como o cliente vê</p></div>
-  		</div>
+        <!-- ═══ CONFIGURAÇÕES ═══ -->
+        <div class="page" id="page-config">
+          <div class="page-hd">
+            <div><h2>Configurações da Loja</h2><p>Gerencie informações, frete e preferências da sua loja</p></div>
+            <div class="page-actions">
+              <button class="btn btn-p btn-save" id="btn-save-config" onclick="saveConfig()">Salvar alterações</button>
+            </div>
+          </div>
+          <div class="cfg-grid">
+            <div class="cfg-sb" role="tablist" aria-label="Seções das configurações">
+              <button type="button" class="cfg-nav-item on" onclick="showCfg('identidade',this)"><i class="fa-solid fa-store"></i> Identidade da loja</button>
+              <button type="button" class="cfg-nav-item" onclick="showCfg('fiscal',this)"><i class="fa-solid fa-file-invoice"></i> Dados fiscais</button>
+              <button type="button" class="cfg-nav-item" onclick="showCfg('frete',this)"><i class="fa-solid fa-truck"></i> Frete e envio</button>
+              <button type="button" class="cfg-nav-item" onclick="showCfg('pagamentos',this)"><i class="fa-solid fa-credit-card"></i> Recebimentos</button>
+              <button type="button" class="cfg-nav-item" onclick="showCfg('notificacoes',this)"><i class="fa-solid fa-bell"></i> Notificações</button>
+              <button type="button" class="cfg-nav-item" onclick="showCfg('politicas',this)"><i class="fa-solid fa-scale-balanced"></i> Políticas da loja</button>
+              <button type="button" class="cfg-nav-item cfg-danger" onclick="showCfg('danger',this)"><i class="fa-solid fa-triangle-exclamation"></i> Zona de perigo</button>
+            </div>
+            <div class="cfg-main">
+              <div class="cfg-panel on" id="cfg-identidade">
+                <div class="card card-pad mb16">
+                  <div class="card-title mb16">Logotipo e visual</div>
+                  <div class="logo-upload" role="button" tabindex="0" onclick="$('cfgLogoInput').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();$('cfgLogoInput').click()}">
+                    <input type="file" id="cfgLogoInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="onCfgLogoSelected(this)">
+                    <div class="logo-preview" id="cfgLogoPreview"></div>
+                    <h4 class="fs13 fw6">Clique para alterar o logotipo</h4>
+                    <p class="fs11 muted mt4">PNG, JPG ou WEBP · até 2 MB</p>
+                  </div>
+                </div>
+                <div class="card card-pad mb16">
+                  <div class="card-title mb16">Informações da loja</div>
+                  <div class="form-col">
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>Nome da loja *</label><input class="inp" id="cfgStoreName" value=""></div>
+                      <div class="fgrp"><label>Slogan</label><input pattern="[a-zA-Z0-9,.#()+-/]+" class="inp" id="cfgStoreSlogan" value=""></div>
+                    </div>
+                    <div class="fgrp"><label>Descrição da loja *</label><textarea class="inp ta" id="cfgStoreDesc"></textarea></div>
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>E-mail de contato *</label><input pattern="[a-zA-Z0-9@.]+" class="inp" type="email" id="cfgStoreEmail" value=""></div>
+                      <div class="fgrp"><label>WhatsApp / Telefone *</label><input maxlength="11" class="inp" id="cfgStorePhone" value=""></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-  		<div id="store-suspended-state" class="card card-pad" style="display: none; background: none; border: 1px solid #ef4444; border-radius: 40px; text-align: center; padding: 60px 20px;">
-<div style="font-size: 48px; margin-bottom: 16px;">⛔</div>
-<h3 style="font-family: 'Sora', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px;">Status: <span style="color: #dc2626;">Loja Suspensa</span></h3>
-<p class="muted" style="max-width: 420px; margin: 0 auto; line-height: 1.5;">Sua loja está suspensa e o painel está em modo somente leitura. Entre em contato com o suporte para regularizar.</p>
-<button style="background: var(--blue);color: #fff;border-radius: 100px;margin-top: 30px;padding: 10px 20px;font-size: 15px;" onclick="buttonLink('/support')">Falar com o suporte</button>
+              <div class="cfg-panel" id="cfg-fiscal">
+                <div class="card card-pad">
+                  <div class="card-title mb16">Dados fiscais e legais</div>
+                  <div class="form-col">
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>CNPJ / CPF *</label><input pattern="[0-9.\-\/]+" maxlength="14" class="inp mono" id="store-cnpj-cpf" value=""></div>
+                      <div class="fgrp"><label>Razão social *</label><input class="inp" id="store-legal-name" value=""></div>
+                    </div>
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>Nome fantasia *</label><input class="inp" id="store-trade-name" value=""></div>
+                      <div class="fgrp"><label>Inscrição estadual *</label><input maxlength="14" class="inp" id="store-ie" value=""></div>
+                    </div>
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>Regime tributário *</label><select class="sel" id="store-tax-regime"><option disabled>Selecione..</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div>
+                      <div class="fgrp"><label>CNAE principal</label><input class="inp" id="store-cnae" value=""></div>
+                    </div>
+                    <div class="fgrp"><label>Endereço fiscal *</label><input class="inp" id="store-address" value=""></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-panel" id="cfg-frete">
+                <div class="card card-pad mb16">
+                  <div class="card-title mb16">Envio da loja</div>
+                  <div class="form-col">
+                    <div class="fgrp"><label>Prazo de envio</label>
+                      <select class="sel" id="cfgPrazo"><option>1-2 dias úteis</option><option>3-5 dias úteis</option><option>5-10 dias úteis</option><option>10-15 dias úteis</option></select></div>
+                    <div class="fgrp"><label>Formas de envio *</label>
+                      <div id="cfgFormas" class="chip-checks">
+                        <label class="chip-check"><input type="checkbox" value="correios"> Correios</label>
+                        <label class="chip-check"><input type="checkbox" value="transportadora"> Transportadora</label>
+                        <label class="chip-check"><input type="checkbox" value="retirada"> Retirada na loja</label>
+                      </div>
+                    </div>
+                    <div class="fgrid2">
+                      <div class="fgrp"><label>Frete grátis acima de um valor?</label><label class="chip-check"><input type="checkbox" id="cfgFreteAtivo"> Ativar frete grátis</label></div>
+                      <div class="fgrp"><label>Valor mínimo para frete grátis</label><input class="inp mono" id="cfgFreteMin" placeholder="R$ 199,00" inputmode="numeric" oninput="maskMoney(this)"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-panel" id="cfg-pagamentos">
+                <div class="card card-pad">
+                  <div class="card-title mb16">Dados para recebimento</div>
+                  <div class="form-col">
+                    <div class="fgrid2">
+                      <div class="fgrp">
+                        <label>Banco</label>
+                        <select class="sel" id="dataBanco">
+                          <option>Banco do Brasil</option>
+                          <option>Bradesco</option>
+                          <option>Itaú</option>
+                          <option>Nubank</option>
+                          <option>Inter</option>
+                          <option>Outro</option>
+                        </select>
+                      </div>
+                      <div class="fgrp">
+                        <label>Tipo de conta</label>
+                        <select class="sel" id="dataTipoConta">
+                          <option>Conta Corrente</option>
+                          <option>Conta Poupança</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="fgrid3">
+                      <div class="fgrp"><label>Agência</label><input class="inp mono" id="dataAgencia" placeholder="0000-0" value=""></div>
+                      <div class="fgrp"><label>Conta</label><input class="inp mono" id="dataConta" placeholder="00000-0" value=""></div>
+                      <div class="fgrp"><label>Chave PIX</label><input class="inp mono" id="dataPix" placeholder="CPF/CNPJ, Email ou Telefone" value=""></div>
+                    </div>
+                    <div class="fgrp"><label>Titular da conta</label><input class="inp" id="dataTitular" pattern="[a-zA-Z0-9.]+" placeholder="Nome ou razão social do titular" value=""></div>
+                    <div class="fgrp"><label>CNPJ/CPF do titular</label><input class="inp mono" id="titular-cnpj-cpf" pattern="[a-zA-Z0-9,.#()+-/]+" placeholder="00.000.000/0000-00" value=""></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-panel" id="cfg-notificacoes">
+                <div class="card card-pad">
+                  <div class="card-title mb8">Notificações da loja</div>
+                  <p class="fs11 muted mb16">Estas preferências ainda não são gravadas no banco de dados.</p>
+                  <div class="tog-list">
+                    <div class="tog-row"><div><div class="fs13 fw6">Novo pedido recebido</div><div class="fs11 muted">E-mail + Push imediato</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                    <div class="tog-row"><div><div class="fs13 fw6">Estoque abaixo do mínimo</div><div class="fs11 muted">Alerta quando produto &lt; mín</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                    <div class="tog-row"><div><div class="fs13 fw6">Avaliação recebida</div><div class="fs11 muted">Notificar quando cliente avalia</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                    <div class="tog-row"><div><div class="fs13 fw6">Saldo disponível para saque</div><div class="fs11 muted">Lembrete quando saldo ≥ R$100</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp"><div class="tog-lbl"></div></label></div>
+                    <div class="tog-row"><div><div class="fs13 fw6">Relatório semanal de vendas</div><div class="fs11 muted">Resumo às segundas-feiras</div></div><label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-panel" id="cfg-politicas">
+                <div class="card card-pad mb16">
+                  <div class="card-title mb16">Política de troca e devolução</div>
+                  <textarea class="inp ta ta-lg" id="cfgPolitica" maxlength="1000" aria-label="Política de troca e devolução"></textarea>
+                </div>
+              </div>
+
+              <div class="cfg-panel" id="cfg-danger">
+                <div class="danger-zone">
+                  <div class="dz-t"><i class="fa-solid fa-triangle-exclamation"></i> Zona de perigo</div>
+                  <p class="fs12 muted mb16">Pausar a loja, excluir todos os produtos e encerrar a conta de vendedor são ações permanentes e verificadas pelo suporte da Ecomme, para proteger seus pedidos e seu saldo.</p>
+                  <button class="btn btn-danger" onclick="buttonLink('/support')">Falar com o suporte</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ MINHA LOJA ═══ -->
+        <div class="page" id="page-loja">
+          <div class="page-hd">
+            <div><h2>Visão Geral da Loja</h2><p>Acompanhe o status e visualize sua loja como o cliente vê</p></div>
+          </div>
+
+          <div id="store-suspended-state" class="card card-pad store-state st-bad" style="display:none">
+            <div class="st-ico"><i class="fa-solid fa-ban"></i></div>
+            <h3>Status: <span>Loja suspensa</span></h3>
+            <p>Sua loja está suspensa e o painel está em modo somente leitura. Entre em contato com o suporte para regularizar.</p>
+            <button class="btn btn-p" onclick="buttonLink('/support')">Falar com o suporte</button>
+          </div>
+          <div id="store-pending-state" class="card card-pad store-state st-wait" style="display:none">
+            <div class="st-ico"><i class="fa-solid fa-hourglass-half"></i></div>
+            <h3>Status: <span>Loja em análise</span></h3>
+            <p>Sua loja está sendo revisada. Aguarde, esta tela será atualizada automaticamente assim que ela estiver no ar.</p>
+          </div>
+          <div id="store-active-state" class="card card-pad store-state st-ok" style="display:block">
+            <div class="st-ico"><i class="fa-solid fa-circle-check"></i></div>
+            <h3>Status: <span>Loja ativa!</span></h3>
+            <p>Sua loja foi revisada com sucesso e agora está disponível na Ecomme, você já pode adicionar os primeiros produtos e começar a vender.</p>
+            <button class="btn btn-p" onclick="navigate('novo-produto')"><i class="fa-solid fa-plus"></i> Novo Produto</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- navegação compacta (celular) -->
+  <nav class="mobile-nav" aria-label="Navegação rápida">
+    <button class="mob-btn on" id="mob-dashboard" data-page="dashboard"><i class="fa-solid fa-chart-pie"></i><span>Início</span></button>
+    <button class="mob-btn" id="mob-produtos" data-page="produtos"><i class="fa-solid fa-box-open"></i><span>Produtos</span></button>
+    <button class="mob-btn mob-add" id="mob-novo-produto" data-page="novo-produto" aria-label="Novo produto"><i class="fa-solid fa-plus"></i></button>
+    <button class="mob-btn" id="mob-pedidos" data-page="pedidos"><i class="fa-solid fa-truck-fast"></i><span>Pedidos</span></button>
+    <button class="mob-btn" id="mob-financas" data-page="financas"><i class="fa-solid fa-sack-dollar"></i><span>Financeiro</span></button>
+    <button class="mob-btn" id="mob-menu" type="button" aria-label="Abrir menu completo"><i class="fa-solid fa-bars"></i><span>Menu</span></button>
+  </nav>
 </div>
-<div id="store-pending-state" class="card card-pad" style="display: none; background: none; border: 1px solid #ffc400; border-radius: 40px; text-align: center; padding: 60px 20px;">
-    		<div style="font-size: 48px; margin-bottom: 16px; animation: pulse 2s infinite;">⏳</div>
-    		<h3 style="font-family: 'Sora', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px;">Status: <span style="color: #c47c00;">Loja em Análise</h3>
-    		<p class="muted" style="max-width: 400px; margin: 0 auto; line-height: 1.5;">
-      		Sua loja está sendo revisada. Aguarde, esta tela será atualizada automaticamente assim que ela estiver no ar.
-    		</p>
-  		</div>
-				
-		<div id="store-active-state" class="card card-pad" style="display: block; background: #e1ffe300; /*border: 1px solid #02c416;*/ border-radius: 40px; text-align: center; padding: 60px 20px; box-shadow: 0 0 20px rgb(25 100 255 / 50%);">
-    		<div style="font-size: 48px; margin-bottom: 16px; animation: pulse 2s infinite;"><i class="fa-solid fa-check"></i></div>
-    		<h3 style="font-family: 'Sora', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px;">Status: <span style="color: rgba(25,100,255);/* text-decoration-line: underline; */">Loja Ativa!</span></h3>
-    		<p class="muted" style="max-width: 400px; margin: 0 auto; line-height: 1.5;">
-				Sua loja foi revisada com sucesso e agora está disponível na Ecomme, você já pode adicionar os primeiros produtos e começar a vender.
-			</p>
-			<button style="background: var(--blue);color: #fff;border-radius: 100px;margin-top: 30px;padding: 10px 20px;font-size: 15px;" onclick="navigate('novo-produto')">
-				<i style="margin-right: 5px;" class="fa-regular fa-plus"></i> 
-				Novo Produto
-			</button>
-  		</div>
-	  </div>		  
-    </main>	  
-   <nav class="mobile-nav">
-  	<button class="mob-btn on" id="mob-dashboard" data-page="dashboard">
-    	<i class="fa-solid fa-chart-simple"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-produtos" data-page="produtos">
-    	<i class="fa-solid fa-tag"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-novo-produto" data-page="novo-produto">
-    	<i class="fa-solid fa-plus"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-pedidos" data-page="pedidos">
-    	<i class="fa-solid fa-truck"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-financas" data-page="financas">
-    	<i class="fa-solid fa-sack-dollar"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-config" data-page="config">
-    	<i class="fa-solid fa-gear"></i>
-  	</button>
-  	<button class="mob-btn" id="mob-loja" data-page="loja">
-    	<i class="fa-solid fa-store"></i>
-  	</button>
-  	<button class="mob-btn danger" onclick="openConfirmLogout()">
-    	<i class="fa-solid fa-right-from-bracket"></i>
-  	</button>
- </nav>
-	  
-  </div>  </div>
-  <div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
-  <div class="more-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
-    <div class="more-hd">
-      <h3>Principais Atalhos</h3>
-      <button class="more-cls" aria-label="Fechar menu" onclick="closeMore()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="more-body">
-      <div class="theme-switch-wrap">
-        <p class="acc-label">Aparência</p>
-        <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
-          <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro">
-            <i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span>
-          </button>
-          <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema">
-            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span>
-          </button>
-          <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro">
-            <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span>
-          </button>
-        </div>
-      </div>
-      <div class="acc-menu-group" style="gap:10px">
-        <button class="btn-acc-option" onclick="buttonLink('/settings')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-gear"></i> Configurações</span>
-            <p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/track-order')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-truck"></i> Acompanhar Pedido</span>
-            <p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/sellers')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-sack-dollar"></i> Página do Vendedor</span>
-            <p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes.</p>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-        <button class="btn-acc-option active" onclick="buttonLink('/affiliates')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-handshake"></i> Programa de Afiliados</span>
-            <p class="btn-txt">Gere links, divulgue produtos e acompanhe suas comissões.</p>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/terms')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-file-contract"></i> Termos e Condições de Uso</span>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/support')">
-          <div class="btn-content">
-            <span class="btn-title"><i class="fa-solid fa-circle-question"></i> Suporte</span>
-          </div>
-          <span class="btn-arrow">&gt;</span>
-        </button>
-      </div>
-    </div>
-    <div class="notif-ft">
-      <button class="btn-cont" onclick="closeMore()">Fechar Menu</button>
-    </div>
-  </div>
-	
-  <div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
-  <div class="acc-sb" id="accSidebar">
-    <div class="acc-hd">
-      <h3>Minha Conta</h3>
-      <button class="acc-cls" onclick="closeAcc()">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="acc-body">
-      <div class="acc-profile-summary">
-        <div class="acc-avatar-large">
-          <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
-        </div>
-        <div class="acc-info">
-          <strong id="accSidebarName"></strong>
-          <span id="accSidebarEmail"></span>
-        </div>
-      </div>
-      <div class="acc-menu-group">
-        <p class="acc-label">Atalhos</p>
-        <button class="btn-acc-option" onclick="buttonLink('/settings')">
-          <i class="fa-solid fa-user-pen"></i>
-          <span>Editar Perfil</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/my-orders')">
-          <i class="fa-solid fa-box-open"></i>
-          <span>Minhas Compras</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/reviews')">
-          <i class="fa-solid fa-star"></i>
-          <span>Minhas Avaliações</span>
-        </button>
-        <button class="btn-acc-option" onclick="openFav(); closeAcc();">
-          <i class="fa-solid fa-heart"></i>
-          <span>Lista de Desejos</span>
-        </button>
-      </div>
-      <div class="acc-menu-group">
-        <p class="acc-label">Suporte</p>
-        <button class="btn-acc-option" onclick="buttonLink('/support')">
-          <i class="fa-solid fa-circle-question"></i>
-          <span>Ajuda & FAQ</span>
-        </button>
-        <button class="btn-acc-option" onclick="buttonLink('/terms')">
-          <i class="fa-solid fa-file-contract"></i>
-          <span>Termos de Uso</span>
-        </button>
-      </div>
-      <div class="acc-ft">
-        <button class="btn-logout-sb" onclick="openConfirmLogout()">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-          Sair da Conta
-        </button>
-      </div>
-    </div>
-  </div>
 
+<!-- ═══ PAINÉIS LATERAIS ═══ -->
+<div class="overlay" id="moreOverlay" onclick="closeMore()"></div>
+<div class="more-sb" id="moreSidebar" role="dialog" aria-label="Menu" aria-hidden="true">
+  <div class="more-hd">
+    <h3>Atalhos e aparência</h3>
+    <button class="more-cls" aria-label="Fechar menu" onclick="closeMore()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="more-body">
+    <div class="theme-switch-wrap">
+      <p class="acc-label">Aparência</p>
+      <div class="theme-switch" id="themeSwitch" role="radiogroup" aria-label="Tema da interface">
+        <button class="theme-opt" data-theme-choice="light" role="radio" aria-checked="false" title="Tema claro">
+          <i class="fa-solid fa-sun" aria-hidden="true"></i><span>Claro</span>
+        </button>
+        <button class="theme-opt" data-theme-choice="auto" role="radio" aria-checked="false" title="Seguir o sistema">
+          <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Automático</span>
+        </button>
+        <button class="theme-opt" data-theme-choice="dark" role="radio" aria-checked="false" title="Tema escuro">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Escuro</span>
+        </button>
+      </div>
+    </div>
+    <div class="acc-menu-group">
+      <button class="btn-acc-option" onclick="buttonLink('/settings')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-gear"></i> Configurações</span>
+          <p class="btn-txt">Gerencie e personalize as preferências do sistema, o comportamento das ferramentas e os parâmetros da sua conta.</p>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/track-order')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-truck"></i> Acompanhar Pedido</span>
+          <p class="btn-txt">Acompanhe o status e a localização exata das suas entregas em tempo real.</p>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/sellers')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-sack-dollar"></i> Página do Vendedor</span>
+          <p class="btn-txt">Seu canal direto de vendas para atrair e converter clientes.</p>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+      <button class="btn-acc-option active" onclick="buttonLink('/affiliates')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-handshake"></i> Programa de Afiliados</span>
+          <p class="btn-txt">Gere links, divulgue produtos e acompanhe suas comissões.</p>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/terms')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-file-contract"></i> Termos e Condições de Uso</span>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+      <button class="btn-acc-option" onclick="buttonLink('/support')">
+        <div class="btn-content">
+          <span class="btn-title"><i class="fa-solid fa-circle-question"></i> Suporte</span>
+        </div>
+        <i class="fa-solid fa-chevron-right btn-arrow"></i>
+      </button>
+    </div>
+  </div>
+  <div class="notif-ft">
+    <button class="btn-cont" onclick="closeMore()">Fechar menu</button>
+  </div>
+</div>
+
+<div class="overlay" id="accOverlay" onclick="closeAcc()"></div>
+<div class="acc-sb" id="accSidebar">
+  <div class="acc-hd">
+    <h3>Minha conta</h3>
+    <button class="acc-cls" aria-label="Fechar" onclick="closeAcc()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="acc-body">
+    <div class="acc-profile-summary">
+      <div class="acc-avatar-large">
+        <img id="accSidebarAvatar" src="/images/icons/full/user.webp" alt="Avatar">
+      </div>
+      <div class="acc-info">
+        <strong id="accSidebarName"></strong>
+        <span id="accSidebarEmail"></span>
+      </div>
+    </div>
+    <div class="acc-menu-group">
+      <p class="acc-label">Atalhos</p>
+      <button class="btn-acc-option" onclick="buttonLink('/settings')"><i class="fa-solid fa-user-pen"></i><span>Editar Perfil</span></button>
+      <button class="btn-acc-option" onclick="buttonLink('/my-orders')"><i class="fa-solid fa-box-open"></i><span>Minhas Compras</span></button>
+      <button class="btn-acc-option" onclick="buttonLink('/reviews')"><i class="fa-solid fa-star"></i><span>Minhas Avaliações</span></button>
+      <button class="btn-acc-option" onclick="openFav(); closeAcc();"><i class="fa-solid fa-heart"></i><span>Lista de Desejos</span></button>
+    </div>
+    <div class="acc-menu-group">
+      <p class="acc-label">Suporte</p>
+      <button class="btn-acc-option" onclick="buttonLink('/support')"><i class="fa-solid fa-circle-question"></i><span>Ajuda & FAQ</span></button>
+      <button class="btn-acc-option" onclick="buttonLink('/terms')"><i class="fa-solid fa-file-contract"></i><span>Termos de Uso</span></button>
+    </div>
+    <div class="acc-ft">
+      <button class="btn-logout-sb" onclick="openConfirmLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAIS ═══ -->
 <div id="cropModal" class="crop-modal">
   <div class="crop-modal-content">
     <div class="crop-hd">
-      <h3>Ajustar Foto</h3>
-      <button class="cart-cls" onclick="closeCropModal()">
+      <h3>Ajustar foto</h3>
+      <button class="cart-cls" onclick="closeCropModal()" aria-label="Fechar recorte">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    
     <div class="img-container">
       <img id="imageToCrop" src="" alt="Imagem para recortar">
     </div>
-    
-    <div class="av-btns" style="justify-content: flex-end; margin-top: 15px;">
+    <div class="av-btns">
       <button class="btn-xs gray" onclick="closeCropModal()">Cancelar</button>
-      <button class="btn-xs blue" onclick="executeCrop()"><span style="font-weight: bold;">✓&nbsp;</span> Continuar</button>
+      <button class="btn-xs blue" onclick="executeCrop()"><i class="fa-solid fa-check"></i> Continuar</button>
     </div>
   </div>
 </div>
@@ -917,40 +962,35 @@
 <div id="logoCropModal" class="crop-modal">
   <div class="crop-modal-content">
     <div class="crop-hd">
-      <h3>Ajustar Foto da Loja</h3>
+      <h3>Ajustar foto da loja</h3>
       <button type="button" class="cart-cls" onclick="closeLogoCropModal()" aria-label="Fechar recorte">
-        <svg viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <p class="fs11 muted" style="margin-bottom:12px">
-      Ajuste o logotipo dentro do quadrado. A imagem final terá proporção 1:1.
-    </p>
+    <p class="fs11 muted mb8">Ajuste o logotipo dentro do quadrado. A imagem final terá proporção 1:1.</p>
     <div class="img-container logo-crop-container">
       <img id="logoImageToCrop" src="" alt="Logotipo da loja para recortar">
     </div>
-    <div class="av-btns logo-crop-actions" style="justify-content:flex-end;margin-top:15px">
+    <div class="av-btns logo-crop-actions">
       <button type="button" class="btn-xs gray" onclick="closeLogoCropModal()">Cancelar</button>
-      <button type="button" class="btn-xs blue" id="btnApplyLogoCrop" onclick="applyLogoCrop()"><span style="font-weight:bold">✓&nbsp;</span>Aplicar recorte</button>
+      <button type="button" class="btn-xs blue" id="btnApplyLogoCrop" onclick="applyLogoCrop()"><i class="fa-solid fa-check"></i> Aplicar recorte</button>
     </div>
   </div>
 </div>
-	
+
 <div id="imageActionModal" class="m-alert-container">
-  <div class="m-alert-content" style="max-width: 320px;">
+  <div class="m-alert-content">
     <div class="m-alert-icon"><i class="fa-solid fa-image"></i></div>
-    <h3>Opções da Imagem</h3>
+    <h3>Opções da imagem</h3>
     <p>O que você deseja fazer com esta foto?</p>
     <div class="modal-alert-buttons-vertical">
-      <button class="btn-alert-confirm" onclick="actionChangeImage()">Alterar Imagem</button>
-      <button class="btn-alert-confirm-red" onclick="actionDeleteImage()">Excluir Imagem</button>
-      <button class="btn-alert-cancel" style="margin-top: 6px;" onclick="closeImageActionModal()">Cancelar</button>
+      <button class="btn-alert-confirm" onclick="actionChangeImage()">Alterar imagem</button>
+      <button class="btn-alert-confirm-red" onclick="actionDeleteImage()">Excluir imagem</button>
+      <button class="btn-alert-cancel" onclick="closeImageActionModal()">Cancelar</button>
     </div>
   </div>
 </div>
-	
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js"></script>
 <script>
   // Start the Quicklink
@@ -963,5 +1003,6 @@
 <script src="/files/scripts/auth-session-check.js"></script>
 <script src="/files/scripts/console-warning.js"></script>
 <script src="script.js"></script>
+<script src="ui.js"></script>
 </body>
 </html>
