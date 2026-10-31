@@ -16,9 +16,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!profileError && profile) {
       const fullName = profile.full_name || 'Cliente';
       const email = user.email || '';
+      const inputEmail = document.getElementById('fEmail').value;
       if (document.getElementById('fName')) document.getElementById('fName').value = fullName;
       if (document.getElementById('fEmail')) document.getElementById('fEmail').value = email;
-      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').textContent = document.getElementById('fEmail').value;
+      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').textContent = `${inputEmail}`
     }
   }
 );
