@@ -996,7 +996,7 @@ header:hover .hide-btn {
     .theme-opt:hover {
     transform: scale(1.1);
 }
-    .theme-opt[aria-checked="true"] {/* background: var(--border) !important; */color: var(--black) !important;box-shadow: var(--shadow);}
+    .theme-opt[aria-checked="true"] {/* background: var(--border) !important; */color: var(--black) !important;box-shadow: var(--shadow);border: 1px solid var(--muted2);}
 
   .more-sb {
     opacity: 0;
