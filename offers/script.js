@@ -1,15 +1,14 @@
-// FAVICON
+(function () {
+'use strict';
+// FAVICON E TEMA DO SISTEMA
 const favicon = document.getElementById('favicon');
-function verificarTema(e) {
-  if (e.matches) {
-    favicon.href = '/images/favicon-light.png';
-  } else {
-    favicon.href = '/images/favicon-blue.png';
-  }
+function verificarTema(event) {
+  if (favicon) favicon.href = event.matches ? '/images/favicon-light.png' : '/images/favicon-blue.png';
 }
 const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
 verificarTema(mqEscuro);
-mqEscuro.addEventListener('change', verificarTema);
+if (mqEscuro.addEventListener) mqEscuro.addEventListener('change', verificarTema);
+else mqEscuro.addListener(verificarTema);
 
 /* ────────────────────────────────────────────────────────────────────── */
 document.body.style.cursor = "default";
@@ -34,171 +33,231 @@ function injectPrefetch(url) {
 
 let products = [];
 let offers = [];
-
-/* ─── SEARCH ─────────────────────────────────────────────────────────── */
-function searchFor(term) {
-  if ($('heroSearch')) $('heroSearch').value = term;
-  if ($('headerSearch')) $('headerSearch').value = term;
-  renderProducts();
-}
-
-// EXECUTE DATABASE
-window.addEventListener('DOMContentLoaded', async () => {
-  const loginBtn = document.getElementById('authLoginBtn');
-  const profileContainer = document.getElementById('headerProfileContainer');
-  const headerImage = document.getElementById('headerAvatar');
-
-  await loadProductsFromSupabase();
-  await loadOffersFromSupabase();
-  
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-  let shuffled = [...products];
-
-  if (!user || userError) {
-    console.warn("User session not active.");
-    if (loginBtn) loginBtn.classList.remove('hidden');
-    if (profileContainer) profileContainer.classList.add('hidden');
-    injectPrefetch('/login');
-    return;
-  }
-  userId = user.id;
-  await loadFromSupabase();
-
-  if (loginBtn) loginBtn.classList.add('hidden');
-  if (profileContainer) profileContainer.classList.remove('hidden');
-
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (!profileError && profile) {
-    const fullName = profile.full_name || "Cliente";
-    const email = user.email || "";
-
-    if ($('accSidebarName')) $('accSidebarName').textContent = fullName;
-    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
-    if (profile.avatar_url && $('accSidebarAvatar')) {
-      $('accSidebarAvatar').src = profile.avatar_url;
-    }
-
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(' ') || "";
-
-    const inputFirstName = document.getElementById('profileFirstName');
-    const inputLastName = document.getElementById('profileLastName');
-    const inputEmail = document.getElementById('profileEmail');
-    const photoUrl = profile.avatar_url || "";
-
-    if (inputFirstName) inputFirstName.value = firstName;
-    if (inputLastName) inputLastName.value = lastName;
-    if (inputEmail) inputEmail.value = email;
-
-    if (photoUrl) {
-      const sidebarImage = document.getElementById('sidebarAvatar');
-
-      if (sidebarImage) {
-        sidebarImage.src = photoUrl;
-        sidebarImage.style.filter = "none";
-        sidebarImage.style.width = "100%";
-        sidebarImage.style.height = "100%";
-        sidebarImage.style.borderRadius = "100%";
-        sidebarImage.style.objectFit = "cover";
-      }
-      if (headerImage) {
-        headerImage.src = photoUrl;
-        headerImage.style.filter = "none";
-        headerImage.style.width = "100%";
-        headerImage.style.height = "100%";
-        headerImage.style.borderRadius = "100%";
-        headerImage.style.objectFit = "cover";
-      }
-    }
-  }
-});
-
-// HEADER
-function initHeaderAuthListener() {
-  const loginBtn = document.getElementById('authLoginBtn');
-  const profileContainer = document.getElementById('headerProfileContainer');
-  const bellBtn = document.getElementById('bellBtn');
-  const headerAvatar = document.getElementById('headerAvatar');
-
-  if (!loginBtn || !profileContainer) return;
-  
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (session && session.user) {
-      loginBtn.classList.add('hidden');
-      bellBtn.classList.remove('hidden');
-      profileContainer.classList.remove('hidden');
-
-      try {
-        const { data: profileData, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('avatar_url')
-          .eq('id', session.user.id)
-          .single();
-
-        if (!profileError && profileData && profileData.avatar_url) {
-          headerAvatar.src = profileData.avatar_url;
-        } else {
-          headerAvatar.src = "/images/icons/full/user.webp";
-        }
-      } catch (err) {
-        console.error("Erro ao carregar o avatar do header:", err);
-      }
-    } else {
-      loginBtn.classList.remove('hidden');
-      profileContainer.classList.add('hidden');
-      bellBtn.classList.add('hidden');
-      if (headerAvatar) headerAvatar.src = "/images/icons/full/user.webp";
-    }
-  });
-}
-initHeaderAuthListener();
-
-/*
-function updateHeaderContrast() {
-  const header = document.querySelector("header");
-  const sampleY = header.offsetHeight + 10;
-  const x = window.innerWidth / 2;
-  const el = document.elementFromPoint(x, sampleY);
-
-  if (!el) return;
-  const style = getComputedStyle(el);
-  const bg = style.backgroundColor;
-  const rgb = bg.match(/\d+/g);
-
-  if (!rgb) return;
-  const r = Number(rgb[0]);
-  const g = Number(rgb[1]);
-  const b = Number(rgb[2]);
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  
-  if (brightness < 90) {
-    header.classList.add("dark-glass");
-  } else {
-    header.classList.remove("dark-glass");
-  }
-}
-window.addEventListener("scroll", updateHeaderContrast);
-window.addEventListener("resize", updateHeaderContrast);
-updateHeaderContrast();
-*/
-
-/* ─── STATE ─────────────────────────────────────────────────────────── */
+let offersChannel = null;
+let offersRefreshTimer = null;
+let offersPollTimer = null;
+let offersLoading = null;
+let offersLastUpdated = null;
 let cart = [];
 let fav = [];
 let curId = null;
 let mQtyVal = 1;
 let view = 'grid';
-let shuffled = [...products];
-
-/* ─── UTILS ─────────────────────────────────────────────────────────── */
-const fmt = p => 'R$ ' + p.toFixed(2).replace('.', ',');
+let shuffled = [];
 const $ = id => document.getElementById(id);
+const fmt = value => formatOfferPrice(value);
+
+// Disponibiliza estado para o módulo compartilhado de listas múltiplas.
+function exposeState(name, getter, setter) {
+  try { Object.defineProperty(window, name, { configurable: true, get: getter, set: setter }); }
+  catch (_) { window[name] = getter(); }
+}
+exposeState('products', () => products, value => { if (Array.isArray(value)) products = value; });
+exposeState('offers', () => offers, value => { if (Array.isArray(value)) offers = value; });
+exposeState('cart', () => cart, value => { if (Array.isArray(value)) cart = value; });
+exposeState('fav', () => fav, value => { if (Array.isArray(value)) fav = value; });
+exposeState('shuffled', () => shuffled, value => { if (Array.isArray(value)) shuffled = value; });
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+function safeImageUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    const url = new URL(raw, window.location.origin);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch (_) { return ''; }
+}
+function toNumber(value) {
+  const number = Number(String(value == null ? '' : value).replace(',', '.'));
+  return Number.isFinite(number) ? number : 0;
+}
+function normalizeOfferProduct(raw) {
+  const price = toNumber(raw.price);
+  const old = toNumber(raw.old ?? raw.old_price ?? raw.original_price ?? raw.compare_at_price);
+  const storedDiscount = Math.max(0, Math.min(99, toNumber(raw.discount)));
+  const hasPreviousPrice = old > price && price > 0;
+  const priceDiscount = hasPreviousPrice ? Math.max(1, Math.min(99, Math.round((1 - price / old) * 100))) : 0;
+  const validStoredDiscount = old <= 0 ? storedDiscount : 0;
+  let gallery = raw.gallery_urls;
+  if (typeof gallery === 'string') {
+    try { gallery = JSON.parse(gallery); } catch (_) { gallery = [gallery]; }
+  }
+  if (!Array.isArray(gallery)) gallery = [];
+  let images = raw.images;
+  if (typeof images === 'string') { try { images = JSON.parse(images); } catch (_) { images = [images]; } }
+  if (!Array.isArray(images)) images = [];
+  const image = [raw.image_url, raw.main_image, raw.thumbnail, ...gallery, ...images, raw.image].map(safeImageUrl).find(Boolean) || '';
+  const cat = Array.isArray(raw.cat) ? raw.cat.filter(Boolean).join(', ') : String(raw.cat || raw.category || '');
+  const shippingValue = String(raw.shipping == null ? '' : raw.shipping).trim().toLowerCase();
+  return {
+    ...raw,
+    id: String(raw.id),
+    name: String(raw.name || 'Produto sem nome'),
+    desc: String(raw.desc || raw.description || ''),
+    price,
+    old,
+    discount: priceDiscount || validStoredDiscount,
+    rating: toNumber(raw.rating),
+    reviews: Math.max(0, toNumber(raw.reviews)),
+    cat,
+    emoji: raw.emoji || '📦',
+    image_url: image,
+    gallery_urls: gallery.map(safeImageUrl).filter(Boolean),
+    shipping: raw.shipping === true || raw.shipping === 1 || ['true', '1', 'sim', 'grátis', 'gratis', 'free'].includes(shippingValue),
+    badge: String(raw.badge || '').trim().toLowerCase()
+  };
+}
+function isRealOffer(product) {
+  return !!product && product.price > 0 && product.badge !== 'paused' && product.discount > 0 && (product.old > product.price || product.old <= 0);
+}
+function formatOfferPrice(value) {
+  return 'R$ ' + toNumber(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function getOfferImage(product) {
+  return safeImageUrl(product.image_url || product.gallery_urls?.[0] || '');
+}
+function getSupabaseClient() {
+  try { return typeof supabaseClient !== 'undefined' ? supabaseClient : window.supabaseClient || null; }
+  catch (_) { return window.supabaseClient || null; }
+}
+function currentUserId() {
+  try { return typeof userId !== 'undefined' ? userId : null; }
+  catch (_) { return null; }
+}
+function isSavedToWishlist(productId) {
+  const items = window.EcommeWishlists?.getItems?.();
+  if (Array.isArray(items)) return items.some(item => String(item.product_id) === String(productId));
+  return fav.some(item => String(item.id) === String(productId));
+}
+function showOffersSkeleton() {
+  const grid = $('offersGrid');
+  if (!grid) return;
+  grid.setAttribute('aria-busy', 'true');
+  grid.innerHTML = Array.from({ length: 8 }, () => `
+    <div class="ocard oc-skeleton" aria-hidden="true">
+      <div class="oc-skeleton-image"></div>
+      <div class="oc-skeleton-info"><span></span><span></span><span></span></div>
+    </div>`).join('');
+}
+function showOffersError(message = 'Não foi possível carregar as ofertas.') {
+  const grid = $('offersGrid');
+  if (!grid) return;
+  grid.setAttribute('aria-busy', 'false');
+  grid.innerHTML = `<div class="empty" role="status"><div class="empty-ico">⚠️</div><h3>Não foi possível carregar as ofertas</h3><p>${escapeHtml(message)}</p><button class="btn-clear" type="button" onclick="retryLoadOffers()">Tentar novamente</button></div>`;
+}
+function updateOfferStats() {
+  const total = offers.length;
+  const maxDiscount = offers.reduce((max, item) => Math.max(max, toNumber(item.discount)), 0);
+  const freeShipping = offers.filter(item => item.shipping).length;
+  if ($('statActive')) $('statActive').textContent = total.toLocaleString('pt-BR');
+  if ($('statMaxDiscount')) $('statMaxDiscount').textContent = maxDiscount ? `${maxDiscount}%` : '—';
+  if ($('statShipping')) $('statShipping').textContent = freeShipping.toLocaleString('pt-BR');
+  if ($('statUpdated')) $('statUpdated').textContent = offersLastUpdated ? new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(offersLastUpdated) : '—';
+  if ($('offersSub')) $('offersSub').textContent = offersLastUpdated ? `Atualizado às ${new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(offersLastUpdated)}` : 'Aguardando catálogo';
+}
+
+/* ─── SEARCH ─────────────────────────────────────────────────────────── */
+function searchFor(term) {
+  if ($('searchInput')) $('searchInput').value = term;
+  if ($('headerSearch')) $('headerSearch').value = term;
+  renderOffers();
+}
+function handleOfferSearch(input) {
+  const value = input?.value || '';
+  if (input?.id === 'headerSearch' && $('searchInput')) $('searchInput').value = value;
+  if (input?.id === 'searchInput' && $('headerSearch')) $('headerSearch').value = value;
+  renderOffers();
+}
+
+// EXECUTE DATABASE
+async function initializeOffersPage() {
+  const client = getSupabaseClient();
+  const loginBtn = $('authLoginBtn');
+  const profileContainer = $('headerProfileContainer');
+  showOffersSkeleton();
+  if (!client) {
+    showOffersError('O serviço de catálogo não foi inicializado. Atualize a página e tente novamente.');
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    return;
+  }
+  const loaded = await loadProductsFromSupabase();
+  if (!loaded) showOffersError('Verifique a conexão com o Supabase e tente novamente.');
+  else await loadOffersFromSupabase();
+  startOffersRealtime();
+  let user = null;
+  try {
+    const { data, error } = await client.auth.getUser();
+    if (error && error.status !== 401) console.warn('[Ecomme ofertas] Não foi possível validar a sessão:', error.message);
+    user = data?.user || null;
+  } catch (error) {
+    console.warn('[Ecomme ofertas] Falha ao consultar a sessão:', error);
+  }
+  if (!user) {
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (profileContainer) profileContainer.classList.add('hidden');
+    injectPrefetch('/login');
+    return;
+  }
+  try {
+    userId = user.id;
+    await loadFromSupabase();
+    if (loginBtn) loginBtn.classList.add('hidden');
+    if (profileContainer) profileContainer.classList.remove('hidden');
+    const { data: profile, error } = await client.from('profiles').select('full_name,avatar_url').eq('id', user.id).maybeSingle();
+    if (error) throw error;
+    const avatar = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || '/images/icons/full/user.webp';
+    if ($('accSidebarName')) $('accSidebarName').textContent = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Cliente';
+    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = user.email || '';
+    if ($('accSidebarAvatar')) $('accSidebarAvatar').src = avatar;
+    if ($('sidebarAvatar')) $('sidebarAvatar').src = avatar;
+    if ($('headerAvatar')) $('headerAvatar').src = avatar;
+  } catch (error) {
+    console.error('[Ecomme ofertas] Erro ao carregar os dados da conta:', error);
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeOffersPage, { once: true });
+else initializeOffersPage();
+// HEADER
+function initHeaderAuthListener() {
+  const client = getSupabaseClient();
+  const loginBtn = $('authLoginBtn');
+  const profileContainer = $('headerProfileContainer');
+  const bellBtn = $('bellBtn');
+  const headerAvatar = $('headerAvatar');
+  if (!client?.auth || !loginBtn || !profileContainer || initHeaderAuthListener.bound) return;
+  initHeaderAuthListener.bound = true;
+  client.auth.onAuthStateChange(async (event, session) => {
+    const user = session?.user;
+    if (!user) {
+      userId = null;
+      loginBtn.classList.remove('hidden');
+      profileContainer.classList.add('hidden');
+      if (bellBtn) bellBtn.classList.add('hidden');
+      if (headerAvatar) headerAvatar.src = '/images/icons/full/user.webp';
+      return;
+    }
+    userId = user.id;
+    loginBtn.classList.add('hidden');
+    profileContainer.classList.remove('hidden');
+    if (bellBtn) bellBtn.classList.remove('hidden');
+    const fallbackAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '/images/icons/full/user.webp';
+    if (headerAvatar) headerAvatar.src = fallbackAvatar;
+    try {
+      const { data, error } = await client.from('profiles').select('full_name,avatar_url').eq('id', user.id).maybeSingle();
+      if (error) throw error;
+      const avatar = data?.avatar_url || fallbackAvatar;
+      if (headerAvatar) headerAvatar.src = avatar;
+      if ($('accSidebarAvatar')) $('accSidebarAvatar').src = avatar;
+      if ($('accSidebarName')) $('accSidebarName').textContent = data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Cliente';
+      if ($('accSidebarEmail')) $('accSidebarEmail').textContent = user.email || '';
+    } catch (error) {
+      console.error('[Ecomme ofertas] Erro ao carregar perfil:', error);
+    }
+  });
+}
+initHeaderAuthListener();
 
 function starsHtml(r) {
   let s = '';
@@ -221,26 +280,31 @@ function fishYates(arr) {
 function addToCart(id, qty = 1) {
   if (!userId) {
     showAuth("Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
-    return;
+    return false;
   }
   const p = products.find(x => String(x.id) === String(id)) || offers.find(x => String(x.id) === String(id));
   
-  if (!p) return;
+  if (!p) return false;
+  if (String(p.badge || '').toLowerCase() === 'paused') {
+    showToast(`${p.name} está indisponível no momento.`);
+    return false;
+  }
   const ex = cart.find(x => String(x.id) === String(id));
   if (ex) ex.qty += qty; else cart.push({ ...p, qty });
   updateCart();
   showToast(`${p.name} adicionado ao carrinho! 🛒`);
   syncToSupabase();
+  return true;
 }
 
 function removeFromCart(id) {
-  cart = cart.filter(x => x.id !== id);
+  cart = cart.filter(x => String(x.id) !== String(id));
   updateCart();
   syncToSupabase();
 }
 
 function changeCartQty(id, d) {
-  const item = cart.find(x => x.id === id);
+  const item = cart.find(x => String(x.id) === String(id));
   if (item) {
     item.qty += d;
     if (item.qty <= 0) removeFromCart(id); else updateCart();
@@ -264,29 +328,34 @@ function updateCart() {
     return;
   }
   
-  el.innerHTML = cart.map(item => `
+  el.innerHTML = cart.map(item => {
+    const itemId = escapeHtml(item.id);
+    const itemName = escapeHtml(item.name || 'Produto');
+    const itemEmoji = escapeHtml(item.emoji || '📦');
+    return `
     <div class="ci">
-      <div class="ci-img">${item.emoji}</div>
+      <div class="ci-img">${itemEmoji}</div>
       <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
+        <div class="ci-name">${itemName}</div>
         <div class="ci-price">${fmt(item.price)}</div>
         <div class="ci-qty">
-          <button class="qb" onclick="changeCartQty(${item.id},-1)">−</button>
+          <button class="qb" onclick="changeCartQty('${itemId}',-1)">−</button>
           <span class="qn">${item.qty}</span>
-          <button class="qb" onclick="changeCartQty(${item.id},1)">+</button>
+          <button class="qb" onclick="changeCartQty('${itemId}',1)">+</button>
         </div>
       </div>
-      <button class="del" onclick="removeFromCart(${item.id})" title="Remover do Carrinho">
+      <button class="del" onclick="removeFromCart('${itemId}')" title="Remover do Carrinho">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </button>
-      <button class="cart-item-towish" onclick="moveFromCartToFav(${item.id})" title="Adicionar à Lista de Desejos">
+      <button class="cart-item-towish" onclick="moveFromCartToFav('${itemId}')" title="Adicionar à Lista de Desejos">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
-    </div>`).join('');
-    
+    </div>`;
+  }).join('');
+
   renderOffers();
   syncToSupabase();
 }
@@ -319,6 +388,7 @@ function checkout() {
 
 /* ─── FAV ───────────────────────────────────────────────────────── */
 function toggleFav(id) {
+  if (window.EcommeWishlists?.openPicker) return window.EcommeWishlists.openPicker(String(id));
   if (!userId) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
@@ -339,6 +409,7 @@ function toggleFav(id) {
 }
 
 function addToFav(id, qty = 1) {
+  if (window.EcommeWishlists?.openPicker) return window.EcommeWishlists.openPicker(String(id));
   if (!userId) {
     showAuth("Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.", "Conta Necessária", "🔒");
     return;
@@ -355,7 +426,8 @@ function addToFav(id, qty = 1) {
 }
 
 function removeFromFav(id) {
-  fav = fav.filter(x => x.id !== id);
+  if (window.EcommeWishlists?.removeFromActiveList) return window.EcommeWishlists.removeFromActiveList(String(id));
+  fav = fav.filter(x => String(x.id) !== String(id));
   updateFav();
   syncToSupabase();
 }
@@ -370,6 +442,7 @@ function changeFavQty(id, d) {
 }
 
 function updateFav() {
+  if (window.EcommeWishlists?.updateSidebar) return window.EcommeWishlists.updateSidebar();
   const total = fav.reduce((s, i) => s + i.price * i.qty, 0);
   const count = fav.reduce((s, i) => s + i.qty, 0);
   
@@ -381,6 +454,7 @@ function updateFav() {
   const el = $('favItems');
   if (!fav.length) {
     el.innerHTML = `<div class="fav-empty-st"><span>🛒</span><p>Nenhum produto salvo no momento</p></div>`;
+    renderOffers();
     return;
   }
   
@@ -390,7 +464,7 @@ function updateFav() {
       <div class="ci-info">
         <div class="ci-name">${item.name}</div>
         <div class="ci-price">${fmt(item.price)}</div>
-        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderProducts();">
+        <button class="btn-madd" onclick="addToCart(${item.id}, 1); removeFromFav(${item.id}); showToast('Adicionado ao carrinho! 🛒'); closeFav(); openCart(); renderOffers();">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -398,7 +472,7 @@ function updateFav() {
           Adicionar ao Carrinho
         </button>
       </div>
-      <button class="del" onclick="removeFromFav(${item.id}); renderProducts();">
+      <button class="del" onclick="removeFromFav(${item.id}); renderOffers();">
         <svg viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
@@ -411,6 +485,7 @@ function updateFav() {
 }
 
 function openFav() {
+  if (window.EcommeWishlists?.openFav) return window.EcommeWishlists.openFav();
   closeMore();
   closeCart();
   closeNotif();
@@ -421,12 +496,14 @@ function openFav() {
 }
 
 function closeFav() {
+  if (window.EcommeWishlists?.closeFav) return window.EcommeWishlists.closeFav();
   $('favSidebar').classList.remove('on');
   $('favOverlay').classList.remove('on');
   document.body.classList.remove("nobodyscroll");
 }
 
 function addAllFavToCart() {
+  if (window.EcommeWishlists?.addAllToCart) return window.EcommeWishlists.addAllToCart();
   if (!fav.length) { showToast('Adicione produtos primeiro! 😊'); return; }
 
   fav.forEach(produto => {
@@ -434,13 +511,14 @@ function addAllFavToCart() {
   });
   fav = [];
   updateFav();
-  renderProducts();
+  renderOffers();
   closeFav();
   openCart();
   showToast('Todos os itens foram para o carrinho! 🛒');
 }
 
 function moveFromCartToFav(id) {
+  if (window.EcommeWishlists?.openPicker) { window.EcommeWishlists.openPicker(String(id)); return; }
   addToFav(id, 1);
   showToast('Produto adicionado à Lista de Desejos! ❤️');
 }
@@ -451,7 +529,6 @@ function openNotif() {
   closeFav();
   closeAcc();
   closeMore();
-  if (typeof closeMore === 'function') closeMore();
   $('notifSidebar').classList.add('on');
   $('notifOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
@@ -469,7 +546,6 @@ function openMore() {
   closeCart();
   closeAcc();
   closeNotif();
-  if (typeof closeMore === 'function') closeNotif();
   $('moreSidebar').classList.add('on');
   $('moreOverlay').classList.add('on');
   document.body.classList.add("nobodyscroll");
@@ -508,193 +584,142 @@ function closeAcc() {
 let currentDealFilter = 'todos';
 let currentProduct = null;
 
-/* ─── COUNTDOWN (hero master timer, resets daily at midnight) ───────── */
-function updateHeroCountdown() {
-  const now = new Date();
-  const end = new Date(now); end.setHours(23,59,59,0);
-  const diff = end - now;
-  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-  $('cdH').textContent = String(h).padStart(2,'0');
-  $('cdM').textContent = String(m).padStart(2,'0');
-  $('cdS').textContent = String(s).padStart(2,'0');
-}
-setInterval(updateHeroCountdown, 1000);
-updateHeroCountdown();
-
-/* ─── PER-CARD COUNTDOWN ─────────────────────────────────────────────── */
-const startTime = Date.now();
-function fmtCardCountdown(endsInMin) {
-  const elapsedMs = Date.now() - startTime;
-  const totalMs = endsInMin * 60000 - elapsedMs;
-  if (totalMs <= 0) return '00:00:00';
-  const h = Math.floor(totalMs / 3600000);
-  const m = Math.floor((totalMs % 3600000) / 60000);
-  const s = Math.floor((totalMs % 60000) / 1000);
-  if (h > 0) return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function tickCardCountdowns() {
-  document.querySelectorAll('.oc-cd-time[data-ends]').forEach(el => {
-    const ends = parseFloat(el.dataset.ends);
-    el.textContent = fmtCardCountdown(ends);
-  });
-}
-setInterval(tickCardCountdowns, 1000);
-
-/* ─── DEAL FILTER ────────────────────────────────────────────────────── */
-function setDealFilter(btn, type) {
-  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  currentDealFilter = type;
+/* ─── FILTROS E RENDERIZAÇÃO DAS OFERTAS ──────────────────────────────── */
+function setDealFilter(button, type) {
+  document.querySelectorAll('.dchip').forEach(chip => chip.classList.toggle('active', chip === button));
+  currentDealFilter = type || 'todos';
   renderOffers();
 }
 
-/* ─── RENDER ─────────────────────────────────────────────────────────── */
-const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5-Math.floor(r));
-
 function renderOffers() {
-  const q = $('searchInput').value.toLowerCase().trim();
-  const sort = $('sortSelect').value;
-
-  let list = offers.filter(o => {
-    const matchQ = !q || o.name.toLowerCase().includes(q) || o.cat.toLowerCase().includes(q);
-    const matchType = currentDealFilter === 'todos'
-      || (currentDealFilter === 'frete' ? o.freeShip : o.type === currentDealFilter);
-    return matchQ && matchType;
+  const grid = $('offersGrid');
+  if (!grid) return;
+  const query = String($('searchInput')?.value || '').trim().toLowerCase();
+  const sort = $('sortSelect')?.value || 'discount';
+  let list = offers.filter(product => {
+    const category = String(product.cat || '').toLowerCase();
+    const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.desc.toLowerCase().includes(query) || category.includes(query);
+    let matchesFilter = true;
+    if (currentDealFilter === 'discount20') matchesFilter = product.discount >= 20;
+    else if (currentDealFilter === 'frete') matchesFilter = product.shipping;
+    else if (currentDealFilter === 'novidades') matchesFilter = product.badge === 'new';
+    else if (currentDealFilter === 'avaliados') matchesFilter = product.rating >= 4 && product.reviews > 0;
+    return matchesSearch && matchesFilter;
   });
 
-  if (sort === 'price_asc') list.sort((a,b)=>a.price-b.price);
-  else if (sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
-  else if (sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
-  else if (sort === 'ending') list.sort((a,b)=>a.endsInMin-b.endsInMin);
-  else list.sort((a,b)=>b.discount-a.discount);
+  if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
+  else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
+  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
+  else list.sort((a, b) => b.discount - a.discount);
 
-  $('offersCount').textContent = `${list.length} oferta${list.length!==1?'s':''}`;
-  $('statActive').textContent = list.length;
-
-  const grid = $('offersGrid');
+  if ($('offersCount')) $('offersCount').textContent = `${list.length.toLocaleString('pt-BR')} ${list.length === 1 ? 'oferta' : 'ofertas'}`;
+  grid.setAttribute('aria-busy', 'false');
   if (!list.length) {
-    grid.innerHTML = `<div class="empty">
-      <div class="empty-ico">🔍</div>
-      <h3>Nenhuma oferta encontrada</h3>
-      <p>Tente outro termo ou <button class="btn-clear" onclick="clearFilters()">limpar os filtros</button></p>
-    </div>`;
+    const hasOffers = offers.length > 0;
+    grid.innerHTML = `<div class="empty"><div class="empty-ico">${hasOffers ? '🔎' : '🏷️'}</div><h3>${hasOffers ? 'Nenhuma oferta encontrada' : 'Nenhuma oferta ativa no momento'}</h3><p>${hasOffers ? 'Tente outro termo ou ajuste os filtros.' : 'Os produtos aparecerão aqui quando tiverem um desconto válido cadastrado.'}</p><button class="btn-clear" type="button" onclick="clearFilters()">Limpar filtros</button></div>`;
     return;
   }
 
-  grid.innerHTML = list.map((o, i) => {
-    const inW = fav.some(x => String(x.id) === String(o.id));
-    
-    const typeBadge = o.type === 'flash'
-      ? `<div class="oc-type-badge flash"><span class="lg">⚡</span> Relâmpago</div>`
-      : o.type === 'daily'
-      ? `<div class="oc-type-badge daily">☀️ Do Dia</div>`
-      : `<div class="oc-type-badge combo">📦 Combo</div>`;
-    const claimedClass = o.claimed >= 85 ? '' : 'warm';
-    
-    return `
-      <div class="ocard" style="animation-delay:${i*0.04}s" onclick="openProductModal('${o.id}')">
-        <div class="oc-img-wrap">
-          <div class="oc-img">${o.emoji}</div>
-          <div class="oc-disc-badge">-${o.discount}%<small>OFF</small></div>
-          ${typeBadge}
-          <button class="oc-wish ${inW ? 'on' : ''}" onclick="event.stopPropagation(); toggleFav(${o.id})">
-            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-          <div class="oc-actions">
-            <button class="btn-oc-cart" onclick="event.stopPropagation(); addToCart('${o.id}')">
-              <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              Adicionar
-            </button>
-          </div>
-        </div>
-        <div class="oc-info">
-          <div class="oc-cat">${o.cat}</div>
-          <div class="oc-name">${o.name}</div>
-          <div class="oc-rating"><span class="oc-stars">${stars(o.rating)}</span><span class="oc-rcount">(${o.reviews.toLocaleString('pt-BR')})</span></div>
-          <div class="oc-price-row"><span class="oc-price">${fmt(o.price)}</span><span class="oc-old">${fmt(o.old)}</span></div>
-          <div class="oc-cd">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Termina em <span class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</span>
-          </div>
-          <div class="oc-stock-wrap">
-            <div class="oc-stock-track"><div class="oc-stock-fill ${claimedClass}" style="--tw:${o.claimed}%"></div></div>
-            <div class="oc-stock-txt"><span><strong>${o.claimed}%</strong> vendido</span><span>Estoque limitado</span></div>
-          </div>
-        </div>
-      </div>`;
+  grid.innerHTML = list.map((product, index) => {
+    const id = escapeHtml(product.id);
+    const image = getOfferImage(product);
+    const name = escapeHtml(product.name);
+    const category = escapeHtml(product.cat || 'Produto');
+    const inWishlist = isSavedToWishlist(product.id);
+    const oldPrice = product.old > product.price ? `<span class="oc-old">${fmt(product.old)}</span>` : '';
+    const savings = product.old > product.price ? `<span class="oc-saving">Economize ${fmt(product.old - product.price)}</span>` : '';
+    const shippingBadge = product.shipping ? '<span class="oc-type-badge shipping">🚚 Frete grátis</span>' : (product.badge === 'new' ? '<span class="oc-type-badge daily">Novo</span>' : '<span class="oc-type-badge combo">Oferta verificada</span>');
+    const imageMarkup = image ? `<img src="${escapeHtml(image)}" alt="${name}" loading="lazy" decoding="async">` : `<span class="oc-fallback" aria-hidden="true">${escapeHtml(product.emoji)}</span>`;
+    const ratingMarkup = product.rating > 0 ? `<div class="oc-rating"><i class="fa-regular fa-star" aria-hidden="true"></i><span>${product.rating.toFixed(1)}</span>${product.reviews > 0 ? `<small>(${product.reviews.toLocaleString('pt-BR')})</small>` : ''}</div>` : '<div class="oc-rating oc-no-rating">Ainda sem avaliações</div>';
+    return `<article class="ocard" style="animation-delay:${index * 0.035}s" data-offer-card="${id}" tabindex="0" role="button" aria-label="Ver ${name}">
+      <div class="oc-img-wrap"><div class="oc-img">${imageMarkup}</div><span class="oc-disc-badge">-${product.discount}%<small>OFF</small></span>${shippingBadge}<button type="button" class="oc-wish ${inWishlist ? 'on' : ''}" data-offer-action="favorite" data-product-id="${id}" aria-pressed="${inWishlist}" title="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}" aria-label="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button></div>
+      <div class="oc-info"><div class="oc-cat">${category}</div><h3 class="oc-name">${name}</h3>${ratingMarkup}<div class="oc-price-row"><span class="oc-price">${fmt(product.price)}</span>${oldPrice}</div>${savings}<button type="button" class="btn-oc-cart" data-offer-action="cart" data-product-id="${id}"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Adicionar ao carrinho</button></div>
+    </article>`;
   }).join('');
+
+  grid.querySelectorAll('.oc-img img').forEach(image => {
+    image.addEventListener('error', () => {
+      const fallback = document.createElement('span');
+      fallback.className = 'oc-fallback';
+      fallback.textContent = '📦';
+      image.replaceWith(fallback);
+    }, { once: true });
+  });
+  grid.querySelectorAll('[data-offer-card]').forEach(card => {
+    const open = () => openProductModal(card.dataset.offerCard);
+    card.addEventListener('click', event => { if (!event.target.closest('button')) open(); });
+    card.addEventListener('keydown', event => { if (event.target === card && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); open(); } });
+  });
+  grid.querySelectorAll('[data-offer-action]').forEach(button => {
+    button.addEventListener('click', event => {
+      event.stopPropagation();
+      const id = button.dataset.productId;
+      if (button.dataset.offerAction === 'favorite') toggleFav(id);
+      else addToCart(id, 1);
+    });
+  });
 }
 
 function clearFilters() {
-  $('searchInput').value = '';
+  if ($('searchInput')) $('searchInput').value = '';
+  if ($('headerSearch')) $('headerSearch').value = '';
   currentDealFilter = 'todos';
-  document.querySelectorAll('.dchip').forEach(c => c.classList.remove('active'));
-  document.querySelector('.dchip[data-type="todos"]').classList.add('active');
+  document.querySelectorAll('.dchip').forEach(chip => chip.classList.toggle('active', chip.dataset.type === 'todos'));
+  if ($('sortSelect')) $('sortSelect').value = 'discount';
   renderOffers();
 }
 
 //--------------------------------------------------------
 async function loadProductsFromSupabase() {
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', { ascending: true });
-
-  if (error) {
-    console.error("Erro ao carregar produtos do banco:", error);
-    return;
-  }
-
-  if (data) {
-    products = data;
+  const client = getSupabaseClient();
+  if (!client) return false;
+  const pageSize = 500;
+  const rows = [];
+  try {
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await client.from('products').select('*').order('id', { ascending: true }).range(from, from + pageSize - 1);
+      if (error) throw error;
+      const batch = data || [];
+      rows.push(...batch);
+      if (batch.length < pageSize) break;
+    }
+    products = rows.map(normalizeOfferProduct).filter(product => product.id && product.id !== 'undefined');
     shuffled = [...products];
+    return true;
+  } catch (error) {
+    console.error('[Ecomme ofertas] Erro ao carregar produtos:', error);
+    products = [];
+    offers = [];
+    return false;
   }
 }
 
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
-  if (!userId) return;
-  
-const currentFav = fav;
-const currentCart = cart;
-
-const { error } = await supabaseClient
-.from("profiles")
-.update({
-    cart: currentCart,
-    fav: currentFav
-})
-.eq("id", userId);
-
-  if (error) {
-    console.error("Erro ao sincronizar dados com o Supabase:", error);
-  }
+  const client = getSupabaseClient();
+  const id = currentUserId();
+  if (!client || !id) return;
+  const payload = { cart };
+  if (!window.EcommeWishlists) payload.fav = fav;
+  const { error } = await client.from('profiles').update(payload).eq('id', id);
+  if (error) console.error('[Ecomme ofertas] Erro ao sincronizar dados com o Supabase:', error);
 }
 
 // ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
 async function loadFromSupabase() {
-  if (!userId) return;
-
-  const { data, error } = await supabaseClient
-    .from('profiles')
-    .select('cart, fav')
-    .eq('id', userId)
-    .single();
-
-  if (!error && data) {
-    if (data.cart) {
-      cart = data.cart;
-    }
-    
-    if (data.fav) {
-      fav = data.fav;
-    }
-
-    if (typeof updateCart === 'function') updateCart();
-    if (typeof updateFav === 'function') updateFav(); 
+  const client = getSupabaseClient();
+  const id = currentUserId();
+  if (!client || !id) return;
+  const { data, error } = await client.from('profiles').select('cart,fav').eq('id', id).maybeSingle();
+  if (error) {
+    console.error('[Ecomme ofertas] Erro ao carregar carrinho:', error);
+    return;
   }
+  if (!data) return;
+  if (Array.isArray(data.cart)) cart = data.cart;
+  if (!window.EcommeWishlists && Array.isArray(data.fav)) fav = data.fav;
+  updateCart();
+  if (!window.EcommeWishlists) updateFav();
 }
 
 // ── STYLES INJECTOR ──
@@ -787,68 +812,37 @@ function injectModalStyles() {
 // ── POP-UP WARNING ──
 async function showAlert(message, title, icon) {
   injectModalStyles();
-  
-  let alertModal = document.getElementById('alertModal');
-  
-  if (!alertModal) {
-    alertModal = document.createElement('div');
-    alertModal.id = 'alertModal';
-    alertModal.className = 'modal-alert-container';
-    alertModal.innerHTML = `
-      <div class="modal-alert-content">
-        <div class="modal-alert-icon" id="alertIcon">${icon}</div>
-        <h3 id="alertTitle">${title}</h3>
-        <p id="alertMsg">${message}</p>
-        <div class="modal-alert-buttons">
-          <button class="btn-alert-confirm" onclick="closeAlert()">OK</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(alertModal);
-  } else {
-
-    document.getElementById('alertMsg').textContent = message;
-    document.getElementById('alertTitle').textContent = title;
-    document.getElementById('alertIcon').textContent = icon;
+  let modal = document.getElementById('alertModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'alertModal';
+    modal.className = 'modal-alert-container';
+    modal.innerHTML = '<div class="modal-alert-content"><div class="modal-alert-icon" id="alertIcon"></div><h3 id="alertTitle"></h3><p id="alertMsg"></p><div class="modal-alert-buttons"><button class="btn-alert-confirm" onclick="closeAlert()">OK</button></div></div>';
+    document.body.appendChild(modal);
   }
-  
-  alertModal.offsetHeight;
-  alertModal.classList.add('active');
+  $('alertIcon').textContent = icon || 'ℹ️';
+  $('alertTitle').textContent = title || 'Atenção';
+  $('alertMsg').textContent = message || '';
+  modal.offsetHeight;
+  modal.classList.add('active');
 }
 
-// ── POP-UP AUTH ──
-async function showAuth(message, title, icon) { 
+async function showAuth(message, title, icon) {
   injectModalStyles();
-  
-  let authModal = document.getElementById('authModal');
-  
-  if (!authModal) {
-    authModal = document.createElement('div');
-    authModal.id = 'authModal';
-    authModal.className = 'modal-alert-container';
-    authModal.innerHTML = `
-      <div class="modal-alert-content">
-        <div class="modal-alert-icon" id="authIcon">${icon}</div>
-        <h3 id="authTitle">${title}</h3>
-        <p id="authMsg">${message}</p>
-        <div class="modal-alert-buttons">
-          <button class="btn-alert-cancel" onclick="closeAuth()">Cancelar</button>
-          <button class="btn-alert-confirm" onclick="buttonLink('/login')">Fazer Login</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(authModal);
-  } else {
-    
-    document.getElementById('authMsg').textContent = message;
-    document.getElementById('authTitle').textContent = title;
-    document.getElementById('authIcon').textContent = icon;
+  let modal = document.getElementById('authModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'authModal';
+    modal.className = 'modal-alert-container';
+    modal.innerHTML = '<div class="modal-alert-content"><div class="modal-alert-icon" id="authIcon"></div><h3 id="authTitle"></h3><p id="authMsg"></p><div class="modal-alert-buttons"><button class="btn-alert-cancel" onclick="closeAuth()">Cancelar</button><button class="btn-alert-confirm" onclick="goToLogin()">Fazer Login</button></div></div>';
+    document.body.appendChild(modal);
   }
-  
-  authModal.offsetHeight;
-  authModal.classList.add('active');
+  $('authIcon').textContent = icon || '🔒';
+  $('authTitle').textContent = title || 'Conta necessária';
+  $('authMsg').textContent = message || '';
+  modal.offsetHeight;
+  modal.classList.add('active');
 }
-  
 function closeAlert() {
   const alertModal = document.getElementById('alertModal');
   if (alertModal) {
@@ -865,83 +859,119 @@ function closeAuth() {
   
 //--------------------------------------------------------
 async function loadOffersFromSupabase() {
-  const { data, error } = await supabaseClient
-    .from('offers')
-    .select('*')
-    .order('id', { ascending: true });
-
-  if (error) {
-    console.error("Erro ao carregar ofertas do banco:", error);
-    return;
-  }
-
-  if (data) {
-    offers = data;
-    renderOffers();
-  }
+  offers = products.filter(isRealOffer);
+  offersLastUpdated = new Date();
+  updateOfferStats();
+  renderOffers();
 }
 
+async function refreshOffersFromDatabase() {
+  if (offersLoading) return offersLoading;
+  offersLoading = (async () => {
+    const loaded = await loadProductsFromSupabase();
+    if (!loaded) throw new Error('Não foi possível atualizar o catálogo de produtos.');
+    await loadOffersFromSupabase();
+  })();
+  try { await offersLoading; }
+  finally { offersLoading = null; }
+}
+
+async function retryLoadOffers() {
+  showOffersSkeleton();
+  try { await refreshOffersFromDatabase(); }
+  catch (error) { console.error('[Ecomme ofertas] Falha ao recarregar:', error); showOffersError('O Supabase não retornou os produtos. Tente novamente.'); }
+}
+
+function startOffersRealtime() {
+  const client = getSupabaseClient();
+  if (client?.channel && !offersChannel) {
+    try {
+      offersChannel = client.channel('ecomme-offers-products')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+          clearTimeout(offersRefreshTimer);
+          offersRefreshTimer = setTimeout(() => refreshOffersFromDatabase().catch(error => console.error('[Ecomme ofertas] Erro na atualização em tempo real:', error)), 500);
+        })
+        .subscribe(status => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.warn('[Ecomme ofertas] Realtime indisponível; a atualização periódica continuará ativa.');
+        });
+    } catch (error) {
+      console.warn('[Ecomme ofertas] Não foi possível iniciar o Realtime:', error);
+    }
+  }
+  if (!offersPollTimer) {
+    offersPollTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') refreshOffersFromDatabase().catch(error => console.warn('[Ecomme ofertas] Falha na atualização periódica:', error));
+    }, 60000);
+  }
+}
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProductModal(id) {
-  const o = offers.find(x => String(x.id) === String(id)) || products.find(x => String(x.id) === String(id));
-  
-  if (!o) {
-    console.error("Produto não encontrado para o ID:", id);
-    return; 
+  const product = offers.find(item => String(item.id) === String(id)) || products.find(item => String(item.id) === String(id));
+  if (!product) {
+    console.warn('[Ecomme ofertas] Produto não encontrado:', id);
+    return;
   }
-
-  currentProduct = id;
-  $('mEmoji').textContent = o.emoji;
-  $('mCat').textContent = o.cat;
-  $('mName').textContent = o.name;
-  $('mPrice').textContent = fmt(o.price);
-  
-  $('mOld').textContent = o.old ? fmt(o.old) : '';
-  $('mDisc').textContent = o.discount ? `-${o.discount}% OFF` : '';
-  $('mDesc').textContent = o.desc || "Sem descrição disponível.";
-  
-  if (o.endsInMin) {
-    $('mCdText').innerHTML = `Termina em <strong class="oc-cd-time" data-ends="${o.endsInMin}">${fmtCardCountdown(o.endsInMin)}</strong>`;
-  } else {
-    $('mCdText').innerHTML = ""; 
-  }
-  
-  $('modalOverlay').classList.add('on');
+  currentProduct = String(id);
+  const image = getOfferImage(product);
+  const imageContainer = $('mEmoji');
+  if (imageContainer) imageContainer.innerHTML = image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" class="offer-modal-product-image">` : escapeHtml(product.emoji || '📦');
+  if ($('mCat')) $('mCat').textContent = product.cat || 'Produto';
+  if ($('mName')) $('mName').textContent = product.name;
+  if ($('mPrice')) $('mPrice').textContent = fmt(product.price);
+  if ($('mOld')) $('mOld').textContent = product.old > product.price ? fmt(product.old) : '';
+  if ($('mDisc')) $('mDisc').textContent = product.discount ? `-${product.discount}% OFF` : '';
+  if ($('mDesc')) $('mDesc').textContent = product.desc || 'Sem descrição disponível.';
+  if ($('mWish')) $('mWish').classList.toggle('on', isSavedToWishlist(id));
+  if ($('modalOverlay')) $('modalOverlay').classList.add('on');
 }
 
-function handleModalClick(e) { if (e.target === $('modalOverlay')) closeModal(); }
-function closeModal() { $('modalOverlay').classList.remove('on'); }
-function addFromModal() { addToCart(currentProduct, 1); closeModal(); openCart(); }
-
-/* ─── LIVE SOLD COUNTER ──────────────────────────────────────────────── */
-let soldCount = 1200;
-setInterval(() => {
-  soldCount += Math.floor(Math.random()*3);
-  $('statClaimed').textContent = soldCount >= 1000 ? (soldCount/1000).toFixed(1)+'K' : soldCount;
-}, 3500);
-
-/* ─── INIT ───────────────────────────────────────────────────────────── */
-renderOffers();
+function handleModalClick(event) { if (event.target === $('modalOverlay')) closeModal(); }
+function closeModal() { if ($('modalOverlay')) $('modalOverlay').classList.remove('on'); }
+function addFromModal() { if (!currentProduct) return; if (!addToCart(currentProduct, 1)) return; closeModal(); openCart(); }
+function addFromModal2() { if (!currentProduct) return; toggleFav(currentProduct); closeModal(); }
+function chgQty(change) { mQtyVal = Math.max(1, mQtyVal + Number(change || 0)); if ($('mQty')) $('mQty').textContent = mQtyVal; }
 
 // TOAST
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+function showToast(message) {
+  const toastElement = $('toast');
+  const messageElement = $('toastMsg');
+  if (!toastElement || !messageElement) return;
+  messageElement.textContent = message;
+  toastElement.classList.add('show');
+  setTimeout(() => toastElement.classList.remove('show'), 2800);
 }
-function toast(msg) {
-  showToast(msg);
-}
+function toast(message) { showToast(message); }
 
 // LOGOUT
 const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function doLogout() { 
-  toast('Saindo da conta... 👋', 'info'); 
-  await supabaseClient.auth.signOut({scope: 'local'});
-  toast('Você saiu da conta, recarregando a página.', 'info');
-
-  closeAcc();
-  await waitt(1000);
-  window.location.reload();
+async function doLogout() {
+  const client = getSupabaseClient();
+  if (!client?.auth) return showToast('Não foi possível acessar a sessão da conta.');
+  try {
+    showToast('Saindo da conta... 👋');
+    const { error } = await client.auth.signOut({ scope: 'local' });
+    if (error) throw error;
+    closeAcc();
+    showToast('Você saiu da conta.');
+    await waitt(700);
+    window.location.reload();
+  } catch (error) {
+    console.error('[Ecomme ofertas] Erro ao sair da conta:', error);
+    showToast('Não foi possível sair da conta. Tente novamente.');
+  }
 }
+
+// Expõe somente as funções utilizadas pelos onclick/onchange do HTML e pelos templates.
+Object.assign(window, {
+  buttonLink, goToLogin, searchFor, handleOfferSearch, initHeaderAuthListener,
+  addToCart, removeFromCart, changeCartQty, updateCart, openCart, closeCart, checkout,
+  toggleFav, addToFav, removeFromFav, changeFavQty, updateFav, openFav, closeFav, addAllFavToCart, moveFromCartToFav,
+  openNotif, closeNotif, openMore, closeMore, openAcc, closeAcc,
+  setDealFilter, renderOffers, clearFilters, retryLoadOffers,
+  showAlert, showAuth, closeAlert, closeAuth,
+  openProductModal, handleModalClick, closeModal, addFromModal, addFromModal2, chgQty,
+  showToast, toast, doLogout
+});
+
+})();
+
