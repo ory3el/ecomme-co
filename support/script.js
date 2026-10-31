@@ -107,7 +107,7 @@ function resetForm() {
 }
 
 /* ─── MISC ───────────────────────────────────────────────────────────── */
-window.addEventListener('scroll', () => { $('btt').classList.toggle('on', window.scrollY > 300); });
+window.addEventListener('scroll', () => { if ($('btt')) $('btt').classList.toggle('on', window.scrollY > 300); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
 
 /* ─── SAT CIRCLE ANIMATE ON VIEW ────────────────────────────────────── */
