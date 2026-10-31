@@ -1007,3 +1007,67 @@ header.dark-glass input::placeholder{
   .footer-bottom p { font-size: 12px; color: var(--muted); }
   .payment-icons { display: flex; gap: 8px; }
   .pay-icon { background: #fff; border: 1px solid var(--border2); border-radius: 10px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
+
+/* ── OFERTAS REAIS: COMPONENTES E ESTADOS ───────────────────────────── */
+.oh-top h1 { font-family: 'Outfit',sans-serif; font-weight: 700; letter-spacing: -2px; }
+.oh-top h1 em { font-style: normal; color: var(--blue); }
+.oh-top p { max-width: 560px; }
+.oh-proof-card { display: flex; align-items: center; gap: 15px; max-width: 350px; padding: 20px 23px; border: 1px solid var(--border); border-radius: 18px; background: rgba(255,255,255,.82); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+.oh-proof-icon { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; border-radius: 15px; background: var(--blue-dim); color: var(--blue); font-size: 20px; }
+.oh-proof-card div { display: flex; flex-direction: column; gap: 4px; }
+.oh-proof-card strong { color: var(--text); font-size: 13px; }
+.oh-proof-card span:not(.oh-proof-icon) { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.oh-tag { background: var(--blue-dim); border-color: var(--border); color: var(--blue); }
+.dchip { background: #fff; border-color: var(--border2); color: var(--text); }
+.dchip.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+.dchip:hover { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+.oh-stats { border-top-color: var(--border2); }
+.ohs-item { min-width: 145px; align-items: flex-start; flex-direction: column; gap: 5px; }
+.ohs-item strong { color: var(--text); font-family: 'Outfit',sans-serif; font-size: 24px; }
+.ohs-item span { color: var(--muted); }
+.main-wrap { padding-top: 34px; }
+.offers-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+.ocard { min-width: 0; border-radius: 18px; border-color: var(--border2); box-shadow: 0 8px 25px rgba(24,50,90,.055); }
+.ocard:hover { border-color: rgba(37,99,235,.28); box-shadow: var(--shadow-hv); }
+.oc-img-wrap { background: linear-gradient(135deg,#f3f7ff,#e9f1ff); }
+.oc-img { overflow: hidden; }
+.oc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.ocard:hover .oc-img img { transform: scale(1.045); }
+.oc-fallback { display: grid; width: 100%; height: 100%; place-items: center; font-size: 64px; }
+.oc-type-badge.shipping { background: #0f9f78; }
+.oc-type-badge.daily { background: #2563eb; }
+.oc-type-badge.combo { background: #475569; }
+.oc-wish { top: auto; bottom: 12px; right: 12px; }
+.oc-actions { display: none; }
+.oc-info { gap: 0; padding: 15px; }
+.oc-cat { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oc-name { display: -webkit-box; min-height: 38px; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 9px; }
+.oc-rating { min-height: 20px; color: var(--muted); }
+.oc-rating i { color: #f59e0b; font-size: 12px; }
+.oc-rating span { font-size: 12px; font-weight: 700; color: var(--text); }
+.oc-rating small { font-size: 10px; color: var(--muted); }
+.oc-no-rating { font-size: 11px; }
+.oc-price-row { gap: 8px; flex-wrap: wrap; margin: 4px 0 2px; }
+.oc-price { color: var(--blue); font-family: 'Outfit',sans-serif; font-size: 22px; }
+.oc-old { font-size: 11px; }
+.oc-saving { display: block; margin: 0 0 10px; color: #0f9f78; font-size: 10px; font-weight: 700; }
+.btn-oc-cart { min-height: 38px; margin-top: auto; border-radius: 11px; }
+.empty { grid-column: 1 / -1; padding: 65px 20px; border: 1px dashed var(--border); border-radius: 18px; background: var(--bg2); }
+.empty h3 { color: var(--text); font-family: 'Outfit',sans-serif; font-size: 23px; }
+.empty p { color: var(--muted); font-size: 13px; }
+.oc-skeleton { cursor: default; pointer-events: none; }
+.oc-skeleton-image { aspect-ratio: 1; background: linear-gradient(90deg,#e9eef7 25%,#f7f9fc 50%,#e9eef7 75%); background-size: 200% 100%; animation: offersShimmer 1.25s ease-in-out infinite; }
+.oc-skeleton-info { display: grid; gap: 11px; padding: 15px; }
+.oc-skeleton-info span { height: 10px; border-radius: 20px; background: linear-gradient(90deg,#e9eef7 25%,#f7f9fc 50%,#e9eef7 75%); background-size: 200% 100%; animation: offersShimmer 1.25s ease-in-out infinite; }
+.oc-skeleton-info span:nth-child(2) { width: 72%; }
+.oc-skeleton-info span:nth-child(3) { width: 48%; height: 20px; }
+@keyframes offersShimmer { to { background-position: -200% 0; } }
+.alert-section { padding: 42px 28px; border-radius: 20px; }
+.alert-section h2 { font-family: 'Outfit',sans-serif; }
+.offers-catalog-link { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 100px; background: #fff; color: var(--blue); font-size: 12px; font-weight: 700; transition: transform .2s,box-shadow .2s; }
+.offers-catalog-link:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.14); }
+.offer-modal-product-image { display: block; width: 100%; height: 100%; max-height: 420px; object-fit: contain; border-radius: inherit; }
+@media(max-width:1100px) { .offers-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media(max-width:768px) { .oh-proof-card { max-width: 100%; } .offers-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; } .oc-info { padding: 12px; } .oc-price { font-size: 19px; } .oc-wish { top: auto; bottom: 10px; } }
+@media(max-width:420px) { .offers-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; } .oc-info { padding: 10px; } .oc-name { font-size: 12px; min-height: 34px; } .oc-price { font-size: 17px; } .oc-disc-badge { top: 8px; left: 8px; font-size: 11px; padding: 5px 8px; } .oc-type-badge { top: 8px; right: 8px; font-size: 8px; } .btn-oc-cart { padding: 8px 5px; font-size: 10px; } }
+@media(prefers-reduced-motion:reduce) { .oc-skeleton-image,.oc-skeleton-info span { animation: none; } }
