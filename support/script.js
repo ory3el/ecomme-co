@@ -1,3 +1,14 @@
+// EXECUTE DATABASE
+window.addEventListener('DOMContentLoaded', async () => {
+    if (!profileError && profile) {
+      const fullName = profile.full_name || 'Cliente';
+      const email = user.email || '';
+      if (document.getElementById('fName')) document.getElementById('fName').value = fullName;
+      if (document.getElementById('ffEmail')) document.getElementById('ffEmail').value = email;
+    }
+  }
+);
+
 /* ─── SCROLL REVEAL ──────────────────────────────────────────────────── */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in','visible'); observer.unobserve(e.target); } });
