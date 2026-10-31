@@ -1,4 +1,4 @@
-(function () {
+/*(function () {
   try {
     var saved = localStorage.getItem('ecomme-theme') || 'auto';
     var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -8,7 +8,7 @@
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
-})();
+})();*/
 
 async function loadComponents() {
   const components = [
