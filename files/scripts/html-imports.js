@@ -1,3 +1,15 @@
+(function () {
+  try {
+    var saved = localStorage.getItem('ecomme-theme') || 'auto';
+    var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var effective = saved === 'auto' ? (systemDark ? 'dark' : 'light') : saved;
+    document.documentElement.setAttribute('data-theme', effective);
+    document.documentElement.setAttribute('data-theme-pref', saved);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+
 async function loadComponents() {
   const components = [
     /*{ url: '/files/no-login/index-files/topbar.html', slot: 'index-topbar' },*/
