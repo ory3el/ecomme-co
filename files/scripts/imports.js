@@ -3,17 +3,18 @@
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
   const pagesWithSearch = ['/', '/products', '/categories', '/offers', '/about', '/product', '/products/search'];
   const shouldLoadSearch = pagesWithSearch.includes(currentPath);
-  const pagesWithEssentials = ['/', '/products', '/product'];
+  const pagesWithEssentials = ['/', '/products', '/categories', '/product'];
   const shouldLoadEssentials = pagesWithEssentials.includes(currentPath);
   const pagesWithLogin = ['/', '/products', '/product', '/categories', '/offers', '/about-us', '/sellers', '/sellers/register', '/settings'];
   const shouldLoadLogin = pagesWithLogin.includes(currentPath);
-  const pageScripts = { '/': '/script.js', '/products': '/products/script.js', '/notifications': '/notifications/script.js' };
+  const pageScripts = { '/': '/script.js', '/products': '/products/script.js', '/categories': '/categories/script.js', '/notifications': '/notifications/script.js' };
   const pageScript = pageScripts[currentPath] || null;
   const styles = [
     '/files/styles/essentials.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     ...(!shouldLoadSearch ? ['/files/styles/hide-search-bar.css',] : []),
     ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
+    ...(currentPath === '/categories' ? ['/categories/styles.css'] : []),
     //...(currentPath === '/notifications' ? ['/notifications/styles.css'] : [])
   ];
   const scripts = [
