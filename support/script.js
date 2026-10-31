@@ -24,21 +24,21 @@ document.querySelectorAll('.sb-card').forEach(el => {
 let agentBase = 12;
 setInterval(() => {
   agentBase = Math.max(8, Math.min(18, agentBase + (Math.random() > .5 ? 1 : -1)));
-  const el = $('agentsOnline');
+  const el = document.getElementById('agentsOnline');
   if (el) el.textContent = agentBase;
 }, 3200);
 
 /* ─── HERO SEARCH ────────────────────────────────────────────────────── */
 function handleHeroSearch() {
-  const q = $('heroSearch').value.trim();
+  const q = document.getElementById('heroSearch').value.trim();
   if (!q) { showToast('Digite algo para buscar!'); return; }
   showToast(`Buscando por "${q}"… 🔍`);
 }
 function quickSearch(q) {
-  $('heroSearch').value = q;
+  document.getElementById('heroSearch').value = q;
   showToast(`Buscando por "${q}"… 🔍`);
 }
-$('heroSearch').addEventListener('keydown', e => { if (e.key === 'Enter') handleHeroSearch(); });
+document.getElementById('heroSearch').addEventListener('keydown', e => { if (e.key === 'Enter') handleHeroSearch(); });
 
 /* ─── CHAT ───────────────────────────────────────────────────────────── */
 const chatReplies = [
@@ -51,10 +51,10 @@ const chatReplies = [
 ];
 let chatMsgCount = 0;
 function sendChatMsg() {
-  const input = $('chatInput');
+  const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg) return;
-  const body = $('chatBody');
+  const body = document.getElementById('chatBody');
   const now = new Date(); const hm = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
   const userDiv = document.createElement('div'); userDiv.className = 'cw-msg out';
   userDiv.innerHTML = `<div class="msg-ava user">MF</div><div><div class="msg-bubble">${msg}</div><div class="msg-time">${hm}</div></div>`;
@@ -71,7 +71,7 @@ function sendChatMsg() {
     body.appendChild(agDiv); body.scrollTop = body.scrollHeight;
   }, 1400 + Math.random() * 600);
 }
-function startChat() { document.querySelector('.chat-section').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => $('chatInput').focus(), 600); }
+function startChat() { document.querySelector('.chat-section').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => document.getElementById('chatInput').focus(), 600); }
 
 /* ─── FAQ ────────────────────────────────────────────────────────────── */
 function toggleFaq(btn) {
@@ -84,33 +84,33 @@ function toggleFaq(btn) {
 
 /* ─── TICKET FORM ────────────────────────────────────────────────────── */
 function submitTicket() {
-  const subject = $('fSubject').value;
-  const msg = $('fMsg').value.trim();
+  const subject = document.getElementById('fSubject').value;
+  const msg = document.getElementById('fMsg').value.trim();
   if (!subject) { showToast('Selecione um assunto para o chamado.'); return; }
   if (!msg)     { showToast('Descreva seu problema antes de enviar.'); return; }
   const protocol = '#SUP-' + Math.floor(10000 + Math.random() * 90000);
-  $('ticketProtocol').textContent = protocol;
-  $('ticketFormWrap').style.display = 'none';
-  const suc = $('formSuccess');
+  document.getElementById('ticketProtocol').textContent = protocol;
+  document.getElementById('ticketFormWrap').style.display = 'none';
+  const suc = document.getElementById('formSuccess');
   suc.style.display = 'block';
   suc.style.animation = 'scaleIn .45s cubic-bezier(.4,0,.2,1)';
   showToast(`Chamado aberto! Protocolo ${protocol} 📋`);
 }
 function resetForm() {
-  $('ticketFormWrap').style.display = 'block';
-  $('formSuccess').style.display = 'none';
-  $('fSubject').value = '';
-  $('fOrder').value = '';
-  $('fMsg').value = '';
+  document.getElementById('ticketFormWrap').style.display = 'block';
+  document.getElementById('formSuccess').style.display = 'none';
+  document.getElementById('fSubject').value = '';
+  document.getElementById('fOrder').value = '';
+  document.getElementById('fMsg').value = '';
 }
 
 /* ─── MISC ───────────────────────────────────────────────────────────── */
-window.addEventListener('scroll', () => { if ($('btt')) $('btt').classList.toggle('on', window.scrollY > 300); });
+window.addEventListener('scroll', () => { if (document.getElementById('btt')) document.getElementById('btt').classList.toggle('on', window.scrollY > 300); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
 
 /* ─── SAT CIRCLE ANIMATE ON VIEW ────────────────────────────────────── */
 const satObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { const f = $('satFill'); if (f) { f.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .4s'; f.style.strokeDashoffset = '26'; } satObserver.disconnect(); } });
+  entries.forEach(e => { if (e.isIntersecting) { const f = document.getElementById('satFill'); if (f) { f.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .4s'; f.style.strokeDashoffset = '26'; } satObserver.disconnect(); } });
 }, { threshold: 0.5 });
 const satEl = document.querySelector('.sat-circle');
 if (satEl) { document.querySelector('.sat-circle .fill').style.strokeDashoffset = '175'; satObserver.observe(satEl); }
