@@ -329,7 +329,7 @@
     .form-success { display:none; text-align:center; padding:40px 20px; }
     .fs-ico { width:64px; height:64px; border-radius:50%; background:rgba(16,185,129,.12); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; animation:scaleIn .5s var(--ease); }
     .fs-ico svg { width:28px; height:28px; fill:none; stroke:var(--green); stroke-width:2.5; }
-    .form-success h3 { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; margin-bottom:8px; }
+    .form-success h3 {font-size:26px;font-weight: 500;margin-bottom:8px;}
     .form-success p { color:var(--muted); font-size:13px; line-height:1.7; }
     .form-success strong { color:var(--blue); }
 
