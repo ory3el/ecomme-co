@@ -16,8 +16,9 @@
 
 //function initEssentialsJS() {
 
-// Estado compartilhado da visualização do catálogo.
+// Estado compartilhado do catálogo e cache de produtos.
 window.ecommeProductView = window.ecommeProductView === 'list' ? 'list' : 'grid';
+window.productCache = window.productCache instanceof Map ? window.productCache : new Map();
 
 /* --------------------------- */
 let isScrolling = false;
@@ -275,9 +276,7 @@ async function loadEcommeCurrentProductOnly() {
   products = [...merged.values()];
   shuffled = [...products];
 
-  if (typeof productCache !== 'undefined' && productCache?.set) {
-    productCache.set(String(normalized.id), normalized);
-  }
+  window.productCache.set(String(normalized.id), normalized);
   if (typeof createProductsSignature === 'function') {
     productDataSignature = createProductsSignature(products);
   }
@@ -332,19 +331,16 @@ async function refreshProductsIfNeeded() {
     productDataSignature = newSignature;
     updatedProducts.forEach(
       product => {
-        productCache.set(
-          String(product.id),
-          product
-        );
+        window.productCache.set(String(product.id), product);
       }
     );
     
     products = updatedProducts;
     shuffled = [...products];
     if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
-    virtualStartIndex = -1;
-    virtualEndIndex = -1;
-    virtualColumns = 0;
+    window.virtualStartIndex = -1;
+    window.virtualEndIndex = -1;
+    window.virtualColumns = 0;
     renderProducts();
     updateCart();   // carrinho/favoritos refletem produtos pausados/reativados
     updateFav();
@@ -353,35 +349,45 @@ async function refreshProductsIfNeeded() {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
-  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
-    return loadEcommeCurrentProductOnly();
-  }
+  if (window.__ecommeProductsLoadPromise) return window.__ecommeProductsLoadPromise;
 
-  const {data, error} = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', {ascending: true});
+  const loadPromise = (async () => {
+    if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+      return loadEcommeCurrentProductOnly();
+    }
 
-  if (error) {
-    console.error(
-      'Erro ao carregar produtos:',
-      error
-    );
+    const { data, error } = await supabaseClient
+      .from('products')
+      .select('*')
+      .order('id', { ascending: true });
 
-    products = [];
-    shuffled = [];
+    if (error) {
+      console.error('Erro ao carregar produtos:', error);
+      products = [];
+      shuffled = [];
+      window.__ecommeProductsInitialLoadComplete = true;
+      showProductsGridLoadError();
+      return false;
+    }
+
+    products = (data || []).map(normalizeProduct);
+    shuffled = [...products];
+    if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
+    productDataSignature = createProductsSignature(products);
     window.__ecommeProductsInitialLoadComplete = true;
-    showProductsGridLoadError();
-    return false;
+    finishProductsGridSkeleton();
+    return true;
+  })();
+
+  window.__ecommeProductsLoadPromise = loadPromise;
+  try {
+    const result = await loadPromise;
+    if (result === false && window.__ecommeProductsLoadPromise === loadPromise) window.__ecommeProductsLoadPromise = null;
+    return result;
+  } catch (error) {
+    if (window.__ecommeProductsLoadPromise === loadPromise) window.__ecommeProductsLoadPromise = null;
+    throw error;
   }
-  
-  products = (data || []).map(normalizeProduct);
-  shuffled = [...products];
-  if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
-  productDataSignature = createProductsSignature(products);
-  window.__ecommeProductsInitialLoadComplete = true;
-  finishProductsGridSkeleton();
-  return true;
 }
 
 // ── POP-UP AUTH ──
