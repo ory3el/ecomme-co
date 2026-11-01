@@ -344,7 +344,7 @@ function showToast(msg, type = 'ok') {
 }
 
 function toast(msg, type = 'ok') {
-  showToast(msg, type = 'ok');
+  showToast(msg, type);
 }
 
 const ECOMME_SETTINGS_KEY = 'ecomme_settings';
