@@ -16,10 +16,6 @@
 
 //function initEssentialsJS() {
 
-// Estado compartilhado do catálogo e cache de produtos.
-window.ecommeProductView = window.ecommeProductView === 'list' ? 'list' : 'grid';
-window.productCache = window.productCache instanceof Map ? window.productCache : new Map();
-
 /* --------------------------- */
 let isScrolling = false;
 let scrollTimer;
@@ -276,7 +272,9 @@ async function loadEcommeCurrentProductOnly() {
   products = [...merged.values()];
   shuffled = [...products];
 
-  window.productCache.set(String(normalized.id), normalized);
+  if (typeof productCache !== 'undefined' && productCache?.set) {
+    productCache.set(String(normalized.id), normalized);
+  }
   if (typeof createProductsSignature === 'function') {
     productDataSignature = createProductsSignature(products);
   }
@@ -331,16 +329,19 @@ async function refreshProductsIfNeeded() {
     productDataSignature = newSignature;
     updatedProducts.forEach(
       product => {
-        window.productCache.set(String(product.id), product);
+        productCache.set(
+          String(product.id),
+          product
+        );
       }
     );
     
     products = updatedProducts;
     shuffled = [...products];
     if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
-    window.virtualStartIndex = -1;
-    window.virtualEndIndex = -1;
-    window.virtualColumns = 0;
+    virtualStartIndex = -1;
+    virtualEndIndex = -1;
+    virtualColumns = 0;
     renderProducts();
     updateCart();   // carrinho/favoritos refletem produtos pausados/reativados
     updateFav();
@@ -349,45 +350,35 @@ async function refreshProductsIfNeeded() {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
-  if (window.__ecommeProductsLoadPromise) return window.__ecommeProductsLoadPromise;
-
-  const loadPromise = (async () => {
-    if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
-      return loadEcommeCurrentProductOnly();
-    }
-
-    const { data, error } = await supabaseClient
-      .from('products')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (error) {
-      console.error('Erro ao carregar produtos:', error);
-      products = [];
-      shuffled = [];
-      window.__ecommeProductsInitialLoadComplete = true;
-      showProductsGridLoadError();
-      return false;
-    }
-
-    products = (data || []).map(normalizeProduct);
-    shuffled = [...products];
-    if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
-    productDataSignature = createProductsSignature(products);
-    window.__ecommeProductsInitialLoadComplete = true;
-    finishProductsGridSkeleton();
-    return true;
-  })();
-
-  window.__ecommeProductsLoadPromise = loadPromise;
-  try {
-    const result = await loadPromise;
-    if (result === false && window.__ecommeProductsLoadPromise === loadPromise) window.__ecommeProductsLoadPromise = null;
-    return result;
-  } catch (error) {
-    if (window.__ecommeProductsLoadPromise === loadPromise) window.__ecommeProductsLoadPromise = null;
-    throw error;
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+    return loadEcommeCurrentProductOnly();
   }
+
+  const {data, error} = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('id', {ascending: true});
+
+  if (error) {
+    console.error(
+      'Erro ao carregar produtos:',
+      error
+    );
+
+    products = [];
+    shuffled = [];
+    window.__ecommeProductsInitialLoadComplete = true;
+    showProductsGridLoadError();
+    return false;
+  }
+  
+  products = (data || []).map(normalizeProduct);
+  shuffled = [...products];
+  if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
+  productDataSignature = createProductsSignature(products);
+  window.__ecommeProductsInitialLoadComplete = true;
+  finishProductsGridSkeleton();
+  return true;
 }
 
 // ── POP-UP AUTH ──
@@ -586,7 +577,7 @@ function productCardHtml(p) {
 
   const oldPrice = p.old > 0 ? ` <span class="pold"> ${window.ecommeFormatPrice(p.old)}</span>` : '';
   const discount = p.discount > 0 ? `<span class="pdisc"> -${p.discount}% </span>` : '';
-  const imagePreset = window.ecommeProductView === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
+  const imagePreset = view === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
   const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, imagePreset) : null;
   
   const imageHtml =
@@ -608,7 +599,7 @@ function productCardHtml(p) {
           ">`
       : '';
 
-  if (window.ecommeProductView === 'list') {
+  if (view === 'list') {
     return `
       <div
         class="pcard"
@@ -881,7 +872,7 @@ function renderProducts() {
   ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
   const categoryState = window.EcommeCategoryFilters?.getStateKey?.() || '';
-  const renderState = `${window.ecommeProductView}|${q}|${sort}|${categoryState}`;
+  const renderState = `${view}|${q}|${sort}|${categoryState}`;
   if (renderState !== lastRenderState) {
     visibleCount = PAGE_SIZE;
     lastRenderState = renderState;
@@ -1005,7 +996,7 @@ function searchFor(term) {
 
 function setView(v) {
   if (v !== 'grid' && v !== 'list') return;
-  window.ecommeProductView = v;
+  view = v;
   const grid = $('productsGrid');
   const gridButton = $('gridBtn') || $('gridViewBtn');
   const listButton = $('listBtn') || $('listViewBtn');
