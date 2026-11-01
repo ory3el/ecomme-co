@@ -421,7 +421,10 @@ body.nobodyscroll {overflow: hidden;}
 /* ── CONFIRMATION ──────────────────────────────────────── */
 .confirm-wrap{display:flex;flex-direction:column;align-items:center;padding:36px 24px;text-align:center;gap:0}
 .confirm-anim{position:relative;width:100px;height:100px;margin-bottom:20px}
-.confirm-circle{width:100px;height:100px;border-radius:50%;/* background:linear-gradient(135deg,#dcfce7,#bbf7d0); *//* border:3px solid #86efac; */display:flex;align-items:center;justify-content:center;font-size:44px;/* color: var(--green); */animation:confirmPop .6s cubic-bezier(.34,1.56,.64,1) both .1s;box-shadow: 0 0 15px rgb(22 163 74 / 80%);}
+.confirm-circle{width:100px;height:100px;border-radius:50%;/* background:linear-gradient(135deg,#dcfce7,#bbf7d0); *//* border:3px solid #86efac; */display:flex;align-items:center;justify-content:center;font-size:44px;/* color: var(--green); */animation:confirmPop .6s cubic-bezier(.34,1.56,.64,1) both .1s;box-shadow:none;}
+.confirm-circle.is-paid{box-shadow:0 0 15px rgb(22 163 74 / 80%);}
+.confirm-circle.is-pending{box-shadow:0 0 15px rgb(37 99 235 / 35%);}
+.confirm-circle.is-failed{box-shadow:0 0 15px rgb(239 68 68 / 35%);}
 @keyframes confirmPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .confetti{position:absolute;inset:0;pointer-events:none}
 .cf{position:absolute;width:8px;height:8px;border-radius:2px;animation:cfFall .8s ease both}
