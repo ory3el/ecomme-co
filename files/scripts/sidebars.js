@@ -381,6 +381,7 @@ window.ecommeLanguage = 'pt-BR';
 const ecommeOriginalTextNodes = new WeakMap();
 const ecommeOriginalAttributes = new WeakMap();
 let ecommeTranslationRunning = false;
+let ecommeTranslationQueue = Promise.resolve(true);
 let ecommeTranslationObserver = null;
 let ecommeTranslationObserverTimer = null;
 
@@ -764,46 +765,45 @@ async function requestTranslations(
   return responseData?.translations || {};
 }
 
-async function translatePage(
-  language =
-    window.ecommeLanguage || 'pt-BR'
+function translatePage(
+  language = window.ecommeLanguage || 'pt-BR'
 ) {
-
-  if (
-    ecommeTranslationRunning
-  ) {
-    return;
-  }
-
-  if (
-    !['pt-BR', 'en-US', 'es-ES']
-      .includes(language)
-  ) {
+  if (!['pt-BR', 'en-US', 'es-ES'].includes(language)) {
     language = 'pt-BR';
   }
 
-  window.ecommeLanguage =
-    language;
+  window.ecommeLanguage = language;
 
+  // Garante que uma troca rápida de idioma não seja descartada.
+  const task = ecommeTranslationQueue
+    .catch(() => false)
+    .then(() => performTranslatePage(language));
+
+  ecommeTranslationQueue = task;
+  return task;
+}
+
+async function performTranslatePage(language) {
   if (language === 'pt-BR') {
-
     if (ecommeTranslationObserver) {
       ecommeTranslationObserver.disconnect();
     }
 
-    restoreOriginalPage();
-
-    if (ecommeTranslationObserver) {
-      ecommeTranslationObserver.observe(
-        document.body,
-        {
+    try {
+      restoreOriginalPage();
+      return true;
+    } catch (error) {
+      console.error('Erro ao restaurar o idioma original:', error);
+      return false;
+    } finally {
+      if (ecommeTranslationObserver) {
+        ecommeTranslationObserver.observe(document.body, {
           childList: true,
-          subtree: true
-        }
-      );
+          subtree: true,
+          characterData: true
+        });
+      }
     }
-
-    return;
   }
 
   ecommeTranslationRunning = true;
@@ -813,121 +813,62 @@ async function translatePage(
   }
 
   try {
-
     restoreOriginalPage();
 
-    const items =
-      collectTranslationNodes();
-
+    const items = collectTranslationNodes();
     if (!items.length) {
-      return;
+      return true;
     }
 
-    const cache =
-      getTranslationCache();
+    const cache = getTranslationCache();
+    const languageCache = cache[language] || {};
+    const uniqueTexts = [...new Set(items.map(item => item.source))];
+    const missingTexts = uniqueTexts.filter(text => !languageCache[text]);
 
-    const languageCache =
-      cache[language] || {};
-
-    const uniqueTexts =
-      [
-        ...new Set(
-          items.map(
-            item => item.source
-          )
-        )
-      ];
-
-    const missingTexts =
-      uniqueTexts.filter(
-        text =>
-          !languageCache[text]
-      );
-
-    for (
-      let i = 0;
-      i < missingTexts.length;
-      i += 40
-    ) {
-
-      const batch =
-        missingTexts.slice(
-          i,
-          i + 40
-        );
-
-      const translations =
-        await requestTranslations(
-          language,
-          batch
-        );
-
-      Object.assign(
-        languageCache,
-        translations
-      );
+    for (let i = 0; i < missingTexts.length; i += 40) {
+      const batch = missingTexts.slice(i, i + 40);
+      const translations = await requestTranslations(language, batch);
+      Object.assign(languageCache, translations);
     }
 
-    cache[language] =
-      languageCache;
-
+    cache[language] = languageCache;
     saveTranslationCache(cache);
 
     for (const item of items) {
-
-      const translated =
-        languageCache[item.source];
-
-      if (!translated) {
-        continue;
-      }
+      const translated = languageCache[item.source];
+      if (!translated) continue;
 
       if (item.type === 'text') {
+        const originalText =
+          ecommeOriginalTextNodes.get(item.node) ?? item.node.nodeValue;
+        const leadingWhitespace = originalText.match(/^\s*/)?.[0] || '';
+        const trailingWhitespace = originalText.match(/\s*$/)?.[0] || '';
 
         item.node.nodeValue =
-          item.node.nodeValue.replace(
-            item.source,
-            translated
-          );
-
+          `${leadingWhitespace}${translated}${trailingWhitespace}`;
       }
 
-      if (
-        item.type === 'attribute'
-      ) {
-
-        item.element.setAttribute(
-          item.attribute,
-          translated
-        );
+      if (item.type === 'attribute') {
+        item.element.setAttribute(item.attribute, translated);
       }
     }
 
+    return true;
   } catch (error) {
-
-    console.error(
-      'Erro ao traduzir página:',
-      error
-    );
-
+    console.error('Erro ao traduzir página:', error);
+    return false;
   } finally {
-
-    ecommeTranslationRunning =
-      false;
+    ecommeTranslationRunning = false;
 
     if (ecommeTranslationObserver) {
-
-      ecommeTranslationObserver.observe(
-        document.body,
-        {
-          childList: true,
-          subtree: true
-        }
-      );
+      ecommeTranslationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
     }
   }
 }
-
 
 function initEcommeTranslationObserver() {
   if (!document.body) {
@@ -955,7 +896,8 @@ function initEcommeTranslationObserver() {
     document.body,
     {
       childList: true,
-      subtree: true
+      subtree: true,
+      characterData: true
     }
   );
 }
@@ -995,19 +937,35 @@ window.ecommeFormatPrice =
 
 // ------------------------------------------
 async function syncEcommeDisplaySettings() {
+  let localSettings = {};
+
+  try {
+    const localRaw = localStorage.getItem('ecomme_settings');
+    localSettings = localRaw ? JSON.parse(localRaw) : {};
+  } catch (error) {
+    console.warn('Não foi possível ler as configurações locais:', error);
+  }
+
   window.ecommeDisplaySettings = {
-    //theme: 'auto',
-    language: 'pt-BR',
-    currency: 'BRL'
+    language: ['pt-BR', 'en-US', 'es-ES'].includes(localSettings?.language)
+      ? localSettings.language
+      : 'pt-BR',
+    currency: ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
+      ? localSettings.currency
+      : 'BRL'
   };
 
   try {
-    const {data: {user}} = await supabaseClient.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError) {
+      console.warn('Não foi possível identificar a sessão da conta:', userError);
+    }
 
     if (user) {
-      const {data, error} = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('user_settings')
-        .select(/*theme,*/'language, currency')
+        .select('language, currency')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -1015,79 +973,36 @@ async function syncEcommeDisplaySettings() {
         console.error('Erro ao carregar configurações da conta:', error);
       }
 
-      if (
-        ['pt-BR', 'en-US', 'es-ES'].includes(data?.language)
-      ) {
+      if (['pt-BR', 'en-US', 'es-ES'].includes(data?.language)) {
         window.ecommeDisplaySettings.language = data.language;
       }
-      
-      if (data) {
-        /*if (
-          ['light', 'dark', 'auto'].includes(data.theme)
-        ) {
-          window.ecommeDisplaySettings.theme = data.theme;
-        }*/
 
-        if (
-          ['BRL', 'USD', 'EUR'].includes(data.currency)
-        ) {
-          window.ecommeDisplaySettings.currency = data.currency;
-        }
-
-        try {
-          const localRaw = localStorage.getItem('ecomme_settings');
-          const localSettings = localRaw
-            ? JSON.parse(localRaw)
-            : {};
-
-          localStorage.setItem(
-            'ecomme_settings',
-            JSON.stringify({
-              ...localSettings,
-              /*theme: window.ecommeDisplaySettings.theme,*/
-              currency: window.ecommeDisplaySettings.currency
-            })
-          );
-        } catch (error) {
-          console.warn(
-            'Não foi possível atualizar o cache local:',
-            error
-          );
-        }
+      if (['BRL', 'USD', 'EUR'].includes(data?.currency)) {
+        window.ecommeDisplaySettings.currency = data.currency;
       }
     }
 
-    else {
-      try {
-        const localRaw = localStorage.getItem('ecomme_settings');
-
-        if (localRaw) {
-          const localSettings = JSON.parse(localRaw);
-
-          /*if (
-            ['light', 'dark', 'auto'].includes(localSettings?.theme)
-          ) {
-            window.ecommeDisplaySettings.theme = localSettings.theme;
-          }*/
-
-          if (
-            ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
-          ) {
-            window.ecommeDisplaySettings.currency = localSettings.currency;
-          }
-        }
-      } catch (error) {
-        console.warn(
-          'Não foi possível ler as configurações locais:',
-          error
-        );
-      }
+    // Mantém o cache local alinhado tanto para contas quanto para visitantes.
+    try {
+      localStorage.setItem(
+        'ecomme_settings',
+        JSON.stringify({
+          ...localSettings,
+          language: window.ecommeDisplaySettings.language,
+          currency: window.ecommeDisplaySettings.currency
+        })
+      );
+    } catch (error) {
+      console.warn('Não foi possível atualizar o cache local:', error);
     }
 
-    /*applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});*/
-    window.ecommeLanguage = window.ecommeDisplaySettings.language || 'pt-BR';
-    await translatePage(window.ecommeLanguage);
-    
+    window.ecommeLanguage = window.ecommeDisplaySettings.language;
+    const translationOk = await translatePage(window.ecommeLanguage);
+
+    if (!translationOk && window.ecommeLanguage !== 'pt-BR') {
+      console.warn('A preferência de idioma foi carregada, mas a tradução desta página não foi concluída.');
+    }
+
     const currency = window.ecommeDisplaySettings.currency || 'BRL';
     if (currency === 'BRL') {
       window.ecommeCurrencyRates.BRL = 1;
@@ -1097,8 +1012,7 @@ async function syncEcommeDisplaySettings() {
     const cachedRaw = localStorage.getItem('ecomme_currency_rates');
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
-      const age =
-        Date.now() - Number(cached.savedAt || 0);
+      const age = Date.now() - Number(cached.savedAt || 0);
 
       if (
         age < 6 * 60 * 60 * 1000 &&
@@ -1119,15 +1033,10 @@ async function syncEcommeDisplaySettings() {
     }
 
     const rows = await response.json();
-
     const rates = {
       BRL: 1,
-      USD: Number(
-        rows.find(row => row.quote === 'USD')?.rate || 0
-      ),
-      EUR: Number(
-        rows.find(row => row.quote === 'EUR')?.rate || 0
-      )
+      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
+      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
     };
 
     if (!rates.USD || !rates.EUR) {
@@ -1135,200 +1044,15 @@ async function syncEcommeDisplaySettings() {
     }
 
     window.ecommeCurrencyRates = rates;
-    localStorage.setItem('ecomme_currency_rates',
-      JSON.stringify({
-        savedAt: Date.now(),
-        rates
-      })
+    localStorage.setItem(
+      'ecomme_currency_rates',
+      JSON.stringify({ savedAt: Date.now(), rates })
     );
-
   } catch (error) {
-    console.error(
-      'Não foi possível sincronizar as configurações:',
-      error
-    );
-
-    /*window.ecommeDisplaySettings.theme = 'light';*/
+    console.error('Não foi possível sincronizar as configurações:', error);
     window.ecommeDisplaySettings.currency = 'BRL';
-    //applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});
   }
 }
-
-// ---------------------------------------------------------
-
-(() => {
-  const header = document.querySelector('header');
-  if (!header) return;
-
-  // Evita instalar o controlador mais de uma vez.
-  if (header.dataset.scrollHeaderController === 'active') return;
-  header.dataset.scrollHeaderController = 'active';
-
-  header.classList.add('header-gesture-enabled');
-  header.classList.remove('header-gesture-hidden');
-
-  let state = 'sticky';
-  let finishTimer = null;
-  let scrollFramePending = false;
-
-  let lastScrollY = Math.max(0, window.scrollY || 0);
-  let downDistance = 0;
-  let upDistance = 0;
-
-  // Distâncias de rolagem necessárias para alternar o header.
-  const HIDE_AFTER = 200;
-  const SHOW_AFTER = 200;
-  const SHOW_NEAR_TOP = 500;
-  const ANIMATION_FALLBACK_MS = 380;
-
-  function finishTransition() {
-    if (state !== 'hiding' && state !== 'showing') return;
-
-    clearTimeout(finishTimer);
-    finishTimer = null;
-
-    if (state === 'hiding') {
-      // A posição muda somente após a animação de saída.
-      header.style.position = 'relative';
-      header.style.top = 'auto';
-      state = 'relative';
-    } else {
-      // Restaura o sticky após a animação de entrada.
-      header.style.position = 'sticky';
-      header.style.top = '0';
-      state = 'sticky';
-    }
-  }
-
-  function hideHeader() {
-    if (state !== 'sticky') return;
-
-    clearTimeout(finishTimer);
-    state = 'hiding';
-
-    downDistance = 0;
-    upDistance = 0;
-
-    header.classList.add('header-gesture-hidden');
-
-    // Segurança caso transitionend não seja disparado.
-    finishTimer = setTimeout(
-      finishTransition,
-      ANIMATION_FALLBACK_MS
-    );
-  }
-
-  function showHeader() {
-    if (state !== 'relative' && state !== 'hiding') return;
-
-    clearTimeout(finishTimer);
-
-    // Restaura o sticky antes da animação de entrada.
-    header.style.position = 'sticky';
-    header.style.top = '0';
-    state = 'showing';
-
-    downDistance = 0;
-    upDistance = 0;
-
-    // Garante que o navegador registre os dois estados visuais.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        header.classList.remove('header-gesture-hidden');
-      });
-    });
-
-    finishTimer = setTimeout(
-      finishTransition,
-      ANIMATION_FALLBACK_MS
-    );
-  }
-
-  // Finaliza a transição quando a animação CSS termina.
-  header.addEventListener('transitionend', event => {
-    if (
-      event.target === header &&
-      event.propertyName === 'transform'
-    ) {
-      finishTransition();
-    }
-  });
-
-  function processScroll() {
-    scrollFramePending = false;
-
-    const currentScrollY = Math.max(0, window.scrollY || 0);
-    const delta = currentScrollY - lastScrollY;
-
-    lastScrollY = currentScrollY;
-
-    // Próximo do topo, o header deve estar visível.
-    if (currentScrollY <= SHOW_NEAR_TOP) {
-      downDistance = 0;
-      upDistance = 0;
-
-      if (state === 'relative' || state === 'hiding') {
-        showHeader();
-      }
-
-      return;
-    }
-
-    // Ignora oscilações mínimas da rolagem.
-    if (Math.abs(delta) < 2) return;
-
-    if (delta > 0) {
-      // Rolagem para baixo.
-      downDistance += delta;
-      upDistance = 0;
-
-      if (
-        state === 'sticky' &&
-        downDistance >= HIDE_AFTER
-      ) {
-        hideHeader();
-      }
-    } else {
-      // Rolagem para cima.
-      upDistance += Math.abs(delta);
-      downDistance = 0;
-
-      if (
-        (state === 'relative' || state === 'hiding') &&
-        upDistance >= SHOW_AFTER
-      ) {
-        showHeader();
-      }
-    }
-  }
-
-  window.addEventListener('scroll', () => {
-    if (scrollFramePending) return;
-
-    scrollFramePending = true;
-    requestAnimationFrame(processScroll);
-  }, { passive: true });
-})();
-
-/* ─── STATE ─────────────────────────────────────────────────────────── */
-let cart = [];
-let fav = [];
-let curId = null;
-let mQtyVal = 1;
-let view = 'grid';
-let modalImages = [];
-let modalImageIndex = 0;
-
-let products = [];
-let shuffled = [];
-
-/* ─── PRODUTOS INDISPONÍVEIS ─────────────────────────────────────────────
-   badge "paused" (definido no Supabase pelo vendedor):
-   • não aparece na lista de produtos (filtro em getFilteredList → essentials.js)
-   • continua em `products`, então carrinho/favoritos ainda o encontram
-   • aparece em carrinho/favoritos como "Indisponível", sempre por último
-   • não pode ser comprado (addToCart / addAllFavToCart / total / checkout) */
-const UNAVAILABLE_BADGE = 'paused';
 
 function isProductUnavailable(product) {
   return !!product && product.badge === UNAVAILABLE_BADGE;
