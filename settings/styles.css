@@ -555,22 +555,6 @@ textarea.finput{resize:vertical;min-height:80px}
 .theme-opt.light{background: #fff;color: #000;}
 .theme-opt.dark{background:#0f1a2e;color: #fff;}
 .theme-opt.auto{background: linear-gradient(135deg,var(--borderW) 50%,var(--border) 50%);color: var(--black);}
-.lang-sel {
-  background: none;
-  border: 1.5px solid var(--border);
-  padding:6px 12px;
-  border-radius: 150px !important;
-  font-size:12px;
-  outline:none;
-  cursor:pointer;
-  font-family:inherit;
-  color: var(--text);
-  appearance:none;
-  padding-right:28px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 9px center
-}
 .currency-sel{
   border: 1.5px solid var(--border);
   background: var(--white);
