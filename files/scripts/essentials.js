@@ -446,7 +446,11 @@ function createProductsSignature(
       cat: product.cat,
       image_url: product.image_url,
       gallery_urls: product.gallery_urls,
-      features: product.features
+      features: product.features,
+      dominant_color: product.dominant_color,
+      dominant_colors: product.dominant_colors,
+      color_palette: product.color_palette,
+      color_analysis_status: product.color_analysis_status
     })) .map(product => JSON.stringify(product)) .join('|');
 }
 
