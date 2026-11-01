@@ -1,3 +1,20 @@
+// Helpers compartilhados para identificar e apresentar produtos pausados.
+function isProductUnavailable(product) {
+  return !product || String(product.badge || '').trim().toLowerCase() === 'paused';
+}
+
+function sortUnavailableLast(items) {
+  return (Array.isArray(items) ? items : []).slice().sort((a, b) =>
+    Number(isProductUnavailable(a)) - Number(isProductUnavailable(b))
+  );
+}
+
+function unavailableMsgHtml(product) {
+  return isProductUnavailable(product)
+    ? '<div class="ci-unavailable-msg" role="status">Produto indisponível</div>'
+    : '';
+}
+
 async function injectEcommeUI() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
   if (currentPath === '/settings' || currentPath.startsWith('/settings/')) return;
