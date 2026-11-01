@@ -344,14 +344,13 @@ function showToast(msg, type = 'ok') {
 }
 
 function toast(msg, type = 'ok') {
-  showToast(msg, type);
+  showToast(msg, type = 'ok');
 }
 
 const ECOMME_SETTINGS_KEY = 'ecomme_settings';
 const DEFAULT_ECOMME_SETTINGS = {
   styled_icons: true,
   theme: 'light',
-  language: 'pt-BR',
   currency: 'BRL',
   
   profile_public: true,
@@ -377,10 +376,14 @@ let ecommeCurrencyRates = {
 };
 
 function normalizeEcommeSettings(data = {}) {
-  return {
+  const settings = {
     ...DEFAULT_ECOMME_SETTINGS,
     ...data
   };
+
+  // Remove a preferência antiga de idioma da interface, caso exista no cache.
+  delete settings.language;
+  return settings;
 }
 
 function getStoredEcommeSettings() {
@@ -446,7 +449,6 @@ function readSettingsFromUI() {
   return {
     styled_icons: document.getElementById('settingStyledIcons')?.checked ?? true,
     theme: selectedTheme,
-    language: document.getElementById('settingLanguage')?.value || 'pt-BR',
     currency: document.getElementById('settingCurrency')?.value || 'BRL',
     profile_public: document.getElementById('settingProfilePublic')?.checked ?? true,
     purchase_history_visible: document.getElementById('settingPurchaseHistory')?.checked ?? false,
@@ -478,11 +480,6 @@ function applySettingsToUI(settings) {
   setChecked('settingReduceAnimations', ecommeSettings.reduce_animations);
   setChecked('settingOptimizePerformance', ecommeSettings.optimize_performance);
   
-  const lang = document.getElementById('settingLanguage');
-  if (lang) {
-    lang.value = ecommeSettings.language;
-  }
-
   const currency = document.getElementById('settingCurrency');
   if (currency) {
     currency.value = ecommeSettings.currency;
@@ -635,7 +632,6 @@ async function saveSettings() {
             user_id: activeUserId,
             styled_icons: newSettings.styled_icons,
             theme: newSettings.theme,
-            language: newSettings.language,
             currency: newSettings.currency,
             profile_public: newSettings.profile_public,
             purchase_history_visible: newSettings.purchase_history_visible,
@@ -654,20 +650,10 @@ async function saveSettings() {
       if (error) throw error;
     }
 
-    // Aplica o idioma tanto para usuários autenticados quanto para preferências locais.
-    window.ecommeLanguage = newSettings.language;
-    let translationOk = true;
-    if (typeof window.ecommeTranslatePage === 'function') {
-      translationOk = await window.ecommeTranslatePage(newSettings.language);
-    } else if (newSettings.language !== 'pt-BR') {
-      translationOk = false;
-      console.error('[Ecomme configurações] ecommeTranslatePage não está disponível. Verifique o carregamento de sidebars.js.');
-    }
-
     if (activeUserId) {
-      toast(translationOk ? 'Configurações salvas na sua conta! ✓' : 'Configurações salvas, mas a tradução não foi concluída.', translationOk ? 'ok' : 'err');
+      toast('Configurações salvas na sua conta! ✓', 'ok');
     } else {
-      toast(translationOk ? 'Configurações salvas neste navegador! ✓' : 'Preferências locais salvas, mas a tradução exige uma sessão válida.', translationOk ? 'ok' : 'err');
+      toast('Configurações salvas neste navegador! ✓', 'ok');
     }
 
     if (typeof loadWishlist === 'function' && userId) {
