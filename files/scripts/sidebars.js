@@ -1,3 +1,9 @@
+// Estado compartilhado: evita referências indefinidas antes de a sessão carregar.
+window.products = Array.isArray(window.products) ? window.products : [];
+window.shuffled = Array.isArray(window.shuffled) ? window.shuffled : [];
+window.cart = Array.isArray(window.cart) ? window.cart : [];
+window.fav = Array.isArray(window.fav) ? window.fav : [];
+
 // Helpers compartilhados para identificar e apresentar produtos pausados.
 function isProductUnavailable(product) {
   return !product || String(product.badge || '').trim().toLowerCase() === 'paused';
