@@ -16,6 +16,9 @@
 
 //function initEssentialsJS() {
 
+// Estado compartilhado da visualização do catálogo.
+window.ecommeProductView = window.ecommeProductView === 'list' ? 'list' : 'grid';
+
 /* --------------------------- */
 let isScrolling = false;
 let scrollTimer;
@@ -577,7 +580,7 @@ function productCardHtml(p) {
 
   const oldPrice = p.old > 0 ? ` <span class="pold"> ${window.ecommeFormatPrice(p.old)}</span>` : '';
   const discount = p.discount > 0 ? `<span class="pdisc"> -${p.discount}% </span>` : '';
-  const imagePreset = view === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
+  const imagePreset = window.ecommeProductView === 'list' ? EDGE_IMAGE_PRESETS.list : EDGE_IMAGE_PRESETS.grid;
   const optimizedMainImage = mainImage ? getOptimizedImageUrl(mainImage, imagePreset) : null;
   
   const imageHtml =
@@ -599,7 +602,7 @@ function productCardHtml(p) {
           ">`
       : '';
 
-  if (view === 'list') {
+  if (window.ecommeProductView === 'list') {
     return `
       <div
         class="pcard"
@@ -872,7 +875,7 @@ function renderProducts() {
   ).toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
   const categoryState = window.EcommeCategoryFilters?.getStateKey?.() || '';
-  const renderState = `${view}|${q}|${sort}|${categoryState}`;
+  const renderState = `${window.ecommeProductView}|${q}|${sort}|${categoryState}`;
   if (renderState !== lastRenderState) {
     visibleCount = PAGE_SIZE;
     lastRenderState = renderState;
@@ -996,7 +999,7 @@ function searchFor(term) {
 
 function setView(v) {
   if (v !== 'grid' && v !== 'list') return;
-  view = v;
+  window.ecommeProductView = v;
   const grid = $('productsGrid');
   const gridButton = $('gridBtn') || $('gridViewBtn');
   const listButton = $('listBtn') || $('listViewBtn');
