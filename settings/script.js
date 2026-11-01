@@ -606,15 +606,14 @@ async function saveSettings() {
     saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
   }
   
-  if (newSettings.currency !== 'BRL') {
-    const ratesLoaded = await loadEcommeCurrencyRates(newSettings.currency);
-    if (!ratesLoaded || !ecommeCurrencyRates[newSettings.currency]) {
-      toast('Não foi possível obter a cotação da moeda agora.', 'err');
-      return;
-    }
-  }
-
   try {
+    if (newSettings.currency !== 'BRL') {
+      const ratesLoaded = await loadEcommeCurrencyRates(newSettings.currency);
+      if (!ratesLoaded || !ecommeCurrencyRates[newSettings.currency]) {
+        throw new Error('Não foi possível obter a cotação da moeda agora.');
+      }
+    }
+
     let activeUserId = userId;
     if (!activeUserId) {
       const {data: { user }} = await supabaseClient.auth.getUser();
@@ -653,15 +652,22 @@ async function saveSettings() {
         );
 
       if (error) throw error;
-      window.ecommeLanguage = newSettings.language;
-      if (typeof window.ecommeTranslatePage === 'function') {
-        await window.ecommeTranslatePage(newSettings.language);
-      }
-      
-      toast('Configurações salvas na sua conta! ✓', 'ok');
+    }
+
+    // Aplica o idioma tanto para usuários autenticados quanto para preferências locais.
+    window.ecommeLanguage = newSettings.language;
+    let translationOk = true;
+    if (typeof window.ecommeTranslatePage === 'function') {
+      translationOk = await window.ecommeTranslatePage(newSettings.language);
+    } else if (newSettings.language !== 'pt-BR') {
+      translationOk = false;
+      console.error('[Ecomme configurações] ecommeTranslatePage não está disponível. Verifique o carregamento de sidebars.js.');
+    }
+
+    if (activeUserId) {
+      toast(translationOk ? 'Configurações salvas na sua conta! ✓' : 'Configurações salvas, mas a tradução não foi concluída.', translationOk ? 'ok' : 'err');
     } else {
-      toast('Configurações salvas neste navegador! ✓', 'ok'
-      );
+      toast(translationOk ? 'Configurações salvas neste navegador! ✓' : 'Preferências locais salvas, mas a tradução exige uma sessão válida.', translationOk ? 'ok' : 'err');
     }
 
     if (typeof loadWishlist === 'function' && userId) {
