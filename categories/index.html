@@ -141,6 +141,26 @@
           <button class="filter-tag" onclick="toggleTag(this,'Frete Grátis')">Frete grátis</button>
         </div>
       </section>
+      <section class="filter-group color-filter-group">
+        <h3><i class="fa-solid fa-palette"></i> Cor do produto</h3>
+        <p class="color-filter-help">Cores identificadas automaticamente nas imagens.</p>
+        <div class="product-color-filter-grid" aria-label="Filtrar por cor">
+          <button type="button" class="product-color-option" data-product-color="Preto" onclick="toggleProductColor(this,'Preto')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#202124"></span><span>Preto</span></button>
+          <button type="button" class="product-color-option" data-product-color="Branco" onclick="toggleProductColor(this,'Branco')" aria-pressed="false"><span class="product-color-swatch swatch-light" style="--swatch:#ffffff"></span><span>Branco</span></button>
+          <button type="button" class="product-color-option" data-product-color="Cinza" onclick="toggleProductColor(this,'Cinza')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#9299a4"></span><span>Cinza</span></button>
+          <button type="button" class="product-color-option" data-product-color="Vermelho" onclick="toggleProductColor(this,'Vermelho')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#e53935"></span><span>Vermelho</span></button>
+          <button type="button" class="product-color-option" data-product-color="Laranja" onclick="toggleProductColor(this,'Laranja')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#ef8b2c"></span><span>Laranja</span></button>
+          <button type="button" class="product-color-option" data-product-color="Amarelo" onclick="toggleProductColor(this,'Amarelo')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#f3d34a"></span><span>Amarelo</span></button>
+          <button type="button" class="product-color-option" data-product-color="Verde" onclick="toggleProductColor(this,'Verde')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#27965a"></span><span>Verde</span></button>
+          <button type="button" class="product-color-option" data-product-color="Ciano" onclick="toggleProductColor(this,'Ciano')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#22b8c7"></span><span>Ciano</span></button>
+          <button type="button" class="product-color-option" data-product-color="Azul" onclick="toggleProductColor(this,'Azul')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#2876db"></span><span>Azul</span></button>
+          <button type="button" class="product-color-option" data-product-color="Roxo" onclick="toggleProductColor(this,'Roxo')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#854cc7"></span><span>Roxo</span></button>
+          <button type="button" class="product-color-option" data-product-color="Rosa" onclick="toggleProductColor(this,'Rosa')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#e88dbb"></span><span>Rosa</span></button>
+          <button type="button" class="product-color-option" data-product-color="Marrom" onclick="toggleProductColor(this,'Marrom')" aria-pressed="false"><span class="product-color-swatch" style="--swatch:#80543b"></span><span>Marrom</span></button>
+          <button type="button" class="product-color-option" data-product-color="Bege" onclick="toggleProductColor(this,'Bege')" aria-pressed="false"><span class="product-color-swatch swatch-light" style="--swatch:#d8c3a5"></span><span>Bege</span></button>
+        </div>
+        <p class="color-filter-status" id="colorFilterStatus" aria-live="polite">Preparando identificação das cores...</p>
+      </section>
       <section class="filter-group">
         <h3><i class="fa-solid fa-star"></i> Avaliação mínima</h3>
         <div class="stars-filter">
