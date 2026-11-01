@@ -350,7 +350,7 @@ function toast(msg, type = 'ok') {
 const ECOMME_SETTINGS_KEY = 'ecomme_settings';
 const DEFAULT_ECOMME_SETTINGS = {
   styled_icons: true,
-  theme: 'light',
+  theme: 'auto',
   currency: 'BRL',
   
   profile_public: true,
@@ -386,12 +386,35 @@ function normalizeEcommeSettings(data = {}) {
   return settings;
 }
 
+function getLocalThemePreference(fallback = 'auto') {
+  try {
+    const savedTheme = localStorage.getItem('ecomme-theme');
+    if (['light', 'dark', 'auto'].includes(savedTheme)) return savedTheme;
+
+    // Migra o tema do cache antigo somente quando a chave principal ainda não existe.
+    const raw = localStorage.getItem(ECOMME_SETTINGS_KEY);
+    if (raw) {
+      const localSettings = JSON.parse(raw);
+      if (['light', 'dark', 'auto'].includes(localSettings?.theme)) {
+        localStorage.setItem('ecomme-theme', localSettings.theme);
+        return localSettings.theme;
+      }
+    }
+  } catch (error) {
+    console.warn('Não foi possível ler o tema local:', error);
+  }
+
+  return fallback;
+}
+
 function getStoredEcommeSettings() {
   try {
     const raw = localStorage.getItem(ECOMME_SETTINGS_KEY);
     if (!raw) return null;
 
-    return normalizeEcommeSettings(JSON.parse(raw));
+    const settings = normalizeEcommeSettings(JSON.parse(raw));
+    settings.theme = getLocalThemePreference(settings.theme);
+    return settings;
   } catch (error) {
     console.warn('Não foi possível ler as configurações locais:', error);
     return null;
@@ -445,7 +468,7 @@ function setTheme(btn, theme) {
 }
 
 function readSettingsFromUI() {
-  const selectedTheme = document.querySelector('#themeSwitch .theme-opt.on')?.dataset.themeChoice || 'light';
+  const selectedTheme = document.querySelector('#themeSwitch .theme-opt.on')?.dataset.themeChoice || getLocalThemePreference();
   return {
     styled_icons: document.getElementById('settingStyledIcons')?.checked ?? true,
     theme: selectedTheme,
@@ -571,20 +594,29 @@ function formatEcommePrice(amount) {
 window.formatEcommePrice = formatEcommePrice;
 
 async function loadSavedEcommeSettings(accountUserId = null) {
+  const localTheme = getLocalThemePreference();
   const localSettings = getStoredEcommeSettings();
-  ecommeSettings = normalizeEcommeSettings(localSettings || DEFAULT_ECOMME_SETTINGS);
+  ecommeSettings = normalizeEcommeSettings({
+    ...(localSettings || DEFAULT_ECOMME_SETTINGS),
+    theme: localTheme
+  });
 
   if (accountUserId) {
     const {data, error} = await supabaseClient
       .from('user_settings')
-      .select('*')
+      .select('styled_icons, currency, profile_public, purchase_history_visible, ai_personalization, share_data_with_partners, larger_font, high_contrast, reduce_animations, optimize_performance')
       .eq('user_id', accountUserId)
       .maybeSingle();
 
     if (error) {
       console.warn('Não foi possível carregar user_settings:', error.message);
     } else if (data) {
-      ecommeSettings = normalizeEcommeSettings(data);
+      // As preferências da conta são carregadas, mas o tema permanece exclusivo do Local Storage.
+      ecommeSettings = normalizeEcommeSettings({
+        ...ecommeSettings,
+        ...data,
+        theme: localTheme
+      });
       cacheEcommeSettings(ecommeSettings);
     }
   }
