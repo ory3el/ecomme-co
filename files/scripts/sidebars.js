@@ -377,534 +377,6 @@ function initThemeToggle() {
 
 // ============================================================
 
-window.ecommeLanguage = 'pt-BR';
-const ecommeOriginalTextNodes = new WeakMap();
-const ecommeOriginalAttributes = new WeakMap();
-let ecommeTranslationRunning = false;
-let ecommeTranslationQueue = Promise.resolve(true);
-let ecommeTranslationObserver = null;
-let ecommeTranslationObserverTimer = null;
-
-function shouldIgnoreTranslationElement(element) {
-  if (!element) {
-    return true;
-  }
-
-  if (
-    element.closest(
-      'script, style, noscript, svg, code, pre, textarea'
-    )
-  ) {
-    return true;
-  }
-
-  if (
-    element.closest(
-      '[data-no-translate]'
-    )
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-
-function isMeaningfulTranslationText(text) {
-  if (!text) {
-    return false;
-  }
-
-  const clean =
-    text
-      .replace(/\s+/g, ' ')
-      .trim();
-
-  if (!clean) {
-    return false;
-  }
-
-  if (/^[\d\s.,%$€£+\-/:]+$/.test(clean)) {
-    return false;
-  }
-
-  if (
-    /^https?:\/\//i.test(clean) ||
-    /^www\./i.test(clean)
-  ) {
-    return false;
-  }
-
-  if (
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-
-function getTranslationCache() {
-
-  try {
-
-    const raw =
-      localStorage.getItem(
-        'ecomme_translation_cache'
-      );
-
-    if (!raw) {
-      return {};
-    }
-
-    return JSON.parse(raw);
-
-  } catch (error) {
-
-    console.warn(
-      'Erro ao ler cache de tradução:',
-      error
-    );
-
-    return {};
-  }
-}
-
-
-function saveTranslationCache(cache) {
-
-  try {
-
-    localStorage.setItem(
-      'ecomme_translation_cache',
-      JSON.stringify(cache)
-    );
-
-  } catch (error) {
-
-    console.warn(
-      'Erro ao salvar cache de tradução:',
-      error
-    );
-  }
-}
-
-
-function collectTranslationNodes() {
-
-  const items = [];
-
-  const walker =
-    document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_TEXT
-    );
-
-  let node;
-
-  while (
-    node = walker.nextNode()
-  ) {
-
-    const parent =
-      node.parentElement;
-
-    if (
-      !parent ||
-      shouldIgnoreTranslationElement(parent)
-    ) {
-      continue;
-    }
-
-    const source =
-      node.nodeValue
-        .replace(/\s+/g, ' ')
-        .trim();
-
-    if (
-      !isMeaningfulTranslationText(source)
-    ) {
-      continue;
-    }
-
-    if (
-      !ecommeOriginalTextNodes.has(node)
-    ) {
-
-      ecommeOriginalTextNodes.set(
-        node,
-        node.nodeValue
-      );
-    }
-
-    items.push({
-      type: 'text',
-      node,
-      source
-    });
-  }
-
-  const elements =
-    document.querySelectorAll(
-      '[placeholder], [title], [aria-label]'
-    );
-
-  elements.forEach(element => {
-
-    if (
-      shouldIgnoreTranslationElement(element)
-    ) {
-      return;
-    }
-
-    [
-      'placeholder',
-      'title',
-      'aria-label'
-    ].forEach(attribute => {
-
-      const value =
-        element.getAttribute(attribute);
-
-      if (
-        !isMeaningfulTranslationText(value)
-      ) {
-        return;
-      }
-
-      if (
-        !ecommeOriginalAttributes.has(element)
-      ) {
-
-        ecommeOriginalAttributes.set(
-          element,
-          {}
-        );
-      }
-
-      const originals =
-        ecommeOriginalAttributes.get(element);
-
-      if (
-        originals[attribute] === undefined
-      ) {
-
-        originals[attribute] =
-          value;
-      }
-
-      items.push({
-        type: 'attribute',
-        element,
-        attribute,
-        source: value
-      });
-    });
-  });
-
-  return items;
-}
-
-
-function restoreOriginalPage() {
-
-  document
-    .querySelectorAll(
-      '[placeholder], [title], [aria-label]'
-    )
-    .forEach(element => {
-
-      const originals =
-        ecommeOriginalAttributes.get(
-          element
-        );
-
-      if (!originals) {
-        return;
-      }
-
-      Object.entries(originals)
-        .forEach(
-          ([attribute, value]) => {
-
-            element.setAttribute(
-              attribute,
-              value
-            );
-          }
-        );
-    });
-
-  const walker =
-    document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_TEXT
-    );
-
-  let node;
-
-  while (
-    node = walker.nextNode()
-  ) {
-
-    const original =
-      ecommeOriginalTextNodes.get(node);
-
-    if (original !== undefined) {
-      node.nodeValue = original;
-    }
-  }
-}
-
-
-async function requestTranslations(
-  language,
-  texts
-) {
-  if (!texts.length) {
-    return {};
-  }
-
-  let {
-    data: { session },
-    error: sessionError
-  } = await supabaseClient.auth.getSession();
-
-  if (sessionError) {
-    console.warn(
-      'Erro ao obter sessão:',
-      sessionError
-    );
-  }
-
-  if (!session?.access_token) {
-    console.warn(
-      'Sessão sem access_token. Tentando renovar...'
-    );
-
-    const {
-      data: refreshData,
-      error: refreshError
-    } = await supabaseClient.auth.refreshSession();
-
-    if (refreshError) {
-      console.error(
-        'Erro ao renovar sessão:',
-        refreshError
-      );
-
-      throw new Error(
-        'Não foi possível renovar a sessão da conta.'
-      );
-    }
-
-    session =
-      refreshData?.session || null;
-  }
-
-  if (!session?.access_token) {
-    throw new Error(
-      'A sessão da conta não possui um access token válido.'
-    );
-  }
-
-  const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/translate-texts`,
-    {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json',
-
-        'Authorization':
-          `Bearer ${session.access_token}`,
-
-        'apikey':
-          SUPABASE_ANON_KEY
-      },
-
-      body: JSON.stringify({
-        targetLanguage: language,
-        texts
-      })
-    }
-  );
-
-  const responseText =
-    await response.text();
-
-  let responseData = {};
-
-  try {
-    responseData =
-      responseText
-        ? JSON.parse(responseText)
-        : {};
-  } catch (error) {
-    console.error(
-      'Resposta inválida da Edge Function:',
-      responseText
-    );
-  }
-
-  if (!response.ok) {
-    console.error(
-      'Erro HTTP da Edge Function:',
-      response.status,
-      responseData
-    );
-
-    throw new Error(
-      responseData?.error ||
-      responseData?.message ||
-      `Erro HTTP ${response.status} ao traduzir.`
-    );
-  }
-
-  return responseData?.translations || {};
-}
-
-function translatePage(
-  language = window.ecommeLanguage || 'pt-BR'
-) {
-  if (!['pt-BR', 'en-US', 'es-ES'].includes(language)) {
-    language = 'pt-BR';
-  }
-
-  window.ecommeLanguage = language;
-
-  // Garante que uma troca rápida de idioma não seja descartada.
-  const task = ecommeTranslationQueue
-    .catch(() => false)
-    .then(() => performTranslatePage(language));
-
-  ecommeTranslationQueue = task;
-  return task;
-}
-
-async function performTranslatePage(language) {
-  if (language === 'pt-BR') {
-    if (ecommeTranslationObserver) {
-      ecommeTranslationObserver.disconnect();
-    }
-
-    try {
-      restoreOriginalPage();
-      return true;
-    } catch (error) {
-      console.error('Erro ao restaurar o idioma original:', error);
-      return false;
-    } finally {
-      if (ecommeTranslationObserver) {
-        ecommeTranslationObserver.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: true
-        });
-      }
-    }
-  }
-
-  ecommeTranslationRunning = true;
-
-  if (ecommeTranslationObserver) {
-    ecommeTranslationObserver.disconnect();
-  }
-
-  try {
-    restoreOriginalPage();
-
-    const items = collectTranslationNodes();
-    if (!items.length) {
-      return true;
-    }
-
-    const cache = getTranslationCache();
-    const languageCache = cache[language] || {};
-    const uniqueTexts = [...new Set(items.map(item => item.source))];
-    const missingTexts = uniqueTexts.filter(text => !languageCache[text]);
-
-    for (let i = 0; i < missingTexts.length; i += 40) {
-      const batch = missingTexts.slice(i, i + 40);
-      const translations = await requestTranslations(language, batch);
-      Object.assign(languageCache, translations);
-    }
-
-    cache[language] = languageCache;
-    saveTranslationCache(cache);
-
-    for (const item of items) {
-      const translated = languageCache[item.source];
-      if (!translated) continue;
-
-      if (item.type === 'text') {
-        const originalText =
-          ecommeOriginalTextNodes.get(item.node) ?? item.node.nodeValue;
-        const leadingWhitespace = originalText.match(/^\s*/)?.[0] || '';
-        const trailingWhitespace = originalText.match(/\s*$/)?.[0] || '';
-
-        item.node.nodeValue =
-          `${leadingWhitespace}${translated}${trailingWhitespace}`;
-      }
-
-      if (item.type === 'attribute') {
-        item.element.setAttribute(item.attribute, translated);
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Erro ao traduzir página:', error);
-    return false;
-  } finally {
-    ecommeTranslationRunning = false;
-
-    if (ecommeTranslationObserver) {
-      ecommeTranslationObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-      });
-    }
-  }
-}
-
-function initEcommeTranslationObserver() {
-  if (!document.body) {
-    return;
-  }
-
-  ecommeTranslationObserver =
-    new MutationObserver(() => {
-
-      clearTimeout(
-        ecommeTranslationObserverTimer
-      );
-
-      ecommeTranslationObserverTimer =
-        setTimeout(() => {
-
-          translatePage(
-            window.ecommeLanguage
-          );
-
-        }, 250);
-    });
-
-  ecommeTranslationObserver.observe(
-    document.body,
-    {
-      childList: true,
-      subtree: true,
-      characterData: true
-    }
-  );
-}
-window.ecommeTranslatePage = translatePage;
-
-// ============================================================
-
 window.ecommeDisplaySettings = window.ecommeDisplaySettings || {currency: 'BRL'};
 window.ecommeCurrencyRates = window.ecommeCurrencyRates || {BRL: 1, USD: null, EUR: null};
 window.ecommeFormatPrice =
@@ -937,35 +409,18 @@ window.ecommeFormatPrice =
 
 // ------------------------------------------
 async function syncEcommeDisplaySettings() {
-  let localSettings = {};
-
-  try {
-    const localRaw = localStorage.getItem('ecomme_settings');
-    localSettings = localRaw ? JSON.parse(localRaw) : {};
-  } catch (error) {
-    console.warn('Não foi possível ler as configurações locais:', error);
-  }
-
   window.ecommeDisplaySettings = {
-    language: ['pt-BR', 'en-US', 'es-ES'].includes(localSettings?.language)
-      ? localSettings.language
-      : 'pt-BR',
-    currency: ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
-      ? localSettings.currency
-      : 'BRL'
+    //theme: 'auto',
+    currency: 'BRL'
   };
 
   try {
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
-    if (userError) {
-      console.warn('Não foi possível identificar a sessão da conta:', userError);
-    }
+    const {data: {user}} = await supabaseClient.auth.getUser();
 
     if (user) {
-      const { data, error } = await supabaseClient
+      const {data, error} = await supabaseClient
         .from('user_settings')
-        .select('language, currency')
+        .select('currency')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -973,35 +428,74 @@ async function syncEcommeDisplaySettings() {
         console.error('Erro ao carregar configurações da conta:', error);
       }
 
-      if (['pt-BR', 'en-US', 'es-ES'].includes(data?.language)) {
-        window.ecommeDisplaySettings.language = data.language;
+      if (data) {
+        /*if (
+          ['light', 'dark', 'auto'].includes(data.theme)
+        ) {
+          window.ecommeDisplaySettings.theme = data.theme;
+        }*/
+
+        if (
+          ['BRL', 'USD', 'EUR'].includes(data.currency)
+        ) {
+          window.ecommeDisplaySettings.currency = data.currency;
+        }
+
+        try {
+          const localRaw = localStorage.getItem('ecomme_settings');
+          const localSettings = localRaw
+            ? JSON.parse(localRaw)
+            : {};
+
+          // Limpa a preferência antiga de idioma da interface do cache local.
+          delete localSettings.language;
+          localStorage.setItem(
+            'ecomme_settings',
+            JSON.stringify({
+              ...localSettings,
+              /*theme: window.ecommeDisplaySettings.theme,*/
+              currency: window.ecommeDisplaySettings.currency
+            })
+          );
+        } catch (error) {
+          console.warn(
+            'Não foi possível atualizar o cache local:',
+            error
+          );
+        }
       }
+    }
 
-      if (['BRL', 'USD', 'EUR'].includes(data?.currency)) {
-        window.ecommeDisplaySettings.currency = data.currency;
+    else {
+      try {
+        const localRaw = localStorage.getItem('ecomme_settings');
+
+        if (localRaw) {
+          const localSettings = JSON.parse(localRaw);
+          delete localSettings.language;
+          localStorage.setItem('ecomme_settings', JSON.stringify(localSettings));
+
+          /*if (
+            ['light', 'dark', 'auto'].includes(localSettings?.theme)
+          ) {
+            window.ecommeDisplaySettings.theme = localSettings.theme;
+          }*/
+
+          if (
+            ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
+          ) {
+            window.ecommeDisplaySettings.currency = localSettings.currency;
+          }
+        }
+      } catch (error) {
+        console.warn(
+          'Não foi possível ler as configurações locais:',
+          error
+        );
       }
     }
 
-    // Mantém o cache local alinhado tanto para contas quanto para visitantes.
-    try {
-      localStorage.setItem(
-        'ecomme_settings',
-        JSON.stringify({
-          ...localSettings,
-          language: window.ecommeDisplaySettings.language,
-          currency: window.ecommeDisplaySettings.currency
-        })
-      );
-    } catch (error) {
-      console.warn('Não foi possível atualizar o cache local:', error);
-    }
-
-    window.ecommeLanguage = window.ecommeDisplaySettings.language;
-    const translationOk = await translatePage(window.ecommeLanguage);
-
-    if (!translationOk && window.ecommeLanguage !== 'pt-BR') {
-      console.warn('A preferência de idioma foi carregada, mas a tradução desta página não foi concluída.');
-    }
+    /*applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});*/
 
     const currency = window.ecommeDisplaySettings.currency || 'BRL';
     if (currency === 'BRL') {
@@ -1012,7 +506,8 @@ async function syncEcommeDisplaySettings() {
     const cachedRaw = localStorage.getItem('ecomme_currency_rates');
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
-      const age = Date.now() - Number(cached.savedAt || 0);
+      const age =
+        Date.now() - Number(cached.savedAt || 0);
 
       if (
         age < 6 * 60 * 60 * 1000 &&
@@ -1033,10 +528,15 @@ async function syncEcommeDisplaySettings() {
     }
 
     const rows = await response.json();
+
     const rates = {
       BRL: 1,
-      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
-      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
+      USD: Number(
+        rows.find(row => row.quote === 'USD')?.rate || 0
+      ),
+      EUR: Number(
+        rows.find(row => row.quote === 'EUR')?.rate || 0
+      )
     };
 
     if (!rates.USD || !rates.EUR) {
@@ -1044,15 +544,200 @@ async function syncEcommeDisplaySettings() {
     }
 
     window.ecommeCurrencyRates = rates;
-    localStorage.setItem(
-      'ecomme_currency_rates',
-      JSON.stringify({ savedAt: Date.now(), rates })
+    localStorage.setItem('ecomme_currency_rates',
+      JSON.stringify({
+        savedAt: Date.now(),
+        rates
+      })
     );
+
   } catch (error) {
-    console.error('Não foi possível sincronizar as configurações:', error);
+    console.error(
+      'Não foi possível sincronizar as configurações:',
+      error
+    );
+
+    /*window.ecommeDisplaySettings.theme = 'light';*/
     window.ecommeDisplaySettings.currency = 'BRL';
+    //applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});
   }
 }
+
+// ---------------------------------------------------------
+
+(() => {
+  const header = document.querySelector('header');
+  if (!header) return;
+
+  // Evita instalar o controlador mais de uma vez.
+  if (header.dataset.scrollHeaderController === 'active') return;
+  header.dataset.scrollHeaderController = 'active';
+
+  header.classList.add('header-gesture-enabled');
+  header.classList.remove('header-gesture-hidden');
+
+  let state = 'sticky';
+  let finishTimer = null;
+  let scrollFramePending = false;
+
+  let lastScrollY = Math.max(0, window.scrollY || 0);
+  let downDistance = 0;
+  let upDistance = 0;
+
+  // Distâncias de rolagem necessárias para alternar o header.
+  const HIDE_AFTER = 200;
+  const SHOW_AFTER = 200;
+  const SHOW_NEAR_TOP = 500;
+  const ANIMATION_FALLBACK_MS = 380;
+
+  function finishTransition() {
+    if (state !== 'hiding' && state !== 'showing') return;
+
+    clearTimeout(finishTimer);
+    finishTimer = null;
+
+    if (state === 'hiding') {
+      // A posição muda somente após a animação de saída.
+      header.style.position = 'relative';
+      header.style.top = 'auto';
+      state = 'relative';
+    } else {
+      // Restaura o sticky após a animação de entrada.
+      header.style.position = 'sticky';
+      header.style.top = '0';
+      state = 'sticky';
+    }
+  }
+
+  function hideHeader() {
+    if (state !== 'sticky') return;
+
+    clearTimeout(finishTimer);
+    state = 'hiding';
+
+    downDistance = 0;
+    upDistance = 0;
+
+    header.classList.add('header-gesture-hidden');
+
+    // Segurança caso transitionend não seja disparado.
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
+  }
+
+  function showHeader() {
+    if (state !== 'relative' && state !== 'hiding') return;
+
+    clearTimeout(finishTimer);
+
+    // Restaura o sticky antes da animação de entrada.
+    header.style.position = 'sticky';
+    header.style.top = '0';
+    state = 'showing';
+
+    downDistance = 0;
+    upDistance = 0;
+
+    // Garante que o navegador registre os dois estados visuais.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        header.classList.remove('header-gesture-hidden');
+      });
+    });
+
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
+  }
+
+  // Finaliza a transição quando a animação CSS termina.
+  header.addEventListener('transitionend', event => {
+    if (
+      event.target === header &&
+      event.propertyName === 'transform'
+    ) {
+      finishTransition();
+    }
+  });
+
+  function processScroll() {
+    scrollFramePending = false;
+
+    const currentScrollY = Math.max(0, window.scrollY || 0);
+    const delta = currentScrollY - lastScrollY;
+
+    lastScrollY = currentScrollY;
+
+    // Próximo do topo, o header deve estar visível.
+    if (currentScrollY <= SHOW_NEAR_TOP) {
+      downDistance = 0;
+      upDistance = 0;
+
+      if (state === 'relative' || state === 'hiding') {
+        showHeader();
+      }
+
+      return;
+    }
+
+    // Ignora oscilações mínimas da rolagem.
+    if (Math.abs(delta) < 2) return;
+
+    if (delta > 0) {
+      // Rolagem para baixo.
+      downDistance += delta;
+      upDistance = 0;
+
+      if (
+        state === 'sticky' &&
+        downDistance >= HIDE_AFTER
+      ) {
+        hideHeader();
+      }
+    } else {
+      // Rolagem para cima.
+      upDistance += Math.abs(delta);
+      downDistance = 0;
+
+      if (
+        (state === 'relative' || state === 'hiding') &&
+        upDistance >= SHOW_AFTER
+      ) {
+        showHeader();
+      }
+    }
+  }
+
+  window.addEventListener('scroll', () => {
+    if (scrollFramePending) return;
+
+    scrollFramePending = true;
+    requestAnimationFrame(processScroll);
+  }, { passive: true });
+})();
+
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let modalImages = [];
+let modalImageIndex = 0;
+
+let products = [];
+let shuffled = [];
+
+/* ─── PRODUTOS INDISPONÍVEIS ─────────────────────────────────────────────
+   badge "paused" (definido no Supabase pelo vendedor):
+   • não aparece na lista de produtos (filtro em getFilteredList → essentials.js)
+   • continua em `products`, então carrinho/favoritos ainda o encontram
+   • aparece em carrinho/favoritos como "Indisponível", sempre por último
+   • não pode ser comprado (addToCart / addAllFavToCart / total / checkout) */
+const UNAVAILABLE_BADGE = 'paused';
 
 function isProductUnavailable(product) {
   return !!product && product.badge === UNAVAILABLE_BADGE;
@@ -1134,7 +819,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     initThemeToggle();
     setupModalSwipe();
     setupModalAutoPlay();
-    initEcommeTranslationObserver();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
     const productsLoaded = await loadProductsFromSupabase();
@@ -1641,8 +1325,8 @@ function updateCart() {
           }
         </div>
         <div class="ci-info">
-          <div class="ci-name" data-no-translate>${item.name}</div>
-          <div class="ci-price" data-no-translate>
+          <div class="ci-name">${item.name}</div>
+          <div class="ci-price">
             ${window.ecommeFormatPrice(item.price)}
           </div>
           <div class="ci-qty">
@@ -1903,10 +1587,10 @@ function updateFav() {
           }
         </div>
         <div class="ci-info">
-          <div class="ci-name" data-no-translate>
+          <div class="ci-name">
             ${item.name}
           </div>
-          <div class="ci-price" data-no-translate>
+          <div class="ci-price">
             ${window.ecommeFormatPrice(item.price)}
           </div>
           ${isProductUnavailable(item) ? '' : `
