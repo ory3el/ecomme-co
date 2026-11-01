@@ -80,6 +80,17 @@ const EDGE_IMAGE_PRESETS = {
   modal: 'modal'
 };
 
+// Contrato da futura Edge Function `checkout-payments`:
+// create: recebe checkout + idempotencyKey; devolve { orderId, orderCode, redirectUrl }.
+// status: recebe orderId; devolve { status, orderCode }.
+// O servidor valida o JWT, recalcula preços/frete/cupons, valida endereço e cria o pedido.
+// A chave ASAAS_API_KEY fica exclusivamente nos Secrets da Edge Function; nunca no navegador.
+// O pedido só muda para pago após webhook CHECKOUT_PAID validado e processado com idempotência.
+const CHECKOUT_PAYMENT_FUNCTION = 'checkout-payments';
+let checkoutProfile = null;
+let checkoutOrder = null;
+let checkoutPaymentStatus = null;
+
 // ---------------------------------------------
 function checkoutNeedsDataModal(user, profile) {
   if (!user || !profile) {
@@ -181,93 +192,76 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileContainer = document.getElementById('headerProfileContainer');
   const headerImage = document.getElementById('headerAvatar');
 
-  await loadProductsFromSupabase();
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-  let shuffled = [...products];
-  //requestAnimationFrame(() => {setTimeout(() => { hideLoadingModal(); } ,180); });
-  
-  if (!user || userError) {
-    console.warn("User session not active.");
-    if (loginBtn) loginBtn.classList.remove('hidden');
-    if (profileContainer) profileContainer.classList.add('hidden');
-    injectPrefetch('/login');
-    renderCart();
-    renderSummary();
-    buildInstallOpts();
-    return;
-  }
-  userId = user.id; 
-  await loadFromSupabase();
-  
-  if (loginBtn) loginBtn.classList.add('hidden');
-  if (profileContainer) profileContainer.classList.remove('hidden');
+  try {
+    await loadProductsFromSupabase();
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (!profileError && profile) {
-    const fullName = profile.full_name || "Cliente";
-    const email = user.email || "";
-
-    //if ($('recipient')) $('recipient').textContent = fullName;
-    if ($('accSidebarEmail')) $('accSidebarEmail').textContent = email;
-    if (profile.avatar_url && $('accSidebarAvatar')) {
-      $('accSidebarAvatar').src = profile.avatar_url;
-    }
-    const recipient = document.getElementById('recipient');
-    if (recipient) recipient.value = fullName;
-    
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(' ') || "";
-
-    const inputFirstName = document.getElementById('profileFirstName');
-    const inputLastName = document.getElementById('profileLastName');
-    const inputEmail = document.getElementById('profileEmail');
-    const photoUrl = profile.avatar_url || "";
-
-    if (inputFirstName) inputFirstName.value = firstName;
-    if (inputLastName) inputLastName.value = lastName;
-    if (inputEmail) inputEmail.value = email;
-
-    if (photoUrl) {
-      const sidebarImage = document.getElementById('sidebarAvatar');
-      
-      if (sidebarImage) {
-        sidebarImage.src = photoUrl;
-        sidebarImage.style.filter = "none";
-        sidebarImage.style.width = "100%";
-        sidebarImage.style.height = "100%";
-        sidebarImage.style.borderRadius = "100%";
-        sidebarImage.style.objectFit = "cover";
-      }
-      if (headerImage) {
-        headerImage.src = photoUrl;
-        headerImage.style.filter = "none";
-        headerImage.style.width = "100%";
-        headerImage.style.height = "100%";
-        headerImage.style.borderRadius = "100%";
-        headerImage.style.objectFit = "cover";
-      }
-    }
-  }
-  // ── CHECKOUT DATA VERIFICATION ──────────
-  const needsDataModal = checkoutNeedsDataModal(user, profile);
-
-  // ── FINISHES LOADING ───────────────────────────
-  requestAnimationFrame(() => {
-    setTimeout(() => {
+    if (userError || !user) {
+      console.warn('User session not active.');
+      if (loginBtn) loginBtn.classList.remove('hidden');
+      if (profileContainer) profileContainer.classList.add('hidden');
+      if (typeof injectPrefetch === 'function') injectPrefetch('/login');
+      renderCart();
+      renderSummary();
+      buildInstallOpts();
       hideLoadingModal();
-      if (needsDataModal) {
-        setTimeout(() => {
-          showDataModal();
-        }, 400);
+      toast('Entre na sua conta para acessar o checkout.', 'info');
+      return;
+    }
+
+    userId = user.id;
+    await loadFromSupabase();
+    if (loginBtn) loginBtn.classList.add('hidden');
+    if (profileContainer) profileContainer.classList.remove('hidden');
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    checkoutProfile = !profileError && profile ? profile : null;
+    if (checkoutProfile) {
+      const fullName = checkoutProfile.full_name || 'Cliente';
+      if ($('accSidebarEmail')) $('accSidebarEmail').textContent = user.email || '';
+      if (checkoutProfile.avatar_url && $('accSidebarAvatar')) $('accSidebarAvatar').src = checkoutProfile.avatar_url;
+      const recipient = document.getElementById('recipient');
+      if (recipient) recipient.value = fullName;
+      const nameParts = fullName.trim().split(/\s+/);
+      const inputFirstName = document.getElementById('profileFirstName');
+      const inputLastName = document.getElementById('profileLastName');
+      const inputEmail = document.getElementById('profileEmail');
+      if (inputFirstName) inputFirstName.value = nameParts[0] || '';
+      if (inputLastName) inputLastName.value = nameParts.slice(1).join(' ');
+      if (inputEmail) inputEmail.value = user.email || '';
+
+      if (checkoutProfile.avatar_url) {
+        [document.getElementById('sidebarAvatar'), headerImage].forEach(image => {
+          if (!image) return;
+          image.src = checkoutProfile.avatar_url;
+          image.style.filter = 'none';
+          image.style.width = '100%';
+          image.style.height = '100%';
+          image.style.borderRadius = '100%';
+          image.style.objectFit = 'cover';
+        });
       }
-    }, 180);
-  });
+    }
+
+    const needsDataModal = checkoutNeedsDataModal(user, checkoutProfile);
+    hideLoadingModal();
+    if (needsDataModal) {
+      setTimeout(() => showDataModal(), 350);
+      return;
+    }
+
+    const handledReturn = await handleAsaasPaymentReturn();
+    if (!handledReturn) await restoreCheckoutOrder();
+  } catch (error) {
+    console.error('Erro ao inicializar o checkout:', error);
+    hideLoadingModal();
+    toast('Não foi possível carregar o checkout. Atualize a página.', 'err');
+  }
 });
 
 // HEADER
@@ -312,10 +306,13 @@ initHeaderAuthListener();
 
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let savedAddresses = [];
+let selectedAddressId = null;
+let selectedAddress = null;
+let addressMode = 'saved';
+let shippingMethod = 'free';
 let cart = [];
 let curId = null;
 let mQtyVal = 1;
-let pixSeconds = 1799;
 
 /* ─── MORE ───────────────────────────────────────────────────────── */
 function openMore() { 
@@ -426,26 +423,77 @@ async function syncToSupabase() {
 // ── LOAD DATA FROM SUPABASE AFTER PAGE LOAD ──
 async function loadFromSupabase() {
   if (!userId) return;
-
-  const {data, error} = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('profiles')
     .select('cart, fav, addresses')
     .eq('id', userId)
     .single();
 
   if (error) {
-    console.error(
-      'Erro ao carregar dados do checkout:',
-      error
-    );
+    console.error('Erro ao carregar dados do checkout:', error);
     return;
   }
+
   cartItems = hydrateCartItems(data?.cart);
   cart = cartItems;
-  savedAddresses = Array.isArray(data?.addresses) ? data.addresses : [];
+  await loadCheckoutAddresses(data?.addresses);
   renderCart();
   renderSummary();
   renderAddresses();
+  buildInstallOpts();
+}
+
+async function loadCheckoutAddresses(legacyAddresses = []) {
+  if (!userId) return;
+  const { data, error } = await supabaseClient
+    .from('addresses')
+    .select('id, type, recipient_name, street, number, complement, neighborhood, city, state, zip_code, is_default, created_at')
+    .eq('user_id', userId)
+    .order('is_default', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao carregar endereços da conta:', error);
+    toast('Não foi possível carregar seus endereços salvos.', 'err');
+    savedAddresses = [];
+  } else {
+    savedAddresses = (data || []).map(address => ({
+      id: address.id,
+      type: address.type || 'Casa',
+      recipient: address.recipient_name || '',
+      cep: address.zip_code || '',
+      street: address.street || '',
+      number: address.number || '',
+      complement: address.complement || '',
+      neighborhood: address.neighborhood || '',
+      city: address.city || '',
+      state: address.state || '',
+      is_default: Boolean(address.is_default),
+      _legacy: false
+    }));
+  }
+
+  // Compatibilidade temporária com endereços antigos em profiles.addresses.
+  if (!savedAddresses.length && Array.isArray(legacyAddresses)) {
+    savedAddresses = legacyAddresses.map((address, index) => ({
+      id: `legacy-${index}`,
+      type: address.type || 'Casa',
+      recipient: address.recipient || address.recipient_name || '',
+      cep: address.cep || address.zip_code || '',
+      street: address.street || '',
+      number: address.number || '',
+      complement: address.complement || '',
+      neighborhood: address.neighborhood || '',
+      city: address.city || '',
+      state: address.state || '',
+      is_default: Boolean(address.is_default),
+      _legacy: true
+    }));
+  }
+
+  selectedAddress = savedAddresses.find(address => address.is_default) || savedAddresses[0] || null;
+  selectedAddressId = selectedAddress ? String(selectedAddress.id) : null;
+  addressMode = selectedAddress ? 'saved' : 'new';
 }
 
 // -------------------------------------------------
@@ -538,7 +586,6 @@ let shipping = 0;
 let currentStep = 1;
 let furthestStep = 1;
 let installSel = 1;
-let pixInterval;
 
 // LOGOUT
 async function doLogout() { 
@@ -905,31 +952,55 @@ function applyCoupon(){
 }
 
 // ── SUMMARY ────────────────────────────────────────────
+function calculateCheckoutTotals() {
+  const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
+  const couponDiscount = subtotal * (Number(discount) || 0);
+  const pixDiscount = payMethod === 'pix' ? (subtotal - couponDiscount) * 0.05 : 0;
+  const shippingCost = Number(shipping) || 0;
+  return {
+    subtotal: Math.round(subtotal * 100) / 100,
+    couponDiscount: Math.round(couponDiscount * 100) / 100,
+    pixDiscount: Math.round(pixDiscount * 100) / 100,
+    shipping: Math.round(shippingCost * 100) / 100,
+    total: Math.max(0, Math.round((subtotal - couponDiscount - pixDiscount + shippingCost) * 100) / 100)
+  };
+}
+
 function renderSummary() {
-  const raw = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
-  const dis = raw * (Number(discount) || 0);
-  const pixDis = payMethod === 'pix' ? (raw - dis) * 0.05 : 0;
-  const total = raw - dis - pixDis + (Number(shipping) || 0);
+  const totals = calculateCheckoutTotals();
+  const { subtotal: raw, couponDiscount: dis, pixDiscount: pixDis, total } = totals;
+  const sumCount = document.getElementById('sumCount');
+  if (sumCount) sumCount.textContent = `(${cartItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)} itens)`;
+  const sumSub = document.getElementById('sumSub');
+  const sumShip = document.getElementById('sumShip');
+  const sumTotal = document.getElementById('sumTotal');
+  if (sumSub) sumSub.textContent = fp(raw);
+  if (sumShip) {
+    sumShip.textContent = shipping === 0 ? '🎉 Grátis' : fp(shipping);
+    sumShip.style.color = shipping === 0 ? 'var(--green)' : 'var(--text)';
+  }
+  if (sumTotal) sumTotal.textContent = fp(total);
 
-  document.getElementById('sumCount').textContent = `(${cartItems.reduce((s,i)=>s+i.qty,0)} itens)`;
-  document.getElementById('sumSub').textContent = fp(raw);
-  document.getElementById('sumShip').textContent = shipping===0 ? '🎉 Grátis' : fp(shipping);
-  document.getElementById('sumShip').style.color = shipping===0 ? 'var(--green)' : 'var(--text)';
-  document.getElementById('sumTotal').textContent = fp(total);
-  document.getElementById('boletoVal').textContent = fp(total);
+  const discRow = document.getElementById('discRow');
+  if (discRow) {
+    if (dis > 0) {
+      discRow.style.display = 'flex';
+      document.getElementById('discTag').textContent = couponCode;
+      document.getElementById('sumDisc').textContent = '-' + fp(dis);
+    } else discRow.style.display = 'none';
+  }
 
-  const dr = document.getElementById('discRow');
-  if(dis>0){ dr.style.display='flex'; document.getElementById('discTag').textContent=couponCode; document.getElementById('sumDisc').textContent='-'+fp(dis); }
-  else dr.style.display='none';
-
-  const pr = document.getElementById('pixDiscRow');
-  if(pixDis>0){ pr.style.display='flex'; document.getElementById('sumPixDisc').textContent='-'+fp(pixDis); }
-  else pr.style.display='none';
+  const pixDiscRow = document.getElementById('pixDiscRow');
+  if (pixDiscRow) {
+    if (pixDis > 0) {
+      pixDiscRow.style.display = 'flex';
+      document.getElementById('sumPixDisc').textContent = '-' + fp(pixDis);
+    } else pixDiscRow.style.display = 'none';
+  }
 
   const note = document.getElementById('installNote');
-  if(payMethod==='card' && installSel>1) note.textContent=`${installSel}× de ${fp(total/installSel)} sem juros`;
-  else note.textContent='';
-  
+  if (note) note.textContent = payMethod === 'card' && installSel > 1 ? `${installSel}× de ${fp(total / installSel)} (estimativa)` : '';
+
   const sumItems = document.getElementById('sumItems');
   if (sumItems) {sumItems.innerHTML = cartItems .map(item => {
         const images = getProductImages(item);
@@ -972,35 +1043,28 @@ function renderSummary() {
 }
 
 // ── STEP NAV ───────────────────────────────────────────
-function goStep(n) {
+function goStep(n, force = false) {
   if (n < 1 || n > 4) return;
-  if (currentStep === 4 && n !== 4) return;
+  if (!force && currentStep === 4 && n !== 4) return;
 
-  if (n > currentStep && cartItems.length === 0) {
+  if (!force && n > currentStep && cartItems.length === 0) {
     toast('Não há produtos disponíveis para finalizar a compra.', 'err');
     return;
   }
-  
+  if (!force && n === 3 && !validateDeliveryStep()) return;
+  if (n === 3 && !payMethod) payMethod = 'pix';
+
   const isGoingBack = n <= furthestStep;
   const isGoingForward = n === currentStep + 1;
-  if (!isGoingBack && !isGoingForward) return;
+  if (!force && !isGoingBack && !isGoingForward) return;
   if (n > furthestStep) furthestStep = n;
 
   currentStep = n;
   if (n === 3) {
-    let payMethod = 'pix';
-
-    buildQR();
+    const selectedTab = document.querySelector(`.pay-tab[onclick*="'${payMethod}'"]`) || document.querySelector('.pay-tab');
+    if (selectedTab) selPayTab(selectedTab, payMethod || 'pix');
     updatePaymentButton();
-    buildBarcode();
-    startPixTimer();
-    
-    const pixTab = document.querySelector(
-      '.pay-tab[onclick*="\'pix\'"]'
-    );
-    if (pixTab) {
-      selPayTab(pixTab, 'pix');
-    }
+    buildInstallOpts();
   }
   
   const ids = ['step1', 'step2', 'step3', 'step4'];
@@ -1054,11 +1118,89 @@ function goToHeaderStep(n) {
   goStep(n);
 }
   
-// ── ADDRESS ────────────────────────────────────────────
-function selAddr(el){ document.querySelectorAll('.addr-opt').forEach(a=>a.classList.remove('on')); el.classList.add('on'); }
-function toggleNewAddr(){ const f=document.getElementById('newAddrForm'); f.classList.toggle('on'); }
-function selShip(el,price){ document.querySelectorAll('.ship-opt').forEach(s=>s.classList.remove('on')); el.classList.add('on'); shipping=price; renderSummary(); }
-function maskCEP(inp){ let v=inp.value.replace(/\D/g,'').slice(0,8); if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5); inp.value=v; }
+// ── ADDRESS & DELIVERY ─────────────────────────────────
+function selAddr(element, addressId) {
+  selectedAddress = savedAddresses.find(address => String(address.id) === String(addressId)) || null;
+  selectedAddressId = selectedAddress ? String(selectedAddress.id) : null;
+  addressMode = 'saved';
+  document.querySelectorAll('.addr-opt').forEach(card => card.classList.remove('on'));
+  if (element) element.classList.add('on');
+  document.getElementById('newAddrForm')?.classList.remove('on');
+}
+
+function toggleNewAddr() {
+  const form = document.getElementById('newAddrForm');
+  if (!form) return;
+  const opening = !form.classList.contains('on');
+  form.classList.toggle('on', opening);
+  if (opening) {
+    addressMode = 'new';
+    document.querySelectorAll('.addr-opt').forEach(card => card.classList.remove('on'));
+  } else {
+    addressMode = 'saved';
+    const fallback = savedAddresses.find(address => address.is_default) || savedAddresses[0] || null;
+    selectedAddress = fallback;
+    selectedAddressId = fallback ? String(fallback.id) : null;
+    renderAddresses();
+  }
+}
+
+function selShip(element, price, method = 'free') {
+  document.querySelectorAll('.ship-opt').forEach(option => option.classList.remove('on'));
+  if (element) element.classList.add('on');
+  shipping = Number(price) || 0;
+  shippingMethod = method;
+  renderSummary();
+  buildInstallOpts();
+}
+
+function collectAddressFromForm() {
+  const get = id => String(document.getElementById(id)?.value || '').trim();
+  const address = {
+    recipient: get('recipient'),
+    cep: get('cepInp').replace(/\D/g, ''),
+    street: get('streetInp'),
+    number: get('numInp'),
+    complement: get('complementInp'),
+    neighborhood: get('neighInp'),
+    city: get('cityInp'),
+    state: get('stateInp').toUpperCase(),
+    type: 'Outro',
+    _legacy: false,
+    _unsaved: true
+  };
+  if (!address.recipient || address.recipient.length < 3) throw new Error('Informe o nome do destinatário.');
+  if (address.cep.length !== 8) throw new Error('Informe um CEP válido com 8 dígitos.');
+  if (!address.street || !address.number || !address.city || !/^[A-Z]{2}$/.test(address.state)) {
+    throw new Error('Preencha rua, número, cidade e estado do endereço.');
+  }
+  return address;
+}
+
+function validateDeliveryStep() {
+  if (addressMode === 'new') {
+    try {
+      selectedAddress = collectAddressFromForm();
+      selectedAddressId = null;
+      return true;
+    } catch (error) {
+      toast(error.message, 'err');
+      document.getElementById('newAddrForm')?.classList.add('on');
+      return false;
+    }
+  }
+  if (!selectedAddress) {
+    toast('Selecione um endereço salvo ou informe um novo endereço.', 'err');
+    return false;
+  }
+  return true;
+}
+
+function maskCEP(input) {
+  let value = input.value.replace(/\D/g, '').slice(0, 8);
+  if (value.length > 5) value = value.slice(0, 5) + '-' + value.slice(5);
+  input.value = value;
+}
 
 //-------------------------------------------------------------
 async function searchCEP() {
@@ -1071,6 +1213,7 @@ async function searchCEP() {
   try {
     document.getElementById('streetInp').value = 'Buscando...';
     const response = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+    if (!response.ok) throw new Error('Falha ao consultar o CEP.');
     const data = await response.json();
 
     if (data.erro) {
@@ -1123,334 +1266,486 @@ function unlockAddressFields() {
 //-------------------------------------------------------------
 async function saveAddressToSupabase() {
   if (!userId) {
-    toast('Faça login para salvar endereços', 'err');
+    toast('Faça login para salvar endereços.', 'err');
     return;
   }
 
-  const cep = document.getElementById('cepInp').value;
-  const street = document.getElementById('streetInp').value;
-  const num = document.getElementById('numInp').value;
-  const neigh = document.getElementById('neighInp').value;
-  const city = document.getElementById('cityInp').value;
-  const state = document.getElementById('stateInp').value;
-  const recipientInputs = document.querySelectorAll('#newAddrForm .finput');
-  const recipient = recipientInputs[recipientInputs.length - 1].value || 'Destinatário Padrão';
-
-  if (!cep || !street || !num || !city) {
-    toast('Preencha os campos obrigatórios (Número do local)', 'err');
+  if (savedAddresses.filter(item => !item._legacy).length >= 5) {
+    toast('Você já possui 5 endereços cadastrados.', 'err');
     return;
   }
-  
-  const newAddress = {
-    id: Date.now(),
-    recipient: recipient,
-    cep: cep,
-    street: street,
-    number: num,
-    neighborhood: neigh,
-    city: city,
-    state: state
-  };
-  savedAddresses.push(newAddress);
 
-  const btn = document.getElementById('saveAddrBtn');
-  btn.textContent = '⏳ Salvando...';
-  btn.style.opacity = '0.7';
-
-  const { error } = await supabaseClient
-    .from('profiles')
-    .update({ addresses: savedAddresses })
-    .eq('id', userId);
-
-  if (error) {
-    console.error("Erro ao salvar endereço:", error);
-    toast('Erro ao salvar endereço', 'err');
-    savedAddresses.pop();
-    btn.textContent = '💾 Salvar na minha conta';
-    btn.style.opacity = '1';
+  let address;
+  try {
+    address = collectAddressFromForm();
+  } catch (error) {
+    toast(error.message, 'err');
     return;
   }
-  toast('Endereço salvo com sucesso!', 'ok');
-  
-  document.getElementById('numInp').value = '';
-  document.getElementById('cepInp').value = '';
-  document.getElementById('streetInp').value = '';
-  document.getElementById('neighInp').value = '';
-  document.getElementById('cityInp').value = '';
-  document.getElementById('stateInp').value = '';
-  document.getElementById('saveAddrBtn').style.display = 'none';
-  document.getElementById('unlockAddrBtn').style.display = 'none';
 
-  toggleNewAddr();
-  renderAddresses();
+  const button = document.getElementById('saveAddrBtn');
+  if (button) {
+    button.disabled = true;
+    button.textContent = '⏳ Salvando...';
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('addresses')
+      .insert({
+        user_id: userId,
+        type: address.type,
+        recipient_name: address.recipient,
+        street: address.street,
+        number: address.number,
+        complement: address.complement || null,
+        neighborhood: address.neighborhood || null,
+        city: address.city,
+        state: address.state,
+        zip_code: address.cep,
+        is_default: savedAddresses.filter(item => !item._legacy).length === 0
+      })
+      .select('id, type, recipient_name, street, number, complement, neighborhood, city, state, zip_code, is_default, created_at')
+      .single();
+
+    if (error) throw error;
+    const saved = {
+      id: data.id,
+      type: data.type || 'Casa',
+      recipient: data.recipient_name || '',
+      cep: data.zip_code || '',
+      street: data.street || '',
+      number: data.number || '',
+      complement: data.complement || '',
+      neighborhood: data.neighborhood || '',
+      city: data.city || '',
+      state: data.state || '',
+      is_default: Boolean(data.is_default),
+      _legacy: false
+    };
+    savedAddresses = savedAddresses.filter(item => !item._legacy);
+    savedAddresses.push(saved);
+    selectedAddress = saved;
+    selectedAddressId = String(saved.id);
+    addressMode = 'saved';
+    clearNewAddressForm();
+    document.getElementById('newAddrForm')?.classList.remove('on');
+    renderAddresses();
+    toast('Endereço salvo e selecionado para esta compra!', 'ok');
+  } catch (error) {
+    console.error('Erro ao salvar endereço:', error);
+    toast('Não foi possível salvar o endereço. Verifique a tabela addresses.', 'err');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = '💾 Salvar na minha conta';
+    }
+  }
+}
+
+function clearNewAddressForm() {
+  ['cepInp', 'streetInp', 'numInp', 'complementInp', 'neighInp', 'cityInp', 'stateInp'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  const recipient = document.getElementById('recipient');
+  if (recipient && checkoutProfile?.full_name) recipient.value = checkoutProfile.full_name;
+  ['streetInp', 'neighInp', 'cityInp', 'stateInp'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.readOnly = true;
+  });
+  const saveButton = document.getElementById('saveAddrBtn');
+  const unlockButton = document.getElementById('unlockAddrBtn');
+  if (saveButton) saveButton.style.display = 'none';
+  if (unlockButton) unlockButton.style.display = 'none';
 }
 
 function renderAddresses() {
   const container = document.getElementById('savedAddressesList');
-  
-  if (!savedAddresses || savedAddresses.length === 0) {
-    container.innerHTML = '<div style="font-size:13px; color:var(--muted); text-align:center; padding: 20px;">Nenhum endereço salvo.</div>';
+  if (!container) return;
+  if (!savedAddresses.length) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Nenhum endereço salvo. Você pode informar um novo endereço abaixo.</div>';
     return;
   }
 
-  container.innerHTML = savedAddresses.map((addr, index) => `
-    <div class="addr-opt ${index === savedAddresses.length - 1 ? 'on' : ''}" onclick="selAddr(this)">
-      <div class="addr-label">
-        ${index === 0 ? '🏠 Casa' : '📍 Endereço Salvo'} 
-        ${index === savedAddresses.length - 1 ? '— Selecionado' : ''}
-      </div>
-      <div class="addr-name">${addr.recipient}</div>
-      <div class="addr-street">${addr.street}, ${addr.number}<br>${addr.neighborhood} · ${addr.state} · CEP ${addr.cep}</div>
-    </div>
-  `).join('');
+  container.innerHTML = savedAddresses.map(address => {
+    const isSelected = addressMode === 'saved' && selectedAddress && String(address.id) === String(selectedAddress.id);
+    const label = address.is_default ? '🏠 Endereço principal' : '📍 Endereço salvo';
+    const sourceNote = address._legacy ? '<div style="font-size:10px;color:var(--muted);margin-top:4px">Endereço antigo do checkout</div>' : '';
+    return `
+      <div class="addr-opt ${isSelected ? 'on' : ''}" onclick="selAddr(this,'${escapeJs(address.id)}')">
+        <div class="addr-label">${label}${isSelected ? ' — Selecionado' : ''}</div>
+        <div class="addr-name">${escapeHtml(address.recipient || 'Destinatário')}</div>
+        <div class="addr-street">${escapeHtml(address.street)}, ${escapeHtml(address.number)}${address.complement ? ' · ' + escapeHtml(address.complement) : ''}<br>${escapeHtml(address.neighborhood)} · ${escapeHtml(address.city)} / ${escapeHtml(address.state)} · CEP ${escapeHtml(address.cep)}</div>
+        ${sourceNote}
+      </div>`;
+  }).join('');
 }
 
-// ── PAYMENT TABS ───────────────────────────────────────
+// ── PAYMENT METHOD SELECTION ───────────────────────────
 function selPayTab(tab, method) {
-  document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('on'));
-  tab.classList.add('on');
-  const panel = document.getElementById('pp-' + method);
-  if (panel) {
-    panel.classList.add('on');
-  }
+  if (!['pix', 'card'].includes(method)) return;
+  document.querySelectorAll('.pay-tab').forEach(item => item.classList.remove('on'));
+  document.querySelectorAll('.pay-panel').forEach(panel => panel.classList.remove('on'));
+  if (tab) tab.classList.add('on');
+  document.getElementById('pp-' + method)?.classList.add('on');
   payMethod = method;
   renderSummary();
+  buildInstallOpts();
   updatePaymentButton();
 }
 
-// ── PIX ────────────────────────────────────────────────
-function buildQR(){
-  const p=[1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1,1,0,1,0,1,0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,1,0,0,1,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,1,0,0,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1];
-  document.getElementById('qrGrid').innerHTML=p.map(b=>`<div class="qr-c ${b?'b':'w'}"></div>`).join('');
+function buildInstallOpts() {
+  const container = document.getElementById('installOpts');
+  if (!container) return;
+  const total = calculateCheckoutTotals().total;
+  const options = [1, 2, 3, 4, 5, 6];
+  container.innerHTML = options.map(number => `
+    <button type="button" class="inst-btn ${number === installSel ? 'on' : ''}" onclick="selInstall(this,${number})">
+      <span class="inst-n">${number}×</span>
+      <div class="inst-val">${fp(total / number)}</div>
+      ${number === 1 ? '<span class="inst-badge">À vista</span>' : number <= 3 ? '<span class="inst-badge">Estimativa</span>' : ''}
+    </button>`).join('');
 }
 
-let pixTimerDB = false;
-function startPixTimer(){
-  if (pixTimerDB) return;
-  pixTimerDB = true;
-  
-  pixInterval=setInterval(()=>{ 
-    if(pixSeconds<=0){
-      clearInterval(pixInterval);
-      document.getElementById('pixTimer').textContent='EXPIRADO';
-      return;
-    } 
-    pixSeconds--; 
-    const m=Math.floor(pixSeconds/60),s=pixSeconds%60; 
-    document.getElementById('pixTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); 
-  },1000);
+function selInstall(button, number) {
+  const value = Number(number);
+  if (!Number.isInteger(value) || value < 1 || value > 6) return;
+  installSel = value;
+  document.querySelectorAll('.inst-btn').forEach(item => item.classList.remove('on'));
+  if (button) button.classList.add('on');
+  renderSummary();
 }
 
-function copyPIX(){
-  navigator.clipboard?.writeText('00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-426614174000');
-  const b=document.getElementById('copyPixBtn'); b.textContent='✓ Copiado!'; b.className='btn-copy copied';
-  setTimeout(()=>{ b.textContent='📋 Copiar'; b.className='btn-copy'; },3000);
-  toast('Chave PIX copiada! 📋', 'ok');
-}
-
-// ── CARD ───────────────────────────────────────────────
-let cardFlipped=false;
-function flipCard(f){ cardFlipped=f; document.getElementById('card3d').classList.toggle('flipped',f); }
-function toggleCardFlip(){ cardFlipped=!cardFlipped; document.getElementById('card3d').classList.toggle('flipped',cardFlipped); }
-
-function onCardNum(inp){
-  let v=inp.value.replace(/\D/g,'').slice(0,16);
-  inp.value=v.replace(/(.{4})/g,'$1 ').trim();
-  const disp=v.padEnd(16,'•').replace(/(.{4})/g,'$1 ').trim();
-  document.getElementById('cardNumDisp').textContent=disp;
-  document.getElementById('cardNumBack').textContent=disp;
-  // brand detection
-  const brands={visa:/(4)/,master:/^5[1-5]/,amex:/^3[47]/,elo:/^(65|63|50|40|43)/};
-  let brand='VISA';
-  for(const [name,re] of Object.entries(brands)) if(re.test(v)){brand=name.toUpperCase();break;}
-  document.getElementById('cardBrandDisp').textContent=brand;
-  document.querySelectorAll('.brand-ico').forEach(b=>b.classList.remove('on'));
-  const bi=document.getElementById('bi-'+brand.toLowerCase());
-  if(bi) bi.classList.add('on');
-}
-function onCardName(inp){ document.getElementById('cardNameDisp').textContent=inp.value.toUpperCase()||'SEU NOME'; }
-function onCardExp(inp){ let v=inp.value.replace(/\D/g,'').slice(0,4); if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2); inp.value=v; document.getElementById('cardExpDisp').textContent=v||'MM/AA'; }
-function onCvv(inp){ document.getElementById('cvvDisp').textContent=inp.value||'•••'; }
-
-function validateCardPayment() {
-  const cardNum = document.getElementById('cardNum');
-  const cardName = document.getElementById('cardName');
-  const cardExp = document.getElementById('cardExp');
-  const cardCvv = document.getElementById('cardCvv');
-  if (!cardNum || !cardName || !cardExp || !cardCvv) {
+function validatePayment() {
+  if (!['pix', 'card'].includes(payMethod)) {
+    toast('Escolha uma forma de pagamento.', 'err');
     return false;
   }
-  
-  const number = cardNum.value.replace(/\D/g, '');
-  const name = cardName.value.trim();
-  const exp = cardExp.value.trim();
-  const cvv = cardCvv.value.replace(/\D/g, '');
-  if (number.length < 13) {
-    toast('Digite um número de cartão válido.', 'err');
-    cardNum.focus();
-    return false;
-  }
-  if (name.length < 3) {
-    toast('Digite o nome do titular.', 'err');
-    cardName.focus();
-    return false;
-  }
-  if (!/^\d{2}\/\d{2}$/.test(exp)) {
-    toast('Digite uma validade válida no formato MM/AA.', 'err');
-    cardExp.focus();
-    return false;
-  }
-  const [month, year] = exp.split('/').map(Number);
-  if (month < 1 || month > 12) {
-    toast('A validade do cartão é inválida.', 'err');
-    cardExp.focus();
-    return false;
-  }
-  const now = new Date();
-  const currentYear = now.getFullYear() % 100;
-  const currentMonth = now.getMonth() + 1;
-  if (
-    year < currentYear ||
-    (year === currentYear && month < currentMonth)
-  ) {
-    toast('Esse cartão está vencido.', 'err');
-    cardExp.focus();
-    return false;
-  }
-  if (cvv.length < 3) {
-    toast('Digite o CVV do cartão.', 'err');
-    cardCvv.focus();
+  if (payMethod === 'card' && (!Number.isInteger(installSel) || installSel < 1 || installSel > 6)) {
+    toast('Selecione uma opção de parcelamento.', 'err');
     return false;
   }
   return true;
 }
 
-// -------------------------------------------
-const sumTotal = document.getElementById('sumTotal').textContent;
-function buildInstallOpts() {
-  const total = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
-  const opts = [1, 2, 3, 4, 5, 6];
-  const container = document.getElementById('installOpts');
-  if (!container) {return;}
-
-  container.innerHTML = opts.map(n => {
-    const installment = total / n;
-          return 
-            `<div class="inst-btn ${n === 1 ? 'on' : ''}" onclick="selInstall(this,${n})">
-              <span class="inst-n">${n}×</span>
-              <div class="inst-val">${fp(installment)}</div>
-              ${n === 1 ? `<span class="inst-badge">À vista</span>`: n <= 3 ? `<span class="inst-badge">Sem juros</span>` : ''}
-            </div>`; }
-    ) .join('');
+function updatePaymentButton() {
+  const button = document.getElementById('payBtn');
+  if (!button) return;
+  const labels = {
+    pix: 'Continuar para pagamento PIX',
+    card: 'Continuar para pagamento com cartão',
+  };
+  button.innerHTML = `${labels[payMethod] || 'Continuar para pagamento'} <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>`;
 }
 
-function selInstall(btn,n){ document.querySelectorAll('.inst-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); installSel=n; renderSummary(); }
+function setCheckoutSessionValue(key, value) {
+  try { sessionStorage.setItem(key, value); } catch (_) {}
+}
 
-// -------------------------------------------
-function validatePayment() {
-  if (!payMethod) {
-    toast('Escolha uma forma de pagamento.', 'err');
+function removeCheckoutSessionValue(key) {
+  try { sessionStorage.removeItem(key); } catch (_) {}
+}
+
+function getCheckoutIdempotencyKey(payload) {
+  const storageKey = 'ecomme_checkout_attempt';
+  const fingerprint = JSON.stringify(payload);
+  try {
+    const previous = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+    if (previous?.fingerprint === fingerprint && previous?.key) return previous.key;
+  } catch (_) {}
+  const key = window.crypto?.randomUUID?.() || `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  try { sessionStorage.setItem(storageKey, JSON.stringify({ fingerprint, key })); } catch (_) {}
+  return key;
+}
+
+function validateAsaasCheckoutUrl(rawUrl) {
+  let url;
+  try { url = new URL(rawUrl); } catch (_) { throw new Error('O serviço retornou um link de pagamento inválido.'); }
+  const allowedHosts = new Set(['asaas.com', 'www.asaas.com', 'sandbox.asaas.com']);
+  if (url.protocol !== 'https:' || !allowedHosts.has(url.hostname.toLowerCase()) || url.pathname.replace(/\/$/, '') !== '/checkoutSession/show') {
+    throw new Error('O serviço retornou um endereço de pagamento não autorizado.');
+  }
+  return url.toString();
+}
+
+function buildCheckoutRequest() {
+  if (!cartItems.length) throw new Error('Seu carrinho está vazio.');
+  if (!validateDeliveryStep()) throw new Error('Confira o endereço de entrega.');
+  if (!validatePayment()) throw new Error('Confira a forma de pagamento.');
+  const address = selectedAddress;
+  const isDatabaseAddress = address && !address._legacy && !address._unsaved;
+  return {
+    version: 1,
+    cart: cartItems.map(item => ({
+      product_id: String(item.id),
+      quantity: Math.max(1, Math.floor(Number(item.qty) || 1))
+    })),
+    address_id: isDatabaseAddress ? address.id : null,
+    shipping_address: isDatabaseAddress ? null : {
+      recipient_name: address.recipient,
+      zip_code: address.cep,
+      street: address.street,
+      number: address.number,
+      complement: address.complement || null,
+      neighborhood: address.neighborhood || null,
+      city: address.city,
+      state: address.state
+    },
+    shipping_method: shippingMethod,
+    coupon_code: couponCode || null,
+    payment_method: payMethod,
+    installments: payMethod === 'card' ? installSel : 1
+  };
+}
+
+async function refreshCheckoutCartPrices() {
+  if (!cartItems.length) throw new Error('Seu carrinho está vazio.');
+  const productIds = cartItems.map(item => item.id);
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .in('id', productIds);
+  if (error) throw new Error('Não foi possível atualizar os produtos. Tente novamente.');
+
+  const latestProducts = new Map((data || []).map(product => [String(product.id), product]));
+  const updatedItems = [];
+  for (const oldItem of cartItems) {
+    const fresh = latestProducts.get(String(oldItem.id));
+    if (!fresh || isCheckoutProductUnavailable(fresh)) {
+      throw new Error(`O produto “${oldItem.name || 'selecionado'}” não está mais disponível.`);
+    }
+    const currentPrice = Number(fresh.price);
+    if (!Number.isFinite(currentPrice) || currentPrice < 0) {
+      throw new Error(`O preço do produto “${fresh.name || oldItem.name}” está inválido.`);
+    }
+    updatedItems.push({ ...fresh, id: String(fresh.id), qty: oldItem.qty });
+  }
+  cartItems = updatedItems;
+  cart = cartItems;
+  renderCart();
+  renderSummary();
+  buildInstallOpts();
+}
+
+// ── CREATE PAYMENT SESSION (FUTURE ASAAS EDGE FUNCTION) ──
+async function placeOrder() {
+  if (currentStep !== 3) return;
+  const button = document.getElementById('payBtn');
+  if (!button || button.disabled) return;
+
+  let requestBody;
+  try {
+    requestBody = buildCheckoutRequest();
+  } catch (error) {
+    toast(error.message || 'Confira os dados do checkout.', 'err');
+    return;
+  }
+
+  const originalHtml = button.innerHTML;
+  button.disabled = true;
+  button.classList.add('loading');
+  button.textContent = 'Preparando pagamento...';
+
+  try {
+    await refreshCheckoutCartPrices();
+    requestBody = buildCheckoutRequest();
+    const idempotencyKey = getCheckoutIdempotencyKey(requestBody);
+
+    const { data, error } = await supabaseClient.functions.invoke(CHECKOUT_PAYMENT_FUNCTION, {
+      body: { action: 'create', idempotencyKey, checkout: requestBody }
+    });
+    if (error) throw error;
+    if (!data || !data.orderId || !data.redirectUrl) {
+      throw new Error('A resposta do serviço de pagamento está incompleta.');
+    }
+
+    const redirectUrl = validateAsaasCheckoutUrl(data.redirectUrl);
+    checkoutOrder = {
+      id: String(data.orderId),
+      code: data.orderCode || String(data.orderId),
+      status: String(data.status || 'pending').toLowerCase()
+    };
+    setCheckoutSessionValue('ecomme_checkout_order', JSON.stringify(checkoutOrder));
+    window.location.assign(redirectUrl);
+  } catch (error) {
+    console.error('Erro ao preparar o pagamento:', error);
+    const message = String(error?.message || '').toLowerCase();
+    const statusCode = Number(error?.context?.status || error?.status || 0);
+    if (statusCode === 404 || message.includes('not found') || message.includes('404') || message.includes('failed to send a request')) {
+      toast('A integração de pagamento ainda não está configurada. Nenhum pedido foi confirmado.', 'err');
+    } else {
+      toast(error?.message || 'Não foi possível iniciar o pagamento. Tente novamente.', 'err');
+    }
+  } finally {
+    button.disabled = false;
+    button.classList.remove('loading');
+    button.innerHTML = originalHtml;
+    updatePaymentButton();
+  }
+}
+
+async function fetchCheckoutOrderStatus(orderId) {
+  const { data, error } = await supabaseClient.functions.invoke(CHECKOUT_PAYMENT_FUNCTION, {
+    body: { action: 'status', orderId: String(orderId) }
+  });
+  if (error) throw error;
+  if (!data || !data.status) throw new Error('O servidor não retornou o status do pedido.');
+
+  checkoutOrder = {
+    id: String(orderId),
+    code: data.orderCode || String(orderId),
+    status: String(data.status).toLowerCase()
+  };
+  checkoutPaymentStatus = checkoutOrder.status;
+
+  if (checkoutPaymentStatus === 'paid' || checkoutPaymentStatus === 'confirmed') {
+    cartItems = [];
+    cart = [];
+    renderCart();
+    renderSummary();
+    await syncToSupabase();
+    removeCheckoutSessionValue('ecomme_checkout_attempt');
+    removeCheckoutSessionValue('ecomme_checkout_order');
+  } else {
+    setCheckoutSessionValue('ecomme_checkout_order', JSON.stringify(checkoutOrder));
+  }
+
+  currentStep = 1;
+  furthestStep = 3;
+  goStep(4, true);
+  return checkoutOrder;
+}
+
+// O retorno do navegador nunca confirma um pagamento; o status vem do backend/webhook.
+async function restoreCheckoutOrder() {
+  let savedOrder = null;
+  try { savedOrder = JSON.parse(sessionStorage.getItem('ecomme_checkout_order') || 'null'); } catch (_) {}
+  if (!savedOrder?.id) return false;
+  try {
+    await fetchCheckoutOrderStatus(savedOrder.id);
+    return true;
+  } catch (error) {
+    console.error('Erro ao restaurar o pedido:', error);
+    toast('Não foi possível recuperar o status do pedido.', 'err');
     return false;
   }
-  
-  switch (payMethod) {
-    case 'pix': return true;
-    case 'card': return validateCardPayment();
-    case 'boleto': return true;
-    default:
-      toast('Forma de pagamento inválida.', 'err');
-      return false;
-  }
 }
 
-// -------------------------------------------
-function updatePaymentButton() {
-  const btn = document.getElementById('payBtn');
-  if (!btn) return;
-  const svg = btn.querySelector('svg');
-  let text = 'Confirmar pedido';
-  if (payMethod === 'pix') {
-    text = 'Confirmar pedido com PIX';
-  }
-
-  if (payMethod === 'card') {
-    text = 'Pagar com cartão';
-  }
-
-  if (payMethod === 'boleto') {
-    text = 'Gerar boleto';
-  }
-
-  btn.innerHTML = `
-    ${text}
-    <svg viewBox="0 0 24 24">
-      <line x1="5" y1="12" x2="19" y2="12"/>
-      <polyline points="12,5 19,12 12,19"/>
-    </svg>
-  `;
-}
-
-// ── BOLETO ─────────────────────────────────────────────
-function buildBarcode(){
-  const stripes=document.getElementById('barcodeStripes');
-  const widths=[1,2,1,3,1,2,2,1,3,1,1,2,3,1,2,1,3,2,1,1,2,3,1,2,1,2,3,1,1,2,3,1,2,2,1,3,2,1,1,2,1,3];
-  stripes.innerHTML=widths.map((w,i)=>`<div class="bs" style="width:${w*3}px;background:${i%2===0?'#0f1a2e':'#fff'}"></div>`).join('');
-}
-function copyBoleto(){ navigator.clipboard?.writeText('1234.56789 01234.567890 12345.678901 1 00000001'); toast('Código do boleto copiado! 📄', 'ok'); }
-
-// ── PLACE ORDER ─────────────────────────────────────────
-async function placeOrder() {
-  if (currentStep !== 3) {
-    return;
-  }
-  
-  if (!validatePayment()) {
-    return;
-  }
-  
-  const btn = document.getElementById('payBtn');
-  if (!btn || btn.classList.contains('loading')) {
-    return;
-  }
-  
-  btn.classList.add('loading');
-  btn.disabled = true;
-  const svg = btn.querySelector('svg');
-  if (svg) {
-    svg.style.display = 'none';
-  }
-  const originalText = btn.childNodes[0];
-  if (originalText) {
-    originalText.textContent = ' Processando...';
+async function handleAsaasPaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('asaas_return') !== '1') return false;
+  const orderId = params.get('order_id');
+  if (!orderId || orderId.length > 128) {
+    toast('Não foi possível identificar o pedido retornado pelo pagamento.', 'err');
+    return true;
   }
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    goStep(4);
+    await fetchCheckoutOrderStatus(orderId);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    return true;
   } catch (error) {
-    console.error('Erro ao processar pagamento:', error);
-    toast('Não foi possível processar o pagamento.', 'err');
+    console.error('Erro ao consultar o status do pedido:', error);
+    toast('Não foi possível consultar o status do pagamento. Atualize a página para tentar novamente.', 'err');
+    return true;
+  }
+}
+
+function startNewPaymentAttempt() {
+  if (!['cancelled', 'canceled', 'expired', 'failed', 'refused'].includes(String(checkoutPaymentStatus || '').toLowerCase())) return;
+  removeCheckoutSessionValue('ecomme_checkout_attempt');
+  removeCheckoutSessionValue('ecomme_checkout_order');
+  checkoutOrder = null;
+  checkoutPaymentStatus = null;
+  currentStep = 4;
+  goStep(3, true);
+}
+
+async function refreshPaymentStatus() {
+  const orderId = checkoutOrder?.id;
+  const button = document.getElementById('refreshPaymentStatusBtn');
+  if (!orderId) {
+    toast('Não foi possível identificar o pedido.', 'err');
+    return;
+  }
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Consultando...';
+  }
+  try {
+    await fetchCheckoutOrderStatus(orderId);
+    if (checkoutPaymentStatus === 'paid' || checkoutPaymentStatus === 'confirmed') {
+      toast('Pagamento confirmado!', 'ok');
+    } else {
+      toast('O pagamento ainda está aguardando confirmação.', 'info');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar o status do pagamento:', error);
+    toast('Não foi possível atualizar o status. Tente novamente.', 'err');
   } finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
-    if (svg) {
-      svg.style.display = '';
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Consultar pagamento';
     }
   }
 }
 
-// ── CONFIRMATION ────────────────────────────────────────
-function showConfirm(){
-  const code='EC-'+String(Math.floor(Math.random()*9999))+'-'+String(Math.floor(Math.random()*9999));
-  document.getElementById('orderCode').textContent=code;
-  const today=new Date();
-  const transit=new Date(today); transit.setDate(today.getDate()+3);
-  const delivery=new Date(today); delivery.setDate(today.getDate()+(shipping===29.9?4:shipping===15.9?10:15));
-  document.getElementById('otlTransit').textContent=transit.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
-  document.getElementById('otlDelivery').textContent=delivery.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
-  spawnConfetti();
-  clearInterval(pixInterval);
+function showConfirm() {
+  const status = String(checkoutPaymentStatus || checkoutOrder?.status || 'pending').toLowerCase();
+  const paid = status === 'paid' || status === 'confirmed';
+  const failed = ['cancelled', 'canceled', 'expired', 'failed', 'refused'].includes(status);
+  const title = document.getElementById('confirmTitle');
+  const subtitle = document.getElementById('confirmSub');
+  const code = document.getElementById('orderCode');
+  const timelineTitle = document.getElementById('orderTimelineTitle');
+  const trackButton = document.getElementById('trackOrderBtn');
+  const refreshButton = document.getElementById('refreshPaymentStatusBtn');
+  const retryButton = document.getElementById('tryNewPaymentBtn');
+  const confirmIcon = document.getElementById('confirmIcon');
+
+  if (code) code.textContent = checkoutOrder?.code || '—';
+  if (title) title.textContent = paid ? 'Pedido confirmado!' : failed ? 'Pagamento não concluído' : 'Aguardando confirmação do pagamento';
+  if (subtitle) subtitle.textContent = paid
+    ? 'Pagamento confirmado pelo servidor. O pedido foi liberado para as próximas etapas.'
+    : failed
+      ? 'O pagamento não foi concluído. Você pode iniciar uma nova tentativa de pagamento.'
+      : 'O pedido foi registrado e aguarda a confirmação oficial do pagamento. O retorno do navegador, sozinho, não confirma a compra.';
+  if (timelineTitle) timelineTitle.textContent = paid ? 'Próximas etapas' : 'Status do pagamento';
+  if (confirmIcon) {
+    confirmIcon.textContent = paid ? '🎉' : failed ? '⚠️' : '⌛';
+    confirmIcon.classList.remove('is-paid', 'is-pending', 'is-failed');
+    confirmIcon.classList.add(paid ? 'is-paid' : failed ? 'is-failed' : 'is-pending');
+  }
+  if (trackButton) trackButton.style.display = paid && checkoutOrder?.id ? 'inline-flex' : 'none';
+  if (refreshButton) refreshButton.style.display = !paid && !failed && checkoutOrder?.id ? 'inline-flex' : 'none';
+  if (retryButton) retryButton.style.display = failed ? 'inline-flex' : 'none';
+
+  const steps = [...document.querySelectorAll('.otl-step')];
+  const stepData = paid ? [
+    ['done', '✓', 'Pagamento', 'Confirmado'],
+    ['curr', '📦', 'Preparação', 'Aguardando loja'],
+    ['', '🚚', 'Em trânsito', 'Após postagem'],
+    ['', '🏠', 'Entregue', 'Após transporte']
+  ] : [
+    [failed ? '' : 'curr', failed ? '!' : '…', 'Pagamento', failed ? 'Não concluído' : 'Aguardando'],
+    ['', '📦', 'Preparação', 'Após pagamento'],
+    ['', '🚚', 'Em trânsito', 'Após postagem'],
+    ['', '🏠', 'Entregue', 'Após transporte']
+  ];
+  steps.forEach((step, index) => {
+    if (!step) return;
+    if (!stepData[index]) return;
+    const [className, dot, label, date] = stepData[index];
+    step.className = `otl-step${className ? ` ${className}` : ''}`;
+    const dotEl = step.querySelector('.otl-dot');
+    const labelEl = step.querySelector('.otl-lbl');
+    const dateEl = step.querySelector('.otl-date');
+    if (dotEl) dotEl.textContent = dot;
+    if (labelEl) labelEl.textContent = label;
+    if (dateEl) dateEl.textContent = date;
+  });
+  if (paid) spawnConfetti();
 }
 
 function spawnConfetti(){
@@ -1477,7 +1772,6 @@ function fp(value) {
   );
 }
 
-window.addEventListener('keydown',e=>{ if(e.key==='Escape') flipCard(false); });
 
 // ----------------------------------------
 function escapeHtml(value) {
@@ -2057,20 +2351,17 @@ async function validateData() {
     const fullName =
       `${firstName} ${lastName}`.trim();
 
+    const profileUpdate = { full_name: fullName, phone, cpf, birth_date: birthDate };
     const { error } = await supabaseClient
       .from('profiles')
-      .update({
-        full_name: fullName,
-        phone: phone,
-        cpf: cpf,
-        birth_date: birthDate
-      })
+      .update(profileUpdate)
       .eq('id', userId);
 
     if (error) {
       throw error;
     }
 
+    checkoutProfile = { ...(checkoutProfile || {}), ...profileUpdate };
     const overlay = document.getElementById('dataOverlay');
     if (overlay) {
       overlay.classList.remove('active');
@@ -2078,6 +2369,8 @@ async function validateData() {
     }
 
     toast('Dados atualizados com sucesso!', 'ok');
+    const handledReturn = await handleAsaasPaymentReturn();
+    if (!handledReturn) await restoreCheckoutOrder();
     return true;
 
   } catch (error) {
