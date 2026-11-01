@@ -1,26 +1,3 @@
-// Estado compartilhado: evita referências indefinidas antes de a sessão carregar.
-window.products = Array.isArray(window.products) ? window.products : [];
-window.shuffled = Array.isArray(window.shuffled) ? window.shuffled : [];
-window.cart = Array.isArray(window.cart) ? window.cart : [];
-window.fav = Array.isArray(window.fav) ? window.fav : [];
-
-// Helpers compartilhados para identificar e apresentar produtos pausados.
-function isProductUnavailable(product) {
-  return !product || String(product.badge || '').trim().toLowerCase() === 'paused';
-}
-
-function sortUnavailableLast(items) {
-  return (Array.isArray(items) ? items : []).slice().sort((a, b) =>
-    Number(isProductUnavailable(a)) - Number(isProductUnavailable(b))
-  );
-}
-
-function unavailableMsgHtml(product) {
-  return isProductUnavailable(product)
-    ? '<div class="ci-unavailable-msg" role="status">Produto indisponível</div>'
-    : '';
-}
-
 async function injectEcommeUI() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
   if (currentPath === '/settings' || currentPath.startsWith('/settings/')) return;
@@ -404,15 +381,8 @@ window.ecommeLanguage = 'pt-BR';
 const ecommeOriginalTextNodes = new WeakMap();
 const ecommeOriginalAttributes = new WeakMap();
 let ecommeTranslationRunning = false;
-let ecommeTranslationPendingLanguage = null;
-let ecommeTranslationPromise = null;
 let ecommeTranslationObserver = null;
 let ecommeTranslationObserverTimer = null;
-const ECOMME_SUPPORTED_LANGUAGES = ['pt-BR', 'en-US', 'es-ES'];
-
-function normalizeEcommeLanguage(language) {
-  return ECOMME_SUPPORTED_LANGUAGES.includes(language) ? language : 'pt-BR';
-}
 
 function shouldIgnoreTranslationElement(element) {
   if (!element) {
@@ -687,161 +657,275 @@ function restoreOriginalPage() {
 }
 
 
-async function requestTranslations(language, texts) {
-  if (!Array.isArray(texts) || !texts.length) return {};
-  if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
-    throw new Error('Cliente Supabase não está disponível para autenticar a tradução.');
-  }
-  if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
-    throw new Error('Configuração pública do Supabase não foi encontrada nesta página.');
+async function requestTranslations(
+  language,
+  texts
+) {
+  if (!texts.length) {
+    return {};
   }
 
-  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-  let session = sessionData?.session || null;
-  if (sessionError) console.warn('[Ecomme tradução] Erro ao obter sessão:', sessionError);
+  let {
+    data: { session },
+    error: sessionError
+  } = await supabaseClient.auth.getSession();
+
+  if (sessionError) {
+    console.warn(
+      'Erro ao obter sessão:',
+      sessionError
+    );
+  }
 
   if (!session?.access_token) {
-    const { data: refreshData, error: refreshError } = await supabaseClient.auth.refreshSession();
-    if (refreshError) throw new Error(`Não foi possível renovar a sessão para traduzir: ${refreshError.message || refreshError}`);
-    session = refreshData?.session || null;
-  }
-  if (!session?.access_token) throw new Error('É necessário estar conectado à Ecomme para utilizar a tradução.');
+    console.warn(
+      'Sessão sem access_token. Tentando renovar...'
+    );
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 45000);
-  let response;
-  try {
-    response = await fetch(`${SUPABASE_URL}/functions/v1/translate-texts`, {
+    const {
+      data: refreshData,
+      error: refreshError
+    } = await supabaseClient.auth.refreshSession();
+
+    if (refreshError) {
+      console.error(
+        'Erro ao renovar sessão:',
+        refreshError
+      );
+
+      throw new Error(
+        'Não foi possível renovar a sessão da conta.'
+      );
+    }
+
+    session =
+      refreshData?.session || null;
+  }
+
+  if (!session?.access_token) {
+    throw new Error(
+      'A sessão da conta não possui um access token válido.'
+    );
+  }
+
+  const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/translate-texts`,
+    {
       method: 'POST',
+
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-        'apikey': SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({ targetLanguage: language, texts }),
-      signal: controller.signal
-    });
-  } catch (error) {
-    if (error.name === 'AbortError') throw new Error('A tradução excedeu o limite de 45 segundos.');
-    throw new Error(`Não foi possível acessar a Edge Function translate-texts: ${error.message || error}`);
-  } finally {
-    clearTimeout(timeoutId);
-  }
 
-  const responseText = await response.text();
-  let responseData;
+        'Authorization':
+          `Bearer ${session.access_token}`,
+
+        'apikey':
+          SUPABASE_ANON_KEY
+      },
+
+      body: JSON.stringify({
+        targetLanguage: language,
+        texts
+      })
+    }
+  );
+
+  const responseText =
+    await response.text();
+
+  let responseData = {};
+
   try {
-    responseData = responseText ? JSON.parse(responseText) : {};
-  } catch (_) {
-    console.error('[Ecomme tradução] A Edge Function retornou conteúdo que não é JSON:', responseText.slice(0, 500));
-    throw new Error(`A Edge Function retornou uma resposta inválida (HTTP ${response.status}).`);
+    responseData =
+      responseText
+        ? JSON.parse(responseText)
+        : {};
+  } catch (error) {
+    console.error(
+      'Resposta inválida da Edge Function:',
+      responseText
+    );
   }
 
   if (!response.ok) {
-    console.error('[Ecomme tradução] Erro HTTP da Edge Function:', response.status, responseData);
-    throw new Error(responseData?.error || responseData?.message || `Erro HTTP ${response.status} na função translate-texts.`);
+    console.error(
+      'Erro HTTP da Edge Function:',
+      response.status,
+      responseData
+    );
+
+    throw new Error(
+      responseData?.error ||
+      responseData?.message ||
+      `Erro HTTP ${response.status} ao traduzir.`
+    );
   }
 
-  const rawTranslations = responseData?.translations;
-  if (!rawTranslations || typeof rawTranslations !== 'object' || Array.isArray(rawTranslations)) {
-    console.error('[Ecomme tradução] Formato inesperado da resposta:', responseData);
-    throw new Error('A Edge Function respondeu, mas não retornou o objeto "translations" esperado.');
-  }
-
-  const translations = {};
-  texts.forEach(source => {
-    const translated = rawTranslations[source];
-    if (typeof translated === 'string' && translated.trim()) translations[source] = translated.trim();
-  });
-
-  if (!Object.keys(translations).length) {
-    console.error('[Ecomme tradução] A API não retornou nenhuma tradução utilizável:', responseData);
-    throw new Error('A API respondeu sem traduzir nenhum dos textos enviados. Verifique a Edge Function e a API Gemini.');
-  }
-  if (Object.keys(translations).length < texts.length) {
-    console.warn(`[Ecomme tradução] Resposta parcial: ${Object.keys(translations).length} de ${texts.length} textos traduzidos.`);
-  }
-  return translations;
+  return responseData?.translations || {};
 }
 
-async function translatePagePass(language) {
-  if (ecommeTranslationObserver) ecommeTranslationObserver.disconnect();
-  restoreOriginalPage();
-  if (language === 'pt-BR') return true;
+async function translatePage(
+  language =
+    window.ecommeLanguage || 'pt-BR'
+) {
 
-  const items = collectTranslationNodes();
-  if (!items.length) return true;
-
-  const cache = getTranslationCache();
-  const languageCache = cache[language] && typeof cache[language] === 'object' ? cache[language] : {};
-  const uniqueTexts = [...new Set(items.map(item => item.source))];
-  const missingTexts = uniqueTexts.filter(source => typeof languageCache[source] !== 'string' || !languageCache[source].trim());
-
-  for (let i = 0; i < missingTexts.length; i += 40) {
-    const batch = missingTexts.slice(i, i + 40);
-    const translations = await requestTranslations(language, batch);
-    Object.assign(languageCache, translations);
+  if (
+    ecommeTranslationRunning
+  ) {
+    return;
   }
 
-  cache[language] = languageCache;
-  saveTranslationCache(cache);
+  if (
+    !['pt-BR', 'en-US', 'es-ES']
+      .includes(language)
+  ) {
+    language = 'pt-BR';
+  }
 
-  let translatedCount = 0;
-  for (const item of items) {
-    const translated = languageCache[item.source];
-    if (typeof translated !== 'string' || !translated.trim()) continue;
-    if (item.type === 'text' && item.node.isConnected) {
-      item.node.nodeValue = item.node.nodeValue.replace(item.source, translated);
-      translatedCount++;
-    } else if (item.type === 'attribute' && item.element.isConnected) {
-      item.element.setAttribute(item.attribute, translated);
-      translatedCount++;
+  window.ecommeLanguage =
+    language;
+
+  if (language === 'pt-BR') {
+
+    if (ecommeTranslationObserver) {
+      ecommeTranslationObserver.disconnect();
     }
-  }
 
-  const missingCount = uniqueTexts.filter(source => typeof languageCache[source] !== 'string' || !languageCache[source].trim()).length;
-  if (missingCount) console.warn(`[Ecomme tradução] ${missingCount} texto(s) ficaram sem tradução em ${language}.`);
-  console.info(`[Ecomme tradução] ${translatedCount} elemento(s) aplicados em ${language}.`);
-  return missingCount === 0;
-}
+    restoreOriginalPage();
 
-function translatePage(language = window.ecommeLanguage || 'pt-BR') {
-  language = normalizeEcommeLanguage(language);
-  window.ecommeLanguage = language;
+    if (ecommeTranslationObserver) {
+      ecommeTranslationObserver.observe(
+        document.body,
+        {
+          childList: true,
+          subtree: true
+        }
+      );
+    }
 
-  // Se outra tradução estiver em andamento, guarda o idioma mais recente em vez de ignorar o pedido.
-  if (ecommeTranslationRunning) {
-    ecommeTranslationPendingLanguage = language;
-    return ecommeTranslationPromise || Promise.resolve(false);
+    return;
   }
 
   ecommeTranslationRunning = true;
-  ecommeTranslationPromise = (async () => {
-    let currentLanguage = language;
-    let overallSuccess = true;
-    while (true) {
-      ecommeTranslationPendingLanguage = null;
-      try {
-        const success = await translatePagePass(currentLanguage);
-        overallSuccess = success && overallSuccess;
-      } catch (error) {
-        overallSuccess = false;
-        console.error(`[Ecomme tradução] Falha ao traduzir para ${currentLanguage}:`, error);
+
+  if (ecommeTranslationObserver) {
+    ecommeTranslationObserver.disconnect();
+  }
+
+  try {
+
+    restoreOriginalPage();
+
+    const items =
+      collectTranslationNodes();
+
+    if (!items.length) {
+      return;
+    }
+
+    const cache =
+      getTranslationCache();
+
+    const languageCache =
+      cache[language] || {};
+
+    const uniqueTexts =
+      [
+        ...new Set(
+          items.map(
+            item => item.source
+          )
+        )
+      ];
+
+    const missingTexts =
+      uniqueTexts.filter(
+        text =>
+          !languageCache[text]
+      );
+
+    for (
+      let i = 0;
+      i < missingTexts.length;
+      i += 40
+    ) {
+
+      const batch =
+        missingTexts.slice(
+          i,
+          i + 40
+        );
+
+      const translations =
+        await requestTranslations(
+          language,
+          batch
+        );
+
+      Object.assign(
+        languageCache,
+        translations
+      );
+    }
+
+    cache[language] =
+      languageCache;
+
+    saveTranslationCache(cache);
+
+    for (const item of items) {
+
+      const translated =
+        languageCache[item.source];
+
+      if (!translated) {
+        continue;
       }
 
-      const nextLanguage = ecommeTranslationPendingLanguage || (window.ecommeLanguage !== currentLanguage ? window.ecommeLanguage : null);
-      if (!nextLanguage || nextLanguage === currentLanguage) break;
-      currentLanguage = normalizeEcommeLanguage(nextLanguage);
+      if (item.type === 'text') {
+
+        item.node.nodeValue =
+          item.node.nodeValue.replace(
+            item.source,
+            translated
+          );
+
+      }
+
+      if (
+        item.type === 'attribute'
+      ) {
+
+        item.element.setAttribute(
+          item.attribute,
+          translated
+        );
+      }
     }
-    return overallSuccess;
-  })().finally(() => {
-    ecommeTranslationRunning = false;
-    ecommeTranslationPendingLanguage = null;
+
+  } catch (error) {
+
+    console.error(
+      'Erro ao traduzir página:',
+      error
+    );
+
+  } finally {
+
+    ecommeTranslationRunning =
+      false;
+
     if (ecommeTranslationObserver) {
-      ecommeTranslationObserver.observe(document.body, { childList: true, subtree: true });
+
+      ecommeTranslationObserver.observe(
+        document.body,
+        {
+          childList: true,
+          subtree: true
+        }
+      );
     }
-  });
-  return ecommeTranslationPromise;
+  }
 }
 
 
@@ -911,47 +995,100 @@ window.ecommeFormatPrice =
 
 // ------------------------------------------
 async function syncEcommeDisplaySettings() {
-  const supportedCurrencies = ['BRL', 'USD', 'EUR'];
-  const localSettings = (() => {
-    try { return JSON.parse(localStorage.getItem('ecomme_settings') || '{}'); }
-    catch (error) { console.warn('[Ecomme] Não foi possível ler as preferências locais:', error); return {}; }
-  })();
-
   window.ecommeDisplaySettings = {
-    language: normalizeEcommeLanguage(localSettings.language),
-    currency: supportedCurrencies.includes(localSettings.currency) ? localSettings.currency : 'BRL'
+    //theme: 'auto',
+    language: 'pt-BR',
+    currency: 'BRL'
   };
 
   try {
-    const { data: { user } = {}, error: authError } = await supabaseClient.auth.getUser();
-    if (authError) console.warn('[Ecomme] Não foi possível identificar o usuário para carregar o idioma:', authError);
+    const {data: {user}} = await supabaseClient.auth.getUser();
 
     if (user) {
-      const { data, error } = await supabaseClient.from('user_settings').select('language, currency').eq('user_id', user.id).maybeSingle();
-      if (error) console.error('[Ecomme] Erro ao carregar configurações da conta:', error);
+      const {data, error} = await supabaseClient
+        .from('user_settings')
+        .select(/*theme,*/'language, currency')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Erro ao carregar configurações da conta:', error);
+      }
+
+      if (
+        ['pt-BR', 'en-US', 'es-ES'].includes(data?.language)
+      ) {
+        window.ecommeDisplaySettings.language = data.language;
+      }
+      
       if (data) {
-        window.ecommeDisplaySettings.language = normalizeEcommeLanguage(data.language || window.ecommeDisplaySettings.language);
-        if (supportedCurrencies.includes(data.currency)) window.ecommeDisplaySettings.currency = data.currency;
+        /*if (
+          ['light', 'dark', 'auto'].includes(data.theme)
+        ) {
+          window.ecommeDisplaySettings.theme = data.theme;
+        }*/
+
+        if (
+          ['BRL', 'USD', 'EUR'].includes(data.currency)
+        ) {
+          window.ecommeDisplaySettings.currency = data.currency;
+        }
+
+        try {
+          const localRaw = localStorage.getItem('ecomme_settings');
+          const localSettings = localRaw
+            ? JSON.parse(localRaw)
+            : {};
+
+          localStorage.setItem(
+            'ecomme_settings',
+            JSON.stringify({
+              ...localSettings,
+              /*theme: window.ecommeDisplaySettings.theme,*/
+              currency: window.ecommeDisplaySettings.currency
+            })
+          );
+        } catch (error) {
+          console.warn(
+            'Não foi possível atualizar o cache local:',
+            error
+          );
+        }
       }
     }
 
-    try {
-      localStorage.setItem('ecomme_settings', JSON.stringify({
-        ...localSettings,
-        language: window.ecommeDisplaySettings.language,
-        currency: window.ecommeDisplaySettings.currency
-      }));
-    } catch (error) {
-      console.warn('[Ecomme] Não foi possível atualizar as preferências locais:', error);
+    else {
+      try {
+        const localRaw = localStorage.getItem('ecomme_settings');
+
+        if (localRaw) {
+          const localSettings = JSON.parse(localRaw);
+
+          /*if (
+            ['light', 'dark', 'auto'].includes(localSettings?.theme)
+          ) {
+            window.ecommeDisplaySettings.theme = localSettings.theme;
+          }*/
+
+          if (
+            ['BRL', 'USD', 'EUR'].includes(localSettings?.currency)
+          ) {
+            window.ecommeDisplaySettings.currency = localSettings.currency;
+          }
+        }
+      } catch (error) {
+        console.warn(
+          'Não foi possível ler as configurações locais:',
+          error
+        );
+      }
     }
 
-    window.ecommeLanguage = window.ecommeDisplaySettings.language;
-    const translationOk = await translatePage(window.ecommeLanguage);
-    if (!translationOk && window.ecommeLanguage !== 'pt-BR') {
-      console.warn('[Ecomme] O idioma foi carregado, mas alguns textos não foram traduzidos. Confira os erros anteriores e a Edge Function translate-texts.');
-    }
-
-    const currency = window.ecommeDisplaySettings.currency;
+    /*applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});*/
+    window.ecommeLanguage = window.ecommeDisplaySettings.language || 'pt-BR';
+    await translatePage(window.ecommeLanguage);
+    
+    const currency = window.ecommeDisplaySettings.currency || 'BRL';
     if (currency === 'BRL') {
       window.ecommeCurrencyRates.BRL = 1;
       return;
@@ -960,28 +1097,265 @@ async function syncEcommeDisplaySettings() {
     const cachedRaw = localStorage.getItem('ecomme_currency_rates');
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
-      const age = Date.now() - Number(cached.savedAt || 0);
-      if (age < 6 * 60 * 60 * 1000 && cached.rates?.USD && cached.rates?.EUR) {
+      const age =
+        Date.now() - Number(cached.savedAt || 0);
+
+      if (
+        age < 6 * 60 * 60 * 1000 &&
+        cached.rates?.USD &&
+        cached.rates?.EUR
+      ) {
         window.ecommeCurrencyRates = cached.rates;
         return;
       }
     }
 
-    const response = await fetch('https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch(
+      'https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR'
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
     const rows = await response.json();
+
     const rates = {
       BRL: 1,
-      USD: Number(rows.find(row => row.quote === 'USD')?.rate || 0),
-      EUR: Number(rows.find(row => row.quote === 'EUR')?.rate || 0)
+      USD: Number(
+        rows.find(row => row.quote === 'USD')?.rate || 0
+      ),
+      EUR: Number(
+        rows.find(row => row.quote === 'EUR')?.rate || 0
+      )
     };
-    if (!rates.USD || !rates.EUR) throw new Error('Cotação USD/EUR inválida.');
+
+    if (!rates.USD || !rates.EUR) {
+      throw new Error('Cotações inválidas.');
+    }
+
     window.ecommeCurrencyRates = rates;
-    localStorage.setItem('ecomme_currency_rates', JSON.stringify({ savedAt: Date.now(), rates }));
+    localStorage.setItem('ecomme_currency_rates',
+      JSON.stringify({
+        savedAt: Date.now(),
+        rates
+      })
+    );
+
   } catch (error) {
-    console.error('[Ecomme] Erro ao sincronizar idioma/moeda:', error);
+    console.error(
+      'Não foi possível sincronizar as configurações:',
+      error
+    );
+
+    /*window.ecommeDisplaySettings.theme = 'light';*/
+    window.ecommeDisplaySettings.currency = 'BRL';
+    //applyTheme(window.ecommeDisplaySettings.theme || 'auto', {silent: true, saveToSupabase: false});
   }
 }
+
+// ---------------------------------------------------------
+
+(() => {
+  const header = document.querySelector('header');
+  if (!header) return;
+
+  // Evita instalar o controlador mais de uma vez.
+  if (header.dataset.scrollHeaderController === 'active') return;
+  header.dataset.scrollHeaderController = 'active';
+
+  header.classList.add('header-gesture-enabled');
+  header.classList.remove('header-gesture-hidden');
+
+  let state = 'sticky';
+  let finishTimer = null;
+  let scrollFramePending = false;
+
+  let lastScrollY = Math.max(0, window.scrollY || 0);
+  let downDistance = 0;
+  let upDistance = 0;
+
+  // Distâncias de rolagem necessárias para alternar o header.
+  const HIDE_AFTER = 200;
+  const SHOW_AFTER = 200;
+  const SHOW_NEAR_TOP = 500;
+  const ANIMATION_FALLBACK_MS = 380;
+
+  function finishTransition() {
+    if (state !== 'hiding' && state !== 'showing') return;
+
+    clearTimeout(finishTimer);
+    finishTimer = null;
+
+    if (state === 'hiding') {
+      // A posição muda somente após a animação de saída.
+      header.style.position = 'relative';
+      header.style.top = 'auto';
+      state = 'relative';
+    } else {
+      // Restaura o sticky após a animação de entrada.
+      header.style.position = 'sticky';
+      header.style.top = '0';
+      state = 'sticky';
+    }
+  }
+
+  function hideHeader() {
+    if (state !== 'sticky') return;
+
+    clearTimeout(finishTimer);
+    state = 'hiding';
+
+    downDistance = 0;
+    upDistance = 0;
+
+    header.classList.add('header-gesture-hidden');
+
+    // Segurança caso transitionend não seja disparado.
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
+  }
+
+  function showHeader() {
+    if (state !== 'relative' && state !== 'hiding') return;
+
+    clearTimeout(finishTimer);
+
+    // Restaura o sticky antes da animação de entrada.
+    header.style.position = 'sticky';
+    header.style.top = '0';
+    state = 'showing';
+
+    downDistance = 0;
+    upDistance = 0;
+
+    // Garante que o navegador registre os dois estados visuais.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        header.classList.remove('header-gesture-hidden');
+      });
+    });
+
+    finishTimer = setTimeout(
+      finishTransition,
+      ANIMATION_FALLBACK_MS
+    );
+  }
+
+  // Finaliza a transição quando a animação CSS termina.
+  header.addEventListener('transitionend', event => {
+    if (
+      event.target === header &&
+      event.propertyName === 'transform'
+    ) {
+      finishTransition();
+    }
+  });
+
+  function processScroll() {
+    scrollFramePending = false;
+
+    const currentScrollY = Math.max(0, window.scrollY || 0);
+    const delta = currentScrollY - lastScrollY;
+
+    lastScrollY = currentScrollY;
+
+    // Próximo do topo, o header deve estar visível.
+    if (currentScrollY <= SHOW_NEAR_TOP) {
+      downDistance = 0;
+      upDistance = 0;
+
+      if (state === 'relative' || state === 'hiding') {
+        showHeader();
+      }
+
+      return;
+    }
+
+    // Ignora oscilações mínimas da rolagem.
+    if (Math.abs(delta) < 2) return;
+
+    if (delta > 0) {
+      // Rolagem para baixo.
+      downDistance += delta;
+      upDistance = 0;
+
+      if (
+        state === 'sticky' &&
+        downDistance >= HIDE_AFTER
+      ) {
+        hideHeader();
+      }
+    } else {
+      // Rolagem para cima.
+      upDistance += Math.abs(delta);
+      downDistance = 0;
+
+      if (
+        (state === 'relative' || state === 'hiding') &&
+        upDistance >= SHOW_AFTER
+      ) {
+        showHeader();
+      }
+    }
+  }
+
+  window.addEventListener('scroll', () => {
+    if (scrollFramePending) return;
+
+    scrollFramePending = true;
+    requestAnimationFrame(processScroll);
+  }, { passive: true });
+})();
+
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+let cart = [];
+let fav = [];
+let curId = null;
+let mQtyVal = 1;
+let view = 'grid';
+let modalImages = [];
+let modalImageIndex = 0;
+
+let products = [];
+let shuffled = [];
+
+/* ─── PRODUTOS INDISPONÍVEIS ─────────────────────────────────────────────
+   badge "paused" (definido no Supabase pelo vendedor):
+   • não aparece na lista de produtos (filtro em getFilteredList → essentials.js)
+   • continua em `products`, então carrinho/favoritos ainda o encontram
+   • aparece em carrinho/favoritos como "Indisponível", sempre por último
+   • não pode ser comprado (addToCart / addAllFavToCart / total / checkout) */
+const UNAVAILABLE_BADGE = 'paused';
+
+function isProductUnavailable(product) {
+  return !!product && product.badge === UNAVAILABLE_BADGE;
+}
+
+// Partição estável usada só para EXIBIR: disponíveis primeiro, indisponíveis por último.
+// Não altera o array `cart`/`fav` (a ordem salva no Supabase continua a mesma).
+function sortUnavailableLast(items) {
+  return [
+    ...items.filter(item => !isProductUnavailable(item)),
+    ...items.filter(item => isProductUnavailable(item))
+  ];
+}
+
+function unavailableMsgHtml(item) {
+  return isProductUnavailable(item)
+    ? '<span class="ci-unavailable-msg">Indisponível</span>'
+    : '';
+}
+
+const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
+const EDGE_IMAGE_PRESETS = {
+  grid: 'grid',
+  list: 'list',
+  thumbnail: 'thumbnail',
+  modal: 'modal'
+};
 
 // ============================================================
 
