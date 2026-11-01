@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const state = { category: 'Todos', tag: 'Todos' };
+  const state = { category: 'Todos', tag: 'Todos', colors: [] };
   const $ = id => document.getElementById(id);
   const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   const available = product => product && product.badge !== 'paused';
@@ -33,6 +33,13 @@
         return true;
       });
     }
+    if (state.colors.length) {
+      const selectedColors = state.colors.map(normalize);
+      result = result.filter(product => {
+        const productColors = Array.isArray(product.dominant_colors) ? product.dominant_colors : product.dominant_color ? [product.dominant_color] : [];
+        return productColors.some(color => selectedColors.includes(normalize(color)));
+      });
+    }
     const ratings = [...document.querySelectorAll('[data-rating-min]:checked')].map(input => Number(input.dataset.ratingMin)).filter(Number.isFinite);
     if (ratings.length) {
       const minRating = Math.min(...ratings);
@@ -41,7 +48,7 @@
     return result;
   }
   function getStateKey() {
-    return [state.category, state.tag, $('minPrice')?.value || '', $('maxPrice')?.value || '', ...[...document.querySelectorAll('[data-rating-min]')].map(input => input.checked ? input.dataset.ratingMin : '')].join(':');
+    return [state.category, state.tag, $('minPrice')?.value || '', $('maxPrice')?.value || '', state.colors.slice().sort().join(','), ...[...document.querySelectorAll('[data-rating-min]')].map(input => input.checked ? input.dataset.ratingMin : '')].join(':');
   }
   function updateCategoryUI() {
     document.querySelectorAll('[data-category]').forEach(element => {
@@ -61,6 +68,9 @@
   }
   function onProductsLoaded(list) {
     const availableProducts = (list || []).filter(available);
+    const indexedCount = availableProducts.filter(product => Array.isArray(product.dominant_colors) && product.dominant_colors.length).length;
+    const colorStatus = $('colorFilterStatus');
+    if (colorStatus) colorStatus.textContent = indexedCount ? `Cores identificadas automaticamente em ${indexedCount} produto(s).` : 'As cores são identificadas automaticamente nas imagens dos produtos.';
     const categories = ['Todos', 'Eletrônicos', 'Moda', 'Casa', 'Fitness', 'Beleza', 'Pets'];
     categories.forEach(category => {
       const count = category === 'Todos' ? availableProducts.length : availableProducts.filter(product => matchesCategory(product, category)).length;
@@ -80,12 +90,26 @@
     document.querySelectorAll('.filter-tag').forEach(element => element.classList.toggle('active', element === button));
     filterProducts();
   }
+  function toggleProductColor(button, color) {
+    const selected = normalize(color);
+    const existingIndex = state.colors.findIndex(item => normalize(item) === selected);
+    if (existingIndex >= 0) state.colors.splice(existingIndex, 1);
+    else state.colors.push(color);
+    document.querySelectorAll('[data-product-color]').forEach(element => {
+      const active = state.colors.some(item => normalize(item) === normalize(element.dataset.productColor));
+      element.classList.toggle('active', active);
+      element.setAttribute('aria-pressed', String(active));
+    });
+    filterProducts();
+  }
   function clearCategoryFilters() {
     state.category = 'Todos';
     state.tag = 'Todos';
+    state.colors = [];
     if ($('minPrice')) $('minPrice').value = '';
     if ($('maxPrice')) $('maxPrice').value = '';
     document.querySelectorAll('[data-rating-min]').forEach(input => { input.checked = false; });
+    document.querySelectorAll('[data-product-color]').forEach(button => { button.classList.remove('active'); button.setAttribute('aria-pressed', 'false'); });
     document.querySelectorAll('.filter-tag').forEach(button => button.classList.toggle('active', button.textContent.trim() === 'Todos'));
     if ($('headerSearch')) $('headerSearch').value = '';
     if ($('sortSelect')) $('sortSelect').value = 'random';
@@ -104,6 +128,7 @@
   window.EcommeCategoryFilters = { filter, getStateKey, onProductsLoaded, onRender, setCategory, reset: clearCategoryFilters };
   window.filterProducts = filterProducts;
   window.toggleTag = toggleTag;
+  window.toggleProductColor = toggleProductColor;
   window.clearCategoryFilters = clearCategoryFilters;
   window.toggleCategoryFilters = toggleCategoryFilters;
   window.addEventListener('keydown', event => { if (event.key === 'Escape') toggleCategoryFilters(false); });
