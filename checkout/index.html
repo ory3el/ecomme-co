@@ -131,7 +131,7 @@
     </div>
     <div class="fgrp">
       <label>Complemento</label>
-      <input class="finput" placeholder="Apto, sala...">
+      <input class="finput" id="complementInp" placeholder="Apto, sala...">
     </div>
     <div class="fgrp">
       <label>Bairro</label>
@@ -164,19 +164,19 @@
         <div style="margin-top:20px">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Opção de Envio</div>
           <div class="ship-opts">
-            <div class="ship-opt on" onclick="selShip(this,0)">
+            <div class="ship-opt on" onclick="selShip(this,0,'free')">
               <div class="ship-radio"></div>
               <div class="ship-ico">🎁</div>
               <div class="ship-info"><div class="ship-name">Frete Grátis</div><div class="ship-detail">Entrega em 10–15 dias úteis · PAC</div></div>
               <div class="ship-price ship-free">Grátis</div>
             </div>
-            <div class="ship-opt" onclick="selShip(this,15.9)">
+            <div class="ship-opt" onclick="selShip(this,15.9,'pac')">
               <div class="ship-radio"></div>
               <div class="ship-ico">📦</div>
               <div class="ship-info"><div class="ship-name">PAC Econômico</div><div class="ship-detail">Entrega em 7–10 dias úteis</div></div>
               <div class="ship-price">R$ 15,90</div>
             </div>
-            <div class="ship-opt" onclick="selShip(this,29.9)">
+            <div class="ship-opt" onclick="selShip(this,29.9,'sedex')">
               <div class="ship-radio"></div>
               <div class="ship-ico">⚡</div>
               <div class="ship-info"><div class="ship-name">SEDEX Express</div><div class="ship-detail">Entrega em 2–4 dias úteis</div></div>
@@ -198,121 +198,48 @@
         <div class="pay-tabs">
           <div class="pay-tab on" onclick="selPayTab(this,'pix')"><span class="pay-tab-ico">📱</span><div class="pay-tab-lbl">PIX</div></div>
           <div class="pay-tab" onclick="selPayTab(this,'card')"><span class="pay-tab-ico">💳</span><div class="pay-tab-lbl">Cartão</div></div>
-          <div class="pay-tab" onclick="selPayTab(this,'boleto')"><span class="pay-tab-ico">📄</span><div class="pay-tab-lbl">Boleto</div></div>
+          <div class="pay-tab" aria-disabled="true" title="Boleto será habilitado em uma etapa futura" style="opacity:.42;cursor:not-allowed;pointer-events:none"><span class="pay-tab-ico">📄</span><div class="pay-tab-lbl">Boleto <small style="display:block;font-size:9px">Em breve</small></div></div>
         </div>
 
         <!-- PIX -->
         <div class="pay-panel on" id="pp-pix">
           <div class="pix-wrap">
-            <div style="background:#dcfce7;border:1px solid #86efac;border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green)">✓ 5% de desconto no PIX!</div>
-            <div class="pix-qr" id="pixQR">
-              <div class="qr-inner" id="qrGrid"></div>
-            </div>
-            <div class="pix-timer">⏱ Válido por <span class="timer-countdown" id="pixTimer">29:59</span></div>
-            <div class="pix-key-box">
-              <div>
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:3px">Chave PIX aleatória</div>
-                <div class="pix-key-val">00020126580014br.gov.bcb.pix...</div>
-              </div>
-              <button class="btn-copy" id="copyPixBtn" onclick="copyPIX()">📋 Copiar</button>
+            <div style="background:#dcfce7;border:1px solid #86efac;border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green)">✓ Desconto PIX estimado de 5%</div>
+            <div style="width:100%;padding:22px;border:1px dashed var(--border2);border-radius:16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6">
+              <div style="font-size:30px;margin-bottom:8px">📱</div>
+              O QR Code PIX e o código copia e cola serão gerados pelo Asaas após a integração do gateway.
             </div>
             <div class="pix-steps">
-              <div class="pix-step"><div class="pix-step-n">1</div><span>Abra o app do seu banco e escolha pagar com <strong>PIX</strong></span></div>
-              <div class="pix-step"><div class="pix-step-n">2</div><span>Escaneie o <strong>QR Code</strong> ao lado ou copie e cole a chave</span></div>
-              <div class="pix-step"><div class="pix-step-n">3</div><span>Confirme o pagamento — a aprovação é <strong>instantânea!</strong></span></div>
+              <div class="pix-step"><div class="pix-step-n">1</div><span>Selecione PIX e confirme o pedido.</span></div>
+              <div class="pix-step"><div class="pix-step-n">2</div><span>O ambiente seguro de pagamento exibirá o QR Code.</span></div>
+              <div class="pix-step"><div class="pix-step-n">3</div><span>O pedido só será confirmado após a confirmação do pagamento pelo servidor.</span></div>
             </div>
           </div>
         </div>
 
         <!-- CARD -->
         <div class="pay-panel" id="pp-card">
-          <!-- 3D card preview -->
-          <div class="card-scene" id="cardScene" onclick="toggleCardFlip()" title="Clique para virar">
-            <div class="card-3d" id="card3d">
-              <!-- front -->
-              <div class="card-face card-front">
-                <div class="chip-row"><div class="card-chip"></div><div class="card-wifi">))))</div></div>
-                <div class="card-number" id="cardNumDisp">•••• •••• •••• ••••</div>
-                <div class="card-row">
-                  <div><div class="card-label">Titular</div><div class="card-value" id="cardNameDisp">SEU NOME</div></div>
-                  <div><div class="card-label">Validade</div><div class="card-value" id="cardExpDisp">MM/AA</div></div>
-                  <div class="card-brand" id="cardBrandDisp">VISA</div>
-                </div>
-              </div>
-              <!-- back -->
-              <div class="card-face card-back">
-                <div class="card-back-stripe"></div>
-                <div class="card-cvv-row">
-                  <div class="card-sig"><div class="card-sig-lines"><div class="card-sig-line"></div><div class="card-sig-line"></div><div class="card-sig-line"></div></div></div>
-                  <div>
-                    <div class="cvv-label">CVV</div>
-                    <div class="cvv-field" id="cvvDisp">•••</div>
-                  </div>
-                </div>
-                <div style="margin-top:auto;text-align:right"><div class="card-label">Número do cartão</div><div class="card-value" id="cardNumBack">•••• •••• •••• ••••</div></div>
-              </div>
-            </div>
+          <div style="width:100%;padding:22px;border:1px dashed var(--border2);border-radius:16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6">
+            <div style="font-size:30px;margin-bottom:8px">💳</div>
+            Os dados do cartão serão informados no ambiente seguro do Asaas quando o gateway for integrado. Esta página não coleta nem armazena número do cartão ou CVV.
           </div>
-          <p style="font-size:11px;color:var(--light);text-align:center;margin-bottom:16px">Clique no cartão para visualizar o verso</p>
-
-          <div class="card-brand-icons">
-            <div class="brand-ico on" id="bi-visa">
-            <img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
-            <div class="brand-ico" id="bi-master">
-            <img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="Mastercard"/></div>
-            <div class="brand-ico" id="bi-amex">AMEX</div>
-            <div class="brand-ico" id="bi-elo">
-            <img src="/images/payico/elo.png" style="width: 50px; height: auto; display: block;" alt="Elo"/></div>
-          </div>
-
-          <div class="card-form-fields">
-            <div class="fgrp">
-              <label>Número do Cartão</label>
-              <input class="finput" id="cardNum" type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="onCardNum(this)">
-            </div>
-            <div class="fgrp">
-              <label>Nome do Titular</label>
-              <input class="finput" id="cardName" type="text" placeholder="Como está no cartão" oninput="onCardName(this)" style="text-transform:uppercase">
-            </div>
-            <div class="card-row-fields">
-              <div class="fgrp">
-                <label>Validade</label>
-                <input class="finput" id="cardExp" type="text" placeholder="MM/AA" maxlength="5" oninput="onCardExp(this)">
-              </div>
-              <div class="fgrp">
-                <label>CVV</label>
-                <input class="finput" id="cardCvv" type="text" placeholder="•••" maxlength="4" onfocus="flipCard(true)" onblur="flipCard(false)" oninput="onCvv(this)">
-              </div>
-            </div>
-          </div>
-
           <div style="margin-top:16px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px">Parcelamento</div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px">Parcelamento desejado</div>
             <div class="install-opts" id="installOpts"></div>
           </div>
         </div>
 
         <!-- BOLETO -->
         <div class="pay-panel" id="pp-boleto">
-          <div class="boleto-wrap">
-            <div class="boleto-barcode">
-              <div class="barcode-stripes" id="barcodeStripes"></div>
-              <div class="boleto-code" id="boletoCode">1234.56789 01234.567890 12345.678901 1 00000001</div>
-              <button class="btn-copy" onclick="copyBoleto()" style="margin:0 auto">📋 Copiar código</button>
-            </div>
-            <div class="boleto-info">
-              ⚠️ <strong>Atenção:</strong> O boleto será gerado após a confirmação e vence em <strong>3 dias úteis</strong>. O pedido só será processado após o pagamento ser compensado (1-2 dias úteis).
-            </div>
-            <div class="boleto-due">
-              <div><div style="font-size:10px;color:var(--muted)">Vencimento</div><strong>15 de Janeiro, 2025</strong></div>
-              <div><div style="font-size:10px;color:var(--muted)">Valor</div><strong style="color:var(--blue)" id="boletoVal">R$ 0,00</strong></div>
-            </div>
+          <div style="width:100%;padding:22px;border:1px dashed var(--border2);border-radius:16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6">
+            <div style="font-size:30px;margin-bottom:8px">📄</div>
+            O boleto será disponibilizado quando o fluxo específico de cobrança estiver integrado.
           </div>
         </div>
 
         <div class="pay-note">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Pagamento processado com segurança SSL 256-bit
+          Pagamento em ambiente seguro do Asaas
         </div>
         <div class="form-actions">
           <button class="btn-back" onclick="goStep(2)"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>Voltar</button>
@@ -326,25 +253,27 @@
       <div class="confirm-wrap">
         <div class="confirm-anim">
           <div class="confetti" id="confetti"></div>
-          <div class="confirm-circle">🎉</div>
+          <div class="confirm-circle" id="confirmIcon">⌛</div>
         </div>
-        <div class="confirm-title">Pedido Confirmado!</div>
-        <div class="confirm-sub">Seu pedido foi recebido e está sendo processado. Você receberá atualizações por e-mail e SMS.</div>
+        <div class="confirm-title" id="confirmTitle">Aguardando confirmação</div>
+        <div class="confirm-sub" id="confirmSub">O status do pagamento será atualizado após a confirmação recebida pelo servidor.</div>
         <div class="order-code-box">
           <div class="order-code-lbl">Número do Pedido</div>
-          <div class="order-code" id="orderCode">DS-2025-0000</div>
+          <div class="order-code" id="orderCode">—</div>
         </div>
         <div class="order-timeline">
-          <div class="otl-title">Previsão de Entrega</div>
+          <div class="otl-title" id="orderTimelineTitle">Status do Pedido</div>
           <div class="otl-steps">
-            <div class="otl-step done"><div class="otl-dot">✓</div><div class="otl-lbl">Pagamento</div><div class="otl-date">Hoje</div></div>
-            <div class="otl-step curr"><div class="otl-dot">📦</div><div class="otl-lbl">Preparando</div><div class="otl-date">Amanhã</div></div>
-            <div class="otl-step"><div class="otl-dot">🚚</div><div class="otl-lbl">Em trânsito</div><div class="otl-date" id="otlTransit">—</div></div>
-            <div class="otl-step"><div class="otl-dot">🏠</div><div class="otl-lbl">Entregue</div><div class="otl-date" id="otlDelivery">—</div></div>
+            <div class="otl-step curr"><div class="otl-dot">…</div><div class="otl-lbl">Pagamento</div><div class="otl-date">Aguardando</div></div>
+            <div class="otl-step"><div class="otl-dot">📦</div><div class="otl-lbl">Preparação</div><div class="otl-date">Após pagamento</div></div>
+            <div class="otl-step"><div class="otl-dot">🚚</div><div class="otl-lbl">Em trânsito</div><div class="otl-date">Após postagem</div></div>
+            <div class="otl-step"><div class="otl-dot">🏠</div><div class="otl-lbl">Entregue</div><div class="otl-date">Após transporte</div></div>
           </div>
         </div>
         <div class="confirm-btns">
-          <a href="/track-order" class="btn-track">📦 Acompanhar Pedido</a>
+          <a href="/track-order" class="btn-track" id="trackOrderBtn" style="display:none">📦 Acompanhar Pedido</a>
+          <button type="button" class="btn-track" id="refreshPaymentStatusBtn" onclick="refreshPaymentStatus()" style="display:none">Consultar pagamento</button>
+          <button type="button" class="btn-track" id="tryNewPaymentBtn" onclick="startNewPaymentAttempt()" style="display:none">Tentar novamente</button>
           <a href="/products" class="btn-store">🛍️ Continuar Comprando</a>
         </div>
       </div>
@@ -377,8 +306,6 @@
           <img src="/images/payico/visa.png" style="width: 50px; height: auto; display: block;" alt="Visa"/></div>
           <div style="background:#fff;border:1px solid var(--border2);border-radius:10px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
           <img src="/images/payico/master.png" style="width: 50px; height: auto; display: block;" alt="MasterCard"/></div>
-          <div style="background:#fff;border:1px solid var(--border2);border-radius:10px;padding:3px 9px;font-size:10px;font-weight:700;color:var(--muted)">
-          <img src="/images/payico/boleto.png" style="width: 50px; height: auto; display: block;" alt="Boleto"/></div>
         </div>
       </div>
     </div>
