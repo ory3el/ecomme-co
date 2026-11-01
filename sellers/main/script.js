@@ -400,6 +400,19 @@ async function loadMyProducts() {
   const bdg = $('sbProdBdg');
   if (bdg) { bdg.textContent = PRODS.length; bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none'; }
   buildTopProducts();
+  requestPendingProductColorAnalysis();
+}
+
+// Processa gradualmente produtos antigos que ainda não possuem cores analisadas.
+function requestPendingProductColorAnalysis() {
+  if (window.__ecommeColorBackfillStarted || !supabaseClient?.functions?.invoke) return;
+  window.__ecommeColorBackfillStarted = true;
+  supabaseClient.functions.invoke('analyze-product-colors', { body: { action: 'analyze_pending', limit: 6 } })
+    .then(({ data, error }) => {
+      if (error) console.warn('[Ecomme cores] Não foi possível iniciar a análise dos produtos antigos:', error);
+      else if (data?.processed) console.info(`[Ecomme cores] ${data.processed} produto(s) analisado(s) nesta visita.`);
+    })
+    .catch(error => console.warn('[Ecomme cores] Falha na análise gradual:', error));
 }
 // ══ NAVEGAÇÃO ══════════════════════════════════════════════
 let hasUnsavedChanges = false;
@@ -668,6 +681,12 @@ async function duplicateProduct(id) {
     const { data, error } = await supabaseClient.from('products').insert([copy]).select('id');
     if (error) throw error;
     if (!data || !data.length) throw new Error('O banco não confirmou a criação da cópia.');
+    const duplicatedId = data[0]?.id;
+    if (duplicatedId && supabaseClient?.functions?.invoke) {
+      supabaseClient.functions.invoke('analyze-product-colors', { body: { product_id: duplicatedId } })
+        .then(({ error }) => { if (error) console.warn('[Ecomme cores] Não foi possível analisar a cópia do produto:', error); })
+        .catch(error => console.warn('[Ecomme cores] Falha ao solicitar análise da cópia:', error));
+    }
     await loadMyProducts();
     toast('Cópia criada como pausada. Revise e reative quando quiser.', 'ok');
   } catch (err) {
@@ -1565,6 +1584,14 @@ async function publishProduct() {
     }
     if (res.error) throw res.error;
     if (!res.data || !res.data.length) throw new Error('O banco não confirmou a gravação (nenhuma linha afetada).');
+
+    // A análise ocorre no backend e não bloqueia a publicação do produto.
+    const savedProductId = res.data[0]?.id;
+    if (savedProductId && supabaseClient?.functions?.invoke) {
+      supabaseClient.functions.invoke('analyze-product-colors', { body: { product_id: savedProductId } })
+        .then(({ error }) => { if (error) console.warn('[Ecomme cores] Produto salvo, mas a análise automática de cores não foi concluída:', error); })
+        .catch(error => console.warn('[Ecomme cores] Falha ao solicitar análise:', error));
+    }
 
     // Só depois da confirmação: apaga do Storage as imagens que saíram deste produto e ninguém mais usa
     if (editing) {
