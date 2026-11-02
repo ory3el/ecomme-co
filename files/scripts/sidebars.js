@@ -2455,7 +2455,7 @@ function openConfirmLogout() {
   if (document.querySelector('script[data-ecomme-global-search]')) return;
 
   const script = document.createElement('script');
-  script.src = '/files/scripts/global-search.js';
+  script.src = '/files/scripts/global-search.js?v=20261102-voice-transcript-fix-2';
   script.dataset.ecommeGlobalSearch = 'true';
   script.async = true;
   document.head.appendChild(script);
