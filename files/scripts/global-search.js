@@ -450,18 +450,92 @@
     elements.mic.classList.toggle('is-processing', state === 'processing');
   }
 
+  function cleanVoiceText(value) {
+    return String(value || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function voiceWordKey(word) {
+    return String(word || '').toLocaleLowerCase('pt-BR')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  // Remove repetições consecutivas de palavras ou blocos idênticos, comuns
+  // quando o serviço de voz repete uma hipótese durante a mesma captura.
+  function collapseRepeatedSpeech(value) {
+    const words = cleanVoiceText(value).split(' ').filter(Boolean);
+    const output = [];
+    for (let i = 0; i < words.length;) {
+      let repeated = 0;
+      const max = Math.min(8, output.length, words.length - i);
+      for (let size = max; size >= 1; size--) {
+        let matches = true;
+        for (let j = 0; j < size; j++) {
+          const previousKey = voiceWordKey(output[output.length - size + j]);
+          const currentKey = voiceWordKey(words[i + j]);
+          if (!previousKey || previousKey !== currentKey) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) {
+          repeated = size;
+          break;
+        }
+      }
+      if (repeated) i += repeated;
+      else output.push(words[i++]);
+    }
+    return output.join(' ');
+  }
+
+  // Uma nova instância do reconhecimento pode devolver novamente o final da
+  // sessão anterior. Remove o maior trecho em comum entre o fim e o começo.
+  function removeVoiceOverlap(previousText, nextText) {
+    const previous = cleanVoiceText(previousText).split(' ').filter(Boolean);
+    const next = cleanVoiceText(nextText).split(' ').filter(Boolean);
+    const max = Math.min(24, previous.length, next.length);
+    let overlap = 0;
+
+    for (let size = max; size >= 1; size--) {
+      let matches = true;
+      for (let i = 0; i < size; i++) {
+        const a = voiceWordKey(previous[previous.length - size + i]);
+        const b = voiceWordKey(next[i]);
+        if (!a || a !== b) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) {
+        overlap = size;
+        break;
+      }
+    }
+
+    return next.slice(overlap).join(' ');
+  }
+
+  function mergeVoiceTranscript(previousText, nextText) {
+    const previous = collapseRepeatedSpeech(previousText);
+    const next = collapseRepeatedSpeech(nextText);
+    const remainder = removeVoiceOverlap(previous, next);
+    return collapseRepeatedSpeech([previous, remainder].filter(Boolean).join(' '));
+  }
+
   function getVoiceTranscript(session) {
-    return [session.finalTranscript, session.currentFinalTranscript, session.interimTranscript]
-      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    const confirmed = mergeVoiceTranscript(session.finalTranscript, session.currentFinalTranscript);
+    return mergeVoiceTranscript(confirmed, session.interimTranscript);
   }
 
   function renderVoiceTranscript(session) {
     const elements = ensureVoiceModal();
-    const hasText = Boolean(getVoiceTranscript(session));
+    const confirmed = mergeVoiceTranscript(session.finalTranscript, session.currentFinalTranscript);
+    const interim = removeVoiceOverlap(confirmed, collapseRepeatedSpeech(session.interimTranscript));
+    const hasText = Boolean(mergeVoiceTranscript(confirmed, interim));
     elements.placeholder.hidden = hasText;
-    elements.finalText.textContent = [session.finalTranscript, session.currentFinalTranscript]
-      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-    elements.interimText.textContent = session.interimTranscript ? ` ${session.interimTranscript}` : '';
+    elements.finalText.textContent = confirmed;
+    elements.interimText.textContent = interim ? ` ${interim}` : '';
     elements.send.disabled = !hasText || session.sendRequested;
   }
 
@@ -577,18 +651,14 @@
   }
 
   function appendSessionTranscript(session) {
-    // Apenas resultados finais são preservados entre reinicializações.
-    // Resultados intermediários são hipóteses temporárias e podem reaparecer
-    // como texto final quando o reconhecimento é iniciado novamente.
-    const segment = String(session.currentFinalTranscript || '')
-      .replace(/\s+/g, ' ').trim();
-    if (segment) {
-      session.finalTranscript = [session.finalTranscript, segment]
-        .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-    }
+    // Só confirma resultados finais. A junção remove qualquer sobreposição
+    // com o final da sessão anterior para não repetir palavras no reinício.
+    session.finalTranscript = mergeVoiceTranscript(
+      session.finalTranscript,
+      session.currentFinalTranscript
+    );
     session.currentFinalTranscript = '';
     session.interimTranscript = '';
-    session.recognitionResults = [];
   }
 
   function startVoiceRecognition(session, SpeechRecognitionAPI) {
@@ -608,7 +678,6 @@
     session.ended = false;
     session.currentFinalTranscript = '';
     session.interimTranscript = '';
-    session.recognitionResults = [];
     session.fatalError = '';
     session.voiceButton._ecommeRecognition = recognition;
     window.__ecommeActiveVoiceRecognition = recognition;
@@ -627,34 +696,27 @@
     recognition.onresult = event => {
       if (session.cancelled) return;
 
-      // A lista results contém os resultados anteriores da sessão atual.
-      // resultIndex informa a partir de qual posição houve alteração. Guardar
-      // por índice evita concatenar novamente palavras já confirmadas.
-      const results = event.results;
-      const storedResults = session.recognitionResults || (session.recognitionResults = []);
-      const changedFrom = Math.max(0, Math.min(
-        Number.isInteger(event.resultIndex) ? event.resultIndex : 0,
-        results.length
-      ));
-      storedResults.length = results.length;
-
-      for (let i = changedFrom; i < results.length; i++) {
-        const result = results[i];
-        storedResults[i] = {
-          transcript: result?.[0]?.transcript?.trim() || '',
-          isFinal: Boolean(result?.isFinal)
-        };
-      }
-
+      // event.results já contém a fotografia COMPLETA dos resultados atuais
+      // da instância: finais confirmados + hipóteses provisórias. Reconstruir
+      // sempre do zero evita reaproveitar fragmentos antigos por índice.
       const confirmed = [];
       const interim = [];
-      for (const result of storedResults) {
-        if (!result?.transcript) continue;
-        (result.isFinal ? confirmed : interim).push(result.transcript);
+      const results = event.results;
+
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const transcript = result?.[0]?.transcript?.trim();
+        if (!transcript) continue;
+        (result.isFinal ? confirmed : interim).push(transcript);
       }
 
-      session.currentFinalTranscript = confirmed.join(' ').replace(/\s+/g, ' ').trim();
-      session.interimTranscript = interim.join(' ').replace(/\s+/g, ' ').trim();
+      session.currentFinalTranscript = collapseRepeatedSpeech(confirmed.join(' '));
+      const confirmedSoFar = mergeVoiceTranscript(session.finalTranscript, session.currentFinalTranscript);
+      session.interimTranscript = removeVoiceOverlap(
+        confirmedSoFar,
+        collapseRepeatedSpeech(interim.join(' '))
+      );
+
       renderVoiceTranscript(session);
       if (getVoiceTranscript(session)) {
         setVoiceModalStatus('Texto reconhecido. Você pode continuar falando ou enviar a pesquisa.', 'listening');
@@ -680,6 +742,7 @@
     };
 
     recognition.onend = () => {
+      if (session.recognition !== recognition) return;
       session.ended = true;
       appendSessionTranscript(session);
       renderVoiceTranscript(session);
