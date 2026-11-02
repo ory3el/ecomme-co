@@ -494,7 +494,9 @@
   function removeVoiceOverlap(previousText, nextText) {
     const previous = cleanVoiceText(previousText).split(' ').filter(Boolean);
     const next = cleanVoiceText(nextText).split(' ').filter(Boolean);
-    const max = Math.min(24, previous.length, next.length);
+    // O serviço pode reenviar dezenas de palavras (ou toda a transcrição anterior)
+    // ao reiniciar a captura. O limite antigo de 24 palavras deixava o restante duplicado.
+    const max = Math.min(250, previous.length, next.length);
     let overlap = 0;
 
     for (let size = max; size >= 1; size--) {
@@ -520,7 +522,7 @@
     const previous = collapseRepeatedSpeech(previousText);
     const next = collapseRepeatedSpeech(nextText);
     const remainder = removeVoiceOverlap(previous, next);
-    return collapseRepeatedSpeech([previous, remainder].filter(Boolean).join(' '));
+    return [previous, remainder].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
   }
 
   function getVoiceTranscript(session) {
