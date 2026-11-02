@@ -92,6 +92,51 @@
       .filter(row => row.name);
   }
 
+  function requestMicrophoneStream() {
+    const mediaDevices = navigator.mediaDevices;
+    if (mediaDevices && typeof mediaDevices.getUserMedia === 'function') {
+      // Chamado diretamente a partir do clique para acionar o diálogo de permissão.
+      return mediaDevices.getUserMedia.call(mediaDevices, { audio: true, video: false });
+    }
+
+    const legacyGetUserMedia = navigator.getUserMedia
+      || navigator.webkitGetUserMedia
+      || navigator.mozGetUserMedia;
+
+    if (typeof legacyGetUserMedia === 'function') {
+      return new Promise((resolve, reject) => {
+        legacyGetUserMedia.call(navigator, { audio: true, video: false }, resolve, reject);
+      });
+    }
+
+    const error = new Error('Acesso ao microfone não é suportado neste navegador.');
+    error.name = 'NotSupportedError';
+    return Promise.reject(error);
+  }
+
+  function stopMicrophoneStream(stream) {
+    if (!stream || typeof stream.getTracks !== 'function') return;
+    stream.getTracks().forEach(track => {
+      try { track.stop(); } catch (_) { /* trilha já encerrada */ }
+    });
+  }
+
+  function microphoneErrorMessage(error) {
+    const messages = {
+      NotAllowedError: 'Acesso ao microfone negado ou bloqueado. Permita o microfone nas configurações do navegador e tente novamente.',
+      PermissionDeniedError: 'Acesso ao microfone negado. Permita o uso do microfone nas configurações do navegador.',
+      NotFoundError: 'Nenhum microfone foi encontrado. Conecte um microfone e tente novamente.',
+      DevicesNotFoundError: 'Nenhum microfone foi encontrado. Conecte um microfone e tente novamente.',
+      NotReadableError: 'O microfone está ocupado ou não pode ser acessado no momento.',
+      TrackStartError: 'O microfone não conseguiu iniciar. Verifique se ele está conectado e não está sendo usado por outro aplicativo.',
+      OverconstrainedError: 'Não foi possível utilizar o microfone disponível.',
+      SecurityError: 'O navegador bloqueou o acesso ao microfone por segurança.',
+      NotSupportedError: 'Este navegador não oferece acesso ao microfone nesta página.',
+      AbortError: 'A solicitação de acesso ao microfone foi interrompida.'
+    };
+    return messages[error?.name] || 'Não foi possível acessar o microfone. Verifique a conexão e as permissões do navegador.';
+  }
+
   async function fetchSuggestions(query, signal) {
     const cacheKey = query.toLocaleLowerCase('pt-BR');
     if (suggestionCache.has(cacheKey)) return suggestionCache.get(cacheKey);
@@ -362,8 +407,6 @@
       voiceButton = document.createElement('button');
       voiceButton.type = 'button';
       voiceButton.className = 'ecomme-voice-search';
-      voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
-      voiceButton.title = 'Pesquisar por voz';
       voiceButton.innerHTML = `
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"></path>
@@ -372,20 +415,20 @@
       container.appendChild(voiceButton);
     }
 
+    // Não desabilite o botão por detecção de suporte: o clique precisa poder
+    // solicitar a permissão real do microfone via getUserMedia().
+    voiceButton.type = 'button';
+    voiceButton.disabled = false;
+    voiceButton.classList.remove('is-unavailable');
+    voiceButton.title = 'Pesquisar por voz';
+    voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
+
     if (!voiceStatus) {
       voiceStatus = document.createElement('span');
       voiceStatus.className = 'ecomme-voice-status';
       voiceStatus.setAttribute('role', 'status');
       voiceStatus.setAttribute('aria-live', 'polite');
       container.appendChild(voiceStatus);
-    }
-
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      voiceButton.disabled = true;
-      voiceButton.classList.add('is-unavailable');
-      voiceButton.title = 'Pesquisa por voz não disponível neste navegador';
-      voiceButton.setAttribute('aria-label', 'Pesquisa por voz não disponível neste navegador');
     }
 
     let debounceTimer = null;
@@ -505,26 +548,56 @@
     button.setAttribute('aria-label', 'Pesquisar produtos');
     if (!button.title) button.title = 'Pesquisar produtos';
 
-    voiceButton.addEventListener('click', () => {
-      if (!SpeechRecognitionAPI) return;
-
-      if (voiceButton.classList.contains('is-listening')) {
+    voiceButton.addEventListener('click', async () => {
+      const currentRecognition = voiceButton._ecommeRecognition;
+      if (voiceButton.classList.contains('is-listening') && currentRecognition) {
         voiceButton.title = 'Finalizando reconhecimento...';
         voiceButton.setAttribute('aria-label', 'Finalizando reconhecimento de voz');
-        voiceButton._ecommeRecognition?.stop();
+        try { currentRecognition.stop(); } catch (_) { /* reconhecimento já finalizado */ }
         return;
       }
 
-      // Apenas origens seguras (HTTPS ou localhost) podem solicitar o microfone.
-      if (!window.isSecureContext && location.hostname !== 'localhost') {
-        voiceStatus.textContent = 'A pesquisa por voz requer uma conexão HTTPS.';
+      if (voiceButton.dataset.ecommeVoiceBusy === 'true') return;
+
+      if (window.isSecureContext === false && location.hostname !== 'localhost') {
+        voiceStatus.textContent = 'A permissão do microfone exige uma conexão segura (HTTPS).';
         return;
       }
 
-      const currentRecognition = window.__ecommeActiveVoiceRecognition;
-      if (currentRecognition) {
-        currentRecognition.__ecommeCancelled = true;
-        try { currentRecognition.abort(); } catch (_) { /* já finalizado */ }
+      voiceButton.dataset.ecommeVoiceBusy = 'true';
+      voiceButton.classList.add('is-requesting');
+      voiceButton.setAttribute('aria-busy', 'true');
+      voiceButton.title = 'Solicitando acesso ao microfone...';
+      voiceButton.setAttribute('aria-label', 'Solicitando acesso ao microfone');
+      voiceStatus.textContent = 'Solicitando permissão para usar o microfone...';
+
+      let permissionStream = null;
+      try {
+        // IMPORTANTE: esta chamada acontece antes do primeiro await e dentro
+        // do clique do usuário, para que o navegador possa exibir a permissão.
+        permissionStream = await requestMicrophoneStream();
+      } catch (error) {
+        voiceStatus.textContent = microphoneErrorMessage(error);
+        return;
+      } finally {
+        stopMicrophoneStream(permissionStream);
+        voiceButton.dataset.ecommeVoiceBusy = 'false';
+        voiceButton.classList.remove('is-requesting');
+        voiceButton.removeAttribute('aria-busy');
+        voiceButton.title = 'Pesquisar por voz';
+        voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
+      }
+
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognitionAPI) {
+        voiceStatus.textContent = 'Acesso ao microfone autorizado, mas este navegador não oferece reconhecimento de fala. Use um navegador compatível para pesquisar por voz.';
+        return;
+      }
+
+      const previousRecognition = window.__ecommeActiveVoiceRecognition;
+      if (previousRecognition) {
+        previousRecognition.__ecommeCancelled = true;
+        try { previousRecognition.abort(); } catch (_) { /* já finalizado */ }
       }
 
       const recognition = new SpeechRecognitionAPI();
@@ -559,21 +632,21 @@
 
       recognition.onerror = event => {
         const messages = {
-          'not-allowed': 'Permita o acesso ao microfone para pesquisar por voz.',
-          'service-not-allowed': 'O navegador não permitiu o reconhecimento de voz.',
+          'not-allowed': 'O microfone foi bloqueado para o reconhecimento de fala. Verifique a permissão do site.',
+          'service-not-allowed': 'O navegador não permitiu o serviço de reconhecimento de fala.',
           'audio-capture': 'Nenhum microfone disponível foi encontrado.',
           'no-speech': 'Nenhuma fala foi detectada. Tente novamente.',
           'network': 'Não foi possível reconhecer a voz. Verifique sua conexão.',
           'language-not-supported': 'O reconhecimento em português não está disponível neste navegador.'
         };
-        recognitionError = messages[event.error] || (event.error === 'aborted' ? '' : 'Não foi possível iniciar a pesquisa por voz.');
+        recognitionError = messages[event.error] || (event.error === 'aborted' ? '' : 'Não foi possível iniciar o reconhecimento de fala.');
       };
 
       recognition.onend = () => {
         voiceButton.classList.remove('is-listening');
         voiceButton.title = 'Pesquisar por voz';
         voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
-        voiceButton._ecommeRecognition = null;
+        if (voiceButton._ecommeRecognition === recognition) voiceButton._ecommeRecognition = null;
         if (window.__ecommeActiveVoiceRecognition === recognition) {
           window.__ecommeActiveVoiceRecognition = null;
         }
@@ -604,7 +677,7 @@
         voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
         voiceStatus.textContent = error?.name === 'InvalidStateError'
           ? 'O reconhecimento de voz já está em andamento.'
-          : 'Não foi possível acessar o microfone. Verifique as permissões do navegador.';
+          : 'A permissão do microfone foi concedida, mas o reconhecimento de fala não pôde iniciar.';
       }
     });
 
