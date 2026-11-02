@@ -373,6 +373,325 @@
     return nextIndex;
   }
 
+  let activeVoiceSession = null;
+  let voiceModalElements = null;
+
+  function ensureVoiceModal() {
+    if (voiceModalElements) return voiceModalElements;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ecomme-voice-modal-overlay';
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+      <section class="ecomme-voice-modal" role="dialog" aria-modal="true" aria-labelledby="ecomme-voice-title" aria-describedby="ecomme-voice-description">
+        <button class="ecomme-voice-close" type="button" aria-label="Fechar pesquisa por voz" title="Fechar">&times;</button>
+        <div class="ecomme-voice-modal-heading">
+          <span class="ecomme-voice-eyebrow">PESQUISA POR VOZ</span>
+          <h2 id="ecomme-voice-title">O que você está procurando?</h2>
+          <p id="ecomme-voice-description">Comece a falar. Sua pesquisa será transcrita aqui em tempo real.</p>
+        </div>
+        <div class="ecomme-voice-transcript" aria-live="polite" aria-atomic="true">
+          <span class="ecomme-voice-transcript-placeholder">Comece a falar...</span>
+          <span class="ecomme-voice-transcript-final"></span>
+          <span class="ecomme-voice-transcript-interim"></span>
+        </div>
+        <div class="ecomme-voice-live-indicator">
+          <span class="ecomme-voice-mic-orb" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"></path><path d="M19 11a7 7 0 0 1-14 0M12 18v4m-4 0h8"></path></svg>
+          </span>
+          <span class="ecomme-voice-modal-status" role="status" aria-live="polite">Preparando o microfone...</span>
+        </div>
+        <div class="ecomme-voice-modal-actions">
+          <button class="ecomme-voice-cancel" type="button">Cancelar</button>
+          <button class="ecomme-voice-send" type="button" disabled>
+            <span>Enviar e pesquisar</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </section>`;
+    document.body.appendChild(overlay);
+
+    const elements = {
+      overlay,
+      dialog: overlay.querySelector('.ecomme-voice-modal'),
+      close: overlay.querySelector('.ecomme-voice-close'),
+      placeholder: overlay.querySelector('.ecomme-voice-transcript-placeholder'),
+      finalText: overlay.querySelector('.ecomme-voice-transcript-final'),
+      interimText: overlay.querySelector('.ecomme-voice-transcript-interim'),
+      mic: overlay.querySelector('.ecomme-voice-mic-orb'),
+      status: overlay.querySelector('.ecomme-voice-modal-status'),
+      cancel: overlay.querySelector('.ecomme-voice-cancel'),
+      send: overlay.querySelector('.ecomme-voice-send')
+    };
+
+    elements.send.addEventListener('click', () => requestVoiceSend(activeVoiceSession));
+    elements.cancel.addEventListener('click', cancelActiveVoiceSession);
+    elements.close.addEventListener('click', cancelActiveVoiceSession);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) cancelActiveVoiceSession();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !elements.overlay.hidden) {
+        event.preventDefault();
+        cancelActiveVoiceSession();
+      }
+    });
+
+    voiceModalElements = elements;
+    return elements;
+  }
+
+  function setVoiceModalStatus(message, state = 'listening') {
+    const elements = ensureVoiceModal();
+    elements.status.textContent = message;
+    elements.mic.classList.toggle('is-listening', state === 'listening');
+    elements.mic.classList.toggle('is-error', state === 'error');
+    elements.mic.classList.toggle('is-processing', state === 'processing');
+  }
+
+  function getVoiceTranscript(session) {
+    return [session.finalTranscript, session.currentFinalTranscript, session.interimTranscript]
+      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function renderVoiceTranscript(session) {
+    const elements = ensureVoiceModal();
+    const hasText = Boolean(getVoiceTranscript(session));
+    elements.placeholder.hidden = hasText;
+    elements.finalText.textContent = [session.finalTranscript, session.currentFinalTranscript]
+      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    elements.interimText.textContent = session.interimTranscript ? ` ${session.interimTranscript}` : '';
+    elements.send.disabled = !hasText || session.sendRequested;
+  }
+
+  function openVoiceModal(session) {
+    const elements = ensureVoiceModal();
+    activeVoiceSession = session;
+    elements.placeholder.hidden = false;
+    elements.finalText.textContent = '';
+    elements.interimText.textContent = '';
+    elements.send.disabled = true;
+    elements.send.querySelector('span').textContent = 'Enviar e pesquisar';
+    setVoiceModalStatus('Ouvindo você... comece a falar.', 'listening');
+    elements.overlay.hidden = false;
+    elements.overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('ecomme-voice-modal-open');
+    requestAnimationFrame(() => {
+      elements.overlay.classList.add('is-open');
+      elements.cancel.focus({ preventScroll: true });
+    });
+  }
+
+  function closeVoiceModal() {
+    if (!voiceModalElements) return;
+    const elements = voiceModalElements;
+    elements.overlay.classList.remove('is-open');
+    elements.overlay.hidden = true;
+    elements.overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('ecomme-voice-modal-open');
+  }
+
+  function resetVoiceButton(session) {
+    const button = session?.voiceButton;
+    if (!button) return;
+    button.classList.remove('is-requesting', 'is-listening');
+    button.removeAttribute('aria-busy');
+    button.dataset.ecommeVoiceBusy = 'false';
+    button.title = 'Pesquisar por voz';
+    button.setAttribute('aria-label', 'Pesquisar por voz');
+    button._ecommeRecognition = null;
+  }
+
+  function cleanupVoiceSession(session) {
+    if (!session) return;
+    session.cancelled = true;
+    session.shouldContinue = false;
+    clearTimeout(session.restartTimer);
+    clearTimeout(session.sendFallbackTimer);
+    try { session.recognition?.abort(); } catch (_) { /* reconhecimento já encerrado */ }
+    if (window.__ecommeActiveVoiceRecognition === session.recognition) {
+      window.__ecommeActiveVoiceRecognition = null;
+    }
+    resetVoiceButton(session);
+    if (activeVoiceSession === session) activeVoiceSession = null;
+    closeVoiceModal();
+  }
+
+  function cancelActiveVoiceSession() {
+    const session = activeVoiceSession;
+    if (!session) {
+      closeVoiceModal();
+      return;
+    }
+    cleanupVoiceSession(session);
+    if (session.voiceStatus) session.voiceStatus.textContent = 'Pesquisa por voz cancelada.';
+    if (session.voiceButton?.isConnected) session.voiceButton.focus({ preventScroll: true });
+  }
+
+  function finishVoiceSearch(session) {
+    if (!session || session.cancelled) return;
+    const query = getVoiceTranscript(session);
+    if (!query) {
+      session.sendRequested = false;
+      session.shouldContinue = false;
+      clearTimeout(session.restartTimer);
+      if (voiceModalElements) {
+        voiceModalElements.send.disabled = true;
+        setVoiceModalStatus('Não identificamos nenhuma fala. Feche e tente novamente.', 'error');
+      }
+      resetVoiceButton(session);
+      return;
+    }
+
+    const input = session.input;
+    cleanupVoiceSession(session);
+    if (session.voiceStatus) session.voiceStatus.textContent = `Pesquisa por voz: ${query}`;
+    submitSearch(input, query);
+  }
+
+  function requestVoiceSend(session) {
+    if (!session || session.cancelled) return;
+    const query = getVoiceTranscript(session);
+    if (!query) {
+      setVoiceModalStatus('Comece a falar para formar sua pesquisa.', 'listening');
+      return;
+    }
+
+    session.sendRequested = true;
+    session.shouldContinue = false;
+    clearTimeout(session.restartTimer);
+    if (voiceModalElements) {
+      voiceModalElements.send.disabled = true;
+      voiceModalElements.send.querySelector('span').textContent = 'Enviando...';
+    }
+    setVoiceModalStatus('Finalizando a transcrição...', 'processing');
+
+    if (!session.recognition || session.ended) {
+      finishVoiceSearch(session);
+      return;
+    }
+
+    try { session.recognition.stop(); } catch (_) { finishVoiceSearch(session); return; }
+    session.sendFallbackTimer = setTimeout(() => finishVoiceSearch(session), 1200);
+  }
+
+  function appendSessionTranscript(session) {
+    const segment = [session.currentFinalTranscript, session.interimTranscript]
+      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    if (segment) {
+      session.finalTranscript = [session.finalTranscript, segment]
+        .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    }
+    session.currentFinalTranscript = '';
+    session.interimTranscript = '';
+  }
+
+  function startVoiceRecognition(session, SpeechRecognitionAPI) {
+    if (!session || session.cancelled || !session.shouldContinue) return;
+
+    let recognition;
+    try {
+      recognition = new SpeechRecognitionAPI();
+    } catch (_) {
+      session.shouldContinue = false;
+      setVoiceModalStatus('Não foi possível iniciar o reconhecimento de fala neste navegador.', 'error');
+      resetVoiceButton(session);
+      return;
+    }
+
+    session.recognition = recognition;
+    session.ended = false;
+    session.currentFinalTranscript = '';
+    session.interimTranscript = '';
+    session.fatalError = '';
+    session.voiceButton._ecommeRecognition = recognition;
+    window.__ecommeActiveVoiceRecognition = recognition;
+
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      if (session.cancelled) return;
+      session.voiceButton.classList.add('is-listening');
+      setVoiceModalStatus('Ouvindo você... continue falando.', 'listening');
+    };
+
+    recognition.onresult = event => {
+      if (session.cancelled) return;
+      const confirmed = [];
+      const interim = [];
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        const transcript = result?.[0]?.transcript?.trim();
+        if (!transcript) continue;
+        (result.isFinal ? confirmed : interim).push(transcript);
+      }
+      session.currentFinalTranscript = confirmed.join(' ').trim();
+      session.interimTranscript = interim.join(' ').trim();
+      renderVoiceTranscript(session);
+      if (getVoiceTranscript(session)) setVoiceModalStatus('Texto reconhecido. Você pode continuar falando ou enviar a pesquisa.', 'listening');
+    };
+
+    recognition.onerror = event => {
+      if (session.cancelled) return;
+      const messages = {
+        'not-allowed': 'O navegador bloqueou o reconhecimento de fala. Verifique a permissão do microfone.',
+        'service-not-allowed': 'O navegador não permitiu o serviço de reconhecimento de fala.',
+        'audio-capture': 'Não foi possível capturar o áudio do microfone.',
+        'no-speech': 'Ainda não detectamos fala. Comece a falar perto do microfone.',
+        'network': 'O serviço de reconhecimento não conseguiu se conectar. Verifique sua internet.',
+        'language-not-supported': 'O reconhecimento de fala em português não está disponível neste navegador.'
+      };
+      const message = messages[event.error] || (event.error === 'aborted' ? '' : 'Ocorreu um erro durante o reconhecimento de fala.');
+      if (event.error && !['no-speech', 'aborted'].includes(event.error)) {
+        session.fatalError = message || 'O reconhecimento de fala foi interrompido.';
+        session.shouldContinue = false;
+      }
+      if (message) setVoiceModalStatus(message, event.error === 'no-speech' ? 'listening' : 'error');
+    };
+
+    recognition.onend = () => {
+      session.ended = true;
+      appendSessionTranscript(session);
+      renderVoiceTranscript(session);
+      if (session.voiceButton._ecommeRecognition === recognition) session.voiceButton._ecommeRecognition = null;
+      if (window.__ecommeActiveVoiceRecognition === recognition) window.__ecommeActiveVoiceRecognition = null;
+
+      if (session.cancelled) return;
+      if (session.sendRequested) {
+        finishVoiceSearch(session);
+        return;
+      }
+      if (!session.shouldContinue) {
+        resetVoiceButton(session);
+        if (session.fatalError) setVoiceModalStatus(session.fatalError, 'error');
+        return;
+      }
+
+      setVoiceModalStatus('Continue falando. Estamos mantendo sua transcrição.', 'listening');
+      session.restartTimer = setTimeout(() => {
+        if (activeVoiceSession === session && session.shouldContinue && !session.cancelled) {
+          startVoiceRecognition(session, SpeechRecognitionAPI);
+        }
+      }, 300);
+    };
+
+    try {
+      recognition.start();
+    } catch (error) {
+      session.shouldContinue = false;
+      session.ended = true;
+      const message = error?.name === 'InvalidStateError'
+        ? 'O reconhecimento de fala já está em andamento. Feche e tente novamente.'
+        : 'A permissão foi concedida, mas não foi possível iniciar a captura de voz.';
+      setVoiceModalStatus(message, 'error');
+      resetVoiceButton(session);
+    }
+  }
+
   function bindSearchContainer(container) {
     if (!container || container.dataset.ecommeSearchBound === 'true') return;
 
@@ -549,14 +868,7 @@
     if (!button.title) button.title = 'Pesquisar produtos';
 
     voiceButton.addEventListener('click', async () => {
-      const currentRecognition = voiceButton._ecommeRecognition;
-      if (voiceButton.classList.contains('is-listening') && currentRecognition) {
-        voiceButton.title = 'Finalizando reconhecimento...';
-        voiceButton.setAttribute('aria-label', 'Finalizando reconhecimento de voz');
-        try { currentRecognition.stop(); } catch (_) { /* reconhecimento já finalizado */ }
-        return;
-      }
-
+      if (activeVoiceSession) return;
       if (voiceButton.dataset.ecommeVoiceBusy === 'true') return;
 
       if (window.isSecureContext === false && location.hostname !== 'localhost') {
@@ -573,8 +885,7 @@
 
       let permissionStream = null;
       try {
-        // IMPORTANTE: esta chamada acontece antes do primeiro await e dentro
-        // do clique do usuário, para que o navegador possa exibir a permissão.
+        // A chamada é feita diretamente a partir do clique para solicitar permissão.
         permissionStream = await requestMicrophoneStream();
       } catch (error) {
         voiceStatus.textContent = microphoneErrorMessage(error);
@@ -589,96 +900,35 @@
       }
 
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const session = {
+        input,
+        voiceButton,
+        voiceStatus,
+        recognition: null,
+        finalTranscript: '',
+        currentFinalTranscript: '',
+        interimTranscript: '',
+        shouldContinue: Boolean(SpeechRecognitionAPI),
+        sendRequested: false,
+        cancelled: false,
+        ended: true,
+        fatalError: '',
+        restartTimer: null,
+        sendFallbackTimer: null
+      };
+
+      openVoiceModal(session);
       if (!SpeechRecognitionAPI) {
-        voiceStatus.textContent = 'Acesso ao microfone autorizado, mas este navegador não oferece reconhecimento de fala. Use um navegador compatível para pesquisar por voz.';
+        session.shouldContinue = false;
+        setVoiceModalStatus('O acesso ao microfone foi autorizado, mas este navegador não oferece transcrição de fala. Experimente uma versão atualizada do Chrome ou Edge.', 'error');
         return;
       }
 
-      const previousRecognition = window.__ecommeActiveVoiceRecognition;
-      if (previousRecognition) {
-        previousRecognition.__ecommeCancelled = true;
-        try { previousRecognition.abort(); } catch (_) { /* já finalizado */ }
-      }
-
-      const recognition = new SpeechRecognitionAPI();
-      let finalTranscript = '';
-      let recognitionError = '';
-      const previousValue = input.value;
-
-      recognition.lang = 'pt-BR';
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-      voiceStatus.textContent = 'Ouvindo... fale o nome do produto.';
       voiceButton.classList.add('is-listening');
-      voiceButton.title = 'Ouvindo... clique para finalizar';
-      voiceButton.setAttribute('aria-label', 'Ouvindo. Clique para finalizar a pesquisa por voz');
-      voiceButton._ecommeRecognition = recognition;
-      window.__ecommeActiveVoiceRecognition = recognition;
-
-      recognition.onresult = event => {
-        const confirmed = [];
-        const interim = [];
-        for (let i = 0; i < event.results.length; i++) {
-          const result = event.results[i];
-          const transcript = result?.[0]?.transcript?.trim();
-          if (!transcript) continue;
-          (result.isFinal ? confirmed : interim).push(transcript);
-        }
-        finalTranscript = confirmed.join(' ').trim();
-        const preview = [finalTranscript, interim.join(' ')].filter(Boolean).join(' ').trim();
-        if (preview) input.value = preview;
-      };
-
-      recognition.onerror = event => {
-        const messages = {
-          'not-allowed': 'O microfone foi bloqueado para o reconhecimento de fala. Verifique a permissão do site.',
-          'service-not-allowed': 'O navegador não permitiu o serviço de reconhecimento de fala.',
-          'audio-capture': 'Nenhum microfone disponível foi encontrado.',
-          'no-speech': 'Nenhuma fala foi detectada. Tente novamente.',
-          'network': 'Não foi possível reconhecer a voz. Verifique sua conexão.',
-          'language-not-supported': 'O reconhecimento em português não está disponível neste navegador.'
-        };
-        recognitionError = messages[event.error] || (event.error === 'aborted' ? '' : 'Não foi possível iniciar o reconhecimento de fala.');
-      };
-
-      recognition.onend = () => {
-        voiceButton.classList.remove('is-listening');
-        voiceButton.title = 'Pesquisar por voz';
-        voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
-        if (voiceButton._ecommeRecognition === recognition) voiceButton._ecommeRecognition = null;
-        if (window.__ecommeActiveVoiceRecognition === recognition) {
-          window.__ecommeActiveVoiceRecognition = null;
-        }
-
-        if (recognition.__ecommeCancelled) return;
-
-        if (finalTranscript) {
-          input.value = finalTranscript;
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          voiceStatus.textContent = `Pesquisando por: ${finalTranscript}`;
-          submitSearch(input, finalTranscript);
-          return;
-        }
-
-        input.value = previousValue;
-        voiceStatus.textContent = recognitionError || 'Não foi possível identificar a fala. Tente novamente.';
-      };
-
-      try {
-        recognition.start();
-      } catch (error) {
-        voiceButton.classList.remove('is-listening');
-        voiceButton._ecommeRecognition = null;
-        if (window.__ecommeActiveVoiceRecognition === recognition) {
-          window.__ecommeActiveVoiceRecognition = null;
-        }
-        voiceButton.title = 'Pesquisar por voz';
-        voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
-        voiceStatus.textContent = error?.name === 'InvalidStateError'
-          ? 'O reconhecimento de voz já está em andamento.'
-          : 'A permissão do microfone foi concedida, mas o reconhecimento de fala não pôde iniciar.';
-      }
+      voiceButton.title = 'Pesquisa por voz em andamento';
+      voiceButton.setAttribute('aria-label', 'Pesquisa por voz em andamento');
+      voiceStatus.textContent = 'Ouvindo e transcrevendo sua fala...';
+      startVoiceRecognition(session, SpeechRecognitionAPI);
     });
 
     // Ajusta o menu durante a rolagem e redimensionamento apenas enquanto aberto.
