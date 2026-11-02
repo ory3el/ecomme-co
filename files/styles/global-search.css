@@ -188,7 +188,8 @@
   }
 }
 
-/* Pesquisa por voz */
+
+/* Pesquisa por voz: o botão permanece acionável para solicitar permissão. */
 .search-bar .ecomme-voice-search {
   display: inline-flex;
   flex: 0 0 32px;
@@ -197,6 +198,7 @@
   width: 32px;
   height: 32px;
   min-width: 32px;
+  min-height: 32px;
   padding: 0;
   margin: 0 -7px 0 0;
   border: 1px solid var(--border, rgba(15, 23, 42, .12));
@@ -207,7 +209,7 @@
   transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
 }
 
-.search-bar .ecomme-voice-search:hover:not(:disabled) {
+.search-bar .ecomme-voice-search:hover {
   color: var(--blue, #2563eb);
   background: var(--blue-dim, rgba(37, 99, 235, .08));
   border-color: var(--blue, #2563eb);
@@ -230,17 +232,17 @@
   stroke-linejoin: round;
 }
 
+.search-bar .ecomme-voice-search.is-requesting {
+  color: var(--blue, #2563eb);
+  border-color: var(--blue, #2563eb);
+  animation: ecomme-voice-pulse 1.25s ease-in-out infinite;
+}
+
 .search-bar .ecomme-voice-search.is-listening {
   color: #fff;
   background: #dc2626;
   border-color: #dc2626;
   animation: ecomme-voice-pulse 1.25s ease-in-out infinite;
-}
-
-.search-bar .ecomme-voice-search:disabled,
-.search-bar .ecomme-voice-search.is-unavailable {
-  opacity: .42;
-  cursor: not-allowed;
 }
 
 .ecomme-voice-status {
@@ -256,8 +258,8 @@
 }
 
 @keyframes ecomme-voice-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .24); }
-  50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, .22); }
+  50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
 }
 
 @media (max-width: 600px) {
@@ -265,11 +267,13 @@
     width: 30px;
     height: 30px;
     min-width: 30px;
+    min-height: 30px;
     flex-basis: 30px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .search-bar .ecomme-voice-search.is-requesting,
   .search-bar .ecomme-voice-search.is-listening {
     animation: none;
   }
