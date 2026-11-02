@@ -577,14 +577,18 @@
   }
 
   function appendSessionTranscript(session) {
-    const segment = [session.currentFinalTranscript, session.interimTranscript]
-      .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    // Apenas resultados finais são preservados entre reinicializações.
+    // Resultados intermediários são hipóteses temporárias e podem reaparecer
+    // como texto final quando o reconhecimento é iniciado novamente.
+    const segment = String(session.currentFinalTranscript || '')
+      .replace(/\s+/g, ' ').trim();
     if (segment) {
       session.finalTranscript = [session.finalTranscript, segment]
         .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
     }
     session.currentFinalTranscript = '';
     session.interimTranscript = '';
+    session.recognitionResults = [];
   }
 
   function startVoiceRecognition(session, SpeechRecognitionAPI) {
@@ -604,6 +608,7 @@
     session.ended = false;
     session.currentFinalTranscript = '';
     session.interimTranscript = '';
+    session.recognitionResults = [];
     session.fatalError = '';
     session.voiceButton._ecommeRecognition = recognition;
     window.__ecommeActiveVoiceRecognition = recognition;
@@ -621,18 +626,39 @@
 
     recognition.onresult = event => {
       if (session.cancelled) return;
+
+      // A lista results contém os resultados anteriores da sessão atual.
+      // resultIndex informa a partir de qual posição houve alteração. Guardar
+      // por índice evita concatenar novamente palavras já confirmadas.
+      const results = event.results;
+      const storedResults = session.recognitionResults || (session.recognitionResults = []);
+      const changedFrom = Math.max(0, Math.min(
+        Number.isInteger(event.resultIndex) ? event.resultIndex : 0,
+        results.length
+      ));
+      storedResults.length = results.length;
+
+      for (let i = changedFrom; i < results.length; i++) {
+        const result = results[i];
+        storedResults[i] = {
+          transcript: result?.[0]?.transcript?.trim() || '',
+          isFinal: Boolean(result?.isFinal)
+        };
+      }
+
       const confirmed = [];
       const interim = [];
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        const transcript = result?.[0]?.transcript?.trim();
-        if (!transcript) continue;
-        (result.isFinal ? confirmed : interim).push(transcript);
+      for (const result of storedResults) {
+        if (!result?.transcript) continue;
+        (result.isFinal ? confirmed : interim).push(result.transcript);
       }
-      session.currentFinalTranscript = confirmed.join(' ').trim();
-      session.interimTranscript = interim.join(' ').trim();
+
+      session.currentFinalTranscript = confirmed.join(' ').replace(/\s+/g, ' ').trim();
+      session.interimTranscript = interim.join(' ').replace(/\s+/g, ' ').trim();
       renderVoiceTranscript(session);
-      if (getVoiceTranscript(session)) setVoiceModalStatus('Texto reconhecido. Você pode continuar falando ou enviar a pesquisa.', 'listening');
+      if (getVoiceTranscript(session)) {
+        setVoiceModalStatus('Texto reconhecido. Você pode continuar falando ou enviar a pesquisa.', 'listening');
+      }
     };
 
     recognition.onerror = event => {
