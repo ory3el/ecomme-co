@@ -187,3 +187,90 @@
     transition: none;
   }
 }
+
+/* Pesquisa por voz */
+.search-bar .ecomme-voice-search {
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  margin: 0 -7px 0 0;
+  border: 1px solid var(--border, rgba(15, 23, 42, .12));
+  border-radius: 50%;
+  color: var(--muted, #64748b);
+  background: var(--white, #fff);
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.search-bar .ecomme-voice-search:hover:not(:disabled) {
+  color: var(--blue, #2563eb);
+  background: var(--blue-dim, rgba(37, 99, 235, .08));
+  border-color: var(--blue, #2563eb);
+  transform: scale(1.06);
+}
+
+.search-bar .ecomme-voice-search:focus-visible {
+  outline: 2px solid var(--blue, #2563eb);
+  outline-offset: 3px;
+}
+
+.search-bar .ecomme-voice-search svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.search-bar .ecomme-voice-search.is-listening {
+  color: #fff;
+  background: #dc2626;
+  border-color: #dc2626;
+  animation: ecomme-voice-pulse 1.25s ease-in-out infinite;
+}
+
+.search-bar .ecomme-voice-search:disabled,
+.search-bar .ecomme-voice-search.is-unavailable {
+  opacity: .42;
+  cursor: not-allowed;
+}
+
+.ecomme-voice-status {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@keyframes ecomme-voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .24); }
+  50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+}
+
+@media (max-width: 600px) {
+  .search-bar .ecomme-voice-search {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    flex-basis: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-bar .ecomme-voice-search.is-listening {
+    animation: none;
+  }
+}
