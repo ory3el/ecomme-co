@@ -355,6 +355,39 @@
     }
 
     const panel = getPanel(container, input);
+    let voiceButton = container.querySelector('.ecomme-voice-search');
+    let voiceStatus = container.querySelector('.ecomme-voice-status');
+
+    if (!voiceButton) {
+      voiceButton = document.createElement('button');
+      voiceButton.type = 'button';
+      voiceButton.className = 'ecomme-voice-search';
+      voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
+      voiceButton.title = 'Pesquisar por voz';
+      voiceButton.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"></path>
+          <path d="M19 11a7 7 0 0 1-14 0M12 18v4m-4 0h8"></path>
+        </svg>`;
+      container.appendChild(voiceButton);
+    }
+
+    if (!voiceStatus) {
+      voiceStatus = document.createElement('span');
+      voiceStatus.className = 'ecomme-voice-status';
+      voiceStatus.setAttribute('role', 'status');
+      voiceStatus.setAttribute('aria-live', 'polite');
+      container.appendChild(voiceStatus);
+    }
+
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      voiceButton.disabled = true;
+      voiceButton.classList.add('is-unavailable');
+      voiceButton.title = 'Pesquisa por voz não disponível neste navegador';
+      voiceButton.setAttribute('aria-label', 'Pesquisa por voz não disponível neste navegador');
+    }
+
     let debounceTimer = null;
     let requestController = null;
     let requestVersion = 0;
@@ -471,6 +504,109 @@
     button.addEventListener('click', onSubmit, true);
     button.setAttribute('aria-label', 'Pesquisar produtos');
     if (!button.title) button.title = 'Pesquisar produtos';
+
+    voiceButton.addEventListener('click', () => {
+      if (!SpeechRecognitionAPI) return;
+
+      if (voiceButton.classList.contains('is-listening')) {
+        voiceButton.title = 'Finalizando reconhecimento...';
+        voiceButton.setAttribute('aria-label', 'Finalizando reconhecimento de voz');
+        voiceButton._ecommeRecognition?.stop();
+        return;
+      }
+
+      // Apenas origens seguras (HTTPS ou localhost) podem solicitar o microfone.
+      if (!window.isSecureContext && location.hostname !== 'localhost') {
+        voiceStatus.textContent = 'A pesquisa por voz requer uma conexão HTTPS.';
+        return;
+      }
+
+      const currentRecognition = window.__ecommeActiveVoiceRecognition;
+      if (currentRecognition) {
+        currentRecognition.__ecommeCancelled = true;
+        try { currentRecognition.abort(); } catch (_) { /* já finalizado */ }
+      }
+
+      const recognition = new SpeechRecognitionAPI();
+      let finalTranscript = '';
+      let recognitionError = '';
+      const previousValue = input.value;
+
+      recognition.lang = 'pt-BR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      voiceStatus.textContent = 'Ouvindo... fale o nome do produto.';
+      voiceButton.classList.add('is-listening');
+      voiceButton.title = 'Ouvindo... clique para finalizar';
+      voiceButton.setAttribute('aria-label', 'Ouvindo. Clique para finalizar a pesquisa por voz');
+      voiceButton._ecommeRecognition = recognition;
+      window.__ecommeActiveVoiceRecognition = recognition;
+
+      recognition.onresult = event => {
+        const confirmed = [];
+        const interim = [];
+        for (let i = 0; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result?.[0]?.transcript?.trim();
+          if (!transcript) continue;
+          (result.isFinal ? confirmed : interim).push(transcript);
+        }
+        finalTranscript = confirmed.join(' ').trim();
+        const preview = [finalTranscript, interim.join(' ')].filter(Boolean).join(' ').trim();
+        if (preview) input.value = preview;
+      };
+
+      recognition.onerror = event => {
+        const messages = {
+          'not-allowed': 'Permita o acesso ao microfone para pesquisar por voz.',
+          'service-not-allowed': 'O navegador não permitiu o reconhecimento de voz.',
+          'audio-capture': 'Nenhum microfone disponível foi encontrado.',
+          'no-speech': 'Nenhuma fala foi detectada. Tente novamente.',
+          'network': 'Não foi possível reconhecer a voz. Verifique sua conexão.',
+          'language-not-supported': 'O reconhecimento em português não está disponível neste navegador.'
+        };
+        recognitionError = messages[event.error] || (event.error === 'aborted' ? '' : 'Não foi possível iniciar a pesquisa por voz.');
+      };
+
+      recognition.onend = () => {
+        voiceButton.classList.remove('is-listening');
+        voiceButton.title = 'Pesquisar por voz';
+        voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
+        voiceButton._ecommeRecognition = null;
+        if (window.__ecommeActiveVoiceRecognition === recognition) {
+          window.__ecommeActiveVoiceRecognition = null;
+        }
+
+        if (recognition.__ecommeCancelled) return;
+
+        if (finalTranscript) {
+          input.value = finalTranscript;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          voiceStatus.textContent = `Pesquisando por: ${finalTranscript}`;
+          submitSearch(input, finalTranscript);
+          return;
+        }
+
+        input.value = previousValue;
+        voiceStatus.textContent = recognitionError || 'Não foi possível identificar a fala. Tente novamente.';
+      };
+
+      try {
+        recognition.start();
+      } catch (error) {
+        voiceButton.classList.remove('is-listening');
+        voiceButton._ecommeRecognition = null;
+        if (window.__ecommeActiveVoiceRecognition === recognition) {
+          window.__ecommeActiveVoiceRecognition = null;
+        }
+        voiceButton.title = 'Pesquisar por voz';
+        voiceButton.setAttribute('aria-label', 'Pesquisar por voz');
+        voiceStatus.textContent = error?.name === 'InvalidStateError'
+          ? 'O reconhecimento de voz já está em andamento.'
+          : 'Não foi possível acessar o microfone. Verifique as permissões do navegador.';
+      }
+    });
 
     // Ajusta o menu durante a rolagem e redimensionamento apenas enquanto aberto.
     const reposition = () => {
