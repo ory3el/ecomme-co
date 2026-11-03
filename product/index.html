@@ -10,7 +10,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
-  <link rel="stylesheet" href="/files/styles/pages/product.css">
+  <link rel="stylesheet" href="/files/styles/pages/product.css?v=review-search-1">
   <link rel="stylesheet" href="/files/styles/essentials-products.css">
   <link rel="stylesheet" href="/files/styles/essentials.css">
 
@@ -353,7 +353,22 @@
         <button class="btn-write-rev" onclick="writeProductReview()">Escrever Avaliação</button>
       </div>
 
-      <div class="rev-list">
+      <div class="rev-reviews-content">
+        <div class="rev-search-box" role="search" aria-label="Pesquisar dentro das avaliações">
+          <span class="rev-search-icon" aria-hidden="true">🔍</span>
+          <input
+            type="search"
+            id="productReviewSearch"
+            placeholder="Pesquisar nas avaliações (ex.: bateria, altura, conforto)..."
+            autocomplete="off"
+            maxlength="100"
+            aria-label="Pesquisar no título e no texto das avaliações"
+          >
+          <button type="button" id="productReviewSearchClear" class="rev-search-clear" aria-label="Limpar pesquisa" hidden>Limpar</button>
+        </div>
+        <p class="rev-search-status" id="productReviewSearchStatus" aria-live="polite">Exibindo as avaliações mais recentes. Pesquise por uma palavra ou característica para encontrar comentários específicos.</p>
+
+        <div class="rev-list">
         <div class="rev-item">
           <div class="rev-head">
             <div class="rev-avatar">MF</div>
@@ -405,6 +420,8 @@
           <p class="rev-text">Entrega rápida e produto idêntico às fotos. Uso para monitorar o sono e os dados parecem bem consistentes com o que eu sinto ao acordar. Recomendo!</p>
           <div class="rev-helpful">Útil? <button onclick="showToast('Obrigado pelo feedback!')">Sim (12)</button></div>
         </div>
+        </div>
+        <button type="button" id="productReviewLoadMore" class="rev-load-more" hidden>Carregar mais avaliações</button>
       </div>
     </div>
   </div>
@@ -566,6 +583,6 @@
 <script defer src="/files/scripts/sidebars.js"></script>
 <script defer src="/files/scripts/essentials.js"></script>
 <script src="/files/scripts/loading.js"></script>
-<script src="/files/scripts/pages/product.js"></script>
+<script src="/files/scripts/pages/product.js?v=review-search-1"></script>
 </body>
 </html>
