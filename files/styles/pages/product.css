@@ -763,6 +763,24 @@
   color: var(--muted);
 }
 
+/* Skeleton específico do carregamento e da pesquisa de avaliações. */
+.rev-item-skeleton { pointer-events: none; }
+.rev-item-skeleton .rev-skeleton-avatar {
+  background: var(--bg3);
+  color: transparent;
+}
+.rev-skeleton-name-row { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.rev-skeleton-line { height: 10px; width: min(100%, 470px); border-radius: 6px; }
+.rev-skeleton-name { width: 142px; height: 11px; }
+.rev-skeleton-date { width: 96px; height: 8px; }
+.rev-skeleton-stars { width: 88px; height: 11px; margin: 2px 0 11px; border-radius: 6px; }
+.rev-skeleton-copy { display: flex; flex-direction: column; gap: 9px; }
+.rev-skeleton-copy .rev-skeleton-line:nth-child(2) { width: 91%; }
+.rev-skeleton-copy .rev-skeleton-line-short { width: 64%; }
+.rev-skeleton-actions { margin-top: 15px; }
+.rev-skeleton-pill { width: 83px; height: 29px; border-radius: 100px; }
+.rev-skeleton-pill-short { width: 91px; }
+
 
 /* ── CURTIDAS E DENÚNCIAS DE AVALIAÇÕES ─────────────────────── */
 .rev-interaction-actions {
