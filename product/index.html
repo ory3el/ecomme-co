@@ -10,7 +10,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
-  <link rel="stylesheet" href="/files/styles/pages/product.css?v=review-search-1">
+  <link rel="stylesheet" href="/files/styles/pages/product.css?v=review-search-2">
   <link rel="stylesheet" href="/files/styles/essentials-products.css">
   <link rel="stylesheet" href="/files/styles/essentials.css">
 
@@ -336,6 +336,21 @@
 
   <!-- REVIEWS -->
   <div class="tab-panel" id="tab-reviews">
+    <div class="rev-search-panel" id="productReviewSearchPanel">
+      <div class="rev-search-box" role="search" aria-label="Pesquisar dentro das avaliações">
+        <span class="rev-search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          id="productReviewSearch"
+          placeholder="Pesquisar nas avaliações (ex.: bateria, altura, conforto)..."
+          autocomplete="off"
+          maxlength="100"
+          aria-label="Pesquisar no título e no texto das avaliações"
+        >
+        <button type="button" id="productReviewSearchClear" class="rev-search-clear" aria-label="Limpar pesquisa" hidden>Limpar</button>
+      </div>
+      <p class="rev-search-status" id="productReviewSearchStatus" aria-live="polite">Pesquise por um assunto, característica ou dúvida mencionada pelos clientes.</p>
+    </div>
     <div class="reviews-layout">
       <div class="rev-summary">
         <div class="rev-avg">
@@ -354,20 +369,6 @@
       </div>
 
       <div class="rev-reviews-content">
-        <div class="rev-search-box" role="search" aria-label="Pesquisar dentro das avaliações">
-          <span class="rev-search-icon" aria-hidden="true">🔍</span>
-          <input
-            type="search"
-            id="productReviewSearch"
-            placeholder="Pesquisar nas avaliações (ex.: bateria, altura, conforto)..."
-            autocomplete="off"
-            maxlength="100"
-            aria-label="Pesquisar no título e no texto das avaliações"
-          >
-          <button type="button" id="productReviewSearchClear" class="rev-search-clear" aria-label="Limpar pesquisa" hidden>Limpar</button>
-        </div>
-        <p class="rev-search-status" id="productReviewSearchStatus" aria-live="polite">Exibindo as avaliações mais recentes. Pesquise por uma palavra ou característica para encontrar comentários específicos.</p>
-
         <div class="rev-list">
         <div class="rev-item">
           <div class="rev-head">
@@ -583,6 +584,6 @@
 <script defer src="/files/scripts/sidebars.js"></script>
 <script defer src="/files/scripts/essentials.js"></script>
 <script src="/files/scripts/loading.js"></script>
-<script src="/files/scripts/pages/product.js?v=review-search-1"></script>
+<script src="/files/scripts/pages/product.js?v=review-search-2"></script>
 </body>
 </html>
