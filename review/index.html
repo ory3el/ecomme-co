@@ -2,23 +2,23 @@
 <html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#F3F7FF">
-  <title>Avaliar produto | Ecomme</title>
-  <link rel="icon" type="image/png" href="/images/favicon-blue.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Veja uma lista de desejos compartilhada na Ecomme.">
+  <title>Avaliar Produto | Ecomme</title>
+
+  <link rel="stylesheet" href="/files/styles/pages/my-wish.css">
+  <link rel="stylesheet" href="/files/styles/essentials.css">
+  <link rel="stylesheet" href="/files/styles/essentials-products.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/review/styles.css">
-  <script>
-    (() => {
-      try {
-        const pref = localStorage.getItem('ecomme-theme') || 'auto';
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset.theme = pref === 'auto' ? (dark ? 'dark' : 'light') : pref;
-      } catch (_) {}
-    })();
-  </script>
 </head>
 <body>
   <header class="review-header">
@@ -97,8 +97,7 @@
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/files/scripts/auth-session-check.js"></script>
+  <script src="/files/script/imports.js"></script>
   <script src="/review/script.js"></script>
 </body>
 </html>
