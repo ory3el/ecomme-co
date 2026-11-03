@@ -919,8 +919,8 @@ async function loadMoreProductReviews() {
     state.hasMore = state.offset < state.total;
 
     setProductReviewSearchStatus(state.term
-      ? `${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')}.`
-      : `Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações.`);
+      ? ``/*${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')}.*/
+      : ``/*Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações.*/);
   } catch (error) {
     if (requestId !== state.requestId) return;
     console.error('Erro ao carregar mais avaliações:', error);
