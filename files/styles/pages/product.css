@@ -49,7 +49,8 @@
     right: 20px;
     top: 20px;
     }
-    .gallery-fav:hover, .gallery-fav.on {border-color: var(--red);color: var(--red);}
+    .gallery-fav:hover, .gallery-fav.on {box-shadow: 0 0 20px;color: var(--red);}
+    .gallery-fav:hover svg {stroke: var(--red)}
     .gallery-fav svg { width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 2; transition: all .2s; }
     .gallery-fav.on svg { stroke: var(--red); fill: var(--red); }
     .gallery-zoom-hint {
@@ -170,7 +171,7 @@
       transition: all .2s;
       max-height: 45px;
     }
-    .btn-buynow:hover { background: var(--bg); color: var(--text); transform: translateY(-1px); }
+    .btn-buynow:hover {transform: translateY(-1px);}
     .btn-fav-lg {
       width: 45px;
       height: 45px;
@@ -184,7 +185,7 @@
       color: var(--muted);
       transition: all .2s;
     }
-    .btn-fav-lg:hover, .btn-fav-lg.on { border-color: var(--red); color: var(--red); }
+    .btn-fav-lg:hover, .btn-fav-lg.on {box-shadow: 0 0 10px;color: var(--red);}
     .btn-fav-lg svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; }
     .btn-fav-lg.on svg { fill: var(--red); }
 
@@ -208,7 +209,7 @@
       color: var(--muted);
       transition: all .2s;
     }
-    .share-btn:hover {border-color: var(--blue);color: var(--blue);}
+    .share-btn:hover {color: var(--blue);box-shadow: 0 0 10px var(--blue);}
     .share-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
     .share-btn.copy i { margin-right: 5px }
     .share-btn.copy {
@@ -737,7 +738,7 @@
 }
 .rev-stars-sm {
   margin-top: 10px;
-  color: var(--amber, #f5b301);
+  color: var(--blue);
   letter-spacing: 2px;
   font-size: 14px;
 }
@@ -745,7 +746,7 @@
   margin: 8px 0 0;
   font-size: 14px;
   line-height: 1.45;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text);
 }
 .rev-search-highlight {
@@ -815,8 +816,8 @@
 .rev-interaction-btn:hover:not(:disabled) .rev-like-heart {color: var(--red);}
 .rev-interaction-btn:disabled { opacity: 0.6; cursor: wait; }
 .rev-like-heart {color: currentColor;font-size: 15px;line-height: 1;transition: color 0.25s;}
-.rev-like-btn.is-liked {color: #fff;border-color: var(--red);background: var(--red);}
-.rev-like-btn.is-liked .rev-like-heart {color: #fff;}
+.rev-like-btn.is-liked {color: var(--text);border-color: var(--red);background: var(--white);box-shadow: 0 0 10px rgba(255,25,25,0.3);}
+.rev-like-btn.is-liked .rev-like-heart {color: var(--text);}
 .rev-like-count { min-width: 1ch; font-variant-numeric: tabular-nums; }
 
 .rev-report-btn { margin-left: auto; }
