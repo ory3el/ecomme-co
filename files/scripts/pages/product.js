@@ -406,14 +406,7 @@ function renderProductDetails(p) {
   const reviewList = document.querySelector('.rev-list');
 
   if (reviewList) {
-    reviewList.replaceChildren();
-
-    const msg = document.createElement('p');
-    msg.className = 'rev-text';
-
-    msg.textContent = 'Carregando avaliações deste produto...';
-
-    reviewList.appendChild(msg);
+    renderProductReviewSkeletons(3);
   }
 
   /* Remove dados fixos que não pertencem necessariamente ao produto */
@@ -602,6 +595,49 @@ function setProductReviewSearchStatus(message) {
   if (status) status.textContent = message;
 }
 
+function renderProductReviewSkeletons(count = 3, options = {}) {
+  const list = document.querySelector('.rev-list');
+  if (!list) return;
+
+  if (!options.append) list.replaceChildren();
+  list.setAttribute('aria-busy', 'true');
+
+  const fragment = document.createDocumentFragment();
+  for (let index = 0; index < count; index += 1) {
+    const skeleton = document.createElement('article');
+    skeleton.className = 'rev-item rev-item-skeleton';
+    skeleton.setAttribute('aria-hidden', 'true');
+    skeleton.innerHTML = `
+      <div class="rev-head">
+        <span class="rev-avatar skeleton-shimmer rev-skeleton-avatar"></span>
+        <span class="rev-name-row rev-skeleton-name-row">
+          <span class="skeleton-shimmer rev-skeleton-line rev-skeleton-name"></span>
+          <span class="skeleton-shimmer rev-skeleton-line rev-skeleton-date"></span>
+        </span>
+      </div>
+      <span class="skeleton-shimmer rev-skeleton-stars"></span>
+      <div class="rev-skeleton-copy">
+        <span class="skeleton-shimmer rev-skeleton-line"></span>
+        <span class="skeleton-shimmer rev-skeleton-line"></span>
+        <span class="skeleton-shimmer rev-skeleton-line rev-skeleton-line-short"></span>
+      </div>
+      <div class="rev-interaction-actions rev-skeleton-actions">
+        <span class="skeleton-shimmer rev-skeleton-pill"></span>
+        <span class="skeleton-shimmer rev-skeleton-pill rev-skeleton-pill-short"></span>
+      </div>`;
+    fragment.appendChild(skeleton);
+  }
+
+  list.appendChild(fragment);
+}
+
+function clearProductReviewSkeletons() {
+  const list = document.querySelector('.rev-list');
+  if (!list) return;
+  list.querySelectorAll('.rev-item-skeleton').forEach(item => item.remove());
+  list.setAttribute('aria-busy', 'false');
+}
+
 function updateProductReviewLoadMoreButton() {
   const button = document.getElementById('productReviewLoadMore');
   if (!button) return;
@@ -743,6 +779,8 @@ function renderProductReviewItems(items, ownReviewId = null, options = {}) {
 
   ensureProductReviewInteractionHandlers(list);
   if (!options.append) list.replaceChildren();
+  else list.querySelectorAll('.rev-item-skeleton').forEach(item => item.remove());
+  list.setAttribute('aria-busy', 'false');
 
   if (!items.length) {
     if (options.append) return;
@@ -856,8 +894,7 @@ async function runProductReviewSearch(searchTerm) {
   state.hasMore = false;
   state.loading = true;
 
-  const list = document.querySelector('.rev-list');
-  if (list) list.replaceChildren();
+  renderProductReviewSkeletons(3);
   setProductReviewSearchStatus(state.term ? 'Pesquisando nas avaliações...' : 'Carregando as avaliações mais recentes...');
   updateProductReviewLoadMoreButton();
 
@@ -890,6 +927,7 @@ async function runProductReviewSearch(searchTerm) {
   } finally {
     if (requestId === state.requestId) {
       state.loading = false;
+      clearProductReviewSkeletons();
       updateProductReviewLoadMoreButton();
     }
   }
@@ -901,6 +939,7 @@ async function loadMoreProductReviews() {
 
   const requestId = state.requestId;
   state.loading = true;
+  renderProductReviewSkeletons(2, { append: true });
   updateProductReviewLoadMoreButton();
   setProductReviewSearchStatus('Carregando mais avaliações...');
 
@@ -920,7 +959,7 @@ async function loadMoreProductReviews() {
 
     setProductReviewSearchStatus(state.term
       ? ``/*${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')}.*/
-      : ``/*Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações.*/);
+      : `Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações.`);
   } catch (error) {
     if (requestId !== state.requestId) return;
     console.error('Erro ao carregar mais avaliações:', error);
@@ -928,6 +967,7 @@ async function loadMoreProductReviews() {
   } finally {
     if (requestId === state.requestId) {
       state.loading = false;
+      clearProductReviewSkeletons();
       updateProductReviewLoadMoreButton();
     }
   }
@@ -953,6 +993,7 @@ async function loadProductReviews(product) {
   state.total = 0;
   state.hasMore = false;
   state.loading = true;
+  renderProductReviewSkeletons(3);
   setProductReviewSearchStatus('Carregando avaliações...');
   updateProductReviewLoadMoreButton();
 
@@ -1022,6 +1063,7 @@ async function loadProductReviews(product) {
 
     if (list) {
       list.replaceChildren();
+      list.setAttribute('aria-busy', 'false');
       const message = document.createElement('p');
       message.className = 'rev-text';
       message.textContent = 'Não foi possível carregar as avaliações agora. Tente novamente em instantes.';
@@ -1031,6 +1073,7 @@ async function loadProductReviews(product) {
   } finally {
     if (initialRequestId === state.requestId) {
       state.loading = false;
+      clearProductReviewSkeletons();
       updateProductReviewLoadMoreButton();
     }
   }
