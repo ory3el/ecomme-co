@@ -58,6 +58,7 @@ function waitForMainProductImage(timeout = 2200) {
 window.addEventListener('DOMContentLoaded', initProductPage, { once: true });
 
 async function initProductPage() {
+  ensureProductReviewSearchUI();
   setProductPageLoading(true);
 
   const match = location.pathname.match(/^\/product\/([^/]+)\/?$/i);
@@ -611,6 +612,60 @@ function updateProductReviewLoadMoreButton() {
     : 'Carregar mais avaliações';
 }
 
+function ensureProductReviewSearchUI() {
+  const panel = document.getElementById('tab-reviews');
+  if (!panel) return;
+
+  let wrapper = document.getElementById('productReviewSearchPanel');
+  const existingInput = document.getElementById('productReviewSearch');
+  const existingBox = existingInput?.closest('.rev-search-box') || null;
+  let status = document.getElementById('productReviewSearchStatus');
+
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.id = 'productReviewSearchPanel';
+    wrapper.className = 'rev-search-panel';
+
+    if (existingBox) {
+      wrapper.appendChild(existingBox);
+      if (status) wrapper.appendChild(status);
+    } else {
+      wrapper.innerHTML = `
+        <div class="rev-search-box" role="search" aria-label="Pesquisar dentro das avaliações">
+          <span class="rev-search-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="productReviewSearch" placeholder="Pesquisar nas avaliações (ex.: bateria, altura, conforto)..." autocomplete="off" maxlength="100" aria-label="Pesquisar no título e no texto das avaliações">
+          <button type="button" id="productReviewSearchClear" class="rev-search-clear" aria-label="Limpar pesquisa" hidden>Limpar</button>
+        </div>`;
+    }
+    panel.insertBefore(wrapper, panel.firstChild);
+  } else if (wrapper.parentElement !== panel || wrapper !== panel.firstElementChild) {
+    panel.insertBefore(wrapper, panel.firstChild);
+  }
+
+  status = document.getElementById('productReviewSearchStatus');
+  if (!status) {
+    status = document.createElement('p');
+    status.className = 'rev-search-status';
+    status.id = 'productReviewSearchStatus';
+    status.setAttribute('aria-live', 'polite');
+    status.textContent = 'Pesquise por um assunto, característica ou dúvida mencionada pelos clientes.';
+    wrapper.appendChild(status);
+  } else if (status.parentElement !== wrapper) {
+    wrapper.appendChild(status);
+  }
+
+  const list = panel.querySelector('.rev-list');
+  if (list && !document.getElementById('productReviewLoadMore')) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'productReviewLoadMore';
+    button.className = 'rev-load-more';
+    button.hidden = true;
+    button.textContent = 'Carregar mais avaliações';
+    list.insertAdjacentElement('afterend', button);
+  }
+}
+
 function ensureProductReviewSearchHandlers() {
   const input = document.getElementById('productReviewSearch');
   const clearButton = document.getElementById('productReviewSearchClear');
@@ -848,6 +903,7 @@ async function loadProductReviews(product) {
   const productId = String(product.id);
   const list = document.querySelector('.rev-list');
   const state = productReviewSearchState;
+  ensureProductReviewSearchUI();
   const input = document.getElementById('productReviewSearch');
   const clearButton = document.getElementById('productReviewSearchClear');
   ensureProductReviewSearchHandlers();
