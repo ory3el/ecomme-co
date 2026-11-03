@@ -701,6 +701,42 @@ function ensureProductReviewSearchHandlers() {
   loadMoreButton?.addEventListener('click', loadMoreProductReviews);
 }
 
+function appendProductReviewHighlightedText(element, value, searchTerm) {
+  const text = String(value ?? '');
+  const terms = getProductReviewSearchTerms(searchTerm);
+
+  if (!text || !terms.length) {
+    element.textContent = text;
+    return;
+  }
+
+  // Destaca somente termos pesquisados, criando nós de texto e <mark> para
+  // manter o conteúdo da avaliação como texto simples e evitar injeção de HTML.
+  const escapedTerms = terms
+    .sort((a, b) => b.length - a.length)
+    .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const matcher = new RegExp(escapedTerms.join('|'), 'giu');
+  let lastIndex = 0;
+  let match;
+
+  element.replaceChildren();
+  while ((match = matcher.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      element.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+    }
+
+    const highlighted = document.createElement('mark');
+    highlighted.className = 'rev-search-highlight';
+    highlighted.textContent = match[0];
+    element.appendChild(highlighted);
+    lastIndex = matcher.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    element.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+}
+
 function renderProductReviewItems(items, ownReviewId = null, options = {}) {
   const list = document.querySelector('.rev-list');
   if (!list) return;
@@ -769,13 +805,13 @@ function renderProductReviewItems(items, ownReviewId = null, options = {}) {
     if (review.title) {
       const title = document.createElement('h4');
       title.className = 'rev-user-title';
-      title.textContent = review.title;
+      appendProductReviewHighlightedText(title, review.title, productReviewSearchState.term);
       item.appendChild(title);
     }
 
     const comment = document.createElement('p');
     comment.className = 'rev-text';
-    comment.textContent = review.comment || '';
+    appendProductReviewHighlightedText(comment, review.comment || '', productReviewSearchState.term);
     item.appendChild(comment);
 
     const actions = document.createElement('div');
