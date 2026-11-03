@@ -28,6 +28,7 @@
     '/files/scripts/wishlist-lists.js',
     ...(shouldLoadEssentials ? ['/files/scripts/essentials.js'] : []),
     ...(shouldLoadLogin ? ['https://accounts.google.com/gsi/client', '/login/script.js'] : []),
+    ...(currentPath === '/review' ? ['/review/script.js'] : []),
     ...(pageScript ? [pageScript] : [])
   ];
   if (document.readyState !== 'loading') {
