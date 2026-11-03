@@ -275,6 +275,14 @@
     }
     .btn-write-rev:hover { background: var(--blue2); }
 
+    .rev-search-panel {
+      display: block !important;
+      width: 100%;
+      min-width: 0;
+      margin: 0 0 26px;
+      position: relative;
+      z-index: 1;
+    }
     .rev-reviews-content { min-width: 0; }
     .rev-search-box {
       display: flex;
