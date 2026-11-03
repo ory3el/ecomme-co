@@ -877,10 +877,10 @@ async function runProductReviewSearch(searchTerm) {
 
     if (state.term) {
       setProductReviewSearchStatus(state.total
-        ? `${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')} até agora.`
+        ? ``/*${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')} até agora.*/
         : `Nenhuma avaliação encontrada para “${state.term}”. Experimente termos mais curtos ou outras palavras.`);
     } else {
-      setProductReviewSearchStatus(`Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.`);
+      setProductReviewSearchStatus(``/*Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.*/);
     }
   } catch (error) {
     if (requestId !== state.requestId) return;
