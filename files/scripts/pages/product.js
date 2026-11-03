@@ -1004,7 +1004,7 @@ async function loadProductReviews(product) {
     if (initialRequestId !== state.requestId) return;
     renderProductReviewItems(reviews, ownReview?.id);
     setProductReviewSearchStatus(
-      `Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.`
+      ``/*Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.*/
     );
 
     const writeButton = document.querySelector('.btn-write-rev');
