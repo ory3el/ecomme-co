@@ -15,7 +15,6 @@
     ...(!shouldLoadSearch ? ['/files/styles/hide-search-bar.css',] : []),
     ...(shouldLoadEssentials ? ['/files/styles/essentials-products.css'] : []),
     ...(currentPath === '/categories' ? ['/categories/styles.css'] : []),
-    ...(currentPath === '/review' ? ['/review/styles.css'] : [])
     //...(currentPath === '/notifications' ? ['/notifications/styles.css'] : [])
   ];
   const scripts = [
