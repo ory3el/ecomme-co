@@ -3,6 +3,19 @@ let currentProduct = null;
 let productPageQty = 1;
 let productPageImages = [];
 
+const PRODUCT_REVIEW_PAGE_SIZE = 20;
+const productReviewSearchState = {
+  productId: null,
+  term: '',
+  requestId: 0,
+  offset: 0,
+  total: 0,
+  hasMore: false,
+  loading: false,
+  debounceTimer: null,
+  ownReviewId: null
+};
+
 function setProductPageLoading(isLoading) {
   ['.product-main', '.tabs-section'].forEach(selector => {
     const element = document.querySelector(selector);
@@ -509,17 +522,144 @@ function applyProductReviewSummary(summary) {
   });
 }
 
-function renderProductReviewItems(items, ownReviewId = null) {
+function getProductReviewSearchTerms(value) {
+  const text = String(value || '').normalize('NFKC').toLocaleLowerCase('pt-BR');
+  const rawTokens = text.match(/[\p{L}]+|[\p{N}]+[\p{L}]*/gu) || [];
+  const allTokens = rawTokens.flatMap(token => {
+    // Em medidas como "1,80m" ou "1.80 m", também procura a parte numérica
+    // relevante ("80") para encontrar avaliações que escrevem a medida com espaço.
+    const numericPart = token.match(/^\d{2,}/)?.[0];
+    return numericPart && numericPart !== token ? [token, numericPart] : [token];
+  });
+  const stopWords = new Set([
+    'a', 'o', 'as', 'os', 'um', 'uma', 'uns', 'umas', 'de', 'da', 'do', 'das', 'dos',
+    'em', 'no', 'na', 'nos', 'nas', 'por', 'para', 'com', 'sem', 'que', 'e', 'ou',
+    'é', 'ser', 'foi', 'são', 'ao', 'aos', 'à', 'às', 'me', 'se', 'eu', 'ele', 'ela',
+    'isso', 'essa', 'esse', 'este', 'esta', 'como', 'qual', 'quais', 'pode', 'posso'
+  ]);
+
+  let terms = [...new Set(allTokens.filter(token =>
+    (token.length > 1 || /^\d{2,}/.test(token)) && !stopWords.has(token)
+  ))];
+
+  // Se a consulta contiver apenas palavras comuns, ainda permite pesquisar por elas.
+  if (!terms.length) terms = [...new Set(allTokens.filter(token => token.length > 1))];
+  return terms.slice(0, 10);
+}
+
+function buildProductReviewQuery(productId, searchTerm, offset = 0) {
+  let query = supabaseClient
+    .from('product_reviews')
+    .select('id, product_id, rating, title, comment, created_at, reviewer_name, reviewer_avatar', { count: 'exact' })
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + PRODUCT_REVIEW_PAGE_SIZE - 1);
+
+  const terms = getProductReviewSearchTerms(searchTerm);
+  if (terms.length) {
+    // Os termos são compostos somente por letras/números, evitando caracteres
+    // especiais na sintaxe OR do PostgREST. Cada termo procura título ou comentário.
+    const filters = terms.flatMap(term => [
+      `title.ilike.%${term}%`,
+      `comment.ilike.%${term}%`
+    ]);
+    query = query.or(filters.join(','));
+  }
+
+  return query;
+}
+
+async function addProductReviewEngagement(reviewRows) {
+  const engagementById = new Map();
+  if (reviewRows.length) {
+    try {
+      const engagementResult = await supabaseClient.rpc(
+        'get_product_review_engagement',
+        { p_review_ids: reviewRows.map(review => review.id) }
+      );
+      if (engagementResult.error) throw engagementResult.error;
+      (Array.isArray(engagementResult.data) ? engagementResult.data : []).forEach(row => {
+        engagementById.set(String(row.review_id), {
+          likes_count: Number(row.likes_count) || 0,
+          liked_by_me: Boolean(row.liked_by_me)
+        });
+      });
+    } catch (engagementError) {
+      // Falha nas interações não deve esconder as avaliações.
+      console.warn('Não foi possível carregar curtidas das avaliações. Execute supabase/product-review-interactions.sql:', engagementError);
+    }
+  }
+
+  return reviewRows.map(review => ({
+    ...review,
+    ...(engagementById.get(String(review.id)) || { likes_count: 0, liked_by_me: false })
+  }));
+}
+
+function setProductReviewSearchStatus(message) {
+  const status = document.getElementById('productReviewSearchStatus');
+  if (status) status.textContent = message;
+}
+
+function updateProductReviewLoadMoreButton() {
+  const button = document.getElementById('productReviewLoadMore');
+  if (!button) return;
+  button.hidden = !productReviewSearchState.hasMore;
+  button.disabled = productReviewSearchState.loading;
+  button.textContent = productReviewSearchState.loading
+    ? 'Carregando...'
+    : 'Carregar mais avaliações';
+}
+
+function ensureProductReviewSearchHandlers() {
+  const input = document.getElementById('productReviewSearch');
+  const clearButton = document.getElementById('productReviewSearchClear');
+  const loadMoreButton = document.getElementById('productReviewLoadMore');
+  if (!input || input.dataset.searchBound === 'true') return;
+  input.dataset.searchBound = 'true';
+
+  const runSearch = () => {
+    clearTimeout(productReviewSearchState.debounceTimer);
+    runProductReviewSearch(input.value.trim());
+  };
+
+  input.addEventListener('input', () => {
+    if (clearButton) clearButton.hidden = !input.value;
+    clearTimeout(productReviewSearchState.debounceTimer);
+    productReviewSearchState.debounceTimer = setTimeout(runSearch, 400);
+  });
+
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      runSearch();
+    }
+  });
+
+  clearButton?.addEventListener('click', () => {
+    input.value = '';
+    clearButton.hidden = true;
+    runSearch();
+    input.focus();
+  });
+
+  loadMoreButton?.addEventListener('click', loadMoreProductReviews);
+}
+
+function renderProductReviewItems(items, ownReviewId = null, options = {}) {
   const list = document.querySelector('.rev-list');
   if (!list) return;
 
   ensureProductReviewInteractionHandlers(list);
-  list.replaceChildren();
+  if (!options.append) list.replaceChildren();
 
   if (!items.length) {
+    if (options.append) return;
     const empty = document.createElement('p');
     empty.className = 'rev-text rev-empty';
-    empty.textContent = 'Este produto ainda não possui avaliações. Seja a primeira pessoa a compartilhar sua experiência.';
+    empty.textContent = productReviewSearchState.term
+      ? `Nenhuma avaliação encontrada para “${productReviewSearchState.term}”. Tente outras palavras.`
+      : 'Este produto ainda não possui avaliações. Seja a primeira pessoa a compartilhar sua experiência.';
     list.appendChild(empty);
     return;
   }
@@ -613,30 +753,131 @@ function renderProductReviewItems(items, ownReviewId = null) {
   });
 }
 
+async function runProductReviewSearch(searchTerm) {
+  if (!currentProduct?.id || typeof supabaseClient === 'undefined') return;
+
+  const state = productReviewSearchState;
+  const requestId = ++state.requestId;
+  state.productId = String(currentProduct.id);
+  state.term = String(searchTerm || '').trim().slice(0, 100);
+  state.offset = 0;
+  state.total = 0;
+  state.hasMore = false;
+  state.loading = true;
+
+  const list = document.querySelector('.rev-list');
+  if (list) list.replaceChildren();
+  setProductReviewSearchStatus(state.term ? 'Pesquisando nas avaliações...' : 'Carregando as avaliações mais recentes...');
+  updateProductReviewLoadMoreButton();
+
+  try {
+    const result = await buildProductReviewQuery(state.productId, state.term, 0);
+    if (result.error) throw result.error;
+    if (requestId !== state.requestId) return;
+
+    const rows = Array.isArray(result.data) ? result.data : [];
+    const reviews = await addProductReviewEngagement(rows);
+    if (requestId !== state.requestId) return;
+
+    state.offset = rows.length;
+    state.total = Number(result.count) || 0;
+    state.hasMore = state.offset < state.total;
+    renderProductReviewItems(reviews, state.ownReviewId);
+
+    if (state.term) {
+      setProductReviewSearchStatus(state.total
+        ? `${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')} até agora.`
+        : `Nenhuma avaliação encontrada para “${state.term}”. Experimente termos mais curtos ou outras palavras.`);
+    } else {
+      setProductReviewSearchStatus(`Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.`);
+    }
+  } catch (error) {
+    if (requestId !== state.requestId) return;
+    console.error('Erro ao pesquisar avaliações:', error);
+    renderProductReviewItems([], state.ownReviewId);
+    setProductReviewSearchStatus('Não foi possível pesquisar as avaliações. Tente novamente.');
+  } finally {
+    if (requestId === state.requestId) {
+      state.loading = false;
+      updateProductReviewLoadMoreButton();
+    }
+  }
+}
+
+async function loadMoreProductReviews() {
+  const state = productReviewSearchState;
+  if (state.loading || !state.hasMore || !state.productId) return;
+
+  const requestId = state.requestId;
+  state.loading = true;
+  updateProductReviewLoadMoreButton();
+  setProductReviewSearchStatus('Carregando mais avaliações...');
+
+  try {
+    const result = await buildProductReviewQuery(state.productId, state.term, state.offset);
+    if (result.error) throw result.error;
+    if (requestId !== state.requestId) return;
+
+    const rows = Array.isArray(result.data) ? result.data : [];
+    const reviews = await addProductReviewEngagement(rows);
+    if (requestId !== state.requestId) return;
+
+    renderProductReviewItems(reviews, state.ownReviewId, { append: true });
+    state.offset += rows.length;
+    state.total = Number(result.count) || state.total;
+    state.hasMore = state.offset < state.total;
+
+    setProductReviewSearchStatus(state.term
+      ? `${state.total.toLocaleString('pt-BR')} avaliação(ões) encontrada(s) para “${state.term}”. Exibindo ${state.offset.toLocaleString('pt-BR')}.`
+      : `Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações.`);
+  } catch (error) {
+    if (requestId !== state.requestId) return;
+    console.error('Erro ao carregar mais avaliações:', error);
+    setProductReviewSearchStatus('Não foi possível carregar mais avaliações. Tente novamente.');
+  } finally {
+    if (requestId === state.requestId) {
+      state.loading = false;
+      updateProductReviewLoadMoreButton();
+    }
+  }
+}
+
 async function loadProductReviews(product) {
   if (!product?.id || typeof supabaseClient === 'undefined') return;
 
   const productId = String(product.id);
   const list = document.querySelector('.rev-list');
+  const state = productReviewSearchState;
+  const input = document.getElementById('productReviewSearch');
+  const clearButton = document.getElementById('productReviewSearchClear');
+  ensureProductReviewSearchHandlers();
+  clearTimeout(state.debounceTimer);
+  if (input) input.value = '';
+  if (clearButton) clearButton.hidden = true;
+  const initialRequestId = ++state.requestId;
+  state.productId = productId;
+  state.term = '';
+  state.offset = 0;
+  state.total = 0;
+  state.hasMore = false;
+  state.loading = true;
+  setProductReviewSearchStatus('Carregando avaliações...');
+  updateProductReviewLoadMoreButton();
 
   try {
     const userResult = await supabaseClient.auth.getUser();
+    if (initialRequestId !== state.requestId) return;
     const user = userResult?.data?.user || null;
 
     const requests = [
       supabaseClient.rpc('product_review_summary', {
         p_product_id: productId
       }),
-      supabaseClient
-        .from('product_reviews')
-        .select('id, product_id, rating, title, comment, created_at, reviewer_name, reviewer_avatar')
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false })
-        .limit(20)
+      buildProductReviewQuery(productId, '', 0)
     ];
 
     // Procura a avaliação do usuário separadamente, porque ela pode ser mais antiga
-    // do que as 20 avaliações recentes exibidas na página.
+    // do que as avaliações recentes exibidas na página.
     if (user) {
       requests.push(
         supabaseClient
@@ -649,6 +890,7 @@ async function loadProductReviews(product) {
     }
 
     const [summaryResult, reviewsResult, ownReviewResult] = await Promise.all(requests);
+    if (initialRequestId !== state.requestId) return;
 
     if (summaryResult.error) throw summaryResult.error;
     if (reviewsResult.error) throw reviewsResult.error;
@@ -660,34 +902,19 @@ async function loadProductReviews(product) {
 
     const ownReview = ownReviewResult?.data || null;
     const reviewRows = Array.isArray(reviewsResult.data) ? reviewsResult.data : [];
-    const engagementById = new Map();
-
-    // Curtidas ficam em uma tabela privada e são lidas por uma RPC que retorna
-    // somente contagens e se o usuário atual já curtiu cada avaliação.
-    if (reviewRows.length) {
-      try {
-        const engagementResult = await supabaseClient.rpc(
-          'get_product_review_engagement',
-          { p_review_ids: reviewRows.map(review => review.id) }
-        );
-        if (engagementResult.error) throw engagementResult.error;
-        (Array.isArray(engagementResult.data) ? engagementResult.data : []).forEach(row => {
-          engagementById.set(String(row.review_id), {
-            likes_count: Number(row.likes_count) || 0,
-            liked_by_me: Boolean(row.liked_by_me)
-          });
-        });
-      } catch (engagementError) {
-        // Falha nas interações não deve esconder as avaliações.
-        console.warn('Não foi possível carregar curtidas das avaliações. Execute supabase/product-review-interactions.sql:', engagementError);
-      }
-    }
+    state.ownReviewId = ownReview?.id || null;
+    state.offset = reviewRows.length;
+    state.total = Number(reviewsResult.count) || 0;
+    state.hasMore = state.offset < state.total;
 
     applyProductReviewSummary(summary || {});
-    renderProductReviewItems(reviewRows.map(review => ({
-      ...review,
-      ...(engagementById.get(String(review.id)) || { likes_count: 0, liked_by_me: false })
-    })), ownReview?.id);
+    const reviews = await addProductReviewEngagement(reviewRows);
+    if (initialRequestId !== state.requestId) return;
+    renderProductReviewItems(reviews, ownReview?.id);
+    setProductReviewSearchStatus(
+      `Exibindo ${state.offset.toLocaleString('pt-BR')} de ${state.total.toLocaleString('pt-BR')} avaliações mais recentes. Use a busca para encontrar um assunto específico.`
+    );
+
     const writeButton = document.querySelector('.btn-write-rev');
     if (writeButton) {
       writeButton.textContent = ownReview ? 'Editar minha avaliação' : 'Escrever avaliação';
@@ -698,6 +925,7 @@ async function loadProductReviews(product) {
       requestAnimationFrame(() => goToTab('reviews'));
     }
   } catch (error) {
+    if (initialRequestId !== state.requestId) return;
     console.error('Erro ao consultar avaliações no Supabase:', error);
 
     if (list) {
@@ -706,6 +934,12 @@ async function loadProductReviews(product) {
       message.className = 'rev-text';
       message.textContent = 'Não foi possível carregar as avaliações agora. Tente novamente em instantes.';
       list.appendChild(message);
+    }
+    setProductReviewSearchStatus('Não foi possível carregar as avaliações agora.');
+  } finally {
+    if (initialRequestId === state.requestId) {
+      state.loading = false;
+      updateProductReviewLoadMoreButton();
     }
   }
 }
