@@ -1771,6 +1771,13 @@ header:hover .hide-btn {
       .pactions { opacity: 1; transform: none; position: static; background: none; padding: 10px 0 0; }
     }
 
+@media (max-width: 1250px) {
+  .search-bar {
+    max-width: 250px;
+    margin: auto;
+  }
+}
+
 @media (max-width: 1200px) {
   .header-inner {
     height: auto;
@@ -1787,7 +1794,7 @@ header:hover .hide-btn {
   }
 
   .header-actions {
-    order: 2;
+    order: 3;
     display: flex;
     margin: 0;
     gap: 10px;
@@ -1800,7 +1807,7 @@ header:hover .hide-btn {
   }
 
   .search-bar {
-    order: 3;
+    order: 4;
     max-width: 50%;
     margin: auto;
     width: 100%;
