@@ -464,7 +464,7 @@
     @media (max-width: 1000px) {
       .legal-layout { grid-template-columns: 1fr; gap: 0; }
       .toc { display: none; }
-      .toc-chips { display: flex; }
+      .toc-chips {display: flex;max-width: calc(100vw - 40px);}
     }
     @media (max-width: 768px) {
       .nav-main { display: none; }
