@@ -719,6 +719,68 @@ async function syncEcommeDisplaySettings() {
   }, { passive: true });
 })();
 
+/* ── PRODUCT ENGAGEMENT: métricas anônimas e agregadas ──────────────────
+   Um UUID aleatório por navegador deduplica cada ação por produto.
+   O UUID nunca é enviado ao painel do vendedor; somente os totais são expostos via RPC.
+*/
+function getEcommeEngagementVisitorKey(productId) {
+  const storageKey = `ecomme_engagement_visitor_v1_${encodeURIComponent(String(productId))}`;
+  const makeUuid = () => {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    const bytes = new Uint8Array(16);
+    if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  };
+  try {
+    let key = localStorage.getItem(storageKey);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key || '')) {
+      key = makeUuid();
+      localStorage.setItem(storageKey, key);
+    }
+    return key;
+  } catch (_) {
+    try {
+      let key = sessionStorage.getItem(storageKey);
+      if (!key) { key = makeUuid(); sessionStorage.setItem(storageKey, key); }
+      return key;
+    } catch (_) {
+      return makeUuid();
+    }
+  }
+}
+
+function trackEcommeProductEngagement(productId, eventType) {
+  const allowed = ['view', 'favorite', 'cart', 'share'];
+  const id = String(productId ?? '').trim();
+  if (!id || id.length > 100 || !allowed.includes(eventType)) return Promise.resolve(false);
+  try {
+    const client = typeof supabaseClient !== 'undefined' ? supabaseClient : window.supabaseClient;
+    if (!client?.rpc) return Promise.resolve(false);
+    return client.rpc('track_product_engagement', {
+      p_product_id: id,
+      p_event_type: eventType,
+      p_visitor_key: getEcommeEngagementVisitorKey(id)
+    }).then(({ error }) => {
+      if (error) {
+        console.warn('[Ecomme métricas] Não foi possível registrar a interação. Execute product-engagement-analytics.sql:', error);
+        return false;
+      }
+      return true;
+    }).catch(error => {
+      console.warn('[Ecomme métricas] Falha ao registrar interação:', error);
+      return false;
+    });
+  } catch (error) {
+    console.warn('[Ecomme métricas] Cliente Supabase indisponível:', error);
+    return Promise.resolve(false);
+  }
+}
+window.trackEcommeProductEngagement = trackEcommeProductEngagement;
+
 /* ─── STATE ─────────────────────────────────────────────────────────── */
 let cart = [];
 let fav = [];
@@ -1225,6 +1287,7 @@ function addToCart(id, qty = 1) {
   }
   updateCart();
   updateProductActionUI(normalizedId);
+  trackEcommeProductEngagement(normalizedId, 'cart');
   showToast(`${p.name} adicionado ao carrinho 🛒`);
   syncToSupabase();
 }
@@ -1487,6 +1550,7 @@ function addToFav(id, qty = 1) {
   }
   updateFav();
   updateProductActionUI(normalizedId);
+  trackEcommeProductEngagement(normalizedId, 'favorite');
   showToast(`${p.name} salvo nos favoritos ❤️`);
   syncToSupabase();
 }
