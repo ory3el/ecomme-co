@@ -89,6 +89,16 @@ async function initProductPage() {
       throw new Error('O Supabase não conseguiu carregar os produtos.');
     }
 
+    // As listas múltiplas usam wishlist_items, não apenas profiles.fav.
+    // Aguarda essa fonte para que o estado inicial dos corações seja correto.
+    if (window.EcommeWishlists && typeof window.EcommeWishlists.refresh === 'function') {
+      try {
+        await window.EcommeWishlists.refresh();
+      } catch (wishlistError) {
+        console.warn('Não foi possível sincronizar as listas de desejos:', wishlistError);
+      }
+    }
+
     const list = typeof products !== 'undefined' && Array.isArray(products)
       ? products
       : [];
@@ -108,10 +118,6 @@ async function initProductPage() {
       : raw;
 
     renderProductDetails(currentProduct);
-    // Uma visualização única por navegador/produto é registrada sem identificar o visitante.
-    if (typeof trackEcommeProductEngagement === 'function') {
-      trackEcommeProductEngagement(currentProduct.id, 'view');
-    }
     // Carrega as avaliações reais sem bloquear a renderização do produto.
     loadProductReviews(currentProduct).catch(error => {
       console.error('Não foi possível carregar as avaliações deste produto:', error);
@@ -2055,12 +2061,16 @@ function bindProductActions() {
 
     button.onclick = event => {
       event.preventDefault();
+      if (!currentProduct) return;
 
-      if (currentProduct && typeof toggleFav === 'function') {
-        toggleFav(String(currentProduct.id));
+      const productId = String(currentProduct.id);
+      const wishlistApi = window.EcommeWishlists;
+      if (wishlistApi && typeof wishlistApi.openPicker === 'function') {
+        Promise.resolve(wishlistApi.openPicker(productId)).finally(updateProductFavoriteButtons);
+      } else if (typeof toggleFav === 'function') {
+        toggleFav(productId);
+        setTimeout(updateProductFavoriteButtons, 0);
       }
-
-      setTimeout(updateProductFavoriteButtons, 0);
     };
   });
 }
@@ -2073,28 +2083,37 @@ function changeProductQty(delta) {
   if (el) el.textContent = String(productPageQty);
 }
 
+function isProductSavedInAnyWishlist(productId) {
+  const id = String(productId);
+  const wishlistApi = window.EcommeWishlists;
+
+  if (wishlistApi && typeof wishlistApi.isReady === 'function' && wishlistApi.isReady() && typeof wishlistApi.isSaved === 'function') {
+    return wishlistApi.isSaved(id);
+  }
+
+  return typeof fav !== 'undefined' && Array.isArray(fav) &&
+    fav.some(item => String(item.id) === id);
+}
+
 function updateProductFavoriteButtons() {
   if (!currentProduct) return;
 
   const id = String(currentProduct.id);
-
-  const selected = typeof fav !== 'undefined' &&
-    Array.isArray(fav) &&
-    fav.some(x => String(x.id) === id);
+  const selected = isProductSavedInAnyWishlist(id);
 
   ['galFav', 'favLg'].forEach(buttonId => {
-    document.getElementById(buttonId)?.classList.toggle('on', selected);
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+    button.classList.toggle('on', selected);
+    button.setAttribute('aria-pressed', String(selected));
+    button.title = selected ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos';
   });
 
   document.querySelectorAll('[data-related-fav]').forEach(button => {
-    const isFav = typeof fav !== 'undefined' &&
-      Array.isArray(fav) &&
-      fav.some(x => String(x.id) === String(button.dataset.relatedFav));
-
+    const isFav = isProductSavedInAnyWishlist(button.dataset.relatedFav);
     button.classList.toggle('on', isFav);
-    button.title = isFav
-      ? 'Remover dos favoritos'
-      : 'Adicionar aos favoritos';
+    button.setAttribute('aria-pressed', String(isFav));
+    button.title = isFav ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos';
   });
 }
 
@@ -2165,9 +2184,6 @@ function selectSwatch(button, name) {
 }
 
 async function shareToast() {
-  if (currentProduct && typeof trackEcommeProductEngagement === 'function') {
-    trackEcommeProductEngagement(currentProduct.id, 'share');
-  }
   try {
     await navigator.clipboard.writeText(location.href);
 
