@@ -19,6 +19,7 @@
     selectedEmoji: DEFAULT_LIST.emoji,
     schemaError: null,
     initialized: false,
+    loaded: false,
     loadRequest: 0
   };
 
@@ -202,6 +203,7 @@
     state.client = client;
     if (!client) {
       state.schemaError = new Error('O cliente Supabase não está disponível nesta página.');
+      state.loaded = false;
       renderSidebar();
       renderSettingsManager();
       return false;
@@ -213,6 +215,7 @@
         state.lists = [];
         state.items = [];
         state.schemaError = null;
+        state.loaded = true;
         state.activeSidebarListId = null;
         state.settingsListId = null;
         try { fav = []; } catch (_) { window.fav = []; }
@@ -269,12 +272,14 @@
       await hydrateProducts(productIdsForAllLists());
       if (requestId !== state.loadRequest) return false;
       syncLegacyFavoriteCache();
+      state.loaded = true;
       renderSidebar();
       renderSettingsManager();
       syncFavoriteUI();
       return true;
     } catch (error) {
       state.schemaError = error;
+      state.loaded = false;
       if (!state.initialized || options.showError) console.error('[Ecomme listas de desejos] Falha ao carregar listas. Execute a migração SQL fornecida.', error);
       renderSidebar();
       renderSettingsManager();
@@ -316,8 +321,9 @@
       badge.style.display = uniqueCount ? 'flex' : 'none';
     }
 
-    document.querySelectorAll('#mWish,#mWish1,.product-wishlist,.oc-wish,.cart-item-towish,.pcard-wish,.qv-wish-btn,[data-related-fav]').forEach(button => {
+    document.querySelectorAll('#galFav,#favLg,#mWish,#mWish1,.product-wishlist,.oc-wish,.cart-item-towish,.pcard-wish,.qv-wish-btn,[data-related-fav]').forEach(button => {
       let id = button.dataset.relatedFav || button.dataset.productId || '';
+      if ((button.id === 'galFav' || button.id === 'favLg') && typeof currentProduct !== 'undefined' && currentProduct && currentProduct.id != null) id = String(currentProduct.id);
       if (!id && button.getAttribute('onclick')) {
         const match = button.getAttribute('onclick').match(/(?:toggleFav|toggleWish)\s*\(\s*(?:String\s*\(\s*)?['"]?([^'"),]+)['"]?/i);
         if (match) id = match[1].trim();
@@ -1072,6 +1078,8 @@
   function installOverrides() {
     window.EcommeWishlists = {
       refresh: refreshState,
+      isReady: () => state.loaded,
+      isSaved: productId => isSavedAnywhere(productId),
       openPicker,
       openListSelector: openSidebarListSelector,
       createList: openListCreator,
