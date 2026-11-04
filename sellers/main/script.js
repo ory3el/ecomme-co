@@ -207,6 +207,9 @@ let storeChannel = null;       // canal Realtime único (evita assinaturas dupli
 
 let PRODS = [];
 let ORDERS = [];
+let productEngagementById = {};
+let productEngagementStatus = 'idle';
+let ordersByProduct = {};
 let LEDGER = [];
 let PAYOUTS = [];
 let PAYOUT_ACCOUNT = null;
@@ -397,6 +400,7 @@ async function loadMyProducts() {
   }
   PRODS = data || [];
   buildProdTable();
+  loadStoreProductEngagement().catch(error => console.warn('[Ecomme métricas] Falha ao carregar indicadores:', error));
   const bdg = $('sbProdBdg');
   if (bdg) { bdg.textContent = PRODS.length; bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none'; }
   buildTopProducts();
@@ -512,6 +516,138 @@ function downloadCsv(filename, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
+// ══ INDICADORES DE INTENÇÃO DE COMPRA (dados agregados) ═══════════════
+function isMissingProductEngagementRpc(error) {
+  const code = String(error?.code || '');
+  const message = String(error?.message || '').toLowerCase();
+  return code === '42883' || code === 'PGRST202' || code === '42P01' ||
+    message.includes('track_product_engagement') || message.includes('get_store_product_engagement') ||
+    message.includes('does not exist');
+}
+
+async function loadStoreProductEngagement() {
+  const ids = PRODS.map(product => String(product.id)).filter(Boolean);
+  productEngagementById = {};
+  if (!ids.length || !myStoreId) {
+    productEngagementStatus = 'ready';
+    buildProdTable();
+    return;
+  }
+  productEngagementStatus = 'loading';
+  const batches = [];
+  for (let index = 0; index < ids.length; index += 100) batches.push(ids.slice(index, index + 100));
+  try {
+    for (const batch of batches) {
+      const { data, error } = await supabaseClient.rpc('get_store_product_engagement', {
+        p_store_id: String(myStoreId),
+        p_product_ids: batch
+      });
+      if (error) throw error;
+      (data || []).forEach(row => {
+        productEngagementById[String(row.product_id)] = {
+          views: Number(row.views) || 0,
+          favorites: Number(row.favorites) || 0,
+          carts: Number(row.carts) || 0,
+          shares: Number(row.shares) || 0
+        };
+      });
+    }
+    productEngagementStatus = 'ready';
+  } catch (error) {
+    productEngagementStatus = isMissingProductEngagementRpc(error) ? 'missing' : 'error';
+    if (productEngagementStatus === 'missing') {
+      console.warn('[Ecomme métricas] Execute product-engagement-analytics.sql no Supabase para habilitar os indicadores.');
+    } else {
+      console.error('[Ecomme métricas] Não foi possível carregar os indicadores:', error);
+    }
+  }
+  buildProdTable();
+}
+
+function ensureProductAnalyticsModal() {
+  let modal = $('productAnalyticsModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'productAnalyticsModal';
+  modal.className = 'pa-modal';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = `
+    <div class="pa-backdrop" data-pa-close></div>
+    <section class="pa-dialog" role="dialog" aria-modal="true" aria-labelledby="paTitle">
+      <header class="pa-header">
+        <div><span class="pa-eyebrow">ANÁLISE DO PRODUTO</span><h3 id="paTitle">Intenção de compra</h3><p id="paProductName"></p></div>
+        <button type="button" class="pa-close" data-pa-close aria-label="Fechar indicadores"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="pa-body">
+        <div class="pa-grid">
+          <article class="pa-metric pa-blue"><span><i class="fa-regular fa-eye"></i> Visualizações</span><strong id="paViews">—</strong><small>Visitantes únicos aproximados</small></article>
+          <article class="pa-metric pa-pink"><span><i class="fa-regular fa-heart"></i> Favoritos</span><strong id="paFavorites">—</strong><small id="paFavoritesRate">—</small></article>
+          <article class="pa-metric pa-orange"><span><i class="fa-solid fa-cart-shopping"></i> Carrinho</span><strong id="paCarts">—</strong><small id="paCartsRate">—</small></article>
+          <article class="pa-metric pa-purple"><span><i class="fa-solid fa-share-nodes"></i> Compartilhamentos</span><strong id="paShares">—</strong><small id="paSharesRate">—</small></article>
+          <article class="pa-metric pa-green pa-metric-wide"><span><i class="fa-solid fa-bag-shopping"></i> Pedidos com este produto</span><strong id="paOrders">—</strong><small id="paUnits">—</small></article>
+        </div>
+        <p class="pa-privacy"><i class="fa-solid fa-shield-halved"></i> Dados apresentados somente em totais agregados. Nenhum nome, e-mail, perfil ou identificador de cliente é exibido.</p>
+        <p class="pa-footnote" id="paFootnote"></p>
+      </div>
+      <footer class="pa-footer"><button type="button" class="btn btn-o" data-pa-close>Fechar</button></footer>
+    </section>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', event => {
+    if (event.target.closest('[data-pa-close]')) closeProductAnalytics();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && $('productAnalyticsModal')?.classList.contains('is-open')) closeProductAnalytics();
+  });
+  return modal;
+}
+
+function formatEngagementCount(value) {
+  return Math.max(0, Number(value) || 0).toLocaleString('pt-BR');
+}
+
+function engagementRate(value, views) {
+  return views > 0 ? `${(Number(value || 0) / views * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% das visualizações` : 'Sem visualizações registradas';
+}
+
+function openProductAnalytics(productId) {
+  const product = findProd(productId);
+  if (!product) return;
+  const modal = ensureProductAnalyticsModal();
+  const stats = productEngagementById[String(productId)] || { views: 0, favorites: 0, carts: 0, shares: 0 };
+  const views = stats.views || 0;
+  const orders = Number(ordersByProduct[String(productId)]) || 0;
+  const units = Number(soldByProduct[String(productId)]) || 0;
+  $('paProductName').textContent = product.name || 'Produto';
+  $('paViews').textContent = formatEngagementCount(views);
+  $('paFavorites').textContent = formatEngagementCount(stats.favorites);
+  $('paCarts').textContent = formatEngagementCount(stats.carts);
+  $('paShares').textContent = formatEngagementCount(stats.shares);
+  $('paOrders').textContent = formatEngagementCount(orders);
+  $('paFavoritesRate').textContent = engagementRate(stats.favorites, views);
+  $('paCartsRate').textContent = engagementRate(stats.carts, views);
+  $('paSharesRate').textContent = engagementRate(stats.shares, views);
+  $('paUnits').textContent = `${formatEngagementCount(units)} ${units === 1 ? 'unidade vendida' : 'unidades vendidas'}`;
+  $('paFootnote').textContent = productEngagementStatus === 'missing'
+    ? 'Os eventos de visualização, favoritos, carrinho e compartilhamento ainda não estão configurados. Execute o arquivo product-engagement-analytics.sql no SQL Editor do Supabase e recarregue o painel.'
+    : productEngagementStatus === 'error'
+      ? 'Não foi possível carregar os eventos de engajamento agora. Tente atualizar o painel.'
+      : ordersModule === 'ok'
+        ? 'Os pedidos e unidades refletem o histórico de até 200 pedidos mais recentes carregados pelo painel. Os demais indicadores contam navegadores únicos por produto.'
+        : 'Os pedidos dependem do módulo de pedidos. Os demais indicadores contam navegadores únicos por produto.';
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('pa-modal-open');
+  modal.querySelector('.pa-close')?.focus();
+}
+
+function closeProductAnalytics() {
+  const modal = $('productAnalyticsModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('pa-modal-open');
+}
+
 // ══ PRODUTOS: lista, filtros, ações ════════════════════════
 let prodFilter = 'all', prodQuery = '', prodCat = '', prodPageNum = 1;
 const PROD_PAGE_SIZE = 20;
@@ -564,7 +700,7 @@ function buildProdTable(filter) {
   const slice = all.slice((prodPageNum - 1) * PROD_PAGE_SIZE, prodPageNum * PROD_PAGE_SIZE);
 
   if (!slice.length) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="9">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
+    body.innerHTML = `<tr class="empty-row"><td colspan="10">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
   } else {
     body.innerHTML = slice.map(p => {
       const stock = prodStock(p);
@@ -572,6 +708,8 @@ function buildProdTable(filter) {
       const stTag = !prodIsPaused(p) ? '<span class="tag tag-green"><i class="fa-solid fa-circle"></i> Ativo</span>' : '<span class="tag tag-gray"><i class="fa-solid fa-pause"></i> Pausado</span>';
       const sold = soldByProduct[String(p.id)];
       const soldTxt = (ordersModule === 'ok') ? `${sold || 0} vendas` : '—';
+      const engagement = productEngagementById[String(p.id)] || {};
+      const viewsTxt = productEngagementStatus === 'missing' ? 'Configurar' : productEngagementStatus === 'loading' ? 'Carregando…' : formatEngagementCount(engagement.views || 0);
       const media = p.image_url
         ? `<img src="${escapeHtml(p.image_url)}" loading="lazy" alt="${escapeHtml(p.name)}">`
         : '';
@@ -587,6 +725,7 @@ function buildProdTable(filter) {
       <td class="sora fw7 blue fs13">${fmtBRL(p.price)}</td>
       <td><span class="stock-val ${stClass}">${stock} un.</span></td>
       <td class="fs11 muted">${soldTxt}</td>
+      <td data-label="Intenção de compra"><button type="button" class="pa-open-btn" data-act="analytics" data-id="${id}"><i class="fa-solid fa-chart-line"></i><span>Indicadores</span><small>${viewsTxt} visualizações</small></button></td>
       <td>${stTag}</td>
       <td><div class="fac gap4 row-acts">
         <button class="btn btn-ghost btn-xs" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
@@ -618,7 +757,8 @@ function initProductsTable() {
     document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
     const id = el.dataset.id;
     ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
-       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act](id);
+       analytics: openProductAnalytics,
+       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
   });
 }
 
@@ -821,8 +961,18 @@ async function loadOrders() {
     ORDERS = data || [];
   }
   soldByProduct = {};
-  ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status)).forEach(o =>
-    (o.store_order_items || []).forEach(it => { const k = String(it.product_id); soldByProduct[k] = (soldByProduct[k] || 0) + (it.qty || 0); }));
+  ordersByProduct = {};
+  ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status)).forEach(o => {
+    const seenInOrder = new Set();
+    (o.store_order_items || []).forEach(it => {
+      const k = String(it.product_id);
+      soldByProduct[k] = (soldByProduct[k] || 0) + (Number(it.qty) || 0);
+      if (!seenInOrder.has(k)) {
+        ordersByProduct[k] = (ordersByProduct[k] || 0) + 1;
+        seenInOrder.add(k);
+      }
+    });
+  });
   buildOrders();
   updateOrderCounts();
   buildProdTable();
