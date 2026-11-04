@@ -995,7 +995,7 @@ header:hover .hide-btn {
     transition: opacity 0.35s, transform .35s cubic-bezier(.4,0,.2,1);
     flex-direction: column;
   }
-  .more-sb.on { opacity: 1; transform: translateX(0); }
+  .more-sb.on {opacity: 1;transform: translateX(0);}
 
     .more-hd {
       margin-bottom: 5px;
@@ -2426,7 +2426,7 @@ header:hover .hide-btn {
   }
   .overlay {
     backdrop-filter: none;
-      background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.3);
   }
 }
 
