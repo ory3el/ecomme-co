@@ -1,21 +1,35 @@
-  /* ── SCROLLSPY: highlight active TOC link / chip ─────────────────── */
-  const sections = Array.from(document.querySelectorAll('.lsec'));
-  const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
-  const chips    = Array.from(document.querySelectorAll('.toc-chip'));
+/* ── SCROLLSPY: highlight active TOC link / chip ─────────────────── */
+const sections = Array.from(document.querySelectorAll('.lsec'));
+const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
+const chips = Array.from(document.querySelectorAll('.toc-chip'));
+const chipsContainer = document.getElementById('tocChips');
 
-  function setActive(id) {
-    tocLinks.forEach(l => l.classList.toggle('active', l.dataset.target === id));
-    chips.forEach(c => {
-      const on = c.getAttribute('href') === '#' + id;
-      c.classList.toggle('active', on);
-      if (on) c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    });
-  }
+function setActive(id) {
+  tocLinks.forEach(link => link.classList.toggle('active', link.dataset.target === id));
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) setActive(entry.target.id);
-    });
-  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  chips.forEach(chip => {
+    const isActive = chip.getAttribute('href') === `#${id}`;
+    chip.classList.toggle('active', isActive);
 
-  sections.forEach(sec => observer.observe(sec));
+    if (isActive && chipsContainer && chipsContainer.clientWidth > 0) {
+      const chipRect = chip.getBoundingClientRect();
+      const containerRect = chipsContainer.getBoundingClientRect();
+      const targetLeft = chipsContainer.scrollLeft + chipRect.left - containerRect.left
+        - (containerRect.width - chipRect.width) / 2;
+      const maxScroll = chipsContainer.scrollWidth - chipsContainer.clientWidth;
+      const nextScrollLeft = Math.max(0, Math.min(targetLeft, maxScroll));
+
+      if (Math.abs(chipsContainer.scrollLeft - nextScrollLeft) > 8) {
+        chipsContainer.scrollTo({ left: nextScrollLeft, behavior: 'smooth' });
+      }
+    }
+  });
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) setActive(entry.target.id);
+  });
+}, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+sections.forEach(section => observer.observe(section));
