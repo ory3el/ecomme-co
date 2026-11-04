@@ -108,6 +108,10 @@ async function initProductPage() {
       : raw;
 
     renderProductDetails(currentProduct);
+    // Uma visualização única por navegador/produto é registrada sem identificar o visitante.
+    if (typeof trackEcommeProductEngagement === 'function') {
+      trackEcommeProductEngagement(currentProduct.id, 'view');
+    }
     // Carrega as avaliações reais sem bloquear a renderização do produto.
     loadProductReviews(currentProduct).catch(error => {
       console.error('Não foi possível carregar as avaliações deste produto:', error);
@@ -2161,6 +2165,9 @@ function selectSwatch(button, name) {
 }
 
 async function shareToast() {
+  if (currentProduct && typeof trackEcommeProductEngagement === 'function') {
+    trackEcommeProductEngagement(currentProduct.id, 'share');
+  }
   try {
     await navigator.clipboard.writeText(location.href);
 
