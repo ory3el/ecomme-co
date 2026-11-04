@@ -586,7 +586,6 @@ function ensureProductAnalyticsModal() {
           <article class="pa-metric pa-purple"><span><i class="fa-solid fa-share-nodes"></i> Compartilhamentos</span><strong id="paShares">—</strong><small id="paSharesRate">—</small></article>
           <article class="pa-metric pa-green pa-metric-wide"><span><i class="fa-solid fa-bag-shopping"></i> Pedidos com este produto</span><strong id="paOrders">—</strong><small id="paUnits">—</small></article>
         </div>
-        <p class="pa-privacy"><i class="fa-solid fa-shield-halved"></i> Dados apresentados somente em totais agregados. Nenhum nome, e-mail, perfil ou identificador de cliente é exibido.</p>
         <p class="pa-footnote" id="paFootnote"></p>
       </div>
       <footer class="pa-footer"><button type="button" class="btn btn-o" data-pa-close>Fechar</button></footer>
