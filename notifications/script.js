@@ -376,7 +376,7 @@ function renderNotificationOffer(offer, viewerId) {
     <div class="notification-offer-state">${esc(stateMessage)}</div>
     ${actions}
     <p class="notification-offer-error" id="notificationOfferError" role="alert" hidden></p>
-    <a class="notification-offer-product-link" href="/product/${encodeURIComponent(String(offer.product_id))}">Ver produto</a>`;
+    <div class="offer-pLink"><a class="notification-offer-product-link" href="/product/${encodeURIComponent(String(offer.product_id))}">Ver produto</a></div>`;
 
   content.querySelectorAll('[data-offer-action]').forEach(button => {
     button.addEventListener('click', () => handleNotificationOfferAction(button.dataset.offerAction));
@@ -466,7 +466,7 @@ async function handleNotificationOfferAction(action) {
     console.error('Erro ao responder à oferta:', error);
     const rawMessage = error?.message || '';
     const message = /respond_product_offer|respond_to_product_counteroffer/i.test(rawMessage) || error?.code === '42883'
-      ? 'As funções de negociação ainda não foram instaladas. Execute supabase/product-offers.sql no Supabase.'
+      ? 'As funções de negociação ainda não foram instaladas.'
       : /OFFER_ALREADY_RESPONDED|NO_PENDING_COUNTER_OFFER/i.test(rawMessage)
         ? 'Esta oferta já foi respondida ou não está mais aguardando uma ação.'
         : /NOT_OFFER_SELLER|NOT_OFFER_BUYER/i.test(rawMessage)
