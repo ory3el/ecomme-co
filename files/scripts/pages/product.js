@@ -2073,6 +2073,166 @@ function bindProductActions() {
       }
     };
   });
+
+  const offerButton = document.getElementById('makeProductOfferBtn');
+  if (offerButton) {
+    offerButton.onclick = openProductOfferModal;
+    offerButton.hidden = typeof isProductUnavailable === 'function' && isProductUnavailable(currentProduct);
+  }
+}
+
+
+/* ── OFERTAS DO PRODUTO ────────────────────────────────────── */
+function ensureProductOfferModal() {
+  let modal = document.getElementById('productOfferModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'productOfferModal';
+  modal.className = 'product-offer-backdrop';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <section class="product-offer-dialog" role="dialog" aria-modal="true" aria-labelledby="productOfferTitle">
+      <button type="button" class="product-offer-close" data-offer-close aria-label="Fechar">&times;</button>
+      <div class="product-offer-kicker"><i class="fa-solid fa-handshake-angle" aria-hidden="true"></i> Negocie com o vendedor</div>
+      <h2 id="productOfferTitle">Faça sua oferta</h2>
+      <p class="product-offer-product" id="productOfferProduct"></p>
+      <div class="product-offer-list-price"><span>Preço anunciado</span><strong id="productOfferListedPrice"></strong></div>
+      <form id="productOfferForm" novalidate>
+        <label for="productOfferAmount">Quanto você gostaria de pagar?</label>
+        <div class="product-offer-input-wrap"><span>R$</span><input id="productOfferAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required></div>
+        <label for="productOfferMessage">Mensagem ao vendedor <span>(opcional)</span></label>
+        <textarea id="productOfferMessage" rows="3" maxlength="500" placeholder="Escreva uma mensagem, se desejar..."></textarea>
+        <p class="product-offer-note">O vendedor poderá aceitar, recusar ou enviar uma contraproposta. A oferta não confirma uma compra.</p>
+        <p class="product-offer-error" id="productOfferError" role="alert" hidden></p>
+        <button type="submit" class="product-offer-submit" id="productOfferSubmit">Enviar oferta</button>
+      </form>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal || event.target.closest('[data-offer-close]')) closeProductOfferModal();
+  });
+  modal.querySelector('#productOfferForm')?.addEventListener('submit', submitProductOffer);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal && !modal.hidden) closeProductOfferModal();
+  });
+  return modal;
+}
+
+async function openProductOfferModal() {
+  if (!currentProduct) return;
+  if (typeof supabaseClient === 'undefined') {
+    if (typeof showToast === 'function') showToast('Não foi possível conectar ao sistema de ofertas.', 'err');
+    return;
+  }
+  const button = document.getElementById('makeProductOfferBtn');
+  if (button) { button.disabled = true; button.classList.add('is-loading'); }
+
+  try {
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      const redirect = encodeURIComponent(`${location.pathname}${location.search}`);
+      location.href = `/login?redirect=${redirect}`;
+      return;
+    }
+    if (typeof isProductUnavailable === 'function' && isProductUnavailable(currentProduct)) {
+      throw new Error('Este produto está indisponível para receber ofertas.');
+    }
+
+    const { data: eligible, error } = await supabaseClient.rpc('can_make_product_offer', {
+      p_product_id: String(currentProduct.id)
+    });
+    if (error) throw error;
+    if (eligible !== true) throw new Error('Você não pode fazer uma oferta para um produto da sua própria loja.');
+
+    const modal = ensureProductOfferModal();
+    const price = Number(currentProduct.price) || 0;
+    const amount = modal.querySelector('#productOfferAmount');
+    modal.querySelector('#productOfferProduct').textContent = currentProduct.name || 'Produto';
+    modal.querySelector('#productOfferListedPrice').textContent = priceText(price);
+    amount.max = String(Math.max(0, price - 0.01));
+    const suggestedAmount = Math.min(Math.round(price * 0.9 * 100) / 100, Math.round((price - 0.01) * 100) / 100);
+    amount.value = Math.max(0.01, suggestedAmount).toFixed(2);
+    modal.querySelector('#productOfferMessage').value = '';
+    modal.querySelector('#productOfferError').hidden = true;
+    modal.querySelector('#productOfferSubmit').disabled = false;
+    modal.hidden = false;
+    requestAnimationFrame(() => amount.focus());
+    document.body.classList.add('product-offer-open');
+  } catch (error) {
+    console.error('Não foi possível abrir a oferta:', error);
+    const message = error?.code === '42883' || /can_make_product_offer/i.test(error?.message || '')
+      ? 'O sistema de ofertas ainda não foi configurado. Execute supabase/product-offers.sql no SQL Editor do Supabase.'
+      : (error?.message || 'Não foi possível iniciar uma oferta. Tente novamente.');
+    if (typeof showToast === 'function') showToast(message, 'err');
+  } finally {
+    if (button) { button.disabled = false; button.classList.remove('is-loading'); }
+  }
+}
+
+function closeProductOfferModal() {
+  const modal = document.getElementById('productOfferModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('product-offer-open');
+}
+
+async function submitProductOffer(event) {
+  event.preventDefault();
+  if (!currentProduct || typeof supabaseClient === 'undefined') return;
+  const modal = ensureProductOfferModal();
+  const amountInput = modal.querySelector('#productOfferAmount');
+  const messageInput = modal.querySelector('#productOfferMessage');
+  const errorEl = modal.querySelector('#productOfferError');
+  const submit = modal.querySelector('#productOfferSubmit');
+  const amount = Number(amountInput.value);
+  const listedPrice = Number(currentProduct.price) || 0;
+
+  if (!Number.isFinite(amount) || amount <= 0 || amount >= listedPrice) {
+    errorEl.textContent = 'Informe um valor maior que R$ 0,00 e menor que o preço anunciado.';
+    errorEl.hidden = false;
+    amountInput.focus();
+    return;
+  }
+  if (messageInput.value.trim().length > 500) {
+    errorEl.textContent = 'A mensagem pode ter no máximo 500 caracteres.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  submit.disabled = true;
+  submit.textContent = 'Enviando oferta…';
+  errorEl.hidden = true;
+  try {
+    const { data, error } = await supabaseClient.rpc('create_product_offer', {
+      p_product_id: String(currentProduct.id),
+      p_offer_price: amount,
+      p_message: messageInput.value.trim() || null
+    });
+    if (error) throw error;
+    closeProductOfferModal();
+    if (typeof showToast === 'function') showToast('Oferta enviada! O vendedor receberá uma notificação.', 'ok');
+  } catch (error) {
+    console.error('Erro ao enviar oferta:', error);
+    const rawMessage = error?.message || '';
+    const message = error?.code === '42883' || /create_product_offer/i.test(rawMessage)
+      ? 'A função de ofertas não foi encontrada. Execute supabase/product-offers.sql no SQL Editor do Supabase.'
+      : /PENDING_OFFER_EXISTS/i.test(rawMessage)
+        ? 'Você já tem uma oferta aguardando resposta para este produto.'
+        : /PRODUCT_UNAVAILABLE/i.test(rawMessage)
+          ? 'Este produto está indisponível para receber ofertas.'
+          : /CANNOT_OFFER_OWN_STORE/i.test(rawMessage)
+            ? 'Você não pode fazer uma oferta para um produto da sua própria loja.'
+            : /OFFER_MUST_BE_LOWER_THAN_LIST_PRICE/i.test(rawMessage)
+              ? 'A oferta precisa ser menor que o preço anunciado.'
+              : 'Não foi possível enviar sua oferta. Verifique o valor e tente novamente.';
+    errorEl.textContent = message;
+    errorEl.hidden = false;
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Enviar oferta';
+  }
 }
 
 function changeProductQty(delta) {
