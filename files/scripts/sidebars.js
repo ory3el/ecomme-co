@@ -2413,7 +2413,7 @@ function pLoadingNone() {
 }
 function pLoadingFlex() {
   if (pLoading) {
-    pLoading.style.display = 'flex';
+    pLoading.style.display = 'none';
   }
 }
 
