@@ -950,3 +950,4 @@ body.pr-report-open { overflow: hidden; }
 .product-offer-submit:hover { background: var(--blue2); }
 .product-offer-submit:disabled { opacity: .6; cursor: wait; }
 @media (max-width: 480px) { .product-offer-dialog { padding: 25px 20px 22px; border-radius: 20px; } .product-offer-dialog h2 { font-size: 23px; } }
+.btn-make-offer:disabled.offer-sent { opacity: .72; cursor: not-allowed; color: var(--muted); background: var(--bg3); border-color: var(--border2); transform: none; }
