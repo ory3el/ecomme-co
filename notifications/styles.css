@@ -204,3 +204,44 @@ body { min-height: 100vh; }
 @media (prefers-reduced-motion: reduce) {
   .notif-item, .ni-dot, .empty-notif .ico, .settings-panel, .settings-overlay, .filter-pill-bg { animation: none !important; transition: none !important; }
 }
+
+
+/* ── DETALHES E AÇÕES DE OFERTAS ──────────────────────────── */
+.ni-icon.offer { background: var(--blue-dim); }
+.ni-icon.offer svg { stroke: var(--blue); }
+.notification-offer-open { overflow: hidden; }
+.notification-offer-backdrop { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(15,23,42,.58); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.notification-offer-backdrop[hidden] { display: none; }
+.notification-offer-dialog { position: relative; width: min(100%, 500px); max-height: 92vh; overflow-y: auto; padding: 29px; border: 1px solid var(--border2); border-radius: 23px; background: var(--bg); color: var(--text); box-shadow: 0 24px 80px rgba(0,0,0,.24); animation: fadeInUp .2s ease both; }
+.notification-offer-close { position: absolute; top: 12px; right: 14px; width: 34px; height: 34px; border-radius: 50%; color: var(--muted); font-size: 26px; line-height: 1; }
+.notification-offer-close:hover { background: var(--bg3); color: var(--text); }
+.notification-offer-kicker { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.notification-offer-dialog h2 { margin: 8px 35px 5px 0; font: 600 25px/1.15 'Outfit', sans-serif; }
+.notification-offer-product { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+.notification-offer-prices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-bottom: 15px; }
+.notification-offer-prices > div { min-width: 0; padding: 13px; border: 1px solid var(--border2); border-radius: 13px; background: var(--bg3); }
+.notification-offer-prices span, .notification-offer-message > span { display: block; margin-bottom: 4px; color: var(--muted); font-size: 10.5px; }
+.notification-offer-prices strong { font-size: 16px; font-weight: 800; color: var(--text); }
+.notification-offer-prices .counter-price { grid-column: 1/-1; border-color: var(--blue); background: var(--blue-dim); }
+.notification-offer-prices .counter-price strong { color: var(--blue); }
+.notification-offer-message { margin: 10px 0; padding: 12px 14px; border: 1px solid var(--border2); border-radius: 12px; }
+.notification-offer-message p { color: var(--text); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.notification-offer-state { margin: 14px 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+.notification-offer-actions { display: grid; gap: 9px; padding-top: 13px; border-top: 1px solid var(--border2); }
+.offer-action-btn { min-height: 42px; padding: 10px 14px; border-radius: 100px; font-size: 12px; font-weight: 800; transition: opacity .2s, transform .2s; }
+.offer-action-btn:hover { transform: translateY(-1px); }
+.offer-action-btn:disabled { opacity: .55; cursor: wait; transform: none; }
+.offer-action-btn.accept { background: var(--blue); color: #fff; }
+.offer-action-btn.reject { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); }
+.offer-action-btn.counter { width: 100%; background: var(--blue-dim); border: 1px solid var(--border); color: var(--blue); }
+.offer-counter-form { display: grid; gap: 8px; margin-top: 6px; padding: 13px; border: 1px solid var(--border2); border-radius: 14px; }
+.offer-counter-form label { font-size: 11px; font-weight: 800; }
+.offer-counter-input { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 43px; border: 1px solid var(--border2); border-radius: 10px; color: var(--muted); }
+.offer-counter-input input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: 600 16px 'Outfit', sans-serif; }
+#notificationCounterMessage { width: 100%; resize: vertical; padding: 10px 12px; border: 1px solid var(--border2); border-radius: 10px; outline: 0; color: var(--text); background: var(--bg); font: 12px 'DM Sans', sans-serif; }
+.notification-offer-actions.buyer-counter-actions p { color: var(--muted); font-size: 12px; }
+.notification-offer-status { padding: 12px 14px; border-radius: 12px; background: var(--bg3); font-size: 12px; font-weight: 700; }
+.notification-offer-error { margin: 11px 0; color: var(--red); font-size: 11.5px; line-height: 1.5; }
+.notification-offer-error.visible { display: block; }
+.notification-offer-product-link { display: inline-flex; margin-top: 13px; color: var(--blue); font-size: 11.5px; font-weight: 800; }
+@media (max-width: 520px) { .notification-offer-dialog { padding: 24px 19px 20px; border-radius: 19px; } .notification-offer-dialog h2 { font-size: 22px; } .notification-offer-prices { grid-template-columns: 1fr; } .notification-offer-prices .counter-price { grid-column: auto; } }
