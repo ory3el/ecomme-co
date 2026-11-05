@@ -285,7 +285,7 @@ async function injectEcommeUI() {
 const favicon = document.getElementById('favicon');
 function verificarTema(e) {
   if (e.matches) {
-    favicon.href = '/images/favicon-white.png';
+    favicon.href = '/images/favicon-light.png';
   } else {
     favicon.href = '/images/favicon.png';
   }
