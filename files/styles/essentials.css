@@ -8,6 +8,7 @@
   --blue3:     #60A5FA;
   --blueL:     #60a5fa;
   --blueTxt:   #4387fa;
+  --blue-bg:   #2563EB;
   --blueBg:    #eaf4ff;
   --blue-dim:  rgba(37,99,235,0.07);
   --blue-mid:  rgba(37,99,235,0.14);
@@ -76,6 +77,7 @@ html[data-theme="dark"] {
   --blue3:     #60A5FA;
   --blueL:     #60a5fa;
   --blueTxt:   #eaf4ff;
+  --blue-bg:   linear-gradient(120deg, rgba(25, 100, 255, 0.2), rgba(25, 100, 255, 0.6));
   --blueBg:    #4387fa;
   --blue-dim:  rgba(37,99,235,0.07);
   --blue-mid:  rgba(37,99,235,0.14);
