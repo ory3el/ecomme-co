@@ -235,6 +235,10 @@
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>
+    <button type="button" class="btn-make-offer" id="makeProductOfferBtn">
+      <i class="fa-solid fa-handshake-angle" aria-hidden="true"></i>
+      Fazer uma oferta
+    </button>
 
     <div class="trust-mini">
       <div class="tm-item">
@@ -336,21 +340,6 @@
 
   <!-- REVIEWS -->
   <div class="tab-panel" id="tab-reviews">
-    <div class="rev-search-panel" id="productReviewSearchPanel">
-      <div class="rev-search-box" role="search" aria-label="Pesquisar dentro das avaliações">
-        <span class="rev-search-icon" aria-hidden="true">🔍</span>
-        <input
-          type="search"
-          id="productReviewSearch"
-          placeholder="Pesquisar nas avaliações (ex.: bateria, altura, conforto)..."
-          autocomplete="off"
-          maxlength="100"
-          aria-label="Pesquisar no título e no texto das avaliações"
-        >
-        <button type="button" id="productReviewSearchClear" class="rev-search-clear" aria-label="Limpar pesquisa" hidden>Limpar</button>
-      </div>
-      <p class="rev-search-status" id="productReviewSearchStatus" aria-live="polite">Pesquise por um assunto, característica ou dúvida mencionada pelos clientes.</p>
-    </div>
     <div class="reviews-layout">
       <div class="rev-summary">
         <div class="rev-avg">
@@ -368,8 +357,7 @@
         <button class="btn-write-rev" onclick="writeProductReview()">Escrever Avaliação</button>
       </div>
 
-      <div class="rev-reviews-content">
-        <div class="rev-list">
+      <div class="rev-list">
         <div class="rev-item">
           <div class="rev-head">
             <div class="rev-avatar">MF</div>
@@ -421,8 +409,6 @@
           <p class="rev-text">Entrega rápida e produto idêntico às fotos. Uso para monitorar o sono e os dados parecem bem consistentes com o que eu sinto ao acordar. Recomendo!</p>
           <div class="rev-helpful">Útil? <button onclick="showToast('Obrigado pelo feedback!')">Sim (12)</button></div>
         </div>
-        </div>
-        <button type="button" id="productReviewLoadMore" class="rev-load-more" hidden>Carregar mais avaliações</button>
       </div>
     </div>
   </div>
@@ -584,7 +570,7 @@
 <script defer src="/files/scripts/sidebars.js"></script>
 <script defer src="/files/scripts/wishlist-lists.js"></script>
 <script defer src="/files/scripts/essentials.js"></script>
-<script src="/files/scripts/loading.js"></script>
-<script src="/files/scripts/pages/product.js"></script>
+<script defer src="/files/scripts/loading.js"></script>
+<script defer src="/files/scripts/pages/product.js"></script>
 </body>
 </html>
