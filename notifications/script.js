@@ -22,7 +22,8 @@ const iconMap = {
   system: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
   review: `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
   account: `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  security: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><polyline points="9 12 11 14 15 10"/></svg>`
+  security: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><polyline points="9 12 11 14 15 10"/></svg>`,
+  offer: `<svg viewBox="0 0 24 24"><path d="M12 8V5a3 3 0 0 0-6 0v3"/><path d="M4 8h16l1 12H3L4 8z"/><path d="M8 13h8M12 10v6"/></svg>`
 };
 
 const groupLabels = { hoje: 'Hoje', ontem: 'Ontem', semana: 'Esta Semana', antigas: 'Mais Antigas' };
@@ -62,7 +63,7 @@ function normalizeItem(row) {
     text: row.body || '',
     href: safeHref(row.target_url),
     ctaLabel: row.metadata?.action_label || 'Abrir',
-    iconType: iconMap[row.type] ? row.type : (['order', 'shipped', 'delivered', 'return', 'promo', 'coupon', 'product', 'wishlist', 'review', 'account', 'security'].includes(row.type) ? row.type : 'system')
+    iconType: row.metadata?.notification_kind === 'product_offer' ? 'offer' : (iconMap[row.type] ? row.type : (['order', 'shipped', 'delivered', 'return', 'promo', 'coupon', 'product', 'wishlist', 'review', 'account', 'security'].includes(row.type) ? row.type : 'system'))
   };
 }
 
@@ -276,6 +277,207 @@ document.querySelectorAll('.ftab').forEach(button => {
   });
 });
 
+let activeProductOffer = null;
+let productOfferActionBusy = false;
+
+function notificationOfferPrice(value) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+}
+
+function ensureNotificationOfferModal() {
+  let modal = $('notificationOfferModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'notificationOfferModal';
+  modal.className = 'notification-offer-backdrop';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <section class="notification-offer-dialog" role="dialog" aria-modal="true" aria-labelledby="notificationOfferTitle">
+      <button type="button" class="notification-offer-close" data-offer-dismiss aria-label="Fechar">&times;</button>
+      <div class="notification-offer-kicker"><i class="fa-solid fa-handshake-angle" aria-hidden="true"></i> Negociação de produto</div>
+      <h2 id="notificationOfferTitle">Oferta</h2>
+      <div id="notificationOfferContent"><p>Carregando oferta…</p></div>
+    </section>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', event => {
+    if (event.target === modal || event.target.closest('[data-offer-dismiss]')) closeNotificationOfferModal();
+  });
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal && !modal.hidden) closeNotificationOfferModal();
+  });
+  return modal;
+}
+
+function closeNotificationOfferModal() {
+  const modal = $('notificationOfferModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('notification-offer-open');
+  activeProductOffer = null;
+  const url = new URL(location.href);
+  if (url.searchParams.has('offer')) {
+    url.searchParams.delete('offer');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+  }
+}
+
+function renderNotificationOffer(offer, viewerId) {
+  const content = $('notificationOfferContent');
+  const modal = $('notificationOfferModal');
+  if (!content || !modal) return;
+  const isSeller = String(offer.seller_id) === String(viewerId);
+  const isBuyer = String(offer.buyer_id) === String(viewerId);
+  const role = isSeller ? 'seller' : isBuyer ? 'buyer' : null;
+  const statusLabels = {
+    pending: 'Aguardando resposta do vendedor',
+    accepted: 'Oferta aceita',
+    rejected: 'Oferta recusada',
+    countered: 'Contraproposta enviada',
+    counter_accepted: 'Contraproposta aceita',
+    counter_rejected: 'Contraproposta recusada'
+  };
+  const stateMessage = statusLabels[offer.status] || 'Status da oferta atualizado';
+  let actions = '';
+  if (role === 'seller' && offer.status === 'pending') {
+    actions = `
+      <div class="notification-offer-actions">
+        <button type="button" class="offer-action-btn accept" data-offer-action="accept">Aceitar oferta</button>
+        <button type="button" class="offer-action-btn reject" data-offer-action="reject">Recusar</button>
+        <div class="offer-counter-form">
+          <label for="notificationCounterAmount">Enviar contraproposta</label>
+          <div class="offer-counter-input"><span>R$</span><input id="notificationCounterAmount" type="number" min="0.01" step="0.01" max="${Math.max(0, Number(offer.product_price) || 0).toFixed(2)}" placeholder="Novo valor"></div>
+          <textarea id="notificationCounterMessage" rows="2" maxlength="500" placeholder="Mensagem opcional"></textarea>
+          <button type="button" class="offer-action-btn counter" data-offer-action="counter">Enviar contraproposta</button>
+        </div>
+      </div>`;
+  } else if (role === 'buyer' && offer.status === 'countered') {
+    actions = `
+      <div class="notification-offer-actions buyer-counter-actions">
+        <p>O vendedor propôs um novo valor. Você aceita a contraproposta?</p>
+        <button type="button" class="offer-action-btn accept" data-offer-action="accept_counter">Aceitar contraproposta</button>
+        <button type="button" class="offer-action-btn reject" data-offer-action="reject_counter">Recusar contraproposta</button>
+      </div>`;
+  } else {
+    actions = `<div class="notification-offer-status">${esc(stateMessage)}</div>`;
+  }
+
+  content.innerHTML = `
+    <p class="notification-offer-product">${esc(offer.product_name || 'Produto')}</p>
+    <div class="notification-offer-prices">
+      <div><span>Preço anunciado</span><strong>${notificationOfferPrice(offer.product_price)}</strong></div>
+      <div><span>Oferta do comprador</span><strong>${notificationOfferPrice(offer.offer_price)}</strong></div>
+      ${offer.counter_offer_price ? `<div class="counter-price"><span>Contraproposta</span><strong>${notificationOfferPrice(offer.counter_offer_price)}</strong></div>` : ''}
+    </div>
+    ${offer.buyer_message ? `<div class="notification-offer-message"><span>Mensagem do comprador</span><p>${esc(offer.buyer_message)}</p></div>` : ''}
+    ${offer.seller_message ? `<div class="notification-offer-message"><span>Mensagem do vendedor</span><p>${esc(offer.seller_message)}</p></div>` : ''}
+    <div class="notification-offer-state">${esc(stateMessage)}</div>
+    ${actions}
+    <p class="notification-offer-error" id="notificationOfferError" role="alert" hidden></p>
+    <a class="notification-offer-product-link" href="/product/${encodeURIComponent(String(offer.product_id))}">Ver produto</a>`;
+
+  content.querySelectorAll('[data-offer-action]').forEach(button => {
+    button.addEventListener('click', () => handleNotificationOfferAction(button.dataset.offerAction));
+  });
+  modal.hidden = false;
+  document.body.classList.add('notification-offer-open');
+}
+
+async function openProductOfferFromUrl() {
+  const offerId = new URLSearchParams(location.search).get('offer');
+  if (!offerId) return;
+  const modal = ensureNotificationOfferModal();
+  modal.hidden = false;
+  document.body.classList.add('notification-offer-open');
+  const content = $('notificationOfferContent');
+  try {
+    if (typeof supabaseClient === 'undefined') throw new Error('SUPABASE_UNAVAILABLE');
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      const redirect = encodeURIComponent(`${location.pathname}${location.search}`);
+      location.href = `/login?redirect=${redirect}`;
+      return;
+    }
+    const { data, error } = await supabaseClient.from('product_offers')
+      .select('id,product_id,product_name,product_price,buyer_id,seller_id,offer_price,counter_offer_price,buyer_message,seller_message,status,created_at,updated_at')
+      .eq('id', offerId).single();
+    if (error) throw error;
+    const viewerId = authData.user.id;
+    if (![String(data.buyer_id), String(data.seller_id)].includes(String(viewerId))) {
+      throw new Error('Você não tem permissão para visualizar esta oferta.');
+    }
+    activeProductOffer = data;
+    renderNotificationOffer(data, viewerId);
+  } catch (error) {
+    console.error('Não foi possível abrir a oferta:', error);
+    const message = error?.code === '42P01' || /product_offers/i.test(error?.message || '')
+      ? 'A estrutura de ofertas ainda não foi instalada. Execute supabase/product-offers.sql no Supabase.'
+      : error?.code === 'PGRST116' || /0 rows|multiple \(or no\) rows/i.test(error?.message || '')
+        ? 'Oferta não encontrada ou sua conta não tem permissão para visualizá-la.'
+        : 'Não foi possível carregar esta oferta. Verifique sua conexão e tente novamente.';
+    if (content) content.innerHTML = `<p class="notification-offer-error visible">${esc(message)}</p>`;
+  }
+}
+
+async function handleNotificationOfferAction(action) {
+  if (!activeProductOffer || productOfferActionBusy) return;
+  const errorEl = $('notificationOfferError');
+  const counterValue = Number($('notificationCounterAmount')?.value);
+  const counterMessage = $('notificationCounterMessage')?.value?.trim() || null;
+  if (action === 'counter' && (!Number.isFinite(counterValue) || counterValue <= Number(activeProductOffer.offer_price) || counterValue > Number(activeProductOffer.product_price))) {
+    if (errorEl) { errorEl.textContent = 'A contraproposta deve ser maior que a oferta recebida e não pode ultrapassar o preço anunciado.'; errorEl.hidden = false; }
+    return;
+  }
+
+  productOfferActionBusy = true;
+  const modal = $('notificationOfferModal');
+  modal?.querySelectorAll('[data-offer-action]').forEach(button => { button.disabled = true; });
+  if (errorEl) errorEl.hidden = true;
+  try {
+    let result;
+    if (['accept', 'reject', 'counter'].includes(action)) {
+      result = await supabaseClient.rpc('respond_product_offer', {
+        p_offer_id: activeProductOffer.id,
+        p_action: action,
+        p_counter_offer: action === 'counter' ? counterValue : null,
+        p_message: action === 'counter' ? counterMessage : null
+      });
+    } else {
+      result = await supabaseClient.rpc('respond_to_product_counteroffer', {
+        p_offer_id: activeProductOffer.id,
+        p_accept: action === 'accept_counter'
+      });
+    }
+    if (result.error) throw result.error;
+    const messages = {
+      accept: 'Oferta aceita. O comprador foi notificado.',
+      reject: 'Oferta recusada. O comprador foi notificado.',
+      counter: 'Contraproposta enviada ao comprador.',
+      accept_counter: 'Contraproposta aceita. O vendedor foi notificado.',
+      reject_counter: 'Contraproposta recusada. O vendedor foi notificado.'
+    };
+    notify(messages[action] || 'Oferta atualizada.', 'ok');
+    closeNotificationOfferModal();
+    await window.EcommeNotifications?.loadNotifications?.();
+    renderNotifications(true);
+  } catch (error) {
+    console.error('Erro ao responder à oferta:', error);
+    const rawMessage = error?.message || '';
+    const message = /respond_product_offer|respond_to_product_counteroffer/i.test(rawMessage) || error?.code === '42883'
+      ? 'As funções de negociação ainda não foram instaladas. Execute supabase/product-offers.sql no Supabase.'
+      : /OFFER_ALREADY_RESPONDED|NO_PENDING_COUNTER_OFFER/i.test(rawMessage)
+        ? 'Esta oferta já foi respondida ou não está mais aguardando uma ação.'
+        : /NOT_OFFER_SELLER|NOT_OFFER_BUYER/i.test(rawMessage)
+          ? 'Sua conta não tem permissão para realizar esta ação.'
+          : /COUNTER_OFFER_OUT_OF_RANGE/i.test(rawMessage)
+            ? 'O valor da contraproposta precisa ficar acima da oferta e não pode ultrapassar o preço anunciado.'
+            : 'Não foi possível atualizar a oferta. Atualize a página e tente novamente.';
+    if (errorEl) { errorEl.textContent = message; errorEl.hidden = false; }
+  } finally {
+    productOfferActionBusy = false;
+    modal?.querySelectorAll('[data-offer-action]').forEach(button => { button.disabled = false; });
+  }
+}
+
 async function initNotificationPage() {
   const api = window.EcommeNotifications;
   if (!api) {
@@ -290,6 +492,7 @@ async function initNotificationPage() {
     await api.init();
     api.applyPreferencesToUI();
     if (!notificationLoadError) renderNotifications(true);
+    await openProductOfferFromUrl();
   } catch (error) {
     console.error('[Ecomme] Erro ao inicializar a página de notificações:', error);
     notificationLoadError = error;
