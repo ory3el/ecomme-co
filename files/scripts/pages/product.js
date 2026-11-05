@@ -2127,6 +2127,7 @@ async function openProductOfferModal() {
     return;
   }
   const button = document.getElementById('makeProductOfferBtn');
+  let lockButton = false;
   if (button) { button.disabled = true; button.classList.add('is-loading'); }
 
   try {
@@ -2137,6 +2138,19 @@ async function openProductOfferModal() {
       location.href = `/login?redirect=${redirect}`;
       return;
     }
+
+    const { data: previousOffers, error: previousOfferError } = await supabaseClient
+      .from('product_offers')
+      .select('id,status')
+      .eq('product_id', String(currentProduct.id))
+      .eq('buyer_id', authData.user.id)
+      .limit(1);
+    if (previousOfferError) throw previousOfferError;
+    if (previousOffers?.length) {
+      lockButton = true;
+      throw new Error('PRODUCT_OFFER_ALREADY_SENT');
+    }
+
     if (typeof isProductUnavailable === 'function' && isProductUnavailable(currentProduct)) {
       throw new Error('Este produto está indisponível para receber ofertas.');
     }
@@ -2163,12 +2177,21 @@ async function openProductOfferModal() {
     document.body.classList.add('product-offer-open');
   } catch (error) {
     console.error('Não foi possível abrir a oferta:', error);
-    const message = error?.code === '42883' || /can_make_product_offer/i.test(error?.message || '')
-      ? 'O sistema de ofertas ainda não foi configurado. Execute supabase/product-offers.sql no SQL Editor do Supabase.'
-      : (error?.message || 'Não foi possível iniciar uma oferta. Tente novamente.');
+    const message = error?.code === '42883' || error?.code === '42P01' || /can_make_product_offer|product_offers|product_offer_claims/i.test(error?.message || '')
+      ? 'O sistema de ofertas ainda não foi configurado ou precisa ser atualizado. Execute novamente supabase/product-offers.sql no SQL Editor do Supabase.'
+      : /PRODUCT_OFFER_ALREADY_SENT/i.test(error?.message || '')
+        ? 'Você já enviou uma oferta para este produto. Só é permitido enviar uma oferta por produto.'
+        : (error?.message || 'Não foi possível iniciar uma oferta. Tente novamente.');
     if (typeof showToast === 'function') showToast(message, 'err');
   } finally {
-    if (button) { button.disabled = false; button.classList.remove('is-loading'); }
+    if (button) {
+      button.disabled = lockButton;
+      button.classList.remove('is-loading');
+      if (lockButton) {
+        button.textContent = 'Oferta já enviada';
+        button.classList.add('offer-sent');
+      }
+    }
   }
 }
 
@@ -2212,14 +2235,20 @@ async function submitProductOffer(event) {
     });
     if (error) throw error;
     closeProductOfferModal();
+    const offerButton = document.getElementById('makeProductOfferBtn');
+    if (offerButton) {
+      offerButton.disabled = true;
+      offerButton.textContent = 'Oferta já enviada';
+      offerButton.classList.add('offer-sent');
+    }
     if (typeof showToast === 'function') showToast('Oferta enviada! O vendedor receberá uma notificação.', 'ok');
   } catch (error) {
     console.error('Erro ao enviar oferta:', error);
     const rawMessage = error?.message || '';
-    const message = error?.code === '42883' || /create_product_offer/i.test(rawMessage)
-      ? 'A função de ofertas não foi encontrada. Execute supabase/product-offers.sql no SQL Editor do Supabase.'
-      : /PENDING_OFFER_EXISTS/i.test(rawMessage)
-        ? 'Você já tem uma oferta aguardando resposta para este produto.'
+    const message = error?.code === '42883' || error?.code === '42P01' || /create_product_offer|product_offers|product_offer_claims/i.test(rawMessage)
+      ? 'O sistema de ofertas não está atualizado. Execute novamente supabase/product-offers.sql no SQL Editor do Supabase.'
+      : /PRODUCT_OFFER_ALREADY_SENT|PENDING_OFFER_EXISTS/i.test(rawMessage)
+        ? 'Você já enviou uma oferta para este produto. Só é permitido enviar uma oferta por produto.'
         : /PRODUCT_UNAVAILABLE/i.test(rawMessage)
           ? 'Este produto está indisponível para receber ofertas.'
           : /CANNOT_OFFER_OWN_STORE/i.test(rawMessage)
