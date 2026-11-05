@@ -919,8 +919,21 @@ body.pr-report-open { overflow: hidden; }
 
 
 /* ── FAZER UMA OFERTA ─────────────────────────────────────── */
-.btn-make-offer {width: 100%;min-height: 44px;display: flex;align-items: center;justify-content: center;gap: 9px;margin: -8px 0 22px;padding: 11px 18px;border: 1px solid var(--border);border-radius: 100px;color: var(--blue);background: var(--white);font-size: 13px;font-weight: 600;transition: background 0.25s var(--timing), color 0.25s, transform 0.25s, opacity 0.25s;}
-.btn-make-offer:hover {background: var(--blueBg);transform: translateY(-1px);}
+.btn-make-offer {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 19px;
+    box-shadow: 0 0 10px rgb(0 0 0 / 20%);
+    flex-shrink: 0;
+    border: 1px solid var(--border1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    transition: all .2s;
+}
+.btn-make-offer:hover {background: var(--blueBg);transform: translateY(-1px);color: var(--blue22);}
 .btn-make-offer[hidden] { display: none; }
 .btn-make-offer:disabled { opacity: .65; cursor: wait; }
 .btn-make-offer.is-loading { pointer-events: none; }
