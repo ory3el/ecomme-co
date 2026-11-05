@@ -287,7 +287,7 @@ function verificarTema(e) {
   if (e.matches) {
     favicon.href = '/images/favicon.png';
   } else {
-    favicon.href = '/images/favicon.png';
+    favicon.href = '/images/favicon-white.png';
   }
 }
 const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
