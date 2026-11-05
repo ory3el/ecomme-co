@@ -145,7 +145,7 @@ body.nobodyscroll { overflow: hidden; }
 
     /* ── STATS STRIP ─────────────────────────────────────────── */
     .stats-strip {
-      background: var(--blue);
+      background: var(--blue-bg);
       padding: 13px 28px;
     }
     .stats-inner {
