@@ -142,7 +142,10 @@ function renderNotifications(skipAnim = false) {
 
 function renderItem(n, delay) {
   const href = safeHref(n.href);
-  const ctaHtml = href ? `<div class="ni-cta-row"><a class="ni-cta ${['order', 'shipped', 'delivered'].includes(n.type) ? 'primary' : 'ghost'}" href="${esc(href)}" data-open-notification>${esc(n.ctaLabel || 'Abrir')}</a></div>` : '';
+  const isOffer = n.metadata?.notification_kind === 'product_offer';
+  const ctaHtml = isOffer
+    ? `<div class="ni-cta-row"><a class="ni-cta ghost" href="#notification-offer" data-open-notification>Ver oferta</a></div>`
+    : href ? `<div class="ni-cta-row"><a class="ni-cta ${['order', 'shipped', 'delivered'].includes(n.type) ? 'primary' : 'ghost'}" href="${esc(href)}" data-open-notification>${esc(n.ctaLabel || 'Abrir')}</a></div>` : '';
   return `
     <article class="notif-item ${n.read ? '' : 'unread'}" id="ni-${esc(n.id)}" data-notification-id="${esc(n.id)}" tabindex="0" aria-label="Abrir notificação: ${esc(n.title)}" style="animation-delay:${delay}s">
       <div class="ni-icon ${esc(n.iconType)}">${iconMap[n.iconType] || iconMap.system}</div>
@@ -181,6 +184,12 @@ async function openNotification(id) {
   if (!row || !api) return;
   try {
     await api.markRead(id);
+    if (row.metadata?.notification_kind === 'product_offer') {
+      const offerId = row.metadata?.offer_id;
+      if (!offerId) throw new Error('NOTIFICATION_WITHOUT_OFFER_ID');
+      await openProductOfferModalById(offerId);
+      return;
+    }
     notify('Notificação marcada como lida.', 'ok');
     if (row.href) window.location.href = row.href;
     else if (currentFilter === 'nao-lidas') renderNotifications(true);
@@ -313,11 +322,6 @@ function closeNotificationOfferModal() {
   if (modal) modal.hidden = true;
   document.body.classList.remove('notification-offer-open');
   activeProductOffer = null;
-  const url = new URL(location.href);
-  if (url.searchParams.has('offer')) {
-    url.searchParams.delete('offer');
-    history.replaceState(null, '', url.pathname + url.search + url.hash);
-  }
 }
 
 function renderNotificationOffer(offer, viewerId) {
@@ -381,8 +385,7 @@ function renderNotificationOffer(offer, viewerId) {
   document.body.classList.add('notification-offer-open');
 }
 
-async function openProductOfferFromUrl() {
-  const offerId = new URLSearchParams(location.search).get('offer');
+async function openProductOfferModalById(offerId) {
   if (!offerId) return;
   const modal = ensureNotificationOfferModal();
   modal.hidden = false;
@@ -393,7 +396,7 @@ async function openProductOfferFromUrl() {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
     if (!authData?.user) {
-      const redirect = encodeURIComponent(`${location.pathname}${location.search}`);
+      const redirect = encodeURIComponent('/notifications');
       location.href = `/login?redirect=${redirect}`;
       return;
     }
@@ -492,7 +495,6 @@ async function initNotificationPage() {
     await api.init();
     api.applyPreferencesToUI();
     if (!notificationLoadError) renderNotifications(true);
-    await openProductOfferFromUrl();
   } catch (error) {
     console.error('[Ecomme] Erro ao inicializar a página de notificações:', error);
     notificationLoadError = error;
