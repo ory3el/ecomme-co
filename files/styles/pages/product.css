@@ -965,3 +965,58 @@ body.pr-report-open { overflow: hidden; }
 .product-offer-submit:disabled { opacity: .6; cursor: wait; }
 @media (max-width: 480px) { .product-offer-dialog { padding: 25px 20px 22px; border-radius: 20px; } .product-offer-dialog h2 { font-size: 23px; } }
 .btn-make-offer:disabled.offer-sent { opacity: .72; cursor: not-allowed; color: var(--muted); background: var(--bg3); border-color: var(--border2); transform: none; }
+
+
+/* Zoom lateral da imagem principal do produto */
+.product-image-zoom-preview {
+  position: fixed;
+  z-index: 1200;
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: 0 18px 55px rgba(0,0,0,.22);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(5px) scale(.98);
+  transition: opacity .16s ease,transform .16s ease,visibility .16s ease;
+  contain: layout paint;
+}
+.product-image-zoom-preview.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+.product-image-zoom-preview img {
+  position: absolute;
+  inset: 26px;
+  width: calc(100% - 52px);
+  height: calc(100% - 52px);
+  object-fit: contain;
+  transform: scale(2.3);
+  transform-origin: center;
+  will-change: transform;
+}
+.product-image-zoom-label {
+  position: absolute;
+  z-index: 1;
+  top: 11px;
+  left: 12px;
+  padding: 5px 8px;
+  border-radius: 30px;
+  background: rgba(15,23,42,.76);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .7px;
+  line-height: 1;
+}
+@media (max-width: 768px), (hover: none), (pointer: coarse) {
+  .product-image-zoom-preview { display: none !important; }
+  .gallery-main { cursor: default; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-image-zoom-preview { transition: none; }
+}
