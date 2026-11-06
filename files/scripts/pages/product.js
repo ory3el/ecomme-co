@@ -2188,7 +2188,7 @@ async function openProductOfferModal() {
       button.disabled = lockButton;
       button.classList.remove('is-loading');
       if (lockButton) {
-        button.innerHtml = '<i class="fa-solid fa-ban"></i>';
+        button.innerHTML = '<i class="fa-solid fa-ban"></i>';
         button.classList.add('offer-sent');
       }
     }
