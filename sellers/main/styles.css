@@ -2758,14 +2758,23 @@ tbody tr:hover td {
 .action-dots {
     width: 32px;
     height: 32px;
+    padding: 0;
+    border: 0;
     border-radius: var(--r-sm);
     display: grid;
     place-items: center;
+    font: inherit;
     font-size: 14px;
     position: relative;
     cursor: pointer;
     color: var(--muted);
+    background: transparent;
     transition: background .2s,color .2s
+}
+
+.action-dots[aria-expanded="true"] {
+    background: var(--bg3);
+    color: var(--text)
 }
 
 .action-dots:hover {
@@ -2787,6 +2796,25 @@ tbody tr:hover td {
     box-shadow: var(--sh-pop);
     z-index: 50;
     display: none;
+    text-align: left
+}
+
+.action-menu.action-menu-portal {
+    position: fixed;
+    top: 0;
+    right: auto;
+    bottom: auto;
+    z-index: 10000;
+    max-height: min(280px,calc(100vh - 16px));
+    overflow-y: auto;
+    overscroll-behavior: contain
+}
+
+.action-menu .am-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
     text-align: left
 }
 
