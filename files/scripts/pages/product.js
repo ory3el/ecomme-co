@@ -1431,9 +1431,97 @@ function renderProductGallery(p) {
   });
 
   selectProductImage(0);
+  setupProductImageZoom(gallery);
+}
+
+// Ampliação lateral que acompanha a posição do ponteiro na imagem principal.
+let productZoomPreview = null;
+let productZoomPreviewImage = null;
+let productZoomGallery = null;
+
+function setupProductImageZoom(gallery) {
+  const mainImage = document.getElementById('productMainImage');
+  if (!gallery || !mainImage) return;
+
+  if (!productZoomPreview) {
+    productZoomPreview = document.createElement('div');
+    productZoomPreview.className = 'product-image-zoom-preview';
+    productZoomPreview.id = 'productImageZoomPreview';
+    productZoomPreview.setAttribute('aria-hidden', 'true');
+    productZoomPreview.innerHTML = '<span class="product-image-zoom-label">ZOOM 2,3×</span><img alt="Ampliação da imagem do produto">';
+    productZoomPreviewImage = productZoomPreview.querySelector('img');
+    document.body.appendChild(productZoomPreview);
+  }
+
+  if (gallery.dataset.zoomInitialized === 'true') return;
+  gallery.dataset.zoomInitialized = 'true';
+  productZoomGallery = gallery;
+
+  gallery.addEventListener('pointermove', handleProductImageZoomMove, { passive: true });
+  gallery.addEventListener('pointerleave', hideProductImageZoom);
+  gallery.addEventListener('pointercancel', hideProductImageZoom);
+  window.addEventListener('scroll', updateProductImageZoomPosition, { passive: true });
+  window.addEventListener('resize', hideProductImageZoom, { passive: true });
+}
+
+function handleProductImageZoomMove(event) {
+  if (event.pointerType && event.pointerType !== 'mouse') return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 769px)').matches) return;
+
+  const mainImage = document.getElementById('productMainImage');
+  const gallery = productZoomGallery;
+  if (!mainImage || !gallery || !mainImage.complete || !mainImage.naturalWidth || mainImage.style.display === 'none') return;
+
+  const rect = gallery.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+  const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+  syncProductImageZoomSource();
+  productZoomPreviewImage.style.transformOrigin = `${x * 100}% ${y * 100}%`;
+  productZoomPreview.classList.add('is-visible');
+  productZoomPreview.setAttribute('aria-hidden', 'false');
+  updateProductImageZoomPosition();
+}
+
+function syncProductImageZoomSource() {
+  const mainImage = document.getElementById('productMainImage');
+  if (!mainImage || !productZoomPreviewImage) return;
+  const source = mainImage.dataset.original || mainImage.currentSrc || mainImage.src;
+  if (source && productZoomPreviewImage.src !== new URL(source, window.location.href).href) {
+    productZoomPreviewImage.src = source;
+  }
+}
+
+function updateProductImageZoomPosition() {
+  if (!productZoomPreview || !productZoomGallery || !productZoomPreview.classList.contains('is-visible')) return;
+
+  const rect = productZoomGallery.getBoundingClientRect();
+  const gap = 16;
+  const size = Math.min(340, window.innerWidth - 24, window.innerHeight - 24);
+  const rightSpace = window.innerWidth - rect.right;
+  const leftSpace = rect.left;
+  let left;
+
+  if (rightSpace >= size + gap) left = rect.right + gap;
+  else if (leftSpace >= size + gap) left = rect.left - size - gap;
+  else left = Math.max(12, Math.min(window.innerWidth - size - 12, rect.right + gap));
+
+  const top = Math.max(12, Math.min(rect.top, window.innerHeight - size - 12));
+  productZoomPreview.style.width = `${size}px`;
+  productZoomPreview.style.height = `${size}px`;
+  productZoomPreview.style.left = `${left}px`;
+  productZoomPreview.style.top = `${top}px`;
+}
+
+function hideProductImageZoom() {
+  if (!productZoomPreview) return;
+  productZoomPreview.classList.remove('is-visible');
+  productZoomPreview.setAttribute('aria-hidden', 'true');
 }
 
 function selectProductImage(index) {
+  hideProductImageZoom();
   const mainImage = document.getElementById('productMainImage');
   const emoji = document.getElementById('gmainEmoji');
 
@@ -1460,11 +1548,13 @@ function selectProductImage(index) {
 
     this.style.display = 'none';
     emoji.style.display = 'block';
+    hideProductImageZoom();
   };
 
   mainImage.onload = () => {
     mainImage.style.display = 'block';
     emoji.style.display = 'none';
+    syncProductImageZoomSource();
   };
 
   mainImage.src = optimizedImage(original, 'modal') || original;
