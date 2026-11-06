@@ -1389,14 +1389,21 @@ function renderProductGallery(p) {
   if (!mainImage) {
     mainImage = document.createElement('img');
     mainImage.id = 'productMainImage';
-
+    mainImage.draggable = false;
+    mainImage.setAttribute('draggable', 'false');
     mainImage.style.cssText =
       'position:absolute;inset:0;width:100%;height:100%;' +
       'object-fit:contain;box-sizing:border-box;padding:28px;' +
-      'display:none;z-index:1;pointer-events:none;';
+      'display:none;z-index:1;pointer-events:none;' +
+      'user-select:none;-webkit-user-select:none;-webkit-user-drag:none;';
 
     emoji.insertAdjacentElement('beforebegin', mainImage);
   }
+  mainImage.draggable = false;
+  mainImage.setAttribute('draggable', 'false');
+  mainImage.style.userSelect = 'none';
+  mainImage.style.webkitUserSelect = 'none';
+  mainImage.style.webkitUserDrag = 'none';
 
   emoji.textContent = p.emoji || '📦';
   emoji.style.position = 'relative';
@@ -1464,7 +1471,19 @@ function setupProductImageZoom(gallery) {
   if (gallery.dataset.zoomInitialized === 'true') return;
   gallery.dataset.zoomInitialized = 'true';
   productZoomGallery = gallery;
+  gallery.style.userSelect = 'none';
+  gallery.style.webkitUserSelect = 'none';
 
+  // Impede seleção acidental de texto/imagem e arraste nativo no quadro principal.
+  gallery.addEventListener('selectstart', event => {
+    if (isProductImageZoomTarget(event)) event.preventDefault();
+  });
+  gallery.addEventListener('dragstart', event => {
+    if (isProductImageZoomTarget(event) || event.target.closest?.('#productMainImage')) event.preventDefault();
+  });
+  gallery.addEventListener('dblclick', event => {
+    if (isProductImageZoomTarget(event)) event.preventDefault();
+  });
   gallery.addEventListener('pointermove', handleProductImageZoomMove, { passive: true });
   gallery.addEventListener('click', handleProductImageZoomIncrease);
   gallery.addEventListener('contextmenu', handleProductImageZoomDecrease);
