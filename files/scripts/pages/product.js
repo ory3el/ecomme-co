@@ -2126,9 +2126,9 @@ async function openProductOfferModal() {
     if (typeof showToast === 'function') showToast('Não foi possível conectar ao sistema de ofertas.', 'err');
     return;
   }
-  const button = document.getElementById('makeProductOfferBtn');
+  const offerBtn = document.getElementById('makeProductOfferBtn');
   let lockButton = false;
-  if (button) { button.disabled = true; button.classList.add('is-loading'); }
+  if (offerBtn) { offerBtn.disabled = true; offerBtn.classList.add('is-loading'); }
 
   try {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
@@ -2184,12 +2184,12 @@ async function openProductOfferModal() {
         : (error?.message || 'Não foi possível iniciar uma oferta. Tente novamente.');
     if (typeof showToast === 'function') showToast(message, 'err');
   } finally {
-    if (button) {
-      button.disabled = lockButton;
-      button.classList.remove('is-loading');
+    if (offerBtn) {
+      offerBtn.disabled = lockButton;
+      offerBtn.classList.remove('is-loading');
       if (lockButton) {
-        button.innerHTML = '<i class="fa-solid fa-ban"></i>';
-        button.classList.add('offer-sent');
+        offerBtn.innerHTML = '<i class="fa-solid fa-ban"></i>';
+        offerBtn.classList.add('offer-sent');
       }
     }
   }
