@@ -1437,7 +1437,12 @@ function renderProductGallery(p) {
 // Ampliação lateral que acompanha a posição do ponteiro na imagem principal.
 let productZoomPreview = null;
 let productZoomPreviewImage = null;
+let productZoomPreviewLabel = null;
 let productZoomGallery = null;
+let productZoomLevel = 0;
+const PRODUCT_ZOOM_BASE = 2.3;
+const PRODUCT_ZOOM_STEP = 0.26;
+const PRODUCT_ZOOM_MAX_LEVEL = 5;
 
 function setupProductImageZoom(gallery) {
   const mainImage = document.getElementById('productMainImage');
@@ -1448,9 +1453,12 @@ function setupProductImageZoom(gallery) {
     productZoomPreview.className = 'product-image-zoom-preview';
     productZoomPreview.id = 'productImageZoomPreview';
     productZoomPreview.setAttribute('aria-hidden', 'true');
-    productZoomPreview.innerHTML = '<span class="product-image-zoom-label">ZOOM 2,3×</span><img alt="Ampliação da imagem do produto">';
+    productZoomPreview.innerHTML = '<span class="product-image-zoom-label">ZOOM 2,3× · ESQ. + / DIR. −</span><img alt="Ampliação da imagem do produto">';
     productZoomPreviewImage = productZoomPreview.querySelector('img');
+    productZoomPreviewLabel = productZoomPreview.querySelector('.product-image-zoom-label');
+    productZoomPreview.title = 'Clique com o botão esquerdo para aumentar e com o botão direito para diminuir o zoom (até 5 níveis em cada direção).';
     document.body.appendChild(productZoomPreview);
+    updateProductImageZoomLevel();
   }
 
   if (gallery.dataset.zoomInitialized === 'true') return;
@@ -1458,6 +1466,8 @@ function setupProductImageZoom(gallery) {
   productZoomGallery = gallery;
 
   gallery.addEventListener('pointermove', handleProductImageZoomMove, { passive: true });
+  gallery.addEventListener('click', handleProductImageZoomIncrease);
+  gallery.addEventListener('contextmenu', handleProductImageZoomDecrease);
   gallery.addEventListener('pointerleave', hideProductImageZoom);
   gallery.addEventListener('pointercancel', hideProductImageZoom);
   window.addEventListener('scroll', updateProductImageZoomPosition, { passive: true });
@@ -1482,6 +1492,39 @@ function handleProductImageZoomMove(event) {
   productZoomPreview.classList.add('is-visible');
   productZoomPreview.setAttribute('aria-hidden', 'false');
   updateProductImageZoomPosition();
+}
+
+function isProductImageZoomTarget(event) {
+  const gallery = productZoomGallery;
+  if (!gallery || !gallery.contains(event.target)) return false;
+  if (event.target.closest('button, a, input, [role="button"], .gallery-badges, .gallery-zoom-hint')) return false;
+  const mainImage = document.getElementById('productMainImage');
+  return Boolean(mainImage && mainImage.complete && mainImage.naturalWidth && mainImage.style.display !== 'none');
+}
+
+function updateProductImageZoomLevel() {
+  if (!productZoomPreviewImage) return;
+  const scale = Math.max(1, PRODUCT_ZOOM_BASE + productZoomLevel * PRODUCT_ZOOM_STEP);
+  productZoomPreviewImage.style.transform = `scale(${scale.toFixed(2)})`;
+  if (productZoomPreviewLabel) {
+    productZoomPreviewLabel.textContent = `ZOOM ${scale.toFixed(1).replace('.', ',')}× · ESQ. + / DIR. −`;
+  }
+  if (productZoomPreview) productZoomPreview.dataset.zoomLevel = String(productZoomLevel);
+}
+
+function handleProductImageZoomIncrease(event) {
+  if (event.button !== 0 || !isProductImageZoomTarget(event)) return;
+  productZoomLevel = Math.min(PRODUCT_ZOOM_MAX_LEVEL, productZoomLevel + 1);
+  updateProductImageZoomLevel();
+  handleProductImageZoomMove(event);
+}
+
+function handleProductImageZoomDecrease(event) {
+  if (!isProductImageZoomTarget(event)) return;
+  event.preventDefault();
+  productZoomLevel = Math.max(-PRODUCT_ZOOM_MAX_LEVEL, productZoomLevel - 1);
+  updateProductImageZoomLevel();
+  handleProductImageZoomMove(event);
 }
 
 function syncProductImageZoomSource() {
