@@ -688,6 +688,7 @@ function updateProdCounts() {
 }
 
 function buildProdTable(filter) {
+  closeProductActionMenu();
   if (filter !== undefined) { prodFilter = filter; prodPageNum = 1; }
   const body = $('prodTbody');
   if (!body) return;
@@ -728,14 +729,7 @@ function buildProdTable(filter) {
       <td>${stTag}</td>
       <td><div class="fac gap4 row-acts">
         <button class="btn btn-ghost btn-xs" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
-        <div class="action-dots" role="button" tabindex="0" aria-label="Mais ações" aria-haspopup="menu" onclick="toggleMenu(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i>
-          <div class="action-menu" role="menu">
-            <div class="am-item" role="menuitem" data-act="dup" data-id="${id}"><i class="fa-regular fa-copy"></i> Duplicar</div>
-            <div class="am-item" role="menuitem" data-act="pause" data-id="${id}">${prodIsPaused(p) ? '<i class="fa-solid fa-play"></i> Reativar' : '<i class="fa-solid fa-pause"></i> Pausar'}</div>
-            <div class="am-item" role="menuitem" data-act="export" data-id="${id}"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</div>
-            <div class="am-item red" role="menuitem" data-act="del" data-id="${id}"><i class="fa-regular fa-trash-can"></i> Excluir</div>
-          </div>
-        </div>
+        <button type="button" class="action-dots" data-product-menu="${id}" aria-label="Mais opções de ${escapeHtml(p.name)}" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></button>
       </div></td>
     </tr>`;
     }).join('');
@@ -751,13 +745,106 @@ function initProductsTable() {
   if (!tb || tb.dataset.bound) return;
   tb.dataset.bound = '1';
   tb.addEventListener('click', ev => {
+    const menuTrigger = ev.target.closest('[data-product-menu]');
+    if (menuTrigger) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      toggleProductActionMenu(menuTrigger);
+      return;
+    }
     const el = ev.target.closest('[data-act]');
     if (!el) return;
-    document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
+    ev.preventDefault();
     const id = el.dataset.id;
-    ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
-       analytics: openProductAnalytics,
-       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
+    runProductAction(el.dataset.act, id);
+  });
+  if (!document.documentElement.dataset.productMenuEventsBound) {
+    document.documentElement.dataset.productMenuEventsBound = '1';
+    document.addEventListener('click', ev => {
+      if (ev.target.closest('#productActionMenu,[data-product-menu]')) return;
+      closeProductActionMenu();
+    });
+    document.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape' && activeProductActionMenu) {
+        ev.preventDefault();
+        closeProductActionMenu(true);
+      }
+    });
+    window.addEventListener('resize', closeProductActionMenu);
+    window.addEventListener('scroll', closeProductActionMenu, true);
+  }
+}
+
+let activeProductActionMenu = null;
+let activeProductActionTrigger = null;
+
+function runProductAction(action, id) {
+  const actions = {
+    edit: editProduct,
+    dup: duplicateProduct,
+    pause: toggleProductPause,
+    del: deleteProduct,
+    analytics: openProductAnalytics,
+    export: pid => { const product = findProd(pid); if (product) exportProductsCsv([product]); }
+  };
+  const handler = actions[action];
+  if (typeof handler === 'function') return handler(id);
+}
+
+function closeProductActionMenu(restoreFocus = false) {
+  if (activeProductActionMenu) activeProductActionMenu.remove();
+  if (activeProductActionTrigger) {
+    activeProductActionTrigger.setAttribute('aria-expanded', 'false');
+    if (restoreFocus && activeProductActionTrigger.isConnected) activeProductActionTrigger.focus();
+  }
+  activeProductActionMenu = null;
+  activeProductActionTrigger = null;
+}
+
+function toggleProductActionMenu(trigger) {
+  const productId = trigger.dataset.productMenu;
+  if (activeProductActionTrigger === trigger) {
+    closeProductActionMenu();
+    return;
+  }
+  closeProductActionMenu();
+  const product = findProd(productId);
+  if (!product) return;
+
+  const menu = document.createElement('div');
+  menu.id = 'productActionMenu';
+  menu.className = 'action-menu action-menu-portal on';
+  menu.setAttribute('role', 'menu');
+  menu.innerHTML = `
+    <button type="button" class="am-item" role="menuitem" data-act="dup" data-id="${escapeHtml(product.id)}"><i class="fa-regular fa-copy"></i> Duplicar</button>
+    <button type="button" class="am-item" role="menuitem" data-act="pause" data-id="${escapeHtml(product.id)}">${prodIsPaused(product) ? '<i class="fa-solid fa-play"></i> Reativar' : '<i class="fa-solid fa-pause"></i> Pausar'}</button>
+    <button type="button" class="am-item" role="menuitem" data-act="export" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</button>
+    <button type="button" class="am-item red" role="menuitem" data-act="del" data-id="${escapeHtml(product.id)}"><i class="fa-regular fa-trash-can"></i> Excluir</button>`;
+
+  document.body.appendChild(menu);
+  activeProductActionMenu = menu;
+  activeProductActionTrigger = trigger;
+  trigger.setAttribute('aria-expanded', 'true');
+
+  const rect = trigger.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  const width = menuRect.width || 190;
+  const height = menuRect.height || 180;
+  const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+  let top = rect.bottom + 6;
+  if (top + height > window.innerHeight - 8) top = rect.top - height - 6;
+  top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+
+  menu.addEventListener('click', ev => {
+    const item = ev.target.closest('[data-act]');
+    if (!item) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const { act, id } = item.dataset;
+    closeProductActionMenu();
+    runProductAction(act, id);
   });
 }
 
@@ -770,16 +857,6 @@ function filterProds(btn, f) {
 function onProdSearch(el) { prodQuery = el.value; prodPageNum = 1; buildProdTable(); }
 function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTable(); }
 function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
-
-function toggleMenu(e, el) {
-  // Clique num ITEM do menu: não interrompe a propagação, para a delegação da tabela (data-act) tratar a ação.
-  if (e.target.closest('.action-menu')) return;
-  e.stopPropagation();
-  const m = el.querySelector('.action-menu');
-  document.querySelectorAll('.action-menu.on').forEach(x => { if (x !== m) x.classList.remove('on'); });
-  m.classList.toggle('on');
-}
-document.addEventListener('click', () => document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on')));
 
 function exportProductsCsv(list) {
   const rows = [['ID', 'Nome', 'Categoria', 'Preço', 'Estoque', 'Status']];
