@@ -453,8 +453,8 @@
 
               <div class="card card-pad">
                 <div class="sec-t"><span class="sec-n">2</span> Imagens do produto</div>
-                <div class="product-gallery">
-                  <input type="file" id="npImage" accept="image/*" style="display:none" onchange="openCropModal(event)">
+                <div class="product-gallery" id="productGalleryDropzone">
+                  <input type="file" id="npImage" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="openCropModal(event)">
 
                   <div class="img-block main-block" id="img-block-0" onclick="triggerImageUpload(0)">
                     <div class="img-preview-container" id="imgPreviewContainer">
@@ -483,6 +483,7 @@
                     </div>
                   </div>
                 </div>
+                <p class="gallery-drop-hint"><i class="fa-solid fa-cloud-arrow-up"></i> Arraste e solte imagens nesta área ou clique nos quadros para selecionar. Você pode adicionar até 5 imagens.</p>
                 <p class="bg-removal-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> Use <strong>Remover fundo</strong> nas imagens preenchidas. Os melhores resultados costumam ocorrer com fundos de cor única ou gradientes suaves.</p>
               </div>
 
