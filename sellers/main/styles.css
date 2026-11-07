@@ -830,7 +830,7 @@ html[data-theme="dark"] .btn-danger {
 .fld-float .sel {
     height: 42px;
     min-width: 176px;
-    background-color: transparent;
+    background-color: var(--surface);
     font-size: 14px
 }
 
@@ -1106,11 +1106,11 @@ html[data-theme="light"] .tag-blue {
 .stab.on {
     background: var(--blue-dim);
     border-color: var(--border);
-    color: var(--blue3)
+    color: var(--black);
 }
 
 html[data-theme="light"] .stab.on {
-    color: var(--blue)
+    color: #000;
 }
 
 .status-tabs,.order-filter-tabs {
@@ -1597,7 +1597,7 @@ html[data-theme="light"] .stab.on {
     flex-shrink: 0;
     position: relative;
     z-index: 20;
-    background: var(--hdr-bg);
+    background: var(--bg2);
     backdrop-filter: blur(16px) saturate(1.25);
     -webkit-backdrop-filter: blur(16px) saturate(1.25);
     border-bottom: 1px solid var(--border2)
@@ -1667,7 +1667,7 @@ html[data-theme="light"] .stab.on {
     font-size: 16px;
     color: var(--muted);
     background: var(--bg2);
-    border: 1px solid transparent;
+    border: 1px solid var(--border2);
     position: relative;
     transition: background .2s,color .2s,border-color .2s
 }
@@ -2019,7 +2019,8 @@ html[data-theme="light"] .sec-n {
 }
 
 .kpi {
-    --kc: var(--green);
+    --kc:
+    var(--green);
     position: relative;
     background: var(--surface);
     border: 1px solid var(--border2);
@@ -2036,7 +2037,7 @@ html[data-theme="light"] .sec-n {
 }
 
 .kpi-green {
-    --kc: #10B981
+    --kc: #10B981;
 }
 
 .kpi-blue {
@@ -3505,7 +3506,8 @@ html[data-theme="light"] .preview-price {
     margin-bottom: 16px;
     color: #fff;
     border: 1px solid rgba(255,255,255,.14);
-    background: radial-gradient(520px 220px at 100% 0%,rgba(255,255,255,.18),transparent 60%),linear-gradient(135deg,#1D4ED8,#3B7BF6 70%,#2DB4A0)
+    /* background: radial-gradient(520px 220px at 100% 0%,rgba(255,255,255,.18),transparent 60%),linear-gradient(135deg,#1D4ED8,#3B7BF6 70%,#2DB4A0); */
+    background: var(--surface);
 }
 
 .wc-title {
@@ -3533,9 +3535,9 @@ html[data-theme="light"] .preview-price {
 .wc-inp {
     flex: 1 1 200px;
     height: 46px;
-    background: rgba(255,255,255,.16);
-    border: 1px solid rgba(255,255,255,.28);
-    color: #fff;
+    background: var(--b2);
+    border: 1px solid var(--border);
+    color: var(--text);
     padding: 0 16px;
     border-radius: var(--r-md);
     font-size: 15px;
@@ -3545,20 +3547,20 @@ html[data-theme="light"] .preview-price {
 }
 
 .wc-inp::placeholder {
-    color: rgba(255,255,255,.55)
+    color: var(--muted)
 }
 
 .wc-inp:focus {
-    border-color: #fff;
-    background: rgba(255,255,255,.22)
+    border-color: var(--black);
+    background: var(--bg3)
 }
 
 .wc-inp2 {
     flex: 1 1 220px;
     height: 46px;
-    background: rgba(255,255,255,.94);
-    border: 1px solid #fff;
-    color: #0F172A;
+    background: var(--field);
+    border: 1px solid var(--border2);
+    color: var(--text);
     padding: 0 14px;
     border-radius: var(--r-md);
     font-size: 13px;
@@ -3567,15 +3569,16 @@ html[data-theme="light"] .preview-price {
 
 .wc-inp2:disabled {
     opacity: .9;
-    cursor: default
+    cursor: default;
 }
 
 .btn-withdraw {
     height: 46px;
     padding: 0 24px;
     border-radius: var(--r-md);
-    background: #fff;
-    color: #1D4ED8;
+    background: var(--field);
+    border: 1px solid var(--border2);
+    color: var(--black);
     font-weight: 700;
     font-size: 14px;
     white-space: nowrap;
@@ -3724,7 +3727,7 @@ html[data-theme="light"] .cfg-nav-item.on {
 .store-state {
     text-align: center;
     padding: 64px 24px;
-    max-width: 640px;
+    /* max-width: 640px; */
     margin: 0 auto;
     border-radius: 28px;
     backdrop-filter: blur(14px);
