@@ -3205,6 +3205,7 @@ html[data-theme="light"] .preview-price {
     cursor: pointer;
 }
 .bg-removal-stage { display: flex; flex-direction: column; align-items: center; }
+.bg-removal-stage[hidden] { display: none !important; }
 .bg-removal-kicker { margin-top: 12px; color: var(--blue3); font-size: 9px; font-weight: 800; letter-spacing: 2px; }
 .bg-removal-stage h3 { margin: 8px 0 7px; color: var(--text); font: 700 23px var(--font-head); }
 .bg-removal-stage p { max-width: 350px; margin: 0 auto 18px; color: var(--muted); font-size: 12px; line-height: 1.65; }
@@ -3237,6 +3238,12 @@ html[data-theme="light"] .preview-price {
 .bg-removal-done { min-width: 170px; justify-content: center; }
 .bg-error-mark { width: 66px; height: 66px; display: grid; place-items: center; border-radius: 22px; margin-bottom: 7px; background: rgba(239,68,68,.1); color: #ef4444; font-size: 28px; }
 .bg-removal-error .btn { margin-top: 4px; }
+.bg-plan-lock-icon { width: 78px; height: 78px; display: grid; place-items: center; margin: 4px auto 2px; border: 1px solid rgba(66,135,245,.2); border-radius: 25px; background: linear-gradient(145deg,rgba(66,135,245,.16),rgba(139,92,246,.12)); color: var(--blue3); font-size: 31px; box-shadow: 0 12px 30px rgba(37,99,235,.12); }
+.bg-removal-plans h3 { max-width: 340px; }
+.bg-removal-plans p strong { color: var(--text); font-weight: 800; }
+.btn-bg-removal-plans { display: inline-flex; align-items: center; justify-content: center; gap: 9px; width: min(280px,100%); min-height: 46px; margin-top: 2px; padding: 0 20px; border: 0; border-radius: 13px; background: linear-gradient(135deg,#2563eb,#4f7ff0); color: #fff; font: 700 13px var(--font-body); cursor: pointer; box-shadow: 0 8px 22px rgba(37,99,235,.24); transition: transform .2s ease,box-shadow .2s ease; }
+.btn-bg-removal-plans:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(37,99,235,.3); }
+.btn-bg-removal-plans:active { transform: translateY(0); }
 @media(max-width:520px) {
     .btn-remove-bg { left: 6px; bottom: 6px; width: 31px; min-width: 31px; height: 31px; padding: 0; }
     .btn-remove-bg span { display: none; }
