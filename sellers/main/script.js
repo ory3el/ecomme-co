@@ -1524,7 +1524,7 @@ function updateGalleryUI() {
     const file = productImagesFiles[i];
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button type="button" class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
-    const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="removeProductBackground(${i}, event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
+    const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="showBgRemovalPlansModal(event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
     const dbImageUrl = productExistingUrls[i] || null;
     if (file) {
       const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));
@@ -1572,9 +1572,11 @@ function setBgRemovalStage(stage, message = '') {
   if (!modal) return;
   modal.classList.add('active');
   modal.setAttribute('aria-hidden', 'false');
+  modal.setAttribute('aria-labelledby', stage === 'locked' ? 'bgRemovalPlansTitle' : 'bgRemovalTitle');
   $('bgRemovalLoading').hidden = stage !== 'loading';
   $('bgRemovalSuccess').hidden = stage !== 'success';
   $('bgRemovalError').hidden = stage !== 'error';
+  $('bgRemovalPlans').hidden = stage !== 'locked';
   const closeButton = $('bgRemovalClose');
   if (closeButton) closeButton.hidden = stage === 'loading';
   if (stage === 'error') $('bgRemovalErrorText').textContent = message || 'Não foi possível remover o fundo. Tente novamente.';
@@ -1585,6 +1587,12 @@ function setBgRemovalStage(stage, message = '') {
   } else {
     $('bgRemovalSuccess')?.classList.remove('is-visible');
   }
+}
+
+function showBgRemovalPlansModal(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  if (bgRemovalInProgress) return;
+  setBgRemovalStage('locked');
 }
 
 function closeBgRemovalModal() {
