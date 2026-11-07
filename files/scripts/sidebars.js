@@ -820,7 +820,7 @@ function unavailableMsgHtml(item) {
     : '';
 }
 
-const EDGE_IMAGE_ZONE = 'https://image.sellerium.workers.dev';
+const EDGE_IMAGE_ZONE = 'https://image.innovva.workers.dev';
 const EDGE_IMAGE_PRESETS = {
   grid: 'grid',
   list: 'list',
