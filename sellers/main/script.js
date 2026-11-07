@@ -1693,6 +1693,7 @@ async function removeProductBackground(slotIndex, event) {
 
 let cropperInstance = null;
 let originalFileName = "";
+let originalFileType = "";
 
 function openCropModal(event) {
   const file = event?.file || event?.target?.files?.[0];
@@ -1711,6 +1712,7 @@ function openCropModal(event) {
   }
 
   originalFileName = file.name;
+  originalFileType = file.type;
   const reader = new FileReader();
   reader.onload = function(e) {
     const imgElement = document.getElementById('imageToCrop');
@@ -1847,25 +1849,27 @@ async function executeCrop() {
     toast('Erro: O recortador não foi inicializado corretamente. ⚠️', 'err');
     return;
   }
-  
+
+  // PNG e WEBP podem conter transparência; mantenha o canal alfa ao exportar o recorte.
+  const preserveTransparency = ['image/png', 'image/webp'].includes(originalFileType);
+  const outputType = preserveTransparency ? 'image/png' : 'image/jpeg';
+  const outputExtension = preserveTransparency ? 'png' : 'jpg';
+  const outputName = `${originalFileName.replace(/\.[^.]+$/, '') || 'produto'}.${outputExtension}`;
+
   cropperInstance.getCroppedCanvas({
     width: 600,
     height: 600,
-    fillColor: '#ffffff',
     imageSmoothingQuality: 'high'
-  }).toBlob(async (blob) => {
-    
+  }).toBlob(blob => {
     if (!blob) {
       toast('Erro ao processar o recorte da imagem.', 'err');
       closeCropModal();
       return;
     }
 
-    const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' });
+    const croppedFile = new File([blob], outputName, { type: outputType, lastModified: Date.now() });
     const oldFile = productImagesFiles[activeImageSlot];
-    if (oldFile && oldFile.previewUrl) {
-      URL.revokeObjectURL(oldFile.previewUrl);
-    }
+    if (oldFile?.previewUrl) URL.revokeObjectURL(oldFile.previewUrl);
     productImagesFiles[activeImageSlot] = croppedFile;
     productExistingUrls[activeImageSlot] = null;
     hasUnsavedChanges = true;
@@ -1873,7 +1877,7 @@ async function executeCrop() {
     updateGalleryUI();
     updatePreview();
     closeCropModal(true);
-  }, 'image/jpeg', 0.9);
+  }, outputType, preserveTransparency ? undefined : 0.9);
 }
 
 // Lembre-se de atualizar a função clearProductForm() para limpar esse array quando sair
