@@ -3010,7 +3010,34 @@ html[data-theme="light"] .preview-price {
 .product-gallery {
     display: flex;
     flex-direction: column;
-    gap: 14px
+    gap: 14px;
+    border: 1.5px dashed transparent;
+    border-radius: var(--r-lg);
+    transition: border-color .2s,background .2s,box-shadow .2s
+}
+.product-gallery.is-drag-over {
+    border-color: var(--blue);
+    background: var(--blue-dim);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.08)
+}
+.img-block.is-drag-over {
+    border: 2px solid var(--blue) !important;
+    background: var(--blue-dim) !important;
+    box-shadow: 0 0 0 4px rgba(37,99,235,.14);
+    transform: scale(.985)
+}
+.gallery-drop-hint {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5
+}
+.gallery-drop-hint i { color: var(--blue3); font-size: 13px }
+@media (max-width: 520px) {
+    .gallery-drop-hint { font-size: 10px; align-items: flex-start }
 }
 
 .secondary-blocks {
