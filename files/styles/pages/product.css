@@ -981,7 +981,7 @@ body.pr-report-open { overflow: hidden; }
   box-shadow: 0 18px 55px rgba(0,0,0,.22);
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
+  /* pointer-events: none; */
   transform: translateY(5px) scale(.98);
   transition: opacity .16s ease,transform .16s ease,visibility .16s ease;
   contain: layout paint;
@@ -993,9 +993,9 @@ body.pr-report-open { overflow: hidden; }
 }
 .product-image-zoom-preview img {
   position: absolute;
-  inset: 26px;
-  width: calc(100% - 52px);
-  height: calc(100% - 52px);
+  /* inset: 26px; */
+  width: calc(100%);
+  height: calc(100%);
   object-fit: contain;
   transform: scale(2.3);
   transform-origin: center;
