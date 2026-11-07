@@ -2758,23 +2758,14 @@ tbody tr:hover td {
 .action-dots {
     width: 32px;
     height: 32px;
-    padding: 0;
-    border: 0;
     border-radius: var(--r-sm);
     display: grid;
     place-items: center;
-    font: inherit;
     font-size: 14px;
     position: relative;
     cursor: pointer;
     color: var(--muted);
-    background: transparent;
     transition: background .2s,color .2s
-}
-
-.action-dots[aria-expanded="true"] {
-    background: var(--bg3);
-    color: var(--text)
 }
 
 .action-dots:hover {
@@ -2796,25 +2787,6 @@ tbody tr:hover td {
     box-shadow: var(--sh-pop);
     z-index: 50;
     display: none;
-    text-align: left
-}
-
-.action-menu.action-menu-portal {
-    position: fixed;
-    top: 0;
-    right: auto;
-    bottom: auto;
-    z-index: 10000;
-    max-height: min(280px,calc(100vh - 16px));
-    overflow-y: auto;
-    overscroll-behavior: contain
-}
-
-.action-menu .am-item {
-    width: 100%;
-    border: 0;
-    background: transparent;
-    font: inherit;
     text-align: left
 }
 
@@ -3134,6 +3106,139 @@ html[data-theme="light"] .preview-price {
 
 .btn-delete-main-img:hover {
     transform: scale(1.1)
+}
+
+/* Remoção de fundo com IA — ações sobre cada imagem */
+.bg-removal-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+.bg-removal-hint i { margin-top: 1px; color: var(--blue3); }
+.bg-removal-hint strong { color: var(--text); font-weight: 700; }
+
+.btn-remove-bg {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 6px 9px;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 999px;
+    background: rgba(16,25,44,.86);
+    color: #fff;
+    font: 600 10px var(--font-body);
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.22);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform .2s ease,background .2s ease,opacity .2s ease;
+}
+.btn-remove-bg:hover { transform: translateY(-2px); background: #2563eb; }
+.btn-remove-bg:disabled { opacity: .55; cursor: wait; transform: none; }
+.btn-remove-bg i { font-size: 12px; }
+.img-block.small-block .btn-remove-bg { width: 31px; min-width: 31px; padding: 0; left: 6px; bottom: 6px; }
+.img-block.small-block .btn-remove-bg span { display: none; }
+.btn-remove-bg.is-processing i { animation: bgMagicPulse .8s ease-in-out infinite alternate; }
+@keyframes bgMagicPulse { from { transform: scale(.85) rotate(-12deg); opacity: .7; } to { transform: scale(1.2) rotate(12deg); opacity: 1; } }
+
+/* Modal de processamento e animação de conclusão */
+.bg-removal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(8,15,30,.58);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .25s ease,visibility .25s ease;
+}
+.bg-removal-modal.active { opacity: 1; visibility: visible; pointer-events: auto; }
+.bg-removal-card {
+    position: relative;
+    width: min(460px,100%);
+    max-height: min(90vh,780px);
+    overflow: auto;
+    padding: 34px 30px 28px;
+    border: 1px solid var(--border2);
+    border-radius: 26px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 28px 90px rgba(0,0,0,.28);
+    text-align: center;
+    transform: translateY(18px) scale(.97);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.bg-removal-modal.active .bg-removal-card { transform: translateY(0) scale(1); }
+.bg-removal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    background: var(--field);
+    color: var(--text);
+    cursor: pointer;
+}
+.bg-removal-stage { display: flex; flex-direction: column; align-items: center; }
+.bg-removal-kicker { margin-top: 12px; color: var(--blue3); font-size: 9px; font-weight: 800; letter-spacing: 2px; }
+.bg-removal-stage h3 { margin: 8px 0 7px; color: var(--text); font: 700 23px var(--font-head); }
+.bg-removal-stage p { max-width: 350px; margin: 0 auto 18px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.bg-removal-stage small { margin-top: 13px; color: var(--muted2); font-size: 10px; line-height: 1.5; }
+.bg-ai-loader { position: relative; width: 104px; height: 104px; display: grid; place-items: center; margin: 8px auto 4px; border-radius: 30px; background: linear-gradient(145deg,var(--blue-dim),rgba(86,145,255,.08)); color: var(--blue3); }
+.bg-ai-loader>i { z-index: 1; font-size: 35px; animation: bgWandFloat 1.3s ease-in-out infinite; }
+.bg-ai-ring { position: absolute; inset: 7px; border: 2px solid transparent; border-top-color: var(--blue3); border-right-color: rgba(66,135,245,.22); border-radius: 50%; animation: bgSpin 1.15s linear infinite; }
+.bg-ai-ring-inner { inset: 17px; border-top-color: #8b5cf6; border-right-color: transparent; animation-duration: 1.7s; animation-direction: reverse; }
+@keyframes bgSpin { to { transform: rotate(360deg); } }
+@keyframes bgWandFloat { 0%,100% { transform: translateY(2px) rotate(-8deg) scale(.96); } 50% { transform: translateY(-3px) rotate(8deg) scale(1.05); } }
+.bg-removal-progress { width: min(300px,100%); height: 6px; overflow: hidden; border-radius: 999px; background: var(--field); }
+.bg-removal-progress span { display: block; width: 42%; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#2563eb,#8b5cf6,#60a5fa); animation: bgProgress 1.35s ease-in-out infinite; }
+@keyframes bgProgress { 0% { transform: translateX(-115%); } 100% { transform: translateX(250%); } }
+.bg-removal-success { opacity: 0; transform: translateY(10px) scale(.97); }
+.bg-removal-success.is-visible { animation: bgSuccessEnter .45s cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes bgSuccessEnter { to { opacity: 1; transform: translateY(0) scale(1); } }
+.bg-success-mark { position: relative; width: 76px; height: 76px; margin: 1px auto 3px; color: #16a36a; }
+.bg-success-mark svg { width: 76px; height: 76px; overflow: visible; }
+.bg-success-mark circle { fill: rgba(22,163,106,.1); stroke: currentColor; stroke-width: 2.5; stroke-dasharray: 145; stroke-dashoffset: 145; animation: bgCircleDraw .7s ease .05s forwards; }
+.bg-success-mark path { fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 35; stroke-dashoffset: 35; animation: bgCheckDraw .4s ease .55s forwards; }
+@keyframes bgCircleDraw { to { stroke-dashoffset: 0; } }
+@keyframes bgCheckDraw { to { stroke-dashoffset: 0; } }
+.bg-success-spark { position: absolute; color: #f0b429; opacity: 0; animation: bgSparkPop .7s ease .55s forwards; }
+.bg-spark-one { top: 2px; right: -10px; font-size: 17px; }
+.bg-spark-two { left: -12px; top: 18px; font-size: 14px; animation-delay: .7s; }
+.bg-spark-three { right: 1px; bottom: -3px; font-size: 12px; animation-delay: .85s; }
+@keyframes bgSparkPop { 0% { opacity: 0; transform: scale(.3) rotate(-25deg); } 55% { opacity: 1; transform: scale(1.3) rotate(15deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+.bg-result-preview { display: grid; place-items: center; width: min(210px,100%); aspect-ratio: 1; margin: 0 auto 18px; overflow: hidden; border: 1px solid var(--border2); border-radius: 17px; background-color: #f8fafc; background-image: linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%); background-size: 18px 18px; background-position: 0 0,0 9px,9px -9px,-9px 0; }
+.bg-result-preview img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.bg-removal-done { min-width: 170px; justify-content: center; }
+.bg-error-mark { width: 66px; height: 66px; display: grid; place-items: center; border-radius: 22px; margin-bottom: 7px; background: rgba(239,68,68,.1); color: #ef4444; font-size: 28px; }
+.bg-removal-error .btn { margin-top: 4px; }
+@media(max-width:520px) {
+    .btn-remove-bg { left: 6px; bottom: 6px; width: 31px; min-width: 31px; height: 31px; padding: 0; }
+    .btn-remove-bg span { display: none; }
+    .bg-removal-card { padding: 30px 20px 23px; border-radius: 22px; }
+    .bg-removal-stage h3 { font-size: 21px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .bg-removal-modal *, .bg-removal-modal *:before, .bg-removal-modal *:after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
 .img-animate-out {
