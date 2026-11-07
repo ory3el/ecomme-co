@@ -688,7 +688,6 @@ function updateProdCounts() {
 }
 
 function buildProdTable(filter) {
-  closeProductActionMenu();
   if (filter !== undefined) { prodFilter = filter; prodPageNum = 1; }
   const body = $('prodTbody');
   if (!body) return;
@@ -729,7 +728,14 @@ function buildProdTable(filter) {
       <td>${stTag}</td>
       <td><div class="fac gap4 row-acts">
         <button class="btn btn-ghost btn-xs" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button type="button" class="action-dots" data-product-menu="${id}" aria-label="Mais opções de ${escapeHtml(p.name)}" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></button>
+        <div class="action-dots" role="button" tabindex="0" aria-label="Mais ações" aria-haspopup="menu" onclick="toggleMenu(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i>
+          <div class="action-menu" role="menu">
+            <div class="am-item" role="menuitem" data-act="dup" data-id="${id}"><i class="fa-regular fa-copy"></i> Duplicar</div>
+            <div class="am-item" role="menuitem" data-act="pause" data-id="${id}">${prodIsPaused(p) ? '<i class="fa-solid fa-play"></i> Reativar' : '<i class="fa-solid fa-pause"></i> Pausar'}</div>
+            <div class="am-item" role="menuitem" data-act="export" data-id="${id}"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</div>
+            <div class="am-item red" role="menuitem" data-act="del" data-id="${id}"><i class="fa-regular fa-trash-can"></i> Excluir</div>
+          </div>
+        </div>
       </div></td>
     </tr>`;
     }).join('');
@@ -745,106 +751,13 @@ function initProductsTable() {
   if (!tb || tb.dataset.bound) return;
   tb.dataset.bound = '1';
   tb.addEventListener('click', ev => {
-    const menuTrigger = ev.target.closest('[data-product-menu]');
-    if (menuTrigger) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      toggleProductActionMenu(menuTrigger);
-      return;
-    }
     const el = ev.target.closest('[data-act]');
     if (!el) return;
-    ev.preventDefault();
+    document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
     const id = el.dataset.id;
-    runProductAction(el.dataset.act, id);
-  });
-  if (!document.documentElement.dataset.productMenuEventsBound) {
-    document.documentElement.dataset.productMenuEventsBound = '1';
-    document.addEventListener('click', ev => {
-      if (ev.target.closest('#productActionMenu,[data-product-menu]')) return;
-      closeProductActionMenu();
-    });
-    document.addEventListener('keydown', ev => {
-      if (ev.key === 'Escape' && activeProductActionMenu) {
-        ev.preventDefault();
-        closeProductActionMenu(true);
-      }
-    });
-    window.addEventListener('resize', closeProductActionMenu);
-    window.addEventListener('scroll', closeProductActionMenu, true);
-  }
-}
-
-let activeProductActionMenu = null;
-let activeProductActionTrigger = null;
-
-function runProductAction(action, id) {
-  const actions = {
-    edit: editProduct,
-    dup: duplicateProduct,
-    pause: toggleProductPause,
-    del: deleteProduct,
-    analytics: openProductAnalytics,
-    export: pid => { const product = findProd(pid); if (product) exportProductsCsv([product]); }
-  };
-  const handler = actions[action];
-  if (typeof handler === 'function') return handler(id);
-}
-
-function closeProductActionMenu(restoreFocus = false) {
-  if (activeProductActionMenu) activeProductActionMenu.remove();
-  if (activeProductActionTrigger) {
-    activeProductActionTrigger.setAttribute('aria-expanded', 'false');
-    if (restoreFocus && activeProductActionTrigger.isConnected) activeProductActionTrigger.focus();
-  }
-  activeProductActionMenu = null;
-  activeProductActionTrigger = null;
-}
-
-function toggleProductActionMenu(trigger) {
-  const productId = trigger.dataset.productMenu;
-  if (activeProductActionTrigger === trigger) {
-    closeProductActionMenu();
-    return;
-  }
-  closeProductActionMenu();
-  const product = findProd(productId);
-  if (!product) return;
-
-  const menu = document.createElement('div');
-  menu.id = 'productActionMenu';
-  menu.className = 'action-menu action-menu-portal on';
-  menu.setAttribute('role', 'menu');
-  menu.innerHTML = `
-    <button type="button" class="am-item" role="menuitem" data-act="dup" data-id="${escapeHtml(product.id)}"><i class="fa-regular fa-copy"></i> Duplicar</button>
-    <button type="button" class="am-item" role="menuitem" data-act="pause" data-id="${escapeHtml(product.id)}">${prodIsPaused(product) ? '<i class="fa-solid fa-play"></i> Reativar' : '<i class="fa-solid fa-pause"></i> Pausar'}</button>
-    <button type="button" class="am-item" role="menuitem" data-act="export" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-file-arrow-down"></i> Exportar (CSV)</button>
-    <button type="button" class="am-item red" role="menuitem" data-act="del" data-id="${escapeHtml(product.id)}"><i class="fa-regular fa-trash-can"></i> Excluir</button>`;
-
-  document.body.appendChild(menu);
-  activeProductActionMenu = menu;
-  activeProductActionTrigger = trigger;
-  trigger.setAttribute('aria-expanded', 'true');
-
-  const rect = trigger.getBoundingClientRect();
-  const menuRect = menu.getBoundingClientRect();
-  const width = menuRect.width || 190;
-  const height = menuRect.height || 180;
-  const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
-  let top = rect.bottom + 6;
-  if (top + height > window.innerHeight - 8) top = rect.top - height - 6;
-  top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
-  menu.style.left = `${left}px`;
-  menu.style.top = `${top}px`;
-
-  menu.addEventListener('click', ev => {
-    const item = ev.target.closest('[data-act]');
-    if (!item) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    const { act, id } = item.dataset;
-    closeProductActionMenu();
-    runProductAction(act, id);
+    ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
+       analytics: openProductAnalytics,
+       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
   });
 }
 
@@ -857,6 +770,16 @@ function filterProds(btn, f) {
 function onProdSearch(el) { prodQuery = el.value; prodPageNum = 1; buildProdTable(); }
 function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTable(); }
 function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
+
+function toggleMenu(e, el) {
+  // Clique num ITEM do menu: não interrompe a propagação, para a delegação da tabela (data-act) tratar a ação.
+  if (e.target.closest('.action-menu')) return;
+  e.stopPropagation();
+  const m = el.querySelector('.action-menu');
+  document.querySelectorAll('.action-menu.on').forEach(x => { if (x !== m) x.classList.remove('on'); });
+  m.classList.toggle('on');
+}
+document.addEventListener('click', () => document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on')));
 
 function exportProductsCsv(list) {
   const rows = [['ID', 'Nome', 'Categoria', 'Preço', 'Estoque', 'Status']];
@@ -1598,40 +1521,163 @@ function updateGalleryUI() {
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (!block) continue;
-
     const file = productImagesFiles[i];
     let innerHtmlContent = '';
-    const deleteBtnHTML = i === 0 ? `<button class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
-
+    const deleteBtnHTML = i === 0 ? `<button type="button" class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
+    const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="removeProductBackground(${i}, event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
     const dbImageUrl = productExistingUrls[i] || null;
-
     if (file) {
-      const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));   // uma URL por arquivo (antes vazava uma a cada render)
+      const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));
       innerHtmlContent = `
-        <div class="img-preview-container"><img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="Imagem ${i}"></div>
+        <div class="img-preview-container"><img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="Imagem ${i + 1}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${deleteBtnHTML}
+        ${removeBgBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
-      
     } else if (dbImageUrl) {
-      const altText = i === 0 ? "Imagem do Produto" : `Imagem ${i}`;
+      const altText = i === 0 ? 'Imagem do Produto' : `Imagem ${i + 1}`;
       innerHtmlContent = `
-        <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" alt="${altText}"></div>
+        <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${altText}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${deleteBtnHTML}
+        ${removeBgBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
-      
     } else {
       innerHtmlContent = `
-          <div class="img-preview-container">${i === 0 ? '<div class="fs24" style="font-size: 50px"><i class="fa-solid fa-image"></i></div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
-          <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+        <div class="img-preview-container">${i === 0 ? '<div class="fs24" style="font-size:50px"><i class="fa-solid fa-image"></i></div>' : '<i class="fa-solid fa-plus fs20 muted"></i>'}</div>
+        <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
       `;
       block.classList.remove('has-image');
     }
-    
     block.innerHTML = innerHtmlContent;
+  }
+  updateBgRemovalButtons();
+}
+
+const BG_REMOVAL_ENDPOINT = 'https://cedrpcezoaqaeivrfuxn.supabase.co/functions/v1/remove-product-background';
+const BG_REMOVAL_PUBLIC_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
+let bgRemovalInProgress = false;
+let bgRemovalPreviewUrl = null;
+
+function updateBgRemovalButtons() {
+  document.querySelectorAll('.btn-remove-bg').forEach(button => {
+    const slot = Number(button.dataset.slot);
+    button.disabled = bgRemovalInProgress;
+    button.classList.toggle('is-processing', bgRemovalInProgress && slot === activeImageSlot);
+  });
+}
+
+function setBgRemovalStage(stage, message = '') {
+  const modal = $('bgRemovalModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+  $('bgRemovalLoading').hidden = stage !== 'loading';
+  $('bgRemovalSuccess').hidden = stage !== 'success';
+  $('bgRemovalError').hidden = stage !== 'error';
+  const closeButton = $('bgRemovalClose');
+  if (closeButton) closeButton.hidden = stage === 'loading';
+  if (stage === 'error') $('bgRemovalErrorText').textContent = message || 'Não foi possível remover o fundo. Tente novamente.';
+  if (stage === 'success') {
+    const preview = $('bgRemovalResultPreview');
+    if (preview && bgRemovalPreviewUrl) preview.src = bgRemovalPreviewUrl;
+    requestAnimationFrame(() => $('bgRemovalSuccess')?.classList.add('is-visible'));
+  } else {
+    $('bgRemovalSuccess')?.classList.remove('is-visible');
+  }
+}
+
+function closeBgRemovalModal() {
+  if (bgRemovalInProgress) return;
+  const modal = $('bgRemovalModal');
+  if (modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); }
+  if (bgRemovalPreviewUrl) { URL.revokeObjectURL(bgRemovalPreviewUrl); bgRemovalPreviewUrl = null; }
+  const preview = $('bgRemovalResultPreview');
+  if (preview) preview.removeAttribute('src');
+}
+
+async function convertImageToPng(file) {
+  if (file.type === 'image/png') return file;
+  if (!window.createImageBitmap) throw new Error('Seu navegador não consegue preparar esta imagem. Use Chrome, Edge ou Firefox atualizado.');
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const context = canvas.getContext('2d');
+  if (!context) { bitmap.close(); throw new Error('Não foi possível preparar a imagem.'); }
+  context.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) throw new Error('Não foi possível converter a imagem para PNG.');
+  return new File([blob], `ecomme-product-${Date.now()}.png`, { type: 'image/png', lastModified: Date.now() });
+}
+
+async function getProductImageFileForBgRemoval(slotIndex) {
+  const currentFile = productImagesFiles[slotIndex];
+  if (currentFile) return convertImageToPng(currentFile);
+  const imageUrl = productExistingUrls[slotIndex];
+  if (!imageUrl) throw new Error('Selecione uma imagem antes de remover o fundo.');
+  const response = await fetch(imageUrl, { mode: 'cors', cache: 'no-store' });
+  if (!response.ok) throw new Error('Não foi possível carregar a imagem atual. Selecione-a novamente e tente outra vez.');
+  const blob = await response.blob();
+  if (!blob.type.startsWith('image/')) throw new Error('O arquivo atual não é uma imagem válida.');
+  return convertImageToPng(new File([blob], `ecomme-product-${Date.now()}.png`, { type: blob.type || 'image/png' }));
+}
+
+async function removeProductBackground(slotIndex, event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  if (bgRemovalInProgress) return;
+  if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex > 4) return;
+  if (!productImagesFiles[slotIndex] && !productExistingUrls[slotIndex]) { toast('Adicione uma imagem antes de remover o fundo.', 'err'); return; }
+  if (productImagesFiles[slotIndex]?.bgRemoved) { toast('O fundo desta imagem já foi removido.', 'info'); return; }
+  activeImageSlot = slotIndex;
+  bgRemovalInProgress = true;
+  updateBgRemovalButtons();
+  setBgRemovalStage('loading');
+  try {
+    const imageFile = await getProductImageFileForBgRemoval(slotIndex);
+    if (imageFile.size > 5 * 1024 * 1024) throw new Error('A imagem preparada ultrapassou o limite de 5 MB. Reduza a imagem e tente novamente.');
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) throw new Error('Sua sessão expirou. Entre novamente na sua conta.');
+    const formData = new FormData();
+    formData.append('image', imageFile, imageFile.name);
+    const response = await fetch(BG_REMOVAL_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, apikey: BG_REMOVAL_PUBLIC_KEY },
+      body: formData
+    });
+    if (!response.ok) {
+      let details = '';
+      try { const result = await response.json(); details = result.error || result.message || ''; } catch (_) {}
+      if (response.status === 401) throw new Error('Sua sessão expirou. Entre novamente na sua conta.');
+      if (response.status === 403) throw new Error('Sua conta não possui uma loja autorizada para usar esta ferramenta.');
+      if (response.status === 429) throw new Error('Limite temporário de remoções atingido. Tente novamente mais tarde.');
+      throw new Error(details || `O serviço de IA não conseguiu processar a imagem (HTTP ${response.status}).`);
+    }
+    const resultBlob = await response.blob();
+    if (!resultBlob.type.includes('image/')) throw new Error('O serviço retornou um arquivo inválido.');
+    if (resultBlob.size > 15 * 1024 * 1024) throw new Error('A imagem resultante ficou muito grande.');
+    const resultFile = new File([resultBlob], `ecomme-bg-removed-${Date.now()}.png`, { type: 'image/png', lastModified: Date.now() });
+    resultFile.bgRemoved = true;
+    if (productImagesFiles[slotIndex]?.previewUrl) URL.revokeObjectURL(productImagesFiles[slotIndex].previewUrl);
+    productImagesFiles[slotIndex] = resultFile;
+    productExistingUrls[slotIndex] = null;
+    hasUnsavedChanges = true;
+    dirtySource = 'product';
+    activeImageSlot = slotIndex;
+    updateGalleryUI();
+    updatePreview();
+    bgRemovalPreviewUrl = URL.createObjectURL(resultFile);
+    setBgRemovalStage('success');
+  } catch (error) {
+    console.error('[Ecomme IA] Erro ao remover fundo:', error);
+    setBgRemovalStage('error', error.message || 'Não foi possível remover o fundo. Tente novamente.');
+  } finally {
+    bgRemovalInProgress = false;
+    updateBgRemovalButtons();
+    if ($('bgRemovalClose')) $('bgRemovalClose').hidden = false;
   }
 }
 
