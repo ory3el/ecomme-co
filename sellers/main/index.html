@@ -483,6 +483,7 @@
                     </div>
                   </div>
                 </div>
+                <p class="bg-removal-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> Use <strong>Remover fundo</strong> nas imagens preenchidas. Os melhores resultados costumam ocorrer com fundos de cor única ou gradientes suaves.</p>
               </div>
 
               <div class="card card-pad">
@@ -994,6 +995,34 @@
       <button class="btn-alert-confirm-red" onclick="actionDeleteImage()">Excluir imagem</button>
       <button class="btn-alert-cancel" onclick="closeImageActionModal()">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<div id="bgRemovalModal" class="bg-removal-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="bgRemovalTitle">
+  <div class="bg-removal-card">
+    <button type="button" id="bgRemovalClose" class="bg-removal-close" onclick="closeBgRemovalModal()" aria-label="Fechar" hidden><i class="fa-solid fa-xmark"></i></button>
+    <section id="bgRemovalLoading" class="bg-removal-stage">
+      <div class="bg-ai-loader" aria-hidden="true"><span class="bg-ai-ring"></span><span class="bg-ai-ring bg-ai-ring-inner"></span><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <span class="bg-removal-kicker">ECOMME AI STUDIO</span>
+      <h3 id="bgRemovalTitle">Removendo fundo com IA</h3>
+      <p>A IA está identificando o produto e separando o fundo. Isso pode levar alguns instantes.</p>
+      <div class="bg-removal-progress"><span></span></div>
+      <small>O original só será substituído na prévia se o processamento terminar com sucesso.</small>
+    </section>
+    <section id="bgRemovalSuccess" class="bg-removal-stage bg-removal-success" hidden>
+      <div class="bg-success-mark" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l7 7 15-16"/></svg><span class="bg-success-spark bg-spark-one">✦</span><span class="bg-success-spark bg-spark-two">✧</span><span class="bg-success-spark bg-spark-three">✦</span></div>
+      <span class="bg-removal-kicker">PRONTO PARA USAR</span>
+      <h3>Fundo removido!</h3>
+      <p>O produto está pronto com fundo transparente. A imagem será enviada ao publicar ou salvar o produto.</p>
+      <div class="bg-result-preview"><img id="bgRemovalResultPreview" alt="Prévia da imagem com fundo removido"></div>
+      <button type="button" class="btn btn-p bg-removal-done" onclick="closeBgRemovalModal()"><i class="fa-solid fa-check"></i> Continuar</button>
+    </section>
+    <section id="bgRemovalError" class="bg-removal-stage bg-removal-error" hidden>
+      <div class="bg-error-mark"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3>Não foi possível remover o fundo</h3>
+      <p id="bgRemovalErrorText">Verifique sua conexão e tente novamente.</p>
+      <button type="button" class="btn btn-ghost" onclick="closeBgRemovalModal()">Fechar</button>
+    </section>
   </div>
 </div>
 
