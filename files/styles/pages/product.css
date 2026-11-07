@@ -35,11 +35,12 @@
     .gbadge.hot { background: var(--blue); color: #fff; }
     .gbadge.disc { background: var(--red); color: #fff; }
     .gallery-fav {
+    display: none;
     width: 42px;
     height: 42px;
     border-radius: 50%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    background: #fff;
+    background: var(--surface3);
     flex-shrink: 0;
     border: 1px solid var(--border2);
     display: flex;
