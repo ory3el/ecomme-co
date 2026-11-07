@@ -806,7 +806,7 @@ html[data-theme="dark"] .btn-danger {
     padding: 2px 5px;
     padding-right: 10px;
     transition: 0.25s;
-    /* background: var(--surface); */
+    background: none;
     color: var(--c1);
 }
 .country-opt:focus{outline: none; /*box-shadow: 0 0 10px var(--muted2)*/}
@@ -2932,7 +2932,7 @@ html[data-theme="light"] .action-menu {
     align-items: center;
     justify-content: center;
     font-size: 72px;
-    background: var(--white);
+    background: var(--surface);
     overflow: hidden
 }
 
