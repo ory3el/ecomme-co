@@ -3030,12 +3030,12 @@ html[data-theme="light"] .preview-price {
     display: flex;
     align-items: center;
     gap: 7px;
-    margin: 12px 0 0;
+    margin: 12px 0 20px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12.5px;
     line-height: 1.5
 }
-.gallery-drop-hint i { color: var(--blue3); font-size: 13px }
+.gallery-drop-hint i { display: none; color: var(--blue3); font-size: 13px }
 @media (max-width: 520px) {
     .gallery-drop-hint { font-size: 10px; align-items: flex-start }
 }
@@ -3147,13 +3147,12 @@ html[data-theme="light"] .preview-price {
     transform: scale(1.1)
 }
 
-/* Remoção de fundo com IA — ações sobre cada imagem */
 .bg-removal-hint {
     display: block;
     gap: 8px;
     margin-top: 30px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12.5px;
     line-height: 1.55;
 }
 .bg-removal-hint i { margin-top: 1px; color: var(--blue3); }
