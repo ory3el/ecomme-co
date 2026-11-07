@@ -1524,14 +1524,14 @@ function updateGalleryUI() {
     const file = productImagesFiles[i];
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button type="button" class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
-    const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="removeProductBackground(${i}, event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
+    /*const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="removeProductBackground(${i}, event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;*/
     const dbImageUrl = productExistingUrls[i] || null;
     if (file) {
       const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="Imagem ${i + 1}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${deleteBtnHTML}
+        ${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else if (dbImageUrl) {
@@ -1539,7 +1539,7 @@ function updateGalleryUI() {
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${altText}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${deleteBtnHTML}
+        ${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else {
@@ -1624,7 +1624,7 @@ async function getProductImageFileForBgRemoval(slotIndex) {
   return convertImageToPng(new File([blob], `ecomme-product-${Date.now()}.png`, { type: blob.type || 'image/png' }));
 }
 
-async function removeProductBackground(slotIndex, event) {
+/*async function removeProductBackground(slotIndex, event) {
   if (event) { event.preventDefault(); event.stopPropagation(); }
   if (bgRemovalInProgress) return;
   if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex > 4) return;
@@ -1679,7 +1679,7 @@ async function removeProductBackground(slotIndex, event) {
     updateBgRemovalButtons();
     if ($('bgRemovalClose')) $('bgRemovalClose').hidden = false;
   }
-}
+}*/
 
 let cropperInstance = null;
 let originalFileName = "";
