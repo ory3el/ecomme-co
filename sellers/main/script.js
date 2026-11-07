@@ -1412,6 +1412,8 @@ let productImagesFiles = [null, null, null, null, null];
 let productExistingUrls = [null, null, null, null, null];
 let targetSecondarySlot = null;
 let activeImageSlot = 0;
+let droppedImageQueue = [];
+let droppedImageQueueActive = false;
 
 function triggerImageUpload(slotIndex) {
   const isSlotOccupied = (index) => productImagesFiles[index] !== null || !!productExistingUrls[index];
@@ -1693,31 +1695,28 @@ let cropperInstance = null;
 let originalFileName = "";
 
 function openCropModal(event) {
-  const file = event.target.files[0];
+  const file = event?.file || event?.target?.files?.[0];
   if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
     toast('A imagem deve ter no máximo 5MB ⚠️', 'err');
-    event.target.value = '';
+    if (event?.target) event.target.value = '';
     return;
   }
 
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
     toast('Formato não suportado. Use JPG, PNG ou WEBP.', 'err');
-    event.target.value = '';
+    if (event?.target) event.target.value = '';
     return;
   }
 
   originalFileName = file.name;
-
   const reader = new FileReader();
   reader.onload = function(e) {
     const imgElement = document.getElementById('imageToCrop');
     imgElement.src = e.target.result;
-    
     document.getElementById('cropModal').style.display = 'flex';
     document.getElementById('cropModal').classList.add('active');
-
     if (cropperInstance) cropperInstance.destroy();
     cropperInstance = new Cropper(imgElement, {
       autoCropArea: 1,
@@ -1727,20 +1726,121 @@ function openCropModal(event) {
       background: false,
     });
   };
-  
+  reader.onerror = () => {
+    toast('Não foi possível ler esta imagem. Tente outro arquivo.', 'err');
+    if (event?.target) event.target.value = '';
+    if (droppedImageQueueActive) closeCropModal();
+  };
   reader.readAsDataURL(file);
 }
 
-function closeCropModal() {
-  document.getElementById('cropModal').style.display = 'none';
-  document.getElementById('cropModal').classList.remove('active');
-  
+function closeCropModal(continueDroppedQueue = false) {
+  const modal = document.getElementById('cropModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
   if (cropperInstance) {
     cropperInstance.destroy();
     cropperInstance = null;
   }
-  document.getElementById('npImage').value = '';
+  const fileInput = document.getElementById('npImage');
+  if (fileInput) fileInput.value = '';
+
+  if (droppedImageQueueActive) {
+    if (continueDroppedQueue && droppedImageQueue.length) {
+      setTimeout(processNextDroppedImage, 120);
+    } else {
+      droppedImageQueue = [];
+      droppedImageQueueActive = false;
+    }
+  }
 }
+
+function clearProductGalleryDragState(gallery) {
+  if (!gallery) return;
+  gallery.classList.remove('is-drag-over');
+  gallery.querySelectorAll('.img-block.is-drag-over').forEach(block => block.classList.remove('is-drag-over'));
+}
+
+function handleProductImageDrop(files, preferredSlot = null) {
+  if (droppedImageQueueActive || cropperInstance) {
+    toast('Finalize o recorte atual antes de importar outras imagens.', 'info');
+    return;
+  }
+
+  const selectedFiles = Array.from(files || []);
+  const validFiles = selectedFiles.filter(file => {
+    const valid = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
+    if (!valid) toast(`Formato não suportado: ${file.name}. Use JPG, PNG ou WEBP.`, 'err');
+    else if (file.size > 5 * 1024 * 1024) toast(`${file.name}: a imagem deve ter no máximo 5MB.`, 'err');
+    return valid && file.size <= 5 * 1024 * 1024;
+  });
+  if (!validFiles.length) return;
+
+  const occupied = index => !!(productImagesFiles[index] || productExistingUrls[index]);
+  const availableSlots = Number.isInteger(preferredSlot)
+    ? Array.from({ length: 5 - preferredSlot }, (_, index) => preferredSlot + index)
+    : Array.from({ length: 5 }, (_, index) => index).filter(index => !occupied(index));
+  if (!availableSlots.length) {
+    toast('Todos os 5 espaços de imagem já estão preenchidos.', 'info');
+    return;
+  }
+
+  droppedImageQueue = validFiles.slice(0, availableSlots.length).map((file, index) => ({ file, slot: availableSlots[index] }));
+  if (validFiles.length > availableSlots.length) toast(`Limite de 5 imagens. ${availableSlots.length} arquivo(s) serão importados.`, 'info');
+  droppedImageQueueActive = true;
+  processNextDroppedImage();
+}
+
+function processNextDroppedImage() {
+  if (!droppedImageQueueActive) return;
+  const next = droppedImageQueue.shift();
+  if (!next) {
+    droppedImageQueueActive = false;
+    return;
+  }
+  activeImageSlot = next.slot;
+  openCropModal({ file: next.file });
+}
+
+function initProductGalleryDragDrop() {
+  const gallery = document.getElementById('productGalleryDropzone');
+  if (!gallery || gallery.dataset.dragDropReady === 'true') return;
+  gallery.dataset.dragDropReady = 'true';
+
+  const hasFiles = event => Array.from(event.dataTransfer?.types || []).includes('Files');
+  gallery.addEventListener('dragenter', event => {
+    if (!hasFiles(event)) return;
+    event.preventDefault();
+    const slot = event.target.closest('.img-block');
+    if (slot && gallery.contains(slot)) slot.classList.add('is-drag-over');
+    else gallery.classList.add('is-drag-over');
+  });
+  gallery.addEventListener('dragover', event => {
+    if (!hasFiles(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    const slot = event.target.closest('.img-block');
+    gallery.querySelectorAll('.img-block.is-drag-over').forEach(block => block.classList.toggle('is-drag-over', block === slot));
+    gallery.classList.toggle('is-drag-over', !slot);
+  });
+  gallery.addEventListener('dragleave', event => {
+    const slot = event.target.closest('.img-block');
+    if (slot && (!event.relatedTarget || !slot.contains(event.relatedTarget))) slot.classList.remove('is-drag-over');
+    if (!event.relatedTarget || !gallery.contains(event.relatedTarget)) clearProductGalleryDragState(gallery);
+  });
+  gallery.addEventListener('drop', event => {
+    if (!hasFiles(event)) return;
+    event.preventDefault();
+    const slot = event.target.closest('.img-block');
+    const slotIndex = slot ? Number(slot.id.replace('img-block-', '')) : null;
+    clearProductGalleryDragState(gallery);
+    handleProductImageDrop(event.dataTransfer.files, Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex <= 4 ? slotIndex : null);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initProductGalleryDragDrop);
 
 async function executeCrop() {
   if (!cropperInstance) {
@@ -1767,11 +1867,12 @@ async function executeCrop() {
       URL.revokeObjectURL(oldFile.previewUrl);
     }
     productImagesFiles[activeImageSlot] = croppedFile;
-    
+    productExistingUrls[activeImageSlot] = null;
+    hasUnsavedChanges = true;
+    dirtySource = 'product';
     updateGalleryUI();
     updatePreview();
-
-    closeCropModal();
+    closeCropModal(true);
   }, 'image/jpeg', 0.9);
 }
 
@@ -1898,6 +1999,8 @@ async function publishProduct() {
 }
 // --------------------------------------------------------
 function clearProductForm() {
+  droppedImageQueue = [];
+  droppedImageQueueActive = false;
   if (typeof productImagesFiles !== 'undefined') {
     productImagesFiles.forEach(file => {
       if (file && file.previewUrl) {
