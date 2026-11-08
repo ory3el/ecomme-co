@@ -145,6 +145,8 @@
     .btn-addcart {
       flex: 1;
       background: var(--blue);
+      box-shadow: 0 0 10px rgb(25 100 255 / 40%);
+      border: 1px solid var(--border1);
       color: #fff;
       padding: 16px;
       border-radius: 100px;
@@ -157,12 +159,14 @@
       transition: all .2s;
       max-height: 45px;
     }
-    .btn-addcart:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(37,99,235,.28); }
+    .btn-addcart:hover {color: #fff;background: var(--blue2);transform: translateY(-1px);box-shadow: 0 10px 28px rgba(37,99,235,.28);}
     .btn-addcart svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; }
     .btn-buynow {
       flex: 1;
-      background: var(--black);
-      color: var(--textW);
+      /* background: var(--black); */
+      box-shadow: 0 0 10px rgb(0 0 0 / 20%);
+      border: 1px solid var(--border1);
+      color: var(--text);
       padding: 16px;
       border-radius: 100px;
       font-weight: 500;
@@ -185,12 +189,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--muted);
-      transition: all .2s;
+      stroke: var(--muted);
+      transition: all 0.25s;
     }
-    .btn-fav-lg:hover, .btn-fav-lg.on {box-shadow: 0 0 10px;color: var(--red);}
-    .btn-fav-lg svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .btn-fav-lg.on svg { fill: var(--red); }
+    .btn-fav-lg:hover {
+    background: var(--red-mid);
+    transform: translateY(-1px);
+    stroke: var(--red22) !important;
+    fill: var(--red22) !important;
+    }
+    .btn-fav-lg.on {
+      fill: var(--red);
+      stroke: var(--red);
+      box-shadow: 0 0 10px rgba(255,25,25,0.5);
+    }
+    .btn-fav-lg svg { width: 22px; height: 22px; stroke-width: 2; }
 
     .trust-mini {display: flex;flex-direction: column;gap: 12px;border-radius: var(--radius);padding: 16px 1px;margin-bottom: 20px;}
     .tm-item { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); }
@@ -936,7 +949,7 @@ body.pr-report-open { overflow: hidden; }
     color: var(--muted);
     transition: all .2s;
 }
-.btn-make-offer:hover {background: var(--blueBg);transform: translateY(-1px);color: var(--blue22);}
+.btn-make-offer:hover {background: var(--blue-mid);transform: translateY(-1px);color: var(--blue22);}
 .btn-make-offer[hidden] { display: none; }
 .btn-make-offer:disabled { opacity: .65; cursor: wait; }
 .btn-make-offer.is-loading { pointer-events: none; }
