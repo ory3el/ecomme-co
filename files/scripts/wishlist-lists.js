@@ -583,7 +583,7 @@
       const action = state.modalProductId ? (already ? 'remove-item' : 'choose-list') : 'choose-list';
       const buttonText = state.modalProductId ? (already ? 'Remover' : 'Adicionar') : 'Abrir lista';
       const listItemsSummary = `${items.length} ${items.length === 1 ? 'produto' : 'produtos'}`;
-      return `<div class="ewl-choice"><div class="ewl-choice-main"><span class="ewl-emoji">${escapeHtml(list.emoji || '❤️')}</span><div style="min-width:0"><div class="ewl-choice-title">${escapeHtml(list.name)}</div><div class="ewl-choice-meta">${listItemsSummary}${already ? ' · Este produto já está salvo aqui' : ''}${list.is_default ? ' · Lista padrão' : ''}</div></div></div><button type="button" class="ewl-btn ${already ? 'ewl-btn-danger' : 'ewl-btn-primary'}" data-ewl-action="${action}" data-list-id="${escapeHtml(list.id)}" ${state.modalFormMode ? 'disabled' : ''}>${buttonText}</button></div>`;
+      return `<div class="ewl-choice"><div class="ewl-choice-main"><span class="ewl-emoji">${escapeHtml(list.emoji || '❤️')}</span><div style="min-width:0"><div class="ewl-choice-title">${escapeHtml(list.name)}</div><div class="ewl-choice-meta">${listItemsSummary}${already ? ' · Este produto já está salvo aqui' : ''}${list.is_default ? ' · Lista padrão' : ''}</div></div></div><button type="button" class="ewl-btn ${already ? 'ewl-btn-danger' : 'ewl-btn-primary'}" data-ewl-action="${action}" data-list-id="${escapeHtml(list.id)}" data-product-id="${escapeHtml(state.modalProductId || '')}" ${state.modalFormMode ? 'disabled' : ''}>${buttonText}</button></div>`;
     }).join('');
 
     content.innerHTML = `${productLine}${formHtml}${state.lists.length ? `<div class="ewl-list-stack">${listsHtml}</div>` : '<div class="ewl-empty">Nenhuma lista encontrada.</div>'}${state.modalFormMode ? '' : '<div class="chBottom"><button type="button" class="ewl-btn ewl-full" data-ewl-action="create-toggle"><span style="font-size:16px">＋</span> Criar nova lista</button></div>'}`;
@@ -651,16 +651,39 @@
 
   async function removeItem(listId, productId) {
     const client = db();
-    if (!client || !state.user) return;
-    const { error } = await client.from('wishlist_items').delete().eq('list_id', listId).eq('product_id', String(productId));
-    if (error) {
+    const id = safeId(productId);
+    if (!client || !state.user || !listId || !id) {
+      console.warn('[Ecomme listas de desejos] Remoção ignorada: lista ou produto inválido.', { listId, productId });
+      return false;
+    }
+
+    const modal = document.getElementById('ecommeWishlistModal');
+    const inPicker = String(state.modalProductId || '') === id && modal && modal.getAttribute('aria-hidden') === 'false';
+    if (inPicker) {
+      state.modalBusy = true;
+      renderModal(true, 'Removendo produto da lista...');
+    }
+
+    try {
+      const { error } = await client.from('wishlist_items').delete().eq('list_id', listId).eq('product_id', id);
+      if (error) throw error;
+
+      await refreshState({ user: state.user });
+      if (inPicker) {
+        state.modalBusy = false;
+        renderModal();
+      }
+      notify('Produto removido da lista.', 'ok');
+      return true;
+    } catch (error) {
+      if (inPicker) {
+        state.modalBusy = false;
+        renderModal();
+      }
       console.error('[Ecomme listas de desejos] Erro ao remover produto:', error);
       notify('Não foi possível remover o produto desta lista.', 'err');
-      return;
+      return false;
     }
-    await refreshState({ user: state.user });
-    if (state.modalProductId) renderModal();
-    notify('Produto removido da lista.', 'ok');
   }
 
   async function saveListForm() {
