@@ -64,7 +64,7 @@
     }
     .gallery-main:hover .gallery-zoom-hint { opacity: 1; }
 
-    .gallery-thumbs {display: grid !important;grid-template-columns: repeat(4, 1fr);overflow-x: auto;gap: 12px;}
+    .gallery-thumbs {display: flex;/* grid-template-columns: repeat(5, 1fr); */overflow-x: auto;gap: 12px;}
     .gthumb {
       width: 84px;
       height: 84px;
@@ -90,7 +90,7 @@
     .info-sku { font-size: 11px; color: var(--muted); }
     .info-name {font-family: 'Outfit';font-size: 36px;font-weight: 500;line-height: 1.12;margin-bottom: 14px;}
 
-    .product-store-link {display: inline-flex;align-items: center;gap: 10px;align-self: flex-start;max-width: calc(100% - 60px);margin: 0 0 18px;padding: 8px 12px;border: 1px solid var(--border2);border-radius: 13px;background: var(--surface3);color: var(--text);text-decoration: none;transition: border-color .2s,background .2s,transform .2s;}
+    .product-store-link {display: inline-flex;align-items: center;gap: 10px;align-self: flex-start;max-width: calc(100% - 60px);margin: 18px 0 0;padding: 8px 12px;border: 1px solid var(--border);border-radius: 13px;background: var(--surface3);color: var(--text);text-decoration: none;transition: border-color .2s,background .2s,transform .2s;}
     .product-store-link[hidden] {display: none !important;}
     .product-store-link:hover {border-color: var(--blue);background: var(--blue-dim);transform: translateY(-1px);}
     .product-store-logo {display: flex;width: 42px;height: 42px;flex: 0 0 42px;align-items: center;justify-content: center;overflow: hidden;border: 1px solid var(--border2);border-radius: 11px;background: #fff;}
