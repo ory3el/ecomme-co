@@ -674,6 +674,7 @@
         renderModal();
       }
       notify('Produto removido da lista.', 'ok');
+      closeModal();
       return true;
     } catch (error) {
       if (inPicker) {
