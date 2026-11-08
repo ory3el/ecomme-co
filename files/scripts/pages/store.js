@@ -71,10 +71,41 @@ function parseStoreSlug() {
 }
 
 /* ─── TELAS DE ESTADO ────────────────────────────────────────────── */
+function skeletonProductCard() {
+  return `<div class="store-skeleton-card" aria-hidden="true"><span class="store-skeleton-shimmer store-skeleton-product-image"></span><div class="store-skeleton-product-info"><span class="store-skeleton-shimmer store-skeleton-product-line"></span><span class="store-skeleton-shimmer store-skeleton-product-line store-skeleton-product-line-short"></span><span class="store-skeleton-shimmer store-skeleton-product-price"></span></div></div>`;
+}
+function renderStoreSkeleton() {
+  const avatar = document.querySelector('.pi-avatar');
+  if (avatar) avatar.innerHTML = '<span class="store-skeleton-shimmer store-skeleton-avatar" aria-hidden="true"></span>';
+  const name = document.querySelector('.pi-name');
+  if (name) name.innerHTML = '<span class="store-skeleton-shimmer store-skeleton-name" aria-hidden="true"></span>';
+  const handle = document.querySelector('.pi-handle');
+  if (handle) handle.innerHTML = '<span class="store-skeleton-shimmer store-skeleton-handle" aria-hidden="true"></span>';
+  const desc = document.querySelector('.pi-desc');
+  if (desc) { desc.classList.add('store-skeleton-desc'); desc.setAttribute('aria-hidden', 'true'); desc.innerHTML = '<span class="store-skeleton-shimmer store-skeleton-desc-line"></span><span class="store-skeleton-shimmer store-skeleton-desc-line store-skeleton-desc-short"></span>'; }
+  const stats = $('storeStats');
+  if (stats) {
+    stats.setAttribute('aria-hidden', 'true');
+    stats.innerHTML = Array.from({ length: 3 }, (_, i) => `<div class="pi-stat store-skeleton-stat"><span class="store-skeleton-shimmer store-skeleton-stat-value ${i === 1 ? 'store-skeleton-stat-value-short' : i === 2 ? 'store-skeleton-stat-value-mid' : ''}"></span><span class="store-skeleton-shimmer store-skeleton-stat-label"></span><span class="store-skeleton-shimmer store-skeleton-stat-sub"></span></div>`).join('');
+  }
+  const grid = $('prodGrid');
+  if (grid) { grid.setAttribute('aria-busy', 'true'); grid.innerHTML = Array.from({ length: 8 }, skeletonProductCard).join(''); }
+  const reviews = $('reviewsContent');
+  if (reviews) {
+    reviews.setAttribute('aria-busy', 'true');
+    reviews.innerHTML = '<div class="store-reviews-skeleton" aria-hidden="true"><div class="store-skeleton-review-summary"><span class="store-skeleton-shimmer store-skeleton-review-score"></span><span class="store-skeleton-shimmer store-skeleton-review-line"></span><span class="store-skeleton-shimmer store-skeleton-review-line store-skeleton-review-line-short"></span></div><div class="store-skeleton-review-list"><div class="store-skeleton-review-card"><span class="store-skeleton-shimmer store-skeleton-review-line"></span><span class="store-skeleton-shimmer store-skeleton-review-line store-skeleton-review-line-mid"></span></div><div class="store-skeleton-review-card"><span class="store-skeleton-shimmer store-skeleton-review-line"></span><span class="store-skeleton-shimmer store-skeleton-review-line store-skeleton-review-line-short"></span></div></div></div>';
+  }
+  const about = $('aboutGrid');
+  if (about) {
+    about.setAttribute('aria-busy', 'true');
+    about.innerHTML = Array.from({ length: 4 }, (_, i) => `<div class="about-card store-skeleton-about-card" aria-hidden="true"><span class="store-skeleton-shimmer store-skeleton-about-title"></span><span class="store-skeleton-shimmer store-skeleton-about-line"></span><span class="store-skeleton-shimmer store-skeleton-about-line"></span>${i % 2 === 0 ? '<span class="store-skeleton-shimmer store-skeleton-about-line store-skeleton-about-line-short"></span>' : ''}</div>`).join('');
+  }
+}
 function setLoading(on) {
   document.body.classList.toggle('store-loading', on);
-  const l = $('storeLoader');
-  if (l) l.hidden = !on;
+  const loader = $('storeLoader');
+  if (loader) loader.hidden = true;
+  if (on) renderStoreSkeleton();
 }
 
 // Troca o conteúdo desta página pelo HTML de outra (a 404 de loja), mantendo a URL e executando seus scripts.
@@ -218,6 +249,8 @@ function renderStoreHeader(store, legacy) {
   const since = formatMemberSince(store.criado_em);
   setText('.pi-handle', `@${store.slug_url}${since ? ' · Membro desde ' + since : ''}`);
   setText('.pi-desc', (store.slogan ? store.slogan + ' — ' : '') + (store.descricao || ''));
+  const description = document.querySelector('.pi-desc');
+  if (description) { description.classList.remove('store-skeleton-desc'); description.removeAttribute('aria-hidden'); }
 
   const avatar = document.querySelector('.pi-avatar');
   if (avatar) {
@@ -258,6 +291,7 @@ function renderStats(store, list) {
   if (store.frete_gratis_ativo && store.frete_valor_minimo) stats.push({ val: String(store.frete_valor_minimo).replace(/,00$/, ''), lbl: 'Frete grátis', sub: 'acima deste valor' });
   const box = $('storeStats');
   if (!box) return;
+  box.removeAttribute('aria-hidden');
   box.innerHTML = stats.map((s, i) => `<div class="pi-stat reveal" style="transition-delay:${i * .05}s">
       <span class="pi-stat-val">${escapeHtml(s.val)}</span>
       <span class="pi-stat-lbl">${escapeHtml(s.lbl)}</span>
@@ -273,6 +307,7 @@ function renderTabs(list) {
 function renderReviews(list) {
   const box = $('reviewsContent');
   if (!box) return;
+  box.removeAttribute('aria-busy');
   const rating = weightedRating(list);
   if (!rating) {
     box.innerHTML = '<div class="store-empty"><div class="store-empty-ico">⭐</div><h3>Ainda sem avaliações</h3><p>As avaliações dos produtos desta loja aparecem aqui assim que os clientes avaliarem.</p></div>';
@@ -290,6 +325,7 @@ function renderReviews(list) {
 function renderAbout(store, list) {
   const grid = $('aboutGrid');
   if (!grid) return;
+  grid.removeAttribute('aria-busy');
   const since = formatMemberSince(store.criado_em);
   const loc = [store.cidade, store.estado].filter(Boolean).join(', ');
   const formas = (Array.isArray(store.formas_envio) ? store.formas_envio : []).map(v => SHIPPING_LABELS[v] || v);
@@ -327,6 +363,7 @@ function isFavorite(id) {
 function renderProds(resetPage) {
   const grid = $('prodGrid');
   if (!grid) return;
+  grid.removeAttribute('aria-busy');
   if (resetPage) shownCount = PAGE_SIZE;
   const list = getSortedFiltered();
   const slice = list.slice(0, shownCount);
