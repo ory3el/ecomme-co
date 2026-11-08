@@ -40,6 +40,7 @@
   --red1:      #c0392b;
   --red11:     #EF4444;
   --red22:     #EF4444;
+  --red-mid:   rgba(235,37,99,0.14);
   --green:     #10B981;
   --green11:   #10B981;
   --green22:   #10B981;
@@ -80,7 +81,7 @@ html[data-theme="dark"] {
   --blue-bg:   linear-gradient(120deg, rgba(25, 100, 255, 0.2), rgba(25, 100, 255, 0.6));
   --blueBg:    #4387fa;
   --blue-dim:  rgba(37,99,235,0.07);
-  --blue-mid:  rgba(37,99,235,0.14);
+  --blue-mid:  rgba(37,99,235,0.24);
   --white:     #000000;
   --black:     #FFFFFF;
   --bg:        #0C1220;
@@ -110,6 +111,7 @@ html[data-theme="dark"] {
   --red1:      #c0392b;
   --red11:     #0C1220;
   --red22:     #FFFFFF;
+  --red-mid:   rgba(235,37,99,0.24);
   --green:     #10B981;
   --green11:   #0C1220;
   --green22:   #FFFFFF;
