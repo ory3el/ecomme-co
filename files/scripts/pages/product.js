@@ -118,6 +118,9 @@ async function initProductPage() {
       : raw;
 
     renderProductDetails(currentProduct);
+    loadProductStoreDetails(currentProduct).catch(error => {
+      console.warn('Não foi possível carregar os dados da loja deste produto:', error);
+    });
     // Carrega as avaliações reais sem bloquear a renderização do produto.
     loadProductReviews(currentProduct).catch(error => {
       console.error('Não foi possível carregar as avaliações deste produto:', error);
@@ -190,6 +193,108 @@ function categoryText(p) {
   return Array.isArray(p.cat)
     ? p.cat.filter(Boolean).join(', ')
     : String(p.cat || '');
+}
+
+
+/* ── LOJA RESPONSÁVEL PELO PRODUTO ─────────────────────────── */
+const PRODUCT_STORE_SOURCES = ['lojas_public', 'lojas'];
+const PRODUCT_STORE_COLUMN_SETS = [
+  'id, nome_loja, slug_url, logo_url, status',
+  'id, nome_loja, slug_url, logo_url',
+  'id, nome_loja, slug_url'
+];
+
+function isProductStoreMissingColumn(error) {
+  return !!error && (error.code === '42703' || /column .* does not exist|could not find the .* column/i.test(error.message || ''));
+}
+
+function isProductStoreMissingRelation(error) {
+  return !!error && (['42P01', 'PGRST205'].includes(error.code) || /relation .* does not exist|could not find the table/i.test(error.message || ''));
+}
+
+function safeProductStoreImage(value) {
+  const url = String(value || '').trim();
+  return /^(https?:\/\/|data:image\/(?:png|jpe?g|webp);base64,)/i.test(url) ? url : '';
+}
+
+function renderProductStore(store) {
+  const link = document.getElementById('productStoreLink');
+  const nameElement = document.getElementById('productStoreName');
+  const logoElement = document.getElementById('productStoreLogo');
+  if (!link || !nameElement || !logoElement || !store) return;
+
+  const name = String(store.nome_loja || 'Loja').trim();
+  const slug = String(store.slug_url || '').trim();
+  const status = String(store.status || '').trim().toLowerCase();
+  if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug) || (status && !['ativa', 'active'].includes(status))) return;
+
+  link.href = `/store/@${encodeURIComponent(slug)}`;
+  link.setAttribute('aria-label', `Visitar a loja ${name}`);
+  nameElement.textContent = name;
+  logoElement.replaceChildren();
+
+  const showInitial = () => {
+    const initial = document.createElement('span');
+    initial.className = 'product-store-initial';
+    initial.textContent = (name.charAt(0) || 'L').toLocaleUpperCase('pt-BR');
+    logoElement.replaceChildren(initial);
+  };
+
+  const logoUrl = safeProductStoreImage(store.logo_url) || safeProductStoreImage(store.logo_base64);
+  if (logoUrl) {
+    const image = document.createElement('img');
+    image.src = logoUrl;
+    image.alt = `Logo da loja ${name}`;
+    image.loading = 'lazy';
+    image.addEventListener('error', showInitial, { once: true });
+    logoElement.appendChild(image);
+  } else {
+    showInitial();
+  }
+
+  link.hidden = false;
+}
+
+async function loadProductStoreDetails(product) {
+  const link = document.getElementById('productStoreLink');
+  if (!link || !product?.loja_id || typeof supabaseClient === 'undefined') return;
+
+  let store = null;
+  for (const source of PRODUCT_STORE_SOURCES) {
+    for (const columns of PRODUCT_STORE_COLUMN_SETS) {
+      const { data, error } = await supabaseClient
+        .from(source)
+        .select(columns)
+        .eq('id', product.loja_id)
+        .limit(1);
+
+      if (!error) {
+        store = (data && data[0]) || null;
+        break;
+      }
+      if (isProductStoreMissingColumn(error)) continue;
+      if (isProductStoreMissingRelation(error)) break;
+      console.warn(`Não foi possível consultar a loja em ${source}:`, error);
+      break;
+    }
+    if (store) break;
+  }
+
+  // Lojas antigas podem manter o logo em Base64 em vez de logo_url.
+  if (store && !safeProductStoreImage(store.logo_url)) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('lojas')
+        .select('logo_base64')
+        .eq('id', product.loja_id)
+        .maybeSingle();
+      if (!error && data?.logo_base64) store.logo_base64 = data.logo_base64;
+    } catch (error) {
+      console.warn('Não foi possível carregar o logo legado da loja:', error);
+    }
+  }
+
+  renderProductStore(store);
 }
 
 function starsText(value) {
