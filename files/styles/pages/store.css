@@ -2059,8 +2059,81 @@ button {
     display: block
 }
 
-.store-loading .main-wrap,.store-loading .profile-identity {
-    visibility: hidden
+/* Skeleton da loja pública */
+.store-skeleton-shimmer {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--bg3, #E8EEF7);
+    border-radius: 8px;
+}
+.store-skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+    animation: storeSkeletonShimmer 1.35s ease-in-out infinite;
+}
+@keyframes storeSkeletonShimmer {
+    to { transform: translateX(100%); }
+}
+.store-skeleton-avatar { width: 100%; height: 100%; border-radius: inherit; }
+.store-skeleton-name { width: min(260px, 62vw); height: 28px; border-radius: 7px; }
+.store-skeleton-handle { width: 170px; max-width: 60%; height: 12px; }
+.store-skeleton-desc { display: flex; flex-direction: column; gap: 7px; }
+.store-skeleton-desc-line { width: min(520px, 75vw); height: 11px; }
+.store-skeleton-desc-short { width: min(330px, 52vw); }
+.store-skeleton-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.store-skeleton-stat-value { width: 84px; height: 26px; margin-bottom: 2px; }
+.store-skeleton-stat-value-short { width: 58px; }
+.store-skeleton-stat-value-mid { width: 72px; }
+.store-skeleton-stat-label { width: 112px; max-width: 85%; height: 9px; }
+.store-skeleton-stat-sub { width: 82px; max-width: 75%; height: 9px; }
+.store-loading .pi-actions { visibility: hidden; }
+.store-loading .tab-btn { pointer-events: none; }
+.store-loading .tab-badge { min-width: 24px; height: 16px; color: transparent; background: var(--bg3, #E8EEF7); }
+.store-loading .prod-toolbar { pointer-events: none; opacity: .55; }
+.store-skeleton-card {
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--white, #fff);
+    border: 1px solid var(--border2, rgba(15,23,42,.08));
+    border-radius: var(--rad-lg, 18px);
+}
+.store-skeleton-product-image { width: 100%; aspect-ratio: 1; border-radius: 0; }
+.store-skeleton-product-info { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+.store-skeleton-product-line { width: 94%; height: 12px; }
+.store-skeleton-product-line-short { width: 62%; }
+.store-skeleton-product-price { width: 48%; height: 21px; margin-top: 5px; }
+.store-reviews-skeleton { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 28px; }
+.store-skeleton-review-summary,.store-skeleton-review-card {
+    background: var(--white, #fff);
+    border: 1px solid var(--border2, rgba(15,23,42,.08));
+    border-radius: var(--rad-lg, 18px);
+    padding: 26px;
+}
+.store-skeleton-review-summary { display: flex; align-items: center; flex-direction: column; gap: 12px; }
+.store-skeleton-review-score { width: 92px; height: 54px; margin: 4px auto 10px; }
+.store-skeleton-review-line { width: 100%; height: 12px; }
+.store-skeleton-review-line-short { width: 68%; }
+.store-skeleton-review-line-mid { width: 82%; }
+.store-skeleton-review-list { display: grid; gap: 14px; align-content: start; }
+.store-skeleton-review-card { display: flex; flex-direction: column; gap: 14px; min-height: 96px; }
+.store-skeleton-about-card { display: flex; flex-direction: column; align-items: flex-start; gap: 13px; min-height: 160px; }
+.store-skeleton-about-title { width: 42%; height: 16px; margin-bottom: 7px; }
+.store-skeleton-about-line { width: 100%; height: 11px; }
+.store-skeleton-about-line-short { width: 68%; }
+.store-loading .store-loader { display: none; }
+@media(max-width: 768px) {
+    .store-reviews-skeleton { grid-template-columns: 1fr; gap: 16px; }
+    .store-skeleton-review-summary { min-height: 150px; }
+}
+@media(prefers-reduced-motion: reduce) {
+    .store-skeleton-shimmer::after { animation: none; transform: none; opacity: .35; }
 }
 
 .cat-tag {
