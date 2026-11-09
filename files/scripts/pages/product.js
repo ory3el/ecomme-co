@@ -1490,6 +1490,18 @@ function renderProductGallery(p) {
 
   if (!gallery || !emoji || !thumbs) return;
 
+  let blurImage = document.getElementById('productMainBlurImage');
+  if (!blurImage) {
+    blurImage = document.createElement('img');
+    blurImage.id = 'productMainBlurImage';
+    blurImage.className = 'gallery-main-blur';
+    blurImage.alt = '';
+    blurImage.setAttribute('aria-hidden', 'true');
+    blurImage.draggable = false;
+    blurImage.setAttribute('draggable', 'false');
+    gallery.insertBefore(blurImage, gallery.firstChild);
+  }
+
   let mainImage = document.getElementById('productMainImage');
 
   if (!mainImage) {
@@ -1691,17 +1703,20 @@ function hideProductImageZoom() {
 function selectProductImage(index) {
   hideProductImageZoom();
   const mainImage = document.getElementById('productMainImage');
+  const blurImage = document.getElementById('productMainBlurImage');
   const emoji = document.getElementById('gmainEmoji');
 
   if (!mainImage || !emoji || !currentProduct) return;
 
   if (!productPageImages.length) {
     mainImage.style.display = 'none';
+    if (blurImage) blurImage.classList.remove('is-visible');
     emoji.style.display = 'block';
     return;
   }
 
   const original = productPageImages[index];
+  const imageSrc = optimizedImage(original, 'modal') || original;
 
   mainImage.dataset.original = original;
   mainImage.dataset.fallback = '0';
@@ -1715,6 +1730,7 @@ function selectProductImage(index) {
     }
 
     this.style.display = 'none';
+    if (blurImage) blurImage.classList.remove('is-visible');
     emoji.style.display = 'block';
     hideProductImageZoom();
   };
@@ -1725,7 +1741,27 @@ function selectProductImage(index) {
     syncProductImageZoomSource();
   };
 
-  mainImage.src = optimizedImage(original, 'modal') || original;
+  if (blurImage) {
+    blurImage.dataset.original = original;
+    blurImage.dataset.fallback = '0';
+    blurImage.classList.remove('is-visible');
+    blurImage.onload = () => {
+      if (blurImage.dataset.original === original && mainImage.dataset.original === original) {
+        blurImage.classList.add('is-visible');
+      }
+    };
+    blurImage.onerror = function () {
+      if (this.dataset.fallback !== '1') {
+        this.dataset.fallback = '1';
+        this.src = this.dataset.original;
+      } else {
+        this.classList.remove('is-visible');
+      }
+    };
+    blurImage.src = imageSrc;
+  }
+
+  mainImage.src = imageSrc;
 
   document.querySelectorAll('#galleryThumbs .gthumb')
     .forEach((button, i) => {
