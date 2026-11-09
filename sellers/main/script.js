@@ -814,7 +814,7 @@ async function duplicateProduct(id) {
       name: String(p.name || '').slice(0, 110) + ' (cópia)',
       cat: p.cat, price: p.price, desc: p.desc, shipping: p.shipping,
       image_url: p.image_url, gallery_urls: p.gallery_urls,          // imagens compartilhadas: a exclusão confere referências
-      badge: 'paused', rating: 0, reviews: 0, features: p.features || []
+      badge: 'paused', features: p.features || []
     };
     if ('stock' in p) copy.stock = p.stock;
     if ('warranty_type' in p) {
@@ -2051,7 +2051,7 @@ async function publishProduct() {
       if (isEditing) {
         return supabaseClient.from('products').update(productData).eq('id', editing.id).eq('loja_id', myStoreId).select('id');
       }
-      const row = { ...productData, id: await getUniqueProductId(), loja_id: myStoreId, badge: 'new', rating: 0, reviews: 0, features: [] };
+      const row = { ...productData, id: await getUniqueProductId(), loja_id: myStoreId, badge: 'new', features: [] };
       return supabaseClient.from('products').insert([row]).select('id');
     };
 
@@ -2330,7 +2330,8 @@ function setConfigReadOnly(ro) {
 async function fetchInitialStoreStatus() {
   if (!userId) return null;
   try {
-    const { data, error } = await supabaseClient.from('lojas').select(STORE_COLUMNS).eq('user_id', userId).maybeSingle();
+    const { data: storeResult, error } = await supabaseClient.rpc('get_my_store_private');
+    const data = Array.isArray(storeResult) ? storeResult[0] : storeResult;
     if (error) {
       console.error('Erro ao buscar a loja:', error);
       return { failed: true };            // falha NÃO é "sem loja"
@@ -2393,7 +2394,7 @@ function subscribeToStoreStatus() {
   if (!userId || storeChannel) return;            // uma única assinatura por sessão
   storeChannel = supabaseClient
     .channel('store-status-channel')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lojas', filter: `user_id=eq.${userId}` }, payload => {
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lojas', filter: `id=eq.${myStoreId}` }, payload => {
       const before = storePhase(myStoreData && myStoreData.status);
       myStoreData = { ...(myStoreData || {}), ...payload.new };   // o payload omite colunas grandes inalteradas: mescla
       const after = storePhase(myStoreData.status);
@@ -2511,10 +2512,15 @@ async function saveConfig(ev) {
   savingConfig = true;
   if (btn) { btn.innerText = 'Salvando...'; btn.disabled = true; }
   try {
-    const { data, error } = await supabaseClient.from('lojas').update(v.data)
-      .eq('id', myStoreId).eq('user_id', userId).select(STORE_COLUMNS);
+    const { data: updatedRows, error } = await supabaseClient.from('lojas').update(v.data)
+      .eq('id', myStoreId).select('id');
     if (error) throw error;
-    if (!data || data.length !== 1) throw new Error('O banco não confirmou a atualização (nenhuma linha afetada).');
+    if (!updatedRows || updatedRows.length !== 1) throw new Error('O banco não confirmou a atualização (nenhuma linha afetada).');
+
+    const { data: refreshedResult, error: refreshError } = await supabaseClient.rpc('get_my_store_private');
+    const refreshedStore = Array.isArray(refreshedResult) ? refreshedResult[0] : refreshedResult;
+    if (refreshError) throw refreshError;
+    if (!refreshedStore || refreshedStore.id !== myStoreId) throw new Error('Não foi possível confirmar os dados atualizados da loja.');
 
     let payoutFailed = false;
     if (v.pay.touched) {
@@ -2526,7 +2532,7 @@ async function saveConfig(ev) {
       } else { PAYOUT_ACCOUNT = acc; renderFinance(); }
     }
 
-    myStoreData = { ...myStoreData, ...data[0] };
+    myStoreData = { ...myStoreData, ...refreshedStore };
     renderStoreState(myStoreData.status, myStoreData.slug_url, myStoreData);   // a tela só muda depois da confirmação
     if (payoutFailed) {
       toast('Dados da loja salvos, mas os dados de recebimento NÃO foram gravados. Tente novamente.', 'err');
@@ -2760,7 +2766,6 @@ async function uploadStoreLogo(file) {
       .from('lojas')
       .update({ logo_url: url })
       .eq('id', myStoreId)
-      .eq('user_id', userId)
       .select('id');
 
     if (error || !data || data.length !== 1) {
