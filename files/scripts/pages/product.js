@@ -2643,6 +2643,194 @@ async function shareToast() {
 }
 
 
+/* ── DENÚNCIA DE PRODUTO ───────────────────────────────────────── */
+let activeProductReportId = null;
+let activeProductReportButton = null;
+let productReportSubmitting = false;
+
+function ensureProductReportModal() {
+  let modal = document.getElementById('productReportModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'productReportModal';
+  modal.className = 'product-report-overlay';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <section class="product-report-dialog" role="dialog" aria-modal="true" aria-labelledby="productReportTitle" aria-describedby="productReportIntro" tabindex="-1">
+      <button type="button" class="product-report-close" data-product-report-close aria-label="Fechar denúncia"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="product-report-eyebrow">SEGURANÇA DA COMUNIDADE</p>
+      <h2 id="productReportTitle">Denunciar produto</h2>
+      <p class="product-report-intro" id="productReportIntro">Informe o motivo da denúncia. Nossa equipe poderá analisar o anúncio e tomar as medidas necessárias. Seus dados não serão exibidos publicamente.</p>
+      <form id="productReportForm">
+        <label class="product-report-field" for="productReportReason">Motivo da denúncia <span>*</span>
+          <select id="productReportReason" required>
+            <option value="">Selecione um motivo</option>
+            <option value="counterfeit">Produto falsificado ou suspeita de falsificação</option>
+            <option value="prohibited">Produto proibido ou de venda restrita</option>
+            <option value="misleading">Anúncio enganoso ou informações incorretas</option>
+            <option value="intellectual_property">Violação de propriedade intelectual</option>
+            <option value="inappropriate">Conteúdo impróprio ou ofensivo</option>
+            <option value="wrong_category">Categoria ou classificação inadequada</option>
+            <option value="other">Outro motivo</option>
+          </select>
+        </label>
+        <label class="product-report-field" for="productReportDetails">Detalhes <small>opcional</small>
+          <textarea id="productReportDetails" rows="4" maxlength="1000" placeholder="Descreva o que devemos analisar (até 1000 caracteres)."></textarea>
+        </label>
+        <p id="productReportStatus" class="product-report-status" role="status" aria-live="polite" hidden></p>
+        <div class="product-report-actions">
+          <button type="button" class="product-report-cancel" data-product-report-close>Cancelar</button>
+          <button type="submit" class="product-report-submit" id="productReportSubmit">Enviar denúncia</button>
+        </div>
+      </form>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal || event.target.closest('[data-product-report-close]')) {
+      closeProductReport();
+    }
+  });
+  modal.querySelector('#productReportForm').addEventListener('submit', submitProductReport);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !modal.hidden) closeProductReport();
+  });
+  return modal;
+}
+
+function openProductReport(button) {
+  if (!currentProduct?.id) return;
+  activeProductReportId = String(currentProduct.id);
+  activeProductReportButton = button || null;
+  productReportSubmitting = false;
+
+  const modal = ensureProductReportModal();
+  modal.querySelector('#productReportForm').reset();
+  const status = modal.querySelector('#productReportStatus');
+  status.hidden = true;
+  status.textContent = '';
+  const submit = modal.querySelector('#productReportSubmit');
+  submit.disabled = false;
+  submit.textContent = 'Enviar denúncia';
+  modal.hidden = false;
+  document.body.classList.add('product-report-open');
+  requestAnimationFrame(() => modal.querySelector('#productReportReason')?.focus());
+}
+
+function closeProductReport() {
+  const modal = document.getElementById('productReportModal');
+  if (!modal || productReportSubmitting) return;
+  modal.hidden = true;
+  document.body.classList.remove('product-report-open');
+  activeProductReportId = null;
+  if (activeProductReportButton?.isConnected) activeProductReportButton.focus();
+  activeProductReportButton = null;
+}
+
+function closeProductReportAfterRequest() {
+  const modal = document.getElementById('productReportModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('product-report-open');
+  activeProductReportId = null;
+  if (activeProductReportButton?.isConnected) activeProductReportButton.focus();
+  activeProductReportButton = null;
+}
+
+async function submitProductReport(event) {
+  event.preventDefault();
+  if (productReportSubmitting || !activeProductReportId) return;
+
+  const modal = ensureProductReportModal();
+  const reason = modal.querySelector('#productReportReason').value;
+  const details = modal.querySelector('#productReportDetails').value.trim();
+  const status = modal.querySelector('#productReportStatus');
+  const submit = modal.querySelector('#productReportSubmit');
+
+  if (!reason) {
+    modal.querySelector('#productReportReason').focus();
+    return;
+  }
+  if (details.length > 1000) {
+    status.textContent = 'Os detalhes devem ter no máximo 1000 caracteres.';
+    status.hidden = false;
+    return;
+  }
+
+  productReportSubmitting = true;
+  submit.disabled = true;
+  submit.textContent = 'Enviando…';
+  status.hidden = true;
+
+  try {
+    if (typeof supabaseClient === 'undefined') throw new Error('SUPABASE_UNAVAILABLE');
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      productReviewToast('Entre na sua conta para denunciar este produto.');
+      closeProductReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    }
+
+    const { data, error } = await supabaseClient.rpc('report_product', {
+      p_product_id: activeProductReportId,
+      p_reason: reason,
+      p_details: details || null
+    });
+    if (error) throw error;
+
+    closeProductReportAfterRequest();
+    if (data === true) {
+      productReviewToast('Denúncia enviada. Obrigado por ajudar a manter a Ecomme segura.', 'success');
+    } else {
+      productReviewToast('Você já enviou uma denúncia para este produto.', 'info');
+    }
+  } catch (error) {
+    console.error('Erro ao enviar denúncia de produto:', error);
+    const message = error?.message || '';
+    const missingRpc = error?.code === '42883' || /report_product|product_reports/i.test(message);
+    if (missingRpc) {
+      status.textContent = 'A função de denúncias ainda não está configurada. Execute supabase/migrations/20261109_create_product_reports.sql no SQL Editor do Supabase.';
+    } else if (error?.code === '28000' || /AUTH_REQUIRED/i.test(message)) {
+      closeProductReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    } else if (/CANNOT_REPORT_OWN_PRODUCT/i.test(message)) {
+      status.textContent = 'Você não pode denunciar um produto da sua própria loja.';
+    } else if (/PRODUCT_NOT_FOUND/i.test(message)) {
+      status.textContent = 'Este produto não está mais disponível para denúncia.';
+    } else {
+      status.textContent = 'Não foi possível enviar a denúncia. Verifique sua conexão e tente novamente.';
+    }
+    status.hidden = false;
+  } finally {
+    productReportSubmitting = false;
+    if (modal.isConnected && !modal.hidden) {
+      submit.disabled = false;
+      submit.textContent = 'Enviar denúncia';
+    }
+  }
+}
+
+function closeProductMoreMenu() {
+  const menu = document.getElementById('productMoreOptionsMenu');
+  const trigger = document.getElementById('productMoreOptionsTrigger');
+  if (!menu || !trigger) return;
+  menu.hidden = true;
+  trigger.setAttribute('aria-expanded', 'false');
+}
+
+function toggleProductMoreMenu() {
+  const menu = document.getElementById('productMoreOptionsMenu');
+  const trigger = document.getElementById('productMoreOptionsTrigger');
+  if (!menu || !trigger) return;
+  const willOpen = menu.hidden;
+  menu.hidden = !willOpen;
+  trigger.setAttribute('aria-expanded', String(willOpen));
+  if (willOpen) menu.querySelector('[role="menuitem"]')?.focus();
+}
+
 /* ── COMPARADOR NATIVO DE PRODUTOS ─────────────────────────────── */
 const productCompareState = {
   selected: [],
@@ -2657,16 +2845,56 @@ const productCompareState = {
 
 function initProductComparator() {
   const actions = document.querySelector('.main-btns');
-  if (!actions || !currentProduct || document.getElementById('productCompareTrigger')) return;
+  if (!actions || !currentProduct || document.getElementById('productMoreOptionsTrigger')) return;
 
-  const trigger = document.createElement('button');
-  trigger.type = 'button';
-  trigger.id = 'productCompareTrigger';
-  trigger.className = 'product-compare-trigger';
-  trigger.innerHTML = '<i class="fa-solid fa-scale-balanced" aria-hidden="true"></i><span>Comparar com outros produtos</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
-  trigger.setAttribute('aria-haspopup', 'dialog');
-  trigger.addEventListener('click', openProductCompare);
-  actions.insertAdjacentElement('afterend', trigger);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'product-more-options';
+  wrapper.innerHTML = `
+    <button type="button" class="product-more-trigger" id="productMoreOptionsTrigger" aria-label="Mais opções do produto" aria-haspopup="menu" aria-expanded="false" aria-controls="productMoreOptionsMenu" title="Mais opções">
+      <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+    </button>
+    <div class="product-more-menu" id="productMoreOptionsMenu" role="menu" aria-label="Mais opções do produto" hidden>
+      <button type="button" class="product-more-item" role="menuitem" data-product-more-action="report">
+        <i class="fa-regular fa-flag" aria-hidden="true"></i><span>Denunciar produto</span>
+      </button>
+      <button type="button" class="product-more-item" role="menuitem" data-product-more-action="compare">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i><span>Comparar produtos</span>
+      </button>
+    </div>`;
+  actions.appendChild(wrapper);
+
+  const trigger = wrapper.querySelector('#productMoreOptionsTrigger');
+  const menu = wrapper.querySelector('#productMoreOptionsMenu');
+  trigger.addEventListener('click', toggleProductMoreMenu);
+  wrapper.addEventListener('click', event => {
+    const actionButton = event.target.closest('[data-product-more-action]');
+    if (!actionButton) return;
+    const action = actionButton.dataset.productMoreAction;
+    closeProductMoreMenu();
+    if (action === 'report') openProductReport(trigger);
+    if (action === 'compare') openProductCompare();
+  });
+  wrapper.addEventListener('keydown', event => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key) || menu.hidden) return;
+    const items = [...menu.querySelectorAll('[role="menuitem"]')];
+    const currentIndex = items.indexOf(document.activeElement);
+    let nextIndex = currentIndex;
+    if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = items.length - 1;
+    else if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % items.length;
+    else if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + items.length) % items.length;
+    event.preventDefault();
+    items[nextIndex]?.focus();
+  });
+  document.addEventListener('click', event => {
+    if (!wrapper.contains(event.target)) closeProductMoreMenu();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !menu.hidden) {
+      closeProductMoreMenu();
+      trigger.focus();
+    }
+  });
 
   const overlay = document.createElement('div');
   overlay.id = 'productCompareModal';
@@ -2708,9 +2936,7 @@ function initProductComparator() {
       removeProductFromCompare(removeButton.dataset.removeCompare);
       return;
     }
-    if (event.target.closest('[data-compare-submit]')) {
-      showProductCompareTable();
-    }
+    if (event.target.closest('[data-compare-submit]')) showProductCompareTable();
   });
 
   overlay.addEventListener('input', event => {
@@ -2725,7 +2951,6 @@ function initProductComparator() {
     if (event.key === 'Escape' && overlay.classList.contains('is-open')) closeProductCompare();
   });
 }
-
 function openProductCompare() {
   if (!currentProduct) return;
   const overlay = document.getElementById('productCompareModal');
@@ -2750,7 +2975,7 @@ function closeProductCompare() {
   if (!overlay) return;
   overlay.classList.remove('is-open');
   document.body.style.overflow = productCompareState.previousBodyOverflow;
-  document.getElementById('productCompareTrigger')?.focus();
+  document.getElementById('productMoreOptionsTrigger')?.focus();
   clearTimeout(productCompareState.searchTimer);
   productCompareState.searchRequest++;
 }
