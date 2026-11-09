@@ -58,10 +58,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   /*await loadFromSupabase();*/
 
   const { data: lojaCheck, error: lojaError } = await supabaseClient
-    .from('lojas')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
+    .rpc('get_my_store_private');
+  if (lojaError) console.error('Não foi possível verificar a loja do usuário:', lojaError);
   
   if (lojaCheck) {
     //console.warn("Usuário já possui uma loja cadastrada");
