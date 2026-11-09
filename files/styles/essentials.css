@@ -463,11 +463,17 @@ header:hover .hide-btn {
 
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .search-bar {
-  flex: 1; max-width: 420px; display: flex; align-items: center;
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
   background: var(--glass-bg);
   /*-webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);*/
-  border: 1px solid var(--border2); border-radius: 100px; padding: 0 16px; gap: 8px;
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 0 16px;
+  gap: 8px;
   transition: 0.25s;
 }
 .search-bar:focus-within { transform: scale(1.02); background: var(--white); border: 1.5px solid var(--blue); }
@@ -1808,6 +1814,7 @@ header:hover .hide-btn {
     order: 2;
     overflow-x: auto;
     padding-bottom: 5px;
+    margin: auto;
   }
 
   .search-bar {
