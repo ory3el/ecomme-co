@@ -5221,3 +5221,33 @@ body.pa-modal-open {
         font-size: 10px
     }
 }
+
+
+/* ── GARANTIA DO PRODUTO / CDC ─────────────────────────────────── */
+.warranty-legal-note {
+  display: grid;
+  gap: 8px;
+  padding: 15px 16px;
+  border: 1px solid var(--blue-mid);
+  border-radius: 14px;
+  background: var(--blue-dim);
+  color: var(--text1);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.warranty-legal-note p { margin: 0; }
+.warranty-legal-note-title { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 13px; font-weight: 750; }
+.warranty-field-help { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.warranty-contract-toggle { display: flex; align-items: flex-start; gap: 11px; padding: 14px; border: 1px solid var(--border2); border-radius: 13px; cursor: pointer; background: var(--surface); }
+.warranty-contract-toggle input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--blue); flex: 0 0 auto; }
+.warranty-contract-toggle span { display: grid; gap: 4px; }
+.warranty-contract-toggle strong { color: var(--text); font-size: 13px; font-weight: 700; }
+.warranty-contract-toggle small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.warranty-contract-fields { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--border2); border-radius: 14px; background: var(--card2); }
+.warranty-contract-fields[hidden] { display: none !important; }
+.warranty-contract-heading { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 13px; font-weight: 750; }
+.warranty-contract-heading i { color: var(--blue); }
+@media (max-width: 600px) {
+  .warranty-legal-note, .warranty-contract-fields { padding: 13px; }
+  .warranty-contract-toggle { padding: 12px; }
+}
