@@ -12,11 +12,11 @@
     .product-main {max-width: 1440px;margin: 0 auto;padding: 40px 28px 20px;display: grid;grid-template-columns: 0.8fr 1.1fr;gap: 56px;}
 
     /* gallery */
-    .gallery {display: flex;max-width: 600px;flex-direction: column;position: relative;gap: 14px;}
+    .gallery {display: flex;/* max-width: 600px; */flex-direction: column;position: relative;gap: 14px;}
     .gallery-main {
       position: relative;
       aspect-ratio: 1;
-      border-radius: 16px;
+      border-radius: 26px;
       border: 1px solid var(--border2);
       font-size: 100px;
       display: flex;
@@ -29,7 +29,7 @@
     }
     .gallery-main .gmain-emoji {transition: transform .4s cubic-bezier(.4,0,.2,1);}
     .gallery-main:hover .gmain-emoji { transform: scale(1.08); }
-    .gallery-main img {padding: 0 !important;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+    .gallery-main img {border-radius: 25px;margin: auto;width: auto !important;padding: 0 !important;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
     .gallery-badges { position: absolute; top: 18px; left: 18px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
     .gbadge {padding: 5px 13px;border-radius: 100px;font-size: 10px;font-weight: 500;letter-spacing: 0.8px;text-transform: uppercase;}
     .gbadge.hot { background: var(--blue); color: #fff; }
@@ -202,6 +202,7 @@
       align-items: center;
       justify-content: center;
       stroke: var(--muted);
+      fill: transparent;
       transition: all 0.25s;
     }
     .btn-fav-lg:hover {
@@ -450,7 +451,7 @@
     @media (max-width: 1280px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 900px) {
       .product-main {grid-template-columns: none;gap: 32px;padding: 24px 20px 0;}
-      .gallery-main { height: 370px; width: 370px; }
+      .gallery-main {height: 370px;/* width: 370px; */}
       .gallery-main .gmain-emoji { font-size: 80px; }
       .info-name { font-size: 28px; }
       .info-price { font-size: 36px; }
@@ -1007,7 +1008,7 @@ body.pr-report-open { overflow: hidden; }
   box-shadow: 0 18px 55px rgba(0,0,0,.22);
   opacity: 0;
   visibility: hidden;
-  /* pointer-events: none; */
+  pointer-events: none;
   transform: translateY(5px) scale(.98);
   transition: opacity .16s ease,transform .16s ease,visibility .16s ease;
   contain: layout paint;
