@@ -334,7 +334,7 @@ function renderAbout(store, list) {
   const freight = store.frete_gratis_ativo && store.frete_valor_minimo ? `Acima de ${store.frete_valor_minimo}` : '';
   grid.innerHTML = `
     <div class="about-card reveal"><h4>Sobre a loja</h4><p>${escapeHtml(store.descricao || 'Esta loja ainda não escreveu uma descrição.')}</p></div>
-    <div class="about-card reveal"><h4>Informações</h4>${row('Membro desde', since)}${row('Localização', loc)}${row('Prazo de envio', store.prazo_envio)}${row('Formas de envio', formas.join(', '))}${row('Frete grátis', freight)}</div>
+    <div class="about-card reveal"><h4>Informações</h4>${row('Membro desde', since)}<!--${row('Localização', loc)}-->${row('Prazo de envio', store.prazo_envio)}${row('Formas de envio', formas.join(', '))}${row('Frete grátis', freight)}</div>
     ${cats.length ? `<div class="about-card reveal"><h4>Categorias</h4><div class="tag-wrap">${cats.map(c => `<span class="cat-tag">${escapeHtml(c)}</span>`).join('')}</div></div>` : ''}
     <div class="about-card reveal"><h4>Troca e devolução</h4>${store.politica_devolucao ? `<p>${escapeHtml(store.politica_devolucao)}</p>` : '<p>Política de devolução não informada pela loja.</p>'}</div>`;
   const side = $('sidebarCol');
