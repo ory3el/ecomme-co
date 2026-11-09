@@ -528,8 +528,44 @@
                 </div>
               </div>
 
+              <div class="card card-pad warranty-card">
+                <div class="sec-t"><span class="sec-n">5</span> Garantia e proteção do consumidor</div>
+                <div class="form-col">
+                  <div class="warranty-legal-note" role="note">
+                    <div class="warranty-legal-note-title"><i class="fa-solid fa-scale-balanced"></i> Garantia legal prevista no CDC</div>
+                    <p>Todo produto possui garantia legal, mesmo sem certificado. Para vícios aparentes ou de fácil constatação, o art. 26 do CDC prevê prazo de 30 dias para produtos não duráveis e 90 dias para produtos duráveis. A contagem começa na entrega; em caso de vício oculto, começa quando o problema fica evidenciado (art. 26, § 3º).</p>
+                    <p>A garantia contratual é opcional, complementar à legal e deve ser formalizada por escrito, informando cobertura, prazo, forma e local de acionamento e eventuais encargos (art. 50).</p>
+                  </div>
+                  <div class="fgrp">
+                    <label for="npWarrantyType">Classificação do produto para a garantia legal *</label>
+                    <select class="sel" id="npWarrantyType" onchange="updateWarrantyLegalInfo()">
+                      <option value="">Selecione a classificação...</option>
+                      <option value="non_durable">Produto não durável — 30 dias</option>
+                      <option value="durable">Produto durável — 90 dias</option>
+                    </select>
+                    <small class="warranty-field-help" id="npWarrantyLegalInfo">Selecione a classificação para visualizar o prazo legal aplicável a vícios aparentes ou de fácil constatação.</small>
+                  </div>
+                  <label class="warranty-contract-toggle" for="npWarrantyContractEnabled">
+                    <input type="checkbox" id="npWarrantyContractEnabled" onchange="toggleWarrantyContractFields()">
+                    <span><strong>Oferecer garantia contratual adicional</strong><small>Marque somente se a loja ou o fabricante oferecer uma garantia além da garantia legal.</small></span>
+                  </label>
+                  <div class="warranty-contract-fields" id="npWarrantyContractFields" hidden>
+                    <div class="warranty-contract-heading"><i class="fa-solid fa-file-signature"></i> Termo da garantia contratual</div>
+                    <div class="fgrid2">
+                      <div class="fgrp"><label for="npWarrantyContractDuration">Prazo contratual *</label><input class="inp" id="npWarrantyContractDuration" type="number" min="1" step="1" placeholder="Ex.: 12"></div>
+                      <div class="fgrp"><label for="npWarrantyContractUnit">Unidade *</label><select class="sel" id="npWarrantyContractUnit"><option value="days">Dias</option><option value="months" selected>Meses</option><option value="years">Anos</option></select></div>
+                    </div>
+                    <div class="fgrp"><label for="npWarrantyContractCoverage">O que a garantia cobre? *</label><textarea class="inp ta" id="npWarrantyContractCoverage" rows="2" placeholder="Descreva os defeitos, peças ou situações cobertos."></textarea></div>
+                    <div class="fgrp"><label for="npWarrantyContractHow">Como o consumidor pode solicitar a garantia? *</label><textarea class="inp ta" id="npWarrantyContractHow" rows="2" placeholder="Ex.: entrar em contato pelo canal de atendimento e enviar o comprovante da compra."></textarea></div>
+                    <div class="fgrp"><label for="npWarrantyContractPlace">Onde a garantia pode ser acionada? *</label><input class="inp" id="npWarrantyContractPlace" placeholder="Ex.: atendimento da loja, e-mail ou assistência autorizada"></div>
+                    <div class="fgrp"><label for="npWarrantyContractCharges">Há encargos ou custos para o consumidor? *</label><textarea class="inp ta" id="npWarrantyContractCharges" rows="2" placeholder="Informe os encargos aplicáveis ou escreva: Sem custos adicionais."></textarea></div>
+                    <small class="warranty-field-help">Preencha as condições com clareza e disponibilize o termo escrito ao consumidor no ato do fornecimento. A garantia contratual não substitui nem reduz a garantia legal.</small>
+                  </div>
+                </div>
+              </div>
+
               <div class="card card-pad">
-                <div class="sec-t"><span class="sec-n">5</span> SEO e visibilidade</div>
+                <div class="sec-t"><span class="sec-n">6</span> SEO e visibilidade</div>
                 <div class="form-col">
                   <div class="fgrp"><label>Tags de busca</label><input class="inp" placeholder="Ex: smartwatch, relógio inteligente, fitness (separado por vírgula)"></div>
                   <div class="fgrp"><label>Título SEO</label><input class="inp" placeholder="Título para mecanismos de busca"></div>
