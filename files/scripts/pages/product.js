@@ -118,6 +118,7 @@ async function initProductPage() {
       : raw;
 
     renderProductDetails(currentProduct);
+    initProductComparator();
     loadProductStoreDetails(currentProduct).catch(error => {
       console.warn('Não foi possível carregar os dados da loja deste produto:', error);
     });
@@ -1489,18 +1490,6 @@ function renderProductGallery(p) {
 
   if (!gallery || !emoji || !thumbs) return;
 
-  let blurImage = document.getElementById('productMainBlurImage');
-  if (!blurImage) {
-    blurImage = document.createElement('img');
-    blurImage.id = 'productMainBlurImage';
-    blurImage.className = 'gallery-main-blur';
-    blurImage.alt = '';
-    blurImage.setAttribute('aria-hidden', 'true');
-    blurImage.draggable = false;
-    blurImage.setAttribute('draggable', 'false');
-    gallery.insertBefore(blurImage, gallery.firstChild);
-  }
-
   let mainImage = document.getElementById('productMainImage');
 
   if (!mainImage) {
@@ -1706,11 +1695,8 @@ function selectProductImage(index) {
 
   if (!mainImage || !emoji || !currentProduct) return;
 
-  const blurImage = document.getElementById('productMainBlurImage');
-
   if (!productPageImages.length) {
     mainImage.style.display = 'none';
-    if (blurImage) blurImage.classList.remove('is-visible');
     emoji.style.display = 'block';
     return;
   }
@@ -1725,10 +1711,6 @@ function selectProductImage(index) {
     if (this.dataset.fallback !== '1') {
       this.dataset.fallback = '1';
       this.src = this.dataset.original;
-      if (blurImage) {
-        blurImage.src = this.dataset.original;
-        blurImage.classList.add('is-visible');
-      }
       return;
     }
 
@@ -1739,27 +1721,9 @@ function selectProductImage(index) {
 
   mainImage.onload = () => {
     mainImage.style.display = 'block';
-    if (blurImage) {
-      blurImage.src = mainImage.currentSrc || mainImage.src;
-      blurImage.classList.add('is-visible');
-    }
     emoji.style.display = 'none';
     syncProductImageZoomSource();
   };
-
-  if (blurImage) {
-    blurImage.dataset.original = original;
-    blurImage.onerror = function () {
-      if (this.dataset.fallback !== '1') {
-        this.dataset.fallback = '1';
-        this.src = this.dataset.original;
-      } else {
-        this.classList.remove('is-visible');
-      }
-    };
-    blurImage.dataset.fallback = '0';
-    blurImage.classList.remove('is-visible');
-  }
 
   mainImage.src = optimizedImage(original, 'modal') || original;
 
@@ -2675,5 +2639,673 @@ async function shareToast() {
     }
   } catch {
     prompt('Copie o link deste produto:', location.href);
+  }
+}
+
+
+/* ── DENÚNCIA DE PRODUTO ───────────────────────────────────────── */
+let activeProductReportId = null;
+let activeProductReportButton = null;
+let productReportSubmitting = false;
+
+function ensureProductReportModal() {
+  let modal = document.getElementById('productReportModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'productReportModal';
+  modal.className = 'product-report-overlay';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <section class="product-report-dialog" role="dialog" aria-modal="true" aria-labelledby="productReportTitle" aria-describedby="productReportIntro" tabindex="-1">
+      <button type="button" class="product-report-close" data-product-report-close aria-label="Fechar denúncia"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="product-report-eyebrow">SEGURANÇA DA COMUNIDADE</p>
+      <h2 id="productReportTitle">Denunciar produto</h2>
+      <p class="product-report-intro" id="productReportIntro">Informe o motivo da denúncia. Nossa equipe poderá analisar o anúncio e tomar as medidas necessárias. Seus dados não serão exibidos publicamente.</p>
+      <form id="productReportForm">
+        <label class="product-report-field" for="productReportReason">Motivo da denúncia <span>*</span>
+          <select id="productReportReason" required>
+            <option value="">Selecione um motivo</option>
+            <option value="counterfeit">Produto falsificado ou suspeita de falsificação</option>
+            <option value="prohibited">Produto proibido ou de venda restrita</option>
+            <option value="misleading">Anúncio enganoso ou informações incorretas</option>
+            <option value="intellectual_property">Violação de propriedade intelectual</option>
+            <option value="inappropriate">Conteúdo impróprio ou ofensivo</option>
+            <option value="wrong_category">Categoria ou classificação inadequada</option>
+            <option value="other">Outro motivo</option>
+          </select>
+        </label>
+        <label class="product-report-field" for="productReportDetails">Detalhes <small>opcional</small>
+          <textarea id="productReportDetails" rows="4" maxlength="1000" placeholder="Descreva o que devemos analisar (até 1000 caracteres)."></textarea>
+        </label>
+        <p id="productReportStatus" class="product-report-status" role="status" aria-live="polite" hidden></p>
+        <div class="product-report-actions">
+          <button type="button" class="product-report-cancel" data-product-report-close>Cancelar</button>
+          <button type="submit" class="product-report-submit" id="productReportSubmit">Enviar denúncia</button>
+        </div>
+      </form>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal || event.target.closest('[data-product-report-close]')) {
+      closeProductReport();
+    }
+  });
+  modal.querySelector('#productReportForm').addEventListener('submit', submitProductReport);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !modal.hidden) closeProductReport();
+  });
+  return modal;
+}
+
+function openProductReport(button) {
+  if (!currentProduct?.id) return;
+  activeProductReportId = String(currentProduct.id);
+  activeProductReportButton = button || null;
+  productReportSubmitting = false;
+
+  const modal = ensureProductReportModal();
+  modal.querySelector('#productReportForm').reset();
+  const status = modal.querySelector('#productReportStatus');
+  status.hidden = true;
+  status.textContent = '';
+  const submit = modal.querySelector('#productReportSubmit');
+  submit.disabled = false;
+  submit.textContent = 'Enviar denúncia';
+  modal.hidden = false;
+  document.body.classList.add('product-report-open');
+  requestAnimationFrame(() => modal.querySelector('#productReportReason')?.focus());
+}
+
+function closeProductReport() {
+  const modal = document.getElementById('productReportModal');
+  if (!modal || productReportSubmitting) return;
+  modal.hidden = true;
+  document.body.classList.remove('product-report-open');
+  activeProductReportId = null;
+  if (activeProductReportButton?.isConnected) activeProductReportButton.focus();
+  activeProductReportButton = null;
+}
+
+function closeProductReportAfterRequest() {
+  const modal = document.getElementById('productReportModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('product-report-open');
+  activeProductReportId = null;
+  if (activeProductReportButton?.isConnected) activeProductReportButton.focus();
+  activeProductReportButton = null;
+}
+
+async function submitProductReport(event) {
+  event.preventDefault();
+  if (productReportSubmitting || !activeProductReportId) return;
+
+  const modal = ensureProductReportModal();
+  const reason = modal.querySelector('#productReportReason').value;
+  const details = modal.querySelector('#productReportDetails').value.trim();
+  const status = modal.querySelector('#productReportStatus');
+  const submit = modal.querySelector('#productReportSubmit');
+
+  if (!reason) {
+    modal.querySelector('#productReportReason').focus();
+    return;
+  }
+  if (details.length > 1000) {
+    status.textContent = 'Os detalhes devem ter no máximo 1000 caracteres.';
+    status.hidden = false;
+    return;
+  }
+
+  productReportSubmitting = true;
+  submit.disabled = true;
+  submit.textContent = 'Enviando…';
+  status.hidden = true;
+
+  try {
+    if (typeof supabaseClient === 'undefined') throw new Error('SUPABASE_UNAVAILABLE');
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+    if (authError) throw authError;
+    if (!authData?.user) {
+      productReviewToast('Entre na sua conta para denunciar este produto.');
+      closeProductReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    }
+
+    const { data, error } = await supabaseClient.rpc('report_product', {
+      p_product_id: activeProductReportId,
+      p_reason: reason,
+      p_details: details || null
+    });
+    if (error) throw error;
+
+    closeProductReportAfterRequest();
+    if (data === true) {
+      productReviewToast('Denúncia enviada. Obrigado por ajudar a manter a Ecomme segura.', 'success');
+    } else {
+      productReviewToast('Você já enviou uma denúncia para este produto.', 'info');
+    }
+  } catch (error) {
+    console.error('Erro ao enviar denúncia de produto:', error);
+    const message = error?.message || '';
+    const missingRpc = error?.code === '42883' || /report_product|product_reports/i.test(message);
+    if (missingRpc) {
+      status.textContent = 'A função de denúncias ainda não está configurada. Execute supabase/migrations/20261109_create_product_reports.sql no SQL Editor do Supabase.';
+    } else if (error?.code === '28000' || /AUTH_REQUIRED/i.test(message)) {
+      closeProductReportAfterRequest();
+      redirectToLoginForReviewAction();
+      return;
+    } else if (/CANNOT_REPORT_OWN_PRODUCT/i.test(message)) {
+      status.textContent = 'Você não pode denunciar um produto da sua própria loja.';
+    } else if (/PRODUCT_NOT_FOUND/i.test(message)) {
+      status.textContent = 'Este produto não está mais disponível para denúncia.';
+    } else {
+      status.textContent = 'Não foi possível enviar a denúncia. Verifique sua conexão e tente novamente.';
+    }
+    status.hidden = false;
+  } finally {
+    productReportSubmitting = false;
+    if (modal.isConnected && !modal.hidden) {
+      submit.disabled = false;
+      submit.textContent = 'Enviar denúncia';
+    }
+  }
+}
+
+function closeProductMoreMenu() {
+  const menu = document.getElementById('productMoreOptionsMenu');
+  const trigger = document.getElementById('productMoreOptionsTrigger');
+  if (!menu || !trigger) return;
+  menu.hidden = true;
+  trigger.setAttribute('aria-expanded', 'false');
+}
+
+function toggleProductMoreMenu() {
+  const menu = document.getElementById('productMoreOptionsMenu');
+  const trigger = document.getElementById('productMoreOptionsTrigger');
+  if (!menu || !trigger) return;
+  const willOpen = menu.hidden;
+  menu.hidden = !willOpen;
+  trigger.setAttribute('aria-expanded', String(willOpen));
+  if (willOpen) menu.querySelector('[role="menuitem"]')?.focus();
+}
+
+/* ── COMPARADOR NATIVO DE PRODUTOS ─────────────────────────────── */
+const productCompareState = {
+  selected: [],
+  searchResults: [],
+  searchRequest: 0,
+  searchTimer: null,
+  stores: new Map(),
+  view: 'select',
+  loadingStores: false,
+  previousBodyOverflow: ''
+};
+
+function initProductComparator() {
+  const actions = document.querySelector('.main-btns');
+  if (!actions || !currentProduct || document.getElementById('productMoreOptionsTrigger')) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'product-more-options';
+  wrapper.innerHTML = `
+    <button type="button" class="product-more-trigger" id="productMoreOptionsTrigger" aria-label="Mais opções do produto" aria-haspopup="menu" aria-expanded="false" aria-controls="productMoreOptionsMenu" title="Mais opções">
+      <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+    </button>
+    <div class="product-more-menu" id="productMoreOptionsMenu" role="menu" aria-label="Mais opções do produto" hidden>
+      <button type="button" class="product-more-item" role="menuitem" data-product-more-action="report">
+        <i class="fa-regular fa-flag" aria-hidden="true"></i><span>Denunciar produto</span>
+      </button>
+      <button type="button" class="product-more-item" role="menuitem" data-product-more-action="compare">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i><span>Comparar produtos</span>
+      </button>
+    </div>`;
+  actions.appendChild(wrapper);
+
+  const trigger = wrapper.querySelector('#productMoreOptionsTrigger');
+  const menu = wrapper.querySelector('#productMoreOptionsMenu');
+  trigger.addEventListener('click', toggleProductMoreMenu);
+  wrapper.addEventListener('click', event => {
+    const actionButton = event.target.closest('[data-product-more-action]');
+    if (!actionButton) return;
+    const action = actionButton.dataset.productMoreAction;
+    closeProductMoreMenu();
+    if (action === 'report') openProductReport(trigger);
+    if (action === 'compare') openProductCompare();
+  });
+  wrapper.addEventListener('keydown', event => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key) || menu.hidden) return;
+    const items = [...menu.querySelectorAll('[role="menuitem"]')];
+    const currentIndex = items.indexOf(document.activeElement);
+    let nextIndex = currentIndex;
+    if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = items.length - 1;
+    else if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % items.length;
+    else if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + items.length) % items.length;
+    event.preventDefault();
+    items[nextIndex]?.focus();
+  });
+  document.addEventListener('click', event => {
+    if (!wrapper.contains(event.target)) closeProductMoreMenu();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !menu.hidden) {
+      closeProductMoreMenu();
+      trigger.focus();
+    }
+  });
+
+  const overlay = document.createElement('div');
+  overlay.id = 'productCompareModal';
+  overlay.className = 'ecompare-overlay';
+  overlay.innerHTML = `
+    <section class="ecompare-dialog" role="dialog" aria-modal="true" aria-labelledby="ecompareTitle" aria-describedby="ecompareSubtitle" tabindex="-1">
+      <header class="ecompare-header">
+        <div class="ecompare-heading">
+          <span class="ecompare-heading-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+          <div><h2 id="ecompareTitle">Comparar produtos</h2><p id="ecompareSubtitle">Veja as principais diferenças antes de escolher.</p></div>
+        </div>
+        <div class="ecompare-header-actions">
+          <button type="button" class="ecompare-back" data-compare-back hidden><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Voltar</span></button>
+          <button type="button" class="ecompare-close" data-compare-close aria-label="Fechar comparador"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
+      </header>
+      <div class="ecompare-content" id="productCompareContent"></div>
+    </section>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay || event.target.closest('[data-compare-close]')) {
+      closeProductCompare();
+      return;
+    }
+    if (event.target.closest('[data-compare-back]')) {
+      productCompareState.view = 'select';
+      renderProductCompareSelector();
+      return;
+    }
+    const addButton = event.target.closest('[data-add-compare]');
+    if (addButton) {
+      addProductToCompare(addButton.dataset.addCompare);
+      return;
+    }
+    const removeButton = event.target.closest('[data-remove-compare]');
+    if (removeButton) {
+      removeProductFromCompare(removeButton.dataset.removeCompare);
+      return;
+    }
+    if (event.target.closest('[data-compare-submit]')) showProductCompareTable();
+  });
+
+  overlay.addEventListener('input', event => {
+    if (event.target.id !== 'productCompareSearch') return;
+    clearTimeout(productCompareState.searchTimer);
+    const term = event.target.value.trim();
+    productCompareState.searchRequest++;
+    productCompareState.searchTimer = setTimeout(() => searchProductsForCompare(term), 280);
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && overlay.classList.contains('is-open')) closeProductCompare();
+  });
+}
+function openProductCompare() {
+  if (!currentProduct) return;
+  const overlay = document.getElementById('productCompareModal');
+  if (!overlay) return;
+
+  productCompareState.selected = [currentProduct];
+  productCompareState.searchResults = [];
+  productCompareState.searchRequest++;
+  productCompareState.view = 'select';
+  productCompareState.stores.clear();
+  const oldSearch = document.getElementById('productCompareSearch');
+  if (oldSearch) oldSearch.value = '';
+  productCompareState.previousBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  overlay.classList.add('is-open');
+  renderProductCompareSelector();
+  requestAnimationFrame(() => document.getElementById('productCompareSearch')?.focus());
+}
+
+function closeProductCompare() {
+  const overlay = document.getElementById('productCompareModal');
+  if (!overlay) return;
+  overlay.classList.remove('is-open');
+  document.body.style.overflow = productCompareState.previousBodyOverflow;
+  document.getElementById('productMoreOptionsTrigger')?.focus();
+  clearTimeout(productCompareState.searchTimer);
+  productCompareState.searchRequest++;
+}
+
+function compareProductImage(product) {
+  if (typeof relatedProductImageUrl === 'function') return relatedProductImageUrl(product);
+  return product?.image_url || product?.gallery_urls?.find(Boolean) || '';
+}
+
+function renderProductCompareSelector() {
+  const content = document.getElementById('productCompareContent');
+  const back = document.querySelector('[data-compare-back]');
+  const title = document.getElementById('ecompareTitle');
+  const subtitle = document.getElementById('ecompareSubtitle');
+  if (!content) return;
+
+  if (back) back.hidden = true;
+  if (title) title.textContent = 'Comparar produtos';
+  if (subtitle) subtitle.textContent = 'Adicione produtos para comparar lado a lado.';
+
+  const selected = productCompareState.selected;
+  const previousTerm = document.getElementById('productCompareSearch')?.value || '';
+  content.innerHTML = `
+    <div class="ecompare-intro"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>O produto desta página já está incluído. Adicione mais ${selected.length === 1 ? '1 produto' : 'produtos'} para comparar até 5 opções.</span></div>
+    <div class="ecompare-selected-wrap">
+      <div class="ecompare-section-label"><span>Produtos selecionados</span><strong>${selected.length}/5</strong></div>
+      <div class="ecompare-selected-list">${selected.map(product => {
+        const id = safeHtml(product.id);
+        const image = compareProductImage(product);
+        const isCurrent = String(product.id) === String(currentProduct?.id);
+        return `<div class="ecompare-selected-item">
+          <div class="ecompare-product-thumb">${image ? `<img src="${safeHtml(image)}" alt="" loading="lazy">` : `<span>${safeHtml(product.emoji || '📦')}</span>`}</div>
+          <div class="ecompare-product-copy"><strong>${safeHtml(product.name || 'Produto sem nome')}</strong><span>${safeHtml(priceText(Number(product.price) || 0))}${isCurrent ? ' · Produto atual' : ''}</span></div>
+          ${isCurrent ? '<span class="ecompare-current-tag">Atual</span>' : `<button type="button" class="ecompare-remove" data-remove-compare="${id}" aria-label="Remover ${safeHtml(product.name)} da comparação"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`}
+        </div>`;
+      }).join('')}</div>
+    </div>
+    <div class="ecompare-search-area">
+      <label class="ecompare-section-label" for="productCompareSearch">Adicionar outro produto</label>
+      <div class="ecompare-search-box"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="productCompareSearch" type="search" autocomplete="off" placeholder="Digite o nome do produto..."><kbd>Buscar</kbd></div>
+      <div class="ecompare-results" id="productCompareResults" aria-live="polite"><div class="ecompare-search-empty"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Digite pelo menos 2 letras para pesquisar no catálogo.</span></div></div>
+    </div>
+    <footer class="ecompare-footer"><span>${selected.length} de 2 a 5 produtos selecionados</span><button type="button" class="ecompare-primary" data-compare-submit ${selected.length < 2 ? 'disabled="disabled"' : ''}><i class="fa-solid fa-table-columns" aria-hidden="true"></i> Comparar ${selected.length} produtos</button></footer>`;
+
+  const search = document.getElementById('productCompareSearch');
+  if (search) search.value = previousTerm;
+  const results = document.getElementById('productCompareResults');
+  if (previousTerm.trim().length >= 2 && results) {
+    if (productCompareState.searchResults.length) renderProductCompareSearchResults();
+    else results.innerHTML = '<div class="ecompare-search-empty"><i class="fa-solid fa-box-open" aria-hidden="true"></i><span>Nenhum produto disponível encontrado com esse nome.</span></div>';
+  }
+}
+
+async function searchProductsForCompare(term) {
+  const results = document.getElementById('productCompareResults');
+  const requestId = ++productCompareState.searchRequest;
+  const searchTerm = String(term || '').trim();
+  if (!results) return;
+
+  if (searchTerm.length < 2) {
+    productCompareState.searchResults = [];
+    results.innerHTML = '<div class="ecompare-search-empty"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Digite pelo menos 2 letras para pesquisar no catálogo.</span></div>';
+    return;
+  }
+  if (typeof supabaseClient === 'undefined') {
+    results.innerHTML = '<div class="ecompare-search-empty">O catálogo não está disponível no momento.</div>';
+    return;
+  }
+
+  results.innerHTML = '<div class="ecompare-search-loading"><span class="ecompare-spinner"></span> Pesquisando produtos...</div>';
+  try {
+    const safeTerm = searchTerm.replace(/[%_,]/g, ' ').replace(/\s+/g, ' ').trim();
+    const { data, error } = await supabaseClient
+      .from('products')
+      .select('*')
+      .ilike('name', `%${safeTerm}%`)
+      .order('name', { ascending: true })
+      .limit(24);
+    if (error) throw error;
+    if (requestId !== productCompareState.searchRequest) return;
+
+    const selectedIds = new Set(productCompareState.selected.map(product => String(product.id)));
+    productCompareState.searchResults = (Array.isArray(data) ? data : [])
+      .map(raw => typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw)
+      .filter(product => product && !selectedIds.has(String(product.id)))
+      .filter(product => !(typeof isProductUnavailable === 'function' && isProductUnavailable(product)))
+      .slice(0, 20);
+
+    renderProductCompareSearchResults();
+  } catch (error) {
+    if (requestId !== productCompareState.searchRequest) return;
+    console.error('Erro ao pesquisar produtos para comparação:', error);
+    results.innerHTML = '<div class="ecompare-search-empty ecompare-search-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>Não foi possível pesquisar agora. Tente novamente.</span></div>';
+  }
+}
+
+function renderProductCompareSearchResults() {
+  const results = document.getElementById('productCompareResults');
+  if (!results) return;
+  const list = productCompareState.searchResults;
+  if (!list.length) {
+    results.innerHTML = '<div class="ecompare-search-empty"><i class="fa-solid fa-box-open" aria-hidden="true"></i><span>Nenhum produto disponível encontrado com esse nome.</span></div>';
+    return;
+  }
+  const atLimit = productCompareState.selected.length >= 5;
+  results.innerHTML = list.map(product => {
+    const id = safeHtml(product.id);
+    const image = compareProductImage(product);
+    const category = typeof categoryText === 'function' ? categoryText(product) : '';
+    return `<div class="ecompare-result-item">
+      <div class="ecompare-product-thumb">${image ? `<img src="${safeHtml(image)}" alt="" loading="lazy">` : `<span>${safeHtml(product.emoji || '📦')}</span>`}</div>
+      <div class="ecompare-product-copy"><strong>${safeHtml(product.name || 'Produto sem nome')}</strong><span>${safeHtml(category || 'Produto')} · ${safeHtml(priceText(Number(product.price) || 0))}</span></div>
+      <button type="button" class="ecompare-add" data-add-compare="${id}" ${atLimit ? 'disabled' : ''} aria-label="Adicionar ${safeHtml(product.name)} à comparação"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Adicionar</span></button>
+    </div>`;
+  }).join('');
+}
+
+function addProductToCompare(productId) {
+  if (productCompareState.selected.length >= 5) return;
+  const product = productCompareState.searchResults.find(item => String(item.id) === String(productId));
+  if (!product || productCompareState.selected.some(item => String(item.id) === String(productId))) return;
+  productCompareState.selected.push(product);
+  productCompareState.searchResults = productCompareState.searchResults.filter(item => String(item.id) !== String(productId));
+  renderProductCompareSelector();
+}
+
+function removeProductFromCompare(productId) {
+  if (String(productId) === String(currentProduct?.id)) return;
+  productCompareState.selected = productCompareState.selected.filter(item => String(item.id) !== String(productId));
+  renderProductCompareSelector();
+}
+
+function productCompareSpecEntries(product) {
+  const entries = new Map();
+  const addEntry = (key, value) => {
+    const label = String(key || '').trim();
+    if (!label || value === null || value === undefined || String(value).trim() === '') return;
+    const normalized = String(value).trim();
+    entries.set(label, normalized);
+  };
+  const sources = ['specifications', 'specs', 'attributes', 'especificacoes'];
+  sources.forEach(source => {
+    let value = product?.[source];
+    if (typeof value === 'string') {
+      try { value = JSON.parse(value); } catch { value = null; }
+    }
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (item && typeof item === 'object') {
+          addEntry(item.label || item.name || item.key || item.atributo || `Especificação ${index + 1}`, item.value ?? item.valor ?? item.content);
+        } else {
+          addEntry(`Especificação ${index + 1}`, item);
+        }
+      });
+    } else if (value && typeof value === 'object') {
+      Object.entries(value).forEach(([key, item]) => {
+        const display = item && typeof item === 'object' ? (item.value ?? item.valor ?? item.label ?? JSON.stringify(item)) : item;
+        addEntry(key, display);
+      });
+    }
+  });
+  (Array.isArray(product?.features) ? product.features : []).forEach((feature, index) => {
+    addEntry(`Característica ${index + 1}`, feature);
+  });
+  return entries;
+}
+
+function productCompareWarranty(product) {
+  const fields = ['garantia', 'warranty', 'warranty_period', 'garantia_produto', 'prazo_garantia', 'garantia_meses', 'warranty_months'];
+  for (const field of fields) {
+    const value = product?.[field];
+    if (value === null || value === undefined || value === '') continue;
+    if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
+    if (/meses|months/i.test(field) && /^\d+(?:[.,]\d+)?$/.test(String(value).trim())) {
+      const months = Number(String(value).replace(',', '.'));
+      return `${value} ${months === 1 ? 'mês' : 'meses'}`;
+    }
+    return String(value);
+  }
+  return 'Não informada';
+}
+
+async function loadProductCompareStores(selectedProducts) {
+  const ids = [...new Set(selectedProducts.map(product => product.loja_id).filter(Boolean).map(String))];
+  if (!ids.length || typeof supabaseClient === 'undefined') return new Map();
+
+  const sources = ['lojas_public', 'lojas'];
+  const columnSets = [
+    'id, nome_loja, slug_url, logo_url, status, prazo_envio, formas_envio, frete_gratis_ativo, frete_valor_minimo',
+    'id, nome_loja, slug_url, status, prazo_envio, formas_envio, frete_gratis_ativo, frete_valor_minimo',
+    'id, nome_loja, slug_url, status'
+  ];
+  const stores = new Map();
+
+  for (const source of sources) {
+    for (const columns of columnSets) {
+      const { data, error } = await supabaseClient.from(source).select(columns).in('id', ids);
+      if (!error) {
+        (data || []).forEach(store => stores.set(String(store.id), store));
+        break;
+      }
+      if (isProductStoreMissingColumn(error)) continue;
+      if (isProductStoreMissingRelation(error)) break;
+      console.warn(`Não foi possível carregar vendedores para comparação em ${source}:`, error);
+      break;
+    }
+    if (stores.size >= ids.length) break;
+  }
+
+  const storesWithoutLogo = [...stores.values()].filter(store => !safeProductStoreImage(store.logo_url)).map(store => String(store.id));
+  if (storesWithoutLogo.length) {
+    try {
+      const { data, error } = await supabaseClient.from('lojas').select('id, logo_base64').in('id', storesWithoutLogo);
+      if (!error) (data || []).forEach(store => {
+        const existing = stores.get(String(store.id));
+        if (existing && store.logo_base64) existing.logo_base64 = store.logo_base64;
+      });
+    } catch (error) {
+      console.warn('Não foi possível carregar logos legados das lojas comparadas:', error);
+    }
+  }
+  return stores;
+}
+
+function productCompareShipping(product, store) {
+  const details = [];
+  if (product?.shipping) {
+    details.push('Frete grátis informado para este produto');
+  } else if (store?.frete_gratis_ativo && store?.frete_valor_minimo) {
+    details.push(`Frete grátis acima de ${store.frete_valor_minimo}`);
+  } else {
+    details.push('Valor calculado no checkout');
+  }
+  if (store?.prazo_envio) details.push(`Prazo de envio: ${store.prazo_envio}`);
+  const shippingNames = { correios: 'Correios', transportadora: 'Transportadora', retirada: 'Retirada na loja' };
+  const methods = Array.isArray(store?.formas_envio) ? store.formas_envio.map(value => shippingNames[value] || value).filter(Boolean) : [];
+  if (methods.length) details.push(`Modalidades: ${methods.join(', ')}`);
+  return details.join(' · ');
+}
+
+function renderProductCompareTable() {
+  const content = document.getElementById('productCompareContent');
+  const back = document.querySelector('[data-compare-back]');
+  const title = document.getElementById('ecompareTitle');
+  const subtitle = document.getElementById('ecompareSubtitle');
+  if (!content) return;
+
+  if (back) back.hidden = false;
+  if (title) title.textContent = 'Comparação de produtos';
+  if (subtitle) subtitle.textContent = `${productCompareState.selected.length} produtos selecionados · compare as informações lado a lado.`;
+  if (productCompareState.loadingStores) {
+    content.innerHTML = '<div class="ecompare-table-loading"><span class="ecompare-spinner"></span> Carregando informações dos vendedores...</div>';
+    return;
+  }
+
+  const selected = productCompareState.selected;
+  const stores = productCompareState.stores;
+  const prices = selected.map(product => Number(product.price) || 0).filter(price => price > 0);
+  const lowestPrice = prices.length ? Math.min(...prices) : null;
+  const specsByProduct = selected.map(productCompareSpecEntries);
+  const specKeys = [...new Set(specsByProduct.flatMap(map => [...map.keys()]))];
+  const columns = selected.map(product => {
+    const image = compareProductImage(product);
+    const store = stores.get(String(product.loja_id)) || null;
+    const name = safeHtml(product.name || 'Produto sem nome');
+    const price = Number(product.price) || 0;
+    const isLowest = lowestPrice !== null && price === lowestPrice;
+    return `<th scope="col" class="ecompare-product-column">
+      <div class="ecompare-column-product">
+        <div class="ecompare-column-image">${image ? `<img src="${safeHtml(image)}" alt="${name}" loading="lazy">` : `<span>${safeHtml(product.emoji || '📦')}</span>`}</div>
+        <strong>${name}</strong>
+        ${isLowest ? '<span class="ecompare-lowest-badge"><i class="fa-solid fa-tag" aria-hidden="true"></i> Menor preço</span>' : ''}
+        <span class="ecompare-column-id">ID: ${safeHtml(product.id)}</span>
+      </div>
+    </th>`;
+  }).join('');
+
+  const renderRow = (label, values, className = '') => `<tr class="${className}"><th scope="row">${safeHtml(label)}</th>${values.map(value => `<td>${value}</td>`).join('')}</tr>`;
+  const priceCells = selected.map(product => {
+    const price = Number(product.price) || 0;
+    const isLowest = lowestPrice !== null && price === lowestPrice;
+    return `<strong class="ecompare-price ${isLowest ? 'is-lowest' : ''}">${safeHtml(priceText(price))}</strong>`;
+  });
+  const ratingCells = selected.map(product => {
+    const rating = Number(product.rating) || 0;
+    const reviews = Number(product.reviews) || 0;
+    return `<span class="ecompare-rating"><strong>★ ${rating.toFixed(1).replace('.', ',')}</strong><small>${reviews.toLocaleString('pt-BR')} avaliações</small></span>`;
+  });
+  const storeCells = selected.map(product => {
+    const store = stores.get(String(product.loja_id)) || null;
+    if (!store) return '<span class="ecompare-not-informed">Vendedor não informado</span>';
+    const name = safeHtml(store.nome_loja || 'Loja');
+    const slug = String(store.slug_url || '').trim();
+    const status = String(store.status || '').trim().toLowerCase();
+    const active = slug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug) && (!status || ['ativa', 'active'].includes(status));
+    const logo = safeProductStoreImage(store.logo_url) || safeProductStoreImage(store.logo_base64);
+    const logoHtml = logo ? `<img src="${safeHtml(logo)}" alt="" loading="lazy">` : `<span>${safeHtml((store.nome_loja || 'L').charAt(0).toLocaleUpperCase('pt-BR'))}</span>`;
+    const contentHtml = `<span class="ecompare-seller-logo">${logoHtml}</span><strong>${name}</strong>`;
+    return active ? `<a class="ecompare-seller-link" href="/store/@${encodeURIComponent(slug)}">${contentHtml}<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>` : `<span class="ecompare-seller-link is-static">${contentHtml}</span>`;
+  });
+  const specificationRows = specKeys.length
+    ? specKeys.map(key => renderRow(key, specsByProduct.map(map => map.has(key) ? safeHtml(map.get(key)) : '<span class="ecompare-not-informed">Não informado</span>'), 'ecompare-spec-row')).join('')
+    : renderRow('Especificações', selected.map(() => '<span class="ecompare-not-informed">Não informadas</span>'), 'ecompare-spec-row');
+
+  content.innerHTML = `
+    <div class="ecompare-table-intro"><span><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> Deslize horizontalmente para ver todos os produtos.</span></div>
+    <div class="ecompare-table-scroll"><table class="ecompare-table"><thead><tr><th scope="col" class="ecompare-label-column">Produto</th>${columns}</tr></thead><tbody>
+      ${renderRow('Preço', priceCells, 'ecompare-price-row')}
+      ${renderRow('Avaliações', ratingCells)}
+      <tr class="ecompare-group-row"><th colspan="${selected.length + 1}">Especificações</th></tr>
+      ${specificationRows}
+      ${renderRow('Frete e envio', selected.map(product => safeHtml(productCompareShipping(product, stores.get(String(product.loja_id)) || null))))}
+      ${renderRow('Garantia', selected.map(product => safeHtml(productCompareWarranty(product))))}
+      ${renderRow('Vendedor', storeCells)}
+    </tbody></table></div>
+    <div class="ecompare-bottom-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> O custo final do frete pode variar conforme o endereço de entrega. Confira as condições na etapa de compra.</div>`;
+}
+
+async function showProductCompareTable() {
+  if (productCompareState.selected.length < 2 || productCompareState.selected.length > 5) return;
+  productCompareState.view = 'compare';
+  productCompareState.loadingStores = true;
+  productCompareState.stores = new Map();
+  renderProductCompareTable();
+  try {
+    productCompareState.stores = await loadProductCompareStores(productCompareState.selected);
+  } catch (error) {
+    console.error('Não foi possível carregar todos os vendedores da comparação:', error);
+  } finally {
+    productCompareState.loadingStores = false;
+    if (productCompareState.view === 'compare') renderProductCompareTable();
   }
 }
