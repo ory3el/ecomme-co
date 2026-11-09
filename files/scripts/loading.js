@@ -48,7 +48,7 @@ function injectModalStyles0() {
   }
   
   .loading-modal-content {
-    background: var(--surface);
+    background: var(--surface3);
     /*backdrop-filter: blur(18px);*/
     /*-webkit-backdrop-filter: blur(18px);*/
     width: min(90%, 380px);
