@@ -817,6 +817,11 @@ async function duplicateProduct(id) {
       badge: 'paused', rating: 0, reviews: 0, features: p.features || []
     };
     if ('stock' in p) copy.stock = p.stock;
+    if ('warranty_type' in p) {
+      copy.warranty_type = p.warranty_type || null;
+      copy.warranty = p.warranty || null;
+      copy.warranty_contract = p.warranty_contract || null;
+    }
     const { data, error } = await supabaseClient.from('products').insert([copy]).select('id');
     if (error) throw error;
     if (!data || !data.length) throw new Error('O banco não confirmou a criação da cópia.');
@@ -846,6 +851,17 @@ function editProduct(id) {
   if ($('npDesc')) $('npDesc').value = p.desc || '';
   if ($('npPrice')) $('npPrice').value = fmtBRL(p.price);
   if ($('npStock')) $('npStock').value = ('stock' in p) ? prodStock(p) : '';
+  if ($('npWarrantyType')) $('npWarrantyType').value = p.warranty_type || '';
+  const savedWarranty = p.warranty_contract && typeof p.warranty_contract === 'object' ? p.warranty_contract : null;
+  if ($('npWarrantyContractEnabled')) $('npWarrantyContractEnabled').checked = !!savedWarranty;
+  if ($('npWarrantyContractDuration')) $('npWarrantyContractDuration').value = savedWarranty?.duration || '';
+  if ($('npWarrantyContractUnit')) $('npWarrantyContractUnit').value = savedWarranty?.unit || 'months';
+  if ($('npWarrantyContractCoverage')) $('npWarrantyContractCoverage').value = savedWarranty?.coverage || '';
+  if ($('npWarrantyContractHow')) $('npWarrantyContractHow').value = savedWarranty?.how_to_claim || '';
+  if ($('npWarrantyContractPlace')) $('npWarrantyContractPlace').value = savedWarranty?.claim_place || '';
+  if ($('npWarrantyContractCharges')) $('npWarrantyContractCharges').value = savedWarranty?.charges || '';
+  updateWarrantyLegalInfo();
+  toggleWarrantyContractFields();
   if ($('freeShip')) $('freeShip').checked = !!p.shipping;
   if ($('npCat')) {
     const catSelect = $('npCat');
@@ -1887,6 +1903,82 @@ async function executeCrop() {
 
 
 /* ---------------------------------------------- */
+// ── GARANTIA DO PRODUTO (CDC) ─────────────────────────────────
+function updateWarrantyLegalInfo() {
+  const type = $('npWarrantyType')?.value || '';
+  const info = $('npWarrantyLegalInfo');
+  if (!info) return;
+  if (type === 'durable') {
+    info.textContent = 'Produto durável: 90 dias para reclamar de vícios aparentes ou de fácil constatação. O prazo começa na entrega; para vício oculto, começa quando ele fica evidenciado.';
+  } else if (type === 'non_durable') {
+    info.textContent = 'Produto não durável: 30 dias para reclamar de vícios aparentes ou de fácil constatação. O prazo começa na entrega; para vício oculto, começa quando ele fica evidenciado.';
+  } else {
+    info.textContent = 'Selecione a classificação para visualizar o prazo legal aplicável a vícios aparentes ou de fácil constatação.';
+  }
+}
+
+function toggleWarrantyContractFields() {
+  const enabled = !!$('npWarrantyContractEnabled')?.checked;
+  const fields = $('npWarrantyContractFields');
+  if (!fields) return;
+  fields.hidden = !enabled;
+  fields.setAttribute('aria-hidden', String(!enabled));
+}
+
+function getProductWarrantyData() {
+  const type = $('npWarrantyType')?.value || '';
+  if (!['durable', 'non_durable'].includes(type)) {
+    toast('Selecione se o produto é durável ou não durável para informar a garantia legal.', 'err');
+    $('npWarrantyType')?.focus();
+    return null;
+  }
+
+  const legalDays = type === 'durable' ? 90 : 30;
+  const typeLabel = type === 'durable' ? 'produto durável' : 'produto não durável';
+  let contract = null;
+
+  if ($('npWarrantyContractEnabled')?.checked) {
+    const duration = Number.parseInt($('npWarrantyContractDuration')?.value, 10);
+    const unit = $('npWarrantyContractUnit')?.value || 'months';
+    const coverage = ($('npWarrantyContractCoverage')?.value || '').trim();
+    const howToClaim = ($('npWarrantyContractHow')?.value || '').trim();
+    const claimPlace = ($('npWarrantyContractPlace')?.value || '').trim();
+    const charges = ($('npWarrantyContractCharges')?.value || '').trim();
+    if (!Number.isInteger(duration) || duration < 1) {
+      toast('Informe um prazo válido para a garantia contratual.', 'err');
+      $('npWarrantyContractDuration')?.focus();
+      return null;
+    }
+    if (!['days', 'months', 'years'].includes(unit)) {
+      toast('Selecione uma unidade válida para o prazo da garantia contratual.', 'err');
+      $('npWarrantyContractUnit')?.focus();
+      return null;
+    }
+    const required = [
+      [coverage, 'Descreva o que a garantia contratual cobre.', 'npWarrantyContractCoverage'],
+      [howToClaim, 'Informe como o consumidor pode solicitar a garantia.', 'npWarrantyContractHow'],
+      [claimPlace, 'Informe onde a garantia pode ser acionada.', 'npWarrantyContractPlace'],
+      [charges, 'Informe os encargos aplicáveis ou indique que não há custos adicionais.', 'npWarrantyContractCharges']
+    ];
+    for (const [value, message, id] of required) {
+      if (!value) { toast(message, 'err'); $(id)?.focus(); return null; }
+    }
+    contract = { duration, unit, coverage, how_to_claim: howToClaim, claim_place: claimPlace, charges };
+  }
+
+  const legalSummary = `Garantia legal (CDC): ${legalDays} dias para vícios aparentes ou de fácil constatação (${typeLabel}). Para vício oculto, o prazo começa quando o problema fica evidenciado.`;
+  const contractUnitLabels = {
+    days: contract?.duration === 1 ? 'dia' : 'dias',
+    months: contract?.duration === 1 ? 'mês' : 'meses',
+    years: contract?.duration === 1 ? 'ano' : 'anos'
+  };
+  const contractSummary = contract
+    ? ` Garantia contratual: ${contract.duration} ${contractUnitLabels[contract.unit]}.`
+    : '';
+
+  return { warranty_type: type, warranty: `${legalSummary}${contractSummary}`, warranty_contract: contract };
+}
+
 // ══ PUBLICAR / SALVAR PRODUTO ═══════════════════════════════
 let isPublishing = false;
 const IMG_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
@@ -1926,6 +2018,8 @@ async function publishProduct() {
   if (desc.length < 10) { toast('A descrição curta precisa ter pelo menos 10 caracteres.', 'err'); return; }
   if (stockRaw !== '' && !/^\d+$/.test(stockRaw)) { toast('O estoque deve ser um número inteiro (0 ou mais).', 'err'); return; }
   if (!hasMainImage) { toast('Adicione pelo menos a imagem principal (bloco maior) do produto.', 'err'); return; }
+  const warrantyData = getProductWarrantyData();
+  if (!warrantyData) return;
 
   const editing = isEditing ? findProd(editingProductId) : null;
   if (isEditing && !editing) { toast('Produto não encontrado. Volte para a lista e tente novamente.', 'err'); return; }
@@ -1948,7 +2042,8 @@ async function publishProduct() {
     const catText = catSel.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();   // remove o emoji do texto da opção
     const productData = {
       name, cat: [catText], price: Number(price.toFixed(2)), desc, shipping,
-      image_url: finalUrls[0], gallery_urls: finalUrls
+      image_url: finalUrls[0], gallery_urls: finalUrls,
+      ...warrantyData
     };
     if (stockRaw !== '') productData.stock = parseInt(stockRaw, 10);
 
@@ -1966,6 +2061,11 @@ async function publishProduct() {
       delete productData.stock;
       res = await write();
       if (!res.error) toast('Produto salvo, mas o estoque NÃO foi gravado: falta a coluna "stock" (execute a migração SQL).', 'err');
+    }
+    if (res.error && ['PGRST204', '42703'].includes(res.error.code) && /warranty/i.test(res.error.message || '')) {
+      const migrationError = new Error('As colunas de garantia ainda não existem na tabela products. Execute o arquivo supabase/migrations/20261109_add_product_warranty_fields.sql no SQL Editor do Supabase.');
+      migrationError.code = 'WARRANTY_SCHEMA_MISSING';
+      throw migrationError;
     }
     if (res.error) throw res.error;
     if (!res.data || !res.data.length) throw new Error('O banco não confirmou a gravação (nenhuma linha afetada).');
@@ -1996,7 +2096,11 @@ async function publishProduct() {
       const { error: rmErr } = await supabaseClient.storage.from(PRODUCTS_BUCKET).remove(uploaded);
       if (rmErr) console.warn('Não foi possível limpar imagens enviadas:', rmErr);
     }
-    toast(isNetworkError(err) ? 'Sem conexão. Nada foi salvo; tente novamente.' : 'Não foi possível salvar o produto. Suas informações continuam no formulário.', 'err');
+    if (err?.code === 'WARRANTY_SCHEMA_MISSING') {
+      toast(err.message, 'err');
+    } else {
+      toast(isNetworkError(err) ? 'Sem conexão. Nada foi salvo; tente novamente.' : 'Não foi possível salvar o produto. Suas informações continuam no formulário.', 'err');
+    }
   } finally {
     setPublishBusy(false);
   }
@@ -2038,6 +2142,12 @@ function clearProductForm() {
   if (typeof calcMargin === 'function') calcMargin();
   if ($('npDesc')) $('npDesc').value = '';
   if ($('npCat')) $('npCat').selectedIndex = 0;
+  if ($('npWarrantyType')) $('npWarrantyType').value = '';
+  if ($('npWarrantyContractEnabled')) $('npWarrantyContractEnabled').checked = false;
+  ['npWarrantyContractDuration', 'npWarrantyContractCoverage', 'npWarrantyContractHow', 'npWarrantyContractPlace', 'npWarrantyContractCharges'].forEach(id => { if ($(id)) $(id).value = ''; });
+  if ($('npWarrantyContractUnit')) $('npWarrantyContractUnit').value = 'months';
+  updateWarrantyLegalInfo();
+  toggleWarrantyContractFields();
   if ($('freeShip')) $('freeShip').checked = false;
   if ($('npImage')) $('npImage').value = '';
 
