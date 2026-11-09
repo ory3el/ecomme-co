@@ -462,7 +462,8 @@ body.nobodyscroll {
 }
 
 .gap10 {
-    gap: 10px
+    gap: 10px;
+    width: 300px;
 }
 
 .gap12 {
@@ -522,7 +523,11 @@ body.nobodyscroll {
 }
 
 .fw6 {
-    font-weight: 600
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .fw7 {
@@ -2752,7 +2757,7 @@ tbody tr:hover td {
     font-size: 18px;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0
+    flex-shrink: 0;
 }
 
 .prod-thumb img {
@@ -4712,6 +4717,21 @@ html[data-theme="dark"] .btn-alert-confirm-red {
         flex-shrink: 0
     }
 
+    .fac.gap10 {
+        justify-content: flex-end;
+    }
+
+    .fac.gap10 .prod-thumb {
+        order: 2
+    }
+
+    .fac.gap10 .fs12.fw6 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 150px;
+    }
+    
     /* tabelas viram cards */
     table.rt thead {
         display: none
@@ -4723,8 +4743,10 @@ html[data-theme="dark"] .btn-alert-confirm-red {
     }
 
     table.rt tr {
+        gap: 10px;
         padding: 14px 16px;
-        border-top: 1px solid var(--border2)
+        border-top: 1px solid var(--border2);
+        display: grid;
     }
 
     table.rt tr:first-child {
@@ -4950,7 +4972,7 @@ html[data-theme="dark"] .btn-alert-confirm-red {
     padding: 7px 9px;
     border: 1px solid var(--border);
     border-radius: 10px;
-    background: var(--blue-dim);
+    /* background: var(--blue-dim); */
     color: var(--blue);
     font: 600 11px var(--font-body);
     cursor: pointer;
@@ -5002,8 +5024,8 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 .pa-dialog {
     position: relative;
     width: min(100%,620px);
+    overflow: hidden;
     max-height: min(88dvh,760px);
-    overflow: auto;
     border: 1px solid var(--border2);
     border-radius: 22px;
     background: var(--surface);
@@ -5014,6 +5036,7 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 
 .pa-header {
     display: flex;
+    position: sticky;
     align-items: flex-start;
     justify-content: space-between;
     gap: 18px;
@@ -5022,7 +5045,8 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 }
 
 .pa-eyebrow {
-    display: block;
+    display: none;
+    /* display: block; */
     margin-bottom: 6px;
     color: var(--blue);
     font-size: 9px;
@@ -5031,7 +5055,7 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 }
 
 .pa-header h3 {
-    font: 700 23px var(--font-head);
+    font: 500 23px var(--font-head);
     letter-spacing: -.03em
 }
 
@@ -5054,6 +5078,8 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 }
 
 .pa-body {
+    overflow: auto;
+    max-height: 440px;
     padding: 20px 24px 14px
 }
 
@@ -5077,7 +5103,10 @@ html[data-theme="dark"] .btn-alert-confirm-red {
     gap: 8px;
     color: var(--muted);
     font-size: 11px;
-    font-weight: 600
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pa-metric>span i {
@@ -5087,7 +5116,7 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 .pa-metric>strong {
     display: block;
     margin-top: 9px;
-    font: 700 29px var(--font-head);
+    font: 500 29px var(--font-head);
     letter-spacing: -.04em;
     color: var(--text);
     font-variant-numeric: tabular-nums
@@ -5098,7 +5127,10 @@ html[data-theme="dark"] .btn-alert-confirm-red {
     margin-top: 4px;
     color: var(--muted);
     font-size: 10px;
-    line-height: 1.45
+    line-height: 1.45;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pa-blue>span i {
@@ -5153,8 +5185,10 @@ html[data-theme="dark"] .btn-alert-confirm-red {
 
 .pa-footer {
     display: flex;
+    bottom: 10px;
     justify-content: flex-end;
-    padding: 0 24px 22px
+    padding: 10px 24px 0;
+    position: relative;
 }
 
 body.pa-modal-open {
@@ -5202,7 +5236,7 @@ body.pa-modal-open {
     }
 
     .pa-footer {
-        padding: 0 18px 18px
+        padding: 0 18px 18px;
     }
 
     .pa-grid {
