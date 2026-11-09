@@ -453,7 +453,7 @@
     @media (max-width: 900px) {
       .product-main {grid-template-columns: none;gap: 32px;padding: 24px 20px 0;}
       .gallery-main {height: 370px;/* width: 370px; */}
-      .gallery-main .gallery-main-blur.is-visible {display:block;filter:blur(22px);opacity:.58;transform:scale(1.14);}
+      .gallery-main .gallery-main-blur.is-visible {display:block;filter:blur(22px);opacity: 0.7;transform: scale(1);}
       .gallery-main .gmain-emoji { font-size: 80px; }
       .info-name { font-size: 28px; }
       .info-price { font-size: 36px; }
