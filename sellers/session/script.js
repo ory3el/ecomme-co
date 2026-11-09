@@ -144,6 +144,7 @@ function goToDashboard(key) {
 
 /* ── AUTH GATE ───────────────────────────────────────────────────── */
 let userId = null;
+let storeId = null;
 
 function showGate(which) {
   const gate = $('authGate');
@@ -187,11 +188,9 @@ function renderSessionStoreState(status, slug, data) {
 async function fetchInitialStoreStatus() {
   if (!userId) return null;
   try {
-    const { data, error } = await supabaseClient
-      .from('lojas')
-      .select('id, status, slug_url, nome_loja')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const { data: storeResult, error } = await supabaseClient
+      .rpc('get_my_store_private');
+    const data = Array.isArray(storeResult) ? storeResult[0] : storeResult;
 
     if (error) {
       console.error('Erro ao buscar status da loja:', error);
@@ -199,6 +198,7 @@ async function fetchInitialStoreStatus() {
       return { failed: true };
     }
     if (data) {
+      storeId = data.id;
       renderSessionStoreState(data.status, data.slug_url, data);
       return data;
     }
@@ -211,11 +211,11 @@ async function fetchInitialStoreStatus() {
 }
 
 function subscribeToStoreStatus() {
-  if (!userId) return;
+  if (!storeId) return;
   supabaseClient
     .channel('store-status-channel')
     .on('postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'lojas', filter: `user_id=eq.${userId}` },
+      { event: 'UPDATE', schema: 'public', table: 'lojas', filter: `id=eq.${storeId}` },
       (payload) => {
         const novoStatus = payload.new.status;
         renderSessionStoreState(novoStatus, payload.new.slug_url, payload.new);
