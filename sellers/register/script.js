@@ -76,7 +76,7 @@ async function bootRegister(){
     userId = user.id;
 
     const { data: loja, error: lojaError } = await supabaseClient
-      .from('lojas').select('id').eq('user_id', userId).maybeSingle();
+      .rpc('get_my_store_private');
 
     if (lojaError) {
       // PGRST116 = mais de uma linha para o mesmo usuário: ele já possui loja.
@@ -767,7 +767,7 @@ async function createStore() {
     userId = user.id;
 
     const { data: existing, error: existingError } = await supabaseClient
-      .from('lojas').select('id').eq('user_id', userId).maybeSingle();
+      .rpc('get_my_store_private');
     if (existingError && existingError.code !== 'PGRST116') throw existingError;
     if (existing || (existingError && existingError.code === 'PGRST116')) { showGate('hasStore'); return; }
 
@@ -824,10 +824,8 @@ async function createStore() {
 
     const novaLojaPayload = {
       user_id: userId,
-      status: 'pendente',                         // o banco força 'pendente' para usuários comuns
       ...dadosPasso1,
-      ...dadosPasso2,
-      criado_em: new Date().toISOString()
+      ...dadosPasso2
     };
 
     // 3. Insere e EXIGE a linha de volta: sem confirmação do banco não há sucesso
