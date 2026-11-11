@@ -1210,3 +1210,29 @@ body.pr-report-open { overflow: hidden; }
 body.product-report-open{overflow:hidden}
 @media(max-width:700px){.product-more-trigger{width:43px;height:43px}.product-more-menu{top:auto;bottom:calc(100% + 9px)}.product-report-dialog{padding:25px 20px 20px;border-radius:20px}.product-report-actions>button{flex:1}}
 @media(prefers-reduced-motion:reduce){.product-more-trigger,.product-more-menu,.product-report-dialog{animation:none;transition:none}}
+
+/* Aviso exibido ao proprietário do produto no lugar das ações de compra. */
+.own-product-notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 13px 15px;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background: var(--bg3);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.own-product-notice[hidden] { display: none !important; }
+.own-product-notice-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 30px; width: 30px; height: 30px; border-radius: 10px; background: var(--bg); color: var(--blue); }
+.own-product-notice-text { flex: 1 1 180px; }
+.own-product-manage { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: 999px; color: var(--blue); font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background .2s, border-color .2s; }
+.own-product-manage:hover { background: var(--bg); border-color: var(--blue); }
+.own-product-manage[hidden] { display: none !important; }
+.main-btns .btn-addcart[hidden], .main-btns .btn-buynow[hidden] { display: none !important; }
+.qty-action-row[hidden], .stock-bar-wrap[hidden] { display: none !important; }
+
