@@ -117,6 +117,8 @@ async function initProductPage() {
       ? normalizeProduct(raw)
       : raw;
 
+    // Confirma a propriedade antes de exibir ações de compra.
+    await updateOwnProductControls(currentProduct);
     renderProductDetails(currentProduct);
     initProductComparator();
     loadProductStoreDetails(currentProduct).catch(error => {
@@ -2600,7 +2602,90 @@ function updateProductFavoriteButtons() {
   });
 }
 
+let productOwnershipVerified = false;
+let currentProductIsOwnStore = false;
+
+async function getCurrentUserStoreId() {
+  if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
+    throw new Error('A sessão do usuário não está disponível.');
+  }
+
+  const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+  if (authError) throw authError;
+  if (!authData?.user) return null;
+
+  const { data, error } = await supabaseClient.rpc('get_my_store_private');
+  if (error) throw error;
+
+  const store = Array.isArray(data) ? data[0] : data;
+  return store?.id !== undefined && store?.id !== null ? String(store.id) : null;
+}
+
+async function updateOwnProductControls(product) {
+  const addButton = document.querySelector('.main-btns .btn-addcart');
+  const buyButton = document.querySelector('.main-btns .btn-buynow');
+  const actions = document.querySelector('.main-btns');
+  if (!actions) return;
+
+  let notice = document.getElementById('ownProductNotice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'ownProductNotice';
+    notice.className = 'own-product-notice';
+    notice.hidden = true;
+    notice.innerHTML = `
+      <span class="own-product-notice-icon" aria-hidden="true"><i class="fa-solid fa-store"></i></span>
+      <span class="own-product-notice-text"></span>
+      <a class="own-product-manage" href="/sellers/main#produtos">Gerenciar Produto</a>
+    `;
+    actions.insertAdjacentElement('beforebegin', notice);
+  }
+
+  productOwnershipVerified = false;
+  currentProductIsOwnStore = false;
+
+  try {
+    const ownStoreId = await getCurrentUserStoreId();
+    productOwnershipVerified = true;
+    currentProductIsOwnStore = !!ownStoreId && !!product?.loja_id && ownStoreId === String(product.loja_id);
+
+    if (currentProductIsOwnStore) {
+      const text = notice.querySelector('.own-product-notice-text');
+      if (text) text.textContent = 'Este produto pertence à sua loja.';
+      notice.hidden = false;
+      if (addButton) addButton.hidden = true;
+      if (buyButton) buyButton.hidden = true;
+      document.querySelector('.qty-action-row')?.setAttribute('hidden', '');
+      document.querySelector('.stock-bar-wrap')?.setAttribute('hidden', '');
+    } else {
+      notice.hidden = true;
+      if (addButton) addButton.hidden = false;
+      if (buyButton) buyButton.hidden = false;
+      document.querySelector('.qty-action-row')?.removeAttribute('hidden');
+      document.querySelector('.stock-bar-wrap')?.removeAttribute('hidden');
+    }
+  } catch (error) {
+    console.warn('Não foi possível verificar se o produto pertence à loja do usuário:', error);
+    const text = notice.querySelector('.own-product-notice-text');
+    if (text) text.textContent = 'Não foi possível verificar a propriedade deste produto. Atualize a página para tentar novamente.';
+    notice.querySelector('.own-product-manage')?.setAttribute('hidden', '');
+    notice.hidden = false;
+    if (addButton) addButton.hidden = true;
+    if (buyButton) buyButton.hidden = true;
+    document.querySelector('.qty-action-row')?.setAttribute('hidden', '');
+    document.querySelector('.stock-bar-wrap')?.setAttribute('hidden', '');
+  }
+}
+
 function addToCartMain() {
+  if (currentProductIsOwnStore) {
+    if (typeof showToast === 'function') showToast('Você não pode adicionar ao carrinho um produto da sua própria loja.');
+    return;
+  }
+  if (!productOwnershipVerified) {
+    if (typeof showToast === 'function') showToast('Não foi possível verificar a loja deste produto. Atualize a página e tente novamente.');
+    return;
+  }
   if (currentProduct && typeof addToCart === 'function') {
     addToCart(String(currentProduct.id), productPageQty);
   }
@@ -2608,6 +2693,14 @@ function addToCartMain() {
 
 async function buyNow() {
   if (!currentProduct) return;
+  if (currentProductIsOwnStore) {
+    if (typeof showToast === 'function') showToast('Você não pode comprar um produto da sua própria loja.');
+    return;
+  }
+  if (!productOwnershipVerified) {
+    if (typeof showToast === 'function') showToast('Não foi possível verificar a loja deste produto. Atualize a página e tente novamente.');
+    return;
+  }
 
   if (typeof userId === 'undefined' || !userId) {
     if (typeof showAuth === 'function') {
