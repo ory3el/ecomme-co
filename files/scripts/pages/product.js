@@ -2607,12 +2607,13 @@ let currentProductIsOwnStore = false;
 
 async function getCurrentUserStoreId() {
   if (typeof supabaseClient === 'undefined' || !supabaseClient?.auth) {
-    throw new Error('A sessão do usuário não está disponível.');
+    throw new Error('O serviço de autenticação não está disponível.');
   }
 
-  const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-  if (authError) throw authError;
-  if (!authData?.user) return null;
+  // getSession() identifica a ausência de login sem tratar isso como falha de verificação.
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData?.session?.user) return null;
 
   const { data, error } = await supabaseClient.rpc('get_my_store_private');
   if (error) throw error;
