@@ -84,12 +84,15 @@ const EDGE_IMAGE_PRESETS = {
 // create: recebe checkout + idempotencyKey; devolve { orderId, orderCode, redirectUrl }.
 // status: recebe orderId; devolve { status, orderCode }.
 // O servidor valida o JWT, recalcula preços/frete/cupons, valida endereço e cria o pedido.
+// Também deve rejeitar products.loja_id pertencentes a lojas cujo user_id seja o auth.uid() comprador.
 // A chave ASAAS_API_KEY fica exclusivamente nos Secrets da Edge Function; nunca no navegador.
 // O pedido só muda para pago após webhook CHECKOUT_PAID validado e processado com idempotência.
 const CHECKOUT_PAYMENT_FUNCTION = 'checkout-payments';
 let checkoutProfile = null;
 let checkoutOrder = null;
 let checkoutPaymentStatus = null;
+let checkoutOwnedStoreIds = new Set();
+let checkoutOwnershipVerified = false;
 
 // ---------------------------------------------
 function checkoutNeedsDataModal(user, profile) {
@@ -402,6 +405,19 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeMore(); closeAcc(); }
 });
 
+// Identifica as lojas pertencentes ao comprador pela mesma RPC usada no painel Sellers.
+async function loadCheckoutOwnedStoreIds() {
+  if (!userId) throw new Error('Não foi possível identificar o usuário do checkout.');
+  const { data, error } = await supabaseClient.rpc('get_my_store_private');
+  if (error) throw error;
+  const stores = Array.isArray(data) ? data : (data ? [data] : []);
+  return new Set(stores.map(store => store?.id).filter(id => id !== undefined && id !== null).map(String));
+}
+
+function isCheckoutOwnStoreProduct(product, storeIds = checkoutOwnedStoreIds) {
+  return !!product?.loja_id && storeIds.has(String(product.loja_id));
+}
+
 // ── SYNC CART AND WISHLIST WITH SUPABASE ──
 async function syncToSupabase() {
   if (!userId) {
@@ -435,6 +451,22 @@ async function loadFromSupabase() {
   }
 
   cartItems = hydrateCartItems(data?.cart);
+  try {
+    checkoutOwnedStoreIds = await loadCheckoutOwnedStoreIds();
+    checkoutOwnershipVerified = true;
+    const ownProducts = cartItems.filter(item => isCheckoutOwnStoreProduct(item));
+    if (ownProducts.length) {
+      const ownIds = new Set(ownProducts.map(item => String(item.id)));
+      cartItems = cartItems.filter(item => !ownIds.has(String(item.id)));
+      cart = cartItems;
+      await syncToSupabase();
+      const count = ownProducts.length;
+      toast(`${count} ${count === 1 ? 'produto da sua própria loja foi removido' : 'produtos da sua própria loja foram removidos'} do carrinho.`, 'info');
+    }
+  } catch (ownershipError) {
+    checkoutOwnershipVerified = false;
+    console.error('Não foi possível verificar os produtos das lojas do comprador:', ownershipError);
+  }
   cart = cartItems;
   await loadCheckoutAddresses(data?.addresses);
   renderCart();
@@ -1501,6 +1533,14 @@ function buildCheckoutRequest() {
 
 async function refreshCheckoutCartPrices() {
   if (!cartItems.length) throw new Error('Seu carrinho está vazio.');
+  try {
+    checkoutOwnedStoreIds = await loadCheckoutOwnedStoreIds();
+    checkoutOwnershipVerified = true;
+  } catch (ownershipError) {
+    checkoutOwnershipVerified = false;
+    console.error('Falha na validação de propriedade das lojas:', ownershipError);
+    throw new Error('Não foi possível verificar se algum produto pertence à sua própria loja. Tente novamente.');
+  }
   const productIds = cartItems.map(item => item.id);
   const { data, error } = await supabaseClient
     .from('products')
@@ -1514,6 +1554,9 @@ async function refreshCheckoutCartPrices() {
     const fresh = latestProducts.get(String(oldItem.id));
     if (!fresh || isCheckoutProductUnavailable(fresh)) {
       throw new Error(`O produto “${oldItem.name || 'selecionado'}” não está mais disponível.`);
+    }
+    if (isCheckoutOwnStoreProduct(fresh)) {
+      throw new Error(`O produto “${fresh.name || oldItem.name || 'selecionado'}” pertence à sua própria loja e não pode ser comprado.`);
     }
     const currentPrice = Number(fresh.price);
     if (!Number.isFinite(currentPrice) || currentPrice < 0) {
