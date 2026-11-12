@@ -1916,7 +1916,7 @@ function handleProductMobileImageViewerPointerEnd(event) {
 }
 
 function openProductMobileImageViewer() {
-  if (!isProductMobileTouchDevice() || !productPageImages.length) return;
+  //if (!isProductMobileTouchDevice() || !productPageImages.length) return;
   const mainImage = document.getElementById('productMainImage');
   if (!mainImage || mainImage.style.display === 'none') return;
 
