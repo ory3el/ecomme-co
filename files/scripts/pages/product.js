@@ -2,6 +2,7 @@
 let currentProduct = null;
 let productPageQty = 1;
 let productPageImages = [];
+let productMobileImageViewerImageCache = new Map();
 
 const PRODUCT_REVIEW_PAGE_SIZE = 20;
 const productReviewSearchState = {
@@ -1485,6 +1486,7 @@ function optimizedImage(url, preset) {
 
 function renderProductGallery(p) {
   productPageImages = imageList(p);
+  productMobileImageViewerImageCache.clear();
 
   const gallery = document.getElementById('galleryMain');
   const emoji = document.getElementById('gmainEmoji');
@@ -1680,6 +1682,8 @@ let productMobileImageViewerPreviousBodyOverflow = '';
 let productMobileImageViewerPreviousRootOverflow = '';
 let productMobileImageViewerTouchStart = null;
 let productMobileImageViewerIndex = 0;
+let productMobileImageViewerInitialIndex = 0;
+let productMobileImageViewerRequestId = 0;
 
 function ensureProductMobileImageViewer() {
   if (productMobileImageViewer) return productMobileImageViewer;
@@ -1710,6 +1714,9 @@ function ensureProductMobileImageViewer() {
   const image = document.createElement('img');
   image.className = 'product-mobile-image-viewer-image';
   image.alt = '';
+  image.decoding = 'async';
+  image.loading = 'eager';
+  image.fetchPriority = 'high';
   image.draggable = false;
   image.setAttribute('draggable', 'false');
   stage.appendChild(image);
@@ -1773,10 +1780,36 @@ function openProductMobileImageViewer() {
 
   const selectedIndex = Number.parseInt(mainImage.dataset.index || '0', 10);
   productMobileImageViewerIndex = Number.isFinite(selectedIndex) ? selectedIndex : 0;
+  productMobileImageViewerInitialIndex = productMobileImageViewerIndex;
   updateProductMobileImageViewer();
   viewer.classList.add('is-open');
   viewer.setAttribute('aria-hidden', 'false');
   viewer.querySelector('.product-mobile-image-viewer-close')?.focus({ preventScroll: true });
+}
+
+function preloadProductMobileImageViewerImage(index) {
+  if (index < 0 || index >= productPageImages.length) return Promise.resolve();
+  const original = productPageImages[index];
+  const imageSrc = optimizedImage(original, 'modal') || original;
+  if (!imageSrc) return Promise.resolve();
+
+  let cached = productMobileImageViewerImageCache.get(imageSrc);
+  if (!cached) {
+    const image = new Image();
+    image.decoding = 'async';
+    image.loading = 'eager';
+    image.src = imageSrc;
+    const ready = typeof image.decode === 'function'
+      ? image.decode().catch(() => null)
+      : new Promise(resolve => {
+          if (image.complete) return resolve(image);
+          image.addEventListener('load', () => resolve(image), { once: true });
+          image.addEventListener('error', () => resolve(null), { once: true });
+        });
+    cached = { image, ready };
+    productMobileImageViewerImageCache.set(imageSrc, cached);
+  }
+  return cached.ready;
 }
 
 function updateProductMobileImageViewer() {
@@ -1784,16 +1817,29 @@ function updateProductMobileImageViewer() {
   productMobileImageViewerIndex = (productMobileImageViewerIndex + productPageImages.length) % productPageImages.length;
   const original = productPageImages[productMobileImageViewerIndex];
   const imageSrc = optimizedImage(original, 'modal') || original;
+  const requestId = ++productMobileImageViewerRequestId;
 
-  productMobileImageViewerImage.src = imageSrc;
   productMobileImageViewerImage.alt = `${currentProduct?.name || 'Produto'} — imagem ${productMobileImageViewerIndex + 1}`;
   productMobileImageViewerCounter.textContent = `${productMobileImageViewerIndex + 1} / ${productPageImages.length}`;
+  if (productMobileImageViewerImage.src !== new URL(imageSrc, window.location.href).href) {
+    productMobileImageViewerImage.src = imageSrc;
+  }
 
   const hasMultipleImages = productPageImages.length > 1;
   productMobileImageViewer.querySelectorAll('.product-mobile-image-viewer-nav').forEach(button => {
     button.hidden = !hasMultipleImages;
   });
-  selectProductImage(productMobileImageViewerIndex);
+
+  // Pré-carrega as imagens vizinhas em segundo plano para evitar decodificação durante a navegação.
+  requestAnimationFrame(() => {
+    if (requestId !== productMobileImageViewerRequestId || !productMobileImageViewer?.classList.contains('is-open')) return;
+    if (hasMultipleImages) {
+      const previousIndex = (productMobileImageViewerIndex - 1 + productPageImages.length) % productPageImages.length;
+      const nextIndex = (productMobileImageViewerIndex + 1) % productPageImages.length;
+      preloadProductMobileImageViewerImage(previousIndex);
+      if (nextIndex !== previousIndex) preloadProductMobileImageViewerImage(nextIndex);
+    }
+  });
 }
 
 function moveProductMobileImageViewer(direction) {
@@ -1809,6 +1855,11 @@ function closeProductMobileImageViewer() {
   document.body.style.overflow = productMobileImageViewerPreviousBodyOverflow;
   document.documentElement.style.overflow = productMobileImageViewerPreviousRootOverflow;
   productMobileImageViewerTouchStart = null;
+  // Atualiza a galeria somente ao fechar; evita recarregar a imagem principal e o fundo desfocado a cada swipe.
+  if (productMobileImageViewerIndex !== productMobileImageViewerInitialIndex) {
+    selectProductImage(productMobileImageViewerIndex);
+    productMobileImageViewerInitialIndex = productMobileImageViewerIndex;
+  }
   if (productMobileImageViewerPreviousFocus?.isConnected) {
     productMobileImageViewerPreviousFocus.focus({ preventScroll: true });
   }
