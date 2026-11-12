@@ -1533,7 +1533,12 @@ function renderProductGallery(p) {
   if (favBtn) favBtn.style.zIndex = '3';
 
   const zoom = gallery.querySelector('.gallery-zoom-hint');
-  if (zoom) zoom.style.zIndex = '3';
+  if (zoom) {
+    zoom.style.zIndex = '3';
+    if (isProductMobileTouchDevice() && zoom.lastChild?.nodeType === Node.TEXT_NODE) {
+      zoom.lastChild.textContent = ' Toque para visualizar';
+    }
+  }
 
   thumbs.replaceChildren();
   thumbs.style.display = productPageImages.length ? 'flex' : 'none';
@@ -1605,6 +1610,7 @@ function setupProductImageZoom(gallery) {
     if (isProductImageZoomTarget(event)) event.preventDefault();
   });
   gallery.addEventListener('pointermove', handleProductImageZoomMove, { passive: true });
+  gallery.addEventListener('pointerup', handleProductMobileImageViewerPointerUp);
   gallery.addEventListener('click', handleProductImageZoomIncrease);
   gallery.addEventListener('contextmenu', handleProductImageZoomDecrease);
   gallery.addEventListener('pointerleave', hideProductImageZoom);
@@ -1651,15 +1657,186 @@ function updateProductImageZoomLevel() {
   if (productZoomPreview) productZoomPreview.dataset.zoomLevel = String(productZoomLevel);
 }
 
+function isProductDesktopZoomDevice() {
+  return window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 769px)').matches;
+}
+
+function isProductMobileTouchDevice() {
+  return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+}
+
+function handleProductMobileImageViewerPointerUp(event) {
+  if (event.pointerType !== 'touch' || !isProductMobileTouchDevice()) return;
+  if (!isProductImageZoomTarget(event)) return;
+  event.preventDefault();
+  openProductMobileImageViewer();
+}
+
+let productMobileImageViewer = null;
+let productMobileImageViewerImage = null;
+let productMobileImageViewerCounter = null;
+let productMobileImageViewerPreviousFocus = null;
+let productMobileImageViewerPreviousBodyOverflow = '';
+let productMobileImageViewerPreviousRootOverflow = '';
+let productMobileImageViewerTouchStart = null;
+let productMobileImageViewerIndex = 0;
+
+function ensureProductMobileImageViewer() {
+  if (productMobileImageViewer) return productMobileImageViewer;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'product-mobile-image-viewer';
+  overlay.id = 'productMobileImageViewer';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Imagens do produto');
+  overlay.setAttribute('aria-hidden', 'true');
+
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'product-mobile-image-viewer-close';
+  closeButton.setAttribute('aria-label', 'Fechar imagens');
+  closeButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+  const previousButton = document.createElement('button');
+  previousButton.type = 'button';
+  previousButton.className = 'product-mobile-image-viewer-nav is-previous';
+  previousButton.setAttribute('aria-label', 'Imagem anterior');
+  previousButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+
+  const stage = document.createElement('div');
+  stage.className = 'product-mobile-image-viewer-stage';
+
+  const image = document.createElement('img');
+  image.className = 'product-mobile-image-viewer-image';
+  image.alt = '';
+  image.draggable = false;
+  image.setAttribute('draggable', 'false');
+  stage.appendChild(image);
+
+  const counter = document.createElement('span');
+  counter.className = 'product-mobile-image-viewer-counter';
+  counter.setAttribute('aria-live', 'polite');
+
+  const nextButton = document.createElement('button');
+  nextButton.type = 'button';
+  nextButton.className = 'product-mobile-image-viewer-nav is-next';
+  nextButton.setAttribute('aria-label', 'Próxima imagem');
+  nextButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+
+  overlay.append(closeButton, previousButton, stage, counter, nextButton);
+  document.body.appendChild(overlay);
+
+  closeButton.addEventListener('click', closeProductMobileImageViewer);
+  previousButton.addEventListener('click', () => moveProductMobileImageViewer(-1));
+  nextButton.addEventListener('click', () => moveProductMobileImageViewer(1));
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) closeProductMobileImageViewer();
+  });
+  stage.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) {
+      productMobileImageViewerTouchStart = null;
+      return;
+    }
+    const touch = event.touches[0];
+    productMobileImageViewerTouchStart = { x: touch.clientX, y: touch.clientY };
+  }, { passive: true });
+  stage.addEventListener('touchend', event => {
+    if (!productMobileImageViewerTouchStart || !event.changedTouches.length) return;
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - productMobileImageViewerTouchStart.x;
+    const deltaY = touch.clientY - productMobileImageViewerTouchStart.y;
+    productMobileImageViewerTouchStart = null;
+    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      moveProductMobileImageViewer(deltaX < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+  document.addEventListener('keydown', handleProductMobileImageViewerKeydown);
+
+  productMobileImageViewer = overlay;
+  productMobileImageViewerImage = image;
+  productMobileImageViewerCounter = counter;
+  return overlay;
+}
+
+function openProductMobileImageViewer() {
+  if (!isProductMobileTouchDevice() || !productPageImages.length) return;
+  const mainImage = document.getElementById('productMainImage');
+  if (!mainImage || mainImage.style.display === 'none') return;
+
+  const viewer = ensureProductMobileImageViewer();
+  productMobileImageViewerPreviousFocus = document.activeElement;
+  productMobileImageViewerPreviousBodyOverflow = document.body.style.overflow;
+  productMobileImageViewerPreviousRootOverflow = document.documentElement.style.overflow;
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+
+  const selectedIndex = Number.parseInt(mainImage.dataset.index || '0', 10);
+  productMobileImageViewerIndex = Number.isFinite(selectedIndex) ? selectedIndex : 0;
+  updateProductMobileImageViewer();
+  viewer.classList.add('is-open');
+  viewer.setAttribute('aria-hidden', 'false');
+  viewer.querySelector('.product-mobile-image-viewer-close')?.focus({ preventScroll: true });
+}
+
+function updateProductMobileImageViewer() {
+  if (!productMobileImageViewer || !productMobileImageViewerImage || !productPageImages.length) return;
+  productMobileImageViewerIndex = (productMobileImageViewerIndex + productPageImages.length) % productPageImages.length;
+  const original = productPageImages[productMobileImageViewerIndex];
+  const imageSrc = optimizedImage(original, 'modal') || original;
+
+  productMobileImageViewerImage.src = imageSrc;
+  productMobileImageViewerImage.alt = `${currentProduct?.name || 'Produto'} — imagem ${productMobileImageViewerIndex + 1}`;
+  productMobileImageViewerCounter.textContent = `${productMobileImageViewerIndex + 1} / ${productPageImages.length}`;
+
+  const hasMultipleImages = productPageImages.length > 1;
+  productMobileImageViewer.querySelectorAll('.product-mobile-image-viewer-nav').forEach(button => {
+    button.hidden = !hasMultipleImages;
+  });
+  selectProductImage(productMobileImageViewerIndex);
+}
+
+function moveProductMobileImageViewer(direction) {
+  if (!productPageImages.length || !productMobileImageViewer?.classList.contains('is-open')) return;
+  productMobileImageViewerIndex += direction;
+  updateProductMobileImageViewer();
+}
+
+function closeProductMobileImageViewer() {
+  if (!productMobileImageViewer?.classList.contains('is-open')) return;
+  productMobileImageViewer.classList.remove('is-open');
+  productMobileImageViewer.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = productMobileImageViewerPreviousBodyOverflow;
+  document.documentElement.style.overflow = productMobileImageViewerPreviousRootOverflow;
+  productMobileImageViewerTouchStart = null;
+  if (productMobileImageViewerPreviousFocus?.isConnected) {
+    productMobileImageViewerPreviousFocus.focus({ preventScroll: true });
+  }
+}
+
+function handleProductMobileImageViewerKeydown(event) {
+  if (!productMobileImageViewer?.classList.contains('is-open')) return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeProductMobileImageViewer();
+  } else if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    moveProductMobileImageViewer(-1);
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    moveProductMobileImageViewer(1);
+  }
+}
+
 function handleProductImageZoomIncrease(event) {
-  if (event.button !== 0 || !isProductImageZoomTarget(event)) return;
+  if (!isProductDesktopZoomDevice() || event.button !== 0 || !isProductImageZoomTarget(event)) return;
   productZoomLevel = Math.min(PRODUCT_ZOOM_MAX_LEVEL, productZoomLevel + 1);
   updateProductImageZoomLevel();
   handleProductImageZoomMove(event);
 }
 
 function handleProductImageZoomDecrease(event) {
-  if (!isProductImageZoomTarget(event)) return;
+  if (!isProductDesktopZoomDevice() || !isProductImageZoomTarget(event)) return;
   event.preventDefault();
   productZoomLevel = Math.max(-PRODUCT_ZOOM_MAX_LEVEL, productZoomLevel - 1);
   updateProductImageZoomLevel();
@@ -1721,6 +1898,7 @@ function selectProductImage(index) {
   const imageSrc = optimizedImage(original, 'modal') || original;
 
   mainImage.dataset.original = original;
+  mainImage.dataset.index = String(index);
   mainImage.dataset.fallback = '0';
   mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
 
