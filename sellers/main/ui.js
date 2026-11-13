@@ -200,12 +200,15 @@
       });
     }, true); // captura: o toggleMenu() do script.js usa stopPropagation()
     const main = $('appMain');
-    main.addEventListener('scroll', () => qsa('.action-menu.on').forEach(m => m.classList.remove('on')), { passive: true });
+    // Só fecha um menu quando realmente existe um aberto; evita varrer o DOM em cada scroll.
+    main.addEventListener('scroll', () => {
+      if (typeof closeActionMenus === 'function') closeActionMenus();
+    }, { passive: true });
     document.addEventListener('keydown', e => {
       const t = e.target;
       if ((e.key === 'Enter' || e.key === ' ') && t.matches && t.matches('.action-dots, .stab')) { e.preventDefault(); t.click(); }
       if (e.key === 'Escape') {
-        qsa('.action-menu.on').forEach(m => m.classList.remove('on'));
+        if (typeof closeActionMenus === 'function') closeActionMenus();
         if (qs('#moreSidebar.on') && typeof closeMore === 'function') closeMore();
         if (qs('#accSidebar.on') && typeof closeAcc === 'function') closeAcc();
         if (sidebar.classList.contains('is-open')) closeDrawer();
