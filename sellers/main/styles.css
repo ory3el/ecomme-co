@@ -2703,6 +2703,7 @@ tbody tr:hover td {
     overflow: hidden
 }
 
+
 .tbl-bar {
     display: flex;
     align-items: center;
@@ -2911,12 +2912,26 @@ html[data-theme="light"] .action-menu {
     min-width: 0
 }
 
+/* Isola o preview e adia a renderização de cartões fora da viewport. */
 .np-preview {
     position: sticky;
     top: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px
+    gap: 16px;
+    contain: layout style
+}
+
+@supports (content-visibility: auto) {
+    #page-novo-produto .np-form > .card {
+        content-visibility: auto;
+    }
+    #page-novo-produto .np-form > .card:nth-child(1) { contain-intrinsic-size: auto 410px; }
+    #page-novo-produto .np-form > .card:nth-child(2) { contain-intrinsic-size: auto 500px; }
+    #page-novo-produto .np-form > .card:nth-child(3) { contain-intrinsic-size: auto 320px; }
+    #page-novo-produto .np-form > .card:nth-child(4) { contain-intrinsic-size: auto 360px; }
+    #page-novo-produto .np-form > .card:nth-child(5) { contain-intrinsic-size: auto 540px; }
+    #page-novo-produto .np-form > .card:nth-child(6) { contain-intrinsic-size: auto 250px; }
 }
 
 .np-preview>.sec-t {
