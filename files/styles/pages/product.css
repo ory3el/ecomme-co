@@ -66,7 +66,7 @@
     .gallery-image-loader-text {font:600 11px/1.2 'DM Sans',sans-serif;letter-spacing:.15px;white-space:nowrap;}
     @keyframes productGalleryLoadingSpin {to {transform:rotate(360deg);}}
     @keyframes productGalleryLoadingShimmer {to {transform:translateX(100%);}}
-    .gallery-badges { position: absolute; top: 18px; left: 18px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+    .gallery-badges {position: absolute;top: 18px;left: 18px;display: flex;flex-direction: column;gap: 6px;z-index: 2;}
     .gbadge {padding: 5px 13px;border-radius: 100px;font-size: 10px;font-weight: 500;letter-spacing: 0.8px;text-transform: uppercase;}
     .gbadge.hot { background: var(--blue); color: #fff; }
     .gbadge.disc { background: var(--red); color: #fff; }
@@ -1320,7 +1320,7 @@ body.product-report-open{overflow:hidden}
   padding: 14px 17px;
   border: 1px solid rgba(220, 38, 38, .22);
   border-radius: 14px;
-  background: rgba(220, 38, 38, .075);
+  background: rgba(220, 38, 38, 0.05);
   color: var(--red, #dc2626);
 }
 .product-unavailable-banner[hidden] { display: none !important; }
@@ -1344,15 +1344,21 @@ body.product-report-open{overflow:hidden}
 }
 .product-unavailable-banner-copy strong { font-size: 13px; font-weight: 700; }
 .product-unavailable-banner-copy > span { color: var(--muted); font-size: 12px; }
+.product-main.is-product-unavailable .info-cat-row {filter: grayscale(1)}
 .product-main.is-product-unavailable .info-price-row,
 .product-main.is-product-unavailable .info-installment {
   filter: grayscale(1);
   opacity: .58;
 }
+.product-main.is-product-unavailable .gallery {pointer-events: none; filter: grayscale(1); opacity: .52;}
+.product-main.is-product-unavailable .info-name {color: var(--muted)}
+.product-main.is-product-unavailable .trust-mini {filter: grayscale(1); opacity: .52;}
+.product-main.is-product-unavailable .share-row {pointer-events: none; opacity: 0.7}
+.product-main.is-product-unavailable .share-btn.copy {pointer-events: none; opacity: 0.7}
 .product-main.is-product-unavailable .main-btns .btn-addcart:disabled,
 .product-main.is-product-unavailable .main-btns .btn-buynow:disabled,
 .product-main.is-product-unavailable .main-btns .btn-make-offer:disabled,
-.product-main.is-product-unavailable .qty-ctrl .qb:disabled {
+.product-main.is-product-unavailable .qty-ctrl .qb:disabled, .qty-num, .tabs-section {
   filter: grayscale(1);
   opacity: .52;
   cursor: not-allowed;
