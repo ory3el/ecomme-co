@@ -284,6 +284,8 @@ async function loadProfile(user) {
 }
 
 // ══ PRODUTOS: carregamento ═════════════════════════════════
+let stockZeroSyncWarningShown = false;
+
 async function loadMyProducts() {
   if (myStoreId === null || myStoreId === undefined) return;
   const { data, error } = await supabaseClient
@@ -293,7 +295,27 @@ async function loadMyProducts() {
     toast(isNetworkError(error) ? 'Sem conexão: não foi possível carregar seus produtos.' : 'Não foi possível carregar seus produtos.', 'err');
     return;
   }
-  PRODS = data || [];
+
+  // Estoque conhecido igual a zero força o produto para paused, inclusive produtos antigos.
+  const loadedProducts = data || [];
+  const zeroStockActiveIds = loadedProducts
+    .filter(product => prodHasZeroStock(product) && !prodIsPaused(product))
+    .map(product => product.id);
+  if (zeroStockActiveIds.length) {
+    const { data: pausedRows, error: pauseError } = await supabaseClient.from('products')
+      .update({ badge: 'paused' }).eq('loja_id', myStoreId).in('id', zeroStockActiveIds).select('id');
+    const persistedIds = new Set((pausedRows || []).map(row => String(row.id)));
+    if (pauseError || persistedIds.size !== zeroStockActiveIds.length) {
+      console.warn('[Ecomme estoque] Não foi possível persistir a pausa de todos os produtos sem estoque:', pauseError || 'Alguns produtos não foram atualizados.');
+      if (!stockZeroSyncWarningShown) {
+        toast('Alguns produtos sem estoque não puderam ser pausados no banco. Verifique as permissões da tabela products.', 'err');
+        stockZeroSyncWarningShown = true;
+      }
+    }
+  }
+  // Mesmo se a sincronização falhar, a interface nunca oferece ativação para estoque zero.
+  loadedProducts.forEach(product => { if (prodHasZeroStock(product)) product.badge = 'paused'; });
+  PRODS = loadedProducts;
   rebuildProductFilterIndex();
   buildProdTable();
   loadStoreProductEngagement().catch(error => console.warn('[Ecomme métricas] Falha ao carregar indicadores:', error));
@@ -711,6 +733,7 @@ let soldByProduct = {};                       // preenchido a partir dos itens d
 
 const findProd = id => PRODS.find(p => String(p.id) === String(id));   // ids comparados como texto
 const prodIsPaused = p => p.badge === 'paused';
+const prodHasZeroStock = p => p && Object.prototype.hasOwnProperty.call(p, 'stock') && p.stock !== null && p.stock !== '' && Number.isFinite(Number(p.stock)) && Number(p.stock) <= 0;
 const prodStock = p => Number(p.stock) || 0;
 const prodCategory = p => Array.isArray(p.cat) ? (p.cat[0] || '') : (p.cat || '');
 
@@ -924,6 +947,10 @@ async function toggleProductPause(id) {
   const p = findProd(id);
   if (!p) return;
   if (!storeCan('products')) return denyAction('products');
+  if (prodIsPaused(p) && prodHasZeroStock(p)) {
+    showAlert('Para deixar o produto ativo adicione no mínimo 1 ao estoque', 'Produto sem estoque', '📦');
+    return;
+  }
   const next = prodIsPaused(p) ? 'new' : 'paused';        // 'new' é o valor que o próprio painel grava ao publicar
   const { data, error } = await supabaseClient.from('products').update({ badge: next })
     .eq('id', p.id).eq('loja_id', myStoreId).select('id');
@@ -2308,12 +2335,14 @@ async function publishProduct() {
       ...warrantyData
     };
     if (stockRaw !== '') productData.stock = parseInt(stockRaw, 10);
+    const effectiveStock = stockRaw !== '' ? Number(productData.stock) : (editing && Object.prototype.hasOwnProperty.call(editing, 'stock') && editing.stock !== null ? Number(editing.stock) : null);
+    if (Number.isFinite(effectiveStock) && effectiveStock <= 0) productData.badge = 'paused';
 
     const write = async () => {
       if (isEditing) {
         return supabaseClient.from('products').update(productData).eq('id', editing.id).eq('loja_id', myStoreId).select('id');
       }
-      const row = { ...productData, id: await getUniqueProductId(), loja_id: myStoreId, badge: 'new', features: [] };
+      const row = { ...productData, id: await getUniqueProductId(), loja_id: myStoreId, badge: Number.isFinite(effectiveStock) && effectiveStock <= 0 ? 'paused' : 'new', features: [] };
       return supabaseClient.from('products').insert([row]).select('id');
     };
 
