@@ -2160,6 +2160,23 @@ let productGalleryLoader = null;
 const PRODUCT_GALLERY_FADE_DURATION = 220;
 const PRODUCT_GALLERY_LOADING_DELAY = 140;
 
+function normalizeProductGalleryImageSrc(src) {
+  try {
+    return new URL(src, document.baseURI).href;
+  } catch (_) {
+    return String(src || '');
+  }
+}
+
+// `complete` e `naturalWidth` sozinhos podem ainda descrever a imagem anterior
+// logo apos trocar o src. Tambem exigimos que currentSrc corresponda ao pedido.
+function isProductGalleryImageReadyForSource(image, src) {
+  if (!image || !src || !image.complete || image.naturalWidth <= 0 || !image.currentSrc) return false;
+  const expectedSrc = normalizeProductGalleryImageSrc(src);
+  const currentSrc = normalizeProductGalleryImageSrc(image.currentSrc);
+  return currentSrc === expectedSrc;
+}
+
 function preloadProductGalleryImage(src) {
   const cached = productGalleryImageLoadCache.get(src);
   if (cached) return cached.promise;
@@ -2315,16 +2332,18 @@ function selectProductImage(index, direction = null) {
     mainImage.dataset.index = String(index);
     mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
     mainImage.classList.remove('is-fading-out');
-    const matchingBlur = blurImages.find(image => image.dataset.original === original);
+    const matchingBlur = blurImages.find(image => {
+      const loadedSrc = image.dataset.loadedSrc;
+      return image.dataset.original === original && loadedSrc && isProductGalleryImageReadyForSource(image, loadedSrc);
+    });
     if (matchingBlur) {
       const revealMatchingBlur = () => {
         if (requestId !== productGallerySelectionRequestId || matchingBlur.dataset.original !== original) return;
-        if (matchingBlur.complete && matchingBlur.naturalWidth > 0) {
-          blurImages.forEach(image => image.classList.toggle('is-visible', image === matchingBlur));
-        }
+        if (!isProductGalleryImageReadyForSource(matchingBlur, matchingBlur.dataset.loadedSrc)) return;
+        blurImages.forEach(image => image.classList.toggle('is-visible', image === matchingBlur));
       };
       matchingBlur.onload = revealMatchingBlur;
-      if (matchingBlur.complete && matchingBlur.naturalWidth > 0) revealMatchingBlur();
+      revealMatchingBlur();
       return;
     }
   }
@@ -2378,26 +2397,61 @@ function selectProductImage(index, direction = null) {
       mainImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
       mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
 
-      mainImage.onerror = function () {
-        if (requestId !== productGallerySelectionRequestId) return;
-        if (this.dataset.fallback !== '1') {
-          this.dataset.fallback = '1';
-          this.src = this.dataset.original;
-          return;
-        }
-        clearProductGallerySlideTransition();
-        this.style.display = 'none';
-        this.classList.remove('is-fading-out', 'is-slide-in-next', 'is-slide-in-prev');
-        blurImages.forEach(image => image.classList.remove('is-visible'));
-        emoji.style.display = 'block';
-        hideProductGalleryLoader(requestId);
-        hideProductImageZoom();
-      };
+      if (nextBlurImage) {
+        let nextBlurImageReady = false;
+        let expectedBlurSrc = finalImageSrc;
+        const activateNextBlurImage = () => {
+          if (requestId !== productGallerySelectionRequestId || nextBlurImageReady) return;
+          if (nextBlurImage.dataset.original !== original || mainImage.dataset.original !== original) return;
+          if (!isProductGalleryImageReadyForSource(nextBlurImage, expectedBlurSrc)) return;
+          nextBlurImageReady = true;
+          nextBlurImage.dataset.loadedSrc = normalizeProductGalleryImageSrc(expectedBlurSrc);
+          // As duas camadas têm exatamente o mesmo filter fixo; apenas opacity muda.
+          nextBlurImage.classList.add('is-visible');
+          if (currentBlurImage) currentBlurImage.classList.remove('is-visible');
+          blurImageReady = true;
+          finishGalleryImageLoading();
+        };
 
+        const nextBlurImageAlreadyReady =
+          nextBlurImage.dataset.original === original &&
+          nextBlurImage.dataset.loadedSrc === normalizeProductGalleryImageSrc(finalImageSrc) &&
+          isProductGalleryImageReadyForSource(nextBlurImage, finalImageSrc);
+        nextBlurImage.dataset.original = original;
+        nextBlurImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
+        nextBlurImage.onload = activateNextBlurImage;
+        nextBlurImage.onerror = function () {
+          if (requestId !== productGallerySelectionRequestId) return;
+          if (this.dataset.fallback !== '1') {
+            this.dataset.fallback = '1';
+            expectedBlurSrc = this.dataset.original;
+            this.src = expectedBlurSrc;
+            if (isProductGalleryImageReadyForSource(this, expectedBlurSrc)) activateNextBlurImage();
+          } else {
+            this.classList.remove('is-visible');
+            blurImageReady = true;
+            finishGalleryImageLoading();
+          }
+        };
+
+        if (nextBlurImageAlreadyReady) {
+          activateNextBlurImage();
+        } else {
+          // A camada permanece invisível até o novo src ser de fato carregado.
+          // Não usamos `complete` isoladamente: ele pode ainda refletir a foto antiga.
+          expectedBlurSrc = finalImageSrc;
+          nextBlurImage.src = expectedBlurSrc;
+          if (isProductGalleryImageReadyForSource(nextBlurImage, expectedBlurSrc)) activateNextBlurImage();
+        }
+      }
+
+      let expectedMainSrc = finalImageSrc;
       mainImage.onload = () => {
         if (requestId !== productGallerySelectionRequestId || mainImageReady) return;
+        if (!isProductGalleryImageReadyForSource(mainImage, expectedMainSrc)) return;
         mainImage.style.display = 'block';
         emoji.style.display = 'none';
+        mainImage.dataset.loadedSrc = normalizeProductGalleryImageSrc(expectedMainSrc);
         syncProductImageZoomSource();
         mainImageReady = true;
         requestAnimationFrame(() => {
@@ -2412,45 +2466,28 @@ function selectProductImage(index, direction = null) {
         });
       };
 
-      if (nextBlurImage) {
-        let nextBlurImageReady = false;
-        const activateNextBlurImage = () => {
-          if (requestId !== productGallerySelectionRequestId || nextBlurImageReady) return;
-          if (nextBlurImage.dataset.original !== original || mainImage.dataset.original !== original) return;
-          nextBlurImageReady = true;
-          // As duas camadas têm exatamente o mesmo filter fixo; apenas opacity muda.
-          nextBlurImage.classList.add('is-visible');
-          if (currentBlurImage) currentBlurImage.classList.remove('is-visible');
-          blurImageReady = true;
-          finishGalleryImageLoading();
-        };
-
-        const nextBlurImageAlreadyReady = nextBlurImage.dataset.original === original && nextBlurImage.complete && nextBlurImage.naturalWidth > 0;
-        nextBlurImage.dataset.original = original;
-        nextBlurImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
-        nextBlurImage.onload = activateNextBlurImage;
-        nextBlurImage.onerror = function () {
-          if (requestId !== productGallerySelectionRequestId) return;
-          if (this.dataset.fallback !== '1') {
-            this.dataset.fallback = '1';
-            this.src = this.dataset.original;
-          } else {
-            this.classList.remove('is-visible');
-            blurImageReady = true;
-            finishGalleryImageLoading();
-          }
-        };
-
-        if (nextBlurImageAlreadyReady) {
-          activateNextBlurImage();
-        } else {
-          nextBlurImage.src = finalImageSrc;
-          if (nextBlurImage.complete && nextBlurImage.naturalWidth > 0) activateNextBlurImage();
+      mainImage.onerror = function () {
+        if (requestId !== productGallerySelectionRequestId) return;
+        if (expectedMainSrc !== original) {
+          expectedMainSrc = original;
+          this.dataset.fallback = '1';
+          this.src = expectedMainSrc;
+          if (isProductGalleryImageReadyForSource(this, expectedMainSrc)) this.onload?.();
+          return;
         }
-      }
+        clearProductGallerySlideTransition();
+        this.style.display = 'none';
+        this.classList.remove('is-fading-out', 'is-slide-in-next', 'is-slide-in-prev');
+        blurImages.forEach(image => image.classList.remove('is-visible'));
+        emoji.style.display = 'block';
+        hideProductGalleryLoader(requestId);
+        hideProductImageZoom();
+      };
 
-      mainImage.src = finalImageSrc;
-      if (mainImage.complete && mainImage.naturalWidth > 0) mainImage.onload?.();
+      mainImage.src = expectedMainSrc;
+      // Se o recurso já estiver no cache, só concluímos quando currentSrc
+      // confirmar que a imagem atual corresponde ao novo endereço.
+      if (isProductGalleryImageReadyForSource(mainImage, expectedMainSrc)) mainImage.onload?.();
       finishGalleryImageLoading();
     };
 
