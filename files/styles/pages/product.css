@@ -30,6 +30,8 @@
     .gallery-main .gmain-emoji {transition: transform .4s cubic-bezier(.4,0,.2,1);}
     .gallery-main:hover .gmain-emoji { transform: scale(1.08); }
     .gallery-main img {border-radius: 25px;margin: auto;width: auto !important;padding: 0 !important;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+    .gallery-main #productMainImage {opacity:1;transition:opacity .22s ease;will-change:opacity;}
+    .gallery-main #productMainImage.is-fading-out {opacity:0;}
     .gallery-main .gallery-main-blur {display:none;position:absolute;inset:0;width:100% !important;height:100% !important;max-width:none;max-height:none;object-fit:cover;border-radius:inherit;margin:0;padding:0 !important;z-index:0;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
     .gallery-badges { position: absolute; top: 18px; left: 18px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
     .gbadge {padding: 5px 13px;border-radius: 100px;font-size: 10px;font-weight: 500;letter-spacing: 0.8px;text-transform: uppercase;}
@@ -453,7 +455,8 @@
     @media (max-width: 900px) {
       .product-main {grid-template-columns: none;gap: 32px;padding: 24px 20px 0;}
       .gallery-main {height: 370px;/* width: 370px; */}
-      .gallery-main .gallery-main-blur.is-visible {display:block;filter:blur(22px);opacity: 0.7;transform: scale(1);}
+      .gallery-main .gallery-main-blur {display:block;opacity:0;transition:opacity .22s ease;}
+      .gallery-main .gallery-main-blur.is-visible {display:block;filter:blur(22px);opacity:0.7;transform:scale(1);}
       .gallery-main .gmain-emoji { font-size: 80px; }
       .info-name { font-size: 28px; }
       .info-price { font-size: 36px; }
@@ -1070,7 +1073,8 @@ body.pr-report-open { overflow: hidden; }
   .gallery-main .gallery-zoom-hint {opacity:1;}
 }
 @media (prefers-reduced-motion: reduce) {
-  .product-mobile-image-viewer,.product-mobile-image-viewer-close,.product-mobile-image-viewer-nav {transition:none;}
+  .product-mobile-image-viewer,.product-mobile-image-viewer-close,.product-mobile-image-viewer-nav,
+  .gallery-main #productMainImage,.gallery-main .gallery-main-blur {transition:none;}
 }
 
 /* ── COMPARADOR NATIVO DE PRODUTOS ─────────────────────────────── */
