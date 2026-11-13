@@ -621,7 +621,7 @@ html[data-theme="light"] .blue {
     background: var(--blue);
     border-color: var(--blue);
     color: #fff;
-    box-shadow: 0 6px 16px rgba(37,99,235,.24)
+    /* box-shadow: 0 6px 16px rgba(37,99,235,.24); */
 }
 
 .btn-p:hover:not(:disabled) {
@@ -1600,7 +1600,7 @@ html[data-theme="light"] .stab.on {
     display: flex;
     flex-direction: column;
     position: relative;
-    background: radial-gradient(900px 480px at 100% 100%,var(--glow-b),transparent 62%),radial-gradient(760px 420px at 0% 0%,var(--glow-a),transparent 60%),var(--bg)
+    /* background: radial-gradient(900px 480px at 100% 100%,var(--glow-b),transparent 62%),radial-gradient(760px 420px at 0% 0%,var(--glow-a),transparent 60%),var(--bg); */
 }
 
 .app-hdr {
