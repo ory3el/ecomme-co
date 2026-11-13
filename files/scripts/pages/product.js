@@ -1902,6 +1902,8 @@ let productMobileImageViewerZoom = 1;
 let productMobileImageViewerTranslateX = 0;
 let productMobileImageViewerTranslateY = 0;
 const PRODUCT_MOBILE_VIEWER_MAX_ZOOM = 4.5;
+const PRODUCT_MOBILE_VIEWER_EASING = 'cubic-bezier(.22,.61,.36,1)';
+const PRODUCT_MOBILE_VIEWER_TRANSITION_DURATION = 360;
 let productMobileImageViewerIndex = 0;
 let productMobileImageViewerInitialIndex = 0;
 let productMobileImageViewerRequestId = 0;
@@ -2164,7 +2166,7 @@ function handleProductMobileImageViewerPointerEnd(event) {
     (enoughDistance || enoughVelocity) && Math.abs(deltaX) > Math.abs(deltaY) * 1.1;
 
   if (productMobileImageViewerTransition?.mode === 'drag') {
-    finishProductMobileImageViewerDrag(shouldCommit, direction, deltaX);
+    finishProductMobileImageViewerDrag(shouldCommit, direction, deltaX, gesture.velocityX || 0);
   } else if (shouldCommit) {
     startProductMobileImageViewerTransition(direction, 'button');
   }
@@ -2231,6 +2233,7 @@ function updateProductMobileImageViewer() {
   }
   productMobileImageViewerImage.style.transition = 'none';
   productMobileImageViewerImage.style.transform = 'translate3d(0,0,0) scale(1)';
+  productMobileImageViewerImage.style.opacity = '1';
   productMobileImageViewerImage.classList.add('is-active');
   productMobileImageViewerImage.classList.remove('is-hidden', 'is-incoming', 'is-ready');
   productMobileImageViewerImage.setAttribute('aria-hidden', 'false');
@@ -2240,6 +2243,7 @@ function updateProductMobileImageViewer() {
     productMobileImageViewerSecondaryImage.classList.remove('is-ready', 'is-active');
     productMobileImageViewerSecondaryImage.style.transition = 'none';
     productMobileImageViewerSecondaryImage.style.transform = 'translate3d(0,0,0) scale(1)';
+    productMobileImageViewerSecondaryImage.style.opacity = '0';
     productMobileImageViewerSecondaryImage.removeAttribute('src');
     productMobileImageViewerSecondaryImage.setAttribute('aria-hidden', 'true');
   }
@@ -2264,19 +2268,26 @@ function updateProductMobileImageViewer() {
 function applyProductMobileImageViewerDrag(deltaX, direction) {
   const transition = productMobileImageViewerTransition;
   if (!transition || transition.mode !== 'drag') return;
-  const stage = productMobileImageViewer?.querySelector('.product-mobile-image-viewer-stage');
-  const width = Math.max(1, transition.width || stage?.clientWidth || window.innerWidth);
+  const width = Math.max(1, transition.width || window.innerWidth);
   const boundedDelta = Math.max(-width * 0.96, Math.min(width * 0.96, deltaX));
-  transition.lastDelta = boundedDelta;
-  if (!stage || !transition.ready) return;
-
-  const incomingOffset = direction > 0 ? width : -width;
+  const progress = Math.min(0.96, Math.abs(boundedDelta) / width);
   const active = productMobileImageViewerImage;
   const incoming = productMobileImageViewerSecondaryImage;
+  transition.lastDelta = boundedDelta;
+  if (!active) return;
+
+  // A imagem atual acompanha o dedo imediatamente, mesmo enquanto a próxima
+  // ainda está sendo decodificada. A segunda camada entra assim que estiver pronta.
+  const activeScale = 1 - (0.014 * progress);
+  const incomingScale = 0.986 + (0.014 * progress);
+  const incomingOffset = direction > 0 ? width : -width;
   active.style.transition = 'none';
+  active.style.transform = `translate3d(${boundedDelta.toFixed(2)}px,0,0) scale(${activeScale.toFixed(4)})`;
+  active.style.opacity = (1 - (0.18 * progress)).toFixed(3);
+  if (!incoming || !transition.ready) return;
   incoming.style.transition = 'none';
-  active.style.transform = `translate3d(${boundedDelta.toFixed(2)}px,0,0) scale(1)`;
-  incoming.style.transform = `translate3d(${(incomingOffset + boundedDelta).toFixed(2)}px,0,0) scale(1)`;
+  incoming.style.transform = `translate3d(${(incomingOffset + boundedDelta).toFixed(2)}px,0,0) scale(${incomingScale.toFixed(4)})`;
+  incoming.style.opacity = Math.min(1, progress * 1.25).toFixed(3);
 }
 
 function startProductMobileImageViewerTransition(direction, mode = 'button') {
@@ -2290,12 +2301,12 @@ function startProductMobileImageViewerTransition(direction, mode = 'button') {
   const width = Math.max(1, stage?.clientWidth || window.innerWidth);
   const transition = {
     token, direction, mode, fromIndex, toIndex, width,
-    ready: false, lastDelta: 0, onEnd: null
+    ready: false, lastDelta: 0, releaseVelocity: 0, onEnd: null, endElement: null
   };
   productMobileImageViewerTransition = transition;
-  productMobileImageViewer?.classList.add('is-transitioning');
+  productMobileImageViewer.classList.add('is-transitioning');
 
-  // Reseta somente a escala; não limpa os ponteiros nem o gesto de swipe em andamento.
+  // Reseta somente a escala; preserva o gesto de arraste em andamento.
   productMobileImageViewerZoom = 1;
   productMobileImageViewerTranslateX = 0;
   productMobileImageViewerTranslateY = 0;
@@ -2304,27 +2315,37 @@ function startProductMobileImageViewerTransition(direction, mode = 'button') {
   return preloadProductMobileImageViewerImage(toIndex).then(async readyImage => {
     if (productMobileImageViewerTransition !== transition || token !== productMobileImageViewerTransitionToken || !productMobileImageViewer?.classList.contains('is-open')) return false;
     if (!readyImage?.naturalWidth || !productMobileImageViewerSecondaryImage) {
-      productMobileImageViewerTransition = null;
-      productMobileImageViewer?.classList.remove('is-transitioning');
+      cancelProductMobileImageViewerTransition(false);
       return false;
     }
 
     const incoming = productMobileImageViewerSecondaryImage;
     const active = productMobileImageViewerImage;
-    incoming.src = readyImage.currentSrc || readyImage.src;
+    const source = readyImage.currentSrc || readyImage.src;
+    incoming.classList.add('is-hidden');
+    incoming.style.transition = 'none';
+    incoming.style.opacity = '0';
+    incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(.986)`;
+    incoming.src = source;
     if (typeof incoming.decode === 'function') {
       try { await incoming.decode(); } catch (_) {}
     }
     if (productMobileImageViewerTransition !== transition || token !== productMobileImageViewerTransitionToken) return false;
+    if (!incoming.complete || !incoming.naturalWidth || incoming.currentSrc !== new URL(source, window.location.href).href) {
+      cancelProductMobileImageViewerTransition(false);
+      return false;
+    }
+
     incoming.alt = `${currentProduct?.name || 'Produto'} — imagem ${toIndex + 1}`;
-    incoming.style.transition = 'none';
-    incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(1)`;
     incoming.classList.remove('is-hidden');
     incoming.classList.add('is-ready', 'is-incoming');
     incoming.setAttribute('aria-hidden', 'false');
     active.style.transition = 'none';
     active.style.transform = 'translate3d(0,0,0) scale(1)';
+    active.style.opacity = '1';
     transition.ready = true;
+    // Garante que a posição inicial seja pintada antes de animar por clique.
+    void incoming.offsetWidth;
 
     if (transition.mode === 'drag') {
       const gesture = productMobileImageViewerGesture;
@@ -2336,16 +2357,12 @@ function startProductMobileImageViewerTransition(direction, mode = 'button') {
       }
     } else {
       requestAnimationFrame(() => {
-        if (productMobileImageViewerTransition !== transition) return;
-        animateProductMobileImageViewerTransition(true);
+        if (productMobileImageViewerTransition === transition) animateProductMobileImageViewerTransition(true);
       });
     }
     return true;
   }).catch(error => {
-    if (productMobileImageViewerTransition === transition) {
-      productMobileImageViewerTransition = null;
-      productMobileImageViewer?.classList.remove('is-transitioning');
-    }
+    if (productMobileImageViewerTransition === transition) cancelProductMobileImageViewerTransition(false);
     console.warn('Não foi possível preparar a imagem do visualizador:', error);
     return false;
   });
@@ -2356,63 +2373,63 @@ function animateProductMobileImageViewerTransition(commit) {
   if (!transition?.ready) return;
   const active = productMobileImageViewerImage;
   const incoming = productMobileImageViewerSecondaryImage;
+  if (!active || !incoming) return;
+
   const width = Math.max(1, transition.width);
   const direction = transition.direction;
-  const progress = Math.max(-0.96, Math.min(0.96, (Number(transition.lastDelta) || 0) / width));
+  const progress = Math.min(0.96, Math.abs((Number(transition.lastDelta) || 0) / width));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const duration = reducedMotion ? 0 : Math.max(130, 350 * (1 - Math.abs(progress)));
+  const velocityBonus = Math.min(75, Math.abs(transition.releaseVelocity || 0) * 70);
+  const duration = reducedMotion ? 0 : commit
+    ? Math.max(115, Math.min(PRODUCT_MOBILE_VIEWER_TRANSITION_DURATION, PRODUCT_MOBILE_VIEWER_TRANSITION_DURATION * (1 - progress) - velocityBonus))
+    : Math.max(135, Math.min(250, 165 + (progress * 95)));
+  const easing = PRODUCT_MOBILE_VIEWER_EASING;
 
   clearTimeout(productMobileImageViewerTransitionTimer);
-  [active, incoming].forEach(image => {
-    image.classList.remove(
-      'is-viewer-slide-in-next', 'is-viewer-slide-in-prev',
-      'is-viewer-slide-out-next', 'is-viewer-slide-out-prev'
-    );
-    image.style.transition = 'none';
-    image.style.setProperty('--gallery-swipe-progress', `${(progress * 100).toFixed(2)}%`);
-    image.style.setProperty('--gallery-swipe-duration', `${duration.toFixed(0)}ms`);
-  });
+  if (transition.onEnd && transition.endElement) {
+    transition.endElement.removeEventListener('transitionend', transition.onEnd);
+    transition.endElement.removeEventListener('animationend', transition.onEnd);
+  }
 
   const token = transition.token;
-  if (commit) {
-    // Usa as mesmas keyframes, curva e duração do bloco principal da galeria.
-    // O progresso percentual permite continuar exatamente de onde o dedo soltou.
-    active.style.removeProperty('transform');
-    incoming.style.removeProperty('transform');
-    void active.offsetWidth;
-    transition.endElement = incoming;
-    transition.onEnd = event => {
-      if (event.target === incoming && event.animationName.startsWith('productGallerySlideIn')) {
-        completeProductMobileImageViewerTransition(true, token);
-      }
-    };
-    incoming.addEventListener('animationend', transition.onEnd);
-    requestAnimationFrame(() => {
-      if (productMobileImageViewerTransition !== transition) return;
-      const suffix = direction > 0 ? 'next' : 'prev';
-      active.classList.add(`is-viewer-slide-out-${suffix}`);
-      incoming.classList.add(`is-viewer-slide-in-${suffix}`);
-    });
-  } else {
-    // Um arraste insuficiente retorna à posição inicial com o mesmo easing
-    // de retorno usado pela galeria principal.
-    const returnDuration = reducedMotion ? 0 : 240;
-    active.style.transition = `transform ${returnDuration}ms cubic-bezier(.22,.61,.36,1)`;
-    incoming.style.transition = `transform ${returnDuration}ms cubic-bezier(.22,.61,.36,1)`;
-    active.style.transform = 'translate3d(0,0,0) scale(1)';
-    incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(1)`;
-    transition.endElement = active;
-    transition.onEnd = event => {
-      if (event.target === active && event.propertyName === 'transform') {
-        completeProductMobileImageViewerTransition(false, token);
-      }
-    };
-    active.addEventListener('transitionend', transition.onEnd);
+  const completeOnTransform = event => {
+    if (event.target === incoming && event.propertyName === 'transform') {
+      completeProductMobileImageViewerTransition(commit, token);
+    }
+  };
+  transition.endElement = incoming;
+  transition.onEnd = completeOnTransform;
+  incoming.addEventListener('transitionend', completeOnTransform);
+
+  if (duration === 0) {
+    completeProductMobileImageViewerTransition(commit, token);
+    return;
   }
+
+  // Transições por clique começam da posição inicial; no arraste, partem
+  // exatamente das coordenadas/escala/opacidade deixadas pelo dedo.
+  active.style.transition = `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+  incoming.style.transition = `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+  void active.offsetWidth;
+
+  requestAnimationFrame(() => {
+    if (productMobileImageViewerTransition !== transition) return;
+    if (commit) {
+      active.style.transform = `translate3d(${(direction > 0 ? -width : width).toFixed(2)}px,0,0) scale(.986)`;
+      active.style.opacity = '.32';
+      incoming.style.transform = 'translate3d(0,0,0) scale(1)';
+      incoming.style.opacity = '1';
+    } else {
+      active.style.transform = 'translate3d(0,0,0) scale(1)';
+      active.style.opacity = '1';
+      incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(.986)`;
+      incoming.style.opacity = '0';
+    }
+  });
 
   productMobileImageViewerTransitionTimer = setTimeout(
     () => completeProductMobileImageViewerTransition(commit, token),
-    duration + 90
+    duration + 110
   );
 }
 
@@ -2423,8 +2440,8 @@ function completeProductMobileImageViewerTransition(commit, token) {
   const active = productMobileImageViewerImage;
   const incoming = productMobileImageViewerSecondaryImage;
   if (transition.onEnd && transition.endElement) {
-    transition.endElement.removeEventListener('animationend', transition.onEnd);
     transition.endElement.removeEventListener('transitionend', transition.onEnd);
+    transition.endElement.removeEventListener('animationend', transition.onEnd);
   }
 
   if (commit) {
@@ -2445,15 +2462,11 @@ function completeProductMobileImageViewerTransition(commit, token) {
   }
 
   [productMobileImageViewerImage, productMobileImageViewerSecondaryImage].forEach(image => {
-    image.classList.remove(
-      'is-viewer-slide-in-next', 'is-viewer-slide-in-prev',
-      'is-viewer-slide-out-next', 'is-viewer-slide-out-prev'
-    );
     image.style.transition = 'none';
     image.style.transform = 'translate3d(0,0,0) scale(1)';
-    image.style.removeProperty('--gallery-swipe-progress');
-    image.style.removeProperty('--gallery-swipe-duration');
   });
+  productMobileImageViewerImage.style.opacity = '1';
+  productMobileImageViewerSecondaryImage.style.opacity = '0';
   productMobileImageViewerTransition = null;
   productMobileImageViewerZoom = 1;
   productMobileImageViewerTranslateX = 0;
@@ -2471,7 +2484,7 @@ function completeProductMobileImageViewerTransition(commit, token) {
   }
 }
 
-function finishProductMobileImageViewerDrag(commit, direction, deltaX) {
+function finishProductMobileImageViewerDrag(commit, direction, deltaX, releaseVelocity = 0) {
   const transition = productMobileImageViewerTransition;
   if (!transition || transition.mode !== 'drag') {
     if (commit) startProductMobileImageViewerTransition(direction, 'button');
@@ -2482,6 +2495,7 @@ function finishProductMobileImageViewerDrag(commit, direction, deltaX) {
     startProductMobileImageViewerTransition(direction, 'button');
     return;
   }
+  transition.releaseVelocity = Math.abs(releaseVelocity || 0);
   if (!transition.ready) {
     if (commit) {
       transition.lastDelta = Math.max(-transition.width * 0.96, Math.min(transition.width * 0.96, deltaX));
@@ -2492,7 +2506,7 @@ function finishProductMobileImageViewerDrag(commit, direction, deltaX) {
     return;
   }
   if (Math.abs(deltaX) < 4 && !commit) {
-    cancelProductMobileImageViewerTransition(false);
+    animateProductMobileImageViewerTransition(false);
     return;
   }
   animateProductMobileImageViewerTransition(commit);
@@ -2508,23 +2522,22 @@ function cancelProductMobileImageViewerTransition(animateBack = false) {
   ++productMobileImageViewerTransitionToken;
   clearTimeout(productMobileImageViewerTransitionTimer);
   if (transition.onEnd && transition.endElement) {
-    transition.endElement.removeEventListener('animationend', transition.onEnd);
     transition.endElement.removeEventListener('transitionend', transition.onEnd);
+    transition.endElement.removeEventListener('animationend', transition.onEnd);
   }
-  [productMobileImageViewerImage, productMobileImageViewerSecondaryImage].forEach(image => {
-    if (!image) return;
-    image.classList.remove(
-      'is-viewer-slide-in-next', 'is-viewer-slide-in-prev',
-      'is-viewer-slide-out-next', 'is-viewer-slide-out-prev'
-    );
-    image.style.transition = 'none';
-    image.style.transform = 'translate3d(0,0,0) scale(1)';
-    image.style.removeProperty('--gallery-swipe-progress');
-    image.style.removeProperty('--gallery-swipe-duration');
-  });
-  productMobileImageViewerSecondaryImage?.classList.remove('is-ready');
-  productMobileImageViewerSecondaryImage?.classList.add('is-hidden');
-  productMobileImageViewerSecondaryImage?.setAttribute('aria-hidden', 'true');
+  if (productMobileImageViewerImage) {
+    productMobileImageViewerImage.style.transition = 'none';
+    productMobileImageViewerImage.style.transform = 'translate3d(0,0,0) scale(1)';
+    productMobileImageViewerImage.style.opacity = '1';
+  }
+  if (productMobileImageViewerSecondaryImage) {
+    productMobileImageViewerSecondaryImage.style.transition = 'none';
+    productMobileImageViewerSecondaryImage.style.transform = 'translate3d(0,0,0) scale(1)';
+    productMobileImageViewerSecondaryImage.style.opacity = '0';
+    productMobileImageViewerSecondaryImage.classList.remove('is-ready', 'is-active');
+    productMobileImageViewerSecondaryImage.classList.add('is-incoming', 'is-hidden');
+    productMobileImageViewerSecondaryImage.setAttribute('aria-hidden', 'true');
+  }
   productMobileImageViewerTransition = null;
   productMobileImageViewer?.classList.remove('is-transitioning');
 }
