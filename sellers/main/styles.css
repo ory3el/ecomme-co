@@ -5285,3 +5285,54 @@ body.pa-modal-open {
   .warranty-legal-note, .warranty-contract-fields { padding: 13px; }
   .warranty-contract-toggle { padding: 12px; }
 }
+
+/* Download da imagem original no modo de edição do produto. */
+.btn-download-product-image {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 13;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 50%;
+    background: rgba(16,25,44,.88);
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.24);
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity .2s ease, transform .2s ease, background .2s ease;
+}
+.img-block.has-image:hover .btn-download-product-image,
+.btn-download-product-image:focus-visible,
+.btn-download-product-image.is-downloading {
+    opacity: 1;
+    transform: translateY(0);
+}
+.btn-download-product-image:hover {
+    background: #2563eb;
+}
+.btn-download-product-image:disabled {
+    cursor: wait;
+    opacity: .65;
+}
+.img-block.small-block .btn-download-product-image {
+    width: 31px;
+    height: 31px;
+    right: 6px;
+    bottom: 6px;
+    font-size: 12px;
+}
+@media (hover: none), (pointer: coarse) {
+    .img-block.has-image .btn-download-product-image {
+        opacity: 1;
+        transform: none;
+    }
+}
+
