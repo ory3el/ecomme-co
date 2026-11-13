@@ -1627,22 +1627,39 @@ async function downloadProductImage(slotIndex, event) {
 }
 
 function updateGalleryUI() {
-  const showDownloadButtons = editingProductId !== null && editingProductId !== '';
+  const showDownloadButtons = editingProductId !== null && editingProductId !== undefined && String(editingProductId).trim() !== '';
+
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (!block) continue;
+
+    // Preserve the button declared in index.html; block.innerHTML below rebuilds only
+    // the image controls and would otherwise destroy the download control.
+    let downloadButton = block.querySelector('.btn-download-product-image');
+    if (!downloadButton) {
+      downloadButton = document.createElement('button');
+      downloadButton.type = 'button';
+      downloadButton.className = 'btn-download-product-image';
+      downloadButton.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i>';
+      downloadButton.title = 'Baixar imagem original';
+    }
+    downloadButton.dataset.slot = String(i);
+    downloadButton.setAttribute('aria-label', `Baixar imagem ${i + 1} original`);
+    downloadButton.onclick = event => downloadProductImage(i, event);
+
     const file = productImagesFiles[i];
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button type="button" class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
     const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="showBgRemovalPlansModal(event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
-    const downloadBtnHTML = showDownloadButtons ? `<button type="button" class="btn-download-product-image" data-slot="${i}" onclick="downloadProductImage(${i}, event)" title="Baixar imagem original sem perda de qualidade" aria-label="Baixar imagem ${i + 1} original"><i class="fa-solid fa-download"></i></button>` : '';
     const dbImageUrl = productExistingUrls[i] || null;
+    const hasImage = !!(file || dbImageUrl);
+
     if (file) {
       const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="Imagem ${i + 1}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${downloadBtnHTML}${deleteBtnHTML}
+        ${removeBgBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else if (dbImageUrl) {
@@ -1650,7 +1667,7 @@ function updateGalleryUI() {
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${altText}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${downloadBtnHTML}${deleteBtnHTML}
+        ${removeBgBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else {
@@ -1660,11 +1677,18 @@ function updateGalleryUI() {
       `;
       block.classList.remove('has-image');
     }
+
     block.innerHTML = innerHtmlContent;
+    downloadButton.hidden = !(showDownloadButtons && hasImage);
+    downloadButton.disabled = false;
+    downloadButton.removeAttribute('aria-busy');
+    downloadButton.classList.remove('is-downloading');
+    block.classList.toggle('is-product-editing', showDownloadButtons && hasImage);
+    block.appendChild(downloadButton);
   }
+
   updateBgRemovalButtons();
 }
-
 const BG_REMOVAL_ENDPOINT = 'https://cedrpcezoaqaeivrfuxn.supabase.co/functions/v1/remove-product-background';
 const BG_REMOVAL_PUBLIC_KEY = 'sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0';
 let bgRemovalInProgress = false;
