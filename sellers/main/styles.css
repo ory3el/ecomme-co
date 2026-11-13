@@ -1893,7 +1893,9 @@ html[data-theme="light"] .gs-results {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 30px 32px 56px;
-    scroll-behavior: smooth
+    /* Rolagem manual permanece nativa; navegação entre páginas usa scrollTo({behavior:"smooth"}). */
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch
 }
 
 .page {
