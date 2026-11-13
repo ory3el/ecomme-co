@@ -1372,3 +1372,20 @@ body.product-report-open{overflow:hidden}
   .product-unavailable-banner { width: calc(100% - 40px); margin-top: 12px; padding: 12px 13px; }
   .product-unavailable-banner-copy > span { font-size: 11.5px; }
 }
+
+
+/* Produtos pausados: favoritos visíveis, porém indisponíveis; avaliações ocultas. */
+.product-main.is-product-unavailable #galFav:disabled,
+.product-main.is-product-unavailable #favLg:disabled {
+  filter: grayscale(1);
+  opacity: .42;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+  transform: none;
+}
+.tabs-nav .tab-btn[hidden],
+#tab-reviews[hidden],
+.info-rating-row > [hidden] {
+  display: none !important;
+}
