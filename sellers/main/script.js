@@ -1535,7 +1535,99 @@ async function deleteImageSlot(slotIndex, event) {
   }
 }
 
+async function downloadProductImage(slotIndex, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex > 4) return;
+
+  const localFile = productImagesFiles[slotIndex];
+  const imageUrl = productExistingUrls[slotIndex];
+  if (!localFile && !imageUrl) {
+    toast('Esta posição não possui uma imagem para baixar.', 'info');
+    return;
+  }
+
+  const button = event?.currentTarget || document.querySelector(`.btn-download-product-image[data-slot="${slotIndex}"]`);
+  if (button) {
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.classList.add('is-downloading');
+  }
+
+  let objectUrl = null;
+  try {
+    let imageBlob = localFile;
+    let storagePath = null;
+
+    if (!imageBlob && imageUrl) {
+      // Baixa o objeto original diretamente do bucket, sem passar por canvas,
+      // redimensionamento, conversão de formato ou compressão.
+      storagePath = typeof storagePathFromUrl === 'function' ? storagePathFromUrl(imageUrl) : null;
+      if (storagePath) {
+        const { data, error } = await supabaseClient.storage.from(PRODUCTS_BUCKET).download(storagePath);
+        if (error) throw error;
+        imageBlob = data;
+      } else {
+        // Fallback para imagens que não usam uma URL pública direta do bucket.
+        const response = await fetch(imageUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Falha ao baixar imagem (${response.status}).`);
+        imageBlob = await response.blob();
+      }
+    }
+
+    if (!(imageBlob instanceof Blob) || !imageBlob.size) {
+      throw new Error('O arquivo original da imagem está vazio ou indisponível.');
+    }
+
+    const productName = String($('npName')?.value || findProd(editingProductId)?.name || 'produto')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60)
+      .toLowerCase() || 'produto';
+    const sourceName = localFile?.name || storagePath?.split('/').pop() || '';
+    const sourceExtension = sourceName.match(/\.([a-z0-9]{2,5})$/i)?.[1];
+    const mimeExtensions = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+      'image/avif': 'avif'
+    };
+    const extension = (sourceExtension || mimeExtensions[imageBlob.type] || 'jpg').toLowerCase();
+
+    objectUrl = URL.createObjectURL(imageBlob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = `ecomme-${productName}-imagem-${slotIndex + 1}.${extension}`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Mantém a URL viva tempo suficiente para o navegador iniciar o download.
+    setTimeout(() => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }, 10000);
+    toast('Download da imagem original iniciado.', 'ok');
+  } catch (error) {
+    console.error('[Ecomme] Não foi possível baixar a imagem original:', error);
+    toast('Não foi possível baixar a imagem original. Tente novamente.', 'err');
+  } finally {
+    if (button?.isConnected) {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      button.classList.remove('is-downloading');
+    }
+  }
+}
+
 function updateGalleryUI() {
+  const showDownloadButtons = editingProductId !== null && editingProductId !== '';
   for (let i = 0; i < 5; i++) {
     const block = document.getElementById(`img-block-${i}`);
     if (!block) continue;
@@ -1543,13 +1635,14 @@ function updateGalleryUI() {
     let innerHtmlContent = '';
     const deleteBtnHTML = i === 0 ? `<button type="button" class="btn-delete-main-img" onclick="deleteImageSlot(0, event)" title="Excluir imagem"><i class="fa-solid fa-trash"></i></button>` : '';
     const removeBgBtnHTML = `<button type="button" class="btn-remove-bg" data-slot="${i}" onclick="showBgRemovalPlansModal(event)" title="Remover fundo com IA" aria-label="Remover fundo da imagem ${i + 1} com IA"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Remover fundo</span></button>`;
+    const downloadBtnHTML = showDownloadButtons ? `<button type="button" class="btn-download-product-image" data-slot="${i}" onclick="downloadProductImage(${i}, event)" title="Baixar imagem original sem perda de qualidade" aria-label="Baixar imagem ${i + 1} original"><i class="fa-solid fa-download"></i></button>` : '';
     const dbImageUrl = productExistingUrls[i] || null;
     if (file) {
       const url = file.previewUrl || (file.previewUrl = URL.createObjectURL(file));
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="Imagem ${i + 1}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${deleteBtnHTML}
+        ${removeBgBtnHTML}${downloadBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else if (dbImageUrl) {
@@ -1557,7 +1650,7 @@ function updateGalleryUI() {
       innerHtmlContent = `
         <div class="img-preview-container"><img src="${escapeHtml(dbImageUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${altText}"></div>
         <div class="img-edit-overlay"><i class="fa-solid fa-pen"></i></div>
-        ${removeBgBtnHTML}${deleteBtnHTML}
+        ${removeBgBtnHTML}${downloadBtnHTML}${deleteBtnHTML}
       `;
       block.classList.add('has-image');
     } else {
