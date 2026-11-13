@@ -1496,17 +1496,21 @@ function renderProductGallery(p) {
 
   if (!gallery || !emoji || !thumbs) return;
 
-  let blurImage = document.getElementById('productMainBlurImage');
-  if (!blurImage) {
-    blurImage = document.createElement('img');
-    blurImage.id = 'productMainBlurImage';
-    blurImage.className = 'gallery-main-blur';
-    blurImage.alt = '';
-    blurImage.setAttribute('aria-hidden', 'true');
-    blurImage.draggable = false;
-    blurImage.setAttribute('draggable', 'false');
-    gallery.insertBefore(blurImage, gallery.firstChild);
-  }
+  // Duas camadas alternadas permitem trocar a foto desfocada sem alterar
+  // o filtro: somente a opacidade das duas imagens é animada.
+  ['productMainBlurImage', 'productMainBlurImageNext'].forEach(id => {
+    let blurLayer = document.getElementById(id);
+    if (!blurLayer) {
+      blurLayer = document.createElement('img');
+      blurLayer.id = id;
+      blurLayer.alt = '';
+      blurLayer.setAttribute('aria-hidden', 'true');
+      blurLayer.draggable = false;
+      blurLayer.setAttribute('draggable', 'false');
+      gallery.insertBefore(blurLayer, gallery.firstChild);
+    }
+    blurLayer.className = 'gallery-main-blur';
+  });
 
   let mainImage = document.getElementById('productMainImage');
 
@@ -2168,7 +2172,10 @@ function hideProductGalleryLoader(requestId = null) {
 function selectProductImage(index) {
   hideProductImageZoom();
   const mainImage = document.getElementById('productMainImage');
-  const blurImage = document.getElementById('productMainBlurImage');
+  const blurImages = [
+    document.getElementById('productMainBlurImage'),
+    document.getElementById('productMainBlurImageNext')
+  ].filter(Boolean);
   const emoji = document.getElementById('gmainEmoji');
 
   if (!mainImage || !emoji || !currentProduct) return;
@@ -2179,7 +2186,7 @@ function selectProductImage(index) {
     hideProductGalleryLoader(productGallerySelectionRequestId);
     mainImage.style.display = 'none';
     mainImage.classList.remove('is-fading-out');
-    if (blurImage) blurImage.classList.remove('is-visible');
+    blurImages.forEach(image => image.classList.remove('is-visible'));
     emoji.style.display = 'block';
     return;
   }
@@ -2204,15 +2211,18 @@ function selectProductImage(index) {
     mainImage.dataset.index = String(index);
     mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
     mainImage.classList.remove('is-fading-out');
-    if (blurImage && blurImage.dataset.original === original) {
-      blurImage.onload = () => {
-        if (requestId === productGallerySelectionRequestId && blurImage.dataset.original === original) {
-          blurImage.classList.add('is-visible');
+    const matchingBlur = blurImages.find(image => image.dataset.original === original);
+    if (matchingBlur) {
+      const revealMatchingBlur = () => {
+        if (requestId !== productGallerySelectionRequestId || matchingBlur.dataset.original !== original) return;
+        if (matchingBlur.complete && matchingBlur.naturalWidth > 0) {
+          blurImages.forEach(image => image.classList.toggle('is-visible', image === matchingBlur));
         }
       };
-      if (blurImage.complete && blurImage.naturalWidth > 0) blurImage.classList.add('is-visible');
+      matchingBlur.onload = revealMatchingBlur;
+      if (matchingBlur.complete && matchingBlur.naturalWidth > 0) revealMatchingBlur();
+      return;
     }
-    return;
   }
 
   preloadProductGalleryImage(imageSrc).then(async optimizedReady => {
@@ -2227,19 +2237,22 @@ function selectProductImage(index) {
 
     if (requestId !== productGallerySelectionRequestId) return;
 
-    // A imagem já foi carregada/decodificada; não deixe o timer exibir o loader durante o fade.
+    // A imagem principal começa o fade; o fundo antigo permanece intacto
+    // até a nova camada desfocada estar carregada e pronta para o crossfade.
     clearTimeout(productGalleryLoadingTimer);
     mainImage.classList.add('is-fading-out');
-    if (blurImage) blurImage.classList.remove('is-visible');
 
     const applyNewImage = () => {
       if (requestId !== productGallerySelectionRequestId) return;
 
       let mainImageReady = false;
-      let blurImageReady = !blurImage;
+      let blurImageReady = !blurImages.length;
       const finishGalleryImageLoading = () => {
         if (mainImageReady && blurImageReady) hideProductGalleryLoader(requestId);
       };
+
+      const currentBlurImage = blurImages.find(image => image.classList.contains('is-visible')) || null;
+      const nextBlurImage = blurImages.find(image => image !== currentBlurImage) || blurImages[0] || null;
 
       mainImage.dataset.original = original;
       mainImage.dataset.index = String(index);
@@ -2255,7 +2268,7 @@ function selectProductImage(index) {
         }
         this.style.display = 'none';
         this.classList.remove('is-fading-out');
-        if (blurImage) blurImage.classList.remove('is-visible');
+        blurImages.forEach(image => image.classList.remove('is-visible'));
         emoji.style.display = 'block';
         hideProductGalleryLoader(requestId);
         hideProductImageZoom();
@@ -2274,18 +2287,24 @@ function selectProductImage(index) {
         });
       };
 
-      if (blurImage) {
-        blurImage.dataset.original = original;
-        blurImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
-        blurImage.onload = () => {
-          if (requestId !== productGallerySelectionRequestId || blurImageReady) return;
-          if (blurImage.dataset.original === original && mainImage.dataset.original === original) {
-            blurImage.classList.add('is-visible');
-            blurImageReady = true;
-            finishGalleryImageLoading();
-          }
+      if (nextBlurImage) {
+        let nextBlurImageReady = false;
+        const activateNextBlurImage = () => {
+          if (requestId !== productGallerySelectionRequestId || nextBlurImageReady) return;
+          if (nextBlurImage.dataset.original !== original || mainImage.dataset.original !== original) return;
+          nextBlurImageReady = true;
+          // As duas camadas têm exatamente o mesmo filter fixo; apenas opacity muda.
+          nextBlurImage.classList.add('is-visible');
+          if (currentBlurImage) currentBlurImage.classList.remove('is-visible');
+          blurImageReady = true;
+          finishGalleryImageLoading();
         };
-        blurImage.onerror = function () {
+
+        const nextBlurImageAlreadyReady = nextBlurImage.dataset.original === original && nextBlurImage.complete && nextBlurImage.naturalWidth > 0;
+        nextBlurImage.dataset.original = original;
+        nextBlurImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
+        nextBlurImage.onload = activateNextBlurImage;
+        nextBlurImage.onerror = function () {
           if (requestId !== productGallerySelectionRequestId) return;
           if (this.dataset.fallback !== '1') {
             this.dataset.fallback = '1';
@@ -2296,10 +2315,12 @@ function selectProductImage(index) {
             finishGalleryImageLoading();
           }
         };
-        blurImage.src = finalImageSrc;
-        if (blurImage.complete && blurImage.naturalWidth > 0) {
-          blurImage.classList.add('is-visible');
-          blurImageReady = true;
+
+        if (nextBlurImageAlreadyReady) {
+          activateNextBlurImage();
+        } else {
+          nextBlurImage.src = finalImageSrc;
+          if (nextBlurImage.complete && nextBlurImage.naturalWidth > 0) activateNextBlurImage();
         }
       }
 
