@@ -1801,7 +1801,7 @@ function updateProductGallerySwipeDrag(gesture, deltaX) {
       if (!readySource || (gesture !== productGalleryTouchGesture && !gesture.committed) || !gesture.dragging || gesture.previewCancelled || gesture.previewHandedOff || gesture.previewDirection !== direction || (gesture.previewToken || 0) !== previewToken) return;
 
       const preview = new Image();
-      preview.className = 'product-gallery-swipe-preview';
+      preview.className = 'product-gallery-swipe-preview product-gallery-slide-surface';
       preview.dataset.direction = direction;
       preview.alt = '';
       preview.draggable = false;
@@ -2882,7 +2882,7 @@ function clearProductGallerySlideTransition() {
     animatedImage.style.setProperty('transform', 'translate3d(0,0,0) scale(1)');
     animatedImage.style.setProperty('opacity', '1');
     void animatedImage.offsetWidth;
-    animatedImage.classList.remove('is-slide-in-next', 'is-slide-in-prev', 'is-fading-out');
+    animatedImage.classList.remove('is-slide-in-next', 'is-slide-in-prev', 'is-fading-out', 'product-gallery-slide-surface');
     ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => animatedImage.style.removeProperty(property));
     animatedImage.style.removeProperty('transform');
     animatedImage.style.removeProperty('opacity');
@@ -2892,6 +2892,7 @@ function clearProductGallerySlideTransition() {
   const currentMainImage = document.getElementById('productMainImage');
   currentMainImage?.classList.remove('is-fading-out');
   if (currentMainImage && currentMainImage !== animatedImage) {
+    currentMainImage.classList.remove('product-gallery-slide-surface');
     ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => currentMainImage.style.removeProperty(property));
     currentMainImage.style.removeProperty('transform');
     currentMainImage.style.removeProperty('opacity');
@@ -3059,7 +3060,7 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
       if (direction && hadVisibleImage) {
         outgoingImage = mainImage.cloneNode(false);
         outgoingImage.removeAttribute('id');
-        outgoingImage.className = 'product-gallery-slide-out';
+        outgoingImage.className = 'product-gallery-slide-out product-gallery-slide-surface';
         outgoingImage.alt = '';
         outgoingImage.setAttribute('aria-hidden', 'true');
         outgoingImage.draggable = false;
@@ -3092,6 +3093,9 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
       // é aplicado/decodificado. Isso evita que ela apareça atrás da foto atual
       // por um frame antes do requestAnimationFrame iniciar as keyframes.
       if (direction && outgoingImage) {
+        // Cada camada recebe seu próprio fundo opaco durante a passagem.
+        // Assim, pixels transparentes de PNG/WebP não revelam a foto que está atrás.
+        mainImage.classList.add('product-gallery-slide-surface');
         const incomingScale = swipeTransition ? (Number(swipeTransition.incomingScale) || 1) : 1;
         // Setas: a foto nova já entra totalmente opaca, vindo de fora da galeria.
         // O arraste mantém a opacidade proporcional ao gesto do dedo.
