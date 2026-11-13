@@ -51,120 +51,15 @@ function initThemeToggle() {
   });
 }
 
-/* SCROLLBAR */
-function createCustomScrollbar(scrollElement, isMainBody = false) {
-  const scrollTrack = document.createElement('div');
-  scrollTrack.className = 'scrollbar-track';
-  
-  const scrollbar = document.createElement('div');
-  scrollbar.className = 'custom-scrollbar hide-scrollbar';
-  scrollTrack.appendChild(scrollbar);
-  const container = isMainBody ? document.body : scrollElement;
-  container.appendChild(scrollTrack);
-
-  if (!isMainBody) {
-    scrollTrack.style.position = 'absolute';
-    scrollbar.style.position = 'absolute';
-  }
-
-  let scrollTimeout;
-  let isDragging = false;
-  let isHovering = false;
-  let startY;
-  let startScrollTop;
-
-  scrollTrack.addEventListener('mouseenter', () => {
-    isHovering = true;
-    scrollbar.classList.remove('hide-scrollbar');
-    clearTimeout(scrollTimeout);
-  });
-
-  scrollTrack.addEventListener('mouseleave', () => {
-    isHovering = false;
-    if (!isDragging) {
-      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-    }
-  });
-  
-  const eventTarget = isMainBody ? window : scrollElement;
-  
-  eventTarget.addEventListener('scroll', () => {
-    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
-    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
-    const scrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
-    
-    const scrollableHeight = scrollHeight - clientHeight;
-    if (scrollableHeight <= 0) return;
-
-    const scrollPercentage = scrollTop / scrollableHeight;
-    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
-
-    if (!isMainBody) {
-      scrollTrack.style.top = `${scrollTop}px`;
-    }
-    
-    scrollbar.style.top = `${scrollPercentage * maxScrollbarTravel}px`;
-
-    scrollbar.classList.remove('hide-scrollbar');
-    clearTimeout(scrollTimeout);
-
-    if (!isHovering && !isDragging) {
-      scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-    }
-  });
-
-  scrollbar.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    scrollbar.classList.add('is-dragging');
-    startY = e.clientY;
-    startScrollTop = isMainBody ? window.scrollY : scrollElement.scrollTop;
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    
-    const deltaY = e.clientY - startY;
-    const clientHeight = isMainBody ? window.innerHeight : scrollElement.clientHeight;
-    const maxScrollbarTravel = clientHeight - scrollbar.offsetHeight;
-    const movePercentage = deltaY / maxScrollbarTravel;
-    
-    const scrollHeight = isMainBody ? document.documentElement.scrollHeight : scrollElement.scrollHeight;
-    const scrollableHeight = scrollHeight - clientHeight;
-    const scrollAmount = movePercentage * scrollableHeight;
-
-    if (isMainBody) {
-      window.scrollTo(0, startScrollTop + scrollAmount);
-    } else {
-      scrollElement.scrollTop = startScrollTop + scrollAmount;
-    }
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (isDragging) {
-      isDragging = false;
-      scrollbar.classList.remove('is-dragging');
-      document.body.style.userSelect = '';
-      clearTimeout(scrollTimeout);
-      
-      if (!isHovering) {
-        scrollTimeout = setTimeout(() => scrollbar.classList.add('hide-scrollbar'), 1500);
-      }
-    }
-  });
-}
-
+/* SCROLLBAR
+   O painel usa as barras nativas (styles.css oculta .scrollbar-track/.custom-scrollbar).
+   As posições relativas são mantidas para preservar o contexto dos elementos absolutos,
+   mas não criamos trilhos invisíveis nem listeners artificiais de rolagem.
+*/
 const mainElement = document.querySelector('.app-main');
-if (mainElement) {
-  mainElement.style.position = 'relative'; 
-  createCustomScrollbar(mainElement, false);
-}
-
+if (mainElement) mainElement.style.position = 'relative';
 const sidebarElement = document.querySelector('.app-sb');
-if (sidebarElement) {
-  sidebarElement.style.position = 'relative';
-  createCustomScrollbar(sidebarElement, false);
-}
+if (sidebarElement) sidebarElement.style.position = 'relative';
 
 /* --------------------------------------------------------- */
 
@@ -915,7 +810,7 @@ function initProductsTable() {
     const el = ev.target.closest('[data-act]');
     if (el) {
       ev.stopPropagation();
-      document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
+      closeActionMenus();
       const id = el.dataset.id;
       ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
          analytics: openProductAnalytics,
@@ -944,15 +839,29 @@ function onProdSearch(el) { prodQuery = el.value; prodPageNum = 1; buildProdTabl
 function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTable(); }
 function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
 
+let activeActionMenu = null;
+
+function closeActionMenus() {
+  const menu = activeActionMenu;
+  activeActionMenu = null;
+  if (menu && menu.isConnected) menu.classList.remove('on');
+}
+
 function toggleMenu(e, el) {
-  // Clique num ITEM do menu: não interrompe a propagação, para a delegação da tabela (data-act) tratar a ação.
+  // Clique num ITEM do menu: deixa a delegação da tabela tratar a ação.
   if (e.target.closest('.action-menu')) return;
   e.stopPropagation();
-  const m = el.querySelector('.action-menu');
-  document.querySelectorAll('.action-menu.on').forEach(x => { if (x !== m) x.classList.remove('on'); });
-  m.classList.toggle('on');
+  const menu = el.querySelector('.action-menu');
+  if (!menu) return;
+  if (activeActionMenu === menu && menu.classList.contains('on')) {
+    closeActionMenus();
+    return;
+  }
+  closeActionMenus();
+  menu.classList.add('on');
+  activeActionMenu = menu;
 }
-document.addEventListener('click', () => document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on')));
+document.addEventListener('click', closeActionMenus);
 
 function exportProductsCsv(list) {
   const rows = [['ID', 'Nome', 'Categoria', 'Preço', 'Estoque', 'Status']];
