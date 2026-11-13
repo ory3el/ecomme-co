@@ -1558,7 +1558,16 @@ function renderProductGallery(p) {
       blurLayer.setAttribute('draggable', 'false');
       gallery.insertBefore(blurLayer, gallery.firstChild);
     }
+    blurLayer.style.setProperty('transition-property', 'none', 'important');
     blurLayer.className = 'gallery-main-blur';
+    blurLayer.removeAttribute('src');
+    delete blurLayer.dataset.original;
+    delete blurLayer.dataset.loadedSrc;
+    delete blurLayer.dataset.fallback;
+    blurLayer.onload = null;
+    blurLayer.onerror = null;
+    void blurLayer.offsetWidth;
+    blurLayer.style.removeProperty('transition-property');
   });
 
   let mainImage = document.getElementById('productMainImage');
@@ -1683,8 +1692,11 @@ function setupProductImageZoom(gallery) {
   gallery.addEventListener('dblclick', event => {
     if (isProductImageZoomTarget(event)) event.preventDefault();
   });
+  gallery.addEventListener('pointerdown', handleProductGalleryTouchPointerDown, { passive: true });
   gallery.addEventListener('pointermove', handleProductImageZoomMove, { passive: true });
-  gallery.addEventListener('pointerup', handleProductMobileImageViewerPointerUp);
+  gallery.addEventListener('pointermove', handleProductGalleryTouchPointerMove, { passive: false });
+  gallery.addEventListener('pointerup', handleProductMobileImageViewerPointerUp, { passive: false });
+  gallery.addEventListener('pointercancel', handleProductGalleryTouchPointerCancel, { passive: true });
   gallery.addEventListener('click', handleProductImageZoomIncrease);
   gallery.addEventListener('contextmenu', handleProductImageZoomDecrease);
   gallery.addEventListener('pointerleave', hideProductImageZoom);
@@ -1739,11 +1751,138 @@ function isProductMobileTouchDevice() {
   return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 }
 
+let productGalleryTouchGesture = null;
+let productGallerySwipeReturnTimer = null;
+
+function handleProductGalleryTouchPointerDown(event) {
+  if (event.pointerType !== 'touch' || !isProductMobileTouchDevice()) return;
+  if (productMobileImageViewer?.classList.contains('is-open')) return;
+  if (!isProductImageZoomTarget(event) || productGallerySlideMainImage) return;
+  if (productGalleryTouchGesture) {
+    const activeGesture = productGalleryTouchGesture;
+    productGalleryTouchGesture = null;
+    if (activeGesture.dragging) returnProductGalleryImageAfterSwipe(activeGesture.image, activeGesture.gallery);
+    return;
+  }
+
+  const gallery = productZoomGallery;
+  const mainImage = document.getElementById('productMainImage');
+  if (!gallery || !mainImage || mainImage.classList.contains('is-swipe-returning')) return;
+
+  productGalleryTouchGesture = {
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    currentX: event.clientX,
+    currentY: event.clientY,
+    lastX: event.clientX,
+    lastTime: performance.now(),
+    width: Math.max(1, gallery.clientWidth),
+    image: mainImage,
+    gallery,
+    dragging: false,
+    cancelled: false
+  };
+
+  try { gallery.setPointerCapture(event.pointerId); } catch (_) {}
+}
+
+function handleProductGalleryTouchPointerMove(event) {
+  const gesture = productGalleryTouchGesture;
+  if (!gesture || gesture.pointerId !== event.pointerId || event.pointerType !== 'touch' || gesture.cancelled) return;
+
+  const deltaX = event.clientX - gesture.startX;
+  const deltaY = event.clientY - gesture.startY;
+  const moveTime = performance.now();
+  const moveElapsed = Math.max(1, moveTime - gesture.lastTime);
+  gesture.velocity = (event.clientX - gesture.lastX) / moveElapsed;
+  gesture.currentX = event.clientX;
+  gesture.currentY = event.clientY;
+
+  if (!gesture.dragging) {
+    if (Math.abs(deltaY) > 12 && Math.abs(deltaY) > Math.abs(deltaX) * 1.15) {
+      gesture.cancelled = true;
+      return;
+    }
+    if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.15) return;
+    gesture.dragging = true;
+    gesture.image.style.setProperty('transition', 'none', 'important');
+    gesture.gallery.classList.add('is-touch-dragging');
+  }
+
+  event.preventDefault();
+  const boundedDelta = Math.max(-gesture.width * 0.96, Math.min(gesture.width * 0.96, deltaX));
+  gesture.image.style.transform = `translate3d(${boundedDelta.toFixed(2)}px,0,0)`;
+  gesture.lastX = event.clientX;
+  gesture.lastTime = moveTime;
+}
+
+function returnProductGalleryImageAfterSwipe(image, gallery) {
+  if (!image) return;
+  clearTimeout(productGallerySwipeReturnTimer);
+  gallery?.classList.remove('is-touch-dragging');
+  image.style.removeProperty('transition');
+  image.classList.add('is-swipe-returning');
+  requestAnimationFrame(() => {
+    image.style.transform = 'translate3d(0,0,0)';
+  });
+  productGallerySwipeReturnTimer = setTimeout(() => {
+    image.classList.remove('is-swipe-returning');
+    image.style.removeProperty('transform');
+    image.style.removeProperty('transition');
+  }, 280);
+}
+
+function finishProductGalleryTouchGesture(event, allowTap = false) {
+  const gesture = productGalleryTouchGesture;
+  if (!gesture || gesture.pointerId !== event.pointerId) return { handled: false, wasDrag: false };
+  productGalleryTouchGesture = null;
+
+  const deltaX = event.clientX - gesture.startX;
+  const deltaY = event.clientY - gesture.startY;
+  const velocity = Number(gesture.velocity) || 0;
+  const wasDrag = gesture.dragging;
+  gesture.gallery.classList.remove('is-touch-dragging');
+
+  if (event.type === 'pointercancel') {
+    if (wasDrag) returnProductGalleryImageAfterSwipe(gesture.image, gesture.gallery);
+    return { handled: true, wasDrag };
+  }
+
+  if (wasDrag) {
+    event.preventDefault();
+    const distanceThreshold = Math.max(48, gesture.width * 0.16);
+    const enoughDistance = Math.abs(deltaX) >= distanceThreshold;
+    const enoughVelocity = Math.abs(velocity) >= 0.45 && Math.abs(deltaX) >= 28;
+
+    if ((enoughDistance || enoughVelocity) && Math.abs(deltaX) > Math.abs(deltaY) * 1.1 && productPageImages.length > 1) {
+      const direction = deltaX < 0 ? 'next' : 'prev';
+      const step = direction === 'next' ? 1 : -1;
+      const nextIndex = (productGallerySelectedIndex + step + productPageImages.length) % productPageImages.length;
+      const progress = Math.max(-0.96, Math.min(0.96, deltaX / gesture.width));
+      selectProductImage(nextIndex, direction, { progress });
+    } else {
+      returnProductGalleryImageAfterSwipe(gesture.image, gesture.gallery);
+    }
+    return { handled: true, wasDrag: true };
+  }
+
+  if (allowTap && !gesture.cancelled && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && isProductImageZoomTarget(event)) {
+    event.preventDefault();
+    openProductMobileImageViewer();
+    return { handled: true, wasDrag: false };
+  }
+
+  return { handled: true, wasDrag: false };
+}
+
+function handleProductGalleryTouchPointerCancel(event) {
+  finishProductGalleryTouchGesture(event, false);
+}
+
 function handleProductMobileImageViewerPointerUp(event) {
   if (event.pointerType !== 'touch' || !isProductMobileTouchDevice()) return;
-  if (!isProductImageZoomTarget(event)) return;
-  event.preventDefault();
-  openProductMobileImageViewer();
+  finishProductGalleryTouchGesture(event, true);
 }
 
 let productMobileImageViewer = null;
@@ -2177,7 +2316,7 @@ function isProductGalleryImageReadyForSource(image, src) {
   return currentSrc === expectedSrc;
 }
 
-function preloadProductGalleryImage(src) {
+function preloadProductGalleryImage(src, priority = 'high') {
   const cached = productGalleryImageLoadCache.get(src);
   if (cached) return cached.promise;
 
@@ -2193,7 +2332,7 @@ function preloadProductGalleryImage(src) {
 
     image.decoding = 'async';
     image.loading = 'eager';
-    image.fetchPriority = 'high';
+    image.fetchPriority = priority;
     image.onload = () => finish(true);
     image.onerror = () => finish(false);
     image.src = src;
@@ -2213,6 +2352,43 @@ function preloadProductGalleryImage(src) {
 
   productGalleryImageLoadCache.set(src, entry);
   return entry.promise;
+}
+
+function preloadProductGalleryNeighborImages(index) {
+  if (productPageImages.length < 2) return;
+  const neighborIndexes = [
+    (index - 1 + productPageImages.length) % productPageImages.length,
+    (index + 1) % productPageImages.length
+  ];
+  neighborIndexes.forEach(neighborIndex => {
+    const source = productPageImages[neighborIndex];
+    const src = optimizedImage(source, 'modal') || source;
+    if (src) preloadProductGalleryImage(src, 'low');
+  });
+}
+
+function getProductGalleryDominantBlurImage(images) {
+  const loaded = images.filter(image => {
+    const loadedSrc = image.dataset.loadedSrc;
+    return loadedSrc && isProductGalleryImageReadyForSource(image, loadedSrc);
+  });
+  if (!loaded.length) return null;
+  return loaded.reduce((best, image) => {
+    const opacity = Number.parseFloat(getComputedStyle(image).opacity) || 0;
+    const bestOpacity = best ? (Number.parseFloat(getComputedStyle(best).opacity) || 0) : -1;
+    const isVisible = image.classList.contains('is-visible');
+    const bestIsVisible = best?.classList.contains('is-visible') || false;
+    if (opacity > bestOpacity || (opacity === bestOpacity && isVisible && !bestIsVisible)) return image;
+    return best;
+  }, null);
+}
+
+function hideProductGalleryBlurLayerImmediately(image) {
+  if (!image) return;
+  image.style.setProperty('transition-property', 'none', 'important');
+  image.classList.remove('is-visible');
+  void image.offsetWidth;
+  image.style.removeProperty('transition-property');
 }
 
 function scheduleProductGalleryLoader(requestId) {
@@ -2245,7 +2421,11 @@ function clearProductGallerySlideTransition() {
     productGallerySlideMainImage.removeEventListener('animationend', productGallerySlideEndHandler);
   }
   productGallerySlideMainImage?.classList.remove('is-slide-in-next', 'is-slide-in-prev', 'is-fading-out');
+  productGallerySlideMainImage?.style.removeProperty('--gallery-swipe-progress');
+  productGallerySlideMainImage?.style.removeProperty('--gallery-swipe-duration');
   document.getElementById('productMainImage')?.classList.remove('is-fading-out');
+  document.getElementById('productMainImage')?.style.removeProperty('--gallery-swipe-progress');
+  document.getElementById('productMainImage')?.style.removeProperty('--gallery-swipe-duration');
   productGallerySlideOutgoingImage?.remove();
   productGallerySlideMainImage = null;
   productGallerySlideOutgoingImage = null;
@@ -2283,8 +2463,16 @@ function startProductGallerySlideTransition(mainImage, outgoingImage, direction,
   productGallerySlideCleanupTimer = setTimeout(finish, 430);
 }
 
-function selectProductImage(index, direction = null) {
+function selectProductImage(index, direction = null, swipeTransition = null) {
   hideProductImageZoom();
+  if (!swipeTransition) {
+    clearTimeout(productGallerySwipeReturnTimer);
+    const returningImage = document.getElementById('productMainImage');
+    returningImage?.classList.remove('is-swipe-returning');
+    returningImage?.style.removeProperty('transform');
+    returningImage?.style.removeProperty('transition');
+    document.getElementById('galleryMain')?.classList.remove('is-touch-dragging');
+  }
   clearProductGallerySlideTransition();
   const mainImage = document.getElementById('productMainImage');
   const gallery = document.getElementById('galleryMain');
@@ -2340,10 +2528,14 @@ function selectProductImage(index, direction = null) {
       const revealMatchingBlur = () => {
         if (requestId !== productGallerySelectionRequestId || matchingBlur.dataset.original !== original) return;
         if (!isProductGalleryImageReadyForSource(matchingBlur, matchingBlur.dataset.loadedSrc)) return;
-        blurImages.forEach(image => image.classList.toggle('is-visible', image === matchingBlur));
+        blurImages.forEach(image => {
+          if (image === matchingBlur) image.classList.add('is-visible');
+          else hideProductGalleryBlurLayerImmediately(image);
+        });
       };
       matchingBlur.onload = revealMatchingBlur;
       revealMatchingBlur();
+      preloadProductGalleryNeighborImages(index);
       return;
     }
   }
@@ -2375,8 +2567,13 @@ function selectProductImage(index, direction = null) {
         if (mainImageReady && blurImageReady) hideProductGalleryLoader(requestId);
       };
 
-      const currentBlurImage = blurImages.find(image => image.classList.contains('is-visible')) || null;
+      const currentBlurImage = getProductGalleryDominantBlurImage(blurImages);
+      blurImages.forEach(image => {
+        if (image !== currentBlurImage) hideProductGalleryBlurLayerImmediately(image);
+        else image.classList.add('is-visible');
+      });
       const nextBlurImage = blurImages.find(image => image !== currentBlurImage) || blurImages[0] || null;
+      const swipeProgress = swipeTransition ? Math.max(-0.96, Math.min(0.96, Number(swipeTransition.progress) || 0)) : 0;
       let outgoingImage = null;
 
       if (direction && hadVisibleImage) {
@@ -2387,10 +2584,20 @@ function selectProductImage(index, direction = null) {
         outgoingImage.setAttribute('aria-hidden', 'true');
         outgoingImage.draggable = false;
         outgoingImage.setAttribute('draggable', 'false');
+        outgoingImage.style.removeProperty('transform');
+        outgoingImage.style.removeProperty('transition');
+        outgoingImage.style.setProperty('--gallery-swipe-progress', `${(swipeProgress * 100).toFixed(2)}%`);
+        if (swipeTransition) outgoingImage.style.setProperty('--gallery-swipe-duration', `${Math.max(130, 350 * (1 - Math.abs(swipeProgress))).toFixed(0)}ms`);
         outgoingImage.src = mainImage.currentSrc || mainImage.src;
         productGallerySlideOutgoingImage = outgoingImage;
         gallery.insertBefore(outgoingImage, mainImage.nextSibling);
       }
+
+      mainImage.style.removeProperty('transform');
+      mainImage.style.removeProperty('transition');
+      mainImage.style.setProperty('--gallery-swipe-progress', `${(swipeProgress * 100).toFixed(2)}%`);
+      if (swipeTransition) mainImage.style.setProperty('--gallery-swipe-duration', `${Math.max(130, 350 * (1 - Math.abs(swipeProgress))).toFixed(0)}ms`);
+      else mainImage.style.removeProperty('--gallery-swipe-duration');
 
       mainImage.dataset.original = original;
       mainImage.dataset.index = String(index);
@@ -2406,7 +2613,12 @@ function selectProductImage(index, direction = null) {
           if (!isProductGalleryImageReadyForSource(nextBlurImage, expectedBlurSrc)) return;
           nextBlurImageReady = true;
           nextBlurImage.dataset.loadedSrc = normalizeProductGalleryImageSrc(expectedBlurSrc);
-          // As duas camadas têm exatamente o mesmo filter fixo; apenas opacity muda.
+          // Normaliza qualquer crossfade interrompido: a camada de saída é a foto
+          // visualmente dominante; a entrada fica escondida até estar decodificada.
+          blurImages.forEach(image => {
+            if (image !== nextBlurImage && image !== currentBlurImage) hideProductGalleryBlurLayerImmediately(image);
+          });
+          // As duas camadas mantêm o blur fixo; somente opacity faz o crossfade.
           nextBlurImage.classList.add('is-visible');
           if (currentBlurImage) currentBlurImage.classList.remove('is-visible');
           blurImageReady = true;
@@ -2454,6 +2666,7 @@ function selectProductImage(index, direction = null) {
         mainImage.dataset.loadedSrc = normalizeProductGalleryImageSrc(expectedMainSrc);
         syncProductImageZoomSource();
         mainImageReady = true;
+        preloadProductGalleryNeighborImages(index);
         requestAnimationFrame(() => {
           if (requestId !== productGallerySelectionRequestId) return;
           if (outgoingImage && direction) {
