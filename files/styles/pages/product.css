@@ -32,7 +32,7 @@
     .gallery-main img {border-radius: 25px;margin: auto;width: auto !important;padding: 0 !important;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
     .gallery-main #productMainImage {opacity:1;transition:opacity .22s ease;will-change:opacity;}
     .gallery-main #productMainImage.is-fading-out {opacity:0;}
-    .gallery-main .gallery-main-blur {display:none;position:absolute;inset:0;width:100% !important;height:100% !important;max-width:none;max-height:none;object-fit:cover;border-radius:inherit;margin:0;padding:0 !important;z-index:0;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+    .gallery-main .gallery-main-blur {display:none;position:absolute;inset:0;width:100% !important;height:100% !important;max-width:none;max-height:none;object-fit:cover;border-radius:inherit;margin:0;padding:0 !important;z-index:0;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;filter:blur(22px) !important;opacity:0;transition-property:opacity !important;transition-duration:.22s;transition-timing-function:ease;will-change:opacity}
     .gallery-image-loader {position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,.16);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease;}
     .gallery-image-loader::before {content:'';position:absolute;inset:-25%;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);transform:translateX(-100%);}
     .gallery-image-loader.is-visible {opacity:1;visibility:visible;}
@@ -464,7 +464,7 @@
     @media (max-width: 900px) {
       .product-main {grid-template-columns: none;gap: 32px;padding: 24px 20px 0;}
       .gallery-main {height: 370px;/* width: 370px; */}
-      .gallery-main .gallery-main-blur {display:block;opacity:0;filter:blur(22px);transition:opacity .22s ease;}
+      .gallery-main .gallery-main-blur {display:block;filter:blur(22px) !important;transition-property:opacity !important;}
       .gallery-main .gallery-main-blur.is-visible {opacity:0.7;}
       .gallery-main .gmain-emoji { font-size: 80px; }
       .info-name { font-size: 28px; }
