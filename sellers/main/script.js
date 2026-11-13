@@ -294,6 +294,7 @@ async function loadMyProducts() {
     return;
   }
   PRODS = data || [];
+  rebuildProductFilterIndex();
   buildProdTable();
   loadStoreProductEngagement().catch(error => console.warn('[Ecomme métricas] Falha ao carregar indicadores:', error));
   const bdg = $('sbProdBdg');
@@ -713,51 +714,94 @@ const prodIsPaused = p => p.badge === 'paused';
 const prodStock = p => Number(p.stock) || 0;
 const prodCategory = p => Array.isArray(p.cat) ? (p.cat[0] || '') : (p.cat || '');
 
+// Índice derivado: evita recalcular nome, categoria, estoque e contagens a cada tecla.
+let productFilterIndex = [];
+let productFilterStats = { all: 0, active: 0, paused: 0, low: 0, categories: [] };
+let productFilterCategoriesKey = null;
+let prodSearchFrame = 0;
+
+function rebuildProductFilterIndex() {
+  const categories = new Set();
+  const stats = { all: PRODS.length, active: 0, paused: 0, low: 0, categories: [] };
+  productFilterIndex = PRODS.map(product => {
+    const category = prodCategory(product);
+    const paused = prodIsPaused(product);
+    const stock = prodStock(product);
+    const row = {
+      product,
+      name: String(product.name || '').toLowerCase(),
+      id: String(product.id ?? '').toLowerCase(),
+      category,
+      paused,
+      lowStock: stock < 5
+    };
+    if (category) categories.add(category);
+    if (paused) stats.paused++;
+    else stats.active++;
+    if (row.lowStock) stats.low++;
+    return row;
+  });
+  stats.categories = [...categories].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  productFilterStats = stats;
+  productFilterCategoriesKey = null;
+}
+
 function getFilteredProds() {
   const q = prodQuery.trim().toLowerCase();
-  return PRODS.filter(p => {
-    if (prodFilter === 'active' && prodIsPaused(p)) return false;
-    if (prodFilter === 'paused' && !prodIsPaused(p)) return false;
-    if (prodFilter === 'low' && prodStock(p) >= 5) return false;
-    if (prodCat && prodCategory(p) !== prodCat) return false;
-    if (q && !(String(p.name || '').toLowerCase().includes(q) || String(p.id).toLowerCase().includes(q))) return false;
-    return true;
-  });
+  const result = [];
+  for (const row of productFilterIndex) {
+    if (prodFilter === 'active' && row.paused) continue;
+    if (prodFilter === 'paused' && !row.paused) continue;
+    if (prodFilter === 'low' && !row.lowStock) continue;
+    if (prodCat && row.category !== prodCat) continue;
+    if (q && !row.name.includes(q) && !row.id.includes(q)) continue;
+    result.push(row.product);
+  }
+  return result;
 }
 
 function updateProdCounts() {
-  const counts = {
-    all: PRODS.length,
-    active: PRODS.filter(p => !prodIsPaused(p)).length,
-    paused: PRODS.filter(prodIsPaused).length,
-    low: PRODS.filter(p => prodStock(p) < 5).length
-  };
+  const counts = productFilterStats;
   document.querySelectorAll('#page-produtos .stab[data-filter]').forEach(tab => {
     tab.textContent = `${tab.dataset.label} (${counts[tab.dataset.filter] ?? 0})`;
   });
   const sel = $('prodCatFilter');
-  if (sel) {
-    const cats = [...new Set(PRODS.map(prodCategory).filter(Boolean))].sort();
+  if (!sel) return;
+  const cats = counts.categories;
+  const key = JSON.stringify(cats);
+  if (productFilterCategoriesKey !== key) {
     sel.innerHTML = '<option value="">Todas as categorias</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-    sel.value = cats.includes(prodCat) ? prodCat : '';
+    productFilterCategoriesKey = key;
   }
+  const selected = cats.includes(prodCat) ? prodCat : '';
+  if (sel.value !== selected) sel.value = selected;
+  if (prodCat !== selected) prodCat = selected;
 }
 
 function buildProdTable(filter) {
   if (filter !== undefined) { prodFilter = filter; prodPageNum = 1; }
   const body = $('prodTbody');
   if (!body) return;
+  if (productFilterIndex.length !== PRODS.length) rebuildProductFilterIndex();
   updateProdCounts();
 
   const all = getFilteredProds();
   const pages = Math.max(1, Math.ceil(all.length / PROD_PAGE_SIZE));
   if (prodPageNum > pages) prodPageNum = pages;
   const slice = all.slice((prodPageNum - 1) * PROD_PAGE_SIZE, prodPageNum * PROD_PAGE_SIZE);
+  const renderSignature = slice.length
+    ? `${ordersModule}|${productEngagementStatus}|` + slice.map(p => {
+        const engagement = productEngagementById[String(p.id)] || {};
+        return JSON.stringify([p.id, p.name, p.sku, prodCategory(p), p.price, prodStock(p), p.badge, p.image_url, p.emoji, soldByProduct[String(p.id)] || 0, engagement.views || 0]);
+      }).join('|')
+    : `empty:${PRODS.length ? 'filtered' : 'catalog'}:${PRODS.length}`;
 
-  if (!slice.length) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="10">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
-  } else {
-    body.innerHTML = slice.map(p => {
+  // Busca e filtros não recriam a tabela quando a mesma página de linhas continua visível.
+  if (body.dataset.renderSignature !== renderSignature) {
+    if (!slice.length) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="10">${PRODS.length ? 'Nenhum produto encontrado com esses filtros.' : 'Você ainda não cadastrou produtos. Clique em “+ Novo Produto” para começar.'}</td></tr>`;
+    } else {
+      body.innerHTML = slice.map(p => {
       const stock = prodStock(p);
       const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
       const stTag = !prodIsPaused(p) ? '<span class="tag tag-green"><i class="fa-solid fa-circle"></i> Ativo</span>' : '<span class="tag tag-gray"><i class="fa-solid fa-pause"></i> Pausado</span>';
@@ -766,7 +810,7 @@ function buildProdTable(filter) {
       const engagement = productEngagementById[String(p.id)] || {};
       const viewsTxt = productEngagementStatus === 'missing' ? 'Configurar' : productEngagementStatus === 'loading' ? 'Carregando…' : formatEngagementCount(engagement.views || 0);
       const media = p.image_url
-        ? `<img src="${escapeHtml(p.image_url)}" loading="lazy" alt="${escapeHtml(p.name)}">`
+        ? `<img src="${escapeHtml(p.image_url)}" loading="lazy" decoding="async" fetchpriority="low" width="44" height="44" alt="${escapeHtml(p.name)}">`
         : '';
       const id = escapeHtml(p.id);
       return `<tr class="product-data-row" data-product-row data-id="${id}" tabindex="0" aria-label="Ver detalhes do produto ${escapeHtml(p.name)}">
@@ -794,7 +838,9 @@ function buildProdTable(filter) {
         </div>
       </div></td>
     </tr>`;
-    }).join('');
+      }).join('');
+    }
+    body.dataset.renderSignature = renderSignature;
   }
   setText('prodCount', `Mostrando ${slice.length} de ${all.length} produtos`);
   const prev = $('prodPrev'), next = $('prodNext');
@@ -835,7 +881,12 @@ function filterProds(btn, f) {
   btn.classList.add('on');
   buildProdTable(f);
 }
-function onProdSearch(el) { prodQuery = el.value; prodPageNum = 1; buildProdTable(); }
+function onProdSearch(el) {
+  prodQuery = el.value;
+  prodPageNum = 1;
+  if (prodSearchFrame) cancelAnimationFrame(prodSearchFrame);
+  prodSearchFrame = requestAnimationFrame(() => { prodSearchFrame = 0; buildProdTable(); });
+}
 function onProdCatChange(el) { prodCat = el.value; prodPageNum = 1; buildProdTable(); }
 function prodPage(delta) { prodPageNum = Math.max(1, prodPageNum + delta); buildProdTable(); }
 
@@ -1409,76 +1460,88 @@ let currentPreviewBlobUrl = null;
 let currentPreviewFile = null;
 
 const emos = {'📱 Eletrônicos':'📱','👗 Moda':'👗','🏠 Casa':'🏠','💪 Fitness':'💪','💄 Beleza':'💄','🐾 Pets':'🐾','📦 Diversos':'📦'};
-function updatePreview() {
-  const n = document.getElementById('npName')?.value || 'Nome do produto';
-  const p = document.getElementById('npPrice')?.value || 'R$ 0,00';
-  const c = document.getElementById('npCat')?.value || 'Categoria';
-  const d = document.getElementById('npDesc')?.value || 'Descrição curta aqui...';
-  
-  if(document.getElementById('previewName')) document.getElementById('previewName').textContent = n;
-  if(document.getElementById('previewPrice')) document.getElementById('previewPrice').textContent = p || 'R$ 0,00';
-  if(document.getElementById('previewCat')) document.getElementById('previewCat').textContent = c;
-  if(document.getElementById('previewDesc')) document.getElementById('previewDesc').textContent = d.slice(0,80);
-  
-  const em = emos[c] || '📦';
-  const previewEl = document.getElementById('previewImg');
-  
-  const mainImageFile = productImagesFiles[0];
-  const isEditing = typeof editingProductId !== 'undefined' && editingProductId;
+function setProductPreviewImage(previewEl, src, alt, placeholder) {
+  let image = previewEl.querySelector('img.pv-img');
+  if (src) {
+    if (!image) {
+      image = document.createElement('img');
+      image.className = 'pv-img';
+      image.alt = alt || 'Preview';
+      image.decoding = 'async';
+      previewEl.replaceChildren(image);
+    } else if (image.alt !== (alt || 'Preview')) {
+      image.alt = alt || 'Preview';
+    }
+    // Não recria o nó nem reaplica o mesmo src a cada tecla digitada.
+    if (image.dataset.previewSrc !== src) {
+      image.dataset.previewSrc = src;
+      image.src = src;
+    }
+    delete previewEl.dataset.placeholder;
+    return;
+  }
+  const text = placeholder || '📦';
+  if (image || previewEl.dataset.placeholder !== text) {
+    previewEl.replaceChildren(document.createTextNode(text));
+    previewEl.dataset.placeholder = text;
+  }
+}
 
+function updatePreview() {
+  const nameEl = $('npName'), priceEl = $('npPrice'), catEl = $('npCat'), descEl = $('npDesc');
+  const n = nameEl?.value || 'Nome do produto';
+  const p = priceEl?.value || 'R$ 0,00';
+  const c = catEl?.value || 'Categoria';
+  const d = descEl?.value || 'Descrição curta aqui...';
+
+  const previewName = $('previewName');
+  const previewPrice = $('previewPrice');
+  const previewCat = $('previewCat');
+  const previewDesc = $('previewDesc');
+  if (previewName && previewName.textContent !== n) previewName.textContent = n;
+  if (previewPrice && previewPrice.textContent !== p) previewPrice.textContent = p;
+  if (previewCat && previewCat.textContent !== c) previewCat.textContent = c;
+  if (previewDesc) {
+    const shortDescription = d.slice(0, 80);
+    if (previewDesc.textContent !== shortDescription) previewDesc.textContent = shortDescription;
+  }
+
+  const previewEl = $('previewImg');
   if (previewEl) {
+    const mainImageFile = productImagesFiles[0];
+    const isEditing = editingProductId !== null && editingProductId !== undefined && editingProductId !== '';
     if (mainImageFile) {
       if (currentPreviewFile !== mainImageFile) {
-        if (currentPreviewBlobUrl) {
-          URL.revokeObjectURL(currentPreviewBlobUrl);
-        }
+        if (currentPreviewBlobUrl) URL.revokeObjectURL(currentPreviewBlobUrl);
         currentPreviewBlobUrl = URL.createObjectURL(mainImageFile);
         currentPreviewFile = mainImageFile;
       }
-      previewEl.innerHTML = `<img src="${currentPreviewBlobUrl}" class="pv-img" alt="Preview">`;
-      
+      setProductPreviewImage(previewEl, currentPreviewBlobUrl, 'Preview do produto', '');
     } else if (isEditing) {
-      const p = findProd(editingProductId);
       const existingMain = productExistingUrls[0];
-      if (p && existingMain) {
-        if (previewEl.tagName.toLowerCase() !== 'img') {
-          previewEl.innerHTML = `<img src="${escapeHtml(existingMain)}" class="pv-img" alt="${escapeHtml(p.name)}">`;
-        } else {
-          previewEl.src = existingMain;
-        }
+      if (existingMain) {
+        setProductPreviewImage(previewEl, existingMain, 'Imagem do produto', '');
       } else {
-        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
+        setProductPreviewImage(previewEl, '', '', emos[c] || '📦');
       }
-      
     } else {
-      if (previewEl.tagName.toLowerCase() !== 'img') {
-        previewEl.innerHTML = `<div class="fs24" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${em}</div>`;
-      } else {
-        previewEl.src = ''; 
-      }
+      setProductPreviewImage(previewEl, '', '', emos[c] || '📦');
     }
   }
-  
-  const set = (id, ok) => {
-  const el = document.getElementById(id);
-  if (!el) return;
-    
-  el.style.color = ok ? 'var(--green)' : 'var(--red)';
-  const icon = el.querySelector('i');
 
-  if (icon) {
-    icon.className = ok
-      ? 'fa-solid fa-check'
-      : 'fa-solid fa-xmark';
-  }
+  const setChecklist = (id, valid) => {
+    const el = $(id);
+    if (!el || el.dataset.valid === String(!!valid)) return;
+    el.dataset.valid = String(!!valid);
+    el.style.color = valid ? 'var(--green)' : 'var(--red)';
+    const icon = el.querySelector('i');
+    if (icon) icon.className = valid ? 'fa-solid fa-check' : 'fa-solid fa-xmark';
   };
-  
-  set('chk-name',n&&n!=='Nome do produto');
-  set('chk-cat',c&&c!=='Selecionar...'&&c!=='Categoria');
-  set('chk-price',p&&p!=='R$ 0,00'&&p!=``);
-  set('chk-desc',d&&d.length>10);
+  setChecklist('chk-name', !!n && n !== 'Nome do produto');
+  setChecklist('chk-cat', !!c && c !== 'Selecionar...' && c !== 'Categoria');
+  setChecklist('chk-price', !!p && p !== 'R$ 0,00');
+  setChecklist('chk-desc', d.length > 10);
 }
-  
 
 // ══ MARGEM (cálculo real; sem números aleatórios e sem percentual inventado) ═══
 // Preencha com a comissão real da Ecomme quando ela for definida (ex.: 0.09 = 9%). null = não exibe o líquido.
@@ -2383,6 +2446,7 @@ function resetPublishChecklist() {
     const el = document.getElementById(id);
 
     if (!el) return;
+    el.dataset.valid = 'false';
     el.style.color = 'var(--red)';
     const icon = el.querySelector('i');
     if (icon) {
