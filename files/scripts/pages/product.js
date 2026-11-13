@@ -2873,20 +2873,35 @@ function clearProductGallerySlideTransition() {
   if (productGallerySlideMainImage && productGallerySlideEndHandler) {
     productGallerySlideMainImage.removeEventListener('animationend', productGallerySlideEndHandler);
   }
-  productGallerySlideMainImage?.classList.remove('is-slide-in-next', 'is-slide-in-prev', 'is-fading-out');
-  if (productGallerySlideMainImage) {
-    ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => productGallerySlideMainImage.style.removeProperty(property));
-    productGallerySlideMainImage.style.removeProperty('transform');
-    productGallerySlideMainImage.style.removeProperty('opacity');
+
+  const animatedImage = productGallerySlideMainImage;
+  if (animatedImage) {
+    // Consolida o último frame ANTES de retirar a animação. Sem isso, os estilos
+    // inline usados como ponto inicial do swipe podem reaparecer por um frame.
+    animatedImage.style.setProperty('transition', 'none', 'important');
+    animatedImage.style.setProperty('transform', 'translate3d(0,0,0) scale(1)');
+    animatedImage.style.setProperty('opacity', '1');
+    void animatedImage.offsetWidth;
+    animatedImage.classList.remove('is-slide-in-next', 'is-slide-in-prev', 'is-fading-out');
+    ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => animatedImage.style.removeProperty(property));
+    animatedImage.style.removeProperty('transform');
+    animatedImage.style.removeProperty('opacity');
+    animatedImage.style.removeProperty('transition');
   }
+
   const currentMainImage = document.getElementById('productMainImage');
   currentMainImage?.classList.remove('is-fading-out');
-  if (currentMainImage) ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => currentMainImage.style.removeProperty(property));
+  if (currentMainImage && currentMainImage !== animatedImage) {
+    ['--gallery-swipe-progress', '--gallery-swipe-duration', '--gallery-swipe-incoming-start-scale', '--gallery-swipe-incoming-start-opacity', '--gallery-swipe-incoming-end-scale', '--gallery-swipe-incoming-start-x'].forEach(property => currentMainImage.style.removeProperty(property));
+    currentMainImage.style.removeProperty('transform');
+    currentMainImage.style.removeProperty('opacity');
+    currentMainImage.style.removeProperty('transition');
+  }
+
   productGallerySlideOutgoingImage?.remove();
   productGallerySlideMainImage = null;
   productGallerySlideOutgoingImage = null;
   productGallerySlideEndHandler = null;
-
   document.getElementById('galleryMain')?.classList.remove('is-sliding-image');
 }
 
@@ -3068,23 +3083,30 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
       }
 
       mainImage.style.removeProperty('transform');
-      mainImage.style.removeProperty('transition');
       mainImage.style.removeProperty('opacity');
-      mainImage.style.setProperty('--gallery-swipe-progress', `${(swipeProgress * 100).toFixed(2)}%`);
-      if (swipeTransition) {
-        const incomingScale = Number(swipeTransition.incomingScale) || 1;
-        const incomingOpacity = Number(swipeTransition.incomingOpacity) || 0;
-        mainImage.style.setProperty('--gallery-swipe-duration', `${Math.max(115, Number(swipeTransition.duration) || 350).toFixed(0)}ms`);
+      // Mantém a imagem de entrada fora da área visível enquanto o novo src
+      // é aplicado/decodificado. Isso evita que ela apareça atrás da foto atual
+      // por um frame antes do requestAnimationFrame iniciar as keyframes.
+      if (direction && outgoingImage) {
+        const incomingScale = swipeTransition ? (Number(swipeTransition.incomingScale) || 1) : 1;
+        const incomingOpacity = swipeTransition ? Math.max(0, Math.min(1, Number(swipeTransition.incomingOpacity) || 0)) : 0;
+        const incomingStartX = (direction === 'prev' ? -gallery.clientWidth : gallery.clientWidth) + (Number(swipeTransition?.deltaX) || 0);
+        mainImage.style.setProperty('transition', 'none', 'important');
         mainImage.style.setProperty('--gallery-swipe-incoming-start-scale', String(incomingScale));
         mainImage.style.setProperty('--gallery-swipe-incoming-start-opacity', String(incomingOpacity));
         mainImage.style.setProperty('--gallery-swipe-incoming-end-scale', '1');
-        const incomingStartX = (direction === 'prev' ? -gallery.clientWidth : gallery.clientWidth) + (Number(swipeTransition.deltaX) || 0);
         mainImage.style.setProperty('--gallery-swipe-incoming-start-x', `${incomingStartX}px`);
         mainImage.style.transform = `translate3d(${incomingStartX}px,0,0) scale(${incomingScale})`;
         mainImage.style.opacity = String(incomingOpacity);
+        if (swipeTransition) {
+          mainImage.style.setProperty('--gallery-swipe-duration', `${Math.max(115, Number(swipeTransition.duration) || 350).toFixed(0)}ms`);
+        } else {
+          mainImage.style.removeProperty('--gallery-swipe-duration');
+        }
       } else {
-        mainImage.style.removeProperty('--gallery-swipe-duration');
+        mainImage.style.removeProperty('transition');
       }
+      mainImage.style.setProperty('--gallery-swipe-progress', `${(swipeProgress * 100).toFixed(2)}%`);
 
       mainImage.dataset.original = original;
       mainImage.dataset.index = String(index);
@@ -3145,9 +3167,23 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
       }
 
       let expectedMainSrc = finalImageSrc;
-      mainImage.onload = () => {
-        if (requestId !== productGallerySelectionRequestId || mainImageReady) return;
+      let mainImageDecodePending = false;
+      mainImage.onload = async () => {
+        if (requestId !== productGallerySelectionRequestId || mainImageReady || mainImageDecodePending) return;
         if (!isProductGalleryImageReadyForSource(mainImage, expectedMainSrc)) return;
+        mainImageDecodePending = true;
+        const decodeSource = expectedMainSrc;
+        // O preload separado aquece o cache, mas a própria camada visível também
+        // precisa terminar decode() antes de entrar na animação para evitar flash.
+        const decodeTasks = [];
+        if (typeof mainImage.decode === 'function') decodeTasks.push(mainImage.decode().catch(() => {}));
+        if (outgoingImage && typeof outgoingImage.decode === 'function') decodeTasks.push(outgoingImage.decode().catch(() => {}));
+        if (decodeTasks.length) await Promise.all(decodeTasks);
+        if (requestId !== productGallerySelectionRequestId) return;
+        if (decodeSource !== expectedMainSrc || !isProductGalleryImageReadyForSource(mainImage, expectedMainSrc)) {
+          mainImageDecodePending = false;
+          return;
+        }
         mainImage.style.display = 'block';
         emoji.style.display = 'none';
         mainImage.dataset.loadedSrc = normalizeProductGalleryImageSrc(expectedMainSrc);
@@ -3161,6 +3197,7 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
             startProductGallerySlideTransition(mainImage, outgoingImage, direction, requestId, swipeTransition);
           } else {
             mainImage.classList.remove('is-fading-out');
+            mainImage.style.removeProperty('transition');
           }
           finishGalleryImageLoading();
         });
