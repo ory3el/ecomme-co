@@ -3076,6 +3076,10 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
           outgoingImage.style.setProperty('--gallery-swipe-outgoing-start-x', `${Number(swipeTransition.deltaX) || 0}px`);
           outgoingImage.style.transform = `translate3d(${Number(swipeTransition.deltaX) || 0}px,0,0) scale(${Number(swipeTransition.outgoingScale) || 1})`;
           outgoingImage.style.opacity = String(Number(swipeTransition.outgoingOpacity) || 1);
+        } else {
+          // Nas setas, usamos um slide opaco (push), sem crossfade entre as fotos.
+          // Isso impede que a próxima imagem transpareça por trás da imagem atual.
+          outgoingImage.style.setProperty('--gallery-swipe-outgoing-end-opacity', '1');
         }
         outgoingImage.src = mainImage.currentSrc || mainImage.src;
         productGallerySlideOutgoingImage = outgoingImage;
@@ -3089,7 +3093,9 @@ function selectProductImage(index, direction = null, swipeTransition = null) {
       // por um frame antes do requestAnimationFrame iniciar as keyframes.
       if (direction && outgoingImage) {
         const incomingScale = swipeTransition ? (Number(swipeTransition.incomingScale) || 1) : 1;
-        const incomingOpacity = swipeTransition ? Math.max(0, Math.min(1, Number(swipeTransition.incomingOpacity) || 0)) : 0;
+        // Setas: a foto nova já entra totalmente opaca, vindo de fora da galeria.
+        // O arraste mantém a opacidade proporcional ao gesto do dedo.
+        const incomingOpacity = swipeTransition ? Math.max(0, Math.min(1, Number(swipeTransition.incomingOpacity) || 0)) : 1;
         const incomingStartX = (direction === 'prev' ? -gallery.clientWidth : gallery.clientWidth) + (Number(swipeTransition?.deltaX) || 0);
         mainImage.style.setProperty('transition', 'none', 'important');
         mainImage.style.setProperty('--gallery-swipe-incoming-start-scale', String(incomingScale));
