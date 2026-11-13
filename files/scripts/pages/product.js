@@ -131,10 +131,12 @@ async function initProductPage() {
     loadProductStoreDetails(currentProduct).catch(error => {
       console.warn('Não foi possível carregar os dados da loja deste produto:', error);
     });
-    // Carrega as avaliações reais sem bloquear a renderização do produto.
-    loadProductReviews(currentProduct).catch(error => {
-      console.error('Não foi possível carregar as avaliações deste produto:', error);
-    });
+    // Produtos pausados continuam públicos, mas não exibem nem consultam avaliações.
+    if (!isUnavailableProduct(currentProduct)) {
+      loadProductReviews(currentProduct).catch(error => {
+        console.error('Não foi possível carregar as avaliações deste produto:', error);
+      });
+    }
     renderProductGallery(currentProduct);
     renderRelatedProducts(currentProduct.id);
     bindProductActions();
@@ -501,12 +503,15 @@ function renderProductDetails(p) {
     const rows = [
       ['Produto', p.name || 'Produto sem nome'],
       ['Categoria', category || 'Não informada'],
-      ['Preço', priceText(price)],
-      [
+      ['Preço', priceText(price)]
+    ];
+
+    if (!isUnavailableProduct(p)) {
+      rows.push([
         'Avaliação',
         `${rating.toFixed(1)} de 5 (${reviews.toLocaleString('pt-BR')} avaliações)`
-      ]
-    ];
+      ]);
+    }
 
     (Array.isArray(p.features) ? p.features : [])
       .filter(Boolean)
@@ -608,20 +613,56 @@ function updateProductUnavailableUI(product) {
   notice.hidden = !unavailable;
 
   const blockedControls = document.querySelectorAll(
-    '.main-btns .btn-addcart, .main-btns .btn-buynow, #makeProductOfferBtn, .qty-ctrl .qb'
+    '.main-btns .btn-addcart, .main-btns .btn-buynow, #makeProductOfferBtn, .qty-ctrl .qb, #galFav, #favLg'
   );
   blockedControls.forEach(button => {
     button.disabled = unavailable;
     button.setAttribute('aria-disabled', String(unavailable));
-    if (unavailable) button.title = 'Produto indisponível';
-    else if (button.title === 'Produto indisponível') button.removeAttribute('title');
+    if (unavailable) button.title = button.id === 'galFav' || button.id === 'favLg'
+      ? 'Lista de desejos indisponível para este produto'
+      : 'Produto indisponível';
+    else if (/indisponível/i.test(button.title || '')) button.removeAttribute('title');
   });
+
+  // Oculta toda a experiência de avaliações para produtos pausados,
+  // inclusive o atalho de nota ao lado do título.
+  const reviewTab = document.querySelector('.tabs-nav .tab-btn[data-tab="reviews"]');
+  const reviewPanel = document.getElementById('tab-reviews');
+  [reviewTab, reviewPanel].forEach(element => {
+    if (!element) return;
+    element.hidden = unavailable;
+    element.setAttribute('aria-hidden', String(unavailable));
+  });
+
+  [
+    '.info-rating-row .stars-lg',
+    '.info-rating-row .rating-val',
+    '.info-rating-row .rating-link',
+    '.info-rating-row .rating-sep'
+  ].forEach(selector => {
+    const element = document.querySelector(selector);
+    if (!element) return;
+    element.hidden = unavailable;
+    element.setAttribute('aria-hidden', String(unavailable));
+  });
+
+  if (unavailable) {
+    if (productReviewSearchState.debounceTimer) {
+      clearTimeout(productReviewSearchState.debounceTimer);
+      productReviewSearchState.debounceTimer = null;
+    }
+    productReviewSearchState.requestId += 1;
+    const reviewTabIsActive = reviewTab?.classList.contains('on') || reviewPanel?.classList.contains('on');
+    if (reviewTabIsActive) goToTab('desc');
+  }
 }
+
 
 
 /* ── AVALIAÇÕES REAIS DO PRODUTO ───────────────────────────── */
 
 function writeProductReview() {
+  if (isUnavailableProduct(currentProduct)) return;
   if (!currentProduct?.id) {
     showToast('Carregue o produto antes de escrever uma avaliação.');
     return;
@@ -1080,7 +1121,7 @@ function renderProductReviewItems(items, ownReviewId = null, options = {}) {
 }
 
 async function runProductReviewSearch(searchTerm) {
-  if (!currentProduct?.id || typeof supabaseClient === 'undefined') return;
+  if (isUnavailableProduct() || !currentProduct?.id || typeof supabaseClient === 'undefined') return;
 
   const state = productReviewSearchState;
   const requestId = ++state.requestId;
@@ -1131,6 +1172,7 @@ async function runProductReviewSearch(searchTerm) {
 }
 
 async function loadMoreProductReviews() {
+  if (isUnavailableProduct()) return;
   const state = productReviewSearchState;
   if (state.loading || !state.hasMore || !state.productId) return;
 
@@ -1171,7 +1213,7 @@ async function loadMoreProductReviews() {
 }
 
 async function loadProductReviews(product) {
-  if (!product?.id || typeof supabaseClient === 'undefined') return;
+  if (isUnavailableProduct(product) || !product?.id || typeof supabaseClient === 'undefined') return;
 
   const productId = String(product.id);
   const list = document.querySelector('.rev-list');
@@ -3929,7 +3971,7 @@ function bindProductActions() {
 
     button.onclick = event => {
       event.preventDefault();
-      if (!currentProduct) return;
+      if (!currentProduct || isUnavailableProduct(currentProduct)) return;
 
       const productId = String(currentProduct.id);
       const wishlistApi = window.EcommeWishlists;
@@ -4167,12 +4209,19 @@ function updateProductFavoriteButtons() {
   const id = String(currentProduct.id);
   const selected = isProductSavedInAnyWishlist(id);
 
+  const unavailable = isUnavailableProduct(currentProduct);
   ['galFav', 'favLg'].forEach(buttonId => {
     const button = document.getElementById(buttonId);
     if (!button) return;
     button.classList.toggle('on', selected);
+    button.disabled = unavailable;
+    if (unavailable) button.setAttribute('disabled', '');
+    else button.removeAttribute('disabled');
+    button.setAttribute('aria-disabled', String(unavailable));
     button.setAttribute('aria-pressed', String(selected));
-    button.title = selected ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos';
+    button.title = unavailable
+      ? 'Lista de desejos indisponível para este produto'
+      : selected ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos';
   });
 
   document.querySelectorAll('[data-related-fav]').forEach(button => {
@@ -4316,6 +4365,7 @@ async function buyNow() {
 }
 
 function goToTab(tab) {
+  if (tab === 'reviews' && isUnavailableProduct()) tab = 'desc';
   document.querySelectorAll('.tab-btn').forEach(button => {
     button.classList.toggle('on', button.dataset.tab === tab);
   });
