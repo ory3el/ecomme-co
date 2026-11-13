@@ -1306,3 +1306,69 @@ body.product-report-open{overflow:hidden}
 .main-btns .btn-addcart[hidden], .main-btns .btn-buynow[hidden] { display: none !important; }
 .qty-action-row[hidden], .stock-bar-wrap[hidden] { display: none !important; }
 
+
+
+/* Aviso e estado visual para produtos pausados/indisponíveis. */
+.product-unavailable-banner {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: calc(100% - 56px);
+  max-width: 1384px;
+  box-sizing: border-box;
+  margin: 16px auto 0;
+  padding: 14px 17px;
+  border: 1px solid rgba(220, 38, 38, .22);
+  border-radius: 14px;
+  background: rgba(220, 38, 38, .075);
+  color: var(--red, #dc2626);
+}
+.product-unavailable-banner[hidden] { display: none !important; }
+.product-unavailable-banner-icon {
+  display: inline-flex;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: rgba(220, 38, 38, .11);
+  font-size: 16px;
+}
+.product-unavailable-banner-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.45;
+}
+.product-unavailable-banner-copy strong { font-size: 13px; font-weight: 700; }
+.product-unavailable-banner-copy > span { color: var(--muted); font-size: 12px; }
+.product-main.is-product-unavailable .info-price-row,
+.product-main.is-product-unavailable .info-installment {
+  filter: grayscale(1);
+  opacity: .58;
+}
+.product-main.is-product-unavailable .main-btns .btn-addcart:disabled,
+.product-main.is-product-unavailable .main-btns .btn-buynow:disabled,
+.product-main.is-product-unavailable .main-btns .btn-make-offer:disabled,
+.product-main.is-product-unavailable .qty-ctrl .qb:disabled {
+  filter: grayscale(1);
+  opacity: .52;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+.product-main.is-product-unavailable .main-btns .btn-addcart:disabled:hover,
+.product-main.is-product-unavailable .main-btns .btn-buynow:disabled:hover,
+.product-main.is-product-unavailable .main-btns .btn-make-offer:disabled:hover,
+.product-main.is-product-unavailable .qty-ctrl .qb:disabled:hover {
+  filter: grayscale(1);
+  transform: none;
+  box-shadow: none;
+}
+@media (max-width: 700px) {
+  .product-unavailable-banner { width: calc(100% - 40px); margin-top: 12px; padding: 12px 13px; }
+  .product-unavailable-banner-copy > span { font-size: 11.5px; }
+}
