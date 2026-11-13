@@ -1887,7 +1887,12 @@ function handleProductMobileImageViewerPointerUp(event) {
 
 let productMobileImageViewer = null;
 let productMobileImageViewerImage = null;
+let productMobileImageViewerSecondaryImage = null;
+let productMobileImageViewerTransition = null;
+let productMobileImageViewerTransitionToken = 0;
+let productMobileImageViewerTransitionTimer = null;
 let productMobileImageViewerCounter = null;
+const PRODUCT_MOBILE_VIEWER_SLIDE_DURATION = 260;
 let productMobileImageViewerPreviousFocus = null;
 let productMobileImageViewerPreviousBodyOverflow = '';
 let productMobileImageViewerPreviousRootOverflow = '';
@@ -1928,14 +1933,23 @@ function ensureProductMobileImageViewer() {
   stage.className = 'product-mobile-image-viewer-stage';
 
   const image = document.createElement('img');
-  image.className = 'product-mobile-image-viewer-image';
+  image.className = 'product-mobile-image-viewer-image is-active';
   image.alt = '';
   image.decoding = 'async';
   image.loading = 'eager';
   image.fetchPriority = 'high';
   image.draggable = false;
   image.setAttribute('draggable', 'false');
-  stage.appendChild(image);
+
+  const secondaryImage = document.createElement('img');
+  secondaryImage.className = 'product-mobile-image-viewer-image is-incoming is-hidden';
+  secondaryImage.alt = '';
+  secondaryImage.decoding = 'async';
+  secondaryImage.loading = 'eager';
+  secondaryImage.draggable = false;
+  secondaryImage.setAttribute('draggable', 'false');
+  secondaryImage.setAttribute('aria-hidden', 'true');
+  stage.append(image, secondaryImage);
 
   const counter = document.createElement('span');
   counter.className = 'product-mobile-image-viewer-counter';
@@ -1973,6 +1987,7 @@ function ensureProductMobileImageViewer() {
 
   productMobileImageViewer = overlay;
   productMobileImageViewerImage = image;
+  productMobileImageViewerSecondaryImage = secondaryImage;
   productMobileImageViewerCounter = counter;
   return overlay;
 }
@@ -2041,7 +2056,7 @@ function startProductMobileViewerPinch() {
 }
 
 function handleProductMobileImageViewerPointerDown(event) {
-  if (!productMobileImageViewer?.classList.contains('is-open') || event.pointerType !== 'touch') return;
+  if (!productMobileImageViewer?.classList.contains('is-open') || event.pointerType !== 'touch' || productMobileImageViewerTransition) return;
   event.preventDefault();
   productMobileImageViewerPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   try { event.currentTarget.setPointerCapture(event.pointerId); } catch (_) {}
@@ -2055,6 +2070,10 @@ function handleProductMobileImageViewerPointerDown(event) {
     type: productMobileImageViewerZoom > 1.01 ? 'pan' : 'swipe',
     startX: event.clientX,
     startY: event.clientY,
+    lastX: event.clientX,
+    lastTime: performance.now(),
+    velocityX: 0,
+    deltaX: 0,
     startTranslateX: productMobileImageViewerTranslateX,
     startTranslateY: productMobileImageViewerTranslateY,
     moved: false
@@ -2091,19 +2110,35 @@ function handleProductMobileImageViewerPointerMove(event) {
   if (!gesture) return;
   const deltaX = event.clientX - gesture.startX;
   const deltaY = event.clientY - gesture.startY;
+  const now = performance.now();
+  gesture.velocityX = (event.clientX - gesture.lastX) / Math.max(1, now - gesture.lastTime);
+  gesture.lastX = event.clientX;
+  gesture.lastTime = now;
+  gesture.deltaX = deltaX;
   if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) gesture.moved = true;
 
   if (gesture.type === 'pan' && productMobileImageViewerZoom > 1.01) {
     productMobileImageViewerTranslateX = gesture.startTranslateX + deltaX;
     productMobileImageViewerTranslateY = gesture.startTranslateY + deltaY;
     applyProductMobileImageViewerTransform();
+    return;
   }
-}
 
+  if (gesture.type !== 'swipe' || productMobileImageViewerZoom > 1.01) return;
+  if (Math.abs(deltaX) < 8 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
+
+  const direction = deltaX < 0 ? 1 : -1;
+  if (productMobileImageViewerTransition && productMobileImageViewerTransition.direction !== direction) {
+    cancelProductMobileImageViewerTransition(false);
+  }
+  if (!productMobileImageViewerTransition) {
+    startProductMobileImageViewerTransition(direction, 'drag');
+  }
+  applyProductMobileImageViewerDrag(deltaX, direction);
+}
 function handleProductMobileImageViewerPointerEnd(event) {
   if (!productMobileImageViewerPointers.has(event.pointerId)) return;
   const gesture = productMobileImageViewerGesture;
-  const start = productMobileImageViewerPointers.get(event.pointerId);
   productMobileImageViewerPointers.delete(event.pointerId);
 
   if (productMobileImageViewerPointers.size === 1) {
@@ -2117,15 +2152,23 @@ function handleProductMobileImageViewerPointerEnd(event) {
     productMobileImageViewerGesture = null;
   }
 
-  if (event.type !== 'pointercancel' && gesture?.type === 'swipe' && start && !productMobileImageViewerPointers.size && productMobileImageViewerZoom <= 1.01) {
-    const deltaX = event.clientX - gesture.startX;
-    const deltaY = event.clientY - gesture.startY;
-    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
-      moveProductMobileImageViewer(deltaX < 0 ? 1 : -1);
-    }
+  if (productMobileImageViewerPointers.size || gesture?.type !== 'swipe' || productMobileImageViewerZoom > 1.01) return;
+  const deltaX = event.clientX - gesture.startX;
+  const deltaY = event.clientY - gesture.startY;
+  const stage = productMobileImageViewer?.querySelector('.product-mobile-image-viewer-stage');
+  const width = Math.max(1, stage?.clientWidth || window.innerWidth);
+  const direction = deltaX < 0 ? 1 : -1;
+  const enoughDistance = Math.abs(deltaX) >= Math.max(48, width * 0.16);
+  const enoughVelocity = Math.abs(gesture.velocityX || 0) >= 0.45 && Math.abs(deltaX) >= 28;
+  const shouldCommit = event.type !== 'pointercancel' && gesture.moved &&
+    (enoughDistance || enoughVelocity) && Math.abs(deltaX) > Math.abs(deltaY) * 1.1;
+
+  if (productMobileImageViewerTransition?.mode === 'drag') {
+    finishProductMobileImageViewerDrag(shouldCommit, direction, deltaX);
+  } else if (shouldCommit) {
+    startProductMobileImageViewerTransition(direction, 'button');
   }
 }
-
 function openProductMobileImageViewer() {
   //if (!isProductMobileTouchDevice() || !productPageImages.length) return;
   const mainImage = document.getElementById('productMainImage');
@@ -2149,10 +2192,10 @@ function openProductMobileImageViewer() {
 }
 
 function preloadProductMobileImageViewerImage(index) {
-  if (index < 0 || index >= productPageImages.length) return Promise.resolve();
+  if (index < 0 || index >= productPageImages.length) return Promise.resolve(null);
   const original = productPageImages[index];
   const imageSrc = optimizedImage(original, 'modal') || original;
-  if (!imageSrc) return Promise.resolve();
+  if (!imageSrc) return Promise.resolve(null);
 
   let cached = productMobileImageViewerImageCache.get(imageSrc);
   if (!cached) {
@@ -2161,9 +2204,9 @@ function preloadProductMobileImageViewerImage(index) {
     image.loading = 'eager';
     image.src = imageSrc;
     const ready = typeof image.decode === 'function'
-      ? image.decode().catch(() => null)
+      ? image.decode().then(() => image).catch(() => image.complete && image.naturalWidth ? image : null)
       : new Promise(resolve => {
-          if (image.complete) return resolve(image);
+          if (image.complete) return resolve(image.naturalWidth ? image : null);
           image.addEventListener('load', () => resolve(image), { once: true });
           image.addEventListener('error', () => resolve(null), { once: true });
         });
@@ -2175,6 +2218,7 @@ function preloadProductMobileImageViewerImage(index) {
 
 function updateProductMobileImageViewer() {
   if (!productMobileImageViewer || !productMobileImageViewerImage || !productPageImages.length) return;
+  cancelProductMobileImageViewerTransition(false);
   resetProductMobileImageViewerZoom();
   productMobileImageViewerIndex = (productMobileImageViewerIndex + productPageImages.length) % productPageImages.length;
   const original = productPageImages[productMobileImageViewerIndex];
@@ -2182,17 +2226,30 @@ function updateProductMobileImageViewer() {
   const requestId = ++productMobileImageViewerRequestId;
 
   productMobileImageViewerImage.alt = `${currentProduct?.name || 'Produto'} — imagem ${productMobileImageViewerIndex + 1}`;
-  productMobileImageViewerCounter.textContent = `${productMobileImageViewerIndex + 1} / ${productPageImages.length}`;
   if (productMobileImageViewerImage.src !== new URL(imageSrc, window.location.href).href) {
     productMobileImageViewerImage.src = imageSrc;
   }
+  productMobileImageViewerImage.style.transition = 'none';
+  productMobileImageViewerImage.style.transform = 'translate3d(0,0,0) scale(1)';
+  productMobileImageViewerImage.classList.add('is-active');
+  productMobileImageViewerImage.classList.remove('is-hidden', 'is-incoming', 'is-ready');
+  productMobileImageViewerImage.setAttribute('aria-hidden', 'false');
 
+  if (productMobileImageViewerSecondaryImage) {
+    productMobileImageViewerSecondaryImage.classList.add('is-hidden');
+    productMobileImageViewerSecondaryImage.classList.remove('is-ready', 'is-active');
+    productMobileImageViewerSecondaryImage.style.transition = 'none';
+    productMobileImageViewerSecondaryImage.style.transform = 'translate3d(0,0,0) scale(1)';
+    productMobileImageViewerSecondaryImage.removeAttribute('src');
+    productMobileImageViewerSecondaryImage.setAttribute('aria-hidden', 'true');
+  }
+
+  productMobileImageViewerCounter.textContent = `${productMobileImageViewerIndex + 1} / ${productPageImages.length}`;
   const hasMultipleImages = productPageImages.length > 1;
   productMobileImageViewer.querySelectorAll('.product-mobile-image-viewer-nav').forEach(button => {
     button.hidden = !hasMultipleImages;
   });
 
-  // Pré-carrega as imagens vizinhas em segundo plano para evitar decodificação durante a navegação.
   requestAnimationFrame(() => {
     if (requestId !== productMobileImageViewerRequestId || !productMobileImageViewer?.classList.contains('is-open')) return;
     if (hasMultipleImages) {
@@ -2204,14 +2261,223 @@ function updateProductMobileImageViewer() {
   });
 }
 
-function moveProductMobileImageViewer(direction) {
-  if (!productPageImages.length || !productMobileImageViewer?.classList.contains('is-open')) return;
-  productMobileImageViewerIndex += direction;
-  updateProductMobileImageViewer();
+function applyProductMobileImageViewerDrag(deltaX, direction) {
+  const transition = productMobileImageViewerTransition;
+  const stage = productMobileImageViewer?.querySelector('.product-mobile-image-viewer-stage');
+  if (!transition || transition.mode !== 'drag' || !stage || !transition.ready) return;
+  const width = Math.max(1, transition.width || stage.clientWidth);
+  const boundedDelta = Math.max(-width * 0.96, Math.min(width * 0.96, deltaX));
+  const incomingOffset = direction > 0 ? width : -width;
+  const active = productMobileImageViewerImage;
+  const incoming = productMobileImageViewerSecondaryImage;
+  active.style.transition = 'none';
+  incoming.style.transition = 'none';
+  active.style.transform = `translate3d(${boundedDelta.toFixed(2)}px,0,0) scale(1)`;
+  incoming.style.transform = `translate3d(${(incomingOffset + boundedDelta).toFixed(2)}px,0,0) scale(1)`;
+  transition.lastDelta = boundedDelta;
 }
 
+function startProductMobileImageViewerTransition(direction, mode = 'button') {
+  if (!productPageImages.length || !productMobileImageViewer?.classList.contains('is-open') || productMobileImageViewerTransition) return Promise.resolve(false);
+  if (productPageImages.length <= 1) return Promise.resolve(false);
+
+  const fromIndex = productMobileImageViewerIndex;
+  const toIndex = (fromIndex + direction + productPageImages.length) % productPageImages.length;
+  const token = ++productMobileImageViewerTransitionToken;
+  const stage = productMobileImageViewer.querySelector('.product-mobile-image-viewer-stage');
+  const width = Math.max(1, stage?.clientWidth || window.innerWidth);
+  const transition = {
+    token, direction, mode, fromIndex, toIndex, width,
+    ready: false, lastDelta: 0, onEnd: null
+  };
+  productMobileImageViewerTransition = transition;
+  productMobileImageViewer?.classList.add('is-transitioning');
+
+  // Reseta somente a escala; não limpa os ponteiros nem o gesto de swipe em andamento.
+  productMobileImageViewerZoom = 1;
+  productMobileImageViewerTranslateX = 0;
+  productMobileImageViewerTranslateY = 0;
+  applyProductMobileImageViewerTransform();
+
+  return preloadProductMobileImageViewerImage(toIndex).then(async readyImage => {
+    if (productMobileImageViewerTransition !== transition || token !== productMobileImageViewerTransitionToken || !productMobileImageViewer?.classList.contains('is-open')) return false;
+    if (!readyImage?.naturalWidth || !productMobileImageViewerSecondaryImage) {
+      productMobileImageViewerTransition = null;
+      productMobileImageViewer?.classList.remove('is-transitioning');
+      return false;
+    }
+
+    const incoming = productMobileImageViewerSecondaryImage;
+    const active = productMobileImageViewerImage;
+    incoming.src = readyImage.currentSrc || readyImage.src;
+    if (typeof incoming.decode === 'function') {
+      try { await incoming.decode(); } catch (_) {}
+    }
+    if (productMobileImageViewerTransition !== transition || token !== productMobileImageViewerTransitionToken) return false;
+    incoming.alt = `${currentProduct?.name || 'Produto'} — imagem ${toIndex + 1}`;
+    incoming.style.transition = 'none';
+    incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(1)`;
+    incoming.classList.remove('is-hidden');
+    incoming.classList.add('is-ready', 'is-incoming');
+    incoming.setAttribute('aria-hidden', 'false');
+    active.style.transition = 'none';
+    active.style.transform = 'translate3d(0,0,0) scale(1)';
+    transition.ready = true;
+
+    if (transition.mode === 'drag') {
+      const gesture = productMobileImageViewerGesture;
+      if (gesture?.type === 'swipe') applyProductMobileImageViewerDrag(gesture.deltaX || 0, direction);
+    } else {
+      requestAnimationFrame(() => {
+        if (productMobileImageViewerTransition !== transition) return;
+        animateProductMobileImageViewerTransition(true);
+      });
+    }
+    return true;
+  }).catch(error => {
+    if (productMobileImageViewerTransition === transition) {
+      productMobileImageViewerTransition = null;
+      productMobileImageViewer?.classList.remove('is-transitioning');
+    }
+    console.warn('Não foi possível preparar a imagem do visualizador:', error);
+    return false;
+  });
+}
+
+function animateProductMobileImageViewerTransition(commit) {
+  const transition = productMobileImageViewerTransition;
+  if (!transition?.ready) return;
+  const active = productMobileImageViewerImage;
+  const incoming = productMobileImageViewerSecondaryImage;
+  const width = transition.width;
+  const direction = transition.direction;
+  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : PRODUCT_MOBILE_VIEWER_SLIDE_DURATION;
+  const ease = `transform ${duration}ms cubic-bezier(.22,.61,.36,1)`;
+  active.style.transition = ease;
+  incoming.style.transition = ease;
+  if (commit) {
+    active.style.transform = `translate3d(${(direction > 0 ? -width : width).toFixed(2)}px,0,0) scale(1)`;
+    incoming.style.transform = 'translate3d(0,0,0) scale(1)';
+  } else {
+    active.style.transform = 'translate3d(0,0,0) scale(1)';
+    incoming.style.transform = `translate3d(${(direction > 0 ? width : -width).toFixed(2)}px,0,0) scale(1)`;
+  }
+
+  clearTimeout(productMobileImageViewerTransitionTimer);
+  const token = transition.token;
+  transition.onEnd = event => {
+    if (event && event.propertyName !== 'transform') return;
+    completeProductMobileImageViewerTransition(commit, token);
+  };
+  active.addEventListener('transitionend', transition.onEnd);
+  productMobileImageViewerTransitionTimer = setTimeout(() => completeProductMobileImageViewerTransition(commit, token), duration + 70);
+}
+
+function completeProductMobileImageViewerTransition(commit, token) {
+  const transition = productMobileImageViewerTransition;
+  if (!transition || transition.token !== token) return;
+  clearTimeout(productMobileImageViewerTransitionTimer);
+  const active = productMobileImageViewerImage;
+  const incoming = productMobileImageViewerSecondaryImage;
+  if (transition.onEnd) active.removeEventListener('transitionend', transition.onEnd);
+
+  if (commit) {
+    productMobileImageViewerImage = incoming;
+    productMobileImageViewerSecondaryImage = active;
+    productMobileImageViewerIndex = transition.toIndex;
+    productMobileImageViewerCounter.textContent = `${productMobileImageViewerIndex + 1} / ${productPageImages.length}`;
+    productMobileImageViewerImage.classList.add('is-active');
+    productMobileImageViewerImage.classList.remove('is-incoming', 'is-ready', 'is-hidden');
+    productMobileImageViewerImage.setAttribute('aria-hidden', 'false');
+    productMobileImageViewerSecondaryImage.classList.remove('is-ready', 'is-active');
+    productMobileImageViewerSecondaryImage.classList.add('is-incoming', 'is-hidden');
+    productMobileImageViewerSecondaryImage.setAttribute('aria-hidden', 'true');
+  } else {
+    incoming.classList.remove('is-ready');
+    incoming.classList.add('is-hidden');
+    incoming.setAttribute('aria-hidden', 'true');
+  }
+
+  [productMobileImageViewerImage, productMobileImageViewerSecondaryImage].forEach(image => {
+    image.style.transition = 'none';
+    image.style.transform = 'translate3d(0,0,0) scale(1)';
+  });
+  productMobileImageViewerTransition = null;
+  productMobileImageViewerZoom = 1;
+  productMobileImageViewerTranslateX = 0;
+  productMobileImageViewerTranslateY = 0;
+  productMobileImageViewer?.classList.remove('is-zoomed', 'is-transitioning');
+
+  if (commit) {
+    requestAnimationFrame(() => {
+      if (!productMobileImageViewer?.classList.contains('is-open')) return;
+      const previousIndex = (productMobileImageViewerIndex - 1 + productPageImages.length) % productPageImages.length;
+      const nextIndex = (productMobileImageViewerIndex + 1) % productPageImages.length;
+      preloadProductMobileImageViewerImage(previousIndex);
+      if (nextIndex !== previousIndex) preloadProductMobileImageViewerImage(nextIndex);
+    });
+  }
+}
+
+function finishProductMobileImageViewerDrag(commit, direction, deltaX) {
+  const transition = productMobileImageViewerTransition;
+  if (!transition || transition.mode !== 'drag') {
+    if (commit) startProductMobileImageViewerTransition(direction, 'button');
+    return;
+  }
+  if (transition.direction !== direction && commit) {
+    cancelProductMobileImageViewerTransition(false);
+    startProductMobileImageViewerTransition(direction, 'button');
+    return;
+  }
+  if (!transition.ready) {
+    if (commit) {
+      const intendedDirection = direction;
+      transition.mode = 'button';
+      transition.direction = intendedDirection;
+      return;
+    }
+    cancelProductMobileImageViewerTransition(false);
+    return;
+  }
+  if (Math.abs(deltaX) < 4 && !commit) {
+    cancelProductMobileImageViewerTransition(false);
+    return;
+  }
+  animateProductMobileImageViewerTransition(commit);
+}
+
+function cancelProductMobileImageViewerTransition(animateBack = false) {
+  const transition = productMobileImageViewerTransition;
+  if (!transition) return;
+  if (animateBack && transition.ready) {
+    animateProductMobileImageViewerTransition(false);
+    return;
+  }
+  ++productMobileImageViewerTransitionToken;
+  clearTimeout(productMobileImageViewerTransitionTimer);
+  if (transition.onEnd && productMobileImageViewerImage) {
+    productMobileImageViewerImage.removeEventListener('transitionend', transition.onEnd);
+  }
+  [productMobileImageViewerImage, productMobileImageViewerSecondaryImage].forEach(image => {
+    if (!image) return;
+    image.style.transition = 'none';
+    image.style.transform = 'translate3d(0,0,0) scale(1)';
+  });
+  productMobileImageViewerSecondaryImage?.classList.remove('is-ready');
+  productMobileImageViewerSecondaryImage?.classList.add('is-hidden');
+  productMobileImageViewerSecondaryImage?.setAttribute('aria-hidden', 'true');
+  productMobileImageViewerTransition = null;
+  productMobileImageViewer?.classList.remove('is-transitioning');
+}
+
+function moveProductMobileImageViewer(direction) {
+  if (!productPageImages.length || !productMobileImageViewer?.classList.contains('is-open') || productMobileImageViewerTransition) return;
+  startProductMobileImageViewerTransition(direction, 'button');
+}
 function closeProductMobileImageViewer() {
   if (!productMobileImageViewer?.classList.contains('is-open')) return;
+  cancelProductMobileImageViewerTransition(false);
   productMobileImageViewer.classList.remove('is-open');
   productMobileImageViewer.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = productMobileImageViewerPreviousBodyOverflow;
