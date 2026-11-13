@@ -414,15 +414,39 @@ function renderProductDetails(p) {
   if (badges) {
     badges.replaceChildren();
 
+    const productUnavailable = p.badge === 'paused' || (
+      typeof isProductUnavailable === 'function' &&
+      isProductUnavailable(p)
+    );
+
     if (p.badge === 'hot') {
       addBadge(badges, '🔥 Mais vendido', 'hot');
     } else if (p.badge === 'new') {
       addBadge(badges, 'Novo', 'hot');
-    } else if (
-      typeof isProductUnavailable === 'function' &&
-      isProductUnavailable(p)
-    ) {
+    } else if (productUnavailable) {
       addBadge(badges, 'Indisponível', 'hot');
+    }
+
+    const rawStock = p.stock;
+    const productStock = rawStock === null || rawStock === undefined ||
+      (typeof rawStock === 'string' && !rawStock.trim())
+      ? NaN
+      : Number(rawStock);
+
+    if (
+      !productUnavailable &&
+      Number.isInteger(productStock) &&
+      productStock >= 1 &&
+      productStock <= 5
+    ) {
+      const stockLabel = productStock === 1
+        ? 'Última Unidade!'
+        : `${productStock} Unidades Restantes`;
+      addBadge(
+        badges,
+        stockLabel,
+        productStock === 1 ? 'stock-critical' : 'stock-low'
+      );
     }
 
     if (discount > 0) {
