@@ -2081,6 +2081,30 @@ function hideProductImageZoom() {
   productZoomPreview.setAttribute('aria-hidden', 'true');
 }
 
+let productGallerySelectionRequestId = 0;
+let productGalleryTransitionTimer = null;
+const PRODUCT_GALLERY_FADE_DURATION = 220;
+
+function preloadProductGalleryImage(src) {
+  return new Promise(resolve => {
+    const image = new Image();
+    let settled = false;
+    const finish = async success => {
+      if (settled) return;
+      settled = true;
+      if (success && typeof image.decode === 'function') {
+        try { await image.decode(); } catch (_) {}
+      }
+      resolve(success);
+    };
+    image.decoding = 'async';
+    image.onload = () => finish(true);
+    image.onerror = () => finish(false);
+    image.src = src;
+    if (image.complete) finish(image.naturalWidth > 0);
+  });
+}
+
 function selectProductImage(index) {
   hideProductImageZoom();
   const mainImage = document.getElementById('productMainImage');
@@ -2090,65 +2114,124 @@ function selectProductImage(index) {
   if (!mainImage || !emoji || !currentProduct) return;
 
   if (!productPageImages.length) {
+    productGallerySelectionRequestId++;
+    clearTimeout(productGalleryTransitionTimer);
     mainImage.style.display = 'none';
+    mainImage.classList.remove('is-fading-out');
     if (blurImage) blurImage.classList.remove('is-visible');
     emoji.style.display = 'block';
     return;
   }
 
+  index = Math.max(0, Math.min(productPageImages.length - 1, Number(index) || 0));
   const original = productPageImages[index];
   const imageSrc = optimizedImage(original, 'modal') || original;
+  const requestId = ++productGallerySelectionRequestId;
+  const hadVisibleImage = mainImage.style.display !== 'none' && !!mainImage.src;
+  clearTimeout(productGalleryTransitionTimer);
 
-  mainImage.dataset.original = original;
-  mainImage.dataset.index = String(index);
-  mainImage.dataset.fallback = '0';
-  mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
+  // Atualiza a seleção visual imediatamente, sem esperar o carregamento da imagem.
+  document.querySelectorAll('#galleryThumbs .gthumb').forEach((button, i) => {
+    button.classList.toggle('on', i === index);
+  });
 
-  mainImage.onerror = function () {
-    if (this.dataset.fallback !== '1') {
-      this.dataset.fallback = '1';
-      this.src = this.dataset.original;
-      return;
+  if (mainImage.dataset.original === original && mainImage.style.display !== 'none') {
+    mainImage.dataset.index = String(index);
+    mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
+    mainImage.classList.remove('is-fading-out');
+    if (blurImage && blurImage.dataset.original === original) {
+      blurImage.onload = () => {
+        if (requestId === productGallerySelectionRequestId && blurImage.dataset.original === original) {
+          blurImage.classList.add('is-visible');
+        }
+      };
+      if (blurImage.complete && blurImage.naturalWidth > 0) blurImage.classList.add('is-visible');
     }
-
-    this.style.display = 'none';
-    if (blurImage) blurImage.classList.remove('is-visible');
-    emoji.style.display = 'block';
-    hideProductImageZoom();
-  };
-
-  mainImage.onload = () => {
-    mainImage.style.display = 'block';
-    emoji.style.display = 'none';
-    syncProductImageZoomSource();
-  };
-
-  if (blurImage) {
-    blurImage.dataset.original = original;
-    blurImage.dataset.fallback = '0';
-    blurImage.classList.remove('is-visible');
-    blurImage.onload = () => {
-      if (blurImage.dataset.original === original && mainImage.dataset.original === original) {
-        blurImage.classList.add('is-visible');
-      }
-    };
-    blurImage.onerror = function () {
-      if (this.dataset.fallback !== '1') {
-        this.dataset.fallback = '1';
-        this.src = this.dataset.original;
-      } else {
-        this.classList.remove('is-visible');
-      }
-    };
-    blurImage.src = imageSrc;
+    return;
   }
 
-  mainImage.src = imageSrc;
+  preloadProductGalleryImage(imageSrc).then(async optimizedReady => {
+    if (requestId !== productGallerySelectionRequestId) return;
 
-  document.querySelectorAll('#galleryThumbs .gthumb')
-    .forEach((button, i) => {
-      button.classList.toggle('on', i === index);
-    });
+    let finalImageSrc = imageSrc;
+    if (!optimizedReady && imageSrc !== original) {
+      const originalReady = await preloadProductGalleryImage(original);
+      if (requestId !== productGallerySelectionRequestId) return;
+      if (originalReady) finalImageSrc = original;
+    }
+
+    if (requestId !== productGallerySelectionRequestId) return;
+
+    mainImage.classList.add('is-fading-out');
+    if (blurImage) blurImage.classList.remove('is-visible');
+
+    const applyNewImage = () => {
+      if (requestId !== productGallerySelectionRequestId) return;
+
+      mainImage.dataset.original = original;
+      mainImage.dataset.index = String(index);
+      mainImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
+      mainImage.alt = `${currentProduct.name} — imagem ${index + 1}`;
+
+      mainImage.onerror = function () {
+        if (requestId !== productGallerySelectionRequestId) return;
+        if (this.dataset.fallback !== '1') {
+          this.dataset.fallback = '1';
+          this.src = this.dataset.original;
+          return;
+        }
+        this.style.display = 'none';
+        this.classList.remove('is-fading-out');
+        if (blurImage) blurImage.classList.remove('is-visible');
+        emoji.style.display = 'block';
+        hideProductImageZoom();
+      };
+
+      mainImage.onload = () => {
+        if (requestId !== productGallerySelectionRequestId) return;
+        mainImage.style.display = 'block';
+        emoji.style.display = 'none';
+        syncProductImageZoomSource();
+        requestAnimationFrame(() => {
+          if (requestId !== productGallerySelectionRequestId) return;
+          mainImage.classList.remove('is-fading-out');
+        });
+      };
+
+      if (blurImage) {
+        blurImage.dataset.original = original;
+        blurImage.dataset.fallback = finalImageSrc === original ? '1' : '0';
+        blurImage.onload = () => {
+          if (requestId !== productGallerySelectionRequestId) return;
+          if (blurImage.dataset.original === original && mainImage.dataset.original === original) {
+            blurImage.classList.add('is-visible');
+          }
+        };
+        blurImage.onerror = function () {
+          if (requestId !== productGallerySelectionRequestId) return;
+          if (this.dataset.fallback !== '1') {
+            this.dataset.fallback = '1';
+            this.src = this.dataset.original;
+          } else {
+            this.classList.remove('is-visible');
+          }
+        };
+        blurImage.src = finalImageSrc;
+      }
+
+      mainImage.src = finalImageSrc;
+    };
+
+    if (hadVisibleImage) {
+      productGalleryTransitionTimer = setTimeout(applyNewImage, PRODUCT_GALLERY_FADE_DURATION);
+    } else {
+      applyNewImage();
+    }
+  }).catch(error => {
+    if (requestId !== productGallerySelectionRequestId) return;
+    console.warn('Não foi possível preparar a imagem do produto:', error);
+    mainImage.classList.remove('is-fading-out');
+  });
 }
 
 /* ── PRODUTOS RECOMENDADOS: CARROSSEL INCREMENTAL ───────────── */
