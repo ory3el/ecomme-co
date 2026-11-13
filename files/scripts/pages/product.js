@@ -568,6 +568,54 @@ function renderProductDetails(p) {
 
   const stockBar = document.querySelector('.stock-bar-wrap');
   if (stockBar) stockBar.style.display = 'none';
+
+  updateProductUnavailableUI(p);
+}
+
+function isUnavailableProduct(product = currentProduct) {
+  return !!product && (
+    product.badge === 'paused' ||
+    (typeof isProductUnavailable === 'function' && isProductUnavailable(product))
+  );
+}
+
+function updateProductUnavailableUI(product) {
+  const unavailable = isUnavailableProduct(product);
+  const main = document.querySelector('.product-main');
+  if (main) main.classList.toggle('is-product-unavailable', unavailable);
+
+  let notice = document.getElementById('productUnavailableNotice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'productUnavailableNotice';
+    notice.className = 'product-unavailable-banner';
+    notice.hidden = true;
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    notice.innerHTML = `
+      <span class="product-unavailable-banner-icon" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span>
+      <span class="product-unavailable-banner-copy">
+        <strong>Produto indisponível</strong>
+        <span>Este produto está temporariamente indisponível para compra.</span>
+      </span>
+    `;
+
+    const breadcrumb = document.querySelector('.breadcrumb-bar');
+    const productMain = document.querySelector('.product-main');
+    if (breadcrumb) breadcrumb.insertAdjacentElement('afterend', notice);
+    else if (productMain) productMain.insertAdjacentElement('beforebegin', notice);
+  }
+  notice.hidden = !unavailable;
+
+  const blockedControls = document.querySelectorAll(
+    '.main-btns .btn-addcart, .main-btns .btn-buynow, #makeProductOfferBtn, .qty-ctrl .qb'
+  );
+  blockedControls.forEach(button => {
+    button.disabled = unavailable;
+    button.setAttribute('aria-disabled', String(unavailable));
+    if (unavailable) button.title = 'Produto indisponível';
+    else if (button.title === 'Produto indisponível') button.removeAttribute('title');
+  });
 }
 
 
@@ -3897,7 +3945,11 @@ function bindProductActions() {
   const offerButton = document.getElementById('makeProductOfferBtn');
   if (offerButton) {
     offerButton.onclick = openProductOfferModal;
-    offerButton.hidden = typeof isProductUnavailable === 'function' && isProductUnavailable(currentProduct);
+    offerButton.hidden = false;
+    offerButton.disabled = isUnavailableProduct(currentProduct);
+    offerButton.setAttribute('aria-disabled', String(offerButton.disabled));
+    if (offerButton.disabled) offerButton.title = 'Produto indisponível';
+    else if (offerButton.title === 'Produto indisponível') offerButton.removeAttribute('title');
   }
 }
 
@@ -3942,6 +3994,10 @@ function ensureProductOfferModal() {
 
 async function openProductOfferModal() {
   if (!currentProduct) return;
+  if (isUnavailableProduct(currentProduct)) {
+    if (typeof showToast === 'function') showToast('Este produto está indisponível no momento.');
+    return;
+  }
   if (typeof supabaseClient === 'undefined') {
     if (typeof showToast === 'function') showToast('Não foi possível conectar ao sistema de ofertas.', 'err');
     return;
@@ -4085,6 +4141,7 @@ async function submitProductOffer(event) {
 }
 
 function changeProductQty(delta) {
+  if (isUnavailableProduct(currentProduct)) return;
   productPageQty = Math.max(1, productPageQty + Number(delta || 0));
 
   const el = document.getElementById('prodQty');
@@ -4203,6 +4260,10 @@ async function updateOwnProductControls(product) {
 }
 
 function addToCartMain() {
+  if (isUnavailableProduct(currentProduct)) {
+    if (typeof showToast === 'function') showToast('Este produto está indisponível no momento.');
+    return;
+  }
   if (currentProductIsOwnStore) {
     if (typeof showToast === 'function') showToast('Você não pode adicionar ao carrinho um produto da sua própria loja.');
     return;
@@ -4218,6 +4279,10 @@ function addToCartMain() {
 
 async function buyNow() {
   if (!currentProduct) return;
+  if (isUnavailableProduct(currentProduct)) {
+    if (typeof showToast === 'function') showToast('Este produto está indisponível no momento.');
+    return;
+  }
   if (currentProductIsOwnStore) {
     if (typeof showToast === 'function') showToast('Você não pode comprar um produto da sua própria loja.');
     return;
@@ -4236,17 +4301,6 @@ async function buyNow() {
       );
     } else {
       location.href = '/login';
-    }
-
-    return;
-  }
-
-  if (
-    typeof isProductUnavailable === 'function' &&
-    isProductUnavailable(currentProduct)
-  ) {
-    if (typeof showToast === 'function') {
-      showToast('Este produto está indisponível no momento.');
     }
 
     return;
