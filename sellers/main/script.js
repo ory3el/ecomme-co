@@ -647,6 +647,167 @@ function closeProductAnalytics() {
   document.body.classList.remove('pa-modal-open');
 }
 
+// ══ MODAL DE DETALHES DO PRODUTO ═══════════════════════════
+let productDetailsOpener = null;
+
+function safeProductImageUrl(value) {
+  if (!value) return '';
+  try {
+    const url = new URL(String(value), window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch (error) { return ''; }
+}
+
+function ensureProductDetailsModal() {
+  let modal = $('productDetailsModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'productDetailsModal';
+  modal.className = 'pd-modal';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = `
+    <div class="pd-backdrop" data-pd-close></div>
+    <section class="pd-dialog" role="dialog" aria-modal="true" aria-labelledby="pdTitle">
+      <header class="pd-header">
+        <div><span class="pd-eyebrow">CATÁLOGO DA LOJA</span><h3 id="pdTitle">Detalhes do produto</h3><p id="pdSubtitle"></p></div>
+        <button type="button" class="pd-close" data-pd-close aria-label="Fechar detalhes"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="pd-content" id="pdContent"></div>
+      <footer class="pd-footer" id="pdActions"></footer>
+    </section>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', event => {
+    if (event.target.closest('[data-pd-close]')) { closeProductDetails(); return; }
+    const thumb = event.target.closest('[data-pd-image-index]');
+    if (thumb) {
+      const hero = modal.querySelector('#pdHeroImage');
+      if (hero && thumb.dataset.imageUrl) {
+        hero.src = thumb.dataset.imageUrl;
+        modal.querySelectorAll('.pd-thumb').forEach(button => button.classList.toggle('is-active', button === thumb));
+      }
+      return;
+    }
+    const action = event.target.closest('[data-pd-action]');
+    if (!action) return;
+    const id = modal.dataset.productId;
+    const product = findProd(id);
+    if (!product) { closeProductDetails(); return; }
+    const command = action.dataset.pdAction;
+    if (command === 'export') { exportProductsCsv([product]); toast('Dados do produto exportados.', 'ok'); return; }
+    if (command === 'analytics') { closeProductDetails(); openProductAnalytics(id); return; }
+    if (command === 'view') {
+      window.open(`/product/${encodeURIComponent(String(product.id))}/`, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    closeProductDetails();
+    if (command === 'edit') editProduct(id);
+    else if (command === 'duplicate') duplicateProduct(id);
+    else if (command === 'pause') toggleProductPause(id);
+    else if (command === 'delete') deleteProduct(id);
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && $('productDetailsModal')?.classList.contains('is-open')) closeProductDetails();
+  });
+  return modal;
+}
+
+function openProductDetails(productId, opener) {
+  const product = findProd(productId);
+  if (!product) return;
+  const modal = ensureProductDetailsModal();
+  const stats = productEngagementById[String(productId)] || {};
+  const unitsSold = Number(soldByProduct[String(productId)]) || 0;
+  const ordersCount = Number(ordersByProduct[String(productId)]) || 0;
+  const stockKnown = Object.prototype.hasOwnProperty.call(product, 'stock') && product.stock !== null;
+  const stock = stockKnown ? prodStock(product) : null;
+  const paused = prodIsPaused(product);
+  const category = prodCategory(product) || 'Sem categoria';
+  const images = [...new Set([product.image_url, ...(Array.isArray(product.gallery_urls) ? product.gallery_urls : [])]
+    .map(safeProductImageUrl).filter(Boolean))];
+  const hero = images[0] || '';
+  const description = String(product.desc || product.description || '').trim();
+  const features = Array.isArray(product.features) ? product.features.map(item => typeof item === 'string' ? item : item?.name || item?.label || '').filter(Boolean) : [];
+  const warranty = product.warranty_contract && typeof product.warranty_contract === 'object'
+    ? [product.warranty_contract.duration, product.warranty_contract.unit, product.warranty_contract.coverage].filter(Boolean).join(' · ')
+    : [product.warranty_type, product.warranty].filter(Boolean).join(' · ');
+  const engagementValue = key => productEngagementStatus === 'ready'
+    ? formatEngagementCount(stats[key] || 0)
+    : productEngagementStatus === 'missing' ? 'N/D' : productEngagementStatus === 'error' ? '—' : 'Carregando…';
+  const stockLabel = stockKnown ? `${formatEngagementCount(stock)} un.` : 'Não informado';
+  const stockClass = stockKnown && stock === 0 ? 'is-empty' : stockKnown && stock < 5 ? 'is-low' : 'is-ok';
+  const featuresHtml = features.length ? `<div class="pd-feature-list">${features.map(feature => `<span>${escapeHtml(feature)}</span>`).join('')}</div>` : '';
+  const thumbnailsHtml = images.length > 1 ? `<div class="pd-thumbnails" aria-label="Imagens do produto">${images.map((url, index) => `<button type="button" class="pd-thumb ${index === 0 ? 'is-active' : ''}" data-pd-image-index="${index}" data-image-url="${escapeHtml(url)}" aria-label="Exibir imagem ${index + 1}"><img src="${escapeHtml(url)}" alt="" loading="lazy"></button>`).join('')}</div>` : '';
+  const statusHtml = paused
+    ? '<span class="pd-status is-paused"><i class="fa-solid fa-pause"></i> Pausado</span>'
+    : '<span class="pd-status is-active"><i class="fa-solid fa-circle"></i> Ativo</span>';
+
+  modal.dataset.productId = String(product.id);
+  modal.querySelector('#pdTitle').textContent = product.name || 'Produto sem nome';
+  modal.querySelector('#pdSubtitle').textContent = `ID ${product.id}${product.sku ? ` · SKU ${product.sku}` : ''}`;
+  modal.querySelector('#pdContent').innerHTML = `
+    <div class="pd-layout">
+      <div class="pd-visual-column">
+        <div class="pd-hero ${hero ? '' : 'is-empty'}">${hero ? `<img id="pdHeroImage" src="${escapeHtml(hero)}" alt="${escapeHtml(product.name || 'Imagem do produto')}">` : `<div class="pd-no-image"><span>${escapeHtml(product.emoji || '📦')}</span><small>Sem imagem cadastrada</small></div>`}</div>
+        ${thumbnailsHtml}
+        <div class="pd-identifiers"><span><i class="fa-solid fa-fingerprint"></i> ${escapeHtml(String(product.id))}</span>${product.sku ? `<span><i class="fa-solid fa-barcode"></i> ${escapeHtml(product.sku)}</span>` : ''}</div>
+      </div>
+      <div class="pd-info-column">
+        <div class="pd-topline">${statusHtml}<span class="pd-category">${escapeHtml(category)}</span></div>
+        <div class="pd-price-block"><small>Preço de venda</small><strong>${fmtBRL(product.price)}</strong>${product.shipping ? '<span class="pd-shipping"><i class="fa-solid fa-truck-fast"></i> Frete grátis</span>' : ''}</div>
+        <div class="pd-summary-grid">
+          <article class="pd-summary-card"><span><i class="fa-solid fa-boxes-stacked"></i> Estoque</span><strong class="${stockClass}">${escapeHtml(stockLabel)}</strong></article>
+          <article class="pd-summary-card"><span><i class="fa-solid fa-bag-shopping"></i> Unidades vendidas</span><strong>${ordersModule === 'ok' ? formatEngagementCount(unitsSold) : '—'}</strong><small>${ordersModule === 'ok' ? `${formatEngagementCount(ordersCount)} pedido(s) · até 200 pedidos recentes` : 'Módulo de pedidos indisponível'}</small></article>
+        </div>
+        <section class="pd-intent-section">
+          <div class="pd-section-heading"><span>Intenção de compra</span><button type="button" data-pd-action="analytics">Ver indicadores <i class="fa-solid fa-arrow-up-right-from-square"></i></button></div>
+          <div class="pd-intent-grid">
+            <div><small><i class="fa-regular fa-eye"></i> Visualizações</small><strong>${engagementValue('views')}</strong></div>
+            <div><small><i class="fa-regular fa-heart"></i> Favoritos</small><strong>${engagementValue('favorites')}</strong></div>
+            <div><small><i class="fa-solid fa-cart-shopping"></i> Carrinhos</small><strong>${engagementValue('carts')}</strong></div>
+            <div><small><i class="fa-solid fa-share-nodes"></i> Compartilhamentos</small><strong>${engagementValue('shares')}</strong></div>
+          </div>
+          <p class="pd-intent-note">${productEngagementStatus === 'missing' ? 'Indicadores não configurados no banco de dados.' : productEngagementStatus === 'error' ? 'Não foi possível carregar os indicadores.' : 'Contagens agregadas disponíveis para este produto.'}</p>
+        </section>
+      </div>
+    </div>
+    <div class="pd-description-grid">
+      <section class="pd-description-block"><div class="pd-section-heading">Descrição</div><p>${description ? escapeHtml(description).replace(/\r?\n/g, '<br>') : '<span class="pd-muted">Nenhuma descrição cadastrada.</span>'}</p>${featuresHtml}</section>
+      <section class="pd-extra-block"><div class="pd-section-heading">Informações adicionais</div><dl>
+        <div><dt>Categoria</dt><dd>${escapeHtml(category)}</dd></div>
+        <div><dt>SKU</dt><dd>${escapeHtml(product.sku || 'Não informado')}</dd></div>
+        <div><dt>Frete</dt><dd>${product.shipping ? 'Frete grátis' : 'Conforme configuração da loja'}</dd></div>
+        ${warranty ? `<div><dt>Garantia</dt><dd>${escapeHtml(warranty)}</dd></div>` : ''}
+        <div><dt>Status</dt><dd>${paused ? 'Pausado' : 'Ativo'}</dd></div>
+      </dl></section>
+    </div>`;
+  modal.querySelector('#pdActions').innerHTML = `
+    <div class="pd-action-primary">
+      <button type="button" class="pd-btn pd-btn-primary" data-pd-action="edit"><i class="fa-solid fa-pen"></i> Editar produto</button>
+      <a class="pd-btn pd-btn-outline" href="/product/${encodeURIComponent(String(product.id))}/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Página do produto</a>
+    </div>
+    <div class="pd-action-secondary">
+      <button type="button" class="pd-btn" data-pd-action="duplicate"><i class="fa-regular fa-copy"></i> Duplicar</button>
+      <button type="button" class="pd-btn" data-pd-action="pause"><i class="fa-solid ${paused ? 'fa-play' : 'fa-pause'}"></i> ${paused ? 'Reativar' : 'Pausar'}</button>
+      <button type="button" class="pd-btn" data-pd-action="export"><i class="fa-solid fa-file-arrow-down"></i> Exportar CSV</button>
+      <button type="button" class="pd-btn pd-btn-danger" data-pd-action="delete"><i class="fa-regular fa-trash-can"></i> Excluir</button>
+    </div>`;
+  productDetailsOpener = opener || null;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('pd-modal-open');
+  modal.querySelector('.pd-close')?.focus();
+}
+
+function closeProductDetails() {
+  const modal = $('productDetailsModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('pd-modal-open');
+  if (productDetailsOpener?.isConnected) productDetailsOpener.focus({ preventScroll: true });
+  productDetailsOpener = null;
+}
+
 // ══ PRODUTOS: lista, filtros, ações ════════════════════════
 let prodFilter = 'all', prodQuery = '', prodCat = '', prodPageNum = 1;
 const PROD_PAGE_SIZE = 20;
@@ -713,8 +874,8 @@ function buildProdTable(filter) {
         ? `<img src="${escapeHtml(p.image_url)}" loading="lazy" alt="${escapeHtml(p.name)}">`
         : '';
       const id = escapeHtml(p.id);
-      return `<tr>
-      <td class="chk-col"><input type="checkbox" class="chk"></td>
+      return `<tr class="product-data-row" data-product-row data-id="${id}" tabindex="0" aria-label="Ver detalhes do produto ${escapeHtml(p.name)}">
+      <td class="chk-col"><input type="checkbox" class="chk" aria-label="Selecionar ${escapeHtml(p.name)}"></td>
       <td><div class="fac gap10">
         <div class="prod-thumb">${escapeHtml(p.emoji || '📦')}${media}</div>
         <div><div class="fs12 fw6">${escapeHtml(p.name)}</div><div class="fs10 muted">ID: ${id}</div></div>
@@ -752,12 +913,24 @@ function initProductsTable() {
   tb.dataset.bound = '1';
   tb.addEventListener('click', ev => {
     const el = ev.target.closest('[data-act]');
-    if (!el) return;
-    document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
-    const id = el.dataset.id;
-    ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
-       analytics: openProductAnalytics,
-       export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
+    if (el) {
+      ev.stopPropagation();
+      document.querySelectorAll('.action-menu.on').forEach(m => m.classList.remove('on'));
+      const id = el.dataset.id;
+      ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
+         analytics: openProductAnalytics,
+         export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
+      return;
+    }
+    const row = ev.target.closest('tr[data-product-row]');
+    if (!row || ev.target.closest('button,a,input,select,textarea,[role="menu"],.action-dots,.action-menu')) return;
+    openProductDetails(row.dataset.id, row);
+  });
+  tb.addEventListener('keydown', ev => {
+    if (!['Enter', ' '].includes(ev.key) || ev.target !== ev.target.closest('tr[data-product-row]')) return;
+    ev.preventDefault();
+    const row = ev.target.closest('tr[data-product-row]');
+    if (row) openProductDetails(row.dataset.id, row);
   });
 }
 
