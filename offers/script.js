@@ -38,6 +38,19 @@ let offersRefreshTimer = null;
 let offersPollTimer = null;
 let offersLoading = null;
 let offersLastUpdated = null;
+let offersHasMore = false;
+let offersCursor = null;
+let offersTotalCount = 0;
+let offersRequestVersion = 0;
+let offersPageInFlight = null;
+let offersSearchTimer = null;
+let offersRealtimeRefreshTimer = null;
+let offersLastRealtimeAt = 0;
+let offersStats = null;
+let offersSentinelObserver = null;
+let offersCardsObserver = null;
+const offersById = new Map();
+const OFFERS_PAGE_SIZE = 24;
 let cart = [];
 let fav = [];
 let curId = null;
@@ -148,9 +161,9 @@ function showOffersError(message = 'Não foi possível carregar as ofertas.') {
   grid.innerHTML = `<div class="empty" role="status"><div class="empty-ico">⚠️</div><h3>Não foi possível carregar as ofertas</h3><p>${escapeHtml(message)}</p><button class="btn-clear" type="button" onclick="retryLoadOffers()">Tentar novamente</button></div>`;
 }
 function updateOfferStats() {
-  const total = offers.length;
-  const maxDiscount = offers.reduce((max, item) => Math.max(max, toNumber(item.discount)), 0);
-  const freeShipping = offers.filter(item => item.shipping).length;
+  const total = Number(offersStats?.total ?? offersTotalCount ?? offers.length) || 0;
+  const maxDiscount = Number(offersStats?.max_discount ?? 0) || 0;
+  const freeShipping = Number(offersStats?.free_shipping ?? 0) || 0;
   if ($('statActive')) $('statActive').textContent = total.toLocaleString('pt-BR');
   if ($('statMaxDiscount')) $('statMaxDiscount').textContent = maxDiscount ? `${maxDiscount}%` : '—';
   if ($('statShipping')) $('statShipping').textContent = freeShipping.toLocaleString('pt-BR');
@@ -158,17 +171,42 @@ function updateOfferStats() {
   if ($('offersSub')) $('offersSub').textContent = offersLastUpdated ? `Atualizado às ${new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(offersLastUpdated)}` : 'Aguardando catálogo';
 }
 
-/* ─── SEARCH ─────────────────────────────────────────────────────────── */
+async function loadOfferStats() {
+  try {
+    const response = await fetch('/api/catalog-stats?type=offers', { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
+    if (response.ok) {
+      offersStats = await response.json();
+      updateOfferStats();
+      return;
+    }
+  } catch (_) {}
+  try {
+    const { data, error } = await getSupabaseClient().rpc('ecomme_offers_catalog_stats');
+    if (error) throw error;
+    offersStats = data || null;
+    updateOfferStats();
+  } catch (error) {
+    console.warn('[Ecomme ofertas] Estatísticas resumidas indisponíveis:', error);
+  }
+}
+
 function searchFor(term) {
   if ($('searchInput')) $('searchInput').value = term;
   if ($('headerSearch')) $('headerSearch').value = term;
-  renderOffers();
+  scheduleOffersReset();
 }
 function handleOfferSearch(input) {
   const value = input?.value || '';
   if (input?.id === 'headerSearch' && $('searchInput')) $('searchInput').value = value;
   if (input?.id === 'searchInput' && $('headerSearch')) $('headerSearch').value = value;
-  renderOffers();
+  scheduleOffersReset();
+}
+function scheduleOffersReset(delay = 180) {
+  clearTimeout(offersSearchTimer);
+  offersSearchTimer = setTimeout(() => resetOffersCatalog().catch(error => {
+    console.error('[Ecomme ofertas] Falha ao aplicar filtros:', error);
+    showOffersError('Não foi possível aplicar os filtros. Tente novamente.');
+  }), delay);
 }
 
 // EXECUTE DATABASE
@@ -182,10 +220,13 @@ async function initializeOffersPage() {
     if (loginBtn) loginBtn.classList.remove('hidden');
     return;
   }
-  const loaded = await loadProductsFromSupabase();
-  if (!loaded) showOffersError('Verifique a conexão com o Supabase e tente novamente.');
-  else await loadOffersFromSupabase();
-  startOffersRealtime();
+  try {
+    await Promise.all([resetOffersCatalog({ showSkeleton: false }), loadOfferStats()]);
+    startOffersRealtime();
+  } catch (error) {
+    console.error('[Ecomme ofertas] Falha no carregamento inicial:', error);
+    showOffersError('Verifique a conexão com o Supabase e tente novamente.');
+  }
   let user = null;
   try {
     const { data, error } = await client.auth.getUser();
@@ -588,56 +629,31 @@ let currentProduct = null;
 function setDealFilter(button, type) {
   document.querySelectorAll('.dchip').forEach(chip => chip.classList.toggle('active', chip === button));
   currentDealFilter = type || 'todos';
-  renderOffers();
+  scheduleOffersReset(0);
 }
 
-function renderOffers() {
-  const grid = $('offersGrid');
-  if (!grid) return;
-  const query = String($('searchInput')?.value || '').trim().toLowerCase();
-  const sort = $('sortSelect')?.value || 'discount';
-  let list = offers.filter(product => {
-    const category = String(product.cat || '').toLowerCase();
-    const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.desc.toLowerCase().includes(query) || category.includes(query);
-    let matchesFilter = true;
-    if (currentDealFilter === 'discount20') matchesFilter = product.discount >= 20;
-    else if (currentDealFilter === 'frete') matchesFilter = product.shipping;
-    else if (currentDealFilter === 'novidades') matchesFilter = product.badge === 'new';
-    else if (currentDealFilter === 'avaliados') matchesFilter = product.rating >= 4 && product.reviews > 0;
-    return matchesSearch && matchesFilter;
-  });
+function offerCardHtml(product, index = 0) {
+  const id = escapeHtml(product.id);
+  const image = getOfferImage(product);
+  const name = escapeHtml(product.name);
+  const category = escapeHtml(product.cat || 'Produto');
+  const inWishlist = isSavedToWishlist(product.id);
+  const oldPrice = product.old > product.price ? `<span class="oc-old">${fmt(product.old)}</span>` : '';
+  const savings = product.old > product.price ? `<span class="oc-saving">Economize ${fmt(product.old - product.price)}</span>` : '';
+  const shippingBadge = product.shipping ? '<span class="oc-type-badge shipping">🚚 Frete grátis</span>' : (product.badge === 'new' ? '<span class="oc-type-badge daily">Novo</span>' : '<span class="oc-type-badge combo">Oferta verificada</span>');
+  const imageMarkup = image ? `<img data-src="${escapeHtml(image)}" alt="${name}" loading="lazy" decoding="async" width="480" height="480">` : `<span class="oc-fallback" aria-hidden="true">${escapeHtml(product.emoji)}</span>`;
+  const ratingMarkup = product.rating > 0 ? `<div class="oc-rating"><i class="fa-regular fa-star" aria-hidden="true"></i><span>${product.rating.toFixed(1)}</span>${product.reviews > 0 ? `<small>(${product.reviews.toLocaleString('pt-BR')})</small>` : ''}</div>` : '<div class="oc-rating oc-no-rating">Ainda sem avaliações</div>';
+  return `<article class="ocard" data-offer-card="${id}" style="animation-delay:${Math.min(index, 8) * 0.025}s" tabindex="0" role="button" aria-label="Ver ${name}">
+    <div class="oc-img-wrap"><div class="oc-img">${imageMarkup}</div><span class="oc-disc-badge">-${product.discount}%<small>OFF</small></span>${shippingBadge}<button type="button" class="oc-wish ${inWishlist ? 'on' : ''}" data-offer-action="favorite" data-product-id="${id}" aria-pressed="${inWishlist}" title="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}" aria-label="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button></div>
+    <div class="oc-info"><div class="oc-cat">${category}</div><h3 class="oc-name">${name}</h3>${ratingMarkup}<div class="oc-price-row"><span class="oc-price">${fmt(product.price)}</span>${oldPrice}</div>${savings}<button type="button" class="btn-oc-cart" data-offer-action="cart" data-product-id="${id}"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Adicionar ao carrinho</button></div>
+  </article>`;
+}
 
-  if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
-  else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
-  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
-  else list.sort((a, b) => b.discount - a.discount);
-
-  if ($('offersCount')) $('offersCount').textContent = `${list.length.toLocaleString('pt-BR')} ${list.length === 1 ? 'oferta' : 'ofertas'}`;
-  grid.setAttribute('aria-busy', 'false');
-  if (!list.length) {
-    const hasOffers = offers.length > 0;
-    grid.innerHTML = `<div class="empty"><div class="empty-ico">${hasOffers ? '🔎' : '🏷️'}</div><h3>${hasOffers ? 'Nenhuma oferta encontrada' : 'Nenhuma oferta ativa no momento'}</h3><p>${hasOffers ? 'Tente outro termo ou ajuste os filtros.' : 'Os produtos aparecerão aqui quando tiverem um desconto válido cadastrado.'}</p><button class="btn-clear" type="button" onclick="clearFilters()">Limpar filtros</button></div>`;
-    return;
-  }
-
-  grid.innerHTML = list.map((product, index) => {
-    const id = escapeHtml(product.id);
-    const image = getOfferImage(product);
-    const name = escapeHtml(product.name);
-    const category = escapeHtml(product.cat || 'Produto');
-    const inWishlist = isSavedToWishlist(product.id);
-    const oldPrice = product.old > product.price ? `<span class="oc-old">${fmt(product.old)}</span>` : '';
-    const savings = product.old > product.price ? `<span class="oc-saving">Economize ${fmt(product.old - product.price)}</span>` : '';
-    const shippingBadge = product.shipping ? '<span class="oc-type-badge shipping">🚚 Frete grátis</span>' : (product.badge === 'new' ? '<span class="oc-type-badge daily">Novo</span>' : '<span class="oc-type-badge combo">Oferta verificada</span>');
-    const imageMarkup = image ? `<img src="${escapeHtml(image)}" alt="${name}" loading="lazy" decoding="async">` : `<span class="oc-fallback" aria-hidden="true">${escapeHtml(product.emoji)}</span>`;
-    const ratingMarkup = product.rating > 0 ? `<div class="oc-rating"><i class="fa-regular fa-star" aria-hidden="true"></i><span>${product.rating.toFixed(1)}</span>${product.reviews > 0 ? `<small>(${product.reviews.toLocaleString('pt-BR')})</small>` : ''}</div>` : '<div class="oc-rating oc-no-rating">Ainda sem avaliações</div>';
-    return `<article class="ocard" style="animation-delay:${index * 0.035}s" data-offer-card="${id}" tabindex="0" role="button" aria-label="Ver ${name}">
-      <div class="oc-img-wrap"><div class="oc-img">${imageMarkup}</div><span class="oc-disc-badge">-${product.discount}%<small>OFF</small></span>${shippingBadge}<button type="button" class="oc-wish ${inWishlist ? 'on' : ''}" data-offer-action="favorite" data-product-id="${id}" aria-pressed="${inWishlist}" title="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}" aria-label="${inWishlist ? 'Salvo em uma lista de desejos' : 'Adicionar a uma lista de desejos'}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button></div>
-      <div class="oc-info"><div class="oc-cat">${category}</div><h3 class="oc-name">${name}</h3>${ratingMarkup}<div class="oc-price-row"><span class="oc-price">${fmt(product.price)}</span>${oldPrice}</div>${savings}<button type="button" class="btn-oc-cart" data-offer-action="cart" data-product-id="${id}"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Adicionar ao carrinho</button></div>
-    </article>`;
-  }).join('');
-
-  grid.querySelectorAll('.oc-img img').forEach(image => {
+function activateOfferCard(card) {
+  if (!card) return;
+  card.querySelectorAll('img[data-src]').forEach(image => {
+    image.src = image.dataset.src;
+    delete image.dataset.src;
     image.addEventListener('error', () => {
       const fallback = document.createElement('span');
       fallback.className = 'oc-fallback';
@@ -645,19 +661,150 @@ function renderOffers() {
       image.replaceWith(fallback);
     }, { once: true });
   });
-  grid.querySelectorAll('[data-offer-card]').forEach(card => {
-    const open = () => openProductModal(card.dataset.offerCard);
-    card.addEventListener('click', event => { if (!event.target.closest('button')) open(); });
-    card.addEventListener('keydown', event => { if (event.target === card && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); open(); } });
-  });
-  grid.querySelectorAll('[data-offer-action]').forEach(button => {
-    button.addEventListener('click', event => {
+}
+function virtualizeOfferCard(card) {
+  if (!card || card.dataset.offerVirtualized === 'true' || card.contains(document.activeElement)) return;
+  const height = Math.ceil(card.getBoundingClientRect().height || Number(card.dataset.offerVirtualHeight) || 420);
+  card.dataset.offerVirtualHeight = String(height);
+  card.style.height = `${height}px`;
+  card.style.minHeight = `${height}px`;
+  card.replaceChildren();
+  card.removeAttribute('role');
+  card.removeAttribute('aria-label');
+  card.tabIndex = -1;
+  card.dataset.offerVirtualized = 'true';
+  card.classList.add('ocard--virtual');
+  card.setAttribute('aria-hidden', 'true');
+}
+function restoreOfferCard(card) {
+  if (!card || card.dataset.offerVirtualized !== 'true') return card;
+  const product = offersById.get(String(card.dataset.offerCard));
+  if (!product) { offersCardsObserver?.unobserve(card); card.remove(); return null; }
+  const template = document.createElement('template');
+  template.innerHTML = offerCardHtml(product).trim();
+  const replacement = template.content.firstElementChild;
+  const height = Number(card.dataset.offerVirtualHeight) || 0;
+  if (!replacement) return card;
+  offersCardsObserver?.unobserve(card);
+  card.replaceWith(replacement);
+  if (height) {
+    replacement.style.minHeight = `${height}px`;
+    requestAnimationFrame(() => { replacement.style.minHeight = ''; replacement.style.height = ''; });
+  }
+  offersCardsObserver?.observe(replacement);
+  activateOfferCard(replacement);
+  return replacement;
+}
+function ensureOffersVirtualizer() {
+  if (offersCardsObserver || !('IntersectionObserver' in window)) return;
+  offersCardsObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+    const card = entry.target;
+    if (!card.isConnected) { offersCardsObserver?.unobserve(card); return; }
+    if (entry.isIntersecting) {
+      if (card.dataset.offerVirtualized === 'true') restoreOfferCard(card);
+      else activateOfferCard(card);
+    } else virtualizeOfferCard(card);
+  }), { root: null, rootMargin: '900px 0px 900px 0px', threshold: 0 });
+}
+function observeOfferCards(cards) {
+  if (!Array.isArray(cards) || !cards.length) return;
+  if (!('IntersectionObserver' in window)) { cards.forEach(activateOfferCard); return; }
+  ensureOffersVirtualizer();
+  cards.forEach(card => offersCardsObserver.observe(card));
+}
+function bindOffersGridEvents() {
+  const grid = $('offersGrid');
+  if (!grid || grid.dataset.eventsBound === 'true') return;
+  grid.dataset.eventsBound = 'true';
+  grid.addEventListener('click', event => {
+    const action = event.target.closest('[data-offer-action]');
+    if (action) {
+      event.preventDefault();
       event.stopPropagation();
-      const id = button.dataset.productId;
-      if (button.dataset.offerAction === 'favorite') toggleFav(id);
+      const id = action.dataset.productId;
+      if (action.dataset.offerAction === 'favorite') toggleFav(id);
       else addToCart(id, 1);
-    });
+      return;
+    }
+    const card = event.target.closest('[data-offer-card]');
+    if (card && card.dataset.offerVirtualized !== 'true') openProductModal(card.dataset.offerCard);
   });
+  grid.addEventListener('keydown', event => {
+    const card = event.target.closest('[data-offer-card]');
+    if (card && event.target === card && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      openProductModal(card.dataset.offerCard);
+    }
+  });
+}
+function observeOffersSentinel() {
+  const sentinel = $('offersSentinel');
+  if (!sentinel || !offersHasMore || !('IntersectionObserver' in window)) return;
+  offersSentinelObserver?.disconnect();
+  offersSentinelObserver = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting) || offersPageInFlight) return;
+    offersSentinelObserver?.disconnect();
+    loadNextOffersPage().catch(error => { console.error('[Ecomme ofertas] Falha no próximo lote:', error); addOffersSentinel(); });
+  }, { root: null, rootMargin: '850px 0px', threshold: 0 });
+  offersSentinelObserver.observe(sentinel);
+}
+function addOffersSentinel() {
+  const grid = $('offersGrid');
+  if (!grid) return;
+  grid.querySelector('#offersSentinel')?.remove();
+  if (!offersHasMore) return;
+  const sentinel = document.createElement('div');
+  sentinel.id = 'offersSentinel';
+  sentinel.className = 'offers-sentinel';
+  sentinel.setAttribute('aria-hidden', 'true');
+  grid.appendChild(sentinel);
+  observeOffersSentinel();
+}
+
+function renderOffers({ append = false, addedProducts = null } = {}) {
+  const grid = $('offersGrid');
+  if (!grid) return;
+  const query = String($('searchInput')?.value || '').trim().toLowerCase();
+  const matchesClient = product => {
+    const category = String(product.cat || '').toLowerCase();
+    const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.desc.toLowerCase().includes(query) || category.includes(query);
+    let matchesFilter = true;
+    if (currentDealFilter === 'discount20') matchesFilter = product.discount >= 20;
+    else if (currentDealFilter === 'frete') matchesFilter = product.shipping;
+    else if (currentDealFilter === 'novidades') matchesFilter = product.badge === 'new' || product.badge.includes('novo');
+    else if (currentDealFilter === 'avaliados') matchesFilter = product.rating >= 4 && product.reviews > 0;
+    return matchesSearch && matchesFilter;
+  };
+  const source = append && Array.isArray(addedProducts) ? addedProducts : offers;
+  const list = source.filter(matchesClient);
+  if ($('offersCount')) $('offersCount').textContent = offersHasMore
+    ? `${offers.length.toLocaleString('pt-BR')} de ${offersTotalCount.toLocaleString('pt-BR')} ofertas`
+    : `${offersTotalCount.toLocaleString('pt-BR')} ${offersTotalCount === 1 ? 'oferta' : 'ofertas'}`;
+  grid.setAttribute('aria-busy', 'false');
+  if (!list.length && !append) {
+    offersSentinelObserver?.disconnect();
+    offersCardsObserver?.disconnect();
+    offersSentinelObserver = null;
+    offersCardsObserver = null;
+    const hasOffers = offersTotalCount > 0;
+    grid.innerHTML = `<div class="empty"><div class="empty-ico">${hasOffers ? '🔎' : '🏷️'}</div><h3>${hasOffers ? 'Nenhuma oferta encontrada' : 'Nenhuma oferta ativa no momento'}</h3><p>${hasOffers ? 'Tente outro termo ou ajuste os filtros.' : 'Os produtos aparecerão aqui quando tiverem um desconto válido cadastrado.'}</p><button class="btn-clear" type="button" onclick="clearFilters()">Limpar filtros</button></div>`;
+    return;
+  }
+  if (!append) {
+    offersSentinelObserver?.disconnect();
+    offersCardsObserver?.disconnect();
+    offersSentinelObserver = null;
+    offersCardsObserver = null;
+    grid.innerHTML = '';
+  } else grid.querySelector('#offersSentinel')?.remove();
+
+  const template = document.createElement('template');
+  template.innerHTML = list.map((product, index) => offerCardHtml(product, append ? offers.length - list.length + index : index)).join('');
+  const cards = [...template.content.querySelectorAll('[data-offer-card]')];
+  grid.appendChild(template.content);
+  observeOfferCards(cards);
+  bindOffersGridEvents();
+  addOffersSentinel();
 }
 
 function clearFilters() {
@@ -666,28 +813,127 @@ function clearFilters() {
   currentDealFilter = 'todos';
   document.querySelectorAll('.dchip').forEach(chip => chip.classList.toggle('active', chip.dataset.type === 'todos'));
   if ($('sortSelect')) $('sortSelect').value = 'discount';
-  renderOffers();
+  scheduleOffersReset(0);
 }
 
-//--------------------------------------------------------
-async function loadProductsFromSupabase() {
-  const client = getSupabaseClient();
-  if (!client) return false;
-  const pageSize = 500;
-  const rows = [];
+const offersRandomSeed = `ecomme-offers-v1-${new Date().toISOString().slice(0, 10)}`;
+function parseOffersPage(data) {
+  const rows = Array.isArray(data) ? data : [];
+  const pageRows = rows.slice(0, OFFERS_PAGE_SIZE);
+  const items = pageRows.map(row => normalizeOfferProduct(row?.product || row)).filter(product => product.id && product.id !== 'undefined' && isRealOffer(product));
+  const last = pageRows[pageRows.length - 1];
+  return {
+    items,
+    hasMore: rows.length > OFFERS_PAGE_SIZE,
+    totalCount: Number(pageRows[0]?.total_count ?? 0) || 0,
+    cursor: last ? { value: last.cursor_value ?? null, id: String(last.cursor_id ?? last.product?.id ?? last.id) } : null
+  };
+}
+function offersPageUrl(cursor = null) {
+  const params = new URLSearchParams({ mode: 'offers', sort: $('sortSelect')?.value || 'discount', limit: String(OFFERS_PAGE_SIZE + 1), seed: offersRandomSeed });
+  const search = String($('searchInput')?.value || '').trim().slice(0, 120);
+  if (search) params.set('search', search);
+  if (currentDealFilter !== 'todos') params.set('tag', currentDealFilter);
+  if (cursor?.value != null) params.set('cursor_value', String(cursor.value));
+  if (cursor?.id != null) params.set('cursor_id', String(cursor.id));
+  return `/api/catalog?${params.toString()}`;
+}
+async function requestOffersPage(cursor = null) {
   try {
-    for (let from = 0; ; from += pageSize) {
-      const { data, error } = await client.from('products').select('*').order('id', { ascending: true }).range(from, from + pageSize - 1);
-      if (error) throw error;
-      const batch = data || [];
-      rows.push(...batch);
-      if (batch.length < pageSize) break;
-    }
-    products = rows.map(normalizeOfferProduct).filter(product => product.id && product.id !== 'undefined');
-    shuffled = [...products];
-    return true;
+    const response = await fetch(offersPageUrl(cursor), { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
+    if (response.ok) return parseOffersPage(await response.json());
+    if (![404, 503].includes(response.status)) throw new Error(`Catálogo de ofertas HTTP ${response.status}: ${(await response.text()).slice(0, 240)}`);
   } catch (error) {
-    console.error('[Ecomme ofertas] Erro ao carregar produtos:', error);
+    if (!(error instanceof TypeError) && !/Failed to fetch|NetworkError/i.test(String(error?.message || ''))) throw error;
+  }
+  const client = getSupabaseClient();
+  const { data, error } = await client.rpc('ecomme_marketplace_catalog_page', {
+    p_mode: 'offers', p_search: String($('searchInput')?.value || '').trim().slice(0, 120) || null,
+    p_sort: $('sortSelect')?.value || 'discount', p_cursor_value: cursor?.value ?? null,
+    p_cursor_id: cursor?.id ?? null, p_limit: OFFERS_PAGE_SIZE + 1, p_seed: offersRandomSeed,
+    p_category: null, p_tag: currentDealFilter === 'todos' ? null : currentDealFilter,
+    p_min_price: null, p_max_price: null, p_min_rating: null, p_colors: null
+  });
+  if (error) throw error;
+  return parseOffersPage(data);
+}
+function mergeOffersProducts(items) {
+  const byId = new Map(products.map(item => [String(item.id), item]));
+  items.forEach(item => { byId.set(String(item.id), item); offersById.set(String(item.id), item); });
+  products = [...byId.values()];
+}
+async function resetOffersCatalog({ showSkeleton = true } = {}) {
+  const requestVersion = ++offersRequestVersion;
+  offersPageInFlight = null;
+  offersSentinelObserver?.disconnect();
+  offersCardsObserver?.disconnect();
+  offersHasMore = false;
+  offersCursor = null;
+  offersTotalCount = 0;
+  offers = [];
+  offersById.clear();
+  products = [...cart, ...fav].filter((item, index, list) => list.findIndex(other => String(other.id) === String(item.id)) === index);
+  if (showSkeleton) showOffersSkeleton();
+  const page = await requestOffersPage(null);
+  if (requestVersion !== offersRequestVersion) return false;
+  offers = page.items;
+  offersHasMore = page.hasMore;
+  offersCursor = page.cursor;
+  offersTotalCount = page.totalCount;
+  offersLastUpdated = new Date();
+  mergeOffersProducts(offers);
+  updateOfferStats();
+  renderOffers();
+  return true;
+}
+async function loadNextOffersPage() {
+  if (!offersHasMore || offersPageInFlight) return false;
+  const requestVersion = offersRequestVersion;
+  const cursor = offersCursor ? { ...offersCursor } : null;
+  const pending = requestOffersPage(cursor);
+  offersPageInFlight = pending;
+  try {
+    const page = await pending;
+    if (requestVersion !== offersRequestVersion) return false;
+    const known = new Set(offers.map(item => String(item.id)));
+    const fresh = page.items.filter(item => !known.has(String(item.id)));
+    offersHasMore = page.hasMore;
+    offersCursor = page.cursor;
+    offersTotalCount = page.totalCount || offersTotalCount;
+    if (fresh.length) {
+      offers.push(...fresh);
+      mergeOffersProducts(fresh);
+      renderOffers({ append: true, addedProducts: fresh });
+    } else addOffersSentinel();
+    updateOfferStats();
+    return true;
+  } finally {
+    if (offersPageInFlight === pending) offersPageInFlight = null;
+  }
+}
+function scheduleOffersRealtimeRefresh(delay = 550) {
+  clearTimeout(offersRealtimeRefreshTimer);
+  offersRealtimeRefreshTimer = setTimeout(() => resetOffersCatalog({ showSkeleton: false }).catch(error => console.warn('[Ecomme ofertas] Falha na revalidação:', error)), delay);
+}
+async function loadSavedProductDetails() {
+  const client = getSupabaseClient();
+  if (!client) return;
+  const ids = [...new Set([...cart, ...fav].map(item => String(item.id)).filter(Boolean))];
+  const missing = ids.filter(id => !products.some(item => String(item.id) === id));
+  if (!missing.length) return;
+  try {
+    const { data, error } = await client.from('products').select('*').in('id', missing);
+    if (error) throw error;
+    mergeOffersProducts((data || []).map(normalizeOfferProduct));
+  } catch (error) {
+    console.warn('[Ecomme ofertas] Não foi possível carregar detalhes dos produtos salvos:', error);
+  }
+}
+
+async function loadProductsFromSupabase() {
+  try { return await resetOffersCatalog({ showSkeleton: false }); }
+  catch (error) {
+    console.error('[Ecomme ofertas] Erro ao carregar ofertas paginadas:', error);
     products = [];
     offers = [];
     return false;
@@ -718,6 +964,7 @@ async function loadFromSupabase() {
   if (!data) return;
   if (Array.isArray(data.cart)) cart = data.cart;
   if (!window.EcommeWishlists && Array.isArray(data.fav)) fav = data.fav;
+  await loadSavedProductDetails();
   updateCart();
   if (!window.EcommeWishlists) updateFav();
 }
@@ -859,50 +1106,83 @@ function closeAuth() {
   
 //--------------------------------------------------------
 async function loadOffersFromSupabase() {
-  offers = products.filter(isRealOffer);
+  offers = offers.filter(isRealOffer);
   offersLastUpdated = new Date();
   updateOfferStats();
   renderOffers();
 }
 
 async function refreshOffersFromDatabase() {
-  if (offersLoading) return offersLoading;
-  offersLoading = (async () => {
-    const loaded = await loadProductsFromSupabase();
-    if (!loaded) throw new Error('Não foi possível atualizar o catálogo de produtos.');
-    await loadOffersFromSupabase();
-  })();
-  try { await offersLoading; }
-  finally { offersLoading = null; }
+  return resetOffersCatalog({ showSkeleton: false });
 }
 
 async function retryLoadOffers() {
   showOffersSkeleton();
-  try { await refreshOffersFromDatabase(); }
-  catch (error) { console.error('[Ecomme ofertas] Falha ao recarregar:', error); showOffersError('O Supabase não retornou os produtos. Tente novamente.'); }
+  try {
+    await Promise.all([resetOffersCatalog({ showSkeleton: false }), loadOfferStats()]);
+  } catch (error) {
+    console.error('[Ecomme ofertas] Falha ao recarregar:', error);
+    showOffersError('O Supabase não retornou as ofertas. Tente novamente.');
+  }
+}
+
+function handleOfferRealtime(message, eventType) {
+  const payload = message?.payload || message || {};
+  const record = payload.new || payload.record || null;
+  const oldRecord = payload.old || null;
+  const id = String(record?.id ?? oldRecord?.id ?? '');
+  if (!id) { scheduleOffersRealtimeRefresh(); return; }
+  offersLastRealtimeAt = Date.now();
+  const existingIndex = offers.findIndex(item => String(item.id) === id);
+  if (eventType === 'DELETE') {
+    if (existingIndex >= 0) {
+      offers.splice(existingIndex, 1);
+      offersById.delete(id);
+      products = products.filter(item => String(item.id) !== id || cart.some(cartItem => String(cartItem.id) === id) || fav.some(favItem => String(favItem.id) === id));
+      renderOffers();
+      scheduleOffersRealtimeRefresh(900);
+    }
+    return;
+  }
+  if (!record?.id) { scheduleOffersRealtimeRefresh(); return; }
+  const normalized = normalizeOfferProduct(record);
+  if (existingIndex >= 0) {
+    if (isRealOffer(normalized)) {
+      offers[existingIndex] = normalized;
+      offersById.set(id, normalized);
+      mergeOffersProducts([normalized]);
+      renderOffers();
+    } else {
+      offers.splice(existingIndex, 1);
+      offersById.delete(id);
+      renderOffers();
+    }
+    scheduleOffersRealtimeRefresh(900);
+    return;
+  }
+  if (isRealOffer(normalized)) scheduleOffersRealtimeRefresh();
 }
 
 function startOffersRealtime() {
   const client = getSupabaseClient();
-  if (client?.channel && !offersChannel) {
-    try {
-      offersChannel = client.channel('ecomme-offers-products')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-          clearTimeout(offersRefreshTimer);
-          offersRefreshTimer = setTimeout(() => refreshOffersFromDatabase().catch(error => console.error('[Ecomme ofertas] Erro na atualização em tempo real:', error)), 500);
-        })
-        .subscribe(status => {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.warn('[Ecomme ofertas] Realtime indisponível; a atualização periódica continuará ativa.');
-        });
-    } catch (error) {
-      console.warn('[Ecomme ofertas] Não foi possível iniciar o Realtime:', error);
+  if (!client?.channel || offersChannel) return;
+  try {
+    offersChannel = client.channel('catalog:products')
+      .on('broadcast', { event: 'INSERT' }, message => handleOfferRealtime(message, 'INSERT'))
+      .on('broadcast', { event: 'UPDATE' }, message => handleOfferRealtime(message, 'UPDATE'))
+      .on('broadcast', { event: 'DELETE' }, message => handleOfferRealtime(message, 'DELETE'))
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.warn('[Ecomme ofertas] Broadcast indisponível; a revalidação por visibilidade continuará ativa.');
+      });
+  } catch (error) {
+    console.warn('[Ecomme ofertas] Não foi possível iniciar Broadcast:', error);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && Date.now() - offersLastRealtimeAt > 90000) {
+      scheduleOffersRealtimeRefresh(150);
+      loadOfferStats();
     }
-  }
-  if (!offersPollTimer) {
-    offersPollTimer = setInterval(() => {
-      if (document.visibilityState === 'visible') refreshOffersFromDatabase().catch(error => console.warn('[Ecomme ofertas] Falha na atualização periódica:', error));
-    }, 60000);
-  }
+  });
 }
 /* ─── MODAL ──────────────────────────────────────────────────────────── */
 function openProductModal(id) {
@@ -967,7 +1247,7 @@ Object.assign(window, {
   addToCart, removeFromCart, changeCartQty, updateCart, openCart, closeCart, checkout,
   toggleFav, addToFav, removeFromFav, changeFavQty, updateFav, openFav, closeFav, addAllFavToCart, moveFromCartToFav,
   openNotif, closeNotif, openMore, closeMore, openAcc, closeAcc,
-  setDealFilter, renderOffers, clearFilters, retryLoadOffers,
+  setDealFilter, renderOffers, clearFilters, retryLoadOffers, setOfferSort: () => scheduleOffersReset(0),
   showAlert, showAuth, closeAlert, closeAuth,
   openProductModal, handleModalClick, closeModal, addFromModal, addFromModal2, chgQty,
   showToast, toast, doLogout
