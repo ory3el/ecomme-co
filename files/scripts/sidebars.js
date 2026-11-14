@@ -2694,6 +2694,8 @@ function openConfirmLogout() {
   let initRetries = 0;
   let preferencesLoading = false;
   let notificationsLoading = false;
+  let realtimeEmitTimer = null;
+  let notificationsRefreshTimer = null;
 
   function getClient() {
     try {
@@ -2897,6 +2899,68 @@ function openConfirmLogout() {
     return { data };
   }
 
+  function scheduleRealtimeEmit() {
+    if (realtimeEmitTimer) return;
+    realtimeEmitTimer = window.setTimeout(() => {
+      realtimeEmitTimer = null;
+      emitChange();
+    }, 60);
+  }
+
+  function scheduleNotificationsRefresh() {
+    if (notificationsRefreshTimer) return;
+    notificationsRefreshTimer = window.setTimeout(() => {
+      notificationsRefreshTimer = null;
+      loadNotifications();
+    }, 180);
+  }
+
+  function handleRealtimeNotification(payload = {}) {
+    const eventType = String(payload.eventType || payload.event || '').toUpperCase();
+    const row = payload.new || null;
+    const oldRow = payload.old || null;
+    let changed = false;
+
+    if (eventType === 'INSERT' && row?.id) {
+      if (row.user_id && String(row.user_id) !== String(currentUser?.id)) return;
+      const next = notifications.filter(item => String(item.id) !== String(row.id));
+      next.push(row);
+      next.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      notifications = next.slice(0, 100);
+      changed = true;
+    } else if (eventType === 'UPDATE' && row?.id) {
+      const index = notifications.findIndex(item => String(item.id) === String(row.id));
+      if (index >= 0) {
+        const previous = notifications[index];
+        const differs = previous.read_at !== row.read_at || previous.title !== row.title ||
+          previous.body !== row.body || previous.target_url !== row.target_url ||
+          previous.type !== row.type || JSON.stringify(previous.metadata || {}) !== JSON.stringify(row.metadata || {});
+        if (differs) {
+          notifications[index] = row;
+          changed = true;
+        }
+      } else if (notifications.length < 100) {
+        notifications.push(row);
+        notifications.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        changed = true;
+      } else if (notifications.length && new Date(row.created_at || 0) > new Date(notifications[notifications.length - 1].created_at || 0)) {
+        notifications.push(row);
+        notifications.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        notifications = notifications.slice(0, 100);
+        changed = true;
+      }
+    } else if (eventType === 'DELETE' && oldRow?.id) {
+      const next = notifications.filter(item => String(item.id) !== String(oldRow.id));
+      changed = next.length !== notifications.length;
+      notifications = next;
+    } else {
+      scheduleNotificationsRefresh();
+      return;
+    }
+
+    if (changed) scheduleRealtimeEmit();
+  }
+
   async function markRead(id) {
     if (!currentUser) return;
     const item = notifications.find(row => String(row.id) === String(id));
@@ -3007,7 +3071,7 @@ function openConfirmLogout() {
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'user_notifications',
         filter: `user_id=eq.${currentUser.id}`
-      }, () => { loadNotifications(); })
+      }, handleRealtimeNotification)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'user_notification_preferences',
         filter: `user_id=eq.${currentUser.id}`
