@@ -13,6 +13,23 @@ export async function onRequest(context) {
     return serveStaticAsset(context, request);
   }
 
+  // Metadados OG são públicos. Um cache curto na borda evita consultar o
+  // Supabase repetidamente quando o mesmo produto é compartilhado/visitado.
+  const edgeCache = globalThis.caches?.default;
+  const cacheKey = new Request(`${url.origin}${url.pathname}`, { method: 'GET' });
+  if (edgeCache) {
+    try {
+      const cached = await edgeCache.match(cacheKey);
+      if (cached) {
+        const headers = new Headers(cached.headers);
+        headers.set('x-ecomme-product-cache', 'HIT');
+        return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers });
+      }
+    } catch (error) {
+      console.warn('[Ecomme OG] Cache indisponível; consultando origem.', error);
+    }
+  }
+
   // O modelo fica fora de /product/ para não cair no redirect /product/ -> /products/.
   // ASSETS.fetch deve receber o caminho público sem /index.html.
   const staticPageUrl = new URL('/product-template/', url.origin);
@@ -108,16 +125,25 @@ export async function onRequest(context) {
 
   const headers = new Headers(pageResponse.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
-  headers.set('cache-control', 'public, max-age=0, s-maxage=300');
+  headers.set('cache-control', 'public, max-age=0, s-maxage=120, stale-while-revalidate=60');
+  headers.set('x-ecomme-product-cache', 'MISS');
   headers.delete('content-length');
   headers.delete('etag');
   headers.delete('last-modified');
 
-  return new Response(html, {
+  const response = new Response(html, {
     status: pageResponse.status,
     statusText: pageResponse.statusText,
     headers
   });
+  // Só armazena páginas com metadados reais; falhas de configuração ou produto
+  // ausente não ficam cacheadas e podem se recuperar assim que forem corrigidas.
+  if (edgeCache && product && context.waitUntil) {
+    context.waitUntil(edgeCache.put(cacheKey, response.clone()).catch(error => {
+      console.warn('[Ecomme OG] Não foi possível salvar cache:', error);
+    }));
+  }
+  return response;
 }
 
 function serveStaticAsset(context, request) {
