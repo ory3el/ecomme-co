@@ -877,17 +877,9 @@ function addCatalogSupplementalProducts(items) {
   rebuildEcommeProductIndex();
 }
 
-async function requestCatalogPage(state, cursor = null) {
-  const { data, error } = await supabaseClient.rpc(ECOMME_CATALOG_RPC, {
-    p_search: state.query || null,
-    p_sort: state.sort || 'random',
-    p_cursor_value: cursor?.value ?? null,
-    p_cursor_id: cursor?.id ?? null,
-    p_limit: PAGE_SIZE + 1,
-    p_seed: state.seed
-  });
-  if (error) throw error;
+let catalogEdgeEndpointAvailable = null;
 
+function normalizeCatalogPageResponse(data) {
   const rows = Array.isArray(data) ? data : [];
   const hasMore = rows.length > PAGE_SIZE;
   const pageRows = rows.slice(0, PAGE_SIZE);
@@ -898,6 +890,59 @@ async function requestCatalogPage(state, cursor = null) {
     hasMore,
     cursor: lastRow ? { value: lastRow.cursor_value ?? null, id: String(lastRow.cursor_id ?? lastRow.product?.id ?? lastRow.id) } : null
   };
+}
+
+function catalogPageEndpointUrl(state, cursor = null) {
+  const params = new URLSearchParams();
+  if (state.query) params.set('search', state.query);
+  params.set('sort', state.sort || 'random');
+  if (cursor?.value != null) params.set('cursor_value', String(cursor.value));
+  if (cursor?.id != null) params.set('cursor_id', String(cursor.id));
+  params.set('limit', String(PAGE_SIZE + 1));
+  if (state.seed) params.set('seed', String(state.seed));
+  return `/api/catalog?${params.toString()}`;
+}
+
+async function requestCatalogPage(state, cursor = null) {
+  if (catalogEdgeEndpointAvailable !== false) {
+    try {
+      const response = await fetch(catalogPageEndpointUrl(state, cursor), {
+        method: 'GET',
+        credentials: 'omit',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' }
+      });
+      if (response.ok) {
+        catalogEdgeEndpointAvailable = true;
+        return normalizeCatalogPageResponse(await response.json());
+      }
+      // A rota/segredo pode ainda não ter sido implantado. Nesse caso, o RPC
+      // direto continua funcionando e evita bloquear o catálogo durante deploy.
+      if (response.status === 404 || response.status === 503) {
+        catalogEdgeEndpointAvailable = false;
+      } else {
+        const detail = (await response.text()).slice(0, 300);
+        throw new Error(`Edge Catalog HTTP ${response.status}: ${detail}`);
+      }
+    } catch (error) {
+      if (error instanceof TypeError || /Failed to fetch|NetworkError/i.test(String(error?.message || ''))) {
+        catalogEdgeEndpointAvailable = false;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  const { data, error } = await supabaseClient.rpc(ECOMME_CATALOG_RPC, {
+    p_search: state.query || null,
+    p_sort: state.sort || 'random',
+    p_cursor_value: cursor?.value ?? null,
+    p_cursor_id: cursor?.id ?? null,
+    p_limit: PAGE_SIZE + 1,
+    p_seed: state.seed
+  });
+  if (error) throw error;
+  return normalizeCatalogPageResponse(data);
 }
 
 async function loadLegacyCatalogReduced() {
