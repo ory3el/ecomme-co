@@ -848,7 +848,7 @@ function buildProdTable(filter) {
       <td class="fs11 muted">${escapeHtml(p.sku || '—')}</td>
       <td><span class="tag tag-blue fs10">${escapeHtml(prodCategory(p) || 'Sem categoria')}</span></td>
       <td class="sora fw7 blue fs13">${fmtBRL(p.price)}</td>
-      <td><span class="stock-val ${stClass}">${stock} un.</span></td>
+      <td><button type="button" class="stock-val stock-edit-btn ${stClass}" data-act="stock" data-id="${id}" aria-haspopup="dialog" aria-label="Alterar estoque de ${escapeHtml(p.name)}. Atualmente ${stock} unidades." title="Clique para alterar o estoque">${stock} un.</button></td>
       <td class="fs11 muted">${soldTxt}</td>
       <td data-label="Intenção de compra"><button type="button" class="pa-open-btn" data-act="analytics" data-id="${id}"><i class="fa-solid fa-chart-line"></i><span>Indicadores</span><small>${viewsTxt} visualizações</small></button></td>
       <td>${stTag}</td>
@@ -885,8 +885,9 @@ function initProductsTable() {
       closeActionMenus();
       const id = el.dataset.id;
       ({ edit: editProduct, dup: duplicateProduct, pause: toggleProductPause, del: deleteProduct,
+         stock: openStockEditModal,
          analytics: openProductAnalytics,
-         export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id);
+         export: pid => { const p = findProd(pid); if (p) exportProductsCsv([p]); } })[el.dataset.act]?.(id, el);
       return;
     }
     const row = ev.target.closest('tr[data-product-row]');
@@ -964,6 +965,152 @@ async function toggleProductPause(id) {
   }
   await loadMyProducts();
   toast(next === 'paused' ? 'Produto pausado.' : 'Produto reativado.', 'ok');
+}
+
+let stockEditProductId = null;
+let stockEditOpener = null;
+let stockEditSaving = false;
+
+function ensureStockEditModal() {
+  let modal = $('stockEditModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'stockEditModal';
+  modal.className = 'stock-edit-modal';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = `
+    <div class="stock-edit-backdrop" data-stock-close></div>
+    <section class="stock-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="stockEditTitle" aria-describedby="stockEditDescription">
+      <button type="button" class="stock-edit-close" data-stock-close aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <div class="stock-edit-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div class="stock-edit-heading">
+        <span>GERENCIAMENTO DE ESTOQUE</span>
+        <h2 id="stockEditTitle">Alterar estoque</h2>
+        <p id="stockEditDescription">Atualize a quantidade disponível deste produto.</p>
+      </div>
+      <form id="stockEditForm" novalidate>
+        <label class="stock-edit-label" for="stockEditInput">Quantidade em estoque</label>
+        <div class="stock-edit-input-wrap">
+          <input id="stockEditInput" name="stock" type="number" inputmode="numeric" min="0" step="1" required autocomplete="off">
+          <span>unidades</span>
+        </div>
+        <small class="stock-edit-product-name" id="stockEditProductName"></small>
+        <p class="stock-edit-error" id="stockEditError" role="alert" hidden></p>
+        <div class="stock-edit-actions">
+          <button type="button" class="stock-edit-cancel" data-stock-close>Cancelar</button>
+          <button type="submit" class="stock-edit-save"><i class="fa-solid fa-check"></i> Salvar estoque</button>
+        </div>
+      </form>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', event => {
+    if (event.target.closest('[data-stock-close]') && !stockEditSaving) closeStockEditModal();
+  });
+  $('stockEditForm')?.addEventListener('submit', event => {
+    event.preventDefault();
+    saveStockEdit();
+  });
+  return modal;
+}
+
+function openStockEditModal(id, opener) {
+  const product = findProd(id);
+  if (!product) return;
+  if (!storeCan('products')) return denyAction('products');
+
+  const modal = ensureStockEditModal();
+  stockEditProductId = String(product.id);
+  stockEditOpener = opener || document.activeElement;
+  stockEditSaving = false;
+  const input = $('stockEditInput');
+  const error = $('stockEditError');
+  const save = modal.querySelector('.stock-edit-save');
+  $('stockEditProductName').textContent = product.name || 'Produto sem nome';
+  input.value = String(prodStock(product));
+  input.removeAttribute('aria-invalid');
+  error.hidden = true;
+  error.textContent = '';
+  if (save) { save.disabled = false; save.innerHTML = '<i class="fa-solid fa-check"></i> Salvar estoque'; }
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('stock-edit-open');
+  requestAnimationFrame(() => { input.focus(); input.select(); });
+}
+
+function closeStockEditModal() {
+  const modal = $('stockEditModal');
+  if (!modal || stockEditSaving) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('stock-edit-open');
+  stockEditProductId = null;
+  if (stockEditOpener?.isConnected) stockEditOpener.focus({ preventScroll: true });
+  stockEditOpener = null;
+}
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && $('stockEditModal')?.classList.contains('is-open')) {
+    event.preventDefault();
+    closeStockEditModal();
+  }
+});
+
+async function saveStockEdit() {
+  if (stockEditSaving) return;
+  const product = findProd(stockEditProductId);
+  const input = $('stockEditInput');
+  const errorBox = $('stockEditError');
+  const saveButton = $('stockEditModal')?.querySelector('.stock-edit-save');
+  if (!product || !input || !errorBox || !saveButton) return;
+  if (!storeCan('products')) return denyAction('products');
+
+  const raw = input.value.trim();
+  const quantity = Number(raw);
+  if (!/^\d+$/.test(raw) || !Number.isSafeInteger(quantity) || quantity < 0) {
+    errorBox.textContent = 'Informe uma quantidade inteira igual ou maior que zero.';
+    errorBox.hidden = false;
+    input.setAttribute('aria-invalid', 'true');
+    input.focus();
+    return;
+  }
+
+  stockEditSaving = true;
+  saveButton.disabled = true;
+  saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+  input.disabled = true;
+  try {
+    const updateData = { stock: quantity };
+    // Estoque zerado pausa o anúncio. Estoque positivo não reativa automaticamente.
+    if (quantity === 0) updateData.badge = 'paused';
+    const { data, error } = await supabaseClient.from('products').update(updateData)
+      .eq('id', product.id).eq('loja_id', myStoreId).select('id, stock, badge');
+    if (error) throw error;
+    if (!data?.length) throw new Error('O produto não foi atualizado. Verifique as permissões da loja.');
+
+    product.stock = Number(data[0].stock ?? quantity);
+    if (data[0].badge) product.badge = data[0].badge;
+    if (quantity === 0) product.badge = 'paused';
+
+    stockEditSaving = false;
+    closeStockEditModal();
+    rebuildProductFilterIndex();
+    buildProdTable();
+    // Atualiza também os indicadores agregados do painel e confirma o estado persistido.
+    await loadMyProducts();
+    toast(quantity === 0 ? 'Estoque atualizado. Produto pausado automaticamente.' : 'Estoque atualizado com sucesso.', 'ok');
+  } catch (err) {
+    console.error('Erro ao atualizar estoque:', err);
+    errorBox.textContent = err?.message || 'Não foi possível atualizar o estoque. Tente novamente.';
+    errorBox.hidden = false;
+    stockEditSaving = false;
+    saveButton.disabled = false;
+    saveButton.innerHTML = '<i class="fa-solid fa-check"></i> Salvar estoque';
+    input.disabled = false;
+    input.setAttribute('aria-invalid', 'true');
+    input.focus();
+  }
 }
 
 async function duplicateProduct(id) {
