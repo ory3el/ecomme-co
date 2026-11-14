@@ -1133,7 +1133,7 @@ async function duplicateProduct(id) {
       id: await getUniqueProductId(), loja_id: myStoreId,
       name: String(p.name || '').slice(0, 110) + ' (cópia)',
       cat: p.cat, price: p.price, desc: p.desc, shipping: p.shipping,
-      image_url: p.image_url, gallery_urls: p.gallery_urls,          // imagens compartilhadas: a exclusão confere referências
+      image_url: p.image_url, gallery_urls: p.gallery_urls,
       badge: 'paused', features: p.features || []
     };
     if ('stock' in p) copy.stock = p.stock;
