@@ -833,6 +833,8 @@ const EDGE_IMAGE_PRESETS = {
 const PRODUCT_REFRESH_INTERVAL = 10000;
 let productRefreshTimer = null;
 let productRealtimeChannel = null;
+let productRealtimeRetryTimer = null;
+let productRealtimeRetryDelay = 2000;
 let productRefreshRunning = false;
 let productDataSignature = '';
 let pageIsVisible = true;
@@ -840,12 +842,27 @@ let pageIsVisible = true;
 // ============================================================
 
 document.addEventListener('visibilitychange', () => {
-    pageIsVisible = document.visibilityState === 'visible';
-    if (pageIsVisible) {
-      refreshProductsIfNeeded();
+  pageIsVisible = document.visibilityState === 'visible';
+  if (!pageIsVisible) return;
+  if (window.location.pathname.replace(/\/+$/, '') === '/products') {
+    if (window.__ecommeProductsNeedsRender) {
+      window.__ecommeProductsNeedsRender = false;
+      if (typeof renderProducts === 'function') renderProducts();
+      updateCart();
+      updateFav();
     }
+    if (!window.__ecommeProductsRealtimeConnected) startProductsRealtime();
+    return;
   }
-);
+  if (window.__ecommeProductsNeedsRender) {
+    window.__ecommeProductsNeedsRender = false;
+    if (typeof renderProducts === 'function') renderProducts();
+    updateCart();
+    updateFav();
+    return;
+  }
+  refreshProductsIfNeeded();
+});
 
 // ============================================================
 
@@ -1096,27 +1113,35 @@ async function refreshProductsIfNeeded() {
 // ============================================================
 
 function startProductRefresh() {
-  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
-  if (productRefreshTimer) {
-    clearInterval(productRefreshTimer);
+  // /products recebe atualizações incrementais pelo Realtime, sem polling completo do catálogo.
+  if (window.location.pathname.replace(/\/+$/, '') === '/products') {
+    if (productRefreshTimer) clearInterval(productRefreshTimer);
+    productRefreshTimer = null;
+    return;
   }
-
-  productRefreshTimer = setInterval( () => {
-    refreshProductsIfNeeded();},
-    PRODUCT_REFRESH_INTERVAL
-    );
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
+  if (productRefreshTimer) clearInterval(productRefreshTimer);
+  productRefreshTimer = setInterval(() => refreshProductsIfNeeded(), PRODUCT_REFRESH_INTERVAL);
 }
 
 // ============================================================
 
+function scheduleProductsRealtimeReconnect() {
+  if (productRealtimeRetryTimer || !pageIsVisible) return;
+  const delay = productRealtimeRetryDelay;
+  productRealtimeRetryDelay = Math.min(productRealtimeRetryDelay * 2, 30000);
+  productRealtimeRetryTimer = setTimeout(() => {
+    productRealtimeRetryTimer = null;
+    if (pageIsVisible && !productRealtimeChannel) startProductsRealtime();
+  }, delay);
+}
+
 function startProductsRealtime() {
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
-  if (
-    productRealtimeChannel
-  ) {
-    supabaseClient.removeChannel(
-      productRealtimeChannel
-    );
+  if (productRealtimeChannel) return;
+  if (productRealtimeRetryTimer) {
+    clearTimeout(productRealtimeRetryTimer);
+    productRealtimeRetryTimer = null;
   }
 
   productRealtimeChannel = supabaseClient.channel('products-live')
@@ -1124,14 +1149,31 @@ function startProductsRealtime() {
       event: '*',
       schema: 'public',
       table: 'products'
-    },
-        
-        payload => { if (!pageIsVisible) {return;}
-          refreshProductsIfNeeded();
+    }, payload => {
+      if (window.location.pathname.replace(/\/+$/, '') === '/products' && typeof window.queueEcommeProductRealtimeChange === 'function') {
+        window.queueEcommeProductRealtimeChange(payload);
+        return;
+      }
+      if (!pageIsVisible) return;
+      refreshProductsIfNeeded();
+    })
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') {
+        window.__ecommeProductsRealtimeConnected = true;
+        productRealtimeRetryDelay = 2000;
+        if (productRealtimeRetryTimer) {
+          clearTimeout(productRealtimeRetryTimer);
+          productRealtimeRetryTimer = null;
         }
-      )
-      .subscribe(status => {/*console.log('Products Realtime:',status);*/});
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        window.__ecommeProductsRealtimeConnected = false;
+        productRealtimeChannel = null;
+        scheduleProductsRealtimeReconnect();
+      }
+    });
 }
+
+// ============================================================
 
 // ============================================================
 
@@ -1732,27 +1774,45 @@ async function loadProductsFromSupabase() {
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
     return loadEcommeCurrentProductOnly();
   }
+  const isProductsCatalog = window.location.pathname.replace(/\/+$/, '') === '/products';
+  if (isProductsCatalog && window.__ecommeProductsBootPromise) return window.__ecommeProductsBootPromise;
+  if (window.__ecommeProductsLoadInFlight) return window.__ecommeProductsLoadInFlight;
 
-  const {data, error} = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', {ascending: true});
+  const loadPromise = (async () => {
+    const {data, error} = await supabaseClient
+      .from('products')
+      .select('*')
+      .order('id', {ascending: true});
 
-  if (error) {
-    console.error(
-      'Erro ao carregar produtos:',
-      error
-    );
+    if (error) {
+      console.error('Erro ao carregar produtos:', error);
+      products = [];
+      shuffled = [];
+      if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
+      window.__ecommeProductsInitialLoadComplete = true;
+      if (typeof showProductsGridLoadError === 'function') showProductsGridLoadError();
+      return false;
+    }
 
-    products = [];
-    shuffled = [];
-    return false;
+    products = (data || []).map(normalizeProduct);
+    shuffled = [...products];
+    if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
+    if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
+    productDataSignature = createProductsSignature(products);
+    window.__ecommeProductsInitialLoadComplete = true;
+    if (typeof finishProductsGridSkeleton === 'function') finishProductsGridSkeleton();
+    return true;
+  })();
+
+  window.__ecommeProductsLoadInFlight = loadPromise;
+  if (isProductsCatalog) window.__ecommeProductsBootPromise = loadPromise;
+  try {
+    const loaded = await loadPromise;
+    if (isProductsCatalog && !loaded) window.__ecommeProductsBootPromise = null;
+    return loaded;
+  } finally {
+    if (window.__ecommeProductsLoadInFlight === loadPromise) window.__ecommeProductsLoadInFlight = null;
   }
-
-  products = (data || []).map(normalizeProduct);
-  shuffled = [...products];
-  productDataSignature = createProductsSignature(products);
-  return true;
 }
 
 /* ─── NOTIFICATION ───────────────────────────────────────────────── */
