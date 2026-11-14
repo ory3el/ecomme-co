@@ -1,3 +1,5 @@
+import { coalesceEdgeResponse } from '../_shared/edge-cache.js';
+
 const DEFAULT_SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
 
 export async function onRequest(context) {
@@ -61,35 +63,46 @@ export async function onRequest(context) {
   const supabaseUrl = String(env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, '');
   const publishableKey = String(env.SUPABASE_PUBLISHABLE_KEY || '').trim();
   let product = null;
+  let productLookupCoalesced = false;
 
-  if (!publishableKey) {
-    console.error('[Ecomme OG] Configure SUPABASE_PUBLISHABLE_KEY nas variáveis do Cloudflare Pages.');
-  } else {
+  // Compartilha a consulta do mesmo produto quando vários visitantes ou robôs
+  // de pré-visualização abrem o link no mesmo isolate com o cache ainda vazio.
+  const { response: productLookup, coalesced } = await coalesceEdgeResponse(`og-product:${supabaseUrl}:${id}`, async () => {
+    if (!publishableKey) {
+      console.error('[Ecomme OG] Configure SUPABASE_PUBLISHABLE_KEY nas variáveis do Cloudflare Pages.');
+      return jsonResponse({ product: null, error: 'SUPABASE_PUBLISHABLE_KEY não configurada.' }, 503);
+    }
+
     try {
       const apiUrl = new URL('/rest/v1/products', supabaseUrl);
-      apiUrl.searchParams.set(
-        'select',
-        'id,name,desc,price,old,discount,image_url,gallery_urls,cat'
-      );
+      apiUrl.searchParams.set('select', 'id,name,desc,price,old,discount,image_url,gallery_urls,cat');
       apiUrl.searchParams.set('id', `eq.${id}`);
       apiUrl.searchParams.set('limit', '1');
 
       const dbResponse = await fetch(apiUrl.toString(), {
-        headers: {
-          apikey: publishableKey,
-          accept: 'application/json'
-        }
+        headers: { apikey: publishableKey, accept: 'application/json' }
       });
-
       if (!dbResponse.ok) {
         const detail = (await dbResponse.text()).slice(0, 400);
         throw new Error(`Supabase HTTP ${dbResponse.status}: ${detail}`);
       }
 
       const rows = await dbResponse.json();
-      product = Array.isArray(rows) ? rows[0] || null : null;
+      const currentProduct = Array.isArray(rows) ? rows[0] || null : null;
+      return jsonResponse({ product: currentProduct }, 200);
     } catch (error) {
       console.error('[Ecomme OG] Erro ao consultar o produto:', error);
+      return jsonResponse({ product: null, error: 'Não foi possível consultar o produto.' }, 502);
+    }
+  });
+
+  productLookupCoalesced = coalesced;
+  if (productLookup.ok) {
+    try {
+      const payload = await productLookup.json();
+      product = payload?.product || null;
+    } catch (error) {
+      console.error('[Ecomme OG] Resposta inválida ao consultar o produto:', error);
     }
   }
 
@@ -126,7 +139,7 @@ export async function onRequest(context) {
   const headers = new Headers(pageResponse.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.set('cache-control', 'public, max-age=0, s-maxage=120, stale-while-revalidate=60');
-  headers.set('x-ecomme-product-cache', 'MISS');
+  headers.set('x-ecomme-product-cache', productLookupCoalesced ? 'COALESCED' : 'MISS');
   headers.delete('content-length');
   headers.delete('etag');
   headers.delete('last-modified');
@@ -138,12 +151,16 @@ export async function onRequest(context) {
   });
   // Só armazena páginas com metadados reais; falhas de configuração ou produto
   // ausente não ficam cacheadas e podem se recuperar assim que forem corrigidas.
-  if (edgeCache && product && context.waitUntil) {
+  if (edgeCache && product && context.waitUntil && !productLookupCoalesced) {
     context.waitUntil(edgeCache.put(cacheKey, response.clone()).catch(error => {
       console.warn('[Ecomme OG] Não foi possível salvar cache:', error);
     }));
   }
   return response;
+}
+
+function jsonResponse(value, status = 200) {
+  return new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 }
 
 function serveStaticAsset(context, request) {
