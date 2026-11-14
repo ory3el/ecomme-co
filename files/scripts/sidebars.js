@@ -865,6 +865,7 @@ document.addEventListener('visibilitychange', () => {
     if (!window.__ecommeProductsRealtimeConnected) startProductsRealtime();
     return;
   }
+  if (typeof isProductsCatalogRoute !== 'function' || !isProductsCatalogRoute()) return;
   if (window.__ecommeProductsNeedsRender) {
     window.__ecommeProductsNeedsRender = false;
     if (typeof renderProducts === 'function') renderProducts();
@@ -911,8 +912,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
-    const productsLoaded = await loadProductsFromSupabase();
+    const isProductDetailPage = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
+    const isCatalogPage = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
+    const productsLoaded = (isProductDetailPage || isCatalogPage)
+      ? await loadProductsFromSupabase()
+      : true;
     if (!productsLoaded) return;
+    if (!isProductDetailPage && !isCatalogPage) window.__ecommeProductsInitialLoadComplete = true;
 
     const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
     if (!user || userError) {
@@ -938,7 +944,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const {data: profile, error: profileError} = await supabaseClient
       .from('profiles')
-      .select('*')
+      .select('full_name, avatar_url')
       .eq('id', user.id)
       .single();
 
@@ -1083,6 +1089,7 @@ function createProductsSignature(
 
 async function refreshProductsIfNeeded() {
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return false;
+  if (typeof isProductsCatalogRoute !== 'function' || !isProductsCatalogRoute()) return false;
   // Realtime é a fonte principal. Uma leitura completa só é permitida como
   // recuperação quando a conexão caiu e a página volta a ficar visível.
   if (window.__ecommeProductsRealtimeConnected) return false;
@@ -1147,6 +1154,9 @@ function scheduleProductsRealtimeReconnect() {
 }
 
 function startProductsRealtime() {
+  // Não assina a tabela inteira em páginas que não exibem o catálogo.
+  // O carrinho/favoritos carregam somente os IDs salvos, sem precisar de Realtime global.
+  if (typeof isProductsCatalogRoute !== 'function' || !isProductsCatalogRoute()) return;
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
   if (productRealtimeChannel) return;
   if (productRealtimeRetryTimer) {
@@ -2219,19 +2229,74 @@ function setupModalAutoPlay() {
 async function openProduct(id) {
   document.body.classList.add("noscroll");
 
-  const productsLoaded = await loadProductsFromSupabase();
-  if (!productsLoaded) {
-    showToast('Produtos não carregados', 'err');
+  const normalizedId = String(id ?? '').trim();
+  if (!normalizedId) {
+    showToast('Produto não encontrado.', 'err');
+    document.body.classList.remove("noscroll");
     return;
   }
-  
-  const normalizedId = String(id);
-  const p = products.find(
-    x => String(x.id) === normalizedId
-  );
+
+  let p = products.find(product => String(product.id) === normalizedId);
+  if (!p) {
+    try {
+      let rawProduct = null;
+      let edgeHandled = false;
+
+      if (window.__ecommeProductEdgeAvailable !== false) {
+        try {
+          const response = await fetch(`/api/product/${encodeURIComponent(normalizedId)}`, {
+            method: 'GET',
+            credentials: 'omit',
+            headers: { Accept: 'application/json' },
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout
+              ? AbortSignal.timeout(5000)
+              : undefined
+          });
+          if (response.headers.get('x-ecomme-product-api') === '1') {
+            window.__ecommeProductEdgeAvailable = true;
+            edgeHandled = response.status === 404;
+            if (!response.ok && response.status !== 404) throw new Error(`Edge Product HTTP ${response.status}`);
+            if (response.ok) {
+              const payload = await response.json();
+              rawProduct = payload?.product || null;
+              if (!rawProduct) throw new Error('Resposta inválida da rota de produto.');
+              edgeHandled = true;
+            }
+          } else {
+            window.__ecommeProductEdgeAvailable = false;
+          }
+        } catch (edgeError) {
+          window.__ecommeProductEdgeAvailable = false;
+          console.warn('[Ecomme Produto] Cache de borda indisponível; usando consulta individual.', edgeError);
+        }
+      }
+
+      if (!rawProduct && !edgeHandled) {
+        const { data, error } = await supabaseClient
+          .from('products')
+          .select('*')
+          .eq('id', normalizedId)
+          .maybeSingle();
+        if (error) throw error;
+        rawProduct = data || null;
+      }
+
+      if (rawProduct) {
+        p = typeof normalizeProduct === 'function' ? normalizeProduct(rawProduct) : rawProduct;
+        products = [...products.filter(product => String(product.id) !== normalizedId), p];
+        shuffled = [...products];
+        if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
+      }
+    } catch (error) {
+      console.error('Erro ao carregar produto para o modal:', error);
+      showToast('Não foi possível carregar este produto.', 'err');
+      document.body.classList.remove("noscroll");
+      return;
+    }
+  }
 
   if (!p) {
-    showToast('Produto não encontrado.', type = 'err');
+    showToast('Produto não encontrado.', 'err');
     console.error("Produto não encontrado:", normalizedId);
     document.body.classList.remove("noscroll");
     return;
@@ -2360,12 +2425,13 @@ function hydrateUserItems(savedItems) {
   if (!Array.isArray(savedItems)) return [];
   return savedItems
     .map(item => {
-      const product = products.find(
-        p => String(p.id) === String(item.id)
-      );
+      const savedId = String(item?.id ?? item?.product_id ?? '').trim();
+      if (!savedId) return null;
+      const product = products.find(p => String(p.id) === savedId);
       if (!product) return null;
       return {
         ...product,
+        id: savedId,
         qty: Math.max(1, Number(item.qty) || 1)
       };
     })
@@ -2405,78 +2471,67 @@ async function syncToSupabase() {
 //--------------------------------------------------------
 async function loadSidebarSavedItemsFromSupabase() {
   if (!userId) return;
-  const {
-    data,
-    error
-  } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('profiles')
     .select('cart, fav')
     .eq('id', userId)
     .single();
 
   if (error) {
-    console.error(
-      'Erro ao carregar carrinho/favoritos:',
-      error
-    );
+    console.error('Erro ao carregar carrinho/favoritos:', error);
     return;
   }
-  const isProductDetail = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
+
   const isProductsCatalog = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
-  if (isProductDetail || isProductsCatalog) {
-    const savedIds = [...new Set(
-      [...(Array.isArray(data?.cart) ? data.cart : []), ...(Array.isArray(data?.fav) ? data.fav : [])]
-        .map(item => item && item.id != null ? String(item.id) : '')
-        .filter(Boolean)
-    )];
+  const savedItems = [
+    ...(Array.isArray(data?.cart) ? data.cart : []),
+    ...(Array.isArray(data?.fav) ? data.fav : [])
+  ];
+  const savedIds = [...new Set(savedItems
+    .map(item => item?.id ?? item?.product_id)
+    .map(id => id == null ? '' : String(id).trim())
+    .filter(Boolean))];
 
-    if (savedIds.length) {
-      // Loteia os IDs para evitar URLs de consulta muito grandes quando o
-      // usuário possui muitos produtos salvos. A rota /product não carrega o
-      // catálogo inteiro, somente o produto atual e os itens realmente salvos.
-      const merged = new Map(
-        (Array.isArray(products) ? products : []).map(product => [String(product.id), product])
-      );
-      const chunks = [];
-      for (let i = 0; i < savedIds.length; i += 100) {
-        chunks.push(savedIds.slice(i, i + 100));
+  // Páginas fora do catálogo não carregam a tabela inteira de produtos.
+  // Buscam apenas os produtos realmente salvos no carrinho/lista de desejos.
+  const merged = new Map((Array.isArray(products) ? products : []).map(product => [String(product.id), product]));
+  const missingIds = savedIds.filter(id => !merged.has(id));
+  const chunks = [];
+  for (let i = 0; i < missingIds.length; i += 100) chunks.push(missingIds.slice(i, i + 100));
+
+  const savedCatalogProducts = [];
+  const productSelect = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features';
+  let failedChunks = 0;
+
+  // Limita a três consultas simultâneas mesmo para contas com listas grandes.
+  for (let i = 0; i < chunks.length; i += 3) {
+    const results = await Promise.all(chunks.slice(i, i + 3).map(ids =>
+      supabaseClient.from('products').select(productSelect).in('id', ids)
+    ));
+
+    for (const result of results) {
+      if (result.error) {
+        failedChunks++;
+        console.warn('Falha ao carregar um lote de produtos salvos:', result.error);
+        continue;
       }
-
-      const savedProductSelect = isProductsCatalog
-        ? 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features'
-        : '*';
-      const results = await Promise.all(chunks.map(ids =>
-        supabaseClient
-          .from('products')
-          .select(savedProductSelect)
-          .in('id', ids)
-      ));
-
-      let failedChunks = 0;
-      const savedCatalogProducts = [];
-      for (const result of results) {
-        if (result.error) {
-          failedChunks++;
-          console.warn('Falha ao carregar um lote de produtos do carrinho/favoritos:', result.error);
-          continue;
-        }
-
-        (result.data || []).forEach(raw => {
-          const item = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
-          merged.set(String(item.id), item);
-          if (isProductsCatalog) savedCatalogProducts.push(item);
-        });
-      }
-
-      if (failedChunks) {
-        console.warn(`Não foi possível carregar ${failedChunks} lote(s) de produtos salvos na página do produto.`);
-      }
-
-      products = [...merged.values()];
-      if (isProductsCatalog) window.EcommeCatalog?.addSupplementalProducts?.(savedCatalogProducts);
-      else shuffled = [...products];
-      if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
+      (result.data || []).forEach(raw => {
+        const item = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
+        merged.set(String(item.id), item);
+        if (isProductsCatalog) savedCatalogProducts.push(item);
+      });
     }
+  }
+
+  products = [...merged.values()];
+  if (isProductsCatalog) {
+    if (savedCatalogProducts.length) window.EcommeCatalog?.addSupplementalProducts?.(savedCatalogProducts);
+  } else {
+    shuffled = [...products];
+  }
+  if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
+  if (failedChunks) {
+    console.warn(`[Ecomme carrinho] ${failedChunks} lote(s) de produtos salvos não puderam ser carregados.`);
   }
 
   cart = hydrateUserItems(data?.cart);
@@ -2484,7 +2539,6 @@ async function loadSidebarSavedItemsFromSupabase() {
   updateCart();
   updateFav();
 }
-
 //--------------------------------------------------------
 function normalizeProduct(p) {
   return {
