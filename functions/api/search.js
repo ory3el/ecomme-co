@@ -12,7 +12,9 @@ const SORTS = {
   rat: 'rating.desc,id.asc',
   disc: 'discount.desc,id.asc',
   pop: 'reviews.desc,id.asc',
-  new: 'created_at.desc,id.desc',
+  // A tabela products desta instalação não possui created_at. Ordenação por ID é
+  // determinística, mas não representa cronologia real porque os IDs são aleatórios.
+  new: 'id.desc',
   name: 'name.asc,id.asc'
 };
 
@@ -66,7 +68,8 @@ export async function onRequest(context) {
   }
 
   const restUrl = new URL('/rest/v1/products', supabaseUrl);
-  restUrl.searchParams.set('select', '*');
+  const coreProductFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features';
+  restUrl.searchParams.set('select', `${coreProductFields},brand`);
   restUrl.searchParams.set('order', SORTS[nameOnly ? 'name' : sort]);
 
   if (query) {
@@ -101,11 +104,39 @@ export async function onRequest(context) {
     }
 
     if (!upstream.ok) {
-      const detail = (await upstream.text()).slice(0, 500);
-      return jsonResponse({ error: 'Falha ao consultar a busca.', detail }, upstream.status, {
-        ...marker,
-        'cache-control': 'no-store'
-      });
+      const detail = await upstream.text();
+      // 'brand' é opcional em instalações antigas. Se a coluna não existir,
+      // repete a mesma página sem ela, sem recorrer a SELECT *.
+      if (isMissingBrandColumn(detail)) {
+        restUrl.searchParams.set('select', coreProductFields);
+        try {
+          upstream = await fetch(restUrl.toString(), {
+            method: 'GET',
+            headers: {
+              apikey: publishableKey,
+              accept: 'application/json',
+              prefer: 'count=exact',
+              'range-unit': 'items',
+              range: `${offset}-${offset + limit - 1}`
+            }
+          });
+        } catch (error) {
+          console.error('[Ecomme Search Edge] Falha na consulta compatível:', error);
+          return jsonResponse({ error: 'Não foi possível consultar a busca.' }, 502, { ...marker, 'cache-control': 'no-store' });
+        }
+      } else {
+        return jsonResponse({ error: 'Falha ao consultar a busca.', detail: detail.slice(0, 500) }, upstream.status, {
+          ...marker,
+          'cache-control': 'no-store'
+        });
+      }
+      if (!upstream.ok) {
+        const fallbackDetail = (await upstream.text()).slice(0, 500);
+        return jsonResponse({ error: 'Falha ao consultar a busca.', detail: fallbackDetail }, upstream.status, {
+          ...marker,
+          'cache-control': 'no-store'
+        });
+      }
     }
 
     let rows;
@@ -142,6 +173,10 @@ export async function onRequest(context) {
   }));
 }
 
+function isMissingBrandColumn(detail) {
+  const text = String(detail || '').toLowerCase();
+  return text.includes('brand') && (text.includes('does not exist') || text.includes('could not find') || text.includes('schema cache'));
+}
 function normalizeSearch(value) {
   return String(value || '').normalize('NFC').trim().replace(/[(),%_*\\'"`]/g, ' ').replace(/\s+/g, ' ').slice(0, 100);
 }
