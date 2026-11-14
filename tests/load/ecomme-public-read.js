@@ -10,8 +10,6 @@ export const options = {
     marketplace_ramp: {
       executor: 'ramping-vus',
       startVUs: 0,
-      preAllocatedVUs: 100,
-      maxVUs: 1000,
       stages: [
         { duration: '1m', target: 100 },
         { duration: '2m', target: 100 },
