@@ -178,6 +178,7 @@ function retryLoadStore() { const box = $('storeError'); if (box) box.hidden = t
 /* ─── DADOS: LOJA ────────────────────────────────────────────────── */
 const isMissingRelation = e => !!e && (['42P01', 'PGRST205'].includes(e.code) || /relation .* does not exist|could not find the table/i.test(e.message || ''));
 const isMissingColumn = e => !!e && (e.code === '42703' || /column .* does not exist|could not find the .* column/i.test(e.message || ''));
+const isMissingStorePaginationRpc = e => !!e && (['PGRST202', '42883'].includes(e.code) || /could not find the function|function .* does not exist|schema cache.*ecomme_store_products_page/i.test(e.message || ''));
 
 async function fetchStore(slug) {
   let lastError = null;
@@ -262,7 +263,33 @@ async function fetchStoreProductPage(storeId, query, sort, offset, includeSummar
     }
   }
 
-  // Fallback de compatibilidade: mantém o comportamento antigo caso a Function/RPC ainda não tenha sido publicada.
+  // Fallback 1: se a Function do Cloudflare falhar, chama a mesma RPC pelo cliente Supabase.
+  // A RPC mantém paginação, busca e ordenação no banco, sem transferir o catálogo inteiro.
+  if (typeof supabaseClient !== 'undefined' && typeof supabaseClient.rpc === 'function') {
+    const { data, error } = await supabaseClient.rpc('ecomme_store_products_page', {
+      p_store_id: String(storeId),
+      p_search: String(query || '') || null,
+      p_sort: String(sort || 'pop'),
+      p_offset: Math.max(0, Number(offset) || 0),
+      p_limit: PAGE_SIZE,
+      p_include_summary: Boolean(includeSummary && Number(offset) === 0)
+    });
+    if (!error) {
+      if (!data || !Array.isArray(data.data)) throw new Error('A paginação direta da loja retornou uma resposta inválida.');
+      return {
+        data: data.data.map(normalizeStoreProduct),
+        count: Math.max(0, Number(data.count) || 0),
+        has_more: Boolean(data.has_more),
+        summary: data.summary || null,
+        top_rated: Array.isArray(data.top_rated) ? data.top_rated.map(normalizeStoreProduct) : null,
+        categories: Array.isArray(data.categories) ? data.categories : null
+      };
+    }
+    if (!isMissingStorePaginationRpc(error)) throw error;
+  }
+
+  // Fallback 2 (legado): só usado quando a migration/RPC ainda não existe.
+  // Nesse cenário a consulta antiga é mantida para não interromper lojas existentes.
   if (!legacyStoreProductsCache) legacyStoreProductsCache = await fetchStoreProducts(storeId);
   const active = legacyStoreProductsCache.filter(p => !isPaused(p));
   const normalizedQuery = normText(query);
