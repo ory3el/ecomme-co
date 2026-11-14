@@ -843,8 +843,20 @@ let pageIsVisible = true;
 
 document.addEventListener('visibilitychange', () => {
   pageIsVisible = document.visibilityState === 'visible';
-  if (!pageIsVisible) return;
+  if (!pageIsVisible) {
+    if (window.location.pathname.replace(/\/+$/, '') === '/products') window.__ecommeProductsCatalogNeedsRevalidate = true;
+    return;
+  }
   if (window.location.pathname.replace(/\/+$/, '') === '/products') {
+    if (window.__ecommeProductsCatalogNeedsRevalidate && window.EcommeCatalog?.isActive?.()) {
+      window.__ecommeProductsCatalogNeedsRevalidate = false;
+      window.__ecommeProductsNeedsRender = false;
+      window.EcommeCatalog.reset?.();
+      updateCart();
+      updateFav();
+      if (!window.__ecommeProductsRealtimeConnected) startProductsRealtime();
+      return;
+    }
     if (window.__ecommeProductsNeedsRender) {
       window.__ecommeProductsNeedsRender = false;
       if (typeof renderProducts === 'function') renderProducts();
@@ -1144,20 +1156,38 @@ function startProductsRealtime() {
     productRealtimeRetryTimer = null;
   }
 
-  productRealtimeChannel = supabaseClient.channel('products-live')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'products'
+  const isCatalogRoute = window.location.pathname.replace(/\/+$/, '') === '/products';
+  const useCatalogBroadcast = isCatalogRoute && window.__ecommeCatalogRpcReady === true;
+  let catalogChannel = supabaseClient.channel(useCatalogBroadcast ? 'catalog:products' : 'products-live', {
+    config: { private: false }
+  });
+
+  if (useCatalogBroadcast) {
+    ['INSERT', 'UPDATE', 'DELETE'].forEach(eventType => {
+      catalogChannel = catalogChannel.on('broadcast', { event: eventType }, payload => {
+        if (!pageIsVisible) {
+          window.__ecommeProductsCatalogNeedsRevalidate = true;
+          return;
+        }
+        if (typeof window.queueEcommeProductRealtimeChange !== 'function') return;
+        window.queueEcommeProductRealtimeChange({ eventType, payload });
+      });
+    });
+  } else {
+    catalogChannel = catalogChannel.on('postgres_changes', {
+      event: '*', schema: 'public', table: 'products'
     }, payload => {
-      if (window.location.pathname.replace(/\/+$/, '') === '/products' && typeof window.queueEcommeProductRealtimeChange === 'function') {
+      if (isCatalogRoute && typeof window.queueEcommeProductRealtimeChange === 'function') {
         window.queueEcommeProductRealtimeChange(payload);
         return;
       }
       if (!pageIsVisible) return;
       refreshProductsIfNeeded();
-    })
-    .subscribe(status => {
+    });
+  }
+
+  window.__ecommeProductsRealtimeMode = useCatalogBroadcast ? 'broadcast' : 'postgres';
+  productRealtimeChannel = catalogChannel.subscribe(status => {
       if (status === 'SUBSCRIBED') {
         window.__ecommeProductsRealtimeConnected = true;
         productRealtimeRetryDelay = 2000;
@@ -1172,6 +1202,23 @@ function startProductsRealtime() {
       }
     });
 }
+
+let productRealtimeReconnectPromise = null;
+window.reconnectEcommeProductsRealtime = function () {
+  if (productRealtimeReconnectPromise) return productRealtimeReconnectPromise;
+  const previousChannel = productRealtimeChannel;
+  productRealtimeChannel = null;
+  window.__ecommeProductsRealtimeConnected = false;
+  productRealtimeReconnectPromise = (async () => {
+    if (previousChannel) {
+      try { await supabaseClient.removeChannel(previousChannel); } catch (_) {}
+    }
+    startProductsRealtime();
+  })().finally(() => {
+    productRealtimeReconnectPromise = null;
+  });
+  return productRealtimeReconnectPromise;
+};
 
 // ============================================================
 
@@ -1779,6 +1826,10 @@ async function loadProductsFromSupabase() {
   if (window.__ecommeProductsLoadInFlight) return window.__ecommeProductsLoadInFlight;
 
   const loadPromise = (async () => {
+    if (isProductsCatalog && window.EcommeCatalog?.loadInitial) {
+      return window.EcommeCatalog.loadInitial();
+    }
+
     const {data, error} = await supabaseClient
       .from('products')
       .select('*')
@@ -2363,7 +2414,9 @@ async function loadSidebarSavedItemsFromSupabase() {
     );
     return;
   }
-  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
+  const isProductDetail = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
+  const isProductsCatalog = window.location.pathname.replace(/\/+$/, '') === '/products';
+  if (isProductDetail || isProductsCatalog) {
     const savedIds = [...new Set(
       [...(Array.isArray(data?.cart) ? data.cart : []), ...(Array.isArray(data?.fav) ? data.fav : [])]
         .map(item => item && item.id != null ? String(item.id) : '')
@@ -2382,14 +2435,18 @@ async function loadSidebarSavedItemsFromSupabase() {
         chunks.push(savedIds.slice(i, i + 100));
       }
 
+      const savedProductSelect = isProductsCatalog
+        ? 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features'
+        : '*';
       const results = await Promise.all(chunks.map(ids =>
         supabaseClient
           .from('products')
-          .select('*')
+          .select(savedProductSelect)
           .in('id', ids)
       ));
 
       let failedChunks = 0;
+      const savedCatalogProducts = [];
       for (const result of results) {
         if (result.error) {
           failedChunks++;
@@ -2400,6 +2457,7 @@ async function loadSidebarSavedItemsFromSupabase() {
         (result.data || []).forEach(raw => {
           const item = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
           merged.set(String(item.id), item);
+          if (isProductsCatalog) savedCatalogProducts.push(item);
         });
       }
 
@@ -2408,7 +2466,9 @@ async function loadSidebarSavedItemsFromSupabase() {
       }
 
       products = [...merged.values()];
-      shuffled = [...products];
+      if (isProductsCatalog) window.EcommeCatalog?.addSupplementalProducts?.(savedCatalogProducts);
+      else shuffled = [...products];
+      if (typeof rebuildEcommeProductIndex === 'function') rebuildEcommeProductIndex();
     }
   }
 
