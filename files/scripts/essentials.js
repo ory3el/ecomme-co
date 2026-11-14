@@ -810,18 +810,27 @@ let catalogSeed = '';
 let catalogState = { query: '', sort: 'random', seed: '' };
 let catalogCacheKey = '';
 let catalogPageCount = 0;
+let catalogTotalCount = 0;
 const catalogSupplementalProducts = new Map();
 
 function isProductsCatalogRoute() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  return path === '/products' || path === '/';
+  return path === '/products' || path === '/' || path === '/categories';
+}
+
+function isCategoriesCatalogRoute() {
+  return (window.location.pathname.replace(/\/+$/, '') || '/') === '/categories';
 }
 
 function getCatalogControls() {
-  return {
+  const controls = {
     query: String($('heroSearch')?.value || $('headerSearch')?.value || '').trim().slice(0, 120),
     sort: String($('sortSelect')?.value || 'random')
   };
+  if (isCategoriesCatalogRoute()) {
+    controls.filters = window.EcommeCategoryFilters?.getServerFilters?.() || {};
+  }
+  return controls;
 }
 
 function getCatalogSeed() {
@@ -838,7 +847,9 @@ function getCatalogSeed() {
 
 function catalogKeyFor(state) {
   const seedPart = state.sort === 'random' ? state.seed : '';
-  return ECOMME_CATALOG_CACHE_PREFIX + encodeURIComponent(`${state.query}|${state.sort}|${seedPart}`);
+  const filtersPart = state.filters ? JSON.stringify(state.filters) : '';
+  const routePart = isCategoriesCatalogRoute() ? 'categories' : 'products';
+  return ECOMME_CATALOG_CACHE_PREFIX + encodeURIComponent(`${routePart}|${state.query}|${state.sort}|${seedPart}|${filtersPart}`);
 }
 
 function readCatalogCache(key) {
@@ -888,6 +899,7 @@ function applyCatalogPage(items, page, { reset = true } = {}) {
 
   catalogHasMore = !!page.hasMore;
   catalogCursor = page.cursor || null;
+  catalogTotalCount = Number(page.totalCount) || (isCategoriesCatalogRoute() ? catalogTotalCount : 0);
   visibleCount = shuffled.length;
   rebuildEcommeProductIndex();
   productDataSignature = createProductsSignature(products);
@@ -918,21 +930,31 @@ function normalizeCatalogPageResponse(data) {
   const pageRows = rows.slice(0, PAGE_SIZE);
   const items = pageRows.map(row => row?.product || row).filter(item => item && item.id != null);
   const lastRow = pageRows[pageRows.length - 1];
+  const totalCount = Number(pageRows[0]?.total_count ?? 0) || 0;
   return {
     items,
     hasMore,
+    totalCount,
     cursor: lastRow ? { value: lastRow.cursor_value ?? null, id: String(lastRow.cursor_id ?? lastRow.product?.id ?? lastRow.id) } : null
   };
 }
 
 function catalogPageEndpointUrl(state, cursor = null) {
   const params = new URLSearchParams();
+  if (isCategoriesCatalogRoute()) params.set('mode', 'categories');
   if (state.query) params.set('search', state.query);
   params.set('sort', state.sort || 'random');
   if (cursor?.value != null) params.set('cursor_value', String(cursor.value));
   if (cursor?.id != null) params.set('cursor_id', String(cursor.id));
   params.set('limit', String(PAGE_SIZE + 1));
   if (state.seed) params.set('seed', String(state.seed));
+  const filters = state.filters || {};
+  if (filters.category) params.set('category', filters.category);
+  if (filters.tag) params.set('tag', filters.tag);
+  if (filters.minPrice !== null && filters.minPrice !== undefined) params.set('min_price', String(filters.minPrice));
+  if (filters.maxPrice !== null && filters.maxPrice !== undefined) params.set('max_price', String(filters.maxPrice));
+  if (filters.minRating !== null && filters.minRating !== undefined) params.set('min_rating', String(filters.minRating));
+  if (filters.colors) params.set('colors', filters.colors);
   return `/api/catalog?${params.toString()}`;
 }
 
@@ -966,14 +988,28 @@ async function requestCatalogPage(state, cursor = null) {
     }
   }
 
-  const { data, error } = await supabaseClient.rpc(ECOMME_CATALOG_RPC, {
+  const rpcArgs = {
     p_search: state.query || null,
     p_sort: state.sort || 'random',
     p_cursor_value: cursor?.value ?? null,
     p_cursor_id: cursor?.id ?? null,
     p_limit: PAGE_SIZE + 1,
     p_seed: state.seed
-  });
+  };
+  let rpcName = ECOMME_CATALOG_RPC;
+  if (isCategoriesCatalogRoute()) {
+    rpcName = 'ecomme_marketplace_catalog_page';
+    Object.assign(rpcArgs, {
+      p_mode: 'categories',
+      p_category: state.filters?.category || null,
+      p_tag: state.filters?.tag || null,
+      p_min_price: state.filters?.minPrice ?? null,
+      p_max_price: state.filters?.maxPrice ?? null,
+      p_min_rating: state.filters?.minRating ?? null,
+      p_colors: state.filters?.colors || null
+    });
+  }
+  const { data, error } = await supabaseClient.rpc(rpcName, rpcArgs);
   if (error) throw error;
   return normalizeCatalogPageResponse(data);
 }
@@ -1026,7 +1062,8 @@ async function loadCatalogInitialInternal() {
     window.__ecommeCatalogRpcReady = false;
     applyCatalogPage(cached.items, {
       hasMore: cached.hasMore,
-      cursor: cached.cursor || null
+      cursor: cached.cursor || null,
+      totalCount: cached.totalCount || 0
     });
     // Revalida em segundo plano sem atrasar a exibição do primeiro lote.
     requestCatalogPage(catalogState, null).then(page => {
@@ -1042,7 +1079,7 @@ async function loadCatalogInitialInternal() {
       }).map(item => String(item.id));
       if (catalogPageCount <= 1) {
         applyCatalogPage(page.items, page);
-        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor, totalCount: page.totalCount });
         if (newIds !== oldIds && isProductsCatalogRoute()) renderProducts();
         else changedPageIds.forEach(replaceRenderedProductCard);
       } else {
@@ -1063,7 +1100,7 @@ async function loadCatalogInitialInternal() {
         shuffled = shuffled.map(item => incoming.get(String(item.id)) || item);
         rebuildEcommeProductIndex();
         changedIds.forEach(replaceRenderedProductCard);
-        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor, totalCount: page.totalCount });
       }
     }).catch(error => fallbackFromCatalogRpc(error, requestVersion));
     return true;
@@ -1076,7 +1113,7 @@ async function loadCatalogInitialInternal() {
     window.__ecommeCatalogRpcReady = true;
     if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
     applyCatalogPage(page.items, page);
-    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor, totalCount: page.totalCount });
     return true;
   } catch (rpcError) {
     // Mantém compatibilidade durante a implantação: se a migração SQL ainda não foi executada,
@@ -1131,6 +1168,7 @@ async function resetCatalogPage({ newSeed = false } = {}) {
   catalogHasMore = false;
   catalogCursor = null;
   catalogPageCount = 0;
+  catalogTotalCount = 0;
   catalogServerMode = true;
   products = [];
   shuffled = [];
@@ -1143,14 +1181,14 @@ async function resetCatalogPage({ newSeed = false } = {}) {
   try {
     const cached = readCatalogCache(catalogCacheKey);
     if (cached) {
-      applyCatalogPage(cached.items, { hasMore: cached.hasMore, cursor: cached.cursor || null });
+      applyCatalogPage(cached.items, { hasMore: cached.hasMore, cursor: cached.cursor || null, totalCount: cached.totalCount || 0 });
       renderProducts();
       requestCatalogPage(catalogState, null).then(page => {
         if (requestVersion !== catalogRequestVersion || catalogPageCount > 1) return;
         window.__ecommeCatalogRpcReady = true;
         if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
         applyCatalogPage(page.items, page);
-        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor, totalCount: page.totalCount });
         renderProducts();
       }).catch(error => fallbackFromCatalogRpc(error, requestVersion));
       return true;
@@ -1161,7 +1199,7 @@ async function resetCatalogPage({ newSeed = false } = {}) {
     window.__ecommeCatalogRpcReady = true;
     if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
     applyCatalogPage(page.items, page);
-    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor, totalCount: page.totalCount });
     renderProducts();
     return true;
   } catch (error) {
@@ -1195,6 +1233,7 @@ async function loadNextCatalogPage() {
     products = [...productsById.values()];
     catalogHasMore = page.hasMore;
     catalogCursor = page.cursor;
+    if (page.totalCount) catalogTotalCount = page.totalCount;
     if (!fresh.length && page.hasMore && page.cursor?.id !== cursor?.id) {
       addProductsSentinel(grid, getFilteredList().length);
       return true;
@@ -1214,9 +1253,16 @@ async function loadNextCatalogPage() {
       observeProductCards(cards);
     }
     const countElement = $('productsCount');
-    if (countElement) countElement.textContent = catalogHasMore
-      ? `${shuffled.length} produtos carregados`
-      : `${getFilteredList().length} ${getFilteredList().length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+    if (countElement) {
+      if (isCategoriesCatalogRoute() && Number.isFinite(catalogTotalCount)) {
+        countElement.textContent = `${catalogTotalCount.toLocaleString('pt-BR')} ${catalogTotalCount === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+      } else {
+        const filteredCount = getFilteredList().length;
+        countElement.textContent = catalogHasMore
+          ? `${shuffled.length} produtos carregados`
+          : `${filteredCount} ${filteredCount === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+      }
+    }
     addProductsSentinel(grid, getFilteredList().length);
     return true;
   } finally {
@@ -1471,7 +1517,7 @@ function renderProducts() {
       ? `${list.length} produtos carregados`
       : `${list.length} ${list.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
   }
-  if (window.EcommeCategoryFilters?.onRender) window.EcommeCategoryFilters.onRender(list.length, products.length);
+  if (window.EcommeCategoryFilters?.onRender) window.EcommeCategoryFilters.onRender(list.length, products.length, catalogServerMode && isCategoriesCatalogRoute() ? catalogTotalCount : null);
 
   if (!list.length) {
     pLoadingNone();
