@@ -3440,51 +3440,38 @@ async function loadRelatedBatch(state) {
 
   state.loadingPromise = (async () => {
     try {
-      if (state.total === null && !state.countChecked) {
-        state.countChecked = true;
-        const countResult = await supabaseClient
-          .from('products')
-          .select('id', { count: 'exact', head: true });
-
-        if (countResult.error) {
-          console.warn('Não foi possível contar os produtos recomendados; usando paginação sequencial.', countResult.error);
-          state.cursor = 0;
-        } else {
-          state.total = Number(countResult.count) || 0;
-          if (state.total <= 0) {
-            state.exhausted = true;
-            return;
-          }
-          // Começa em um ponto aleatório sem baixar o catálogo inteiro.
-          state.cursor = Math.floor(Math.random() * state.total);
-        }
-      }
-
-      const from = Math.max(0, state.cursor);
-      const to = state.total === null
-        ? from + RELATED_FETCH_BATCH_SIZE - 1
-        : Math.min(from + RELATED_FETCH_BATCH_SIZE - 1, state.total - 1);
-
-      const { data, error } = await supabaseClient
-        .from('products')
-        .select('*')
-        .order('id', { ascending: true })
-        .range(from, to);
-
-      if (error) throw error;
-
-      const rows = Array.isArray(data) ? data : [];
-      state.scannedRows += rows.length;
-
-      if (state.total !== null) {
-        state.cursor = to >= state.total - 1 ? 0 : to + 1;
-        if (state.scannedRows >= state.total || rows.length === 0) {
-          state.exhausted = true;
-        }
+      let page;
+      if (window.EcommeCatalog?.loadRecommendations) {
+        page = await window.EcommeCatalog.loadRecommendations(state.cursor);
       } else {
-        state.cursor = from + rows.length;
-        if (rows.length < RELATED_FETCH_BATCH_SIZE) state.exhausted = true;
+        // Fallback seguro: RPC paginada com cursor, sem count exact ou SELECT *.
+        const seed = `ecomme-random-v1-${new Date().toISOString().slice(0, 10)}`;
+        const { data, error } = await supabaseClient.rpc('ecomme_catalog_products_page', {
+          p_search: null,
+          p_sort: 'random',
+          p_cursor_value: state.cursor?.value ?? null,
+          p_cursor_id: state.cursor?.id ?? null,
+          p_limit: RELATED_FETCH_BATCH_SIZE + 1,
+          p_seed: seed
+        });
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const pageRows = rows.slice(0, RELATED_FETCH_BATCH_SIZE);
+        const last = pageRows[pageRows.length - 1];
+        page = {
+          items: pageRows.map(row => row?.product || row).filter(Boolean),
+          hasMore: rows.length > RELATED_FETCH_BATCH_SIZE,
+          cursor: last ? {
+            value: last.cursor_value ?? null,
+            id: String(last.cursor_id ?? last.product?.id ?? last.id)
+          } : null
+        };
       }
+
+      const rows = Array.isArray(page?.items) ? page.items : [];
+      state.cursor = page?.cursor || null;
+      state.exhausted = !page?.hasMore;
+      state.scannedRows += rows.length;
 
       const candidates = shuffleRelatedBatch(rows)
         .map(raw => typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw)
@@ -3498,14 +3485,44 @@ async function loadRelatedBatch(state) {
         state.pool.push(product);
       });
 
-      // Nunca faz uma requisição sem fim se todos os registros já foram varridos.
-      if (state.total !== null && state.scannedRows >= state.total) {
-        state.exhausted = true;
-      }
+      // Um lote pode conter somente o próprio produto ou registros já vistos.
+      // Avança o cursor até encontrar candidatos ou chegar ao fim, sem varrer o catálogo inteiro.
+      if (!rows.length) state.exhausted = true;
     } catch (error) {
-      state.fetchError = error;
-      state.exhausted = true;
-      console.error('Erro ao carregar produtos recomendados:', error);
+      // Compatibilidade com projetos que ainda não aplicaram a RPC paginada.
+      // Não volta ao count exact nem a SELECT *: usa um lote pequeno e cursor por ID.
+      try {
+        const columns = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features';
+        let fallbackQuery = supabaseClient.from('products')
+          .select(columns)
+          .order('id', { ascending: true })
+          .limit(RELATED_FETCH_BATCH_SIZE + 1);
+        if (state.fallbackCursorId) fallbackQuery = fallbackQuery.gt('id', state.fallbackCursorId);
+        const { data, error: fallbackError } = await fallbackQuery;
+        if (fallbackError) throw fallbackError;
+        const fallbackRows = Array.isArray(data) ? data : [];
+        const rows = fallbackRows.slice(0, RELATED_FETCH_BATCH_SIZE);
+        const last = rows[rows.length - 1];
+        state.fallbackCursorId = last ? String(last.id) : state.fallbackCursorId;
+        state.exhausted = fallbackRows.length <= RELATED_FETCH_BATCH_SIZE;
+        state.scannedRows += rows.length;
+        const candidates = shuffleRelatedBatch(rows)
+          .map(raw => typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw)
+          .filter(product => product && String(product.id) !== state.currentId)
+          .filter(product => !(typeof isProductUnavailable === 'function' && isProductUnavailable(product)))
+          .filter(product => !state.knownIds.has(String(product.id)));
+        candidates.forEach(product => {
+          const id = String(product.id);
+          state.knownIds.add(id);
+          state.pool.push(product);
+        });
+        if (!rows.length) state.exhausted = true;
+        console.warn('[Ecomme Recomendações] RPC paginada indisponível; usando lote reduzido por cursor.', error);
+      } catch (fallbackError) {
+        state.fetchError = fallbackError;
+        state.exhausted = true;
+        console.error('Erro ao carregar produtos recomendados:', fallbackError);
+      }
     } finally {
       state.loadingPromise = null;
       updateRelatedControls(state);
@@ -3514,7 +3531,6 @@ async function loadRelatedBatch(state) {
 
   return state.loadingPromise;
 }
-
 async function takeNextRelatedProduct(state) {
   while (!state.pool.length && !state.exhausted) {
     await loadRelatedBatch(state);
@@ -3905,10 +3921,9 @@ async function renderRelatedProducts(currentId) {
     currentId: String(currentId),
     section,
     grid,
-    total: null,
-    cursor: 0,
+    cursor: null,
+    fallbackCursorId: null,
     scannedRows: 0,
-    countChecked: false,
     exhausted: false,
     loadingPromise: null,
     fetchError: null,
@@ -4841,21 +4856,39 @@ async function searchProductsForCompare(term) {
     results.innerHTML = '<div class="ecompare-search-empty"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Digite pelo menos 2 letras para pesquisar no catálogo.</span></div>';
     return;
   }
-  if (typeof supabaseClient === 'undefined') {
-    results.innerHTML = '<div class="ecompare-search-empty">O catálogo não está disponível no momento.</div>';
-    return;
-  }
-
   results.innerHTML = '<div class="ecompare-search-loading"><span class="ecompare-spinner"></span> Pesquisando produtos...</div>';
   try {
-    const safeTerm = searchTerm.replace(/[%_,]/g, ' ').replace(/\s+/g, ' ').trim();
-    const { data, error } = await supabaseClient
-      .from('products')
-      .select('*')
-      .ilike('name', `%${safeTerm}%`)
-      .order('name', { ascending: true })
-      .limit(24);
-    if (error) throw error;
+    const safeTerm = searchTerm.replace(/[(),%_*\\'"`]/g, ' ').replace(/\s+/g, ' ').trim();
+    let data = null;
+    if (window.__ecommeSearchEdgeAvailable !== false) {
+      try {
+        const params = new URLSearchParams({ q: safeTerm, name_only: '1', sort: 'name', limit: '24', page: '1' });
+        const response = await fetch(`/api/search?${params.toString()}`, {
+          method: 'GET', credentials: 'omit', cache: 'default', headers: { Accept: 'application/json' }
+        });
+        if (response.headers.get('x-ecomme-search-api') === '1' && response.ok) {
+          window.__ecommeSearchEdgeAvailable = true;
+          const payload = await response.json();
+          data = Array.isArray(payload?.data) ? payload.data : [];
+        } else {
+          window.__ecommeSearchEdgeAvailable = false;
+        }
+      } catch (edgeError) {
+        window.__ecommeSearchEdgeAvailable = false;
+        console.warn('[Ecomme Comparador] Busca de borda indisponível; usando Supabase direto.', edgeError);
+      }
+    }
+    if (!Array.isArray(data)) {
+      if (typeof supabaseClient === 'undefined') throw new Error('A busca de borda e o cliente Supabase estão indisponíveis.');
+      const { data: fallbackData, error } = await supabaseClient
+        .from('products')
+        .select('id,name,desc,price,old,discount,rating,reviews,cat,shipping,badge,emoji,image_url,gallery_urls,features')
+        .ilike('name', `%${safeTerm}%`)
+        .order('name', { ascending: true })
+        .limit(24);
+      if (error) throw error;
+      data = fallbackData;
+    }
     if (requestId !== productCompareState.searchRequest) return;
 
     const selectedIds = new Set(productCompareState.selected.map(product => String(product.id)));
