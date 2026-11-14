@@ -1,6 +1,10 @@
 {
   "version": 1,
-  "include": ["/product/*", "/api/catalog"],
+  "include": [
+    "/product/*",
+    "/api/catalog",
+    "/api/product/*"
+  ],
   "exclude": [
     "/product/index.html",
     "/files/styles/pages/product.css",
