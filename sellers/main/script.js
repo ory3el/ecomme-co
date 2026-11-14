@@ -827,7 +827,10 @@ function buildProdTable(filter) {
       body.innerHTML = slice.map(p => {
       const stock = prodStock(p);
       const stClass = stock < 5 ? 'stock-low' : stock < 15 ? 'stock-med' : 'stock-ok';
-      const stTag = !prodIsPaused(p) ? '<span class="tag tag-green"><i class="fa-solid fa-circle"></i> Ativo</span>' : '<span class="tag tag-gray"><i class="fa-solid fa-pause"></i> Pausado</span>';
+      const isPaused = prodIsPaused(p);
+      const statusLabel = isPaused ? 'Pausado' : 'Ativo';
+      const statusAction = isPaused ? 'reativar' : 'pausar';
+      const stTag = `<button type="button" class="tag ${isPaused ? 'tag-gray' : 'tag-green'} status-tag-btn" data-act="pause" data-id="${escapeHtml(p.id)}" aria-pressed="${isPaused}" aria-label="Status ${statusLabel}. Clique para ${statusAction} ${escapeHtml(p.name)}" title="Clique para ${statusAction} o produto"><i class="fa-solid ${isPaused ? 'fa-pause' : 'fa-circle'}" aria-hidden="true"></i> ${statusLabel}</button>`;
       const sold = soldByProduct[String(p.id)];
       const soldTxt = (ordersModule === 'ok') ? `${sold || 0} vendas` : '—';
       const engagement = productEngagementById[String(p.id)] || {};
