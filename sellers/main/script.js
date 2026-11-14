@@ -111,6 +111,12 @@ let PAYOUT_ACCOUNT = null;
 let BALANCE = null;
 let ordersModule = 'unknown';  // 'ok' | 'missing' (migração não executada) | 'error'
 let financeModule = 'unknown';
+let productsModuleLoaded = false;
+let productsModulePromise = null;
+let ordersModuleLoaded = false;
+let ordersModulePromise = null;
+let financeModuleLoaded = false;
+let financeModulePromise = null;
 const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 // ══ HELPERS ════════════════════════════════════════════════
@@ -233,17 +239,16 @@ async function initDashboard() {
     if (store && store.failed) { showGate('error'); return; }
     if (!store) { console.warn('Usuário autenticado, mas não possui loja.'); showGate('noStore'); return; }
 
+    // O perfil é necessário para preencher a navegação antes de liberar o painel.
+    await loadProfile(user);
     appReady = true;
     showGate('app');
     initNavigation();
+
+    // Produtos, pedidos e financeiro são carregados sob demanda conforme a seção aberta.
+    subscribeToStoreStatus();
     const target = pageFromHash() || localStorage.getItem('activePage') || 'dashboard';
     navigate(PAGE_LABELS[target] ? target : 'dashboard');
-
-    subscribeToStoreStatus();
-    await loadProfile(user);
-    await loadMyProducts();
-    await Promise.all([loadOrders(), loadFinance()]);
-    refreshDashboardViews();
   } catch (err) {
     console.error('Falha ao iniciar o painel:', err);
     showGate('error');
@@ -254,7 +259,7 @@ window.addEventListener('DOMContentLoaded', initDashboard);
 // ══ PERFIL (mesma consulta de antes; sem os resquícios do formulário de cadastro) ═══
 async function loadProfile(user) {
   try {
-    const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    const { data: profile, error } = await supabaseClient.from('profiles').select('full_name, avatar_url').eq('id', user.id).maybeSingle();
     if (error) throw error;
     if (!profile) return;
     const fullName = profile.full_name || 'Cliente';
@@ -287,13 +292,13 @@ async function loadProfile(user) {
 let stockZeroSyncWarningShown = false;
 
 async function loadMyProducts() {
-  if (myStoreId === null || myStoreId === undefined) return;
+  if (myStoreId === null || myStoreId === undefined) return false;
   const { data, error } = await supabaseClient
     .from('products').select('*').eq('loja_id', myStoreId).order('id', { ascending: false });
   if (error) {
     console.error('Erro ao carregar produtos:', error);
     toast(isNetworkError(error) ? 'Sem conexão: não foi possível carregar seus produtos.' : 'Não foi possível carregar seus produtos.', 'err');
-    return;
+    return false;
   }
 
   // Estoque conhecido igual a zero força o produto para paused, inclusive produtos antigos.
@@ -316,6 +321,7 @@ async function loadMyProducts() {
   // Mesmo se a sincronização falhar, a interface nunca oferece ativação para estoque zero.
   loadedProducts.forEach(product => { if (prodHasZeroStock(product)) product.badge = 'paused'; });
   PRODS = loadedProducts;
+  productsModuleLoaded = true;
   rebuildProductFilterIndex();
   buildProdTable();
   loadStoreProductEngagement().catch(error => console.warn('[Ecomme métricas] Falha ao carregar indicadores:', error));
@@ -323,6 +329,8 @@ async function loadMyProducts() {
   if (bdg) { bdg.textContent = PRODS.length; bdg.style.display = PRODS.length > 0 ? 'inline-block' : 'none'; }
   buildTopProducts();
   requestPendingProductColorAnalysis();
+  refreshDashboardViews();
+  return true;
 }
 
 // Processa gradualmente produtos antigos que ainda não possuem cores analisadas.
@@ -370,6 +378,8 @@ function navigate(page, btn, opts) {
   try { localStorage.setItem('activePage', page); } catch (e) {}
   const mainEl = document.querySelector('.app-main');
   if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+  // Cada módulo é buscado uma única vez por sessão e apenas quando necessário.
+  ensurePageData(page).catch(error => console.error(`[Ecomme painel] Falha ao carregar a seção ${page}:`, error));
   return true;
 }
 
@@ -1285,6 +1295,7 @@ async function loadOrders() {
     ordersModule = 'ok';
     ORDERS = data || [];
   }
+  ordersModuleLoaded = !error || isMissingRelation(error);
   soldByProduct = {};
   ordersByProduct = {};
   ORDERS.filter(o => ['pending', 'transit', 'delivered'].includes(o.status)).forEach(o => {
@@ -1301,6 +1312,7 @@ async function loadOrders() {
   buildOrders();
   updateOrderCounts();
   buildProdTable();
+  refreshDashboardViews();
 }
 
 function updateOrderCounts() {
@@ -1463,8 +1475,53 @@ async function loadFinance() {
     PAYOUTS = payouts.data || [];
     PAYOUT_ACCOUNT = acct.data || null;
   }
+  financeModuleLoaded = !errs.length || errs.some(isMissingRelation);
   renderFinance();
   fillPayoutAccountForm();
+}
+
+// Carregamento sob demanda: evita consultar tabelas que o vendedor ainda não abriu.
+async function ensureProductsLoaded() {
+  if (productsModuleLoaded) return true;
+  if (!productsModulePromise) {
+    const body = $('prodTbody');
+    if (body && !PRODS.length) body.innerHTML = '<tr class="empty-row"><td colspan="10">Carregando seus produtos...</td></tr>';
+    setText('prodCount', 'Carregando produtos...');
+    productsModulePromise = loadMyProducts().then(result => {
+      if (result !== false) productsModuleLoaded = true;
+      else if (body && !PRODS.length) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="10">Não foi possível carregar os produtos. Acesse novamente esta seção para tentar outra vez.</td></tr>';
+        setText('prodCount', 'Produtos indisponíveis');
+      }
+      return result !== false;
+    }).finally(() => { productsModulePromise = null; });
+  }
+  return productsModulePromise;
+}
+async function ensureOrdersLoaded() {
+  if (ordersModuleLoaded) return true;
+  if (!ordersModulePromise) {
+    ordersModulePromise = loadOrders().then(() => ordersModuleLoaded).finally(() => { ordersModulePromise = null; });
+  }
+  return ordersModulePromise;
+}
+async function ensureFinanceLoaded() {
+  if (financeModuleLoaded) return true;
+  if (!financeModulePromise) {
+    financeModulePromise = loadFinance().then(() => financeModuleLoaded).finally(() => { financeModulePromise = null; });
+  }
+  return financeModulePromise;
+}
+async function ensurePageData(page) {
+  if (page === 'dashboard') {
+    await Promise.all([ensureProductsLoaded(), ensureOrdersLoaded()]);
+  } else if (page === 'produtos') {
+    await Promise.all([ensureProductsLoaded(), ensureOrdersLoaded()]);
+  } else if (page === 'pedidos') {
+    await ensureOrdersLoaded();
+  } else if (page === 'financas') {
+    await ensureFinanceLoaded();
+  }
 }
 
 function renderFinance() {
