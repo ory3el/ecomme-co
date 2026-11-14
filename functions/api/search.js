@@ -1,4 +1,4 @@
-import { coalesceEdgeResponse, addResponseEtag, applyConditionalGet } from '../_shared/edge-cache.js';
+import { coalesceEdgeResponse, addResponseEtag, applyConditionalGet } from '/functions/_shared/edge-cache.js';
 
 const DEFAULT_SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
 const SEARCH_CACHE_TTL_SECONDS = 15;
