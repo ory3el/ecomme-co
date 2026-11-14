@@ -22,11 +22,22 @@ concurrency:
 jobs:
   load-test:
     name: Executar k6 no runner Linux do GitHub
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - name: Baixar o repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Confirmar que o script de teste existe
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f tests/load/ecomme-public-read.js ]]; then
+            echo '::error::Arquivo tests/load/ecomme-public-read.js não encontrado na raiz do repositório.'
+            echo 'Adicione a pasta tests/load e o arquivo ecomme-public-read.js ao GitHub.'
+            exit 1
+          fi
+          echo 'Script k6 encontrado.'
 
       - name: Instalar k6
         uses: grafana/setup-k6-action@v1
@@ -37,15 +48,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          BASE_URL="${BASE_URL%/}"
           if [[ "$BASE_URL" != https://* ]]; then
-            echo "Informe a URL HTTPS do staging."
+            echo '::error::Informe a URL HTTPS do staging.'
             exit 1
           fi
-          if [[ "$BASE_URL" == "https://ecomme-co.pages.dev" || "$BASE_URL" == https://*.ecomme.com ]]; then
-            echo "A URL informada corresponde a um domínio de produção conhecido. O teste foi bloqueado para evitar carga acidental em produção."
+          if [[ "$BASE_URL" == 'https://ecomme-co.pages.dev' || "$BASE_URL" == https://*.ecomme.com ]]; then
+            echo '::error::A URL informada corresponde a um domínio de produção conhecido. Teste bloqueado.'
             exit 1
           fi
-          echo "Destino: $BASE_URL"
+          echo "Destino de teste: $BASE_URL"
 
       - name: Executar teste progressivo
         env:
@@ -59,7 +71,7 @@ jobs:
 
       - name: Salvar resumo do teste
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ecomme-k6-load-summary
           path: load-summary.json
