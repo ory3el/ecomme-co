@@ -2746,8 +2746,10 @@ function openConfirmLogout() {
   let started = false;
   let initPromise = null;
   let initRetries = 0;
-  let preferencesLoading = false;
-  let notificationsLoading = false;
+  let initializedUserId;
+  let userInitializationVersion = 0;
+  const preferencesLoadPromises = new Map();
+  const notificationsLoadPromises = new Map();
   let realtimeEmitTimer = null;
   let notificationsRefreshTimer = null;
 
@@ -2827,32 +2829,45 @@ function openConfirmLogout() {
   }
 
   async function loadPreferences() {
-    if (preferencesLoading) return preferences;
-    preferencesLoading = true;
-    try {
-      if (!currentUser) {
-        readGuestPreferences();
+    if (!currentUser) {
+      readGuestPreferences();
+      applyPreferencesToUI();
+      return preferences;
+    }
+
+    const userId = String(currentUser.id);
+    const existing = preferencesLoadPromises.get(userId);
+    if (existing) return existing;
+
+    const task = (async () => {
+      try {
+        const client = getClient();
+        if (!client) throw new Error('Cliente Supabase não foi inicializado.');
+        const { data, error } = await client
+          .from('user_notification_preferences')
+          .select('preferences')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (String(currentUser?.id || '') !== userId) return preferences;
+        if (error) throw error;
+        preferences = { ...DEFAULT_PREFERENCES, ...(data?.preferences || {}) };
         applyPreferencesToUI();
         return preferences;
+      } catch (error) {
+        if (String(currentUser?.id || '') === userId) {
+          console.error('Não foi possível carregar as preferências de notificações:', error);
+          showMessage('Não foi possível carregar as preferências. Confira se executou supabase/notifications.sql.', 'err');
+          applyPreferencesToUI();
+        }
+        return preferences;
       }
-      const client = getClient();
-      if (!client) throw new Error('Cliente Supabase não foi inicializado.');
-      const { data, error } = await client
-        .from('user_notification_preferences')
-        .select('preferences')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if (error) throw error;
-      preferences = { ...DEFAULT_PREFERENCES, ...(data?.preferences || {}) };
-      applyPreferencesToUI();
-      return preferences;
-    } catch (error) {
-      console.error('Não foi possível carregar as preferências de notificações:', error);
-      showMessage('Não foi possível carregar as preferências. Confira se executou supabase/notifications.sql.', 'err');
-      applyPreferencesToUI();
-      return preferences;
+    })();
+
+    preferencesLoadPromises.set(userId, task);
+    try {
+      return await task;
     } finally {
-      preferencesLoading = false;
+      if (preferencesLoadPromises.get(userId) === task) preferencesLoadPromises.delete(userId);
     }
   }
 
@@ -2897,34 +2912,47 @@ function openConfirmLogout() {
   }
 
   async function loadNotifications() {
-    if (notificationsLoading) return notifications;
-    notificationsLoading = true;
-    try {
-      if (!currentUser) {
-        notifications = [];
-        emitChange();
-        return notifications;
-      }
-      const client = getClient();
-      if (!client) throw new Error('Cliente Supabase não foi inicializado.');
-      const { data, error } = await client
-        .from('user_notifications')
-        .select('id,user_id,type,title,body,target_url,metadata,created_at,read_at')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      notifications = Array.isArray(data) ? data : [];
-      emitChange();
-      return notifications;
-    } catch (error) {
-      console.error('Não foi possível carregar as notificações:', error);
+    if (!currentUser) {
       notifications = [];
       emitChange();
-      window.dispatchEvent(new CustomEvent('ecomme:notifications-error', { detail: { error } }));
       return notifications;
+    }
+
+    const userId = String(currentUser.id);
+    const existing = notificationsLoadPromises.get(userId);
+    if (existing) return existing;
+
+    const task = (async () => {
+      try {
+        const client = getClient();
+        if (!client) throw new Error('Cliente Supabase não foi inicializado.');
+        const { data, error } = await client
+          .from('user_notifications')
+          .select('id,user_id,type,title,body,target_url,metadata,created_at,read_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(100);
+        if (String(currentUser?.id || '') !== userId) return notifications;
+        if (error) throw error;
+        notifications = Array.isArray(data) ? data : [];
+        emitChange();
+        return notifications;
+      } catch (error) {
+        if (String(currentUser?.id || '') === userId) {
+          console.error('Não foi possível carregar as notificações:', error);
+          notifications = [];
+          emitChange();
+          window.dispatchEvent(new CustomEvent('ecomme:notifications-error', { detail: { error } }));
+        }
+        return notifications;
+      }
+    })();
+
+    notificationsLoadPromises.set(userId, task);
+    try {
+      return await task;
     } finally {
-      notificationsLoading = false;
+      if (notificationsLoadPromises.get(userId) === task) notificationsLoadPromises.delete(userId);
     }
   }
 
@@ -3129,7 +3157,15 @@ function openConfirmLogout() {
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'user_notification_preferences',
         filter: `user_id=eq.${currentUser.id}`
-      }, () => { loadPreferences(); })
+      }, payload => {
+        const updated = payload?.new?.preferences;
+        if (updated && typeof updated === 'object' && !Array.isArray(updated)) {
+          preferences = { ...DEFAULT_PREFERENCES, ...updated };
+          applyPreferencesToUI();
+        } else {
+          loadPreferences();
+        }
+      })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn('Realtime de notificações não conectou:', status);
@@ -3138,11 +3174,29 @@ function openConfirmLogout() {
   }
 
   async function initializeForUser(user) {
+    const nextUser = user || null;
+    const nextUserId = nextUser?.id ? String(nextUser.id) : null;
+
+    // TOKEN_REFRESHED / USER_UPDATED com o mesmo ID não exigem novas leituras
+    // nem a recriação do canal Realtime.
+    if (initializedUserId === nextUserId) {
+      currentUser = nextUser;
+      return;
+    }
+
+    initializedUserId = nextUserId;
+    const initVersion = ++userInitializationVersion;
+
     if (realtimeChannel && getClient()) {
       getClient().removeChannel(realtimeChannel);
       realtimeChannel = null;
     }
-    currentUser = user || null;
+    if (realtimeEmitTimer) window.clearTimeout(realtimeEmitTimer);
+    if (notificationsRefreshTimer) window.clearTimeout(notificationsRefreshTimer);
+    realtimeEmitTimer = null;
+    notificationsRefreshTimer = null;
+
+    currentUser = nextUser;
     notifications = [];
     if (!currentUser) {
       readGuestPreferences();
@@ -3150,7 +3204,9 @@ function openConfirmLogout() {
       emitChange();
       return;
     }
+
     await Promise.all([loadPreferences(), loadNotifications()]);
+    if (initVersion !== userInitializationVersion || String(currentUser?.id || '') !== String(nextUserId)) return;
     startRealtime();
   }
 
