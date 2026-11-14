@@ -335,6 +335,9 @@ async function refreshProductsIfNeeded() {
 
 /* ---------------------------------------- */
 async function loadProductsFromSupabase() {
+  if (isProductsCatalogRoute() && window.EcommeCatalog?.loadInitial) {
+    return window.EcommeCatalog.loadInitial();
+  }
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
     return loadEcommeCurrentProductOnly();
   }
@@ -473,31 +476,40 @@ async function loadFromSupabase() {
 
 /* ─── SHUFFLE ────────────────────────────────────────────────────────── */
 function shuffleAndRender() {
+  if (isProductsCatalogRoute() && catalogServerMode) {
+    if ($('sortSelect')) $('sortSelect').value = 'random';
+    catalogSeed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+    try { localStorage.setItem(ECOMME_CATALOG_SEED_KEY, catalogSeed); } catch (_) {}
+    resetCatalogPage({ newSeed: false });
+    showToast('Produtos embaralhados! 🔀');
+    return;
+  }
   shuffled = fishYates(products);
   visibleCount = PAGE_SIZE;
   lastRenderState = '';
-  if ($('sortSelect')) {
-    $('sortSelect').value = 'random';
-  }
+  if ($('sortSelect')) $('sortSelect').value = 'random';
   renderProducts();
-  showToast(
-    'Produtos embaralhados! 🔀'
-  );
+  showToast('Produtos embaralhados! 🔀');
 }
 
 /* ---------------------------------- */
 function loadShuffleAndRender() {
+  if (isProductsCatalogRoute() && catalogServerMode) {
+    shuffled = [...products];
+    visibleCount = shuffled.length;
+    lastRenderState = '';
+    renderProducts();
+    return;
+  }
   shuffled = fishYates(products);
   visibleCount = PAGE_SIZE;
   lastRenderState = '';
-  if ($('sortSelect')) {
-    $('sortSelect').value = 'random';
-  }
+  if ($('sortSelect')) $('sortSelect').value = 'random';
   renderProducts();
 }
 
 /* ─── RENDER PRODUCTS ────────────────────────────────────────────────── */
-function productCardHtml(p) {
+function productCardHtml(p, isPriority = false) {
   const images = getProductImages(p);
   const mainImage = images[0] || null;
   const inW = fav.some(x => String(x.id) === String(p.id));
@@ -577,6 +589,9 @@ function productCardHtml(p) {
           alt="${p.name}"
           loading="lazy"
           decoding="async"
+          fetchpriority="${isPriority ? 'high' : 'low'}"
+          width="480"
+          height="480"
           style="
             position:absolute;
             inset:0;
@@ -746,69 +761,451 @@ let lastFilteredProductIds = [];
 let productCardsVirtualObserver = null;
 const PRODUCT_CARD_VIRTUAL_ROOT_MARGIN = '1000px 0px 1000px 0px';
 
+// Catálogo /products: paginação por cursor, cache público de sessão e busca/ordenação no banco.
+const ECOMME_CATALOG_RPC = 'ecomme_catalog_products_page';
+const ECOMME_CATALOG_CACHE_TTL = 45 * 1000;
+const ECOMME_CATALOG_CACHE_PREFIX = 'ecomme:catalog:v4:';
+const ECOMME_CATALOG_SEED_KEY = 'ecomme:catalog:seed:v2';
+const ECOMME_CATALOG_INVALIDATION_KEY = 'ecomme:catalog:invalidate:v1';
+const ECOMME_CATALOG_CARD_SELECT = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features';
+let catalogServerMode = false;
+let catalogHasMore = false;
+let catalogCursor = null;
+let catalogFetchInFlight = null;
+let catalogRequestVersion = 0;
+let catalogSearchTimer = null;
+let catalogSeed = '';
+let catalogState = { query: '', sort: 'random', seed: '' };
+let catalogCacheKey = '';
+let catalogPageCount = 0;
+const catalogSupplementalProducts = new Map();
+
+function isProductsCatalogRoute() {
+  return window.location.pathname.replace(/\/+$/, '') === '/products';
+}
+
+function getCatalogControls() {
+  return {
+    query: String($('heroSearch')?.value || $('headerSearch')?.value || '').trim().slice(0, 120),
+    sort: String($('sortSelect')?.value || 'random')
+  };
+}
+
+function getCatalogSeed() {
+  try {
+    const existing = localStorage.getItem(ECOMME_CATALOG_SEED_KEY);
+    if (existing) return existing;
+    const next = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+    localStorage.setItem(ECOMME_CATALOG_SEED_KEY, next);
+    return next;
+  } catch (_) {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
+
+function catalogKeyFor(state) {
+  const seedPart = state.sort === 'random' ? state.seed : '';
+  return ECOMME_CATALOG_CACHE_PREFIX + encodeURIComponent(`${state.query}|${state.sort}|${seedPart}`);
+}
+
+function readCatalogCache(key) {
+  try {
+    const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached || Date.now() - Number(cached.savedAt || 0) > ECOMME_CATALOG_CACHE_TTL) return null;
+    if (!Array.isArray(cached.items)) return null;
+    return cached;
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeCatalogCache(key, value) {
+  const serialized = JSON.stringify({ ...value, savedAt: Date.now() });
+  try { localStorage.setItem(key, serialized); } catch (_) {
+    try { sessionStorage.setItem(key, serialized); } catch (_) { /* cache opcional */ }
+  }
+}
+
+function removeCatalogCache(key) {
+  try { localStorage.removeItem(key); } catch (_) {}
+  try { sessionStorage.removeItem(key); } catch (_) {}
+}
+
+function applyCatalogPage(items, page, { reset = true } = {}) {
+  const normalized = items.map(normalizeProduct);
+  if (reset) {
+    const pageIds = new Set(normalized.map(item => String(item.id)));
+    for (const id of pageIds) catalogSupplementalProducts.delete(id);
+    const supplemental = [...catalogSupplementalProducts.values()].filter(item => !pageIds.has(String(item.id)));
+    shuffled = [...normalized];
+    products = [...normalized, ...supplemental];
+    catalogPageCount = normalized.length ? 1 : 0;
+  } else {
+    const existingCatalogIds = new Set(shuffled.map(item => String(item.id)));
+    const fresh = normalized.filter(item => !existingCatalogIds.has(String(item.id)));
+    const productsById = new Map(products.map(item => [String(item.id), item]));
+    fresh.forEach(item => productsById.set(String(item.id), item));
+    products = [...productsById.values()];
+    shuffled.push(...fresh);
+    fresh.forEach(item => catalogSupplementalProducts.delete(String(item.id)));
+    if (fresh.length) catalogPageCount++;
+  }
+
+  catalogHasMore = !!page.hasMore;
+  catalogCursor = page.cursor || null;
+  visibleCount = shuffled.length;
+  rebuildEcommeProductIndex();
+  productDataSignature = createProductsSignature(products);
+  if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(shuffled);
+  window.__ecommeProductsInitialLoadComplete = true;
+  finishProductsGridSkeleton();
+}
+
+function addCatalogSupplementalProducts(items) {
+  if (!Array.isArray(items) || !items.length) return;
+  const catalogIds = new Set(shuffled.map(item => String(item.id)));
+  const byId = new Map(products.map(item => [String(item.id), item]));
+  items.forEach(raw => {
+    if (!raw || raw.id == null) return;
+    const item = normalizeProduct(raw);
+    byId.set(String(item.id), item);
+    if (!catalogIds.has(String(item.id))) catalogSupplementalProducts.set(String(item.id), item);
+  });
+  products = [...byId.values()];
+  rebuildEcommeProductIndex();
+}
+
+async function requestCatalogPage(state, cursor = null) {
+  const { data, error } = await supabaseClient.rpc(ECOMME_CATALOG_RPC, {
+    p_search: state.query || null,
+    p_sort: state.sort || 'random',
+    p_cursor_value: cursor?.value ?? null,
+    p_cursor_id: cursor?.id ?? null,
+    p_limit: PAGE_SIZE + 1,
+    p_seed: state.seed
+  });
+  if (error) throw error;
+
+  const rows = Array.isArray(data) ? data : [];
+  const hasMore = rows.length > PAGE_SIZE;
+  const pageRows = rows.slice(0, PAGE_SIZE);
+  const items = pageRows.map(row => row?.product || row).filter(item => item && item.id != null);
+  const lastRow = pageRows[pageRows.length - 1];
+  return {
+    items,
+    hasMore,
+    cursor: lastRow ? { value: lastRow.cursor_value ?? null, id: String(lastRow.cursor_id ?? lastRow.product?.id ?? lastRow.id) } : null
+  };
+}
+
+async function loadLegacyCatalogReduced() {
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select(ECOMME_CATALOG_CARD_SELECT)
+    .order('id', { ascending: true });
+  if (error) throw error;
+  catalogServerMode = false;
+  window.__ecommeCatalogRpcReady = false;
+  catalogHasMore = false;
+  catalogCursor = null;
+  products = (data || []).map(normalizeProduct);
+  shuffled = [...products];
+  rebuildEcommeProductIndex();
+  productDataSignature = createProductsSignature(products);
+  window.__ecommeProductsInitialLoadComplete = true;
+  finishProductsGridSkeleton();
+  return true;
+}
+
+async function fallbackFromCatalogRpc(error, requestVersion) {
+  if (requestVersion !== catalogRequestVersion) return false;
+  console.warn('[Ecomme catálogo] RPC de catálogo indisponível; usando modo compatível temporário.', error);
+  removeCatalogCache(catalogCacheKey);
+  try {
+    const loaded = await loadLegacyCatalogReduced();
+    if (requestVersion === catalogRequestVersion && loaded && isProductsCatalogRoute()) renderProducts();
+    window.reconnectEcommeProductsRealtime?.();
+    return loaded;
+  } catch (legacyError) {
+    console.error('[Ecomme catálogo] Não foi possível ativar o modo compatível:', legacyError);
+    showProductsGridLoadError();
+    return false;
+  }
+}
+
+async function loadCatalogInitialInternal() {
+  const controls = getCatalogControls();
+  catalogSeed = getCatalogSeed();
+  catalogState = { ...controls, seed: catalogSeed };
+  catalogCacheKey = catalogKeyFor(catalogState);
+  const requestVersion = ++catalogRequestVersion;
+  const cached = readCatalogCache(catalogCacheKey);
+
+  if (cached) {
+    catalogServerMode = true;
+    window.__ecommeCatalogRpcReady = false;
+    applyCatalogPage(cached.items, {
+      hasMore: cached.hasMore,
+      cursor: cached.cursor || null
+    });
+    // Revalida em segundo plano sem atrasar a exibição do primeiro lote.
+    requestCatalogPage(catalogState, null).then(page => {
+      if (requestVersion !== catalogRequestVersion) return;
+      window.__ecommeCatalogRpcReady = true;
+      if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
+      const newIds = page.items.map(item => String(item.id)).join('|');
+      const oldIds = shuffled.slice(0, PAGE_SIZE).map(item => String(item.id)).join('|');
+      const oldProductsById = new Map(shuffled.slice(0, PAGE_SIZE).map(item => [String(item.id), item]));
+      const changedPageIds = page.items.map(raw => normalizeProduct(raw)).filter(item => {
+        const previous = oldProductsById.get(String(item.id));
+        return !previous || JSON.stringify(previous) !== JSON.stringify(item);
+      }).map(item => String(item.id));
+      if (catalogPageCount <= 1) {
+        applyCatalogPage(page.items, page);
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+        if (newIds !== oldIds && isProductsCatalogRoute()) renderProducts();
+        else changedPageIds.forEach(replaceRenderedProductCard);
+      } else {
+        if (newIds !== oldIds) {
+          // A primeira página mudou enquanto o visitante já avançou o catálogo.
+          // Reiniciar evita misturar cursores de versões diferentes da ordenação.
+          removeCatalogCache(catalogCacheKey);
+          resetCatalogPage();
+          return;
+        }
+        const incoming = new Map(page.items.map(item => [String(item.id), normalizeProduct(item)]));
+        const changedIds = [];
+        products = products.map(item => {
+          const next = incoming.get(String(item.id));
+          if (next && JSON.stringify(next) !== JSON.stringify(item)) changedIds.push(String(next.id));
+          return next || item;
+        });
+        shuffled = shuffled.map(item => incoming.get(String(item.id)) || item);
+        rebuildEcommeProductIndex();
+        changedIds.forEach(replaceRenderedProductCard);
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+      }
+    }).catch(error => fallbackFromCatalogRpc(error, requestVersion));
+    return true;
+  }
+
+  try {
+    const page = await requestCatalogPage(catalogState, null);
+    if (requestVersion !== catalogRequestVersion) return false;
+    catalogServerMode = true;
+    window.__ecommeCatalogRpcReady = true;
+    if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
+    applyCatalogPage(page.items, page);
+    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+    return true;
+  } catch (rpcError) {
+    // Mantém compatibilidade durante a implantação: se a migração SQL ainda não foi executada,
+    // usa projeção reduzida e o carregamento legado até a RPC estar disponível.
+    console.warn('[Ecomme catálogo] Paginação otimizada indisponível; usando compatibilidade temporária.', rpcError);
+    try {
+      return await loadLegacyCatalogReduced();
+    } catch (legacyError) {
+      console.error('Erro ao carregar produtos:', legacyError);
+      products = [];
+      shuffled = [];
+      catalogServerMode = false;
+      window.__ecommeCatalogRpcReady = false;
+      window.__ecommeProductsInitialLoadComplete = true;
+      showProductsGridLoadError();
+      return false;
+    }
+  }
+}
+
+
+let catalogInitialPromise = null;
+async function loadCatalogInitial() {
+  if (window.__ecommeProductsBootPromise) return window.__ecommeProductsBootPromise;
+  if (catalogInitialPromise) return catalogInitialPromise;
+  const pending = loadCatalogInitialInternal();
+  catalogInitialPromise = pending;
+  window.__ecommeProductsBootPromise = pending;
+  try {
+    const result = await pending;
+    if (!result && window.__ecommeProductsBootPromise === pending) window.__ecommeProductsBootPromise = null;
+    return result;
+  } catch (error) {
+    if (window.__ecommeProductsBootPromise === pending) window.__ecommeProductsBootPromise = null;
+    throw error;
+  } finally {
+    if (catalogInitialPromise === pending) catalogInitialPromise = null;
+  }
+}
+
+async function resetCatalogPage({ newSeed = false } = {}) {
+  if (!isProductsCatalogRoute()) {
+    renderProducts();
+    return;
+  }
+  const controls = getCatalogControls();
+  if (newSeed || !catalogSeed) catalogSeed = getCatalogSeed();
+  catalogState = { ...controls, seed: catalogSeed };
+  catalogCacheKey = catalogKeyFor(catalogState);
+  catalogRequestVersion++;
+  catalogFetchInFlight = null;
+  catalogHasMore = false;
+  catalogCursor = null;
+  catalogPageCount = 0;
+  catalogServerMode = true;
+  products = [];
+  shuffled = [];
+  visibleCount = 0;
+  lastFilteredProductIds = [];
+  lastRenderState = '';
+  showProductsGridSkeleton();
+
+  const requestVersion = catalogRequestVersion;
+  try {
+    const cached = readCatalogCache(catalogCacheKey);
+    if (cached) {
+      applyCatalogPage(cached.items, { hasMore: cached.hasMore, cursor: cached.cursor || null });
+      renderProducts();
+      requestCatalogPage(catalogState, null).then(page => {
+        if (requestVersion !== catalogRequestVersion || catalogPageCount > 1) return;
+        window.__ecommeCatalogRpcReady = true;
+        if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
+        applyCatalogPage(page.items, page);
+        writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+        renderProducts();
+      }).catch(error => fallbackFromCatalogRpc(error, requestVersion));
+      return true;
+    }
+
+    const page = await requestCatalogPage(catalogState, null);
+    if (requestVersion !== catalogRequestVersion) return false;
+    window.__ecommeCatalogRpcReady = true;
+    if (window.__ecommeProductsRealtimeMode === 'postgres') window.reconnectEcommeProductsRealtime?.();
+    applyCatalogPage(page.items, page);
+    writeCatalogCache(catalogCacheKey, { items: page.items, hasMore: page.hasMore, cursor: page.cursor });
+    renderProducts();
+    return true;
+  } catch (error) {
+    if (requestVersion !== catalogRequestVersion) return false;
+    return fallbackFromCatalogRpc(error, requestVersion);
+  }
+}
+
+async function loadNextCatalogPage() {
+  if (!catalogServerMode || !catalogHasMore || catalogFetchInFlight) return false;
+  const grid = $('productsGrid');
+  if (!grid) return false;
+  const requestVersion = catalogRequestVersion;
+  const state = { ...catalogState };
+  const cursor = catalogCursor ? { ...catalogCursor } : null;
+  const pending = requestCatalogPage(state, cursor);
+  catalogFetchInFlight = pending;
+
+  const sentinel = $('gridSentinel');
+  productsObserver?.disconnect();
+  productsObserver = null;
+  sentinel?.remove();
+
+  try {
+    const page = await pending;
+    if (requestVersion !== catalogRequestVersion) return false;
+    const knownCatalogIds = new Set(shuffled.map(item => String(item.id)));
+    const fresh = page.items.map(normalizeProduct).filter(item => !knownCatalogIds.has(String(item.id)));
+    const productsById = new Map(products.map(item => [String(item.id), item]));
+    fresh.forEach(item => productsById.set(String(item.id), item));
+    products = [...productsById.values()];
+    catalogHasMore = page.hasMore;
+    catalogCursor = page.cursor;
+    if (!fresh.length && page.hasMore && page.cursor?.id !== cursor?.id) {
+      addProductsSentinel(grid, getFilteredList().length);
+      return true;
+    }
+    if (fresh.length) {
+      shuffled.push(...fresh);
+      fresh.forEach(item => catalogSupplementalProducts.delete(String(item.id)));
+      catalogPageCount++;
+      visibleCount = shuffled.length;
+      rebuildEcommeProductIndex();
+      productDataSignature = createProductsSignature(products);
+      if (window.EcommeCategoryFilters?.onProductsLoaded) window.EcommeCategoryFilters.onProductsLoaded(products);
+      const template = document.createElement('template');
+      template.innerHTML = fresh.map((item, index) => productCardHtml(item, false)).join('');
+      const cards = [...template.content.querySelectorAll('.pcard[data-product-id]')];
+      grid.appendChild(template.content);
+      observeProductCards(cards);
+    }
+    const countElement = $('productsCount');
+    if (countElement) countElement.textContent = catalogHasMore
+      ? `${shuffled.length} produtos carregados`
+      : `${getFilteredList().length} ${getFilteredList().length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+    addProductsSentinel(grid, getFilteredList().length);
+    return true;
+  } finally {
+    if (catalogFetchInFlight === pending) catalogFetchInFlight = null;
+  }
+}
+
+function scheduleCatalogRefresh() {
+  if (!catalogServerMode || !isProductsCatalogRoute()) return;
+  if (window.__ecommeCatalogRefreshTimer) return;
+  window.__ecommeCatalogRefreshTimer = setTimeout(() => {
+    window.__ecommeCatalogRefreshTimer = null;
+    removeCatalogCache(catalogCacheKey);
+    // As alterações de status, preço, categoria ou nome podem mudar a posição
+    // no cursor; reiniciar a primeira página preserva a consistência da lista.
+    resetCatalogPage();
+    try { localStorage.setItem(ECOMME_CATALOG_INVALIDATION_KEY, String(Date.now())); } catch (_) {}
+  }, 350);
+}
+
+if (!window.__ecommeCatalogStorageListener) {
+  window.__ecommeCatalogStorageListener = true;
+  window.addEventListener('storage', event => {
+    if (event.key !== ECOMME_CATALOG_INVALIDATION_KEY || !isProductsCatalogRoute() || !catalogServerMode) return;
+    removeCatalogCache(catalogCacheKey);
+    resetCatalogPage();
+  });
+}
+
+window.EcommeCatalog = {
+  loadInitial: loadCatalogInitial,
+  isActive: () => catalogServerMode && isProductsCatalogRoute(),
+  isLoadedProduct: id => shuffled.some(item => String(item.id) === String(id)),
+  getSort: () => catalogState.sort,
+  scheduleRefresh: scheduleCatalogRefresh,
+  addSupplementalProducts: addCatalogSupplementalProducts,
+  reset: resetCatalogPage
+};
+
 /* ------------------------------- */
 function getFilteredList() {
-  const q = (
-    $('heroSearch')?.value ||
-    $('headerSearch')?.value ||
-    ''
-  ).toLowerCase().trim();
-  const sort = $('sortSelect')?.value || 'random';
-  // Produtos pausados (badge "paused") não aparecem na lista; continuam em `products` para carrinho/favoritos
+  // /products recebe busca, ordenação e status já filtrados/paginados pelo Supabase.
   let list = shuffled.filter(p => !isProductUnavailable(p));
-
-  if (q) {
-    list = list.filter(p => {
-      const name = String(p.name || '').toLowerCase();
-      const desc = String(p.desc || '').toLowerCase();
-      const categories = Array.isArray(p.cat)
-        ? p.cat
-        : [p.cat];
-      const categoryMatch = categories.some(cat =>
-        String(cat || '').toLowerCase().includes(q)
-      );
-      return (
-        name.includes(q) ||
-        desc.includes(q) ||
-        categoryMatch
-      );
-    });
-  }
-
-  if (window.EcommeCategoryFilters?.filter) {
-    list = window.EcommeCategoryFilters.filter(list);
-  }
-
-  if (sort === 'price_asc') {
-    return [...list].sort(
-      (a, b) => a.price - b.price
-    );
-  }
-  if (sort === 'price_desc') {
-    return [...list].sort(
-      (a, b) => b.price - a.price
-    );
-  }
-  if (sort === 'rating') {
-    return [...list].sort(
-      (a, b) => b.rating - a.rating
-    );
-  }
-  if (sort === 'popular') {
-    return [...list].sort((a, b) => (Number(b.reviews) || 0) - (Number(a.reviews) || 0) || (Number(b.rating) || 0) - (Number(a.rating) || 0));
-  }
-  if (sort === 'new') {
-    return [...list].sort((a, b) => {
+  if (!catalogServerMode || !isProductsCatalogRoute()) {
+    const q = ($('heroSearch')?.value || $('headerSearch')?.value || '').toLowerCase().trim();
+    const sort = $('sortSelect')?.value || 'random';
+    if (q) {
+      list = list.filter(p => {
+        const name = String(p.name || '').toLowerCase();
+        const desc = String(p.desc || '').toLowerCase();
+        const categories = Array.isArray(p.cat) ? p.cat : [p.cat];
+        const categoryMatch = categories.some(cat => String(cat || '').toLowerCase().includes(q));
+        return name.includes(q) || desc.includes(q) || categoryMatch;
+      });
+    }
+    if (sort === 'price_asc') return [...list].sort((a, b) => a.price - b.price);
+    if (sort === 'price_desc') return [...list].sort((a, b) => b.price - a.price);
+    if (sort === 'rating') return [...list].sort((a, b) => b.rating - a.rating);
+    if (sort === 'popular') return [...list].sort((a, b) => (Number(b.reviews) || 0) - (Number(a.reviews) || 0) || (Number(b.rating) || 0) - (Number(a.rating) || 0));
+    if (sort === 'new') return [...list].sort((a, b) => {
       const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || Number(a.id) || 0;
       const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || Number(b.id) || 0;
       return dateB - dateA;
     });
+    if (sort === 'discount') return [...list].sort((a, b) => b.discount - a.discount);
   }
-  if (sort === 'discount') {
-    return [...list].sort(
-      (a, b) => b.discount - a.discount
-    );
-  }
+  if (window.EcommeCategoryFilters?.filter) list = window.EcommeCategoryFilters.filter(list);
   return list;
 }
 
@@ -957,7 +1354,7 @@ function observeProductCards(cards) {
 }
 
 function addProductsSentinel(grid, listLength) {
-  if (visibleCount >= listLength) return;
+  if (catalogServerMode && isProductsCatalogRoute() ? !catalogHasMore : visibleCount >= listLength) return;
   const sentinel = document.createElement('div');
   sentinel.id = 'gridSentinel';
   sentinel.style.cssText = 'grid-column:1/-1;height:1px;width:100%;pointer-events:none;';
@@ -972,13 +1369,12 @@ function renderProducts() {
 
   grid.setAttribute('aria-busy', 'false');
   pLoadingFlex();
-
   const q = ($('heroSearch')?.value || $('headerSearch')?.value || '').toLowerCase().trim();
   const sort = $('sortSelect')?.value || 'random';
   const categoryState = window.EcommeCategoryFilters?.getStateKey?.() || '';
   const renderState = `${view}|${q}|${sort}|${categoryState}`;
   if (renderState !== lastRenderState) {
-    visibleCount = PAGE_SIZE;
+    if (!catalogServerMode || !isProductsCatalogRoute()) visibleCount = PAGE_SIZE;
     lastRenderState = renderState;
   }
 
@@ -992,7 +1388,11 @@ function renderProducts() {
   const list = getFilteredList();
   lastFilteredProductIds = list.map(product => String(product.id));
   const countElement = $('productsCount');
-  if (countElement) countElement.textContent = `${list.length} ${list.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+  if (countElement) {
+    countElement.textContent = catalogServerMode && catalogHasMore
+      ? `${list.length} produtos carregados`
+      : `${list.length} ${list.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+  }
   if (window.EcommeCategoryFilters?.onRender) window.EcommeCategoryFilters.onRender(list.length, products.length);
 
   if (!list.length) {
@@ -1001,43 +1401,57 @@ function renderProducts() {
       <div class="empty">
         <div class="empty-ico">🔍</div>
         <h3>Nenhum resultado encontrado</h3>
-        <p>Tente outro termo ou <button class="btn-clear" onclick="if (window.EcommeCategoryFilters?.reset) { window.EcommeCategoryFilters.reset(); } else { if ($('headerSearch')) $('headerSearch').value = ''; if ($('heroSearch')) $('heroSearch').value = ''; renderProducts(); }">Limpar filtros</button></p>
+        <p>Tente outro termo ou <button class="btn-clear" onclick="if (window.EcommeCategoryFilters?.reset) { window.EcommeCategoryFilters.reset(); } else { if ($('headerSearch')) $('headerSearch').value = ''; if ($('heroSearch')) $('heroSearch').value = ''; searchFor(''); }">Limpar filtros</button></p>
       </div>
     `;
     return;
   }
 
-  const slice = list.slice(0, visibleCount);
-  grid.innerHTML = slice.map(productCardHtml).join('');
+  const slice = catalogServerMode && isProductsCatalogRoute() ? list : list.slice(0, visibleCount);
+  grid.innerHTML = slice.map((product, index) => productCardHtml(product, index < 2)).join('');
+  visibleCount = catalogServerMode && isProductsCatalogRoute() ? list.length : Math.min(visibleCount, list.length);
   pLoadingNone();
   observeProductCards([...grid.querySelectorAll('.pcard[data-product-id]')]);
   addProductsSentinel(grid, list.length);
 }
 
-function appendNextProductsBatch() {
+async function appendNextProductsBatch() {
   const grid = $('productsGrid');
   if (!grid) return;
-  const list = getFilteredList();
-  const startIndex = visibleCount;
-  const nextEnd = Math.min(startIndex + PAGE_SIZE, list.length);
-  const batch = list.slice(startIndex, nextEnd);
   const sentinel = $('gridSentinel');
-
   if (productsObserver) {
     productsObserver.disconnect();
     productsObserver = null;
   }
   sentinel?.remove();
 
+  if (catalogServerMode && isProductsCatalogRoute()) {
+    await loadNextCatalogPage();
+    return;
+  }
+
+  const list = getFilteredList();
+  const startIndex = visibleCount;
+  const nextEnd = Math.min(startIndex + PAGE_SIZE, list.length);
+  const batch = list.slice(startIndex, nextEnd);
   if (!batch.length) return;
 
   const template = document.createElement('template');
-  template.innerHTML = batch.map(productCardHtml).join('');
+  template.innerHTML = batch.map((product, index) => productCardHtml(product, startIndex + index < 4)).join('');
   const cards = [...template.content.querySelectorAll('.pcard[data-product-id]')];
   grid.appendChild(template.content);
   visibleCount = nextEnd;
   observeProductCards(cards);
   addProductsSentinel(grid, list.length);
+}
+
+function getCatalogPrefetchRootMargin() {
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (connection?.saveData) return '0px 0px 400px 0px';
+  const type = String(connection?.effectiveType || '');
+  if (type === 'slow-2g' || type === '2g') return '0px 0px 500px 0px';
+  if (type === '3g') return '0px 0px 850px 0px';
+  return '0px 0px 1500px 0px';
 }
 
 function observeSentinel() {
@@ -1055,10 +1469,14 @@ function observeSentinel() {
     productsObserver?.disconnect();
     productsObserver = null;
     requestAnimationFrame(() => {
-      appendNextProductsBatch();
-      loadingMoreProducts = false;
+      Promise.resolve(appendNextProductsBatch()).catch(error => {
+        console.error('[Ecomme catálogo] Não foi possível carregar o próximo lote:', error);
+        addProductsSentinel($('productsGrid'), getFilteredList().length);
+      }).finally(() => {
+        loadingMoreProducts = false;
+      });
     });
-  }, {root: null, rootMargin: '0px 0px 500px 0px', threshold: 0});
+  }, {root: null, rootMargin: getCatalogPrefetchRootMargin(), threshold: 0});
   productsObserver.observe(sentinel);
 }
 
@@ -1086,51 +1504,58 @@ function flushEcommeProductRealtimeChanges() {
   queue.clear();
   const changedIds = [];
   let changedAny = false;
+  let requiresCatalogRefresh = false;
+  const serverCatalog = catalogServerMode && isProductsCatalogRoute();
+  const currentSortField = ({ price_asc: 'price', price_desc: 'price', rating: 'rating', discount: 'discount' })[catalogState.sort] || null;
 
   changes.forEach(change => {
     const id = String(change.id);
     const previousIndex = products.findIndex(item => String(item.id) === id);
+    const shuffledIndex = shuffled.findIndex(item => String(item.id) === id);
     if (change.eventType === 'DELETE') {
       if (previousIndex >= 0) {
         products.splice(previousIndex, 1);
-        shuffled = shuffled.filter(item => String(item.id) !== id);
+        if (shuffledIndex >= 0) shuffled.splice(shuffledIndex, 1);
         changedAny = true;
         changedIds.push(id);
-        if (typeof productCache !== 'undefined' && productCache?.delete) productCache.delete(id);
       }
+      if (serverCatalog && previousIndex < 0) requiresCatalogRefresh = true;
       return;
     }
 
     if (!change.record || !change.record.id) return;
-    const previous = previousIndex >= 0 ? products[previousIndex] : null;
-    const normalized = normalizeProduct({...previous, ...change.record});
-    if (previous && JSON.stringify(previous) === JSON.stringify(normalized)) return;
+    if (serverCatalog && previousIndex < 0) {
+      // Produtos fora das páginas carregadas não são inseridos no array local sem cursor.
+      requiresCatalogRefresh = true;
+      return;
+    }
 
+    const previous = previousIndex >= 0 ? products[previousIndex] : null;
+    const normalized = normalizeProduct({ ...previous, ...change.record });
+    if (previous && JSON.stringify(previous) === JSON.stringify(normalized)) return;
     if (previousIndex >= 0) products[previousIndex] = normalized;
     else products.push(normalized);
-
-    const shuffledIndex = shuffled.findIndex(item => String(item.id) === id);
     if (shuffledIndex >= 0) shuffled[shuffledIndex] = normalized;
-    else shuffled.push(normalized);
 
-    if (typeof productCache !== 'undefined' && productCache?.set) productCache.set(id, normalized);
+    if (serverCatalog && previous) {
+      const queryChanged = String(previous.name || '') !== String(normalized.name || '') || String(previous.desc || '') !== String(normalized.desc || '') || JSON.stringify(previous.cat || []) !== JSON.stringify(normalized.cat || []) || previous.badge !== normalized.badge;
+      const sortChanged = currentSortField && Number(previous[currentSortField] || 0) !== Number(normalized[currentSortField] || 0);
+      if (queryChanged || sortChanged) requiresCatalogRefresh = true;
+    }
+
     changedAny = true;
     changedIds.push(id);
   });
 
+  if (changedAny) rebuildEcommeProductIndex();
+  if (serverCatalog && requiresCatalogRefresh) scheduleCatalogRefresh();
   if (!changedAny) return;
-  rebuildEcommeProductIndex();
 
-  if (window.location.pathname.replace(/\/+$/, '') !== '/products') {
-    if (pageIsVisible) {
-      updateCart();
-      updateFav();
-    } else {
-      window.__ecommeProductsNeedsRender = true;
-    }
+  if (!isProductsCatalogRoute()) {
+    if (pageIsVisible) { updateCart(); updateFav(); }
+    else window.__ecommeProductsNeedsRender = true;
     return;
   }
-
   if (!pageIsVisible) {
     window.__ecommeProductsNeedsRender = true;
     return;
@@ -1138,19 +1563,17 @@ function flushEcommeProductRealtimeChanges() {
 
   const nextIds = getFilteredList().map(product => String(product.id));
   const orderChanged = nextIds.length !== lastFilteredProductIds.length || nextIds.some((id, index) => id !== lastFilteredProductIds[index]);
-  if (orderChanged) {
-    renderProducts();
-  } else {
-    changedIds.forEach(replaceRenderedProductCard);
-  }
+  if (orderChanged) renderProducts();
+  else changedIds.forEach(replaceRenderedProductCard);
   lastFilteredProductIds = nextIds;
   updateCart();
   updateFav();
 }
 
 function queueEcommeProductRealtimeChange(payload) {
-  const eventType = String(payload?.eventType || payload?.event || '').toUpperCase();
-  const record = eventType === 'DELETE' ? payload?.old : payload?.new;
+  const body = payload?.payload && !payload?.new && !payload?.old ? payload.payload : payload;
+  const eventType = String(payload?.eventType || payload?.event || body?.eventType || '').toUpperCase();
+  const record = eventType === 'DELETE' ? (body?.old || payload?.old) : (body?.new || body?.product || payload?.new);
   const id = record?.id;
   if (id === undefined || id === null) return;
 
@@ -1170,15 +1593,30 @@ function queueEcommeProductRealtimeChange(payload) {
 window.queueEcommeProductRealtimeChange = queueEcommeProductRealtimeChange;
 window.flushEcommeProductRealtimeChanges = flushEcommeProductRealtimeChanges;
 /* ------------------------------- */
+function handleCatalogSearchInput(input) {
+  const value = String(input?.value || '');
+  [$('heroSearch'), $('headerSearch')].filter(Boolean).forEach(other => {
+    if (other !== input) other.value = value;
+  });
+  if (!isProductsCatalogRoute()) {
+    renderProducts();
+    return;
+  }
+  clearTimeout(catalogSearchTimer);
+  catalogSearchTimer = setTimeout(() => resetCatalogPage(), 320);
+}
+
+function handleCatalogSortChange() {
+  if (isProductsCatalogRoute()) return resetCatalogPage();
+  renderProducts();
+}
+
 function searchFor(term) {
-  if ($('heroSearch')) {
-    $('heroSearch').value = term;
-  }
-  if ($('headerSearch')) {
-    $('headerSearch').value = term;
-  }
+  if ($('heroSearch')) $('heroSearch').value = term;
+  if ($('headerSearch')) $('headerSearch').value = term;
   visibleCount = PAGE_SIZE;
   lastRenderState = '';
+  if (isProductsCatalogRoute()) return resetCatalogPage();
   renderProducts();
 }
 
@@ -1279,3 +1717,7 @@ document.body.appendChild(script1);
 
 /*}
 injectEcommeUI();*/
+
+window.handleCatalogSearchInput = handleCatalogSearchInput;
+window.handleCatalogSortChange = handleCatalogSortChange;
+window.searchFor = searchFor;
