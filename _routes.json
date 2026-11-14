@@ -4,7 +4,8 @@
     "/product/*",
     "/api/catalog",
     "/api/product/*",
-    "/api/catalog-stats"
+    "/api/catalog-stats",
+    "/api/search"
   ],
   "exclude": [
     "/product/index.html",
