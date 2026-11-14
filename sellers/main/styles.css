@@ -1031,6 +1031,35 @@ input[type="checkbox"]:disabled {
     font-size: .72em
 }
 
+/* A badge de status também funciona como controle rápido de ativação/pausa. */
+.status-tag-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    line-height: normal;
+    text-align: center;
+    cursor: pointer;
+    transition: filter .16s ease, box-shadow .16s ease;
+}
+
+.status-tag-btn:hover:not(:disabled) {
+    filter: brightness(.96);
+}
+
+.status-tag-btn:active:not(:disabled) {
+    filter: brightness(.9);
+}
+
+.status-tag-btn:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+}
+
+.status-tag-btn:disabled {
+    cursor: wait;
+    opacity: .7;
+}
+
 .tag-green {
     background: var(--green-dim);
     color: var(--green)
