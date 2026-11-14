@@ -121,8 +121,43 @@
   }
 
   async function requestPage(query, page, sort, categoryFallback) {
-    let builder = client.from('products').select('*', { count: 'exact' });
+    if (window.__ecommeSearchEdgeAvailable !== false) {
+      try {
+        const params = new URLSearchParams({
+          q: String(query || ''),
+          page: String(page),
+          sort: String(sort || 'rel'),
+          limit: String(state.pageSize)
+        });
+        if (categoryFallback) params.set('category_mode', categoryFallback);
+        const response = await fetch(`/api/search?${params.toString()}`, {
+          method: 'GET',
+          credentials: 'omit',
+          cache: 'default',
+          headers: { Accept: 'application/json' }
+        });
+        if (response.headers.get('x-ecomme-search-api') === '1' && response.ok) {
+          window.__ecommeSearchEdgeAvailable = true;
+          const payload = await response.json();
+          return { data: Array.isArray(payload?.data) ? payload.data : [], count: Number(payload?.count) || 0, error: null };
+        }
+        if (response.status === 404 || response.status === 503 || response.headers.get('x-ecomme-search-api') !== '1') {
+          window.__ecommeSearchEdgeAvailable = false;
+        } else {
+          throw new Error(`Edge Search HTTP ${response.status}`);
+        }
+      } catch (error) {
+        if (error instanceof TypeError || /Failed to fetch|NetworkError/i.test(String(error?.message || ''))) {
+          window.__ecommeSearchEdgeAvailable = false;
+        } else {
+          console.warn('[Ecomme search] Endpoint de busca indisponível; usando Supabase direto.', error);
+          window.__ecommeSearchEdgeAvailable = false;
+        }
+      }
+    }
 
+    if (!client) return { data: [], count: 0, error: new Error('A biblioteca do Supabase não está disponível e a busca de borda não respondeu.') };
+    let builder = client.from('products').select('*', { count: 'exact' });
     if (categoryFallback === 'contains' && query.trim()) {
       builder = builder.contains('cat', [query.trim()]);
     } else if (categoryFallback === 'ilike' && query.trim()) {
@@ -132,11 +167,8 @@
         .trim()
         .replace(/[(),%_*\\'"`]/g, ' ')
         .replace(/\s+/g, ' ');
-      if (phrase) {
-        builder = builder.or(`name.ilike.%${phrase}%,desc.ilike.%${phrase}%`);
-      }
+      if (phrase) builder = builder.or(`name.ilike.%${phrase}%,desc.ilike.%${phrase}%`);
     }
-
     builder = applySort(builder, sort);
     return builder.range((page - 1) * state.pageSize, page * state.pageSize - 1);
   }
@@ -429,12 +461,6 @@
   }
 
   async function runSearch(query, page = 1) {
-    if (!client) {
-      showLoading(query);
-      grid.innerHTML = '<div class="search-loading search-error">Não foi possível iniciar a busca. A biblioteca do Supabase não carregou.</div>';
-      return;
-    }
-
     state.query = String(query ?? '').trim();
     state.page = Math.max(1, Number(page) || 1);
     const requestId = ++state.requestId;
