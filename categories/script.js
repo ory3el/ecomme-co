@@ -73,7 +73,7 @@
       try {
         let data = null;
         try {
-          const response = await fetch('/api/catalog-stats?type=categories', { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
+          const response = await fetch('/api/catalog-stats?type=categories', { credentials: 'omit', cache: 'default', headers: { Accept: 'application/json' } });
           if (response.ok) data = await response.json();
         } catch (_) {}
         if (!data) {
