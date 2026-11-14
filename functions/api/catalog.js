@@ -12,7 +12,8 @@ export async function onRequest(context) {
   const sortInput = String(url.searchParams.get('sort') || 'random').toLowerCase();
   const allowedSorts = new Set(['random', 'price_asc', 'price_desc', 'rating', 'discount']);
   const sort = allowedSorts.has(sortInput) ? sortInput : 'random';
-  const search = String(url.searchParams.get('search') || '').trim().slice(0, 120);
+  const search = String(url.searchParams.get('search') || '').normalize('NFC').trim().replace(/\s+/g, ' ').slice(0, 120);
+  const cacheSearch = search.toLocaleLowerCase('pt-BR');
   const cursorValue = readBounded(url.searchParams.get('cursor_value'), 128);
   const cursorId = readBounded(url.searchParams.get('cursor_id'), 128);
   const seed = String(url.searchParams.get('seed') || '').slice(0, 80);
@@ -21,7 +22,7 @@ export async function onRequest(context) {
 
   const params = new URLSearchParams();
   params.set('v', '1');
-  if (search) params.set('search', search);
+  if (cacheSearch) params.set('search', cacheSearch);
   params.set('sort', sort);
   if (cursorValue !== null) params.set('cursor_value', cursorValue);
   if (cursorId !== null) params.set('cursor_id', cursorId);
