@@ -206,6 +206,24 @@
     .pcard:hover .pimg e { will-change: transform; transform: scale(1.2) translateZ(0); }
     .pcard:hover .pactions { opacity: 1; transform: translateY(0); }
 
+    /* Placeholder de virtualização: preserva o espaço da grade sem manter o conteúdo pesado fora da viewport. */
+    .pcard.pcard--virtual-placeholder {
+      visibility: hidden !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      transform: none !important;
+      transition: none !important;
+      contain: strict !important;
+      content-visibility: hidden !important;
+    }
+
   .pcard {position: relative; overflow: hidden}
   
   .pcard::after {
