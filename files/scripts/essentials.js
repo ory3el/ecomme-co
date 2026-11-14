@@ -383,7 +383,10 @@ async function loadProductsFromSupabase() {
 
 // ── POP-UP AUTH ──
 async function showAuth(message, title, icon) {
-  injectModalStyles();
+  // Reutiliza o injetor de estilos definido em confirm-modal.js.
+  if (typeof injectConfirmModalStyles === 'function') {
+    injectConfirmModalStyles();
+  }
 
   let authModal = document.getElementById('authModal');
 
