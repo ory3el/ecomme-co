@@ -289,3 +289,7 @@
 @media(max-width:768px) { .oh-proof-card { max-width: 100%; } .offers-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; } .oc-info { padding: 12px; } .oc-price { font-size: 19px; } .oc-wish { top: auto; bottom: 10px; } }
 @media(max-width:420px) { .offers-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; } .oc-info { padding: 10px; } .oc-name { font-size: 12px; min-height: 34px; } .oc-price { font-size: 17px; } .oc-disc-badge { top: 8px; left: 8px; font-size: 11px; padding: 5px 8px; } .oc-type-badge { top: 8px; right: 8px; font-size: 8px; } .btn-oc-cart { padding: 8px 5px; font-size: 10px; } }
 @media(prefers-reduced-motion:reduce) { .oc-skeleton-image,.oc-skeleton-info span { animation: none; } }
+
+.offers-grid .ocard { content-visibility: auto; contain-intrinsic-size: 1px 430px; }
+.offers-grid .ocard--virtual { contain: layout paint style; background: var(--card, #fff); border-radius: inherit; }
+.offers-sentinel { grid-column: 1 / -1; width: 100%; height: 1px; min-height: 1px; pointer-events: none; }
