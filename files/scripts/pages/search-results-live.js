@@ -114,7 +114,9 @@
       case 'pop':
         return builder.order('reviews', { ascending: false }).order('id', { ascending: true });
       case 'new':
-        return builder.order('created_at', { ascending: false }).order('id', { ascending: false });
+        // products não possui created_at nesta instalação; ID desc é somente uma ordem
+        // determinística, não uma garantia cronológica.
+        return builder.order('id', { ascending: false });
       default:
         return builder.order('id', { ascending: true });
     }
@@ -157,20 +159,28 @@
     }
 
     if (!client) return { data: [], count: 0, error: new Error('A biblioteca do Supabase não está disponível e a busca de borda não respondeu.') };
-    let builder = client.from('products').select('*', { count: 'exact' });
-    if (categoryFallback === 'contains' && query.trim()) {
-      builder = builder.contains('cat', [query.trim()]);
-    } else if (categoryFallback === 'ilike' && query.trim()) {
-      builder = builder.ilike('cat', `%${query.trim().replace(/[%,_*()]/g, ' ')}%`);
-    } else {
-      const phrase = String(query || '')
-        .trim()
-        .replace(/[(),%_*\\'"`]/g, ' ')
-        .replace(/\s+/g, ' ');
-      if (phrase) builder = builder.or(`name.ilike.%${phrase}%,desc.ilike.%${phrase}%`);
+    const coreFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features';
+    const buildQuery = includeBrand => {
+      let builder = client.from('products').select(includeBrand ? `${coreFields},brand` : coreFields, { count: 'exact' });
+      if (categoryFallback === 'contains' && query.trim()) {
+        builder = builder.contains('cat', [query.trim()]);
+      } else if (categoryFallback === 'ilike' && query.trim()) {
+        builder = builder.ilike('cat', `%${query.trim().replace(/[%,_*()]/g, ' ')}%`);
+      } else {
+        const phrase = String(query || '')
+          .trim()
+          .replace(/[(),%_*\\'"`]/g, ' ')
+          .replace(/\s+/g, ' ');
+        if (phrase) builder = builder.or(`name.ilike.%${phrase}%,desc.ilike.%${phrase}%`);
+      }
+      return applySort(builder, sort).range((page - 1) * state.pageSize, page * state.pageSize - 1);
+    };
+    let result = await buildQuery(true);
+    const errorText = String(result.error?.message || '').toLowerCase();
+    if (result.error && errorText.includes('brand') && (errorText.includes('does not exist') || errorText.includes('schema cache'))) {
+      result = await buildQuery(false);
     }
-    builder = applySort(builder, sort);
-    return builder.range((page - 1) * state.pageSize, page * state.pageSize - 1);
+    return result;
   }
 
   function showLoading(query) {
@@ -534,7 +544,7 @@
     if (sub) {
       const start = total ? ((state.page - 1) * state.pageSize + 1) : 0;
       const end = Math.min(state.page * state.pageSize, total);
-      const labels = { rel: 'relevância', pop: 'popularidade', new: 'recentes', asc: 'menor preço', desc: 'maior preço', rat: 'melhor avaliação', disc: 'maior desconto' };
+      const labels = { rel: 'relevância', pop: 'popularidade', new: 'código (Z–A, sem ordem cronológica)', asc: 'menor preço', desc: 'maior preço', rat: 'melhor avaliação', disc: 'maior desconto' };
       sub.textContent = `${start}${total ? `–${end}` : ''} de ${total} produtos · Ordenado por ${labels[state.sort] || 'relevância'}`;
     }
 
@@ -625,7 +635,7 @@
   const params = new URLSearchParams(window.location.search);
   const firstQuery = params.get('q') || '';
   const firstPage = Number(params.get('page')) || 1;
-  state.sort = params.get('sort') || (firstQuery ? 'rel' : 'new');
+  state.sort = params.get('sort') || (firstQuery ? 'rel' : 'pop');
   const initialSort = document.getElementById('sortSel');
   if (initialSort) initialSort.value = state.sort;
   runSearch(firstQuery, firstPage);
