@@ -1,3 +1,5 @@
+import { coalesceEdgeResponse } from '../_shared/edge-cache.js';
+
 const DEFAULT_SUPABASE_URL = 'https://cedrpcezoaqaeivrfuxn.supabase.co';
 const CACHE_TTL_SECONDS = 20;
 const CACHE_STALE_SECONDS = 60;
@@ -88,33 +90,43 @@ export async function onRequest(context) {
     p_seed: seed
   };
 
-  let upstream;
-  try {
-    upstream = await fetch(rpcUrl.toString(), {
-      method: 'POST',
-      headers: { apikey: publishableKey, 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(rpcBody)
+  // Agrupa cache misses idênticos no mesmo isolate, evitando rajadas duplicadas no Supabase.
+  const { response: sharedResponse, coalesced } = await coalesceEdgeResponse(`catalog:${cacheKeyUrl.href}`, async () => {
+    let upstream;
+    try {
+      upstream = await fetch(rpcUrl.toString(), {
+        method: 'POST',
+        headers: { apikey: publishableKey, 'content-type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify(rpcBody)
+      });
+    } catch (error) {
+      console.error('[Ecomme Catalog Edge] Falha ao consultar Supabase:', error);
+      return jsonResponse({ error: 'Não foi possível consultar o catálogo.' }, 502, { 'cache-control': 'no-store' });
+    }
+
+    const body = await upstream.text();
+    if (!upstream.ok) return new Response(body || JSON.stringify({ error: 'Falha ao consultar o catálogo.' }), {
+      status: upstream.status,
+      headers: { 'content-type': upstream.headers.get('content-type') || 'application/json; charset=utf-8', 'cache-control': 'no-store' }
     });
-  } catch (error) {
-    console.error('[Ecomme Catalog Edge] Falha ao consultar Supabase:', error);
-    return jsonResponse({ error: 'Não foi possível consultar o catálogo.' }, 502, { 'cache-control': 'no-store' });
-  }
 
-  const body = await upstream.text();
-  if (!upstream.ok) return new Response(body || JSON.stringify({ error: 'Falha ao consultar o catálogo.' }), {
-    status: upstream.status,
-    headers: { 'content-type': upstream.headers.get('content-type') || 'application/json; charset=utf-8', 'cache-control': 'no-store' }
+    const response = new Response(body, { status: 200, headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': `public, max-age=0, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_STALE_SECONDS}`,
+      'x-ecomme-catalog-cache': 'MISS',
+      'x-ecomme-catalog-mode': mode
+    }});
+    if (edgeCache) {
+      const cacheWrite = edgeCache.put(cacheKey, response.clone()).catch(error => console.warn('[Ecomme Catalog Edge] Não foi possível salvar cache:', error));
+      if (context.waitUntil) context.waitUntil(cacheWrite);
+      else await cacheWrite;
+    }
+    return response;
   });
 
-  const headers = new Headers({
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': `public, max-age=0, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_STALE_SECONDS}`,
-    'x-ecomme-catalog-cache': 'MISS',
-    'x-ecomme-catalog-mode': mode
-  });
-  const response = new Response(body, { status: 200, headers });
-  if (edgeCache && context.waitUntil) context.waitUntil(edgeCache.put(cacheKey, response.clone()).catch(error => console.warn('[Ecomme Catalog Edge] Não foi possível salvar cache:', error)));
-  return response;
+  const headers = new Headers(sharedResponse.headers);
+  if (coalesced) headers.set('x-ecomme-catalog-cache', 'COALESCED');
+  return new Response(sharedResponse.body, { status: sharedResponse.status, statusText: sharedResponse.statusText, headers });
 }
 
 function normalizeText(value, maxLength) {
