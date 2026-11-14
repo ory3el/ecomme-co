@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/files/styles/essentials-products.css">
   <link rel="stylesheet" href="/files/styles/essentials.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://image.innovva.workers.dev" crossorigin>
   
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Marck+Script&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -64,7 +65,7 @@
 	      </nav>
 	      <div class="search-bar">
 	        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-	        <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="renderProducts()">
+	        <input type="text" id="headerSearch" placeholder="Buscar produtos..." oninput="handleCatalogSearchInput(this)">
 	      </div>
 	      <div class="header-actions">
 	        <button class="icon-btn hidden" id="bellBtn" title="Notificações" onclick="openNotif()">
@@ -105,7 +106,7 @@
       <div class="search-wrap">
         <div class="search-box">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input type="text" id="heroSearch" placeholder="Buscar produtos, marcas, categorias…" oninput="renderProducts()" autocomplete="off">
+          <input type="text" id="heroSearch" placeholder="Buscar produtos, marcas, categorias…" oninput="handleCatalogSearchInput(this)" autocomplete="off">
           <button class="btn-search" onclick="renderProducts()">Buscar</button>
         </div>
       </div>
@@ -159,7 +160,7 @@
           </svg>
           Embaralhar
         </button>
-        <select class="sort-sel" id="sortSelect" onchange="renderProducts()">
+        <select class="sort-sel" id="sortSelect" onchange="handleCatalogSortChange()">
           <option value="random">Ordem Aleatória</option>
           <option value="price_asc">Menor Preço</option>
           <option value="price_desc">Maior Preço</option>
