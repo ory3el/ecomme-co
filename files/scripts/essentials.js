@@ -239,6 +239,38 @@ async function loadEcommeCurrentProductOnly() {
 
   if (!window.__ecommeProductDetailLoadPromise) {
     window.__ecommeProductDetailLoadPromise = (async () => {
+      // Primeiro tenta a rota same-origin com cache compartilhado na borda.
+      // Se ela ainda não estiver publicada/configurada, mantém o acesso direto atual.
+      if (window.__ecommeProductEdgeAvailable !== false) {
+        try {
+          const response = await fetch(`/api/product/${encodeURIComponent(id)}`, {
+            method: 'GET',
+            credentials: 'omit',
+            cache: 'no-store',
+            headers: { Accept: 'application/json' },
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout
+              ? AbortSignal.timeout(5000)
+              : undefined
+          });
+
+          if (response.headers.get('x-ecomme-product-api') === '1') {
+            window.__ecommeProductEdgeAvailable = true;
+            if (response.status === 404) return null;
+            if (!response.ok) throw new Error(`Edge Product HTTP ${response.status}`);
+            const payload = await response.json();
+            if (payload?.product && typeof payload.product === 'object') return payload.product;
+            throw new Error('Resposta inválida da rota de produto.');
+          }
+          // 404 HTML normalmente significa que a Function ainda não está implantada.
+          window.__ecommeProductEdgeAvailable = false;
+        } catch (edgeError) {
+          if (edgeError?.name !== 'AbortError' && edgeError?.name !== 'TimeoutError') {
+            console.warn('[Ecomme Produto] Cache de borda indisponível; usando Supabase direto.', edgeError);
+          }
+          window.__ecommeProductEdgeAvailable = false;
+        }
+      }
+
       const { data, error } = await supabaseClient
         .from('products')
         .select('*')
@@ -300,7 +332,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 async function refreshProductsIfNeeded() {
   // /products usa eventos incrementais do Supabase Realtime. Não refaça SELECT * do catálogo.
-  if (window.location.pathname.replace(/\/+$/, '') === '/products') return false;
+  if (isProductsCatalogRoute()) return false;
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return false;
   if (!pageIsVisible || productRefreshRunning) return false;
 
@@ -781,7 +813,8 @@ let catalogPageCount = 0;
 const catalogSupplementalProducts = new Map();
 
 function isProductsCatalogRoute() {
-  return window.location.pathname.replace(/\/+$/, '') === '/products';
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  return path === '/products' || path === '/';
 }
 
 function getCatalogControls() {
@@ -792,15 +825,15 @@ function getCatalogControls() {
 }
 
 function getCatalogSeed() {
+  // Compartilha a mesma ordem aleatória entre visitantes no mesmo dia UTC.
+  // Isso aumenta drasticamente o reaproveitamento do cache de borda para sort=random,
+  // sem trocar a ordem no meio da sessão (o seed fica guardado em catalogState).
+  const dayBucket = new Date().toISOString().slice(0, 10);
+  const sharedSeed = `ecomme-random-v1-${dayBucket}`;
   try {
-    const existing = localStorage.getItem(ECOMME_CATALOG_SEED_KEY);
-    if (existing) return existing;
-    const next = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
-    localStorage.setItem(ECOMME_CATALOG_SEED_KEY, next);
-    return next;
-  } catch (_) {
-    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
-  }
+    localStorage.setItem(ECOMME_CATALOG_SEED_KEY, sharedSeed);
+  } catch (_) { /* armazenamento local é opcional */ }
+  return sharedSeed;
 }
 
 function catalogKeyFor(state) {
@@ -1579,7 +1612,10 @@ function flushEcommeProductRealtimeChanges() {
     const normalized = normalizeProduct({ ...previous, ...change.record });
     if (previous && JSON.stringify(previous) === JSON.stringify(normalized)) return;
     if (previousIndex >= 0) products[previousIndex] = normalized;
-    else products.push(normalized);
+    else {
+      products.push(normalized);
+      if (!serverCatalog && change.eventType === 'INSERT') shuffled.push(normalized);
+    }
     if (shuffledIndex >= 0) shuffled[shuffledIndex] = normalized;
 
     if (serverCatalog && previous) {
@@ -1597,8 +1633,20 @@ function flushEcommeProductRealtimeChanges() {
   if (!changedAny) return;
 
   if (!isProductsCatalogRoute()) {
-    if (pageIsVisible) { updateCart(); updateFav(); }
-    else window.__ecommeProductsNeedsRender = true;
+    if (!pageIsVisible) {
+      window.__ecommeProductsNeedsRender = true;
+      return;
+    }
+    const grid = $('productsGrid');
+    if (grid) {
+      const nextIds = getFilteredList().map(product => String(product.id));
+      const orderChanged = nextIds.length !== lastFilteredProductIds.length || nextIds.some((id, index) => id !== lastFilteredProductIds[index]);
+      if (orderChanged) renderProducts();
+      else changedIds.forEach(replaceRenderedProductCard);
+      lastFilteredProductIds = nextIds;
+    }
+    updateCart();
+    updateFav();
     return;
   }
   if (!pageIsVisible) {
@@ -1690,7 +1738,8 @@ function filterByCategory(event, category) {
   const searchInput = document.getElementById('headerSearch');
   if (searchInput) {
     searchInput.value = selectedCategory;
-    renderProducts();
+    if (isProductsCatalogRoute()) searchFor(selectedCategory);
+    else renderProducts();
     document.getElementById('produtos')?.scrollIntoView({ behavior: 'smooth' });
   }
 }
