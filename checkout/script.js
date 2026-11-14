@@ -196,7 +196,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const headerImage = document.getElementById('headerAvatar');
 
   try {
-    await loadProductsFromSupabase();
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
@@ -219,7 +218,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('*')
+      .select('full_name, avatar_url, phone, cpf, birth_date')
       .eq('id', user.id)
       .single();
 
@@ -450,7 +449,9 @@ async function loadFromSupabase() {
     return;
   }
 
-  cartItems = hydrateCartItems(data?.cart);
+  const savedCart = Array.isArray(data?.cart) ? data.cart : [];
+  await loadProductsFromSupabase(savedCart);
+  cartItems = hydrateCartItems(savedCart);
   try {
     checkoutOwnedStoreIds = await loadCheckoutOwnedStoreIds();
     checkoutOwnershipVerified = true;
@@ -529,20 +530,37 @@ async function loadCheckoutAddresses(legacyAddresses = []) {
 }
 
 // -------------------------------------------------
-async function loadProductsFromSupabase() {
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', { ascending: true });
+async function fetchCheckoutProductsByIds(ids = []) {
+  const productIds = [...new Set((Array.isArray(ids) ? ids : [])
+    .map(id => String(id ?? '').trim())
+    .filter(Boolean))];
+  if (!productIds.length) return [];
 
-  if (error) {
-    console.error("Erro ao carregar produtos do banco:", error);
-    return;
+  const rows = [];
+  const batchSize = 50;
+  for (let index = 0; index < productIds.length; index += batchSize) {
+    const batch = productIds.slice(index, index + batchSize);
+    const { data, error } = await supabaseClient
+      .from('products')
+      .select('*')
+      .in('id', batch);
+    if (error) throw error;
+    if (Array.isArray(data)) rows.push(...data);
   }
+  return rows;
+}
 
-  if (data) {
-    products = data;
+async function loadProductsFromSupabase(savedCart = []) {
+  const productIds = (Array.isArray(savedCart) ? savedCart : [])
+    .map(item => item?.id ?? item?.product_id)
+    .filter(id => id !== undefined && id !== null && String(id).trim());
+
+  try {
+    products = await fetchCheckoutProductsByIds(productIds);
     shuffled = [...products];
+  } catch (error) {
+    console.error('Erro ao carregar produtos do carrinho:', error);
+    throw new Error('Não foi possível carregar os produtos do seu carrinho. Tente novamente.');
   }
 }
 
@@ -1542,13 +1560,15 @@ async function refreshCheckoutCartPrices() {
     throw new Error('Não foi possível verificar se algum produto pertence à sua própria loja. Tente novamente.');
   }
   const productIds = cartItems.map(item => item.id);
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .in('id', productIds);
-  if (error) throw new Error('Não foi possível atualizar os produtos. Tente novamente.');
+  let freshProducts;
+  try {
+    freshProducts = await fetchCheckoutProductsByIds(productIds);
+  } catch (error) {
+    console.error('Erro ao atualizar preços dos produtos do checkout:', error);
+    throw new Error('Não foi possível atualizar os produtos. Tente novamente.');
+  }
 
-  const latestProducts = new Map((data || []).map(product => [String(product.id), product]));
+  const latestProducts = new Map(freshProducts.map(product => [String(product.id), product]));
   const updatedItems = [];
   for (const oldItem of cartItems) {
     const fresh = latestProducts.get(String(oldItem.id));
