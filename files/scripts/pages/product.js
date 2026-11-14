@@ -3969,9 +3969,10 @@ function bindProductActions() {
     const button = document.getElementById(id);
     if (!button) return;
 
-    button.onclick = event => {
+    button.onclick = async event => {
       event.preventDefault();
       if (!currentProduct || isUnavailableProduct(currentProduct)) return;
+      if (!(await requireProductAccount(PRODUCT_ACCOUNT_REQUIRED_MESSAGES.wishlist))) return;
 
       const productId = String(currentProduct.id);
       const wishlistApi = window.EcommeWishlists;
@@ -4040,6 +4041,7 @@ async function openProductOfferModal() {
     if (typeof showToast === 'function') showToast('Este produto está indisponível no momento.');
     return;
   }
+  if (!(await requireProductAccount(PRODUCT_ACCOUNT_REQUIRED_MESSAGES.offer))) return;
   if (typeof supabaseClient === 'undefined') {
     if (typeof showToast === 'function') showToast('Não foi possível conectar ao sistema de ofertas.', 'err');
     return;
@@ -4052,8 +4054,8 @@ async function openProductOfferModal() {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser();
     if (authError) throw authError;
     if (!authData?.user) {
-      const redirect = encodeURIComponent(`${location.pathname}${location.search}`);
-      location.href = `/login?redirect=${redirect}`;
+      if (typeof userId !== 'undefined') userId = null;
+      showProductAccountNotice(PRODUCT_ACCOUNT_REQUIRED_MESSAGES.offer);
       return;
     }
 
@@ -4308,22 +4310,74 @@ async function updateOwnProductControls(product) {
   }
 }
 
-function addToCartMain() {
+const PRODUCT_ACCOUNT_REQUIRED_MESSAGES = {
+  cart: 'Para adicionar produtos ao carrinho e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.',
+  buy: 'Para comprar produtos e finalizar seu pedido, é necessário fazer login ou criar uma nova conta.',
+  wishlist: 'Para adicionar itens à sua lista de desejos e salvá-los na sua conta, é necessário fazer login ou criar uma nova conta.',
+  offer: 'Para fazer uma oferta e acompanhar sua negociação, é necessário fazer login ou criar uma nova conta.'
+};
+
+function showProductAccountNotice(message) {
+  if (typeof showAuth === 'function') {
+    showAuth(message, 'Conta Necessária', '🔒');
+    return;
+  }
+
+  const redirect = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.href = `/login?redirect=${encodeURIComponent(redirect)}`;
+}
+
+async function requireProductAccount(message) {
+  let activeUserId = typeof userId !== 'undefined' && userId
+    ? String(userId)
+    : null;
+
+  if (typeof supabaseClient !== 'undefined' && supabaseClient?.auth?.getSession) {
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+
+      activeUserId = data?.session?.user?.id
+        ? String(data.session.user.id)
+        : null;
+
+      if (typeof userId !== 'undefined') userId = activeUserId;
+    } catch (error) {
+      console.warn('Não foi possível verificar a sessão antes da ação do produto:', error);
+      if (typeof showToast === 'function') {
+        showToast('Não foi possível verificar sua conta. Tente novamente.', 'err');
+      }
+      return false;
+    }
+  }
+
+  if (activeUserId) return true;
+
+  showProductAccountNotice(message);
+  return false;
+}
+
+async function addToCartMain(accountAlreadyChecked = false) {
   if (isUnavailableProduct(currentProduct)) {
     if (typeof showToast === 'function') showToast('Este produto está indisponível no momento.');
-    return;
+    return false;
   }
   if (currentProductIsOwnStore) {
     if (typeof showToast === 'function') showToast('Você não pode adicionar ao carrinho um produto da sua própria loja.');
-    return;
+    return false;
   }
   if (!productOwnershipVerified) {
     if (typeof showToast === 'function') showToast('Não foi possível verificar a loja deste produto. Atualize a página e tente novamente.');
-    return;
+    return false;
+  }
+  if (!accountAlreadyChecked && !(await requireProductAccount(PRODUCT_ACCOUNT_REQUIRED_MESSAGES.cart))) {
+    return false;
   }
   if (currentProduct && typeof addToCart === 'function') {
     addToCart(String(currentProduct.id), productPageQty);
+    return true;
   }
+  return false;
 }
 
 async function buyNow() {
@@ -4341,21 +4395,10 @@ async function buyNow() {
     return;
   }
 
-  if (typeof userId === 'undefined' || !userId) {
-    if (typeof showAuth === 'function') {
-      showAuth(
-        'Entre na sua conta para continuar com a compra.',
-        'Conta necessária',
-        '🔒'
-      );
-    } else {
-      location.href = '/login';
-    }
+  if (!(await requireProductAccount(PRODUCT_ACCOUNT_REQUIRED_MESSAGES.buy))) return;
 
-    return;
-  }
-
-  addToCartMain();
+  const addedToCart = await addToCartMain(true);
+  if (!addedToCart) return;
 
   if (typeof syncToSupabase === 'function') {
     await syncToSupabase();
