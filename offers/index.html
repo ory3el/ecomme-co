@@ -60,7 +60,7 @@
       <input type="text" id="searchInput" placeholder="Buscar ofertas..." oninput="handleOfferSearch(this)">
     </div>
     <span class="tb-count" id="offersCount">Carregando ofertas…</span>
-    <select class="tb-sel" id="sortSelect" onchange="renderOffers()">
+    <select class="tb-sel" id="sortSelect" onchange="setOfferSort()">
       <option value="discount">Maior Desconto</option>
       <option value="price_asc">Menor Preço</option>
       <option value="price_desc">Maior Preço</option>
