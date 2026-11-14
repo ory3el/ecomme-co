@@ -830,7 +830,6 @@ const EDGE_IMAGE_PRESETS = {
 
 // ============================================================
 
-const PRODUCT_REFRESH_INTERVAL = 10000;
 let productRefreshTimer = null;
 let productRealtimeChannel = null;
 let productRealtimeRetryTimer = null;
@@ -844,10 +843,10 @@ let pageIsVisible = true;
 document.addEventListener('visibilitychange', () => {
   pageIsVisible = document.visibilityState === 'visible';
   if (!pageIsVisible) {
-    if (window.location.pathname.replace(/\/+$/, '') === '/products') window.__ecommeProductsCatalogNeedsRevalidate = true;
+    if (typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute()) window.__ecommeProductsCatalogNeedsRevalidate = true;
     return;
   }
-  if (window.location.pathname.replace(/\/+$/, '') === '/products') {
+  if (typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute()) {
     if (window.__ecommeProductsCatalogNeedsRevalidate && window.EcommeCatalog?.isActive?.()) {
       window.__ecommeProductsCatalogNeedsRevalidate = false;
       window.__ecommeProductsNeedsRender = false;
@@ -1083,11 +1082,11 @@ function createProductsSignature(
 // ============================================================
 
 async function refreshProductsIfNeeded() {
-  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
-  if (
-    !pageIsVisible ||
-    productRefreshRunning
-  ) {return;}
+  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return false;
+  // Realtime é a fonte principal. Uma leitura completa só é permitida como
+  // recuperação quando a conexão caiu e a página volta a ficar visível.
+  if (window.__ecommeProductsRealtimeConnected) return false;
+  if (!pageIsVisible || productRefreshRunning) return false;
   
   productRefreshRunning = true;
   
@@ -1124,16 +1123,15 @@ async function refreshProductsIfNeeded() {
 
 // ============================================================
 
-function startProductRefresh() {
-  // /products recebe atualizações incrementais pelo Realtime, sem polling completo do catálogo.
-  if (window.location.pathname.replace(/\/+$/, '') === '/products') {
-    if (productRefreshTimer) clearInterval(productRefreshTimer);
-    productRefreshTimer = null;
-    return;
-  }
-  if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) return;
+function stopProductRefresh() {
   if (productRefreshTimer) clearInterval(productRefreshTimer);
-  productRefreshTimer = setInterval(() => refreshProductsIfNeeded(), PRODUCT_REFRESH_INTERVAL);
+  productRefreshTimer = null;
+}
+
+function startProductRefresh() {
+  // Não mantém polling permanente: Broadcast/Postgres Changes atualizam apenas
+  // os IDs alterados. A leitura de recuperação é executada ao voltar à página.
+  stopProductRefresh();
 }
 
 // ============================================================
@@ -1156,8 +1154,11 @@ function startProductsRealtime() {
     productRealtimeRetryTimer = null;
   }
 
-  const isCatalogRoute = window.location.pathname.replace(/\/+$/, '') === '/products';
-  const useCatalogBroadcast = isCatalogRoute && window.__ecommeCatalogRpcReady === true;
+  const isProductDetail = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
+  const isCatalogRoute = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
+  // Só usa o Broadcast depois de confirmar que a RPC da migração existe.
+  // Outras páginas e instalações sem a migração seguem com Postgres Changes incremental.
+  const useCatalogBroadcast = !isProductDetail && isCatalogRoute && window.__ecommeCatalogRpcReady === true && window.__ecommeProductsForcePostgres !== true;
   let catalogChannel = supabaseClient.channel(useCatalogBroadcast ? 'catalog:products' : 'products-live', {
     config: { private: false }
   });
@@ -1166,7 +1167,10 @@ function startProductsRealtime() {
     ['INSERT', 'UPDATE', 'DELETE'].forEach(eventType => {
       catalogChannel = catalogChannel.on('broadcast', { event: eventType }, payload => {
         if (!pageIsVisible) {
-          window.__ecommeProductsCatalogNeedsRevalidate = true;
+          window.__ecommeProductsNeedsRender = true;
+          if (typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute()) {
+            window.__ecommeProductsCatalogNeedsRevalidate = true;
+          }
           return;
         }
         if (typeof window.queueEcommeProductRealtimeChange !== 'function') return;
@@ -1177,7 +1181,7 @@ function startProductsRealtime() {
     catalogChannel = catalogChannel.on('postgres_changes', {
       event: '*', schema: 'public', table: 'products'
     }, payload => {
-      if (isCatalogRoute && typeof window.queueEcommeProductRealtimeChange === 'function') {
+      if (typeof window.queueEcommeProductRealtimeChange === 'function') {
         window.queueEcommeProductRealtimeChange(payload);
         return;
       }
@@ -1190,7 +1194,9 @@ function startProductsRealtime() {
   productRealtimeChannel = catalogChannel.subscribe(status => {
       if (status === 'SUBSCRIBED') {
         window.__ecommeProductsRealtimeConnected = true;
+        window.__ecommeProductsRealtimeMode = useCatalogBroadcast ? 'broadcast' : 'postgres';
         productRealtimeRetryDelay = 2000;
+        stopProductRefresh();
         if (productRealtimeRetryTimer) {
           clearTimeout(productRealtimeRetryTimer);
           productRealtimeRetryTimer = null;
@@ -1198,6 +1204,7 @@ function startProductsRealtime() {
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         window.__ecommeProductsRealtimeConnected = false;
         productRealtimeChannel = null;
+        if (useCatalogBroadcast) window.__ecommeProductsForcePostgres = true;
         scheduleProductsRealtimeReconnect();
       }
     });
@@ -1821,7 +1828,7 @@ async function loadProductsFromSupabase() {
   if (typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute()) {
     return loadEcommeCurrentProductOnly();
   }
-  const isProductsCatalog = window.location.pathname.replace(/\/+$/, '') === '/products';
+  const isProductsCatalog = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
   if (isProductsCatalog && window.__ecommeProductsBootPromise) return window.__ecommeProductsBootPromise;
   if (window.__ecommeProductsLoadInFlight) return window.__ecommeProductsLoadInFlight;
 
@@ -2415,7 +2422,7 @@ async function loadSidebarSavedItemsFromSupabase() {
     return;
   }
   const isProductDetail = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
-  const isProductsCatalog = window.location.pathname.replace(/\/+$/, '') === '/products';
+  const isProductsCatalog = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
   if (isProductDetail || isProductsCatalog) {
     const savedIds = [...new Set(
       [...(Array.isArray(data?.cart) ? data.cart : []), ...(Array.isArray(data?.fav) ? data.fav : [])]
