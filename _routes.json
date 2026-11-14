@@ -3,7 +3,8 @@
   "include": [
     "/product/*",
     "/api/catalog",
-    "/api/product/*"
+    "/api/product/*",
+    "/api/catalog-stats"
   ],
   "exclude": [
     "/product/index.html",
