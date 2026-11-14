@@ -17,9 +17,17 @@ const SHIPPING_LABELS = { correios: 'Correios', transportadora: 'Transportadora'
 /* ─── ESTADO ─────────────────────────────────────────────────────── */
 let currentStore = null;
 let storeSource = STORE_SOURCES[0];   // de onde a loja foi lida (view pública ou tabela)
-let allStoreProducts = [];      // todos (inclusive pausados): o shell precisa deles para carrinho/favoritos
-let visibleProducts = [];       // somente os que podem aparecer na loja
-let shownCount = PAGE_SIZE;
+let allStoreProducts = [];      // produtos já carregados em páginas, para carrinho/favoritos
+let visibleProducts = [];       // produtos públicos carregados para a busca/ordenação atual
+let storeProductsTotal = 0;
+let storeHasMore = false;
+let storeSummary = null;
+let storeTopRated = [];
+let storeCategories = [];
+let legacyStoreProductsCache = null;
+let storeSearchTimer = null;
+let storeProductsRequestId = 0;
+let storeProductsLoadingMore = false;
 
 /* ─── HELPERS ────────────────────────────────────────────────────── */
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -215,6 +223,55 @@ async function fetchStoreProducts(storeId) {
   return (data || []).map(normalizeStoreProduct);
 }
 
+function sortLocalStoreProducts(list, sort) {
+  const result = [...list];
+  if (sort === 'price_asc') result.sort((a, b) => a.price - b.price || String(a.id).localeCompare(String(b.id)));
+  else if (sort === 'price_desc') result.sort((a, b) => b.price - a.price || String(a.id).localeCompare(String(b.id)));
+  else if (sort === 'rating') result.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews || String(a.id).localeCompare(String(b.id)));
+  else if (sort === 'new') result.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime() || String(b.id).localeCompare(String(a.id)));
+  else result.sort((a, b) => b.reviews - a.reviews || b.rating - a.rating || String(a.id).localeCompare(String(b.id)));
+  return result;
+}
+
+function buildLocalStoreSummary(list) {
+  const count = list.length;
+  const rated = list.filter(p => p.rating > 0 && p.reviews > 0);
+  const reviews = rated.reduce((sum, p) => sum + p.reviews, 0);
+  const avg = reviews ? rated.reduce((sum, p) => sum + p.rating * p.reviews, 0) / reviews : 0;
+  const categories = [...new Set([].concat(...list.map(p => Array.isArray(p.cat) ? p.cat : [p.cat]).filter(Boolean)))];
+  return { summary: { product_count: count, rating_avg: avg, reviews_total: reviews }, top_rated: [...rated].sort((a, b) => b.reviews - a.reviews || b.rating - a.rating).slice(0, 8), categories };
+}
+
+async function fetchStoreProductPage(storeId, query, sort, offset, includeSummary) {
+  if (window.__ecommeStoreProductsApiAvailable !== false) {
+    try {
+      const params = new URLSearchParams({ store_id: String(storeId), q: String(query || ''), sort: String(sort || 'pop'), offset: String(offset), limit: String(PAGE_SIZE) });
+      if (includeSummary) params.set('include_summary', '1');
+      const response = await fetch(`/api/store-products?${params.toString()}`, { method: 'GET', credentials: 'omit', cache: 'default', headers: { Accept: 'application/json' } });
+      if (response.headers.get('x-ecomme-store-api') === '1' && response.ok) {
+        const payload = await response.json();
+        if (Array.isArray(payload?.data)) {
+          window.__ecommeStoreProductsApiAvailable = true;
+          return { data: payload.data.map(normalizeStoreProduct), count: Number(payload.count) || 0, has_more: Boolean(payload.has_more), summary: payload.summary || null, top_rated: Array.isArray(payload.top_rated) ? payload.top_rated.map(normalizeStoreProduct) : null, categories: Array.isArray(payload.categories) ? payload.categories : null };
+        }
+      }
+      throw new Error(`Endpoint de produtos da loja indisponível (HTTP ${response.status}).`);
+    } catch (error) {
+      console.warn('[Ecomme Store] Paginação da borda indisponível; usando consulta direta como fallback.', error);
+      window.__ecommeStoreProductsApiAvailable = false;
+    }
+  }
+
+  // Fallback de compatibilidade: mantém o comportamento antigo caso a Function/RPC ainda não tenha sido publicada.
+  if (!legacyStoreProductsCache) legacyStoreProductsCache = await fetchStoreProducts(storeId);
+  const active = legacyStoreProductsCache.filter(p => !isPaused(p));
+  const normalizedQuery = normText(query);
+  const filtered = active.filter(p => !normalizedQuery || normText(p.name).includes(normalizedQuery) || p.cat.some(c => normText(c).includes(normalizedQuery)) || normText(p.desc).includes(normalizedQuery));
+  const sorted = sortLocalStoreProducts(filtered, sort);
+  const localMeta = includeSummary ? buildLocalStoreSummary(active) : null;
+  return { data: sorted.slice(offset, offset + PAGE_SIZE), count: sorted.length, has_more: sorted.length > offset + PAGE_SIZE, summary: localMeta?.summary || null, top_rated: localMeta?.top_rated ?? null, categories: localMeta?.categories ?? null };
+}
+
 // O carrinho/favoritos/modal do shell procuram o produto no array global `products`
 function exposeToSharedShell(list) {
   try {
@@ -222,6 +279,23 @@ function exposeToSharedShell(list) {
     const known = new Set(products.map(p => String(p.id)));
     list.forEach(p => { if (!known.has(String(p.id))) products.push(p); });
   } catch (e) { /* shell não carregado nesta página */ }
+}
+
+async function hydrateSavedShellProducts() {
+  try {
+    if (typeof products === 'undefined' || !Array.isArray(products) || typeof supabaseClient === 'undefined') return;
+    const ids = [];
+    if (typeof cart !== 'undefined' && Array.isArray(cart)) cart.forEach(item => ids.push(String(item.id || item.product_id || '')));
+    if (typeof fav !== 'undefined' && Array.isArray(fav)) fav.forEach(item => ids.push(String(item.id || item.product_id || '')));
+    const known = new Set(products.map(product => String(product.id)));
+    const missing = [...new Set(ids)].filter(id => id && !known.has(id)).slice(0, 100);
+    if (!missing.length) return;
+    const { data, error } = await supabaseClient.from('products').select('*').in('id', missing);
+    if (error) throw error;
+    exposeToSharedShell((data || []).map(normalizeStoreProduct));
+  } catch (error) {
+    console.warn('[Ecomme Store] Não foi possível pré-carregar todos os itens salvos do usuário:', error);
+  }
 }
 
 /* ─── RENDER: PERFIL ─────────────────────────────────────────────── */
@@ -283,140 +357,177 @@ function weightedRating(list) {
   return { avg: rated.reduce((s, p) => s + p.rating * p.reviews, 0) / total, total };
 }
 
-function renderStats(store, list) {
-  const stats = [{ val: String(list.length), lbl: 'Produtos', sub: list.length === 1 ? 'disponível' : 'disponíveis' }];
-  const rating = weightedRating(list);
-  if (rating) stats.push({ val: rating.avg.toFixed(1).replace('.', ',') + '★', lbl: 'Avaliação média', sub: `${rating.total.toLocaleString('pt-BR')} avaliações` });
+function renderStats(store, summary) {
+  const count = Number(summary?.product_count) || 0;
+  const stats = [{ val: count.toLocaleString('pt-BR'), lbl: 'Produtos', sub: count === 1 ? 'disponível' : 'disponíveis' }];
+  const average = Number(summary?.rating_avg) || 0;
+  const totalReviews = Number(summary?.reviews_total) || 0;
+  if (average > 0 && totalReviews > 0) stats.push({ val: average.toFixed(1).replace('.', ',') + '★', lbl: 'Avaliação média', sub: `${totalReviews.toLocaleString('pt-BR')} avaliações` });
   if (store.prazo_envio) stats.push({ val: String(store.prazo_envio).replace(/\s*úteis/i, ''), lbl: 'Prazo de envio', sub: 'dias úteis' });
   if (store.frete_gratis_ativo && store.frete_valor_minimo) stats.push({ val: String(store.frete_valor_minimo).replace(/,00$/, ''), lbl: 'Frete grátis', sub: 'acima deste valor' });
   const box = $('storeStats');
   if (!box) return;
   box.removeAttribute('aria-hidden');
-  box.innerHTML = stats.map((s, i) => `<div class="pi-stat reveal" style="transition-delay:${i * .05}s">
-      <span class="pi-stat-val">${escapeHtml(s.val)}</span>
-      <span class="pi-stat-lbl">${escapeHtml(s.lbl)}</span>
-      <div class="pi-stat-sub" style="color:var(--muted)">${escapeHtml(s.sub)}</div></div>`).join('');
+  box.innerHTML = stats.map((item, i) => `<div class="pi-stat reveal" style="transition-delay:${i * .05}s"><span class="pi-stat-val">${escapeHtml(item.val)}</span><span class="pi-stat-lbl">${escapeHtml(item.lbl)}</span><div class="pi-stat-sub" style="color:var(--muted)">${escapeHtml(item.sub)}</div></div>`).join('');
 }
 
-function renderTabs(list) {
-  setText('#tabCountProducts', String(list.length));
-  const rating = weightedRating(list);
-  setText('#tabCountReviews', rating ? rating.total.toLocaleString('pt-BR') : '0');
+function renderTabs(summary) {
+  setText('#tabCountProducts', (Number(summary?.product_count) || 0).toLocaleString('pt-BR'));
+  setText('#tabCountReviews', (Number(summary?.reviews_total) || 0).toLocaleString('pt-BR'));
 }
 
-function renderReviews(list) {
+function renderReviews(summary, ratedProducts) {
   const box = $('reviewsContent');
   if (!box) return;
   box.removeAttribute('aria-busy');
-  const rating = weightedRating(list);
-  if (!rating) {
+  const average = Number(summary?.rating_avg) || 0;
+  const total = Number(summary?.reviews_total) || 0;
+  if (!average || !total) {
     box.innerHTML = '<div class="store-empty"><div class="store-empty-ico">⭐</div><h3>Ainda sem avaliações</h3><p>As avaliações dos produtos desta loja aparecem aqui assim que os clientes avaliarem.</p></div>';
     return;
   }
-  const stars = '★'.repeat(Math.round(rating.avg)) + '☆'.repeat(5 - Math.round(rating.avg));
-  const rated = list.filter(p => p.rating > 0 && p.reviews > 0).sort((a, b) => b.reviews - a.reviews).slice(0, 8);
-  box.innerHTML = `<div class="rev-layout"><div class="rev-summary">
-      <div class="rs-avg"><span class="rs-num">${rating.avg.toFixed(1).replace('.', ',')}</span><div class="rs-stars">${stars}</div>
-      <div class="rs-total">média ponderada de ${rating.total.toLocaleString('pt-BR')} avaliações dos produtos</div></div></div>
-      <div class="rev-list">${rated.map(p => `<div class="rev-item"><div class="rv-head"><div><div class="rv-name">${escapeHtml(p.name)}</div>
-        <div class="rv-date">${p.rating.toFixed(1).replace('.', ',')}★ · ${p.reviews.toLocaleString('pt-BR')} avaliações</div></div></div></div>`).join('')}</div></div>`;
+  const stars = '★'.repeat(Math.round(average)) + '☆'.repeat(5 - Math.round(average));
+  const rated = (Array.isArray(ratedProducts) ? ratedProducts : []).slice(0, 8);
+  box.innerHTML = `<div class="rev-layout"><div class="rev-summary"><div class="rs-avg"><span class="rs-num">${average.toFixed(1).replace('.', ',')}</span><div class="rs-stars">${stars}</div><div class="rs-total">média ponderada de ${total.toLocaleString('pt-BR')} avaliações dos produtos</div></div></div><div class="rev-list">${rated.map(p => `<div class="rev-item"><div class="rv-head"><div><div class="rv-name">${escapeHtml(p.name)}</div><div class="rv-date">${Number(p.rating || 0).toFixed(1).replace('.', ',')}★ · ${(Number(p.reviews) || 0).toLocaleString('pt-BR')} avaliações</div></div></div></div>`).join('')}</div></div>`;
 }
 
-function renderAbout(store, list) {
+function renderAbout(store, categories) {
   const grid = $('aboutGrid');
   if (!grid) return;
   grid.removeAttribute('aria-busy');
   const since = formatMemberSince(store.criado_em);
   const loc = [store.cidade, store.estado].filter(Boolean).join(', ');
   const formas = (Array.isArray(store.formas_envio) ? store.formas_envio : []).map(v => SHIPPING_LABELS[v] || v);
-  const cats = [...new Set([store.categoria, ...list.flatMap(p => p.cat)].filter(Boolean))];
-  const row = (l, v) => v ? `<div class="info-row"><span class="lbl">${escapeHtml(l)}</span><span class="val">${escapeHtml(v)}</span></div>` : '';
+  const cats = [...new Set([store.categoria, ...(Array.isArray(categories) ? categories : [])].filter(Boolean).map(value => typeof value === 'string' ? value : (value?.name || value?.label || '')))].filter(Boolean);
+  const row = (label, value) => value ? `<div class="info-row"><span class="lbl">${escapeHtml(label)}</span><span class="val">${escapeHtml(value)}</span></div>` : '';
   const freight = store.frete_gratis_ativo && store.frete_valor_minimo ? `Acima de ${store.frete_valor_minimo}` : '';
-  grid.innerHTML = `
-    <div class="about-card reveal"><h4>Sobre a loja</h4><p>${escapeHtml(store.descricao || 'Esta loja ainda não escreveu uma descrição.')}</p></div>
-    <div class="about-card reveal"><h4>Informações</h4>${row('Membro desde', since)}<!--${row('Localização', loc)}-->${row('Prazo de envio', store.prazo_envio)}${row('Formas de envio', formas.join(', '))}${row('Frete grátis', freight)}</div>
-    ${cats.length ? `<div class="about-card reveal"><h4>Categorias</h4><div class="tag-wrap">${cats.map(c => `<span class="cat-tag">${escapeHtml(c)}</span>`).join('')}</div></div>` : ''}
-    <div class="about-card reveal"><h4>Troca e devolução</h4>${store.politica_devolucao ? `<p>${escapeHtml(store.politica_devolucao)}</p>` : '<p>Política de devolução não informada pela loja.</p>'}</div>`;
+  grid.innerHTML = `<div class="about-card reveal"><h4>Sobre a loja</h4><p>${escapeHtml(store.descricao || 'Esta loja ainda não escreveu uma descrição.')}</p></div><div class="about-card reveal"><h4>Informações</h4>${row('Membro desde', since)}<!--${row('Localização', loc)}-->${row('Prazo de envio', store.prazo_envio)}${row('Formas de envio', formas.join(', '))}${row('Frete grátis', freight)}</div>${cats.length ? `<div class="about-card reveal"><h4>Categorias</h4><div class="tag-wrap">${cats.map(category => `<span class="cat-tag">${escapeHtml(category)}</span>`).join('')}</div></div>` : ''}<div class="about-card reveal"><h4>Troca e devolução</h4>${store.politica_devolucao ? `<p>${escapeHtml(store.politica_devolucao)}</p>` : '<p>Política de devolução não informada pela loja.</p>'}</div>`;
   const side = $('sidebarCol');
-  if (side) side.hidden = true;     // coluna lateral só tinha conteúdo de demonstração
+  if (side) side.hidden = true;
   const wrap = document.querySelector('.main-wrap');
   if (wrap) wrap.classList.add('no-sidebar');
 }
 
 /* ─── RENDER: PRODUTOS ───────────────────────────────────────────── */
-function getSortedFiltered() {
-  const q = normText($('prodSearch') ? $('prodSearch').value : '');
-  const sort = $('prodSort') ? $('prodSort').value : 'pop';
-  let list = visibleProducts.filter(p => !q || normText(p.name).includes(q) || p.cat.some(c => normText(c).includes(q)));
-  if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
-  else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
-  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
-  else if (sort === 'new') list.sort((a, b) => (a.created_at && b.created_at ? new Date(b.created_at) - new Date(a.created_at) : 0));
-  else list.sort((a, b) => b.reviews - a.reviews || b.rating - a.rating);
-  return list;
-}
+function getSortedFiltered() { return visibleProducts; }
 
 function isFavorite(id) {
   try { return typeof fav !== 'undefined' && Array.isArray(fav) && fav.some(f => String(f.id) === String(id)); } catch (e) { return false; }
 }
 
-function renderProds(resetPage) {
+function renderProds() {
   const grid = $('prodGrid');
   if (!grid) return;
   grid.removeAttribute('aria-busy');
-  if (resetPage) shownCount = PAGE_SIZE;
   const list = getSortedFiltered();
-  const slice = list.slice(0, shownCount);
-  const stars = r => '★'.repeat(Math.floor(r)) + '☆'.repeat(5 - Math.floor(r));
-  const badgeHtml = p => {
-    if (p.badge === 'hot') return '<span class="pbadge ph">🔥 Hot</span>';
-    if (p.badge === 'new') return '<span class="pbadge pn">Novo</span>';
-    return p.discount > 0 ? `<span class="pbadge ps">-${p.discount}%</span>` : '';
+  const stars = rating => '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+  const badgeHtml = product => {
+    if (product.badge === 'hot') return '<span class="pbadge ph">🔥 Hot</span>';
+    if (product.badge === 'new') return '<span class="pbadge pn">Novo</span>';
+    return product.discount > 0 ? `<span class="pbadge ps">-${product.discount}%</span>` : '';
   };
 
-  if (!slice.length) {
-    grid.innerHTML = `<div class="store-empty" style="grid-column:1/-1"><div class="store-empty-ico">${visibleProducts.length ? '🔍' : '🛍️'}</div>
-      <h3>${visibleProducts.length ? 'Nenhum produto encontrado' : 'Esta loja ainda não tem produtos'}</h3>
-      <p>${visibleProducts.length ? 'Tente buscar por outro termo.' : 'Volte em breve para conferir as novidades.'}</p></div>`;
-  } else {
-    grid.innerHTML = slice.map((p, i) => {
-      const img = safeImageUrl(p.image_url);
-      const media = img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">` : escapeHtml(p.emoji);
-      const id = escapeHtml(p.id);
-      return `<div class="pcard" data-pid="${id}" style="animation:fadeInUp .4s var(--ease) ${Math.min(i, 8) * .05}s backwards" onclick="window.location.href='/product/${encodeURIComponent(String(p.id))}'">
-      <div class="pc-img-wrap">
-        <div class="pc-img">${media}</div>
-        <div class="pc-badges">${badgeHtml(p)}</div>
-        <button class="pc-wish ${isFavorite(p.id) ? 'on' : ''}" data-act="wish" data-pid="${id}" title="Favoritar" aria-label="Favoritar ${escapeHtml(p.name)}">
-          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
-        <div class="pc-actions">
-          <button class="btn-pcart" data-act="cart" data-pid="${id}">
-            <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Carrinho
-          </button>
-        </div>
-      </div>
-      <div class="pc-info">
-        <div class="pc-name">${escapeHtml(p.name)}</div>
-        ${p.rating > 0 ? `<div class="pc-rating"><span class="pc-stars">${stars(p.rating)}</span><span class="pc-rcount">(${p.reviews.toLocaleString('pt-BR')})</span></div>` : ''}
-        <div class="pc-price-row">
-          <span class="pc-price">${fmt(p.price)}</span>
-          ${p.old > p.price ? `<span class="pc-old">${fmt(p.old)}</span>` : ''}
-          ${p.discount > 0 ? `<span class="pc-disc">-${p.discount}%</span>` : ''}
-        </div>
-      </div>
-    </div>`;
-    }).join('');
-    if (list.length > slice.length) {
-      grid.insertAdjacentHTML('beforeend', `<div style="grid-column:1/-1;text-align:center;padding:10px 0"><button class="btn-more-products" data-act="more">Ver mais produtos (${list.length - slice.length})</button></div>`);
-    }
+  if (!list.length) {
+    const hasStoreProducts = Number(storeSummary?.product_count) > 0;
+    const hasQuery = Boolean(normText($('prodSearch')?.value || ''));
+    grid.innerHTML = `<div class="store-empty" style="grid-column:1/-1"><div class="store-empty-ico">${hasStoreProducts || hasQuery ? '🔍' : '🛍️'}</div><h3>${hasStoreProducts || hasQuery ? 'Nenhum produto encontrado' : 'Esta loja ainda não tem produtos'}</h3><p>${hasStoreProducts || hasQuery ? 'Tente buscar por outro termo.' : 'Volte em breve para conferir as novidades.'}</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((product, i) => {
+    const img = safeImageUrl(product.image_url);
+    const media = img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">` : escapeHtml(product.emoji);
+    const id = escapeHtml(product.id);
+    return `<div class="pcard" data-pid="${id}" style="animation:fadeInUp .4s var(--ease) ${Math.min(i, 8) * .05}s backwards" onclick="window.location.href='/product/${encodeURIComponent(String(product.id))}'"><div class="pc-img-wrap"><div class="pc-img">${media}</div><div class="pc-badges">${badgeHtml(product)}</div><button class="pc-wish ${isFavorite(product.id) ? 'on' : ''}" data-act="wish" data-pid="${id}" title="Favoritar" aria-label="Favoritar ${escapeHtml(product.name)}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><div class="pc-actions"><button class="btn-pcart" data-act="cart" data-pid="${id}"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Carrinho</button></div></div><div class="pc-info"><div class="pc-name">${escapeHtml(product.name)}</div>${product.rating > 0 ? `<div class="pc-rating"><span class="pc-stars">${stars(product.rating)}</span><span class="pc-rcount">(${product.reviews.toLocaleString('pt-BR')})</span></div>` : ''}<div class="pc-price-row"><span class="pc-price">${fmt(product.price)}</span>${product.old > product.price ? `<span class="pc-old">${fmt(product.old)}</span>` : ''}${product.discount > 0 ? `<span class="pc-disc">-${product.discount}%</span>` : ''}</div></div></div>`;
+  }).join('');
+
+  if (storeHasMore) {
+    const remaining = Math.max(0, storeProductsTotal - visibleProducts.length);
+    grid.insertAdjacentHTML('beforeend', `<div style="grid-column:1/-1;text-align:center;padding:10px 0"><button class="btn-more-products" data-act="more" ${storeProductsLoadingMore ? 'disabled' : ''}>${storeProductsLoadingMore ? 'Carregando...' : `Ver mais produtos${remaining ? ` (${remaining})` : ''}`}</button></div>`);
   }
 }
-function filterProds() { renderProds(true); }
-function onHeaderSearch(el) {            // a busca do cabeçalho filtra os produtos desta loja
-  const inp = $('prodSearch');
-  if (inp) inp.value = el.value;
-  renderProds(true);
+
+function showStoreProductLoading() {
+  const grid = $('prodGrid');
+  if (grid) { grid.setAttribute('aria-busy', 'true'); grid.innerHTML = Array.from({ length: 8 }, skeletonProductCard).join(''); }
+}
+
+function applyStorePageMetadata(payload) {
+  if (payload?.summary) storeSummary = payload.summary;
+  if (Array.isArray(payload?.top_rated)) storeTopRated = payload.top_rated;
+  if (Array.isArray(payload?.categories)) storeCategories = payload.categories;
+  if (currentStore && storeSummary) {
+    renderStats(currentStore, storeSummary);
+    renderTabs(storeSummary);
+    renderReviews(storeSummary, storeTopRated);
+    renderAbout(currentStore, storeCategories);
+  }
+}
+
+async function loadStoreProductsPage(storeId, { reset = false, initial = false } = {}) {
+  if (!reset && (storeProductsLoadingMore || !storeHasMore)) return;
+  const requestId = reset ? ++storeProductsRequestId : storeProductsRequestId;
+  const query = $('prodSearch')?.value || '';
+  const sort = $('prodSort')?.value || 'pop';
+  const offset = reset ? 0 : visibleProducts.length;
+  if (reset) {
+    allStoreProducts = [];
+    visibleProducts = [];
+    storeProductsTotal = 0;
+    storeHasMore = false;
+    storeProductsLoadingMore = false;
+    showStoreProductLoading();
+  } else {
+    storeProductsLoadingMore = true;
+    renderProds();
+  }
+
+  try {
+    const payload = await fetchStoreProductPage(storeId, query, sort, offset, reset);
+    if (requestId !== storeProductsRequestId) return;
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    const seen = new Set(allStoreProducts.map(product => String(product.id)));
+    rows.forEach(product => {
+      if (!seen.has(String(product.id))) {
+        allStoreProducts.push(product);
+        visibleProducts.push(product);
+        seen.add(String(product.id));
+      }
+    });
+    storeProductsTotal = Number(payload.count) || 0;
+    storeHasMore = Boolean(payload.has_more);
+    storeProductsLoadingMore = false;
+    applyStorePageMetadata(payload);
+    exposeToSharedShell(rows);
+    renderProds();
+    if (!reset && !rows.length) storeHasMore = false;
+    return payload;
+  } catch (error) {
+    if (requestId !== storeProductsRequestId) return;
+    storeProductsLoadingMore = false;
+    console.error('[Ecomme Store] Não foi possível carregar os produtos:', error);
+    if (reset) {
+      const grid = $('prodGrid');
+      if (grid) grid.innerHTML = '<div class="store-empty" style="grid-column:1/-1"><h3>Não foi possível carregar os produtos</h3><p>Verifique sua conexão e tente novamente.</p><button class="btn-more-products" data-act="retry">Tentar novamente</button></div>';
+    } else {
+      renderProds();
+      toastMsg('Não foi possível carregar mais produtos. Tente novamente.');
+    }
+    if (initial) throw error;
+    return null;
+  }
+}
+
+function filterProds() {
+  clearTimeout(storeSearchTimer);
+  storeSearchTimer = setTimeout(() => {
+    if (currentStore) loadStoreProductsPage(currentStore.id, { reset: true });
+  }, 260);
+}
+function onHeaderSearch(el) {
+  const input = $('prodSearch');
+  if (input) input.value = el.value;
+  filterProds();
 }
 
 // Cliques do grid (delegação): abrir produto, carrinho, favoritar, "ver mais"
@@ -426,7 +537,8 @@ function initProductGrid() {
   grid.dataset.bound = '1';
   grid.addEventListener('click', ev => {
     const actEl = ev.target.closest('[data-act]');
-    if (actEl && actEl.dataset.act === 'more') { shownCount += PAGE_SIZE; renderProds(false); return; }
+    if (actEl && actEl.dataset.act === 'more') { loadStoreProductsPage(currentStore.id, { reset: false }); return; }
+    if (actEl && actEl.dataset.act === 'retry') { loadStoreProductsPage(currentStore.id, { reset: true }); return; }
     const card = ev.target.closest('.pcard');
     if (!card) return;
     const id = card.dataset.pid;
@@ -502,18 +614,15 @@ async function bootStore() {
     if (!store || !isActiveStatus(store.status)) { await showStoreNotFound(); return; }
 
     const legacy = (!store.logo_url || !store.capa_url) ? await fetchLegacyImages(store.id) : {};
-    allStoreProducts = await fetchStoreProducts(store.id);
-    visibleProducts = allStoreProducts.filter(p => !isPaused(p));
-
     currentStore = store;
-    exposeToSharedShell(allStoreProducts);
+    legacyStoreProductsCache = null;
+    storeSummary = null;
+    storeTopRated = [];
+    storeCategories = [];
     renderStoreHeader(store, legacy);
-    renderStats(store, visibleProducts);
-    renderTabs(visibleProducts);
-    renderReviews(visibleProducts);
-    renderAbout(store, visibleProducts);
     initProductGrid();
-    renderProds(true);
+    await loadStoreProductsPage(store.id, { reset: true, initial: true });
+    await hydrateSavedShellProducts();
     initReveal();
     setLoading(false);
     requestAnimationFrame(() => { const a = document.querySelector('.tab-btn.on'); if (a) movePill(a); });
