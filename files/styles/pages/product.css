@@ -1358,7 +1358,9 @@ body.product-report-open{overflow:hidden}
 .product-main.is-product-unavailable .main-btns .btn-addcart:disabled,
 .product-main.is-product-unavailable .main-btns .btn-buynow:disabled,
 .product-main.is-product-unavailable .main-btns .btn-make-offer:disabled,
-.product-main.is-product-unavailable .qty-ctrl .qb:disabled, .qty-num, .tabs-section {
+.product-main.is-product-unavailable .qty-ctrl .qb:disabled,
+.product-main.is-product-unavailable .tabs-section,
+.product-main.is-product-unavailable .qty-num {
   filter: grayscale(1);
   opacity: .52;
   cursor: not-allowed;
