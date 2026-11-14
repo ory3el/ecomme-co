@@ -1,0 +1,67 @@
+name: Ecomme - Teste de carga (staging)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'URL HTTPS do ambiente de staging (não use produção)'
+        required: true
+        type: string
+      product_id:
+        description: 'ID de um produto público para incluir no teste (opcional)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecomme-k6-staging
+  cancel-in-progress: false
+
+jobs:
+  load-test:
+    name: Executar k6 no runner Linux do GitHub
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Validar ambiente de teste
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$BASE_URL" != https://* ]]; then
+            echo "Informe a URL HTTPS do staging."
+            exit 1
+          fi
+          if [[ "$BASE_URL" == "https://ecomme-co.pages.dev" || "$BASE_URL" == https://*.ecomme.com ]]; then
+            echo "A URL informada corresponde a um domínio de produção conhecido. O teste foi bloqueado para evitar carga acidental em produção."
+            exit 1
+          fi
+          echo "Destino: $BASE_URL"
+
+      - name: Executar teste progressivo
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+          PRODUCT_ID: ${{ inputs.product_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          k6 version
+          k6 run --summary-export=load-summary.json tests/load/ecomme-public-read.js
+
+      - name: Salvar resumo do teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecomme-k6-load-summary
+          path: load-summary.json
+          if-no-files-found: ignore
+          retention-days: 14
