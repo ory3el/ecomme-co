@@ -62,29 +62,62 @@
   function setCategory(category) {
     state.category = category || 'Todos';
     updateCategoryUI();
-    window.renderProducts?.();
+    filterProducts();
     if (window.matchMedia('(max-width: 900px)').matches) toggleCategoryFilters(false);
     $('produtos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  function onProductsLoaded(list) {
-    const availableProducts = (list || []).filter(available);
-    const indexedCount = availableProducts.filter(product => Array.isArray(product.dominant_colors) && product.dominant_colors.length).length;
-    const colorStatus = $('colorFilterStatus');
-    if (colorStatus) colorStatus.textContent = indexedCount ? `Cores identificadas automaticamente em ${indexedCount} produto(s).` : 'As cores são identificadas automaticamente nas imagens dos produtos.';
-    const categories = ['Todos', 'Eletrônicos', 'Moda', 'Casa', 'Fitness', 'Beleza', 'Pets'];
-    categories.forEach(category => {
-      const count = category === 'Todos' ? availableProducts.length : availableProducts.filter(product => matchesCategory(product, category)).length;
-      document.querySelectorAll(`[data-category-count="${CSS.escape(category)}"]`).forEach(element => { element.textContent = count; });
-      document.querySelectorAll(`.cat-card[data-category="${CSS.escape(category)}"] .cat-card-count`).forEach(element => { element.textContent = `${count} ${count === 1 ? 'produto' : 'produtos'}`; });
-    });
+  let categoryCountsPromise = null;
+  function loadCategoryCounts() {
+    if (categoryCountsPromise) return categoryCountsPromise;
+    categoryCountsPromise = (async () => {
+      try {
+        let data = null;
+        try {
+          const response = await fetch('/api/catalog-stats?type=categories', { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
+          if (response.ok) data = await response.json();
+        } catch (_) {}
+        if (!data) {
+          const client = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
+          if (!client?.rpc) return;
+          const result = await client.rpc('ecomme_category_product_counts');
+          if (result.error) throw result.error;
+          data = result.data;
+        }
+        const counts = data && typeof data === 'object' ? data : {};
+        Object.entries(counts).forEach(([category, value]) => {
+          const count = Number(value) || 0;
+          document.querySelectorAll(`[data-category-count="${CSS.escape(category)}"]`).forEach(element => { element.textContent = count.toLocaleString('pt-BR'); });
+          document.querySelectorAll(`.cat-card[data-category="${CSS.escape(category)}"] .cat-card-count`).forEach(element => { element.textContent = `${count.toLocaleString('pt-BR')} ${count === 1 ? 'produto' : 'produtos'}`; });
+        });
+      } catch (error) {
+        console.warn('[Ecomme categorias] Contagens resumidas indisponíveis:', error);
+      }
+    })();
+    return categoryCountsPromise;
   }
-  function onRender(count, total) {
+  function onProductsLoaded(list) {
+    const loadedProducts = list || [];
+    const indexedCount = loadedProducts.filter(product => Array.isArray(product.dominant_colors) && product.dominant_colors.length).length;
+    const colorStatus = $('colorFilterStatus');
+    if (colorStatus) colorStatus.textContent = indexedCount ? `Cores identificadas em ${indexedCount} produto(s) carregado(s).` : 'As cores são identificadas automaticamente nas imagens dos produtos.';
+    loadCategoryCounts();
+  }
+  function onRender(count, total, serverTotal) {
     const countElement = $('productsCount');
-    if (countElement) countElement.textContent = `${count} ${count === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
+    const hasServerTotal = serverTotal !== undefined && serverTotal !== null && Number.isFinite(Number(serverTotal));
+    const displayedCount = hasServerTotal ? Number(serverTotal) : count;
+    if (countElement) countElement.textContent = `${displayedCount.toLocaleString('pt-BR')} ${displayedCount === 1 ? 'produto encontrado' : 'produtos encontrados'}`;
     const resultsLabel = document.querySelector('.category-toolbar-label span');
     if (resultsLabel) resultsLabel.textContent = state.category === 'Todos' ? 'Produtos disponíveis' : `Categoria: ${state.category === 'Casa' ? 'Casa & Deco' : state.category}`;
   }
-  function filterProducts() { window.renderProducts?.(); }
+  let filterUpdateTimer = null;
+  function filterProducts() {
+    clearTimeout(filterUpdateTimer);
+    filterUpdateTimer = setTimeout(() => {
+      if (window.EcommeCatalog?.isActive?.()) window.EcommeCatalog.reset();
+      else window.renderProducts?.();
+    }, 140);
+  }
   function toggleTag(button, tag) {
     state.tag = tag || 'Todos';
     document.querySelectorAll('.filter-tag').forEach(element => element.classList.toggle('active', element === button));
@@ -125,7 +158,21 @@
     backdrop.classList.toggle('is-visible', shouldOpen);
     document.body.classList.toggle('category-filter-open', shouldOpen);
   }
-  window.EcommeCategoryFilters = { filter, getStateKey, onProductsLoaded, onRender, setCategory, reset: clearCategoryFilters };
+  function getServerFilters() {
+    const ratings = [...document.querySelectorAll('[data-rating-min]:checked')].map(input => Number(input.dataset.ratingMin)).filter(Number.isFinite);
+    const minPrice = Number.parseFloat($('minPrice')?.value || '');
+    const maxPrice = Number.parseFloat($('maxPrice')?.value || '');
+    const tagMap = { Sale: 'sale', Novo: 'novo', Hot: 'hot', 'Frete Grátis': 'frete' };
+    return {
+      category: state.category === 'Todos' ? '' : state.category,
+      tag: tagMap[state.tag] || '',
+      minPrice: Number.isFinite(minPrice) ? minPrice : null,
+      maxPrice: Number.isFinite(maxPrice) ? maxPrice : null,
+      minRating: ratings.length ? Math.min(...ratings) : null,
+      colors: state.colors.map(normalize).join('|')
+    };
+  }
+  window.EcommeCategoryFilters = { filter, getStateKey, getServerFilters, onProductsLoaded, onRender, setCategory, reset: clearCategoryFilters };
   window.filterProducts = filterProducts;
   window.toggleTag = toggleTag;
   window.toggleProductColor = toggleProductColor;
