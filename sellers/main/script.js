@@ -1107,8 +1107,14 @@ async function saveStockEdit() {
     closeStockEditModal();
     rebuildProductFilterIndex();
     buildProdTable();
-    // Atualiza também os indicadores agregados do painel e confirma o estado persistido.
-    await loadMyProducts();
+    // A linha local ja foi atualizada pela resposta do UPDATE. Recarregar todos os
+    // produtos e as metricas de engajamento aqui repetia varias consultas sem necessidade.
+    refreshDashboardViews();
+    const productBadge = $('sbProdBdg');
+    if (productBadge) {
+      productBadge.textContent = PRODS.length;
+      productBadge.style.display = PRODS.length > 0 ? 'inline-block' : 'none';
+    }
     toast(quantity === 0 ? 'Estoque atualizado. Produto pausado automaticamente.' : 'Estoque atualizado com sucesso.', 'ok');
   } catch (err) {
     console.error('Erro ao atualizar estoque:', err);
@@ -1461,7 +1467,9 @@ async function loadFinance() {
       .eq('loja_id', myStoreId).order('created_at', { ascending: false }).limit(200),
     supabaseClient.from('seller_payout_requests').select('id, amount, method, status, created_at, processed_at')
       .eq('loja_id', myStoreId).order('created_at', { ascending: false }).limit(100),
-    supabaseClient.from('seller_payout_accounts').select('*').eq('loja_id', myStoreId).maybeSingle()
+    supabaseClient.from('seller_payout_accounts')
+      .select('loja_id, bank, account_type, agency, account, pix_key, holder_name, holder_document')
+      .eq('loja_id', myStoreId).maybeSingle()
   ]);
   const errs = [bal.error, ledger.error, payouts.error, acct.error].filter(Boolean);
   if (errs.length) {
