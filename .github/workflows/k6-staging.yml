@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'URL HTTPS do ambiente de staging (não use produção)'
+        description: 'URL HTTPS do Preview de staging (não use produção)'
         required: true
         type: string
       product_id:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   diagnose:
-    name: Diagnosticar APIs públicas
+    name: Diagnosticar respostas das APIs
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
           BASE_URL="${BASE_URL%/}"
           if [[ "$BASE_URL" != https://* ]]; then
-            echo '::error::Informe uma URL HTTPS de staging.'
+            echo '::error::Informe uma URL HTTPS do staging.'
             exit 1
           fi
           if [[ "$BASE_URL" == 'https://ecomme-co.pages.dev' || "$BASE_URL" == 'https://ecomme.com' || "$BASE_URL" == 'https://www.ecomme.com' ]]; then
@@ -46,11 +46,12 @@ jobs:
             exit 1
           fi
           echo "Destino validado: $BASE_URL"
+          echo 'Credenciais encontradas; valores ocultos.'
 
       - name: Instalar k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Criar script de diagnóstico no runner
+      - name: Criar diagnóstico no runner
         shell: bash
         run: |
           set -euo pipefail
@@ -61,21 +62,25 @@ jobs:
 
           const BASE_URL = String(__ENV.BASE_URL || '').replace(/\/+$/, '');
           const PRODUCT_ID = String(__ENV.PRODUCT_ID || '').trim();
-          const ACCESS_CLIENT_ID = String(__ENV.CF_ACCESS_CLIENT_ID || '').trim();
-          const ACCESS_CLIENT_SECRET = String(__ENV.CF_ACCESS_CLIENT_SECRET || '').trim();
+          const CLIENT_ID = String(__ENV.CF_ACCESS_CLIENT_ID || '').trim();
+          const CLIENT_SECRET = String(__ENV.CF_ACCESS_CLIENT_SECRET || '').trim();
 
-          if (!BASE_URL) throw new Error('Defina BASE_URL com a URL do staging.');
-          if (!ACCESS_CLIENT_ID || !ACCESS_CLIENT_SECRET) {
-            throw new Error('Configure CF_ACCESS_CLIENT_ID e CF_ACCESS_CLIENT_SECRET.');
-          }
+          if (!BASE_URL) throw new Error('BASE_URL não foi informado.');
+          if (!CLIENT_ID || !CLIENT_SECRET) throw new Error('Secrets do Cloudflare Access ausentes.');
 
           const HEADERS = {
-            'CF-Access-Client-Id': ACCESS_CLIENT_ID,
-            'CF-Access-Client-Secret': ACCESS_CLIENT_SECRET,
+            'CF-Access-Client-Id': CLIENT_ID,
+            'CF-Access-Client-Secret': CLIENT_SECRET,
             'Accept': 'application/json',
           };
 
-          export const options = { vus: 1, iterations: 1 };
+          export const options = {
+            vus: 1,
+            iterations: 1,
+            thresholds: {
+              checks: ['rate>0.99'],
+            },
+          };
 
           function classifyBody(body) {
             const value = String(body || '').trim();
@@ -84,7 +89,7 @@ jobs:
               JSON.parse(value);
               return { kind: 'valid-json', preview: '' };
             } catch (_) {
-              const compact = value.replace(/\s+/g, ' ').slice(0, 220);
+              const compact = value.replace(/\s+/g, ' ').slice(0, 240);
               if (/^<!doctype html|^<html[\s>]/i.test(value)) return { kind: 'html', preview: compact };
               return { kind: 'not-json', preview: compact };
             }
@@ -93,18 +98,22 @@ jobs:
           function probe(label, path) {
             const response = http.get(`${BASE_URL}${path}`, {
               headers: HEADERS,
-              redirects: 5,
+              redirects: 0,
               timeout: '20s',
               tags: { endpoint: label, test_type: 'preflight' },
             });
             const contentType = String(response.headers['Content-Type'] || response.headers['content-type'] || 'missing');
             const body = classifyBody(response.body);
+            const location = response.headers.Location || response.headers.location || '';
             const report = {
               endpoint: label,
               status: response.status,
               content_type: contentType,
               body_type: body.kind,
               duration_ms: Math.round(response.timings.duration * 100) / 100,
+              has_location_header: Boolean(location),
+              cf_ray: String(response.headers['Cf-Ray'] || response.headers['cf-ray'] || ''),
+              server: String(response.headers.Server || response.headers.server || ''),
             };
             if (body.preview) report.body_preview = body.preview;
             console.log(`API_DIAGNOSTIC ${JSON.stringify(report)}`);
@@ -122,7 +131,7 @@ jobs:
           }
           K6SCRIPT
           test -s tests/load/ecomme-api-diagnostic.js
-          echo 'Script de diagnóstico criado no runner.'
+          echo 'Diagnóstico criado com threshold obrigatório para JSON válido.'
 
       - name: Diagnosticar respostas das APIs
         env:
