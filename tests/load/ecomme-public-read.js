@@ -3,7 +3,22 @@ import { check, sleep } from 'k6';
 
 const BASE_URL = String(__ENV.BASE_URL || '').replace(/\/+$/, '');
 const PRODUCT_ID = String(__ENV.PRODUCT_ID || '').trim();
+const ACCESS_CLIENT_ID = String(__ENV.CF_ACCESS_CLIENT_ID || '').trim();
+const ACCESS_CLIENT_SECRET = String(__ENV.CF_ACCESS_CLIENT_SECRET || '').trim();
 if (!BASE_URL) throw new Error('Defina BASE_URL com a URL do ambiente de staging da Ecomme.');
+if (!ACCESS_CLIENT_ID || !ACCESS_CLIENT_SECRET) {
+  throw new Error('Staging protegido pelo Cloudflare Access: configure os GitHub Actions Secrets CF_ACCESS_CLIENT_ID e CF_ACCESS_CLIENT_SECRET.');
+}
+
+// Credenciais de máquina para o Cloudflare Access. Nunca registre estes valores nos logs.
+const ACCESS_HEADERS = {
+  'CF-Access-Client-Id': ACCESS_CLIENT_ID,
+  'CF-Access-Client-Secret': ACCESS_CLIENT_SECRET,
+};
+
+function requestOptions(tags) {
+  return { headers: ACCESS_HEADERS, tags };
+}
 
 export const options = {
   scenarios: {
@@ -51,35 +66,23 @@ export default function () {
   if (choice < 0.65) {
     // Trafego quente: simula muitos visitantes consultando a mesma pagina do catalogo.
     label = 'catalog-hot';
-    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=loadtest-hot`, {
-      tags: { endpoint: 'catalog', cache_profile: 'hot' },
-    });
+    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=loadtest-hot`, requestOptions({ endpoint: 'catalog', cache_profile: 'hot' }));
   } else if (choice < 0.82) {
     // Cache miss controlado: seed individual força chaves diferentes e exercita o RPC.
     label = 'catalog-cold';
-    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=load-${__VU}-${__ITER}`, {
-      tags: { endpoint: 'catalog', cache_profile: 'cold' },
-    });
+    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=load-${__VU}-${__ITER}`, requestOptions({ endpoint: 'catalog', cache_profile: 'cold' }));
   } else if (choice < 0.92) {
     label = 'search';
-    response = http.get(`${BASE_URL}/api/search?q=produto&page=1&limit=12`, {
-      tags: { endpoint: 'search' },
-    });
+    response = http.get(`${BASE_URL}/api/search?q=produto&page=1&limit=12`, requestOptions({ endpoint: 'search' }));
   } else if (choice < 0.97) {
     label = 'catalog-stats';
-    response = http.get(`${BASE_URL}/api/catalog-stats?type=categories`, {
-      tags: { endpoint: 'catalog-stats' },
-    });
+    response = http.get(`${BASE_URL}/api/catalog-stats?type=categories`, requestOptions({ endpoint: 'catalog-stats' }));
   } else if (PRODUCT_ID) {
     label = 'product-detail';
-    response = http.get(`${BASE_URL}/api/product/${encodeURIComponent(PRODUCT_ID)}`, {
-      tags: { endpoint: 'product-detail' },
-    });
+    response = http.get(`${BASE_URL}/api/product/${encodeURIComponent(PRODUCT_ID)}`, requestOptions({ endpoint: 'product-detail' }));
   } else {
     label = 'catalog-hot-fallback';
-    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=loadtest-hot`, {
-      tags: { endpoint: 'catalog', cache_profile: 'hot' },
-    });
+    response = http.get(`${BASE_URL}/api/catalog?mode=products&sort=rating&limit=25&seed=loadtest-hot`, requestOptions({ endpoint: 'catalog', cache_profile: 'hot' }));
   }
 
   verifyJson(response, label);
