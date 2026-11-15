@@ -1,4 +1,4 @@
-name: Ecomme - Diagnóstico de APIs (staging)
+name: Ecomme - Teste de carga (staging)
 
 on:
   workflow_dispatch:
@@ -8,23 +8,41 @@ on:
         required: true
         type: string
       product_id:
-        description: 'ID de um produto público para diagnóstico (opcional)'
+        description: 'ID de um produto público para incluir no teste (opcional)'
         required: false
         type: string
 
 permissions:
   contents: read
 
+concurrency:
+  group: ecomme-k6-staging
+  cancel-in-progress: false
+
 jobs:
-  diagnose:
-    name: Diagnosticar APIs públicas
+  load-test:
+    name: Executar k6 no runner Linux do GitHub
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v5
 
-      - name: Validar destino e credenciais
+      - name: Confirmar que o script de teste existe
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f tests/load/ecomme-public-read.js ]]; then
+            echo '::error::Arquivo tests/load/ecomme-public-read.js não encontrado na raiz do repositório.'
+            echo 'Adicione a pasta tests/load e o arquivo ecomme-public-read.js ao GitHub.'
+            exit 1
+          fi
+          echo 'Script k6 encontrado.'
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Validar ambiente de teste
         env:
           BASE_URL: ${{ inputs.base_url }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
@@ -34,23 +52,21 @@ jobs:
           set -euo pipefail
           BASE_URL="${BASE_URL%/}"
           if [[ "$BASE_URL" != https://* ]]; then
-            echo '::error::Informe uma URL HTTPS de staging.'
+            echo '::error::Informe a URL HTTPS do staging.'
             exit 1
           fi
-          if [[ "$BASE_URL" == 'https://ecomme-co.pages.dev' || "$BASE_URL" == 'https://ecomme.com' || "$BASE_URL" == 'https://www.ecomme.com' || "$BASE_URL" == https://*.ecomme.com ]]; then
-            echo '::error::Domínio de produção bloqueado. Use o Preview de staging.'
+          if [[ "$BASE_URL" == 'https://ecomme-co.pages.dev' || "$BASE_URL" == https://*.ecomme.com ]]; then
+            echo '::error::A URL informada corresponde a um domínio de produção conhecido. Teste bloqueado.'
             exit 1
           fi
           if [[ -z "${CF_ACCESS_CLIENT_ID:-}" || -z "${CF_ACCESS_CLIENT_SECRET:-}" ]]; then
             echo '::error::Configure CF_ACCESS_CLIENT_ID e CF_ACCESS_CLIENT_SECRET em Settings > Secrets and variables > Actions.'
             exit 1
           fi
-          echo "Destino validado: $BASE_URL"
+          echo "Destino de teste: $BASE_URL"
+          echo 'Credenciais do Cloudflare Access encontradas (valores ocultos).'
 
-      - name: Instalar k6
-        uses: grafana/setup-k6-action@v1
-
-      - name: Diagnosticar respostas das APIs
+      - name: Executar teste progressivo
         env:
           BASE_URL: ${{ inputs.base_url }}
           PRODUCT_ID: ${{ inputs.product_id }}
@@ -60,13 +76,13 @@ jobs:
         run: |
           set -euo pipefail
           k6 version
-          k6 run --summary-export=api-diagnostic-summary.json tests/load/ecomme-api-diagnostic.js
+          k6 run --summary-export=load-summary.json tests/load/ecomme-public-read.js
 
-      - name: Salvar diagnóstico
+      - name: Salvar resumo do teste
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: ecomme-k6-api-diagnostic
-          path: api-diagnostic-summary.json
+          name: ecomme-k6-load-summary
+          path: load-summary.json
           if-no-files-found: ignore
           retention-days: 14
