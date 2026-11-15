@@ -45,6 +45,8 @@ jobs:
       - name: Validar ambiente de teste
         env:
           BASE_URL: ${{ inputs.base_url }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         shell: bash
         run: |
           set -euo pipefail
@@ -57,12 +59,19 @@ jobs:
             echo '::error::A URL informada corresponde a um domínio de produção conhecido. Teste bloqueado.'
             exit 1
           fi
+          if [[ -z "${CF_ACCESS_CLIENT_ID:-}" || -z "${CF_ACCESS_CLIENT_SECRET:-}" ]]; then
+            echo '::error::Configure CF_ACCESS_CLIENT_ID e CF_ACCESS_CLIENT_SECRET em Settings > Secrets and variables > Actions.'
+            exit 1
+          fi
           echo "Destino de teste: $BASE_URL"
+          echo 'Credenciais do Cloudflare Access encontradas (valores ocultos).'
 
       - name: Executar teste progressivo
         env:
           BASE_URL: ${{ inputs.base_url }}
           PRODUCT_ID: ${{ inputs.product_id }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         shell: bash
         run: |
           set -euo pipefail
