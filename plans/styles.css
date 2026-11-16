@@ -292,7 +292,7 @@
     .faq-head p { color:var(--muted); }
     .faq-item {background: var(--surface3);border:1px solid var(--border2);border-radius: 36px;margin-bottom:10px;overflow:hidden;transition:border-color .25s, box-shadow .25s;}
     .faq-item.open { border-color:var(--border); box-shadow:0 4px 24px rgba(37,99,235,.07); }
-    .faq-q {width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 22px;font-size:14px;font-weight:600;background: var(--bg);transition:background .2s;gap:16px;text-align:left;}
+    .faq-q {width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 22px;font-size:14px;font-weight:600;background: var(--surface3);transition:background .2s;gap:16px;text-align:left;}
     .faq-q:hover { background:var(--bg); }
     .faq-item.open .faq-q { background:var(--bg); color:var(--blue); }
     .faq-q-icon { width:28px; height:28px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s; }
