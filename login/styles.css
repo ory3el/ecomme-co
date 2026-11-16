@@ -898,3 +898,8 @@ iframe {
 .google-login-render iframe {
   max-width: 100%;
 }
+
+
+/* ── PASSWORD RECOVERY ───────────────────────────────────────────── */
+#recoveryPanel .fgrp { margin-bottom: 14px; }
+#recoveryPanel .btn-submit { margin-top: 6px; }
