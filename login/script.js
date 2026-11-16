@@ -73,7 +73,7 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
-// ── CAPTCHA COMPARTILHADO (CADASTRO + RECUPERAÇÃO) ─────────
+// ── CAPTCHA COMPARTILHADO (LOGIN + CADASTRO + RECUPERAÇÃO) ─────────
 function setAuthCaptchaVisible(visible) {
   const wrap = document.getElementById('authCaptchaWrap');
   if (wrap) wrap.classList.toggle('on', Boolean(visible));
@@ -101,7 +101,8 @@ function showTab(tab){
   document.getElementById('tabReg').classList.toggle('on', !isLogin);
   document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
   document.getElementById('formReg').classList.toggle('hidden', isLogin);
-  setAuthCaptchaVisible(!isLogin);
+  // O Supabase pode exigir CAPTCHA também no login por senha.
+  setAuthCaptchaVisible(true);
   if(isLogin) toggleForgot(false);
 }
 
@@ -833,19 +834,41 @@ async function doLogin() {
     return;
   }
 
+  if (typeof hcaptcha === 'undefined' || typeof hcaptcha.getResponse !== 'function') {
+    toast('A verificação de segurança ainda está carregando. Tente novamente.', 'err');
+    return;
+  }
+  const captchaToken = getAuthCaptchaToken();
+  if (!captchaToken) {
+    toast('Confirme a verificação de segurança antes de entrar.', 'err');
+    return;
+  }
+
   const btn = document.getElementById('btnLogin');
   btn.classList.add('loading');
   try {
     const { error } = await supabaseClient.auth.signInWithPassword({
-      email: email.value.trim(),
-      password: pwd.value
+      email: email.value.trim().toLowerCase(),
+      password: pwd.value,
+      options: { captchaToken }
     });
     if (error) throw error;
   } catch (error) {
     console.error('Erro no login:', error);
-    toast(error.message?.toLowerCase().includes('invalid') || error.status === 400
-      ? 'E-mail ou senha incorretos.'
-      : (error.message || 'Não foi possível entrar. Tente novamente.'), 'err');
+    const code = String(error.code || '').toLowerCase();
+    const message = String(error.message || '').toLowerCase();
+
+    if (code.includes('captcha') || message.includes('captcha')) {
+      toast('A verificação de segurança falhou. Resolva o hCaptcha e tente novamente.', 'err');
+    } else if (code === 'email_not_confirmed' || message.includes('email not confirmed')) {
+      toast('Confirme seu e-mail pelo link enviado antes de entrar. Verifique também a caixa de spam.', 'err');
+    } else if (code === 'invalid_credentials' || code === 'invalid_grant' || message.includes('invalid login credentials')) {
+      toast('E-mail ou senha incorretos.', 'err');
+    } else {
+      toast(error.message || 'Não foi possível entrar. Tente novamente.', 'err');
+    }
+  } finally {
+    resetAuthCaptcha();
     btn.classList.remove('loading');
   }
 }
@@ -915,7 +938,7 @@ async function doRegister() {
   const fullName = `${name.value.trim()} ${surname.value.trim()}`.trim();
   try {
     const { error } = await supabaseClient.auth.signUp({
-      email: email.value.trim(),
+      email: email.value.trim().toLowerCase(),
       password: password.value,
       options: {
         captchaToken,
@@ -1119,7 +1142,8 @@ function toggleForgot(show) {
   forgotPanel.classList.toggle('on', show);
   if (recoveryPanel) recoveryPanel.classList.remove('on');
   document.getElementById('loginMain').style.display = show ? 'none' : 'block';
-  setAuthCaptchaVisible(show);
+  // Tanto o formulário principal quanto a recuperação exigem CAPTCHA.
+  setAuthCaptchaVisible(true);
   if (!show) resetAuthCaptcha();
 }
 
@@ -1138,7 +1162,7 @@ function showPasswordRecoveryPanel() {
 
 async function sendForgot() {
   const emailInput = document.getElementById('forgotEmail');
-  const email = emailInput.value.trim();
+  const email = emailInput.value.trim().toLowerCase();
   const btn = document.getElementById('btnForgot');
   if (!validateEmail(email)) {
     toast('Digite um e-mail válido.', 'err');
