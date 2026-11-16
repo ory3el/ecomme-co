@@ -452,9 +452,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background: var(--bg);color:#0f1
 .forgot{font-size:12px;color: var(--blue3);font-weight:500;background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
 .forgot:hover{text-decoration:underline}
 
-.h-captcha {
-  margin-bottom: 20px;
-}
+.auth-captcha-wrap{display:none;margin:0 0 20px}
+.auth-captcha-wrap.on{display:block}
+.auth-captcha-wrap .h-captcha{margin-bottom:0}
 
 iframe {
   border-radius: 55px;
