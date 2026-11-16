@@ -408,14 +408,9 @@ function renderProductDetails(p) {
   }
 
   document.title = `${p.name || 'Produto'} | Ecomme`;
-
-  /* Selos do produto */
-
-  const badges = document.querySelector('.gallery-badges');
-
+  const badges = document.querySelector('.info-badges-row');
   if (badges) {
     badges.replaceChildren();
-
     const productUnavailable = p.badge === 'paused' || (
       typeof isProductUnavailable === 'function' &&
       isProductUnavailable(p)
