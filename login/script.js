@@ -73,6 +73,27 @@ function buttonLink(url) {
   window.location.href = url;
 }
 
+// ── CAPTCHA COMPARTILHADO (CADASTRO + RECUPERAÇÃO) ─────────
+function setAuthCaptchaVisible(visible) {
+  const wrap = document.getElementById('authCaptchaWrap');
+  if (wrap) wrap.classList.toggle('on', Boolean(visible));
+}
+
+function getAuthCaptchaToken() {
+  if (typeof hcaptcha === 'undefined' || typeof hcaptcha.getResponse !== 'function') return '';
+  try { return hcaptcha.getResponse() || ''; }
+  catch (error) {
+    console.warn('Não foi possível obter o token do hCaptcha:', error);
+    return '';
+  }
+}
+
+function resetAuthCaptcha() {
+  if (typeof hcaptcha === 'undefined' || typeof hcaptcha.reset !== 'function') return;
+  try { hcaptcha.reset(); }
+  catch (error) { console.warn('Não foi possível resetar o hCaptcha:', error); }
+}
+
 // ── TAB SWITCH ─────────────────────────────────────────────
 function showTab(tab){
   const isLogin = tab === 'login';
@@ -80,6 +101,7 @@ function showTab(tab){
   document.getElementById('tabReg').classList.toggle('on', !isLogin);
   document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
   document.getElementById('formReg').classList.toggle('hidden', isLogin);
+  setAuthCaptchaVisible(!isLogin);
   if(isLogin) toggleForgot(false);
 }
 
@@ -882,9 +904,9 @@ async function doRegister() {
     return;
   }
 
-  const captchaToken = hcaptcha.getResponse();
+  const captchaToken = getAuthCaptchaToken();
   if (!captchaToken) {
-    toast('Por favor, confirme que você não é um robô 🤖', 'err');
+    toast('Confirme a verificação de segurança antes de criar sua conta.', 'err');
     return;
   }
 
@@ -910,7 +932,7 @@ async function doRegister() {
     console.error('Erro no cadastro:', error);
     toast(error.message || 'Não foi possível criar sua conta.', 'err');
   } finally {
-    try { hcaptcha.reset(); } catch (error) { console.warn('Não foi possível resetar o hCaptcha:', error); }
+    resetAuthCaptcha();
     btn.classList.remove('loading');
   }
 }
@@ -1097,6 +1119,8 @@ function toggleForgot(show) {
   forgotPanel.classList.toggle('on', show);
   if (recoveryPanel) recoveryPanel.classList.remove('on');
   document.getElementById('loginMain').style.display = show ? 'none' : 'block';
+  setAuthCaptchaVisible(show);
+  if (!show) resetAuthCaptcha();
 }
 
 function showPasswordRecoveryPanel() {
@@ -1107,6 +1131,8 @@ function showPasswordRecoveryPanel() {
   forgotPanel?.classList.remove('on');
   loginMain.style.display = 'none';
   recoveryPanel.classList.add('on');
+  setAuthCaptchaVisible(false);
+  resetAuthCaptcha();
   document.getElementById('recoveryPassword')?.focus();
 }
 
@@ -1120,10 +1146,21 @@ async function sendForgot() {
     return;
   }
 
+  if (typeof hcaptcha === 'undefined' || typeof hcaptcha.getResponse !== 'function') {
+    toast('A verificação de segurança ainda está carregando. Tente novamente.', 'err');
+    return;
+  }
+  const captchaToken = getAuthCaptchaToken();
+  if (!captchaToken) {
+    toast('Confirme a verificação de segurança antes de solicitar a recuperação.', 'err');
+    return;
+  }
+
   btn.classList.add('loading');
   try {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login?recovery=1`
+      redirectTo: `${window.location.origin}/login?recovery=1`,
+      captchaToken
     });
     if (error) throw error;
     toast('Se houver uma conta com esse e-mail, enviaremos um link de recuperação.', 'ok');
@@ -1132,6 +1169,7 @@ async function sendForgot() {
     console.error('Erro ao solicitar recuperação de senha:', error);
     toast(error.message || 'Não foi possível enviar o link. Tente novamente.', 'err');
   } finally {
+    resetAuthCaptcha();
     btn.classList.remove('loading');
   }
 }
