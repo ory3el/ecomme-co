@@ -419,7 +419,7 @@ function renderProductDetails(p) {
     if (p.badge === 'hot') {
       addBadge(badges, '🔥 Mais vendido', 'hot');
     } else if (p.badge === 'new') {
-      addBadge(badges, 'Novo', 'hot');
+      addBadge(badges, 'Novo Produto', 'hot');
     } else if (productUnavailable) {
       addBadge(badges, 'Indisponível', 'hot');
     }
