@@ -2183,7 +2183,7 @@ header:hover .hide-btn {
   .mArrows {display: flex !important; opacity: 1;}
   .pArrow1 {transform: scale(1);}
   .pArrow2 {transform: scale(1);}
-  .pactions {display: none;}
+  .pactions {display: none !important;}
 
   .pArrow1:hover,
   .pArrow2:hover {
@@ -2203,7 +2203,7 @@ header:hover .hide-btn {
     transform: scale(1.3) !important;
     color: var(--blue) !important;
   }
-  
+
   .product-card:hover,
   .product-card:active,
   .product-card:focus,
