@@ -371,3 +371,29 @@
     @media(max-width:1100px) { .plans-grid{grid-template-columns:repeat(2,1fr);} .testi-grid{grid-template-columns:1fr;} }
     @media(max-width:900px)  { .ct-head,.ct-group-label,.ct-row{grid-template-columns:2fr repeat(2,1fr);} .ct-cell:nth-child(3),.ct-cell:nth-child(5),.ct-head-cell:nth-child(3),.ct-head-cell:nth-child(5),.ct-group-label>*:nth-child(3),.ct-group-label>*:nth-child(5){display:none;} .stats-inner{grid-template-columns:1fr 1fr;} }
     @media(max-width:768px)  { .nav-main{display:none;} .plans-grid{grid-template-columns:1fr;} .hero-center h1{font-size:42px;} .plans-section{padding:48px 20px;} .compare-section{padding:0 20px 60px;} .faq-section{padding:56px 20px;} .cta-card{padding:44px 24px;} .cta-card h2{font-size:30px;} .hero-ring{display:none;} .ct-head,.ct-group-label,.ct-row{grid-template-columns:2fr 1fr 1fr;} .ct-cell:nth-child(4),.ct-head-cell:nth-child(4),.ct-group-label>*:nth-child(4){display:none;} .cart-sb{width:100%;} .ft-inner{flex-direction:column;text-align:center;} .ft-links{justify-content:center;} }
+
+/* Estado da assinatura e ações de checkout */
+.plan-account-notice {
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  margin:0 0 24px;padding:16px 18px;border:1px solid var(--border);
+  border-radius:var(--radius);background:var(--bg2);color:var(--text);
+  box-shadow:0 8px 24px rgba(15,23,42,.045);font-size:13px;
+}
+.plan-account-notice[hidden] { display:none; }
+.plan-account-notice .pan-copy { display:grid;gap:4px;min-width:0; }
+.plan-account-notice .pan-title { font-weight:700;color:var(--text); }
+.plan-account-notice .pan-description { color:var(--muted);line-height:1.55; }
+.plan-account-notice .pan-actions { display:flex;align-items:center;gap:9px;flex-shrink:0; }
+.plan-account-notice .pan-btn {
+  border:0;border-radius:999px;padding:10px 15px;background:var(--blue);color:#fff;
+  font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.plan-account-notice .pan-btn.secondary { background:var(--blue-dim);color:var(--blue); }
+.btn-plan:disabled,.btn-cta-white:disabled { opacity:.58;cursor:not-allowed;filter:grayscale(.12);transform:none!important;box-shadow:none!important; }
+.current-plan-bar[hidden] { display:none!important; }
+.pc-save-note { line-height:1.45; }
+@media(max-width:640px) {
+  .plan-account-notice { align-items:flex-start;flex-direction:column; }
+  .plan-account-notice .pan-actions { width:100%; }
+  .plan-account-notice .pan-btn { flex:1; }
+}
