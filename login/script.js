@@ -63,6 +63,43 @@ function initThemeToggle() {
 }
 
 // O cliente Supabase é inicializado uma única vez no HTML, antes deste arquivo.
+const OAUTH_REDIRECT_PENDING_KEY = 'ecomme_oauth_redirect_pending';
+
+function markOAuthRedirectPending(provider) {
+  try { sessionStorage.setItem(OAUTH_REDIRECT_PENDING_KEY, provider || 'social'); }
+  catch (error) { console.warn('Não foi possível registrar o redirecionamento OAuth:', error); }
+}
+
+function clearOAuthRedirectPending() {
+  try { sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY); } catch (error) {}
+}
+
+function readOAuthCallbackFromUrl() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+  const error = query.get('error_description') || query.get('error') ||
+    query.get('error_code') || hash.get('error_description') || hash.get('error');
+  const hasCallback = Boolean(
+    query.has('code') || query.has('error') || query.has('error_code') ||
+    query.has('error_description') || hash.has('access_token') ||
+    hash.has('refresh_token') || hash.has('error') || hash.has('error_description')
+  );
+  return { hasCallback, error };
+}
+
+const oauthCallbackInfo = readOAuthCallbackFromUrl();
+let oauthReturnPending = false;
+try {
+  oauthReturnPending = Boolean(
+    sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY) && oauthCallbackInfo.hasCallback
+  );
+} catch (error) {}
+
+// Exibe o modal no primeiro carregamento de retorno do provedor, antes de consultar a sessão.
+if (oauthReturnPending) {
+  showLoadingModal('Concluindo login...', 'Estamos verificando sua conta e preparando seu acesso.');
+}
+
 const initialRedirect = new URLSearchParams(window.location.search).get('redirect');
 if (initialRedirect) {
   try { localStorage.setItem('ecomme_redirect_url', normalizeInternalRedirect(initialRedirect)); } catch (error) {}
@@ -183,6 +220,8 @@ async function startGoogleLogin() {
 // ---------------------------------------
 
 function triggerGooglePopupFallback() {
+  markOAuthRedirectPending('google');
+  showLoadingModal('Redirecionando...', 'Conectando sua conta Google com segurança.');
   supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -191,6 +230,13 @@ function triggerGooglePopupFallback() {
         prompt: 'select_account'
       }
     }
+  }).then(({ error }) => {
+    if (error) throw error;
+  }).catch(error => {
+    clearOAuthRedirectPending();
+    hideLoadingModal();
+    console.error('Erro no redirecionamento Google:', error);
+    toast('Não foi possível conectar com o Google.', 'err');
   });
 }
 
@@ -578,20 +624,22 @@ async function loginExistingGoogleAccount(credential, account) {
         error.message ?.toLowerCase().includes('already exists')
       )
     ) {
-      hideLoadingModal();
-      const {data: oauthData, error: oauthError} = await supabaseClient.auth.signInWithOAuth({provider: 'google', options: {
+      markOAuthRedirectPending('google');
+      showLoadingModal('Redirecionando...', 'Conectando sua conta Google com segurança.');
+      const { error: oauthError } = await supabaseClient.auth.signInWithOAuth({provider: 'google', options: {
         redirectTo: window.location.origin + window.location.pathname + window.location.search,
         queryParams: {login_hint: account?.email || ''}
         }
       });
-      
       if (oauthError) {
+        clearOAuthRedirectPending();
         throw oauthError;
-        return;
       }
+      return;
     }
     throw error;
   } catch (error) {
+    clearOAuthRedirectPending();
     hideLoadingModal();
     console.error('Erro no login Google:', error);
 
@@ -625,9 +673,11 @@ async function socialLogin(provider) {
   if (provider === 'google') options.queryParams = { prompt: 'select_account' };
 
   try {
+    markOAuthRedirectPending(provider);
     const { error } = await supabaseClient.auth.signInWithOAuth({ provider, options });
     if (error) throw error;
   } catch (error) {
+    clearOAuthRedirectPending();
     console.error('Erro no login social:', error);
     hideLoadingModal();
     toast(`Erro ao conectar com ${provider}.`, 'err');
@@ -1074,11 +1124,17 @@ async function processAuthenticatedSession(event, session) {
   if (!session?.user?.id || redirectionInProgress) return;
   if (sessionStorage.getItem('ecomme_google_signup_pending') === '1') return;
 
+  const isOAuthCallback = oauthReturnPending && Boolean(sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY));
+  if (isOAuthCallback) {
+    showLoadingModal('Verificando conta...', 'Estamos finalizando sua autenticação com segurança.');
+  }
+
   redirectionInProgress = true;
   try {
     const canContinue = await checkPausedAccount(session.user);
     if (!canContinue) {
       redirectionInProgress = false;
+      if (isOAuthCallback) clearOAuthRedirectPending();
       document.getElementById('btnLogin')?.classList.remove('loading');
       hideLoadingModal();
       return;
@@ -1112,13 +1168,20 @@ async function processAuthenticatedSession(event, session) {
     }
 
     if (document.getElementById('formLogin')) {
-      requestAnimationFrame(() => setTimeout(hideLoadingModal, 180));
-      toast('Sessão ativa! Redirecionando...', 'ok');
-      setTimeout(() => { window.location.href = finalDestination; }, 900);
+      if (isOAuthCallback) {
+        clearOAuthRedirectPending();
+        showLoadingModal('Tudo pronto!', 'Login realizado. Redirecionando para a Ecomme...');
+        setTimeout(() => { window.location.href = finalDestination; }, 500);
+      } else {
+        requestAnimationFrame(() => setTimeout(hideLoadingModal, 180));
+        toast('Sessão ativa! Redirecionando...', 'ok');
+        setTimeout(() => { window.location.href = finalDestination; }, 900);
+      }
     }
   } catch (error) {
     console.error('Erro após autenticação:', error);
     redirectionInProgress = false;
+    if (isOAuthCallback) clearOAuthRedirectPending();
     hideLoadingModal();
     toast('Não foi possível concluir o login. Tente novamente.', 'err');
   }
@@ -1129,6 +1192,21 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     showPasswordRecoveryPanel();
     return;
   }
+
+  if (oauthReturnPending && event === 'INITIAL_SESSION' && !session) {
+    let provider = 'Google';
+    try {
+      if (sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY) === 'facebook') provider = 'Facebook';
+    } catch (error) {}
+    clearOAuthRedirectPending();
+    hideLoadingModal();
+    const message = oauthCallbackInfo.error
+      ? `${provider} não autorizou o acesso. Tente novamente.`
+      : `Não foi possível concluir o login com ${provider}. Tente novamente.`;
+    toast(message, 'err');
+    return;
+  }
+
   if (!session || !['SIGNED_IN', 'INITIAL_SESSION'].includes(event)) return;
   if (sessionStorage.getItem('ecomme_google_signup_pending') === '1') return;
   // Supabase recomenda não executar consultas assíncronas no callback do auth.
@@ -1438,7 +1516,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const { data: { user }, error } = await supabaseClient.auth.getUser();
   if (error) console.warn('Não foi possível consultar a sessão atual:', error);
-  if (!user) await startGoogleLogin();
+  if (!user && !oauthReturnPending) await startGoogleLogin();
 });
 
 
