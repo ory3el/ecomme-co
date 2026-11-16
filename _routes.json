@@ -6,7 +6,9 @@
     "/api/product/*",
     "/api/catalog-stats",
     "/api/search",
-    "/api/store-products"
+    "/api/store-products",
+    "/api/plans/*",
+    "/api/asaas/*"
   ],
   "exclude": [
     "/product/index.html",
