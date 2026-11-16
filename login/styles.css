@@ -192,6 +192,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background: var(--bg);color:#0f1
   display:inline-flex;align-items:center;gap:8px;
 }
 .brand-logo span{font-weight:300;opacity:.85}
+.brand-logo img {
+    filter: brightness(0) invert(1);
+    max-width: 190px;
+}
 .brand-tag{
   background:rgba(255,255,255,.15);
   border:1px solid rgba(255,255,255,.2);
@@ -201,11 +205,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background: var(--bg);color:#0f1
   margin-left:2px;vertical-align:middle;
 }
 .panel-headline{
-  position:relative;z-index:1;
+  position:relative;
+  z-index:1;
   font-family:'Sora',sans-serif;
-  font-size:32px;font-weight:800;
-  color:#fff;line-height:1.15;
-  letter-spacing:-.5px;margin-bottom:12px;
+  font-size:32px;
+  font-weight: 600;
+  color:#fff;
+  line-height:1.15;
+  letter-spacing:-.5px;
+  margin-bottom:12px;
 }
 .panel-headline em{
   color:#93c5fd;font-style:normal;
