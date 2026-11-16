@@ -14,6 +14,13 @@ function updateThemeSwitchUI(pref) {
   });
 }
 
+function updateLoginFavicon() {
+  const faviconEl = document.getElementById('favicon');
+  if (!faviconEl) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  faviconEl.href = isDark ? '/images/favicon-light.png' : '/images/favicon-blue.png';
+}
+
 function applyTheme(pref, opts) {
   opts = opts || {};
   try { localStorage.setItem('ecomme-theme', pref); } catch (e) {}
@@ -22,6 +29,7 @@ function applyTheme(pref, opts) {
   root.setAttribute('data-theme', effectiveTheme(pref));
   root.setAttribute('data-theme-pref', pref);
   updateThemeSwitchUI(pref);
+  updateLoginFavicon();
   if (!opts.silent) {
     window.setTimeout(function () { root.classList.remove('theme-transition'); }, 420);
   }
@@ -30,6 +38,7 @@ function applyTheme(pref, opts) {
 function initTheme() {
   var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
   updateThemeSwitchUI(pref);
+  updateLoginFavicon();
 
   // Live-follow the OS theme while the user's preference is "auto"
   if (window.matchMedia) {
@@ -53,33 +62,15 @@ function initThemeToggle() {
   });
 }
 
-// --------------------------------------------------------------
-if (typeof SUPABASE_URL && SUPABASE_ANON_KEY === 'undefined') {
-  const SUPABASE_URL = "https://cedrpcezoaqaeivrfuxn.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mgumCH-bhkDOZfzqaMjKzQ_OwPVESs0";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let userId = null;
+// O cliente Supabase é inicializado uma única vez no HTML, antes deste arquivo.
+const initialRedirect = new URLSearchParams(window.location.search).get('redirect');
+if (initialRedirect) {
+  try { localStorage.setItem('ecomme_redirect_url', normalizeInternalRedirect(initialRedirect)); } catch (error) {}
 }
 
 // ── NAV ──
 function buttonLink(url) {
   window.location.href = url;
-}
-
-// ── FAVICON ──
-if (typeof favicon === 'undefined') {
-  const favicon = document.getElementById('favicon');
-    
-  function checkTheme(e) {
-    if (e.matches) {
-      favicon.href = '/images/favicon-light.png';
-    } else {
-      favicon.href = '/images/favicon-blue.png';
-    }
-  }
-  const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
-  checkTheme(mqDark);
-  mqDark.addEventListener('change', checkTheme);
 }
 
 // ── TAB SWITCH ─────────────────────────────────────────────
@@ -144,31 +135,26 @@ async function initGoogleIdentity() {
 
 const selectWait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function startGoogleLogin() {
-  let ready = await initGoogleIdentity();
-  
-  if (!ready) {
-    //toast('O login do Google ainda está carregando. Tentando novamente...', 'info');
-    ready = await waitForGoogleIdentity();
-  }
-  if (!ready) {
-    //toast('Não foi possível carregar o login do Google. Tente novamente.', 'err');
-    return;
-  }
-
-  google.accounts.id.prompt(notification => {
-    console.log('Google Prompt Notification:', notification);
-    const credentialPickerContainer = document.getElementById('credential_picker_container');
-    //credentialPickerContainer.style.setProperty("z-index", "850000", "important");
-    
-    if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
-      const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
-      console.warn('One Tap não exibido pelo motivo:', reason);
-      //triggerGooglePopupFallback();
+  try {
+    let ready = await initGoogleIdentity();
+    if (!ready) ready = await waitForGoogleIdentity();
+    if (!ready) {
+      toast('Não foi possível carregar o login do Google. Tente novamente.', 'err');
+      return false;
     }
-  });
-  await selectWait(5000);
-  //hideLoadingModal();
-  //showLoadingModal('Selecione uma Conta', 'Selecione uma conta Google para continuar');
+
+    google.accounts.id.prompt(notification => {
+      if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
+        const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.();
+        console.warn('One Tap não exibido pelo motivo:', reason);
+      }
+    });
+    return true;
+  } catch (error) {
+    console.error('Erro ao iniciar o login do Google:', error);
+    toast('Não foi possível iniciar o login do Google.', 'err');
+    return false;
+  }
 }
 
 // ---------------------------------------
@@ -280,6 +266,7 @@ function showGoogleAccountConfirmation(account) {
   const phone = document.getElementById('googleConfirmPhone');
   const birth = document.getElementById('googleConfirmBirth');
   const gender = document.getElementById('googleConfirmGender');
+  account = account || {};
   avatar.src = account.picture || '/images/icons/full/user.webp';
   name.value = account.given_name || '';
   surname.value = account.family_name || '';
@@ -435,6 +422,7 @@ function createGoogleConfirmModal() {
 function cancelGoogleAccountCreation() {
   googleCredentialPending = null;
   googleAccountPending = null;
+  sessionStorage.removeItem('ecomme_google_signup_pending');
   const overlay = document.getElementById('googleConfirmOverlay');
   if (overlay) {
     overlay.classList.remove('active');
@@ -474,8 +462,9 @@ async function confirmGoogleAccountCreation() {
   btn.textContent = 'Criando conta...';
 
   try {
+    sessionStorage.setItem('ecomme_google_signup_pending', '1');
     const { data, error } = await supabaseClient.auth.signInWithIdToken({
-      provider: 'google', 
+      provider: 'google',
       token: googleCredentialPending
     });
     
@@ -523,13 +512,18 @@ async function confirmGoogleAccountCreation() {
       googleModalResolver(true);
       googleModalResolver = null;
     }
-    
+
+    sessionStorage.removeItem('ecomme_google_signup_pending');
     sessionStorage.removeItem('remote_logout_notice_shown');
     toast('Conta criada com sucesso!', 'ok');
-    setTimeout(() => {
-      window.location.href = getTargetUrl();
-    }, 1000);
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData?.session) {
+      setTimeout(() => processAuthenticatedSession('SIGNED_IN', sessionData.session), 0);
+    } else {
+      setTimeout(() => { window.location.href = getTargetUrl(); }, 1000);
+    }
   } catch (error) {
+    sessionStorage.removeItem('ecomme_google_signup_pending');
     console.error('Erro ao criar conta Google:', error);
     toast(error.message || 'Não foi possível criar a conta.', 'err');
     btn.classList.remove('loading');
@@ -594,29 +588,25 @@ async function loginExistingGoogleAccount(credential, account) {
 
 // ── SOCIAL LOGIN (GOOGLE & FACEBOOK - SUPABASE) ──────────
 async function socialLogin(provider) {
+  if (!['google', 'facebook'].includes(provider)) {
+    toast('Provedor de login inválido.', 'err');
+    return;
+  }
+
   toast(`Redirecionando para o ${provider}...`, 'info');
   showLoadingModal('Redirecionando...', `Carregando o login com o ${provider}`);
 
   const options = {
-    redirectTo:
-      window.location.origin +
-      window.location.pathname +
-      window.location.search
+    redirectTo: window.location.origin + window.location.pathname + window.location.search
   };
-  if (provider === 'google') {
-    options.queryParams = {
-      prompt: 'select_account'
-    };
-  }
+  if (provider === 'google') options.queryParams = { prompt: 'select_account' };
 
-  const {data, error} = await supabaseClient.auth.signInWithOAuth({provider, options});
-  if (error) {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({ provider, options });
+    if (error) throw error;
+  } catch (error) {
     console.error('Erro no login social:', error);
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        hideLoadingModal();
-      }, 180);
-    });
+    hideLoadingModal();
     toast(`Erro ao conectar com ${provider}.`, 'err');
   }
 }
@@ -745,6 +735,7 @@ async function reactivateAccount() {
       overlay._resolveDecision = null;
       resolve(true);
     }
+    pausedAccountChecking = false;
   } catch (error) {
     console.error('Erro ao reativar conta:', error);
     toast(error.message || 'Não foi possível reativar sua conta.', 'err');
@@ -778,7 +769,8 @@ async function checkPausedAccount(user) {
 
     if (error) {
       console.error('Erro ao verificar status da conta:', error);
-      return true;
+      toast('Não foi possível verificar o status da sua conta. Tente novamente.', 'err');
+      return false;
     }
     const status = profile?.account_status || 'active';
     if (status !== 'paused') {
@@ -802,92 +794,124 @@ async function checkPausedAccount(user) {
 
 // ── LOGIN E-MAIL & PWD (SUPABASE) ────────────────
 async function doLogin() {
-  let valid = true;
   const email = document.getElementById('loginEmail');
   const pwd = document.getElementById('loginPwd');
+  let valid = true;
+
   if (!validateEmail(email.value.trim())) {
     showFieldErr(email, 'loginEmailErr');
     valid = false;
   }
-
   if (!pwd.value) {
     showFieldErr(pwd, 'loginPwdErr');
     valid = false;
   }
   if (!valid) {
-    toast('Preencha os campos obrigatórios', 'err');
+    toast('Preencha os campos obrigatórios.', 'err');
     return;
   }
+
   const btn = document.getElementById('btnLogin');
   btn.classList.add('loading');
-  const {
-    data,
-    error
-  } = await supabaseClient.auth.signInWithPassword({
-    email: email.value.trim(),
-    password: pwd.value
-  });
-
-  btn.classList.remove('loading');
-  if (error) {
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: email.value.trim(),
+      password: pwd.value
+    });
+    if (error) throw error;
+  } catch (error) {
     console.error('Erro no login:', error);
-    toast('E-mail ou senha incorretos.', 'err');
-    return;
+    toast(error.message?.toLowerCase().includes('invalid') || error.status === 400
+      ? 'E-mail ou senha incorretos.'
+      : (error.message || 'Não foi possível entrar. Tente novamente.'), 'err');
+    btn.classList.remove('loading');
   }
 }
 
 // ── REGISTER E-MAIL & PWD (SUPABASE) ─────────────
-async function doRegister(){
+async function doRegister() {
   let valid = true;
-  const name  = document.getElementById('regName');
-  const sob   = document.getElementById('regSob');
+  const name = document.getElementById('regName');
+  const surname = document.getElementById('regSob');
   const email = document.getElementById('regEmail');
   const phone = document.getElementById('regPhone');
-  const pwd   = document.getElementById('regPwd');
-  
-  const termsAge = document.getElementById('acceptAge');
-  const termsDoc = document.getElementById('acceptTerms');
-  
-  if(!name.value.trim()){ showFieldErr(name,'regNameErr'); valid = false; }
-  if(!validateEmail(email.value.trim())){ showFieldErr(email,'regEmailErr'); valid = false; }
-  
+  const password = document.getElementById('regPwd');
+  const acceptAge = document.getElementById('acceptAge');
+  const acceptTerms = document.getElementById('acceptTerms');
+
+  if (!name.value.trim()) {
+    showFieldErr(name, 'regNameErr');
+    valid = false;
+  }
+  if (!validateEmail(email.value.trim())) {
+    showFieldErr(email, 'regEmailErr');
+    valid = false;
+  }
+
   const phoneValue = phone.value.replace(/\D/g, '');
-  if(phoneValue.length < 11){ showFieldErr(phone, 'regPhoneErr'); valid = false; }
-  if(pwd.value.length < 8){ showFieldErr(pwd,'regPwdErr'); valid = false; }
-  
-  if(termsAge && !termsAge.checked){ toast('Você precisa ter 18 anos ou mais','err'); return; }
-  if(termsDoc && !termsDoc.checked){ toast('Aceite os termos para continuar','err'); return; }
+  if (phoneValue.length !== 11) {
+    showFieldErr(phone, 'regPhoneErr');
+    valid = false;
+  }
+
+  const passwordRules = [
+    password.value.length >= 8,
+    /[A-Z]/.test(password.value),
+    /[0-9]/.test(password.value),
+    /[^A-Za-z0-9]/.test(password.value)
+  ];
+  if (!passwordRules.every(Boolean)) {
+    showFieldErr(password, 'regPwdErr');
+    valid = false;
+  }
+
+  if (!valid) {
+    toast('Revise os campos destacados antes de continuar.', 'err');
+    return;
+  }
+  if (!acceptAge.checked) {
+    toast('É necessário confirmar que você tem 18 anos ou mais.', 'err');
+    return;
+  }
+  if (!acceptTerms.checked) {
+    toast('Aceite os Termos de Uso e a Política de Privacidade para continuar.', 'err');
+    return;
+  }
+  if (typeof hcaptcha === 'undefined' || typeof hcaptcha.getResponse !== 'function') {
+    toast('A verificação de segurança ainda está carregando. Tente novamente.', 'err');
+    return;
+  }
 
   const captchaToken = hcaptcha.getResponse();
   if (!captchaToken) {
     toast('Por favor, confirme que você não é um robô 🤖', 'err');
     return;
   }
+
   const btn = document.getElementById('btnReg');
   btn.classList.add('loading');
-  const fullName = `${name.value.trim()} ${sob.value.trim()}`.trim(); 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email: email.value.trim(),
-    password: pwd.value,
-    options: {
-      captchaToken: captchaToken,
-      data: {
-        full_name: fullName,
-        phone: phoneValue
+  const fullName = `${name.value.trim()} ${surname.value.trim()}`.trim();
+  try {
+    const { error } = await supabaseClient.auth.signUp({
+      email: email.value.trim(),
+      password: password.value,
+      options: {
+        captchaToken,
+        data: {
+          full_name: fullName,
+          phone: phoneValue
+        }
       }
-    }
-  });
-  hcaptcha.reset();
-  btn.classList.remove('loading');
-
-  if(!valid) return;
-  
-  if (error) {
-    console.error(error);
-    toast(error.message, 'err');
-  } else {
+    });
+    if (error) throw error;
     sessionStorage.removeItem('remote_logout_notice_shown');
     toast('Conta criada! Verifique o seu e-mail para confirmar o cadastro. 🚀', 'ok');
+  } catch (error) {
+    console.error('Erro no cadastro:', error);
+    toast(error.message || 'Não foi possível criar sua conta.', 'err');
+  } finally {
+    try { hcaptcha.reset(); } catch (error) { console.warn('Não foi possível resetar o hCaptcha:', error); }
+    btn.classList.remove('loading');
   }
 }
 
@@ -934,155 +958,217 @@ function getDeviceInfo() {
 async function registerNewSession(userId) {
   if (!userId) return;
 
-  let localSessionId = localStorage.getItem('local_session_id');
+  let localSessionId = null;
+  try { localSessionId = localStorage.getItem('local_session_id'); } catch (error) {}
+
   if (localSessionId) {
-    const { data: existingSession, error } =
-      await supabaseClient
-        .from('user_sessions')
-        .select('id')
-        .eq('id', localSessionId)
-        .eq('user_id', userId)
-        .maybeSingle();
-    
+    const { data: existingSession, error } = await supabaseClient
+      .from('user_sessions')
+      .select('id')
+      .eq('id', localSessionId)
+      .eq('user_id', userId)
+      .maybeSingle();
     if (!existingSession || error) {
-      localStorage.removeItem('local_session_id');
+      try { localStorage.removeItem('local_session_id'); } catch (storageError) {}
       localSessionId = null;
     }
   }
+
   const { browser, os } = getDeviceInfo();
-  let ip = "Desconhecido";
+  let ip = 'Desconhecido';
+  let ipTimeoutId = null;
   try {
-    const res = await fetch(
-      'https://api.ipify.org?format=json'
-    );
-    if (res.ok) {
-      const data = await res.json();
-      ip = data.ip || "Desconhecido";
+    const controller = new AbortController();
+    ipTimeoutId = setTimeout(() => controller.abort(), 2500);
+    const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    if (response.ok) {
+      const result = await response.json();
+      ip = result.ip || ip;
     }
-  } catch (e) {
-    console.warn(
-      "Não foi possível capturar o IP."
-    );
+  } catch (error) {
+    console.warn('Não foi possível capturar o IP da sessão.');
+  } finally {
+    if (ipTimeoutId) clearTimeout(ipTimeoutId);
   }
+
+  const sessionData = {
+    browser,
+    os,
+    ip_address: ip,
+    last_seen_at: new Date().toISOString()
+  };
+
   if (localSessionId) {
     const { error } = await supabaseClient
       .from('user_sessions')
-      .update({
-        browser,
-        os,
-        ip_address: ip,
-        last_seen_at: new Date().toISOString()
-      })
+      .update(sessionData)
       .eq('id', localSessionId)
       .eq('user_id', userId);
-    
-    if (error) {
-      console.error(
-        'Erro ao atualizar sessão:',
-        error
-      );
-    }
-    return;
+    if (!error) return;
+    console.error('Erro ao atualizar sessão; uma nova será criada:', error);
+    try { localStorage.removeItem('local_session_id'); } catch (storageError) {}
   }
-  const { data, error } =
-    await supabaseClient
-      .from('user_sessions')
-      .insert([{
-        user_id: userId,
-        browser,
-        os,
-        ip_address: ip,
-        last_seen_at: new Date().toISOString()
-      }])
-      .select('id')
-      .single();
-  
+
+  const { data, error } = await supabaseClient
+    .from('user_sessions')
+    .insert([{ user_id: userId, ...sessionData }])
+    .select('id')
+    .single();
+
   if (error) {
-    console.error(
-      '🚨 ERRO AO SALVAR SESSÃO:',
-      error.message
-    );
+    console.error('Erro ao salvar sessão:', error.message);
     return;
   }
   if (data?.id) {
-    localStorage.setItem(
-      'local_session_id',
-      data.id
-    );
+    try { localStorage.setItem('local_session_id', data.id); } catch (storageError) {}
   }
 }
 
-// ── ACTIVE SESSION & URL CLEAR ────────────
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (!session || redirectionInProgress) {
+// ── ACTIVE SESSION & URL CLEAR ───────────────────────────────────────
+async function processAuthenticatedSession(event, session) {
+  if (!session?.user?.id || redirectionInProgress) return;
+  if (sessionStorage.getItem('ecomme_google_signup_pending') === '1') return;
+
+  redirectionInProgress = true;
+  try {
+    const canContinue = await checkPausedAccount(session.user);
+    if (!canContinue) {
+      redirectionInProgress = false;
+      document.getElementById('btnLogin')?.classList.remove('loading');
+      hideLoadingModal();
       return;
     }
-    redirectionInProgress = true;
+
+    sessionStorage.removeItem('remote_logout_notice_shown');
     try {
-      const canContinue = await checkPausedAccount(session.user);
-      if (!canContinue) {
-        redirectionInProgress = false;
+      await Promise.race([
+        registerNewSession(session.user.id),
+        new Promise(resolve => setTimeout(resolve, 4000))
+      ]);
+    } catch (error) {
+      console.error('Não foi possível registrar a sessão:', error);
+    }
+
+    const finalDestination = getTargetUrl();
+    if (window.location.search || window.location.hash) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    try { localStorage.removeItem('ecomme_redirect_url'); } catch (storageError) {}
+
+    const isGoogleOneTapLogin = event === 'SIGNED_IN' &&
+      sessionStorage.getItem('ecomme_google_onetap_login') === '1';
+    if (isGoogleOneTapLogin) {
+      sessionStorage.removeItem('ecomme_google_onetap_login');
+      const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+      if (currentPath !== '/login') {
+        window.location.reload();
         return;
       }
-      sessionStorage.removeItem('remote_logout_notice_shown');
-      await registerNewSession(session.user.id);
-      const finalDestination = getTargetUrl();
-      if (
-        window.location.search || window.location.hash
-      ) {
-        window.history.replaceState(
-          {},
-          document.title, window.location.pathname
-        );
-      }
-
-      localStorage.removeItem('ecomme_redirect_url');
-
-      const isGoogleOneTapLogin = event === 'SIGNED_IN' && sessionStorage.getItem('ecomme_google_onetap_login') === '1';
-      if (isGoogleOneTapLogin) {
-        sessionStorage.removeItem('ecomme_google_onetap_login');
-        const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-        if (currentPath !== '/login') {
-          window.location.reload();
-          return;
-        }
-      }
- 
-      if (
-        document.getElementById('formLogin')
-      ) {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            hideLoadingModal();
-          }, 180);
-        });
-        toast('Sessão ativa! Redirecionando...', 'ok');
-        setTimeout(() => {
-          window.location.href = finalDestination;
-        }, 1200);
-      }
-    } catch (error) {
-      console.error('Erro após autenticação:', error);
-      redirectionInProgress = false;
-      toast('Não foi possível concluir o login.', 'err');
     }
-  }
-);
 
-// ── FORGOT PASSWORD ────────────────────────────────────────
-function toggleForgot(show){
-  document.getElementById('forgotPanel').classList.toggle('on', show);
+    if (document.getElementById('formLogin')) {
+      requestAnimationFrame(() => setTimeout(hideLoadingModal, 180));
+      toast('Sessão ativa! Redirecionando...', 'ok');
+      setTimeout(() => { window.location.href = finalDestination; }, 900);
+    }
+  } catch (error) {
+    console.error('Erro após autenticação:', error);
+    redirectionInProgress = false;
+    hideLoadingModal();
+    toast('Não foi possível concluir o login. Tente novamente.', 'err');
+  }
+}
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    showPasswordRecoveryPanel();
+    return;
+  }
+  if (!session || !['SIGNED_IN', 'INITIAL_SESSION'].includes(event)) return;
+  if (sessionStorage.getItem('ecomme_google_signup_pending') === '1') return;
+  // Supabase recomenda não executar consultas assíncronas no callback do auth.
+  setTimeout(() => { processAuthenticatedSession(event, session); }, 0);
+});
+
+// ── FORGOT PASSWORD / PASSWORD RECOVERY ─────────────────────────────
+function toggleForgot(show) {
+  const forgotPanel = document.getElementById('forgotPanel');
+  const recoveryPanel = document.getElementById('recoveryPanel');
+  forgotPanel.classList.toggle('on', show);
+  if (recoveryPanel) recoveryPanel.classList.remove('on');
   document.getElementById('loginMain').style.display = show ? 'none' : 'block';
 }
 
-function sendForgot(){
-  const v = document.getElementById('forgotEmail').value.trim();
-  if(!v || !v.includes('@')){ toast('Digite um e-mail válido','err'); return; }
-  
-  simulateLoad('btnLogin', () => {
-    toast('Link enviado para ' + v + ' ✉️');
+function showPasswordRecoveryPanel() {
+  const forgotPanel = document.getElementById('forgotPanel');
+  const recoveryPanel = document.getElementById('recoveryPanel');
+  const loginMain = document.getElementById('loginMain');
+  if (!recoveryPanel) return;
+  forgotPanel?.classList.remove('on');
+  loginMain.style.display = 'none';
+  recoveryPanel.classList.add('on');
+  document.getElementById('recoveryPassword')?.focus();
+}
+
+async function sendForgot() {
+  const emailInput = document.getElementById('forgotEmail');
+  const email = emailInput.value.trim();
+  const btn = document.getElementById('btnForgot');
+  if (!validateEmail(email)) {
+    toast('Digite um e-mail válido.', 'err');
+    emailInput.focus();
+    return;
+  }
+
+  btn.classList.add('loading');
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login?recovery=1`
+    });
+    if (error) throw error;
+    toast('Se houver uma conta com esse e-mail, enviaremos um link de recuperação.', 'ok');
     toggleForgot(false);
-  });
+  } catch (error) {
+    console.error('Erro ao solicitar recuperação de senha:', error);
+    toast(error.message || 'Não foi possível enviar o link. Tente novamente.', 'err');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+async function submitPasswordRecovery() {
+  const passwordInput = document.getElementById('recoveryPassword');
+  const confirmInput = document.getElementById('recoveryPasswordConfirm');
+  const btn = document.getElementById('btnRecovery');
+  const password = passwordInput.value;
+
+  const strong = password.length >= 8 && /[A-Z]/.test(password) &&
+    /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
+  if (!strong) {
+    toast('Use 8+ caracteres, letra maiúscula, número e caractere especial.', 'err');
+    passwordInput.focus();
+    return;
+  }
+  if (password !== confirmInput.value) {
+    toast('As senhas não coincidem.', 'err');
+    confirmInput.focus();
+    return;
+  }
+
+  btn.classList.add('loading');
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ password });
+    if (error) throw error;
+    const destination = getTargetUrl();
+    try { localStorage.removeItem('ecomme_redirect_url'); } catch (storageError) {}
+    window.history.replaceState({}, document.title, window.location.pathname);
+    toast('Senha atualizada com sucesso!', 'ok');
+    setTimeout(() => { window.location.href = destination; }, 900);
+  } catch (error) {
+    console.error('Erro ao atualizar senha:', error);
+    toast(error.message || 'Não foi possível atualizar a senha. Solicite um novo link.', 'err');
+    btn.classList.remove('loading');
+  }
 }
 
 
@@ -1101,11 +1187,12 @@ function showFieldErr(inp, msgId){
   const el = document.getElementById(msgId);
   if(el){ el.style.display = 'block'; }
 }
-function clearFieldErr(inp){
+function clearFieldErr(inp) {
   inp.classList.remove('err');
-  const siblings = inp.parentElement.querySelectorAll('.field-err');
-  siblings.forEach(s => s.style.display = 'none');
-  if(inp.value.length > 0) inp.classList.add('ok'); else inp.classList.remove('ok');
+  const fieldError = document.getElementById(`${inp.id}Err`);
+  if (fieldError) fieldError.style.display = 'none';
+  if (inp.value.length > 0) inp.classList.add('ok');
+  else inp.classList.remove('ok');
 }
 function validateEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
@@ -1118,11 +1205,18 @@ function maskCPF(inp){
   else if(v.length > 3) v = v.slice(0,3)+'.'+v.slice(3);
   inp.value = v;
 }
-function maskPhone(inp){
-  let v = inp.value.replace(/\D/g,'').slice(0,11);
-  if(v.length > 6) v = '('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7);
-  else if(v.length > 2) v = '('+v.slice(0,2)+') '+v.slice(2);
-  inp.value = v;
+function maskPhone(inp) {
+  const digits = inp.value.replace(/\D/g, '').slice(0, 11);
+  let formatted = digits;
+  if (digits.length > 6) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  else if (digits.length > 2) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  inp.value = formatted;
+
+  if (digits.length === 11) {
+    inp.classList.remove('err');
+    const fieldError = document.getElementById(`${inp.id}Err`);
+    if (fieldError) fieldError.style.display = 'none';
+  }
 }
 
 
@@ -1149,14 +1243,13 @@ function checkPwd(v){
   const lbl = document.getElementById('pwdLbl');
   lbl.textContent = score ? lbls[score-1] : 'Muito fraca';
   lbl.className = 'pwd-label ' + (score ? cls[score-1] : 's1');
-}
 
-
-// ── SIMULATE LOADING (Mantido para recuperar senha) ────────
-function simulateLoad(btnId, cb, delay=1400){
-  const btn = document.getElementById(btnId);
-  if (btn) btn.classList.add('loading');
-  setTimeout(() => { if(btn) btn.classList.remove('loading'); cb(); }, delay);
+  const passwordInput = document.getElementById('regPwd');
+  const passwordError = document.getElementById('regPwdErr');
+  if (score === 4) {
+    passwordInput.classList.remove('err');
+    if (passwordError) passwordError.style.display = 'none';
+  }
 }
 
 
@@ -1182,53 +1275,81 @@ function toast(msg, type) {
   showToast(msg, type);
 }
 
-// ── KEYBOARD SUBMIT ────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if(e.key !== 'Enter') return;
+// ── KEYBOARD SUBMIT ─────────────────────────────────────────────────
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Enter') return;
   const active = document.activeElement;
-  if(document.getElementById('formLogin').classList.contains('hidden')) doRegister();
-  else doLogin();
+  if (active?.tagName === 'BUTTON') return;
+
+  const recoveryPanel = document.getElementById('recoveryPanel');
+  const forgotPanel = document.getElementById('forgotPanel');
+  const isRegister = !document.getElementById('formReg').classList.contains('hidden');
+  if (recoveryPanel?.classList.contains('on')) {
+    event.preventDefault();
+    submitPasswordRecovery();
+  } else if (forgotPanel.classList.contains('on')) {
+    event.preventDefault();
+    sendForgot();
+  } else if (isRegister) {
+    event.preventDefault();
+    doRegister();
+  } else {
+    event.preventDefault();
+    doLogin();
+  }
 });
 
-// ── REDIRECT FUNCTION ──
-function getTargetUrl() {
-  const storedRedirect = localStorage.getItem('ecomme_redirect_url');
-  if (storedRedirect) {
-    return storedRedirect;
+// ── REDIRECT FUNCTION ───────────────────────────────────────────────
+function normalizeInternalRedirect(value) {
+  if (typeof value !== 'string' || !value.trim()) return '/';
+  try {
+    const url = new URL(value, window.location.origin);
+    if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return '/';
+    if (url.pathname.startsWith('//') || url.pathname.startsWith('/\\')) return '/';
+    if (url.pathname.replace(/\/+$/, '') === '/login') return '/';
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch (error) {
+    return '/';
   }
+}
+
+function getTargetUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const urlRedirect = urlParams.get('redirect');
-  if (urlRedirect) {
-    return urlRedirect;
-  }
-  return '/';
+  if (urlRedirect) return normalizeInternalRedirect(urlRedirect);
+  let storedRedirect = null;
+  try { storedRedirect = localStorage.getItem('ecomme_redirect_url'); } catch (error) {}
+  return storedRedirect ? normalizeInternalRedirect(storedRedirect) : '/';
 }
 
 // LOGOUT
-if (typeof waitt === 'undefined') {
-  const waitt = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  async function doLogout() {
-    toast('Saindo da conta... 👋', 'info');
-    const localSessionId = localStorage.getItem('local_session_id');
+const waitt = ms => new Promise(resolve => setTimeout(resolve, ms));
+async function doLogout() {
+  toast('Saindo da conta... 👋', 'info');
+  const localSessionId = localStorage.getItem('local_session_id');
+  try {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (localSessionId && user) {
-      const { error: deleteError } = await supabaseClient
+      const { error } = await supabaseClient
         .from('user_sessions')
         .delete()
         .eq('id', localSessionId)
         .eq('user_id', user.id);
-    
-      if (deleteError) {console.error('Erro ao remover sessão do banco:', deleteError);}
+      if (error) console.error('Erro ao remover sessão do banco:', error);
     }
     sessionStorage.setItem('remote_logout_notice_shown', 'true');
     localStorage.removeItem('local_session_id');
-    const { error: signOutError } = await supabaseClient.auth.signOut({scope: 'local'});
-    if (signOutError) {console.error('Erro ao fazer logout:', signOutError); }
+    const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
+    if (error) throw error;
     toast('Você saiu da conta.', 'info');
     await waitt(700);
     window.location.reload();
+  } catch (error) {
+    console.error('Erro ao sair da conta:', error);
+    toast(error.message || 'Não foi possível sair da conta.', 'err');
   }
 }
+
   
 /* ----------------------------------------------------- */
 function openConfirmLogout() {
@@ -1239,17 +1360,25 @@ function openConfirmLogout() {
 window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initThemeToggle();
-  const urlParams = new URLSearchParams(window.location.search);
-  const redirectParam = urlParams.get('redirect');
 
-  const {data: { user }, error: userError} = await supabaseClient.auth.getUser();
-  let db = false;
-  if (!user && db === false) {
-    db = true;
-    await startGoogleLogin();
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('recovery') === '1') {
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+    if (session) {
+      showPasswordRecoveryPanel();
+    } else {
+      if (sessionError) console.warn('Não foi possível validar o link de recuperação:', sessionError);
+      toast('O link de recuperação é inválido ou expirou. Solicite um novo link.', 'err');
+      toggleForgot(true);
+    }
+    return;
   }
-  if (redirectParam) localStorage.setItem('ecomme_redirect_url', redirectParam);
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error) console.warn('Não foi possível consultar a sessão atual:', error);
+  if (!user) await startGoogleLogin();
 });
+
 
 function injectLoginModalStyles() {
   if (document.getElementById('modal-aboutAcc-styles')) return;
