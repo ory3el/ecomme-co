@@ -9,7 +9,7 @@ function injectModalStyles0() {
   :root,[data-theme=light]{
     --text:        #0F172A;
     --muted:       #64748B;
-    --surface:     #FFFFFF;
+    --surface3:    #FFFFFF;
     --overlay:     rgba(255,255,255,0.1);
     --sidebar-bg:  rgba(255,255,255,0.80);
     --box-shdw:    0 4px 12px rgb(0 0 0 / 10%);
@@ -18,7 +18,7 @@ function injectModalStyles0() {
   [data-theme=dark]{
     --text:        #F8FAFC;
     --muted:       #94A3B8;
-    --surface:     #000d2b;
+    --surface3:    #0b0b0b;
     --overlay:     rgba(0,0,0,0.1);
     --sidebar-bg:  rgba(15,23,42,0.80);
     --box-shdw:    0 0 15px rgb(255 255 255 / 30%);
