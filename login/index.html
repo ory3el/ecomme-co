@@ -120,6 +120,11 @@
       <button class="atab" id="tabReg" onclick="showTab('register')" role="tab">Criar Conta</button>
     </div>
 
+    <!-- CAPTCHA compartilhado entre cadastro e recuperação de senha -->
+    <div id="authCaptchaWrap" class="auth-captcha-wrap">
+      <div class="h-captcha" data-sitekey="47e469ca-e75c-426a-97b6-e3e2c8e2d96c"></div>
+    </div>
+
     <!-- ── LOGIN FORM ── -->
     <div id="formLogin" class="form-panel">
 
@@ -314,8 +319,6 @@
         </label>
       </div>
 
-      <div class="h-captcha" data-sitekey="47e469ca-e75c-426a-97b6-e3e2c8e2d96c"></div>
-      
       <button class="btn-submit" id="btnReg" onclick="doRegister()">
         <span class="btn-txt">Criar conta</span>
         <div class="spinner"></div>
