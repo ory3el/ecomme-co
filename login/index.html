@@ -137,8 +137,31 @@
           <label>E-mail cadastrado</label>
           <input class="finput" id="forgotEmail" type="email" placeholder="seu@email.com">
         </div>
-        <button class="btn-submit" onclick="sendForgot()">
+        <button class="btn-submit" id="btnForgot" type="button" onclick="sendForgot()">
           <span class="btn-txt">Enviar link de recuperação</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+      <div class="forgot-panel" id="recoveryPanel">
+        <button class="back-btn" type="button" onclick="window.location.href='/login'">
+          <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+          Voltar ao login
+        </button>
+        <div class="form-heading">
+          <h2>Definir nova senha</h2>
+          <p>Escolha uma senha forte para proteger sua conta.</p>
+        </div>
+        <div class="fgrp">
+          <label for="recoveryPassword">Nova senha</label>
+          <input class="finput" id="recoveryPassword" type="password" autocomplete="new-password" placeholder="Digite sua nova senha">
+        </div>
+        <div class="fgrp">
+          <label for="recoveryPasswordConfirm">Confirmar nova senha</label>
+          <input class="finput" id="recoveryPasswordConfirm" type="password" autocomplete="new-password" placeholder="Repita sua nova senha">
+        </div>
+        <button class="btn-submit" id="btnRecovery" type="button" onclick="submitPasswordRecovery()">
+          <span class="btn-txt">Salvar nova senha</span>
           <div class="spinner"></div>
         </button>
       </div>
@@ -274,7 +297,7 @@
             <div class="req" id="r4">Caractere especial</div>
           </div>
         </div>
-        <div class="field-err" id="regPwdErr">Senha deve ter no mínimo 8 caracteres</div>
+        <div class="field-err" id="regPwdErr">Use 8+ caracteres, maiúscula, número e caractere especial</div>
       </div>
 
       <div class="terms-row">
@@ -312,7 +335,9 @@
 <script>
   // Start the Quicklink
   window.addEventListener('load', () => {
-    quicklink.listen();
+    if (typeof quicklink !== 'undefined' && typeof quicklink.listen === 'function') {
+      quicklink.listen();
+    }
   });
 </script>
 
@@ -325,10 +350,9 @@
   let userId = null;
 
   const favicon = document.getElementById('favicon');
-  function verificarTema(e) {if (e.matches) {favicon.href = '/images/favicon-light.png';} else {favicon.href = '/images/favicon-blue.png';}}
-  const mqEscuro = window.matchMedia('(prefers-color-scheme: dark)');
-  verificarTema(mqEscuro);
-  mqEscuro.addEventListener('change', verificarTema);
+  favicon.href = document.documentElement.getAttribute('data-theme') === 'dark'
+    ? '/images/favicon-light.png'
+    : '/images/favicon-blue.png';
 </script>
 <script src="/files/scripts/console-warning.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
