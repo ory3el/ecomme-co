@@ -1463,7 +1463,7 @@ function getTargetUrl() {
 }
 
 // LOGOUT
-const waitt = ms => new Promise(resolve => setTimeout(resolve, ms));
+/*const waitt = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function doLogout() {
   toast('Saindo da conta... 👋', 'info');
   const localSessionId = localStorage.getItem('local_session_id');
@@ -1488,7 +1488,7 @@ async function doLogout() {
     console.error('Erro ao sair da conta:', error);
     toast(error.message || 'Não foi possível sair da conta.', 'err');
   }
-}
+}*/
 
   
 /* ----------------------------------------------------- */
