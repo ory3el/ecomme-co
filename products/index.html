@@ -30,7 +30,7 @@
         var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         var effective = saved === 'auto' ? (systemDark ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', effective);
-        docum ent.documentElement.setAttribute('data-theme-pref', saved);
+        document.documentElement.setAttribute('data-theme-pref', saved);
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'light');
       }
