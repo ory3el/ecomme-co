@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback | Ecomme</title>
+  <meta name="description" content="Envie sugestões, melhorias e relatos de problemas para a equipe da Ecomme e acompanhe o andamento dos seus envios.">
+
+  <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="/feedback/styles.css">
+  <script src="/files/scripts/html-imports.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="fb-hero" id="topo">
+    <div class="fb-hero-bg" aria-hidden="true">
+      <span class="fb-blob fb-blob-1"></span>
+      <span class="fb-blob fb-blob-2"></span>
+    </div>
+    <div class="fb-hero-inner">
+      <span class="fb-eyebrow fb-reveal" style="--d:0"><i class="fa-solid fa-comments" aria-hidden="true"></i> Canal oficial de feedback</span>
+      <h1 class="fb-reveal" style="--d:1">Sua opinião transforma a <span class="fb-accent">Ecomme</span></h1>
+      <p class="fb-hero-desc fb-reveal" style="--d:2">Tem uma ideia de funcionalidade, viu algo que pode melhorar ou encontrou um problema? Conte para nós. As contribuições dos usuários ajudam a equipe a entender o que importa no dia a dia do marketplace.</p>
+      <div class="fb-hero-btns fb-reveal" style="--d:3">
+        <a class="fb-btn fb-btn-primary" href="#enviar"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar feedback</a>
+        <a class="fb-btn fb-btn-outline" href="#meus-envios"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Meus envios</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FORMULÁRIO + INFORMAÇÕES ═══════════════ -->
+  <main class="fb-main">
+    <div class="fb-container fb-layout">
+
+      <section class="fb-card fb-form-card" id="enviar" aria-labelledby="fbFormTitle">
+        <header class="fb-card-hd">
+          <h2 id="fbFormTitle">Enviar feedback</h2>
+          <p>Campos marcados com <span class="fb-req" aria-hidden="true">*</span><span class="fb-sr"> asterisco</span> são obrigatórios.</p>
+        </header>
+
+        <!-- visitante: pode escrever, mas precisa entrar para enviar -->
+        <div class="fb-login-banner" id="fbLoginBanner" hidden>
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <div>
+            <strong>Entre na sua conta Ecomme para enviar.</strong>
+            <span>Você pode escrever agora: o texto fica salvo neste navegador e, depois do login, você volta para esta página. Anexos precisam ser adicionados de novo.</span>
+          </div>
+          <button type="button" class="fb-btn fb-btn-primary fb-btn-sm" id="fbLoginBtn">Entrar</button>
+        </div>
+
+        <div class="fb-alert" id="fbFormAlert" role="alert" hidden></div>
+
+        <form id="fbForm" novalidate autocomplete="off" aria-busy="false">
+
+          <fieldset class="fb-field" id="fbTypeField">
+            <legend>Tipo de envio <span class="fb-req" aria-hidden="true">*</span></legend>
+            <div class="fb-types" role="radiogroup" aria-label="Tipo de envio">
+              <label class="fb-type">
+                <input type="radio" name="fbType" value="feature">
+                <span class="fb-type-box">
+                  <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                  <strong>Sugestão de funcionalidade</strong>
+                  <small>Uma ideia nova para a Ecomme</small>
+                </span>
+              </label>
+              <label class="fb-type">
+                <input type="radio" name="fbType" value="improvement">
+                <span class="fb-type-box">
+                  <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                  <strong>Melhoria</strong>
+                  <small>Algo que já existe e pode ficar melhor</small>
+                </span>
+              </label>
+              <label class="fb-type">
+                <input type="radio" name="fbType" value="bug">
+                <span class="fb-type-box">
+                  <i class="fa-solid fa-bug" aria-hidden="true"></i>
+                  <strong>Problema/Erro</strong>
+                  <small>Algo não funciona como deveria</small>
+                </span>
+              </label>
+              <label class="fb-type">
+                <input type="radio" name="fbType" value="general">
+                <span class="fb-type-box">
+                  <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                  <strong>Feedback geral</strong>
+                  <small>Comentários sobre sua experiência</small>
+                </span>
+              </label>
+            </div>
+            <p class="fb-error" id="fbTypeError" hidden></p>
+          </fieldset>
+
+          <div class="fb-field">
+            <label for="fbCategory">Categoria <span class="fb-req" aria-hidden="true">*</span></label>
+            <div class="fb-select-wrap">
+              <select id="fbCategory" name="category" required aria-describedby="fbCategoryError">
+                <option value="" selected disabled>Selecione a área relacionada</option>
+                <option value="products">Produtos</option>
+                <option value="purchases">Compras</option>
+                <option value="sellers">Vendedores</option>
+                <option value="payments">Pagamentos</option>
+                <option value="account">Conta</option>
+                <option value="interface">Interface</option>
+                <option value="other">Outros</option>
+              </select>
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </div>
+            <p class="fb-error" id="fbCategoryError" hidden></p>
+          </div>
+
+          <div class="fb-field">
+            <label for="fbTitle">Título <span class="fb-req" aria-hidden="true">*</span></label>
+            <input type="text" id="fbTitle" name="title" maxlength="100" placeholder="Resuma sua ideia ou o problema em uma frase" aria-describedby="fbTitleError fbTitleCount">
+            <div class="fb-field-foot">
+              <p class="fb-error" id="fbTitleError" hidden></p>
+              <span class="fb-count" id="fbTitleCount" aria-live="polite">0/100</span>
+            </div>
+          </div>
+
+          <div class="fb-field">
+            <label for="fbDescription">Descrição detalhada <span class="fb-req" aria-hidden="true">*</span></label>
+            <textarea id="fbDescription" name="description" rows="7" maxlength="2000" placeholder="Explique com detalhes. Para problemas, conte o que você estava fazendo, o que esperava e o que aconteceu." aria-describedby="fbDescriptionError fbDescriptionCount"></textarea>
+            <div class="fb-field-foot">
+              <p class="fb-error" id="fbDescriptionError" hidden></p>
+              <span class="fb-count" id="fbDescriptionCount" aria-live="polite">0/2000</span>
+            </div>
+          </div>
+
+          <div class="fb-field">
+            <label for="fbFiles">Imagens ou capturas de tela <span class="fb-optional">(opcional)</span></label>
+            <div class="fb-drop" id="fbDrop">
+              <input type="file" id="fbFiles" accept="image/png,image/jpeg,image/webp" multiple aria-describedby="fbFilesHelp fbFilesError">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <p><strong>Clique para escolher</strong> ou arraste as imagens aqui</p>
+              <span id="fbFilesHelp">Até 3 imagens (PNG, JPG ou WEBP) de no máximo 5 MB cada. Não envie dados pessoais, senhas ou números de cartão.</span>
+            </div>
+            <p class="fb-error" id="fbFilesError" hidden></p>
+            <ul class="fb-previews" id="fbPreviews" aria-label="Imagens selecionadas"></ul>
+          </div>
+
+          <div class="fb-actions">
+            <button type="submit" class="fb-btn fb-btn-primary fb-btn-lg" id="fbSubmit">
+              <span class="fb-btn-label"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar feedback</span>
+              <span class="fb-btn-spinner" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="fb-btn fb-btn-ghost" id="fbClear">Limpar</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="fb-side" aria-label="Como funciona">
+        <div class="fb-card fb-info-card">
+          <h2>Como seu feedback é tratado</h2>
+          <ol class="fb-steps">
+            <li>
+              <span class="fb-step-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+              <div><strong>Recebimento</strong><p>Seu envio é registrado na sua conta com um protocolo e o status <em>Pendente</em>.</p></div>
+            </li>
+            <li>
+              <span class="fb-step-ico"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+              <div><strong>Análise</strong><p>A equipe lê, agrupa ideias parecidas e verifica se há um problema a corrigir. O status passa a <em>Em análise</em>.</p></div>
+            </li>
+            <li>
+              <span class="fb-step-ico"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+              <div><strong>Consideração</strong><p>Avaliamos impacto, viabilidade e prioridade. O resultado aparece em “Meus envios” como <em>Implementado</em> ou <em>Recusado</em>.</p></div>
+            </li>
+          </ol>
+          <p class="fb-note"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Nem toda sugestão será implementada, e não podemos garantir prazos. Mesmo assim, cada contribuição é lida e ajuda a orientar as decisões sobre a plataforma.</p>
+        </div>
+
+        <div class="fb-card fb-tips-card">
+          <h2>Para um bom feedback</h2>
+          <ul class="fb-tips">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Seja específico: diga onde e quando aconteceu.</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Um assunto por envio facilita a análise.</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Para erros, inclua os passos para reproduzir.</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Precisa de ajuda com um pedido? Use a página de <a href="/support">suporte</a>.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ═══════════════ HISTÓRICO ═══════════════ -->
+    <section class="fb-container fb-history" id="meus-envios" aria-labelledby="fbHistoryTitle">
+      <header class="fb-section-hd">
+        <span class="fb-eyebrow"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Acompanhamento</span>
+        <h2 id="fbHistoryTitle">Meus envios</h2>
+        <p>O status de cada envio é o registrado no sistema e atualiza sozinho quando a equipe o altera.</p>
+      </header>
+
+      <div class="fb-history-body" id="fbHistory" aria-live="polite" aria-busy="true">
+        <!-- preenchido por script.js -->
+        <div class="fb-skel-list" id="fbHistorySkeleton">
+          <div class="fb-skel-item"><span class="fb-skel fb-skel-line fb-w40"></span><span class="fb-skel fb-skel-line fb-w80"></span><span class="fb-skel fb-skel-line fb-w60"></span></div>
+          <div class="fb-skel-item"><span class="fb-skel fb-skel-line fb-w50"></span><span class="fb-skel fb-skel-line fb-w70"></span><span class="fb-skel fb-skel-line fb-w30"></span></div>
+          <div class="fb-skel-item"><span class="fb-skel fb-skel-line fb-w45"></span><span class="fb-skel fb-skel-line fb-w75"></span><span class="fb-skel fb-skel-line fb-w55"></span></div>
+        </div>
+        <ul class="fb-list" id="fbList" hidden></ul>
+        <div class="fb-empty" id="fbState" hidden></div>
+        <div class="fb-more" id="fbMoreWrap" hidden>
+          <button type="button" class="fb-btn fb-btn-outline" id="fbMore">Carregar mais</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════ MODAL DE CONFIRMAÇÃO ═══════════════ -->
+  <div class="fb-modal" id="fbModal" role="dialog" aria-modal="true" aria-labelledby="fbModalTitle" aria-describedby="fbModalDesc" hidden>
+    <div class="fb-modal-backdrop" data-close></div>
+    <div class="fb-modal-card" tabindex="-1">
+      <span class="fb-modal-ico"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+      <h3 id="fbModalTitle">Feedback enviado!</h3>
+      <p id="fbModalDesc">Recebemos sua contribuição. Obrigado por ajudar a melhorar a Ecomme.</p>
+      <dl class="fb-modal-meta">
+        <div><dt>Protocolo</dt><dd id="fbModalProtocol">—</dd></div>
+        <div><dt>Status</dt><dd id="fbModalStatus">—</dd></div>
+      </dl>
+      <p class="fb-modal-note">Nem toda sugestão será implementada, mas todas são lidas pela equipe. Acompanhe o andamento em “Meus envios”.</p>
+      <div class="fb-modal-actions">
+        <button type="button" class="fb-btn fb-btn-primary" id="fbModalHistory">Ver meus envios</button>
+        <button type="button" class="fb-btn fb-btn-ghost" id="fbModalAnother">Enviar outro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- toast global (usado por showToast, como nas demais páginas) -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">✓</div>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script src="/files/scripts/imports.js"></script>
+  <script src="/feedback/script.js"></script>
+</body>
+</html>
