@@ -251,7 +251,7 @@ body.nobodyscroll { overflow: hidden; }
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
-    .vbtn:hover, .vbtn.on {border-color: var(--blue);color: var(--blue);/* background: var(--blue-dim); */}
+    .vbtn:hover, .vbtn.on {border-color: var(--blue);color: var(--blue);}
     .vbtn svg { width: 14px; height: 14px; fill: currentColor; }
 
     /* grid */
