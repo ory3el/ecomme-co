@@ -18,7 +18,7 @@ function updateLoginFavicon() {
   const faviconEl = document.getElementById('favicon');
   if (!faviconEl) return;
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  faviconEl.href = isDark ? '/images/favicon-light.png' : '/images/favicon-blue.png';
+  faviconEl.href = isDark ? '/images/favicon.png' : '/images/favicon.png';
 }
 
 function applyTheme(pref, opts) {
