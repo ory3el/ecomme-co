@@ -639,7 +639,7 @@ function productCardHtml(p, isPriority = false) {
       <div
         class="pcard"
         data-product-id="${p.id}"
-        onclick="openProduct('${p.id}')"
+        onclick="window.location.href='/product/${encodeURIComponent(String(p.id))}'"
       >
         <div class="pimg-wrap">
           <div
@@ -708,7 +708,7 @@ function productCardHtml(p, isPriority = false) {
     <div
       class="pcard"
       data-product-id="${p.id}"
-      onclick="openProduct('${p.id}')"
+      onclick="window.location.href='/product/${encodeURIComponent(String(p.id))}'"
     >
       <div class="pimg-wrap">
         <div
