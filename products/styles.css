@@ -35,6 +35,7 @@ body.nobodyscroll { overflow: hidden; }
       position: relative;
       overflow: hidden;
       border-bottom: 1px solid var(--border2);
+      display: none;
     }
     .page-hero::before {
       content: '';
@@ -147,6 +148,7 @@ body.nobodyscroll { overflow: hidden; }
     .stats-strip {
       background: var(--blue-bg);
       padding: 13px 28px;
+      display: none;
     }
     .stats-inner {
       max-width: 1440px; margin: 0 auto;
@@ -184,8 +186,9 @@ body.nobodyscroll { overflow: hidden; }
     }
     .tb-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 180px; }
     .tb-title {
-      font-family: 'Outfit', serif;
-      font-size: 22px; font-weight: 600;
+      /* font-family: 'Outfit', serif; */
+      font-size: 22px;
+      font-weight: 600;
     }
     .tb-count {
       background: var(--blue-dim); color: var(--blue);
@@ -248,7 +251,7 @@ body.nobodyscroll { overflow: hidden; }
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
-    .vbtn:hover, .vbtn.on { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+    .vbtn:hover, .vbtn.on {border-color: var(--blue);color: var(--blue);/* background: var(--blue-dim); */}
     .vbtn svg { width: 14px; height: 14px; fill: currentColor; }
 
     /* grid */
