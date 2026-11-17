@@ -12,12 +12,10 @@
       justify-content: center;
       margin: 10px;
       gap: 14px;
-      /* margin-bottom: 28px; */
       padding: 16px 22px;
-      background: var(--white);
+      background: var(--surface3);
       border: 1px solid var(--border2);
-      border-radius: var(--rad-lg);
-      /* box-shadow: var(--shadow); */
+      border-radius: 150px;
       flex-wrap: wrap;
     }
     .tb-left {display: flex;align-items: center;gap: 12px;flex: 1;min-width: 180px;}
@@ -38,10 +36,10 @@
       align-items: center;
       gap: 6px;
       /* background: var(--blue-dim); */
-      border: 1px solid var(--blue-deep);
+      border: 1px solid var(--border);
       color: var(--blue-deep);
       padding: 7px 16px;
-      border-radius: var(--radius);
+      border-radius: 150px;
       font-size: 12px;
       font-weight: 600;
       transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -64,6 +62,7 @@
     }
 
     .sort-sel {
+      display: none;
       background: var(--bg3);
       border: 1px solid var(--border);
       color: var(--text);
@@ -80,14 +79,19 @@
     }
     .sort-sel:focus { border-color: var(--blue); }
 
-    .view-btns { display: flex; gap: 4px; }
+    .view-btns {display: flex;gap: 2px;}
     .vbtn {
-      width: 34px; height: 34px; border-radius: var(--radius);
+      width: 34px;
+      height: 34px;
+      border-radius: 150px;
       border: 1px solid var(--border2);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); transition: border-color 0.2s, color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
-    .vbtn:hover, .vbtn.on {border-color: var(--blue-deep);color: var(--blue-deep);background: var(--blue-dim);}
+    .vbtn:hover, .vbtn.on {border-color: var(--border);color: var(--blue-deep);}
     .vbtn svg { width: 14px; height: 14px; fill: currentColor; }
 
     /* grid */
@@ -172,7 +176,7 @@
 
     /* card */
     .pcard {
-      background: var(--white);
+      background: var(--surface3);
       border: 1px solid var(--border2);
       border-radius: var(--rad-lg);
       overflow: hidden;
