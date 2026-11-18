@@ -12,9 +12,7 @@ const SORTS = {
   rat: 'rating.desc,id.asc',
   disc: 'discount.desc,id.asc',
   pop: 'reviews.desc,id.asc',
-  // A tabela products desta instalação não possui created_at. Ordenação por ID é
-  // determinística, mas não representa cronologia real porque os IDs são aleatórios.
-  new: 'id.desc',
+  new: 'created_at.desc,id.desc',
   name: 'name.asc,id.asc'
 };
 
@@ -68,7 +66,7 @@ export async function onRequest(context) {
   }
 
   const restUrl = new URL('/rest/v1/products', supabaseUrl);
-  const coreProductFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features';
+  const coreProductFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features,created_at';
   restUrl.searchParams.set('select', `${coreProductFields},brand`);
   restUrl.searchParams.set('order', SORTS[nameOnly ? 'name' : sort]);
 
