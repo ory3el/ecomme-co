@@ -119,12 +119,30 @@ window.ecommeFormatPrice =
     ).format(convertedValue);
   };
 
-async function syncEcommeDisplaySettings() {
+async function syncEcommeDisplaySettings(options = {}) {
+  const localOnly = options?.localOnly === true;
   try {
     const localRaw = localStorage.getItem('ecomme_settings');
     if (localRaw) {
       const localSettings = JSON.parse(localRaw);
       window.ecommeDisplaySettings = {...window.ecommeDisplaySettings, ...localSettings};
+    }
+
+    if (localOnly) {
+      const cachedRaw = localStorage.getItem('ecomme_currency_rates');
+      let hasCachedRates = false;
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw);
+        if (cached.rates?.USD > 0 && cached.rates?.EUR > 0) {
+          // Usa a última cotação disponível para evitar preço em branco no primeiro desenho.
+          window.ecommeCurrencyRates = cached.rates;
+          hasCachedRates = true;
+        }
+      }
+      const currency = window.ecommeDisplaySettings.currency || 'BRL';
+      if (currency === 'BRL') window.ecommeCurrencyRates.BRL = 1;
+      else if (!hasCachedRates) window.ecommeDisplaySettings.currency = 'BRL';
+      return;
     }
 
     if (typeof supabaseClient !== 'undefined') {
@@ -317,9 +335,24 @@ async function loadEcommeCurrentProductOnly() {
 
 // EXECUTE DATABASE
 window.addEventListener('DOMContentLoaded', async () => {
+    if (isEcommeProductDetailRoute()) {
+      // Usa primeiro apenas as preferências locais; consultas da conta/cotações ficam para depois do produto.
+      await syncEcommeDisplaySettings({ localOnly: true });
+      const syncAfterProduct = () => {
+        window.__ecommeDisplaySettingsPromise = syncEcommeDisplaySettings()
+          .then(() => {
+            if (typeof currentProduct !== 'undefined' && typeof refreshProductCurrencyDisplay === 'function') {
+              refreshProductCurrencyDisplay(currentProduct);
+            }
+          })
+          .catch(error => console.warn('Não foi possível atualizar as preferências de exibição:', error));
+      };
+      if (window.__ecommeProductContentReady) syncAfterProduct();
+      else window.addEventListener('ecomme:product-content-ready', syncAfterProduct, { once: true });
+      return;
+    }
+
     await syncEcommeDisplaySettings();
-    // A página de produto carrega apenas o produto atual e lotes incrementais de recomendações.
-    if (isEcommeProductDetailRoute()) return;
     const productsLoaded = await loadProductsFromSupabase();
     if (!productsLoaded) return;
     loadShuffleAndRender();
