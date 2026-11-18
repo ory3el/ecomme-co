@@ -1138,7 +1138,7 @@ async function duplicateProduct(id) {
     const copy = {
       id: await getUniqueProductId(), loja_id: myStoreId,
       name: String(p.name || '').slice(0, 110) + ' (cópia)',
-      cat: p.cat, price: p.price, desc: p.desc, shipping: p.shipping,
+      cat: p.cat, brand: p.brand || null, price: p.price, desc: p.desc, shipping: p.shipping,
       image_url: p.image_url, gallery_urls: p.gallery_urls,
       badge: 'paused', features: p.features || []
     };
@@ -1174,6 +1174,7 @@ function editProduct(id) {
   editingProductId = p.id;
 
   if ($('npName')) $('npName').value = p.name || '';
+  if ($('npBrand')) $('npBrand').value = p.brand || '';
   if ($('npDesc')) $('npDesc').value = p.desc || '';
   if ($('npPrice')) $('npPrice').value = fmtBRL(p.price);
   if ($('npStock')) $('npStock').value = ('stock' in p) ? prodStock(p) : '';
@@ -2508,6 +2509,7 @@ async function publishProduct() {
 
   const isEditing = editingProductId !== null && editingProductId !== '';
   const name = ($('npName')?.value || '').trim();
+  const brand = ($('npBrand')?.value || '').trim().slice(0, 80);
   const desc = ($('npDesc')?.value || '').trim();
   const price = parseBRL($('npPrice')?.value);
   const stockRaw = ($('npStock')?.value || '').trim();
@@ -2545,7 +2547,7 @@ async function publishProduct() {
 
     const catText = catSel.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();   // remove o emoji do texto da opção
     const productData = {
-      name, cat: [catText], price: Number(price.toFixed(2)), desc, shipping,
+      name, brand: brand || null, cat: [catText], price: Number(price.toFixed(2)), desc, shipping,
       image_url: finalUrls[0], gallery_urls: finalUrls,
       ...warrantyData
     };
@@ -2642,6 +2644,7 @@ function clearProductForm() {
   }
 
   if ($('npName')) $('npName').value = '';
+  if ($('npBrand')) $('npBrand').value = '';
   if ($('npPrice')) $('npPrice').value = '';
   if ($('npStock')) $('npStock').value = '';
   if ($('npCost')) $('npCost').value = '';
