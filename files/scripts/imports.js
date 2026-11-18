@@ -20,6 +20,7 @@
   const scripts = [
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
     '/files/scripts/auth-session-check.js',
+    '/files/scripts/product-badges.js',
     '/files/scripts/console-warning.js',
     '/files/scripts/loading.js',
     '/files/scripts/sidebars.js',
