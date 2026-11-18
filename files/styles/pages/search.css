@@ -1083,3 +1083,22 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2) }
   .search-spinner, .search-skeleton { animation: none; }
   .pimg-photo { transition: none; }
 }
+
+/* Filtros dinâmicos: controles alimentados pelas contagens reais do catálogo. */
+.rating-item { width:100%; border:0; background:transparent; color:inherit; font:inherit; text-align:left }
+.rating-radio { width:13px; height:13px; flex:0 0 13px; border:1.5px solid var(--border2); border-radius:50%; position:relative }
+.rating-item.on .rating-radio { border-color:var(--blue) }
+.rating-item.on .rating-radio::after { content:''; position:absolute; inset:3px; border-radius:50%; background:var(--blue) }
+.ship-opt { position:relative; text-align:left; width:100%; }
+.ship-info .ship-name { display:block; }
+.ship-count,.filter-count { color:var(--stone); font-size:10px; white-space:nowrap; }
+.filter-native-input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.filter-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; cursor:pointer; }
+.af-chip { border:1px solid var(--border2); cursor:pointer; font:inherit; }
+
+
+/* Search filters: disabled controls */
+.price-preset:disabled, input[type="range"]:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
