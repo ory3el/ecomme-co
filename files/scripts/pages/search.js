@@ -230,14 +230,8 @@ function onBrandChange(cb,brand){ if(cb.checked){addActiveFilter('Marca:'+brand,
 
 // rating
 function renderRatings(){
-  const rows=[{stars:5,count:1248,pct:72},{stars:4,count:389,pct:22},{stars:3,count:87,pct:5},{stars:2,count:18,pct:1},{stars:1,count:12,pct:0}];
-  document.getElementById('ratingList').innerHTML=rows.map(r=>`
-    <div class="rating-item" onclick="onRatingFilter(${r.stars},this)">
-      <input type="radio" name="rat" style="accent-color:var(--blue)">
-      <div class="stars-row">${Array.from({length:5},(x,i)=>`<span class="star ${i<r.stars?'on':'off'}">★</span>`).join('')}</div>
-      <span class="rat-count">(${r.count.toLocaleString('pt-BR')})</span>
-      <div class="rat-bar"><div class="rat-bar-fill" style="width:${r.pct}%"></div></div>
-    </div>`).join('');
+  const el = document.getElementById('ratingList');
+  if (el) el.innerHTML = '<div class="fs12 clr-stone">Carregando avaliações...</div>';
 }
 function onRatingFilter(n,el){ document.querySelectorAll('.rating-item').forEach(r=>r.classList.remove('on')); el.classList.add('on'); const data=PRODUCTS.filter(p=>p.rat>=n); renderGrid(data); addActiveFilter('Avaliação',`${n}+ ★`); }
 
@@ -420,15 +414,19 @@ function toast(msg,type='ok'){
 // O módulo search-results-live.js carrega resultados reais do Supabase.
 const urlParams = new URLSearchParams(window.location.search);
 const initialQuery = urlParams.get('q') || '';
-document.getElementById('searchInput').value = initialQuery;
-document.getElementById('pgrid').innerHTML = `
+const searchInputEl = document.getElementById('searchInput');
+if (searchInputEl) searchInputEl.value = initialQuery;
+const initialGrid = document.getElementById('pgrid');
+if (initialGrid) initialGrid.innerHTML = `
   <div class="search-loading" role="status" aria-live="polite">
     <span class="search-spinner" aria-hidden="true"></span>
     <span>Carregando produtos da Ecomme...</span>
   </div>
 `;
-document.getElementById('resultCount').textContent = 'Carregando...';
-document.getElementById('toolbarSub').textContent = 'Consultando catálogo...';
+const initialCount = document.getElementById('resultCount');
+if (initialCount) initialCount.textContent = 'Carregando...';
+const initialSub = document.getElementById('toolbarSub');
+if (initialSub) initialSub.textContent = 'Consultando catálogo...';
 
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeQV(); if(e.key==='/'&&e.target.tagName!=='INPUT'){e.preventDefault();document.getElementById('searchInput').focus();} });
-window.addEventListener('click',e=>{ if(!document.getElementById('qvOverlay').contains(e.target)) return; if(e.target===document.getElementById('qvOverlay')) closeQV(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQV(); if (e.key === '/' && e.target.tagName !== 'INPUT') { const input = document.getElementById('searchInput'); if (input) { e.preventDefault(); input.focus(); } } });
+window.addEventListener('click', e => { const overlay = document.getElementById('qvOverlay'); if (overlay && e.target === overlay) closeQV(); });
