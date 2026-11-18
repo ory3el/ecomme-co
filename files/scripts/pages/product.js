@@ -64,6 +64,52 @@ function waitForMainProductImage(timeout = 2200) {
 
 window.addEventListener('DOMContentLoaded', initProductPage, { once: true });
 
+function signalProductContentReady() {
+  if (window.__ecommeProductContentReady) return;
+  window.__ecommeProductContentReady = true;
+  window.dispatchEvent(new CustomEvent('ecomme:product-content-ready', {
+    detail: { productId: currentProduct ? String(currentProduct.id) : null }
+  }));
+}
+
+function startProductSecondaryTasks(product) {
+  if (!product) return;
+
+  const start = () => {
+    // Essas tarefas não bloqueiam o primeiro desenho das informações do produto.
+    Promise.resolve(updateOwnProductControls(product)).catch(error => {
+      console.warn('Não foi possível verificar a propriedade do produto:', error);
+    });
+
+    loadProductStoreDetails(product).catch(error => {
+      console.warn('Não foi possível carregar os dados da loja deste produto:', error);
+    });
+
+    if (!isUnavailableProduct(product)) {
+      loadProductReviews(product).catch(error => {
+        console.error('Não foi possível carregar as avaliações deste produto:', error);
+      });
+    }
+
+    const updateWishlistButtons = () => updateProductFavoriteButtons();
+    if (window.__ecommeWishlistReady) {
+      updateWishlistButtons();
+    } else {
+      window.addEventListener('ecomme:wishlist-ready', updateWishlistButtons, { once: true });
+    }
+
+    // Os produtos relacionados são secundários e podem aguardar a moeda/cotações.
+    Promise.resolve(window.__ecommeDisplaySettingsPromise)
+      .catch(() => {})
+      .then(() => renderRelatedProducts(product.id))
+      .catch(error => console.warn('Não foi possível carregar produtos relacionados:', error));
+  };
+
+  // Dá ao navegador a oportunidade de pintar o conteúdo principal antes das tarefas secundárias.
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => setTimeout(start, 0));
+  else setTimeout(start, 0);
+}
+
 async function initProductPage() {
   ensureProductReviewSearchUI();
   setProductPageLoading(true);
@@ -82,6 +128,7 @@ async function initProductPage() {
   } catch {
     showProductError('Link inválido', 'O endereço do produto não é válido.');
     setProductPageLoading(false);
+    signalProductContentReady();
     return;
   }
 
@@ -91,72 +138,42 @@ async function initProductPage() {
     }
 
     const loaded = await loadProductsFromSupabase();
+    if (loaded === false) throw new Error('O Supabase não conseguiu carregar o produto.');
 
-    if (loaded === false) {
-      throw new Error('O Supabase não conseguiu carregar os produtos.');
-    }
-
-    // As listas múltiplas usam wishlist_items, não apenas profiles.fav.
-    // Aguarda essa fonte para que o estado inicial dos corações seja correto.
-    if (window.EcommeWishlists && typeof window.EcommeWishlists.refresh === 'function') {
-      try {
-        await window.EcommeWishlists.refresh();
-      } catch (wishlistError) {
-        console.warn('Não foi possível sincronizar as listas de desejos:', wishlistError);
-      }
-    }
-
-    const list = typeof products !== 'undefined' && Array.isArray(products)
-      ? products
-      : [];
-
+    const list = typeof products !== 'undefined' && Array.isArray(products) ? products : [];
     const raw = list.find(p => String(p.id) === String(id));
 
     if (!raw) {
-      showProductError(
-        'Produto não encontrado',
-        'O produto foi removido ou o link está incorreto.'
-      );
+      showProductError('Produto não encontrado', 'O produto foi removido ou o link está incorreto.');
       return;
     }
 
-    currentProduct = typeof normalizeProduct === 'function'
-      ? normalizeProduct(raw)
-      : raw;
+    currentProduct = typeof normalizeProduct === 'function' ? normalizeProduct(raw) : raw;
 
-    // Confirma a propriedade antes de exibir ações de compra.
-    await updateOwnProductControls(currentProduct);
+    // Primeiro desenha somente o conteúdo essencial do produto.
     renderProductDetails(currentProduct);
-    initProductComparator();
-    loadProductStoreDetails(currentProduct).catch(error => {
-      console.warn('Não foi possível carregar os dados da loja deste produto:', error);
-    });
-    // Produtos pausados continuam públicos, mas não exibem nem consultam avaliações.
-    if (!isUnavailableProduct(currentProduct)) {
-      loadProductReviews(currentProduct).catch(error => {
-        console.error('Não foi possível carregar as avaliações deste produto:', error);
-      });
-    }
     renderProductGallery(currentProduct);
-    renderRelatedProducts(currentProduct.id);
     bindProductActions();
-    updateProductFavoriteButtons();
+    initProductComparator();
 
-    if (typeof updateCart === 'function') {
-      updateCart();
-    }
+    // Evita exibir ações de compra antes de confirmar se o usuário é dono da loja.
+    document.querySelector('.main-btns .btn-addcart')?.setAttribute('hidden', '');
+    document.querySelector('.main-btns .btn-buynow')?.setAttribute('hidden', '');
+    document.querySelector('.qty-action-row')?.setAttribute('hidden', '');
+    document.querySelector('.stock-bar-wrap')?.setAttribute('hidden', '');
 
     // Mantém o skeleton até a imagem principal carregar (com limite para não travar).
     await waitForMainProductImage();
   } catch (error) {
     console.error('Erro ao carregar página do produto:', error);
-
     showProductError(
       'Não foi possível carregar o produto',
       'Verifique sua conexão e tente novamente.'
     );
   } finally {
     setProductPageLoading(false);
+    signalProductContentReady();
+    startProductSecondaryTasks(currentProduct);
   }
 }
 
@@ -199,6 +216,20 @@ function priceText(value) {
         style: 'currency',
         currency: 'BRL'
       }).format(n);
+}
+
+function refreshProductCurrencyDisplay(product) {
+  if (!product) return;
+  const price = Number(product.price) || 0;
+  const old = Number(product.old) || 0;
+  setText('.info-price', priceText(price));
+  setText('.info-old', old > price ? priceText(old) : '');
+  const oldElement = document.querySelector('.info-old');
+  if (oldElement) oldElement.style.display = old > price ? '' : 'none';
+  const installment = document.querySelector('.info-installment');
+  if (installment) {
+    installment.innerHTML = `ou em <strong>10x de ${safeHtml(priceText(price / 10))}</strong> sem juros · via Pix <strong>5% de desconto</strong>`;
+  }
 }
 
 function categoryText(p) {
@@ -4288,6 +4319,10 @@ async function updateOwnProductControls(product) {
 
   productOwnershipVerified = false;
   currentProductIsOwnStore = false;
+  if (addButton) addButton.hidden = true;
+  if (buyButton) buyButton.hidden = true;
+  document.querySelector('.qty-action-row')?.setAttribute('hidden', '');
+  document.querySelector('.stock-bar-wrap')?.setAttribute('hidden', '');
 
   try {
     const ownStoreId = await getCurrentUserStoreId();
