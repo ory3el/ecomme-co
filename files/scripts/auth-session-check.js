@@ -110,6 +110,11 @@ function startSessionCheck() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const isProductDetailPage = /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
+  if (isProductDetailPage && !window.__ecommeProductContentReady) {
+    window.addEventListener('ecomme:product-content-ready', startSessionCheck, { once: true });
+    return;
+  }
   startSessionCheck();
 });
 
