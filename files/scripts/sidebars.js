@@ -901,8 +901,19 @@ function injectPrefetch(url) {
 // ============================================================
 
 // EXECUTE DATABASE
+function waitForProductContentReady() {
+  if (window.__ecommeProductContentReady) return Promise.resolve();
+  return new Promise(resolve => window.addEventListener('ecomme:product-content-ready', resolve, { once: true }));
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-    await syncEcommeDisplaySettings();
+    const isProductDetailPage = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
+    if (isProductDetailPage) {
+      // Adia inclusive a montagem das barras laterais até o produto principal estar disponível.
+      await waitForProductContentReady();
+    } else {
+      await syncEcommeDisplaySettings();
+    }
 	if (typeof injectEcommeUI === 'function') {
       await injectEcommeUI();
     }
@@ -912,11 +923,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     setupModalAutoPlay();
     const loginBtn = document.getElementById('authLoginBtn');
     const profileContainer = document.getElementById('headerProfileContainer');
-    const isProductDetailPage = typeof isEcommeProductDetailRoute === 'function' && isEcommeProductDetailRoute();
     const isCatalogPage = typeof isProductsCatalogRoute === 'function' && isProductsCatalogRoute();
-    const productsLoaded = (isProductDetailPage || isCatalogPage)
-      ? await loadProductsFromSupabase()
-      : true;
+
+    // /product já carregou o produto pelo script da própria página; não repete a consulta.
+    const productsLoaded = isCatalogPage ? await loadProductsFromSupabase() : true;
     if (!productsLoaded) return;
     if (!isProductDetailPage && !isCatalogPage) window.__ecommeProductsInitialLoadComplete = true;
 
@@ -930,6 +940,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         profileContainer.classList.add('hidden');
       }
       injectPrefetch('/login');
+      if (typeof updateCart === 'function') updateCart();
+      if (typeof updateFav === 'function') updateFav();
       return;
     }
 
@@ -971,6 +983,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // HEADER — inicializa também quando o HTML do cabeçalho é inserido dinamicamente.
 let headerAuthSubscription = null;
 let headerAvatarRequest = 0;
+let headerAuthWaitingForProduct = false;
 
 function getHeaderSupabaseClient() {
   try {
@@ -1033,6 +1046,19 @@ async function applyHeaderAuthState(session) {
 }
 
 function initHeaderAuthListener() {
+  // Usa o pathname diretamente porque este script é carregado antes de essentials.js.
+  const isProductDetailPage = /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
+  if (isProductDetailPage && !window.__ecommeProductContentReady) {
+    if (!headerAuthWaitingForProduct) {
+      headerAuthWaitingForProduct = true;
+      window.addEventListener('ecomme:product-content-ready', () => {
+        headerAuthWaitingForProduct = false;
+        initHeaderAuthListener();
+      }, { once: true });
+    }
+    return;
+  }
+
   const loginBtn = document.getElementById('authLoginBtn');
   const profileContainer = document.getElementById('headerProfileContainer');
   if (!loginBtn || !profileContainer) return;
