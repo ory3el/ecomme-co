@@ -418,8 +418,9 @@ function renderProductDetails(p) {
 
     if (p.badge === 'hot') {
       addBadge(badges, '🔥 Mais vendido', 'hot');
-    } else if (p.badge === 'new') {
+    } else if (p.badge === 'new' && window.EcommeProductBadges?.isNew(p)) {
       addBadge(badges, 'Novo Produto', 'hot');
+      badges.lastElementChild?.setAttribute('data-new-product-badge', String(p.id));
     } else if (productUnavailable) {
       addBadge(badges, 'Indisponível', 'hot');
     }
@@ -3464,6 +3465,7 @@ async function loadRelatedBatch(state) {
       }
 
       const rows = Array.isArray(page?.items) ? page.items : [];
+      if (window.EcommeProductBadges?.hydrate) await window.EcommeProductBadges.hydrate(rows.map(row => row?.product || row), supabaseClient);
       state.cursor = page?.cursor || null;
       state.exhausted = !page?.hasMore;
       state.scannedRows += rows.length;
@@ -3487,7 +3489,7 @@ async function loadRelatedBatch(state) {
       // Compatibilidade com projetos que ainda não aplicaram a RPC paginada.
       // Não volta ao count exact nem a SELECT *: usa um lote pequeno e cursor por ID.
       try {
-        const columns = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features';
+        const columns = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features,created_at';
         let fallbackQuery = supabaseClient.from('products')
           .select(columns)
           .order('id', { ascending: true })
@@ -3563,8 +3565,8 @@ function relatedProductCardHTML(product) {
 
   const badge = product.badge === 'hot'
     ? '<span class="bpill bhot">🔥 Hot</span>'
-    : product.badge === 'new'
-      ? '<span class="bpill bnew">Novo</span>'
+    : product.badge === 'new' && window.EcommeProductBadges?.isNew(product)
+      ? `<span class="bpill bnew" data-new-product-badge="${id}">Novo</span>`
       : Number(product.discount) > 0
         ? `<span class="bpill bsale">-${Number(product.discount)}%</span>`
         : '';
