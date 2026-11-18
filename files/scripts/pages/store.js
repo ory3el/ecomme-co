@@ -450,7 +450,7 @@ function renderProds() {
   const stars = rating => '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
   const badgeHtml = product => {
     if (product.badge === 'hot') return '<span class="pbadge ph">🔥 Hot</span>';
-    if (product.badge === 'new') return '<span class="pbadge pn">Novo</span>';
+    if (product.badge === 'new' && window.EcommeProductBadges?.isNew(product)) return `<span class="pbadge pn" data-new-product-badge="${escapeHtml(product.id)}">Novo</span>`;
     return product.discount > 0 ? `<span class="pbadge ps">-${product.discount}%</span>` : '';
   };
 
