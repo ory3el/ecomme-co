@@ -640,7 +640,7 @@ function offerCardHtml(product, index = 0) {
   const inWishlist = isSavedToWishlist(product.id);
   const oldPrice = product.old > product.price ? `<span class="oc-old">${fmt(product.old)}</span>` : '';
   const savings = product.old > product.price ? `<span class="oc-saving">Economize ${fmt(product.old - product.price)}</span>` : '';
-  const shippingBadge = product.shipping ? '<span class="oc-type-badge shipping">🚚 Frete grátis</span>' : (product.badge === 'new' ? '<span class="oc-type-badge daily">Novo</span>' : '<span class="oc-type-badge combo">Oferta verificada</span>');
+  const shippingBadge = product.shipping ? '<span class="oc-type-badge shipping">🚚 Frete grátis</span>' : (product.badge === 'new' && window.EcommeProductBadges?.isNew(product) ? `<span class="oc-type-badge daily" data-new-product-badge="${escapeHtml(product.id)}">Novo</span>` : '<span class="oc-type-badge combo">Oferta verificada</span>');
   const imageMarkup = image ? `<img data-src="${escapeHtml(image)}" alt="${name}" loading="lazy" decoding="async" width="480" height="480">` : `<span class="oc-fallback" aria-hidden="true">${escapeHtml(product.emoji)}</span>`;
   const ratingMarkup = product.rating > 0 ? `<div class="oc-rating"><i class="fa-regular fa-star" aria-hidden="true"></i><span>${product.rating.toFixed(1)}</span>${product.reviews > 0 ? `<small>(${product.reviews.toLocaleString('pt-BR')})</small>` : ''}</div>` : '<div class="oc-rating oc-no-rating">Ainda sem avaliações</div>';
   return `<article class="ocard" data-offer-card="${id}" style="animation-delay:${Math.min(index, 8) * 0.025}s" tabindex="0" role="button" aria-label="Ver ${name}">
@@ -771,7 +771,7 @@ function renderOffers({ append = false, addedProducts = null } = {}) {
     let matchesFilter = true;
     if (currentDealFilter === 'discount20') matchesFilter = product.discount >= 20;
     else if (currentDealFilter === 'frete') matchesFilter = product.shipping;
-    else if (currentDealFilter === 'novidades') matchesFilter = product.badge === 'new' || product.badge.includes('novo');
+    else if (currentDealFilter === 'novidades') matchesFilter = window.EcommeProductBadges?.isNew(product) || false;
     else if (currentDealFilter === 'avaliados') matchesFilter = product.rating >= 4 && product.reviews > 0;
     return matchesSearch && matchesFilter;
   };
@@ -838,10 +838,14 @@ function offersPageUrl(cursor = null) {
   if (cursor?.id != null) params.set('cursor_id', String(cursor.id));
   return `/api/catalog?${params.toString()}`;
 }
+async function hydrateOffersPage(page) {
+  if (window.EcommeProductBadges?.hydrate) await window.EcommeProductBadges.hydrate(page.items, getSupabaseClient());
+  return page;
+}
 async function requestOffersPage(cursor = null) {
   try {
     const response = await fetch(offersPageUrl(cursor), { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
-    if (response.ok) return parseOffersPage(await response.json());
+    if (response.ok) return hydrateOffersPage(parseOffersPage(await response.json()));
     if (![404, 503].includes(response.status)) throw new Error(`Catálogo de ofertas HTTP ${response.status}: ${(await response.text()).slice(0, 240)}`);
   } catch (error) {
     if (!(error instanceof TypeError) && !/Failed to fetch|NetworkError/i.test(String(error?.message || ''))) throw error;
@@ -855,7 +859,7 @@ async function requestOffersPage(cursor = null) {
     p_min_price: null, p_max_price: null, p_min_rating: null, p_colors: null
   });
   if (error) throw error;
-  return parseOffersPage(data);
+  return hydrateOffersPage(parseOffersPage(data));
 }
 function mergeOffersProducts(items) {
   const byId = new Map(products.map(item => [String(item.id), item]));
