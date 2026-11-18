@@ -43,8 +43,9 @@ function stars(r){
   return s;
 }
 
-function badgeHtml(b){
-  const map={hot:'<span class="pbadge pb-hot">🔥 Hot</span>',new:'<span class="pbadge pb-new">Novo</span>',sale:'<span class="pbadge pb-sale">Sale</span>',top:'<span class="pbadge pb-top">⭐ Top</span>'};
+function badgeHtml(b, createdAt, productId){
+  const map={hot:'<span class="pbadge pb-hot">🔥 Hot</span>',sale:'<span class="pbadge pb-sale">Sale</span>',top:'<span class="pbadge pb-top">⭐ Top</span>'};
+  if (b === 'new' && window.EcommeProductBadges?.isNew({ id: productId, badge: b, created_at: createdAt })) return `<span class="pbadge pb-new" data-new-product-badge="${String(productId || '')}">Novo</span>`;
   return map[b]||'';
 }
 
@@ -73,7 +74,7 @@ function renderGrid(data){
     return `<div class="pcard ${isFeat?'pcard-featured':''}" onclick="openQV(${p.id})" data-id="${p.id}">
       <div class="pimg-wrap">
         <div class="pimg">${p.em}</div>
-        <div class="pcard-badges">${badgeHtml(p.badge)}${p.ship?'<span class="pbadge pb-free">✈ Frete Grátis</span>':''}</div>
+        <div class="pcard-badges">${badgeHtml(p.badge,p.created_at,p.id)}${p.ship?'<span class="pbadge pb-free">✈ Frete Grátis</span>':''}</div>
         <button class="pcard-wish ${inW?'on':''}" onclick="event.stopPropagation();toggleWish(${p.id})">
           <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
