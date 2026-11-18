@@ -556,9 +556,9 @@ function productCardHtml(p, isPriority = false) {
         🔥 Hot
       </span>
     `;
-  } else if (p.badge === 'new') {
+  } else if (p.badge === 'new' && window.EcommeProductBadges?.isNew(p)) {
     badgeH = `
-      <span class="bpill bnew">
+      <span class="bpill bnew" data-new-product-badge="${p.id}">
         Novo
       </span>
     `;
@@ -799,7 +799,7 @@ const ECOMME_CATALOG_CACHE_TTL = 45 * 1000;
 const ECOMME_CATALOG_CACHE_PREFIX = 'ecomme:catalog:v4:';
 const ECOMME_CATALOG_SEED_KEY = 'ecomme:catalog:seed:v2';
 const ECOMME_CATALOG_INVALIDATION_KEY = 'ecomme:catalog:invalidate:v1';
-const ECOMME_CATALOG_CARD_SELECT = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features';
+const ECOMME_CATALOG_CARD_SELECT = 'id,name,cat,price,old,discount,rating,reviews,shipping,badge,desc,emoji,image_url,gallery_urls,features,created_at';
 let catalogServerMode = false;
 let catalogHasMore = false;
 let catalogCursor = null;
@@ -939,6 +939,11 @@ function normalizeCatalogPageResponse(data) {
   };
 }
 
+async function hydrateCatalogProductDates(items) {
+  if (window.EcommeProductBadges?.hydrate) await window.EcommeProductBadges.hydrate(items, supabaseClient);
+  return items;
+}
+
 function catalogPageEndpointUrl(state, cursor = null) {
   const params = new URLSearchParams();
   if (isCategoriesCatalogRoute()) params.set('mode', 'categories');
@@ -969,7 +974,9 @@ async function requestCatalogPage(state, cursor = null) {
       });
       if (response.ok) {
         catalogEdgeEndpointAvailable = true;
-        return normalizeCatalogPageResponse(await response.json());
+        const page = normalizeCatalogPageResponse(await response.json());
+        await hydrateCatalogProductDates(page.items);
+        return page;
       }
       // A rota/segredo pode ainda não ter sido implantado. Nesse caso, o RPC
       // direto continua funcionando e evita bloquear o catálogo durante deploy.
@@ -1011,7 +1018,9 @@ async function requestCatalogPage(state, cursor = null) {
   }
   const { data, error } = await supabaseClient.rpc(rpcName, rpcArgs);
   if (error) throw error;
-  return normalizeCatalogPageResponse(data);
+  const page = normalizeCatalogPageResponse(data);
+  await hydrateCatalogProductDates(page.items);
+  return page;
 }
 
 async function loadLegacyCatalogReduced() {
@@ -1058,6 +1067,7 @@ async function loadCatalogInitialInternal() {
   const cached = readCatalogCache(catalogCacheKey);
 
   if (cached) {
+    await hydrateCatalogProductDates(cached.items || []);
     catalogServerMode = true;
     window.__ecommeCatalogRpcReady = false;
     applyCatalogPage(cached.items, {
@@ -1181,6 +1191,7 @@ async function resetCatalogPage({ newSeed = false } = {}) {
   try {
     const cached = readCatalogCache(catalogCacheKey);
     if (cached) {
+      await hydrateCatalogProductDates(cached.items || []);
       applyCatalogPage(cached.items, { hasMore: cached.hasMore, cursor: cached.cursor || null, totalCount: cached.totalCount || 0 });
       renderProducts();
       requestCatalogPage(catalogState, null).then(page => {
