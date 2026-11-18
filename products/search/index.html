@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search | Ecomme</title>
+  <title>Pesquisa de produtos | Ecomme</title>
 	
   <link rel="icon" id="favicon" type="image/png" href="/images/favicon-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,30 +84,8 @@
         <button class="sf-clear" onclick="clearCatFilter()">Limpar</button>
       </div>
       <div class="sf-body" style="padding:10px 14px">
-        <div class="cat-list">
-          <button class="cat-btn on" onclick="filterByCat('Todos',this)">
-            <span class="cat-ico">🏷️</span><span class="cat-lbl">Todos</span><span class="cb-count">247</span>
-          </button>
-          <button class="cat-btn" onclick="filterByCat('Eletrônicos',this)">
-            <span class="cat-ico">💻</span><span class="cat-lbl">Eletrônicos</span><span class="cb-count">142</span>
-          </button>
-          <div class="cat-sub" id="sub-eletronicos">
-            <button class="cat-btn" onclick="filterByCat('Notebooks',this)"><span class="cat-ico">💻</span><span class="cat-lbl">Notebooks</span><span class="cb-count">89</span></button>
-            <button class="cat-btn" onclick="filterByCat('Chromebooks',this)"><span class="cat-ico">🖥️</span><span class="cat-lbl">Chromebooks</span><span class="cb-count">22</span></button>
-            <button class="cat-btn" onclick="filterByCat('Acessórios',this)"><span class="cat-ico">🖱️</span><span class="cat-lbl">Acessórios</span><span class="cb-count">31</span></button>
-          </div>
-          <button class="cat-btn" onclick="filterByCat('Periféricos',this)">
-            <span class="cat-ico">⌨️</span><span class="cat-lbl">Periféricos</span><span class="cb-count">45</span>
-          </button>
-          <button class="cat-btn" onclick="filterByCat('Mochilas',this)">
-            <span class="cat-ico">🎒</span><span class="cat-lbl">Mochilas p/ Notebook</span><span class="cb-count">28</span>
-          </button>
-          <button class="cat-btn" onclick="filterByCat('Suportes',this)">
-            <span class="cat-ico">🪑</span><span class="cat-lbl">Suportes & Stands</span><span class="cb-count">18</span>
-          </button>
-          <button class="cat-btn" onclick="filterByCat('Cabos',this)">
-            <span class="cat-ico">🔌</span><span class="cat-lbl">Cabos & Adaptadores</span><span class="cb-count">14</span>
-          </button>
+        <div class="cat-list" id="categoryList">
+          <div class="fs12 clr-stone">Carregando categorias do catálogo...</div>
         </div>
       </div>
     </div>
@@ -120,28 +98,28 @@
       </div>
       <div class="sf-body">
         <div class="price-range-vals">
-          <span id="priceMin">R$ 0</span>
-          <span id="priceMax">R$ 8.000</span>
+          <span id="priceMin">Carregando...</span>
+          <span id="priceMax">Carregando...</span>
         </div>
         <div style="position:relative;margin-bottom:6px">
-          <input type="range" id="rangeMin" min="0" max="8000" value="0" step="50" oninput="updatePriceRange()" style="position:relative;z-index:2;background:transparent">
+          <input type="range" id="rangeMin" min="0" max="1" value="0" step="1" disabled oninput="updatePriceRange()" style="position:relative;z-index:2;background:transparent">
         </div>
-        <input type="range" id="rangeMax" min="0" max="8000" value="8000" step="50" oninput="updatePriceRange()">
+        <input type="range" id="rangeMax" min="0" max="1" value="1" step="1" disabled oninput="updatePriceRange()">
         <div class="price-presets mt12">
-          <button class="price-preset" onclick="setPreset(0,500,this)">Até R$500</button>
-          <button class="price-preset" onclick="setPreset(500,1500,this)">R$500–1.5K</button>
-          <button class="price-preset" onclick="setPreset(1500,3000,this)">R$1.5–3K</button>
-          <button class="price-preset" onclick="setPreset(3000,8000,this)">Acima de R$3K</button>
+          <button class="price-preset" data-min="0" data-max="500" disabled onclick="setPreset(0,500,this)">Até R$500</button>
+          <button class="price-preset" data-min="500" data-max="1500" disabled onclick="setPreset(500,1500,this)">R$500–1.5K</button>
+          <button class="price-preset" data-min="1500" data-max="3000" disabled onclick="setPreset(1500,3000,this)">R$1.5–3K</button>
+          <button class="price-preset" data-min="3000" data-max="" disabled onclick="setPreset(3000,null,this)">Acima de R$3K</button>
         </div>
       </div>
     </div>
 
     <!-- Brands -->
-    <div class="sf-card">
+    <div class="sf-card" id="brandFilterCard">
       <div class="sf-hd"><div class="sf-title">Marcas</div></div>
       <div class="sf-body">
         <input class="brand-search" type="search" placeholder="🔍 Buscar marca..." id="brandSearch" oninput="filterBrands(this.value)">
-        <div class="brand-list" id="brandList"></div>
+        <div class="brand-list" id="brandList"><div class="fs12 clr-stone">Carregando marcas...</div></div>
       </div>
     </div>
 
@@ -149,7 +127,7 @@
     <div class="sf-card">
       <div class="sf-hd"><div class="sf-title">Avaliação</div></div>
       <div class="sf-body">
-        <div class="rating-list" id="ratingList"></div>
+        <div class="rating-list" id="ratingList"><div class="fs12 clr-stone">Carregando avaliações...</div></div>
       </div>
     </div>
 
@@ -157,56 +135,26 @@
     <div class="sf-card">
       <div class="sf-hd"><div class="sf-title">Envio</div></div>
       <div class="sf-body" style="padding:10px 14px">
-        <div class="ship-opts">
-          <div class="ship-opt" onclick="toggleShipOpt(this)">
-            <div class="ship-check"></div>
-            <div class="ship-info"><div class="ship-name">Frete Grátis</div><div style="font-size:10px;color:var(--stone)">Pedidos acima de R$199</div></div>
-            <span class="ship-badge sb-green">Grátis</span>
-          </div>
-          <div class="ship-opt" onclick="toggleShipOpt(this)">
-            <div class="ship-check"></div>
-            <div class="ship-info"><div class="ship-name">Entrega Expressa</div><div style="font-size:10px;color:var(--stone)">Receba em 2–4 dias</div></div>
-            <span class="ship-badge sb-blue">⚡</span>
-          </div>
-          <div class="ship-opt" onclick="toggleShipOpt(this)">
-            <div class="ship-check"></div>
-            <div class="ship-info"><div class="ship-name">Retirada em Loja</div><div style="font-size:10px;color:var(--stone)">Pontos parceiros SP</div></div>
-            <span class="ship-badge sb-blue">📍</span>
-          </div>
-        </div>
+        <label class="ship-opt" for="freeShippingFilter">
+          <span class="ship-check"></span>
+          <span class="ship-info"><span class="ship-name">Frete Grátis</span><span style="font-size:10px;color:var(--stone)">Produtos cadastrados com envio grátis</span></span>
+          <span class="ship-count" id="freeShippingCount">(…)</span>
+          <input type="checkbox" id="freeShippingFilter" class="filter-native-input">
+        </label>
       </div>
     </div>
 
-    <!-- Condition -->
+    <!-- Additional filters supported by product data -->
     <div class="sf-card">
-      <div class="sf-hd"><div class="sf-title">Condição</div></div>
-      <div class="sf-body">
-        <div class="cond-btns">
-          <button class="cond-btn on" onclick="toggleCond(this)">Todos</button>
-          <button class="cond-btn" onclick="toggleCond(this)">Novo</button>
-          <button class="cond-btn" onclick="toggleCond(this)">Seminovo</button>
-          <button class="cond-btn" onclick="toggleCond(this)">Reembalado</button>
-        </div>
-        <div style="margin-top:14px">
-          <div class="fs11 fw7 clr-slate mb8" style="text-transform:uppercase;letter-spacing:.8px">Mais filtros</div>
-          <div style="display:flex;flex-direction:column;gap:9px">
-            <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer">
-              <span>Apenas com desconto</span>
-              <label class="tog-wrap"><input type="checkbox" class="tog-inp"><div class="tog-lbl"></div></label>
-            </label>
-            <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer">
-              <span>Vendedor verificado</span>
-              <label class="tog-wrap"><input type="checkbox" class="tog-inp" checked><div class="tog-lbl"></div></label>
-            </label>
-            <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer">
-              <span>Parcelamento s/ juros</span>
-              <label class="tog-wrap"><input type="checkbox" class="tog-inp"><div class="tog-lbl"></div></label>
-            </label>
-          </div>
-        </div>
+      <div class="sf-hd"><div class="sf-title">Mais filtros</div></div>
+      <div class="sf-body" style="padding:10px 14px">
+        <label class="filter-toggle-row" for="discountFilter">
+          <span>Apenas com desconto <span class="filter-count" id="discountCount">(…)</span></span>
+          <span class="tog-wrap"><input type="checkbox" id="discountFilter" class="tog-inp"><span class="tog-lbl"></span></span>
+        </label>
+        <div class="fs11 clr-stone" style="margin-top:9px">Os filtros exibidos usam informações cadastradas nos produtos. Opções sem dados reais não são apresentadas.</div>
       </div>
     </div>
-
   </aside>
 
   <!-- ════ MAIN CONTENT ════ -->
@@ -238,7 +186,7 @@
         <select class="sort-sel" id="sortSel" onchange="doSort(this.value)">
           <option value="rel">Mais Relevantes</option>
           <option value="pop">Mais Populares</option>
-          <option value="new">Código do produto (Z–A)</option>
+          <option value="new">Mais recentes</option>
           <option value="asc">Menor Preço</option>
           <option value="desc">Maior Preço</option>
           <option value="rat">Melhor Avaliados</option>
