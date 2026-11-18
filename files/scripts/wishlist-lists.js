@@ -1173,6 +1173,8 @@
       renderSidebar();
       renderSettingsManager();
     }
+    window.__ecommeWishlistReady = true;
+    window.dispatchEvent(new Event('ecomme:wishlist-ready'));
     const client = db();
     let realtimeChannel = null;
     const connectRealtime = user => {
@@ -1196,6 +1198,15 @@
     state.initialized = true;
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
-  else initialize();
+  function startInitialization() {
+    const isProductDetailPage = /^\/product\/[^/]+\/?$/i.test(window.location.pathname);
+    if (isProductDetailPage && !window.__ecommeProductContentReady) {
+      window.addEventListener('ecomme:product-content-ready', initialize, { once: true });
+      return;
+    }
+    initialize();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startInitialization, { once: true });
+  else startInitialization();
 })();
