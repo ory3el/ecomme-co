@@ -114,9 +114,7 @@
       case 'pop':
         return builder.order('reviews', { ascending: false }).order('id', { ascending: true });
       case 'new':
-        // products não possui created_at nesta instalação; ID desc é somente uma ordem
-        // determinística, não uma garantia cronológica.
-        return builder.order('id', { ascending: false });
+        return builder.order('created_at', { ascending: false }).order('id', { ascending: false });
       default:
         return builder.order('id', { ascending: true });
     }
@@ -159,7 +157,7 @@
     }
 
     if (!client) return { data: [], count: 0, error: new Error('A biblioteca do Supabase não está disponível e a busca de borda não respondeu.') };
-    const coreFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features';
+    const coreFields = 'id,name,cat,price,old,discount,rating,reviews,shipping,stock,badge,desc,emoji,image_url,gallery_urls,features,created_at';
     const buildQuery = includeBrand => {
       let builder = client.from('products').select(includeBrand ? `${coreFields},brand` : coreFields, { count: 'exact' });
       if (categoryFallback === 'contains' && query.trim()) {
@@ -274,7 +272,7 @@
       const image = p.imageUrl
         ? `<img class="pimg-photo" src="${escapeHTML(p.imageUrl)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">`
         : '';
-      const badge = typeof window.badgeHtml === 'function' ? window.badgeHtml(p.badge) : '';
+      const badge = typeof window.badgeHtml === 'function' ? window.badgeHtml(p.badge, p.created_at, p.id) : '';
       const freeShipping = p.ship
         ? '<span class="pbadge pb-free">Frete grátis</span>'
         : '';
