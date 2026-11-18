@@ -27,7 +27,7 @@
       result = result.filter(product => {
         const badge = normalize(product.badge);
         if (state.tag === 'Sale') return Number(product.discount) > 0 || badge.includes('sale') || badge.includes('promo');
-        if (state.tag === 'Novo') return badge === 'new' || badge.includes('novo');
+        if (state.tag === 'Novo') return window.EcommeProductBadges?.isNew(product) || false;
         if (state.tag === 'Hot') return badge === 'hot' || badge.includes('best') || badge.includes('popular');
         if (state.tag === 'Frete Grátis') return Boolean(product.shipping);
         return true;
